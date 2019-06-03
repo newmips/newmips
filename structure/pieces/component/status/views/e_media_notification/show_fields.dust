@@ -2,31 +2,31 @@
     <div data-field="f_title" class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
             <label for="f_title">
-                {@__ key="entity.e_media_notification.f_title"/}
+                {#__ key="entity.e_media_notification.f_title"/}
                 &nbsp;
                 {@inline_help field="f_title"}
                 <i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
         </div>
     </div>
     <div data-field="f_description" class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
             <label for="f_description">
-                {@__ key="entity.e_media_notification.f_description"/}
+                {#__ key="entity.e_media_notification.f_description"/}
                 &nbsp;
                 {@inline_help field="f_description"}
                 <i data-field="f_description" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_description" /}' name="f_description" value="{f_description}" type="text" readonly="">
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_description" /}' name="f_description" value="{f_description}" type="text" readonly="">
         </div>
     </div>
     <div data-field="f_icon" class="col-xs-12 col-sm-12 col-md-6" style="">
         <div class="form-group">
             <label for="f_icon">
-                {@__ key="entity.e_media_notification.f_icon"/}
+                {#__ key="entity.e_media_notification.f_icon"/}
                 &nbsp;
                 {@inline_help field="f_icon"}
                 <i data-field="f_icon" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
@@ -39,18 +39,18 @@
     <div data-field="f_color" class="col-xs-12 col-sm-4 col-md-6" style="">
         <div class="form-group">
             <label for="f_color">
-                {@__ key="entity.e_media_notification.f_color"/}
+                {#__ key="entity.e_media_notification.f_color"/}
                 &nbsp;
                 {@inline_help field="f_color"}
                 <i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
         </div>
     </div>
     <div style="min-height: 75px;" class="emptySpaceColumn col-md-12 col-sm-12 col-xs-12 column">
         <hr>
-        <h4 class="box-title">{@__ key="component.status.notification_targets" /}</h4>
+        <h4 class="box-title">{#__ key="component.status.notification_targets" /}</h4>
         <div class="row">
             <div data-field="f_targets" class="col-xs-12 col-sm-6 col-md-4" style="">
                 <div class="form-group">
@@ -66,27 +66,27 @@
             <span>
                 <button class="btn btn-danger btn-confirm">
                 <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                <span>{@__ key="button.delete"/}</span>
+                <span>{#__ key="button.delete"/}</span>
                 </button>
                 <input name="id" type="hidden" value="{r_media_notification.id}" class="form-control">
             </span>
             <span>
                 <a href="/media/update_form?id={r_media_notification.id}" class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.update"/}</span>
+                    <span>{#__ key="button.update"/}</span>
                 </a>
             </span>
             {^hideButton}
             <span>
                 <a href="/media/create_form" class="btn btn-success">
                     <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.create"/}</span>
+                    <span>{#__ key="button.create"/}</span>
                 </a>
             </span>
             <span>
                 <a href="/media/list" type="submit" class="btn btn-primary">
                     <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.list"/}</span>
+                    <span>{#__ key="button.list"/}</span>
                 </a>
             </span>
             {/hideButton}

@@ -1,31 +1,31 @@
 {>"login_layout"/}
 {<content}
-    <div class="header">{@__ key="login.authentication"/}</div>
+    <div class="header">{#__ key="login.authentication"/}</div>
     <form action="/login" method="post">
         <div class="body bg-white">
             <center><img src="/img/logo_newmips.png" alt='Login logo' width="50%" height="50%"/></center>
         </div>
         {#message}
-            <div class="body bg-orange">{@__ key=. /}</div>
+            <div class="body bg-orange">{#__ key=. /}</div>
         {/message}
         <div class="body bg-gray">
             <div class="form-group">
-                <label for="login_user">{@__ key="login.login"/}</label>
-                <input type="text" name="login_user" placeholder='{@__ key="login.login"/}' class="form-control"/>
+                <label for="login_user">{#__ key="login.login"/}</label>
+                <input type="text" name="login_user" placeholder='{#__ key="login.login"/}' class="form-control"/>
             </div>
             <div class="form-group">
-                <label for="password_user">{@__ key="login.password"/}</label>
-                <input type="password" name="password_user" placeholder='{@__ key="login.password"/}' class="form-control"/>
+                <label for="password_user">{#__ key="login.password"/}</label>
+                <input type="password" name="password_user" placeholder='{#__ key="login.password"/}' class="form-control"/>
             </div>
             <div class="form-group">
-                <input type="checkbox" name="remember_me" value="yes"/>&nbsp; {@__ key="login.remember_me"/}
+                <input type="checkbox" name="remember_me" value="yes"/>&nbsp; {#__ key="login.remember_me"/}
                 <input id="redirect" name="redirect" type="hidden" value="undefined"/>
             </div>
         </div>
         <div class="footer">
-            <button type="submit" class="btn btn-primary btn-block">{@__ key="login.submit"/}</button>
-            <p><a href="/reset_password">{@__ key="login.reset_password.title"/}</a></p>
-            <p><a href="/first_connection">{@__ key="login.first_connection.title"/}</a></p>
+            <button type="submit" class="btn btn-primary btn-block">{#__ key="login.submit"/}</button>
+            <p><a href="/reset_password">{#__ key="login.reset_password.title"/}</a></p>
+            <p><a href="/first_connection">{#__ key="login.first_connection.title"/}</a></p>
         </div>
     </form>
 {/content}

@@ -1,9 +1,9 @@
 {>"layout_CODE_VALUE_MODULE"/}
 {<header}
-    <h1>{@__ key="module.CODE_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.CODE_VALUE_MODULE"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class="active">{@__ key="module.CODE_VALUE_MODULE"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+        <li class="active">{#__ key="module.CODE_VALUE_MODULE"/}</li>
     </ol>
 {/header}
 {<content}
@@ -12,7 +12,7 @@
             <form action="/URL_VALUE_CONTACT/settings" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{@__ key="entity.CODE_VALUE_CONTACT.settings"/}</h3>
+                        <h3 class="box-title">{#__ key="entity.CODE_VALUE_CONTACT.settings"/}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
@@ -20,7 +20,7 @@
                     </div>
                     <div class="box-body">
                         <div class="form-group" style="display: none;">
-                            <label for="id">{@__ key="entity.CODE_VALUE_CONTACT_settings.id_entity"/} {@__ key="entity.CODE_VALUE_CONTACT_settings.name_entity"/}</label>
+                            <label for="id">{#__ key="entity.CODE_VALUE_CONTACT_settings.id_entity"/} {#__ key="entity.CODE_VALUE_CONTACT_settings.name_entity"/}</label>
                             <input name="id" type="hidden" placeholder="{CODE_VALUE_CONTACT_settings.id_entity}" value="{CODE_VALUE_CONTACT_settings.id}" class="form-control input"/>
                             <input name="id_display" type="text" placeholder="{CODE_VALUE_CONTACT_settings.id_entity}" value="{CODE_VALUE_CONTACT_settings.id}" disabled="" class="form-control input"/>
                         </div>
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                     </div>
                     {#associationFlag}
                         <input type="hidden" name='associationFlag' value="{.}">

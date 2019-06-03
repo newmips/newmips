@@ -1,9 +1,9 @@
 {>"layout_m_administration"/}
 {<header}
-    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.m_administration"/}</a></li>
-        <li class="active">{@__ key="module.custom_module"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.m_administration"/}</a></li>
+        <li class="active">{#__ key="module.custom_module"/}</li>
     </ol>
     {/header}
     {<content}
@@ -12,7 +12,7 @@
                 <form action="/document_template/update" method="post">
                     <div class="box">
                         <div class="box-header">
-                            <h3 class="box-title">{@__ key="operation.update"/} {@__ key="entity.e_document_template.label_entity"/}</h3>
+                            <h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.e_document_template.label_entity"/}</h3>
                             <div class="box-tools pull-right">
                                 <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                                     <i class="fa fa-minus"></i></button>
@@ -20,7 +20,7 @@
                         </div>
                         <div class="box-body">
                             <div class="form-group">
-                                <label for="id">{@__ key="entity.e_document_template.id_entity"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {@__ key="entity.e_document_template.label_entity"/}</label>
+                                <label for="id">{#__ key="entity.e_document_template.id_entity"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {#__ key="entity.e_document_template.label_entity"/}</label>
                                 <input name="id" type="hidden" placeholder="{e_document_template.id_entity}" value="{e_document_template.id}" class="form-control input"/>
                                 <input name="id_display" type="text" placeholder="{e_document_template.id_entity}" value="{e_document_template.id}" disabled="" class="form-control input"/>
                             </div>
@@ -32,10 +32,10 @@
                             </div>
                         </div>
                         <div class="box-footer">
-                            <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                            <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                             &nbsp;&nbsp;
                             <a href="#" id="help">
-                                <button class="btn btn-default"><i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{@__ key="button.help"/}</span></button>
+                                <button class="btn btn-default"><i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span></button>
                             </a>
                         </div>
                         {#associationFlag}

@@ -2,7 +2,7 @@
     <div data-field="f_title" class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
             <label for="f_title" style="float:left;height: 60px;">
-                {@__ key="entity.e_media_notification.f_title"/}
+                {#__ key="entity.e_media_notification.f_title"/}
                 &nbsp;
                 {@inline_help field="f_title"}
                 <i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
@@ -16,19 +16,19 @@
                     <ul class="dropdown-menu">
                         <li>
                             <a class="insert" data-type="field">
-                                {@__ key="component.status.choose_from_field" /}
+                                {#__ key="component.status.choose_from_field" /}
                             </a>
                         </li>
                     </ul>
                 </div>
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text">
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text">
         </div>
     </div>
     <div data-field="f_description" class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
             <label for="f_description" style="float:left;height: 60px;">
-                {@__ key="entity.e_media_notification.f_description"/}
+                {#__ key="entity.e_media_notification.f_description"/}
                 &nbsp;
                 {@inline_help field="f_description"}
                 <i data-field="f_description" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
@@ -42,19 +42,19 @@
                     <ul class="dropdown-menu">
                         <li>
                             <a class="insert" data-type="field">
-                                {@__ key="component.status.choose_from_field" /}
+                                {#__ key="component.status.choose_from_field" /}
                             </a>
                         </li>
                     </ul>
                 </div>
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_description" /}' name="f_description" value="{f_description}" type="text">
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_description" /}' name="f_description" value="{f_description}" type="text">
         </div>
     </div>
     <div data-field="f_icon" class="col-xs-12 col-sm-12 col-md-6" style="">
         <div class="form-group">
             <label for="f_icon">
-                {@__ key="entity.e_media_notification.f_icon"/}
+                {#__ key="entity.e_media_notification.f_icon"/}
                 &nbsp;
                 {@inline_help field="f_icon"}
                 <i data-field="f_icon" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
@@ -65,7 +65,7 @@
             <i id="current-icon" data-current-icon="{f_icon}" class="fa {f_icon} fa-2x" style="margin-bottom: 5px;"></i>
             <div class="dropdown" style="width: 100%;">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {@__ key="notification.icon.choose" /}
+                    {#__ key="notification.icon.choose" /}
                 </button>
                 <div id="icons" class="dropdown-menu" style="max-height:250px;overflow-y: scroll;width:100%;">
                     <div class="input-group form-group">
@@ -79,19 +79,19 @@
     <div data-field="f_color" class="col-xs-12 col-sm-4 col-md-6" style="">
         <div class="form-group">
             <label for="f_color">
-                {@__ key="entity.e_media_notification.f_color"/}
+                {#__ key="entity.e_media_notification.f_color"/}
                 &nbsp;
                 {@inline_help field="f_color"}
                 <i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color">
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color">
         </div>
     </div>
 
     <div style="min-height: 75px;" class="emptySpaceColumn col-md-12 col-sm-12 col-xs-12 column">
         <hr>
-        <h4 class="box-title">{@__ key="component.status.notification_targets" /}</h4>
+        <h4 class="box-title">{#__ key="component.status.notification_targets" /}</h4>
         <div class="row">
             <div data-field="f_targets" class="col-xs-12 col-sm-12 col-md-12" style="">
                 <div class="form-group">
@@ -103,9 +103,9 @@
                             </button>
                             &nbsp;&nbsp;
                             <ul class="dropdown-menu">
-                                <li><a class="insert" data-type="user_target">{@__ key="component.status.choose_user_target" /}</a></li>
-                                <li><a class="insert" data-type="user">{@__ key="component.status.choose_from_user" /}</a></li>
-                                <li><a class="insert" data-type="group">{@__ key="component.status.choose_from_group" /}</a></li>
+                                <li><a class="insert" data-type="user_target">{#__ key="component.status.choose_user_target" /}</a></li>
+                                <li><a class="insert" data-type="user">{#__ key="component.status.choose_from_user" /}</a></li>
+                                <li><a class="insert" data-type="group">{#__ key="component.status.choose_from_group" /}</a></li>
                             </ul>
                         </div>
                     </label>

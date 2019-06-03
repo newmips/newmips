@@ -1,10 +1,10 @@
 {>"layout_m_administration"/}
 {<header}
-    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class='sub-module-arianne'>{@__ key="module.m_administration"/}</li>
-        <li class="active">{@__ key="entity.e_inline_help.label_entity"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+        <li class='sub-module-arianne'>{#__ key="module.m_administration"/}</li>
+        <li class="active">{#__ key="entity.e_inline_help.label_entity"/}</li>
     </ol>
 {/header}
 {<content}
@@ -13,7 +13,7 @@
             <form action="/inline_help/update" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{@__ key="operation.update"/} {@__ key="entity.e_inline_help.name_entity"/}</h3>
+                        <h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.e_inline_help.name_entity"/}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
@@ -21,7 +21,7 @@
                     </div>
                     <div class="box-body">
                         <div class="form-group">
-                            <label for="id">{@__ key="entity.e_inline_help.id_entity"/} {@__ key="entity.e_inline_help.name_entity"/}</label>
+                            <label for="id">{#__ key="entity.e_inline_help.id_entity"/} {#__ key="entity.e_inline_help.name_entity"/}</label>
                             <input name="id" type="hidden" placeholder="{e_inline_help.id_entity}" value="{e_inline_help.id}" class="form-control input"/>
                             <input name="id_display" type="text" placeholder="{e_inline_help.id_entity}" value="{e_inline_help.id}" disabled="" class="form-control input"/>
                         </div>
@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                     </div>
                     {#associationFlag}
                         <input type="hidden" name='associationFlag' value="{.}">

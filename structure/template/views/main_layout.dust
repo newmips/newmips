@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{@__ key="app.name"/}&nbsp;|&nbsp;{@__ key="module.home"/}</title>
+        <title>{#__ key="app.name"/}&nbsp;|&nbsp;{#__ key="module.home"/}</title>
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         {! ---------------- CSS ----------------  !}
         {! Bootstrap 3.0.3 !}
@@ -64,15 +64,15 @@
             <script>
                 var lang_user = "{lang_user}";
                 var id_user = "{session.passport.user.id}";
-                var SELECT_DEFAULT_TEXT = '{@__ key="select.default" /}';
-                var WAIT_UPLOAD_TEXT = '{@__ key="global_component.local_file_storage.wait_upload" /}';
-                var REQUIRED_FILE_TEXT = '{@__ key="global_component.local_file_storage.required_file" /}';
-                var DEL_CONFIRM_TEXT = '{@__ key="button.delete_confirm"/}';
+                var SELECT_DEFAULT_TEXT = '{#__ key="select.default" /}';
+                var WAIT_UPLOAD_TEXT = '{#__ key="global_component.local_file_storage.wait_upload" /}';
+                var REQUIRED_FILE_TEXT = '{#__ key="global_component.local_file_storage.required_file" /}';
+                var DEL_CONFIRM_TEXT = '{#__ key="button.delete_confirm"/}';
             </script>
             <header class="main-header">
                 <a href="/default/home" class="logo">
                     <span class="logo-mini"> - </span>
-                    <span class="logo-lg">{@__ key="app.name"/}</span>
+                    <span class="logo-lg">{#__ key="app.name"/}</span>
                 </a>
 
                 <nav class="navbar navbar-static-top">
@@ -114,7 +114,7 @@
                                             </li>
                                         {/notifications}
                                     </div>
-                                    <li class="footer delete-all"><a href="#">{@__ key="notification.deleteAll" /}</a></li>
+                                    <li class="footer delete-all"><a href="#">{#__ key="notification.deleteAll" /}</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown user user-menu">
@@ -138,16 +138,16 @@
                                     </li>
                                     {! Menu Body !}
                                     <li class="user-body">
-                                        <div class="col-xs-6 text-center"><a target="_blank" href="http://newmips.com">{@__ key="navbar.about"/}</a></div>
-                                        <div class="col-xs-6 text-center"><a target="_blank" href="http://newmips.com/contact">{@__ key="navbar.support"/}</a></div>
+                                        <div class="col-xs-6 text-center"><a target="_blank" href="http://newmips.com">{#__ key="navbar.about"/}</a></div>
+                                        <div class="col-xs-6 text-center"><a target="_blank" href="http://newmips.com/contact">{#__ key="navbar.support"/}</a></div>
                                     </li>
                                     {! Menu Footer !}
                                     <li class="user-footer">
                                         <div class="pull-left">
-                                            <a href="/user/settings" class="btn btn-default btn-flat">{@__ key="button.settings"/}</a>
+                                            <a href="/user/settings" class="btn btn-default btn-flat">{#__ key="button.settings"/}</a>
                                         </div>
                                         <div class="pull-right">
-                                            <a href="/logout" class="btn btn-default btn-flat">{@__ key="button.disconnect"/}</a>
+                                            <a href="/logout" class="btn btn-default btn-flat">{#__ key="button.disconnect"/}</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -193,9 +193,9 @@
                     </div>
                     <div class="modal-body"></div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{@__ key="button.close" /}</button>
-                        <button id="prevHelp" type="button" class="btn btn-primary">{@__ key="button.previous" /}</button>
-                        <button id="nextHelp" type="button" class="btn btn-primary">{@__ key="button.next" /}</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.close" /}</button>
+                        <button id="prevHelp" type="button" class="btn btn-primary">{#__ key="button.previous" /}</button>
+                        <button id="nextHelp" type="button" class="btn btn-primary">{#__ key="button.next" /}</button>
                     </div>
                 </div>
             </div>
@@ -208,7 +208,7 @@
                     <form action="/status_comment" method="post">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                            <h4 class="modal-title">{@__ key="entity.e_status.modal_title" /}</h4>
+                            <h4 class="modal-title">{#__ key="entity.e_status.modal_title" /}</h4>
                         </div>
                         <div class="modal-body">
                             <textarea name="comment"></textarea>
@@ -218,8 +218,8 @@
                             <input type="hidden" name="statusId">
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">{@__ key="button.close" /}</button>
-                            <button type="submit" class="btn btn-primary">{@__ key="button.save" /}</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.close" /}</button>
+                            <button type="submit" class="btn btn-primary">{#__ key="button.save" /}</button>
                         </div>
                     </form>
                 </div>
@@ -272,7 +272,7 @@
         {#toastr}
         <script>
             toastrArray.push({
-                message: '{@__ key=message/}',
+                message: '{#__ key=message/}',
                 level: "{level}"
             });
         </script>

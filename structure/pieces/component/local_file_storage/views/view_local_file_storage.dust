@@ -1,4 +1,4 @@
-<legend class="print-remove"> {@__ key="button.add"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/} </legend>
+<legend class="print-remove"> {#__ key="button.add"/}&nbsp;{#__ key="component.COMPONENT_NAME_LOWER.label_component"/} </legend>
 <form action="/COMPONENT_URL_NAME_LOWER/create" class="component-form ajax" data-component="COMPONENT_URL_NAME_LOWER" method="post">
 	<div class='dropzone dropzone_local_file_component' style="width:100%;" id='COMPONENT_NAME_LOWER_dropzone_component' data-source="SOURCE_LOWER" data-sourceId="{sourceId}" data-storage='local' data-component='COMPONENT_URL_NAME_LOWER' ></div>
 	<input type='hidden' name='f_name' id='COMPONENT_NAME_LOWER_dropzone_component_hidden_name' required>
@@ -6,16 +6,16 @@
 	<input type='hidden' name='SOURCE_LOWER' value="{sourceId}" required>
 	<input type="hidden" name="version" value="1" required>
 	<br>
-	<button type="submit" class="btn btn-primary">{@__ key="button.add"/}</button>
+	<button type="submit" class="btn btn-primary">{#__ key="button.add"/}</button>
 </form>
 <br class="print-remove">
 <br class="print-remove">
-<legend class="print-remove">{@__ key="operation.list"/}&nbsp;{@__ key="component.COMPONENT_NAME_LOWER.label_component"/}</legend>
+<legend class="print-remove">{#__ key="operation.list"/}&nbsp;{#__ key="component.COMPONENT_NAME_LOWER.label_component"/}</legend>
 <table id="table_COMPONENT_NAME_LOWER" class="dataTable table table-bordered table-striped" style="margin-bottom: 50px;">
 	<thead class="main">
 		<tr class="fields">
 			<th data-col="id">ID</th>
-			<th data-field="f_filename" data-col="f_filename">{@__ key="global_component.local_file_storage.filename"/}</th>
+			<th data-field="f_filename" data-col="f_filename">{#__ key="global_component.local_file_storage.filename"/}</th>
 			<th></th>
 			<th></th>
 		</tr>
@@ -34,7 +34,7 @@
 						<input type='hidden' value='{f_filename}' name='originalname'>
 						<button type="submit" class="btn btn-info">
 							<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
-							<span>{@__ key="button.download" /}</span>
+							<span>{#__ key="button.download" /}</span>
 						</button>
 					</form>
 				</td>
@@ -45,7 +45,7 @@
 						<input type='hidden' value='{sourceId}' name='idEntity'>
 						<button type="submit" class="btn btn-danger btn-confirm">
 							<i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
-							<span>{@__ key="button.delete" /}</span>
+							<span>{#__ key="button.delete" /}</span>
 						</button>
 					</form>
 				</td>

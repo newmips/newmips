@@ -1,4 +1,4 @@
-<label>{@__ key="component.COMPONENT_NAME.label_component"/}</label>
+<label>{#__ key="component.COMPONENT_NAME.label_component"/}</label>
 <section id='COMPONENT_NAME_fields' class='col-xs-12 section_c_address_fields' style="padding-top: 10px;">
     {@ifTrue key=componentAddressConfig.enableMaps}
     {@eq key=componentAddressConfig.mapsPosition value="top"}
@@ -48,5 +48,5 @@
     <input name="f_c_address_zoomBar" value="{componentAddressConfig.zoomBar}" id="f_c_address_zoomBar" type="hidden" class="print-not-remove f_c_address_zoomBar"/>
     <input name="f_c_address_mousePosition" value="{componentAddressConfig.mousePosition}" id="f_c_address_mousePosition" type="hidden" class="print-not-remove f_c_address_mousePosition"/>
     <input name="f_c_address_enableMaps" value="{componentAddressConfig.enableMaps}" id="f_c_address_enableMaps" type="hidden" class="print-not-remove f_c_address_enableMaps"/>
-    <input name="f_c_address_notValid" value='{@__ key="component.c_address_settings.addressNotValid"/}' id="f_c_address_notValid" type="hidden" class="print-not-remove f_c_address_notValid"/>
+    <input name="f_c_address_notValid" value='{#__ key="component.c_address_settings.addressNotValid"/}' id="f_c_address_notValid" type="hidden" class="print-not-remove f_c_address_notValid"/>
 </section>
