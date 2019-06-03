@@ -135,6 +135,35 @@
 			"f_content": "Contenu",
 			"f_entity": "Entité",
 			"f_field": "Champ"
-		}
+		},
+		"e_robot": {
+            "label_entity": "Robot",
+            "name_entity": "Robot",
+            "plural_entity": "Robot",
+            "id_entity": "ID",
+            "f_current_status": "Etat par défaut",
+            "f_name": "Nom",
+            "r_api_credentials": "Identifiants d'API",
+            "f_comment": "Commentaire"
+        },
+        "e_task": {
+            "label_entity": "Tâche",
+            "name_entity": "Tâche",
+            "plural_entity": "Tâche",
+            "id_entity": "ID",
+            "r_history_state": "Historique State",
+            "r_state": "Etat",
+            "s_state": "Etat",
+            "f_title": "Titre",
+            "f_type": "Type",
+            "f_planned_date": "Date prévue",
+            "f_execution_start_date": "Date début exécution",
+            "f_execution_finish_date": "Date fin exécution",
+            "f_duration": "Durée",
+            "f_data_flow": "Flux de données",
+            "r_robot": "Robot",
+            "f_program_file": "Fichier programme",
+            "f_procedure": "Procédure"
+        }
 	}
 }
