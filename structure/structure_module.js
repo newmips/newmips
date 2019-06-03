@@ -53,7 +53,7 @@ exports.setupModule = function (attr, callback) {
                     if (name_module.toLowerCase() != "m_home") {
                         var moduleAriane = "" +
                                 "<li class='active'>" +
-                                "   {@__ key=\"module." + name_module.toLowerCase() + "\"/}" +
+                                "   {#__ key=\"module." + name_module.toLowerCase() + "\"/}" +
                                 "</li>";
                         resultDust = resultDust.replace(/<!-- NEW MODULE -->/g, moduleAriane);
                     }
@@ -82,9 +82,9 @@ exports.setupModule = function (attr, callback) {
                                                 $("#dynamic_select").empty();
                                                 option = "";
                                                 for (var j = 0; j < modules.length; j++) {
-                                                    option += '{@moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}';
+                                                    option += '{#moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}';
                                                     option += '<option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + attrHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>';
-                                                    option += '{@__ key="module.' + modules[j].codeName.toLowerCase() + '" /}';
+                                                    option += '{#__ key="module.' + modules[j].codeName.toLowerCase() + '" /}';
                                                     option += '</option>';
                                                     option += '{/moduleAccess}';
                                                 }
@@ -175,27 +175,27 @@ exports.addNewMenuEntry = function (idApplication, nameDataEntity, urlDataEntity
     domHelper.read(fileName).then(function ($) {
         var li = '';
         // Create new html
-        li += '<!--{@entityAccess entity="' + urlDataEntity.toLowerCase() + '"}-->\n';
+        li += '<!--{#entityAccess entity="' + urlDataEntity.toLowerCase() + '"}-->\n';
         li += "     <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;' class='treeview'>\n";
         li += '         <a href="#">\n';
         li += '             <i class="fa fa-' + faIcon + '"></i>\n';
-        li += '             <span><!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}--></span>\n';
+        li += '             <span><!--{#__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}--></span>\n';
         li += '             <i class="fa fa-angle-left pull-right"></i>\n';
         li += '         </a>\n';
         li += '         <ul class="treeview-menu">\n';
-        li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
+        li += '             <!--{#actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
         li += '                 <li>\n';
         li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
         li += '                         <i class="fa fa-angle-double-right"></i>\n';
-        li += '                         <!--{@__ key="operation.create" /}--> \n';
+        li += '                         <!--{#__ key="operation.create" /}--> \n';
         li += '                     </a>\n';
         li += '                 </li>';
         li += '             <!--{/actionAccess}-->';
-        li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
+        li += '             <!--{#actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
         li += '                 <li>\n';
         li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
         li += '                         <i class="fa fa-angle-double-right"></i>\n';
-        li += '                         <!--{@__ key="operation.list" /}--> \n';
+        li += '                         <!--{#__ key="operation.list" /}--> \n';
         li += '                     </a>\n';
         li += '                 </li>\n';
         li += '             <!--{/actionAccess}-->';

@@ -1,26 +1,26 @@
 <div id='fields' class='c_address row'>
 	<div data-field='streetnumber' class='col-xs-12'>
 		<div class='form-group'>
-			<label for='streetnumber'> {@__ key="component.address.streetnumber"/} </label>
-			<input class='input form-control' placeholder='{@__ key="component.address.streetnumber"/}' name='streetnumber'>
+			<label for='streetnumber'> {#__ key="component.address.streetnumber"/} </label>
+			<input class='input form-control' placeholder='{#__ key="component.address.streetnumber"/}' name='streetnumber'>
 		</div>
 	</div>
 	<div data-field='streetname' class='col-xs-12'>
 		<div class='form-group'>
-			<label for='streetname'> {@__ key="component.address.streetname"/} </label>
-			<input class='input form-control' placeholder='{@__ key="component.address.streetname"/}' name='streetname'>
+			<label for='streetname'> {#__ key="component.address.streetname"/} </label>
+			<input class='input form-control' placeholder='{#__ key="component.address.streetname"/}' name='streetname'>
 		</div>
 	</div>
 	<div data-field='city' class='col-xs-12'>
 		<div class='form-group'>
-			<label for='city'> {@__ key="component.address.city"/} </label>
-			<input class='input form-control' placeholder='{@__ key="component.address.city"/}' name='city'>
+			<label for='city'> {#__ key="component.address.city"/} </label>
+			<input class='input form-control' placeholder='{#__ key="component.address.city"/}' name='city'>
 		</div>
 	</div>
 	<div data-field='zipcode' class='col-xs-12'>
 		<div class='form-group'>
-			<label for='zipcode'> {@__ key="component.address.zipcode"/} </label>
-			<input class='input form-control' placeholder='{@__ key="component.address.zipcode"/}' name='zipcode'>
+			<label for='zipcode'> {#__ key="component.address.zipcode"/} </label>
+			<input class='input form-control' placeholder='{#__ key="component.address.zipcode"/}' name='zipcode'>
 		</div>
 	</div>
 </div>

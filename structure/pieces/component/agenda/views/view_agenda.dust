@@ -16,18 +16,18 @@
 {/custom_css_2}
 {<header}
 	<h1>
-		{@__ key="module.m_home"/}
-		<small>{@__ key="module.module"/}</small>
+		{#__ key="module.m_home"/}
+		<small>{#__ key="module.module"/}</small>
 	</h1>
 	<ol class='breadcrumb'>
 		<li>
 			<a href='#'>
 				<i class='fa fa-home'></i>
-				{@__ key="module.home"/}
+				{#__ key="module.home"/}
 			</a>
 		</li>
 		<li class='active'>
-			{@__ key="module.m_home"/}
+			{#__ key="module.m_home"/}
 		</li>
 	</ol>
 {/header}
@@ -37,7 +37,7 @@
 		<div class='col-xs-12 col-md-3'>
 			<div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="global_component.agenda.add_event"/}</h3>
+                    <h3 class="box-title">{#__ key="global_component.agenda.add_event"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -45,22 +45,22 @@
                 </div>
                 <div class="box-body">
                 	<select style="width: 100%;" class="form-control selectCategoryColor" id="selectCategorySide">
-                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
+                		<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
 						{#categories}
 							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 						{/categories}
 					</select>
 					<div style="margin-top: 10px;" class="input-group">
-						<input id="new-event-title" type="text" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
+						<input id="new-event-title" type="text" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control"/>
 						<div class="input-group-btn">
-							<button id="add-new-event" type="button" class="btn btn-success btn-flat">{@__ key="button.add"/}</button>
+							<button id="add-new-event" type="button" class="btn btn-success btn-flat">{#__ key="button.add"/}</button>
 						</div>
 					</div>
                 </div>
             </div>
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="global_component.agenda.pending_event"/}</h3>
+                    <h3 class="box-title">{#__ key="global_component.agenda.pending_event"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -75,7 +75,7 @@
 		<div class='col-xs-12 col-md-9'>
 			<div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="component.CODE_NAME_LOWER.label_component" /}</h3>
+                    <h3 class="box-title">{#__ key="component.CODE_NAME_LOWER.label_component" /}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -98,20 +98,20 @@
 					<input type="hidden" id="modalCreateStartDate" >
 					<input type="hidden" id="modalCreateUser" >
 					<select style="width: 100%;" class="form-control selectCategoryColor" id="modalCreateCategory">
-						<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
+						<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
 						{#categories}
 							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 						{/categories}
 					</select>
 					<div style="margin-top: 10px;width: 100%;" class="input-group">
-						<input type="text" id="modalCreateTitle" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control" autofocus/>
+						<input type="text" id="modalCreateTitle" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control" autofocus/>
 					</div>
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
-						<label>{@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
+						<label>{#__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
 						<input class='form-control input' id="createEventAllDayCheckbox" type='checkbox'>
                 	</div>
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
-						<label>{@__ key="global_component.agenda.startHour"/}</label>
+						<label>{#__ key="global_component.agenda.startHour"/}</label>
                 		<div class='input-group'>
                 			<div class='input-group-addon'>
                 				<i class='fa fa-clock-o'></i>
@@ -120,7 +120,7 @@
                 		</div>
                 	</div>
                 	<div style="margin-top: 10px" class='bootstrap-timepicker'>
-						<label>{@__ key="global_component.agenda.endHour"/}</label>
+						<label>{#__ key="global_component.agenda.endHour"/}</label>
                 		<div class='input-group'>
                 			<div class='input-group-addon'>
                 				<i class='fa fa-clock-o'></i>
@@ -147,20 +147,20 @@
 					<input type="hidden" id="modalUpdateEventID" />
 					<input type="hidden" id="modalUpdateID" />
                 	<select style="width: 100%;" class="form-control selectCategoryColor" id="modalUpdateCategory">
-                		<option data-backgroundcolor="#CCCCCC" value="">{@__ key="global_component.agenda.no_category"/}</option>
+                		<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
 						{#categories}
 							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 						{/categories}
 					</select>
 					<div style="margin-top: 10px;width: 100%;" class="input-group">
-						<input type="text" id="modalUpdateTitle" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control" autofocus/>
+						<input type="text" id="modalUpdateTitle" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}' class="form-control" autofocus/>
 					</div>
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
-						<label>{@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
+						<label>{#__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
 						<input class='form-control input' id="updateEventAllDayCheckbox" type='checkbox'>
                 	</div>
                 	<div style="margin-top: 10px" class='bootstrap-timepicker'>
-						<label>{@__ key="global_component.agenda.startHour"/}</label>
+						<label>{#__ key="global_component.agenda.startHour"/}</label>
                 		<div class='input-group'>
                 			<div class='input-group-addon'>
                 				<i class='fa fa-clock-o'></i>
@@ -169,7 +169,7 @@
                 		</div>
                 	</div>
                 	<div style="margin-top: 10px" class='bootstrap-timepicker'>
-						<label>{@__ key="global_component.agenda.endHour"/}</label>
+						<label>{#__ key="global_component.agenda.endHour"/}</label>
                 		<div class='input-group'>
                 			<div class='input-group-addon'>
                 				<i class='fa fa-clock-o'></i>

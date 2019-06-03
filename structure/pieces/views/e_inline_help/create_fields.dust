@@ -3,9 +3,9 @@
         <div></div>
         <label for="f_entity" class="required">Entité </label>
         <select id="entitiesSelect" required="" name="f_entity" style="width: 100%;">
-            <option value="" default="">{@__ key="select.default" /}</option>
+            <option value="" default="">{#__ key="select.default" /}</option>
             {#entities}
-                <option value="{entity}">{@__ key=tradKey /}</option>
+                <option value="{entity}">{#__ key=tradKey /}</option>
             {/entities}
         </select>
     </div>
@@ -16,9 +16,9 @@
         <div id="select-{entity}">
             <label for="{entity}" class="required">Champs </label>
             <select class="entitiesFields regular-select" name="f_field" disabled style="width: 100%;">
-                <option value="" default="">{@__ key="select.default" /}</option>
+                <option value="" default="">{#__ key="select.default" /}</option>
                 {#fields}
-                    <option value="{entity}.{field}">{@__ key=tradKey /}</option>
+                    <option value="{entity}.{field}">{#__ key=tradKey /}</option>
                 {/fields}
             </select>
         </div>
@@ -27,8 +27,8 @@
 
     <div data-field="f_content" class="col-xs-12">
         <div class="form-group">
-            <label for="f_content"> {@__ key="entity.e_inline_help.f_content"/}  </label>
-            <textarea class="form-control textarea" placeholder='{@__ key="entity.e_inline_help.f_content" /}' name="f_content" id="f_content_textareaid" value="{f_content|s}" type="text">{f_content|s}</textarea>
+            <label for="f_content"> {#__ key="entity.e_inline_help.f_content"/}  </label>
+            <textarea class="form-control textarea" placeholder='{#__ key="entity.e_inline_help.f_content" /}' name="f_content" id="f_content_textareaid" value="{f_content|s}" type="text">{f_content|s}</textarea>
         </div>
     </div>
 </div>

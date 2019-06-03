@@ -2,40 +2,40 @@
     <div data-field="f_title" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_title" class="required">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.f_title"/}&nbsp;
                 {@inline_help field="f_title"}
                 <i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" maxlength="255" required="">
+            <input class="form-control input" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_title" /}' name="f_title" value="{f_title}" type="text" maxlength="255" required="">
         </div>
     </div>
     <div data-field="f_description" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_description">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.f_description"/}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.f_description"/}&nbsp;
                 {@inline_help field="f_description"}
                 <i data-field="f_description" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <textarea class="form-control textarea" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" type="text">{f_description|s}</textarea>
+            <textarea class="form-control textarea" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_description" /}' name="f_description" id="f_description_textareaid" type="text">{f_description|s}</textarea>
         </div>
     </div>
     <div data-field="f_place" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_place">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.f_place"/}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.f_place"/}&nbsp;
                 {@inline_help field="f_place"}
                 <i data-field="f_place" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text" maxlength="255">
+            <input class="form-control input" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text" maxlength="255">
         </div>
     </div>
     <div data-field="f_start_date" class="fieldLineHeight col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_start_date" class="required">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/}&nbsp;
                 {@inline_help field="f_start_date"}
                 <i data-field="f_start_date" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
@@ -45,14 +45,14 @@
                     <i class="fa fa-calendar"></i> +
                     <i class="fa fa-clock-o"></i>
                 </div>
-                <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' name="f_start_date" value="{f_start_date}" type="text" required="">
+                <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' name="f_start_date" value="{f_start_date}" type="text" required="">
             </div>
         </div>
     </div>
     <div data-field="f_end_date" class="fieldLineHeight col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_end_date">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/}&nbsp;
                 {@inline_help field="f_end_date"}
                 <i data-field="f_end_date" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
@@ -62,14 +62,14 @@
                     <i class="fa fa-calendar"></i> +
                     <i class="fa fa-clock-o"></i>
                 </div>
-                <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{@__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' name="f_end_date" value="{f_end_date}" type="text">
+                <input class="form-control input datetimepicker datetimepicker-toconvert" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' name="f_end_date" value="{f_end_date}" type="text">
             </div>
         </div>
     </div>
     <div data-field="f_all_day" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_all_day">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}&nbsp;
                 {@inline_help field="f_all_day"}
                 <i data-field="f_all_day" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
@@ -86,14 +86,14 @@
     <div data-field="f_category" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="r_category">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}&nbsp;
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.r_category" /}&nbsp;
                 {@inline_help field="r_category"}
                 <i data-field="r_category" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
             <select class="ajax form-control" name="r_category" data-source="agenda_category" data-using="f_label">
                 <option value="">
-                    {@__ key="select.default" /}
+                    {#__ key="select.default" /}
                 </option>
                 {#r_category}
                 <option value="{id}" selected="">{f_label|string}</option>
@@ -104,14 +104,14 @@
     <div data-field="f_users" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_users">
-                {@__ key="entity.CODE_NAME_EVENT_LOWER.r_users" /}
+                {#__ key="entity.CODE_NAME_EVENT_LOWER.r_users" /}
                 {@inline_help field="r_users"}
                 <i data-field="r_users" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
             <select multiple="" class="ajax form-control" name="r_users" data-source="user" data-using="f_login,f_email" style="width:100%;">
                 <option value="">
-                    {@__ key="select.default" /}
+                    {#__ key="select.default" /}
                 </option>
                 {#r_users}
                 <option value="{id}" selected="">{f_login|string} - {f_email|email}</option>

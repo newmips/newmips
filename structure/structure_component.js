@@ -67,7 +67,7 @@ function addTab(attr, file, newLi, newTabContent) {
                 tabs += '<div class="nav-tabs-custom" id="tabs">';
                 tabs += '   <!--{^hideTab}-->';
                 tabs += '	<ul class="nav nav-tabs">';
-                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{@__ key="entity.' + source + '.label_entity" /}</a></li>';
+                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{#__ key="entity.' + source + '.label_entity" /}</a></li>';
                 tabs += '	</ul>';
                 tabs += '   <!--{/hideTab}-->';
                 tabs += '	<div class="tab-content" style="min-height:275px;">';
@@ -176,7 +176,7 @@ exports.newLocalFileStorage = function (attr, callback) {
                         fs.mkdirSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName, 0766);
                         fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
 
-                        var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{@__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
+                        var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{#__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
 
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
@@ -203,7 +203,7 @@ exports.newPrint = function (attr, callback) {
     var showFieldsPath = __dirname + '/../workspace/' + idApp + '/views/' + entityLower + '/show_fields.dust';
 
     domHelper.read(showFieldsPath).then(function ($) {
-        var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{@__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
+        var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{#__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
 
         var tabContent = "";
         tabContent += "<div id='" + nameComponentLower + "' class='tab-pane ajax-tab fade' data-tabtype='print'>\n";
@@ -263,7 +263,7 @@ exports.newPrint = function (attr, callback) {
         tabContent += "            }";
         tabContent += "        }";
         tabContent += "     </style>\n";
-        tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{@__ key=\"global_component.print.action\"/}</button>\n";
+        tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{#__ key=\"global_component.print.action\"/}</button>\n";
         tabContent += "     <div id='" + nameComponent + "-content' class='ajax-content print-tab'>\n";
         tabContent += "     </div>\n";
         tabContent += "</div>\n";
@@ -424,35 +424,35 @@ exports.newContactForm = function (attr, callback) {
         $("#" + urlNameSettings + "_menu_item").remove();
 
         var li = '';
-        li += "<!--{@entityAccess entity=\"" + urlName + "\"}-->\n";
+        li += "<!--{#entityAccess entity=\"" + urlName + "\"}-->\n";
         li += "		<li id=\"" + urlName + "_menu_item\" style=\"display:block;\" class=\"treeview\">\n";
         li += "			<a href=\"#\">\n";
         li += "    			<i class=\"fa fa-envelope\"></i>\n";
-        li += "    			<span><!--{@__ key=\"entity." + codeName + ".label_entity\" /}--></span>\n";
+        li += "    			<span><!--{#__ key=\"entity." + codeName + ".label_entity\" /}--></span>\n";
         li += "    			<i class=\"fa fa-angle-left pull-right\"></i>\n";
         li += "			</a>\n";
         li += "			<ul class=\"treeview-menu\">\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"create\"}-->\n";
+        li += "    			<!--{#actionAccess entity=\"" + urlName + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/create_form\">\n";
         li += "            			<i class=\"fa fa-paper-plane\"></i>\n";
-        li += "            			<!--{@__ key=\"entity." + codeName + ".sendMail\" /}-->\n";
+        li += "            			<!--{#__ key=\"entity." + codeName + ".sendMail\" /}-->\n";
         li += "        			</a>\n";
         li += "    			</li>\n";
         li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlName + "\" action=\"read\"}-->\n";
+        li += "    			<!--{#actionAccess entity=\"" + urlName + "\" action=\"read\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/list\">\n";
         li += "            			<i class=\"fa fa-inbox\"></i>\n";
-        li += "            			<!--{@__ key=\"entity." + codeName + ".inbox\" /}-->\n";
+        li += "            			<!--{#__ key=\"entity." + codeName + ".inbox\" /}-->\n";
         li += "        			</a>\n";
         li += "    			</li>\n";
         li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{@actionAccess entity=\"" + urlNameSettings + "\" action=\"create\"}-->\n";
+        li += "    			<!--{#actionAccess entity=\"" + urlNameSettings + "\" action=\"create\"}-->\n";
         li += "    			<li>\n";
         li += "        			<a href=\"/" + urlName + "/settings\">\n";
         li += "            			<i class=\"fa fa-cog\"></i>\n";
-        li += "            			<!--{@__ key=\"entity." + codeName + ".settings\" /}-->\n";
+        li += "            			<!--{#__ key=\"entity." + codeName + ".settings\" /}-->\n";
         li += "        			</a>\n";
         li += "    			</li>\n";
         li += "    			<!--{/actionAccess}-->\n";
@@ -469,7 +469,7 @@ exports.newContactForm = function (attr, callback) {
             var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
             // Remove empty dust helper
-            layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+            layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
             var writeStream = fs.createWriteStream(layoutFileName);
             writeStream.write(layoutContent);
@@ -686,27 +686,27 @@ exports.newAgenda = function (attr, callback) {
                         var li = '';
                         li += "<li id='" + urlComponent + "_menu_item' style='display:block;' class='treeview'>\n";
                         li += "    <a href='#'>\n";
-                        li += "        <i class='fa fa-calendar-o'></i> <span><!--{@__ key=\"component." + valueComponentLower + ".label_component\" /}--></span>\n";
+                        li += "        <i class='fa fa-calendar-o'></i> <span><!--{#__ key=\"component." + valueComponentLower + ".label_component\" /}--></span>\n";
                         li += "            <i class='fa fa-angle-left pull-right'></i>\n";
                         li += "    </a>\n";
                         li += "    <ul class='treeview-menu'>\n";
-                        li += "        <li><a href='/" + urlComponent + "'><i class='fa fa-calendar'></i> <!--{@__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
+                        li += "        <li><a href='/" + urlComponent + "'><i class='fa fa-calendar'></i> <!--{#__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
                         li += "        <li id='" + urlEvent + "_menu_item' style='display:block;' class='treeview'>\n";
-                        li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n";
+                        li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n";
                         li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
                         li += "            </a>\n";
                         li += "            <ul class='treeview-menu'>\n";
-                        li += "                <li><a href='/" + urlEvent + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}-->&nbsp;<!--{@__ key=\"entity." + valueEvent + ".label_entity\" /}--></a></li>\n";
-                        li += "                <li><a href='/" + urlEvent + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}-->&nbsp;<!--{@__ key=\"entity." + valueEvent + ".plural_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlEvent + "/create_form'><i class='fa fa-plus'></i><!--{#__ key=\"operation.create\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlEvent + "/list'><i class='fa fa-list'></i><!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".plural_entity\" /}--></a></li>\n";
                         li += "            </ul>\n";
                         li += "        </li>\n";
                         li += "        <li id='" + urlCategory + "_menu_item' style='display:block;' class='treeview'>\n";
-                        li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n";
+                        li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n";
                         li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
                         li += "            </a>\n";
                         li += "            <ul class='treeview-menu'>\n";
-                        li += "                <li><a href='/" + urlCategory + "/create_form'><i class='fa fa-plus'></i><!--{@__ key=\"operation.create\" /}-->&nbsp;<!--{@__ key=\"entity." + valueCategory + ".label_entity\" /}--></a></li>\n";
-                        li += "                <li><a href='/" + urlCategory + "/list'><i class='fa fa-list'></i><!--{@__ key=\"operation.list\" /}-->&nbsp;<!--{@__ key=\"entity." + valueCategory + ".plural_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlCategory + "/create_form'><i class='fa fa-plus'></i><!--{#__ key=\"operation.create\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}--></a></li>\n";
+                        li += "                <li><a href='/" + urlCategory + "/list'><i class='fa fa-list'></i><!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".plural_entity\" /}--></a></li>\n";
                         li += "            </ul>\n";
                         li += "        </li>\n";
                         li += "    </ul>\n";
@@ -722,7 +722,7 @@ exports.newAgenda = function (attr, callback) {
                             var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
                             // Remove empty dust helper
-                            layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+                            layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
                             var writeStream = fs.createWriteStream(layoutFileName);
                             writeStream.write(layoutContent);
@@ -760,7 +760,7 @@ exports.deleteAgenda = function (attr, callback) {
             // Clean empty and useless dust helper created by removing <li>
             var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
             // Remove empty dust helper
-            layoutContent = layoutContent.replace(/{@entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+            layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
             var writeStream = fs.createWriteStream(layoutFileName);
             writeStream.write(layoutContent);
@@ -825,7 +825,7 @@ exports.newCra = function (attr, callback) {
             newLayoutLI += '<li>\n';
             newLayoutLI += '    <a href="/cra/declare">\n';
             newLayoutLI += '        <i class="fa fa-angle-double-right"></i>\n';
-            newLayoutLI += '        {@__ key="entity.e_cra.custom_button_declare" /}\n';
+            newLayoutLI += '        {#__ key="entity.e_cra.custom_button_declare" /}\n';
             newLayoutLI += '    </a>\n';
             newLayoutLI += '</li>\n';
             $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
@@ -946,7 +946,7 @@ exports.newStatus = function (attr, callback) {
                 // Add createdAt column in thead/tbody
                 var newTh = '';
                 newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
-                newTh += '    {@__ key="defaults.createdAt"/}\n';
+                newTh += '    {#__ key="defaults.createdAt"/}\n';
                 newTh += '</th>\n';
                 $(".fields").each(function () {
                     $(this).find("th:eq(0)").before(newTh);
@@ -994,7 +994,7 @@ exports.newStatus = function (attr, callback) {
                         var nextStatusHtml = '';
                         nextStatusHtml += '<div class="form-group">\n';
                         nextStatusHtml += '     {#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}\n';
-                        nextStatusHtml += '         {@checkStatusPermission status=.}\n';
+                        nextStatusHtml += '         {#checkStatusPermission status=.}\n';
                         nextStatusHtml += '             <a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">{f_name}</a>\n';
                         nextStatusHtml += '         {/checkStatusPermission}\n';
                         nextStatusHtml += '     {/' + statusAlias + '.r_children}\n';
@@ -1557,7 +1557,7 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var entity_path = __dirname + '/pieces/component/document_template/';
     var relationEntityShowFieldsFile = application_path + 'views' + '/' + source + '/show_fields.dust';
     //new entry for source relation view
-    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{@__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
+    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
     var sourceDoc = source.substring(2);
     sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);
@@ -1576,12 +1576,12 @@ function addMenuComponentAddressSettings(attr, urlDataEntity, callback) {
     domHelper.read(fileName).then(function ($) {
         var li = '';
         // Create new html
-        li += '<!--{@entityAccess entity="address_settings"}-->\n';
-        li += '     <!--{@actionAccess entity="address_settings" action="create"}-->';
+        li += '<!--{#entityAccess entity="address_settings"}-->\n';
+        li += '     <!--{#actionAccess entity="address_settings" action="create"}-->';
         li += "         <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;'>\n";
         li += '             <a href="/address_settings/config">\n';
         li += '                 <i class="fa fa-map-marker"></i>\n';
-        li += '                 <span><!--{@__ key="component.' + urlDataEntity.toLowerCase() + '.label_component" /}--></span>\n';
+        li += '                 <span><!--{#__ key="component.' + urlDataEntity.toLowerCase() + '.label_component" /}--></span>\n';
         li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
         li += '             </a>\n';
         li += '         </li>\n';
