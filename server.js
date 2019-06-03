@@ -150,14 +150,23 @@ var options = {
 
 if(dbConfig.dialect == "mysql")
     var sessionStore = new SessionStore(options);
-
 if(dbConfig.dialect == "postgres"){
     var pgPool = new pg.Pool(options);
+    pgPool.connect((err, client, done) => {
+        if (err) {console.error(err);}
+        client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'session\');', (err, res) => {
+            if (err) {console.log(err.stack)} else if(!res.rows[0].exists) {
+                // Postgres session table do not exist, creating it...
+                client.query(fs.readFileSync(__dirname + "/sql/04-session-for-postgres.sql", "utf8"), (err, res) => {
+                    if (err) {console.log(err)} else {console.log("Postgres session table created !");}
+                });
+            }
+        })
+    })
     var sessionStore = new SessionStore({
         pool: pgPool
     });
 }
-
 app.use(session({
     store: sessionStore,
     cookieName: 'newmipsCookie',
@@ -167,7 +176,6 @@ app.use(session({
     maxAge: 360 * 5,
     key: 'newmipsCookie'
 }));
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
