@@ -2,11 +2,11 @@
     <thead class="main">
         <tr class="fields">
             <th data-field="id" data-col="id">
-                {@__ key="entity.e_api_credentials.id_entity"/}&nbsp;
-                {@__ key="entity.e_api_credentials.label_entity"/}
+                {#__ key="entity.e_api_credentials.id_entity"/}&nbsp;
+                {#__ key="entity.e_api_credentials.label_entity"/}
             </th>
             <th data-field="f_client_name" data-col="f_client_name" data-type="string">
-                {@__ key="entity.e_api_credentials.f_client_name"/}
+                {#__ key="entity.e_api_credentials.f_client_name"/}
             </th>
             <th></th>
             <th></th>
@@ -16,11 +16,11 @@
     <thead class="filters">
         <tr class="fields">
             <th data-field="id" data-col="id">
-                {@__ key="entity.e_api_credentials.id_entity"/}&nbsp;
-                {@__ key="entity.e_api_credentials.label_entity"/}
+                {#__ key="entity.e_api_credentials.id_entity"/}&nbsp;
+                {#__ key="entity.e_api_credentials.label_entity"/}
             </th>
             <th data-field="f_client_name" data-col="f_client_name" data-type="string">
-                {@__ key="entity.e_api_credentials.f_client_name"/}
+                {#__ key="entity.e_api_credentials.f_client_name"/}
             </th>
             <th></th>
             <th></th>

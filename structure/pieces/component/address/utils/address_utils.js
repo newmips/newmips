@@ -13,9 +13,9 @@ exports.generateFields = function (componentName, componentCodeName) {
             }
         }
     };
-    var createHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br><br>\n' +
+    var createHtml = '<label>{#__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br><br>\n' +
             "    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields '>\n";
-    var updateHtml = '<label>{@__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br>' +
+    var updateHtml = '<label>{#__ key="component.' + componentCodeName + '.label_component"/}</label>&nbsp;&nbsp;<a href="#" id="info_c_address_maps"><i class="fa fa-info-circle"></i></a><br>' +
             "<br>\n    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_c_address_fields'>\n";
     var showFieldsHtml = '';
     var headers = '';
@@ -31,7 +31,7 @@ exports.generateFields = function (componentName, componentCodeName) {
         createHtml += "                    <div class='input-group-addon'>\n";
         createHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
         createHtml += "                    </div>\n";
-        createHtml += "                    <input class='input form-control c_address_search_area' id='c_address_search_area'  type='text' name='f_c_address_search_area' placeholder='{@__ key=\"component." + componentCodeName + ".search\"/}' >\n";
+        createHtml += "                    <input class='input form-control c_address_search_area' id='c_address_search_area'  type='text' name='f_c_address_search_area' placeholder='{#__ key=\"component." + componentCodeName + ".search\"/}' >\n";
         createHtml += "                </div>\n";
         createHtml += "            </div>\n";
         createHtml += "            <hr>\n";
@@ -43,7 +43,7 @@ exports.generateFields = function (componentName, componentCodeName) {
         updateHtml += "                    <div class='input-group-addon'>\n";
         updateHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
         updateHtml += "                    </div>\n";
-        updateHtml += "                    <input class='input form-control c_address_search_area' id='c_address_search_area'  type='text' name='f_c_address_search_area' placeholder='{@__ key=\"component." + componentCodeName + ".search\"/}' >\n";
+        updateHtml += "                    <input class='input form-control c_address_search_area' id='c_address_search_area'  type='text' name='f_c_address_search_area' placeholder='{#__ key=\"component." + componentCodeName + ".search\"/}' >\n";
         updateHtml += "                </div>\n";
         updateHtml += "                <input class='input form-control'  type='hidden'  name='c_address_id' value='{c_address.id}' >\n";
         updateHtml += "            </div>\n";
@@ -114,28 +114,28 @@ exports.generateFields = function (componentName, componentCodeName) {
 
             createHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_create + "'>\n"
             createHtml += "            <div class='form-group'>\n";
-            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            createHtml += "                <input class='input form-control c_address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >\n";
+            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            createHtml += "                <input class='input form-control c_address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{#__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >\n";
             createHtml += "            </div>\n";
             createHtml += "        </div>\n";
             // Update
             updateHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_udpate + "'>\n"
             updateHtml += "            <div class='form-group'>\n";
-            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            updateHtml += "                <input class='input form-control c_address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">\n";
+            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            updateHtml += "                <input class='input form-control c_address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{c_address." + dbcolumn + "}' placeholder='{#__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">\n";
             updateHtml += "            </div>\n";
             updateHtml += "        </div>\n";
             // Show
             showFieldsHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_show + "'>\n";
             showFieldsHtml += "            <div class='form-group'>\n";
-            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
-            showFieldsHtml += "                <input class='input form-control " + dbcolumn + " ' value='{c_address." + dbcolumn + "}' placeholder='{@__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
+            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            showFieldsHtml += "                <input class='input form-control " + dbcolumn + " ' value='{c_address." + dbcolumn + "}' placeholder='{#__ key=\"component." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
             showFieldsHtml += "            </div>\n";
             showFieldsHtml += "        </div>\n";
             // Headers
 
             var header = '<th data-field="c_address.' + dbcolumn + '" data-col="c_address.' + dbcolumn + '">\n';
-            header += '    {@__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}\n';
+            header += '    {#__ key="component.' + componentCodeName + '.' + dbcolumn + '"/}\n';
             header += '</th>\n';
             var td = '\t\t<td data-field="c_address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
 
@@ -145,7 +145,7 @@ exports.generateFields = function (componentName, componentCodeName) {
             //build fields for parent table 
             if (attributeKey === 'label') {
                 singleHeader = '<th data-field="c_address" data-col="c_address.' + dbcolumn + '" data-type="string">'
-                        + '{@__ key="component.' + componentCodeName + '.label_component"/}'
+                        + '{#__ key="component.' + componentCodeName + '.label_component"/}'
                         + '</th>';
                 singleTD = '<td data-field="c_address">' + '{c_address.' + dbcolumn + '}</td>\n';
             }

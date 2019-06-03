@@ -186,27 +186,27 @@ exports.setupDataEntity = function (attr, callback) {
         domHelper.read(fileName).then(function ($) {
             var li = '';
             // Create new html
-            li += '<!--{@entityAccess entity="' + urlDataEntity.toLowerCase() + '"}-->\n';
+            li += '<!--{#entityAccess entity="' + urlDataEntity.toLowerCase() + '"}-->\n';
             li += "     <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:" + displaySidebar + ";' class='treeview'>\n";
             li += '         <a href="#">\n';
             li += '             <i class="fa fa-folder"></i>\n';
-            li += '             <span><!--{@__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}--></span>\n';
+            li += '             <span><!--{#__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}--></span>\n';
             li += '             <i class="fa fa-angle-left pull-right"></i>\n';
             li += '         </a>\n';
             li += '         <ul class="treeview-menu">\n';
-            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
+            li += '             <!--{#actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
-            li += '                         <!--{@__ key="operation.create" /}--> \n';
+            li += '                         <!--{#__ key="operation.create" /}--> \n';
             li += '                     </a>\n';
             li += '                 </li>';
             li += '             <!--{/actionAccess}-->';
-            li += '             <!--{@actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
+            li += '             <!--{#actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
             li += '                 <li>\n';
             li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
             li += '                         <i class="fa fa-angle-double-right"></i>\n';
-            li += '                         <!--{@__ key="operation.list" /}--> \n';
+            li += '                         <!--{#__ key="operation.list" /}--> \n';
             li += '                     </a>\n';
             li += '                 </li>\n';
             li += '             <!--{/actionAccess}-->';
@@ -237,7 +237,7 @@ exports.setupDataEntity = function (attr, callback) {
             var htmlToAdd = "" +
                     "<li>" +
                     "   <a class='sub-module-arianne' href='/default/" + nameModule.toLowerCase().substring(2) + "'>" +
-                    "       {@__ key=\"module." + nameModule.toLowerCase() + "\"/}" +
+                    "       {#__ key=\"module." + nameModule.toLowerCase() + "\"/}" +
                     "   </a>" +
                     "</li>";
 

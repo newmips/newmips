@@ -385,7 +385,7 @@ exports.createWidget = function(attr, callback) {
                 // Create widget's html
                 var newHtml = "";
                 newHtml += "<div id='"+widgetElemId+"' class='col-sm-3 col-xs-12'>\n";
-                newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+                newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
                 newHtml +=      $2("body")[0].innerHTML+"\n";
                 newHtml += '<!--{/entityAccess}-->';
                 newHtml += "</div>";
@@ -435,7 +435,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
             newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
-            newHtml += '<!--{@entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
             newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += '<!--{/entityAccess}-->';
             newHtml += "</div>";
@@ -451,7 +451,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
                         var field = attr.columns[i].codeName.toLowerCase();
                         var type = $list('[data-field="'+field+'"]').data('type');
                         var col = $list('[data-field="'+field+'"]').data('col')
-                        thead += '<th data-type="'+type+'" data-col="'+col+'"><!--{@__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
+                        thead += '<th data-type="'+type+'" data-col="'+col+'"><!--{#__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
                         tbody += '<td data-type="'+type+'" data-col="'+col+'">{'+field+'}</td>';
                     }
                     thead += '</tr></thead>';

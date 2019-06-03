@@ -1,9 +1,9 @@
 {>"layout_m_COMPONENT_VALUE_MODULE"/}
 {<header}
-    <h1>{@__ key="module.COMPONENT_VALUE_MODULE"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.COMPONENT_VALUE_MODULE"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.COMPONENT_VALUE_MODULE"/}</a></li>
-        <li class="active">{@__ key="module.custom_module"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.COMPONENT_VALUE_MODULE"/}</a></li>
+        <li class="active">{#__ key="module.custom_module"/}</li>
     </ol>
 {/header}
 {<content}
@@ -12,7 +12,7 @@
             <form action="/URL_COMPONENT_ADDRESS/update" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{@__ key="operation.update"/} {@__ key="component.c_address.name_component"/}</h3>
+                        <h3 class="box-title">{#__ key="operation.update"/} {#__ key="component.c_address.name_component"/}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
@@ -20,7 +20,7 @@
                     </div>
                     <div class="box-body">
                         <div class="form-group">
-                            <label for="id">{@__ key="component.c_address.id_component"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {@__ key="component.c_address.name_component"/}</label>
+                            <label for="id">{#__ key="component.c_address.id_component"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {#__ key="component.c_address.name_component"/}</label>
                             <input name="id" type="hidden" placeholder="{c_address.id_component}" value="{COMPONENT_NAME.id}" class="form-control input"/>
                             <input name="id_display" type="text" placeholder="{c_address.id_component}" value="{COMPONENT_NAME.id}" disabled="" class="form-control input"/>
                         </div>
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                     </div>
                     {#associationFlag}
                         <input type="hidden" name='associationFlag' value="{.}">

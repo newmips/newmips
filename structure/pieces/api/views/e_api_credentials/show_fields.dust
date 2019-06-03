@@ -1,26 +1,26 @@
 <div id="fields" class="row">
     <div data-field="f_client_name" class="col-xs-12">
         <div class="form-group">
-            <label for="f_client_name"> {@__ key="entity.e_api_credentials.f_client_name"/} {@inline_help field="f_client_name"}&nbsp;<i data-field="f_client_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text" readonly="">
+            <label for="f_client_name"> {#__ key="entity.e_api_credentials.f_client_name"/} {@inline_help field="f_client_name"}&nbsp;<i data-field="f_client_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text" readonly="">
         </div>
     </div>
     <div data-field="f_client_key" class="col-xs-12">
         <div class="form-group">
-            <label for="f_client_key"> {@__ key="entity.e_api_credentials.f_client_key"/} {@inline_help field="f_client_key"}&nbsp;<i data-field="f_client_key" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_key" /}' name="f_client_key" value="{f_client_key}" type="text" readonly="">
+            <label for="f_client_key"> {#__ key="entity.e_api_credentials.f_client_key"/} {@inline_help field="f_client_key"}&nbsp;<i data-field="f_client_key" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_api_credentials.f_client_key" /}' name="f_client_key" value="{f_client_key}" type="text" readonly="">
         </div>
     </div>
     <div data-field="f_client_secret" class="col-xs-12">
         <div class="form-group">
-            <label for="f_client_secret"> {@__ key="entity.e_api_credentials.f_client_secret"/} {@inline_help field="f_client_secret"}&nbsp;<i data-field="f_client_secret" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{@__ key="entity.e_api_credentials.f_client_secret" /}' name="f_client_secret" value="{f_client_secret}" type="text" readonly="">
+            <label for="f_client_secret"> {#__ key="entity.e_api_credentials.f_client_secret"/} {@inline_help field="f_client_secret"}&nbsp;<i data-field="f_client_secret" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_api_credentials.f_client_secret" /}' name="f_client_secret" value="{f_client_secret}" type="text" readonly="">
         </div>
     </div>
     <div data-field="f_role" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_role">
-                {@__ key="entity.e_api_credentials.r_role" /}
+                {#__ key="entity.e_api_credentials.r_role" /}
                 {@inline_help field="r_role"}
                 <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
@@ -35,7 +35,7 @@
     <div data-field="f_group" class="fieldLineHeight col-xs-12">
         <div class="form-group">
             <label for="f_group">
-                {@__ key="entity.e_api_credentials.r_group" /}
+                {#__ key="entity.e_api_credentials.r_group" /}
                 {@inline_help field="r_group"}
                 <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
@@ -54,27 +54,27 @@
             <span>
                 <button class="btn btn-danger">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.delete"/}</span>
+                    <span>{#__ key="button.delete"/}</span>
             </button>
             <input name="id" type="hidden" value="{e_api_credentials.id}" class="form-control">
             </span>
             <span>
                 <a href="/api_credentials/update_form?id={e_api_credentials.id}" class="btn btn-warning">
                     <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                    <span>{@__ key="button.update"/}</span>
+                    <span>{#__ key="button.update"/}</span>
             </a>
             </span>
             {^hideButton}
             <span>
                     <a href="/api_credentials/create_form" class="btn btn-success">
                         <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                        <span>{@__ key="button.create"/}</span>
+                        <span>{#__ key="button.create"/}</span>
             </a>
             </span>
             <span>
                     <a href="/api_credentials/list" type="submit" class="btn btn-primary">
                         <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-                        <span>{@__ key="button.list"/}</span>
+                        <span>{#__ key="button.list"/}</span>
             </a>
             </span>
             {/hideButton}

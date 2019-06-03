@@ -1,10 +1,10 @@
 {>"layout_m_administration"/}
 {<header}
-    <h1>{@__ key="module.m_administration"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{@__ key="module.home"/}</a></li>
-        <li class='sub-module-arianne'>{@__ key="module.m_administration"/}</li>
-        <li class="active">{@__ key="entity.e_inline_help.label_entity"/}</li>
+        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+        <li class='sub-module-arianne'>{#__ key="module.m_administration"/}</li>
+        <li class="active">{#__ key="entity.e_inline_help.label_entity"/}</li>
     </ol>
 {/header}
 {<content}
@@ -13,7 +13,7 @@
             <form action="/inline_help/create" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{@__ key="operation.create"/} {@__ key="entity.e_inline_help.name_entity"/}</h3>
+                        <h3 class="box-title">{#__ key="operation.create"/} {#__ key="entity.e_inline_help.name_entity"/}</h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                        <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                     </div>
 
                     {#associationFlag}
