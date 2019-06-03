@@ -11,24 +11,31 @@ $(document).ready(function() {
     var editorSaveContent = {};
 
     /* -------- Editor Initialisation -------- */
-    var intro1 = "	───▄▀▀▀▄▄▄▄▄▄▄▀▀▀▄───\n" +
-		        "	───█▒▒░░░░░░░░░▒▒█───\n" +
-		        "	────█░░█░░░░░█░░█────\n" +
-		        "	─▄▄──█░░░▀█▀░░░█──▄▄─\n" +
-		        "	█░░█─▀▄░░░░░░░▄▀─█░░█\n" +
-		        "	█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n" +
-		        "	█░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█\n" +
-		        "	█░░║║║╠─║─║─║║║║║╠─░░█\n" +
-		        "	█░░╚╩╝╚╝╚╝╚╝╚╝╩─╩╚╝░░█\n" +
-		        "	█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n\n";
+    // var intro1 = "	───▄▀▀▀▄▄▄▄▄▄▄▀▀▀▄───\n" +
+		  //       "	───█▒▒░░░░░░░░░▒▒█───\n" +
+		  //       "	────█░░█░░░░░█░░█────\n" +
+		  //       "	─▄▄──█░░░▀█▀░░░█──▄▄─\n" +
+		  //       "	█░░█─▀▄░░░░░░░▄▀─█░░█\n" +
+		  //       "	█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n" +
+		  //       "	█░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█\n" +
+		  //       "	█░░║║║╠─║─║─║║║║║╠─░░█\n" +
+		  //       "	█░░╚╩╝╚╝╚╝╚╝╚╝╩─╩╚╝░░█\n" +
+		  //       "	█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n\n";
+
+
+    var intro1 = " _____                 _\n";
+    intro1 += "|   | |___ _ _ _ _____|_|___ ___\n";
+    intro1 += "| | | | -_| | | |     | | . |_ -|\n";
+    intro1 += "|_|___|___|_____|_|_|_|_|  _|___|\n";
+    intro1 += "                        |_|\n\n\n";
 
     /* Get browser chosenTheme */
     var chosenTheme = localStorage.getItem("newmips_editor_theme");
 
     if (chosenTheme == null) {
-        localStorage.setItem("newmips_editor_theme", "monokai");
-        chosenTheme = "monokai";
-    } else if (chosenTheme != "monokai") {
+        localStorage.setItem("newmips_editor_theme", "default");
+        chosenTheme = "default";
+    } else if (chosenTheme != "default") {
         $("#select-theme").val(chosenTheme);
         $('head').append("<link href='/css/codemirror/themes/" + chosenTheme + ".css' rel='stylesheet' type='text/css'>");
     }

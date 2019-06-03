@@ -276,6 +276,12 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(data) {
 
+                if(data.iframe_url == -1){
+                    $("#loadingIframe").hide();
+                    $("#errorIframe").show();
+                    return;
+                }
+
                 if (data.toRedirect)
                     return window.location.href = data.url;
 

@@ -111,7 +111,9 @@
             "text1": "In order to clone your application just execute this command:",
             "text2": "Your Gitlab login is:",
             "text3": "and your password is the one you use on your generator account"
-        }
+        },
+        "no_project_1": "No application found.",
+        "no_project_2": "You can generate one directly from <a href='/'>home</a> or with a <a href='/instruction_script/index'>script</a>."
     },
     "editor": {
         "legend": "Editor",
@@ -454,7 +456,8 @@
                 "missingInfo": "The file infos.json is missing!",
                 "missingScreenshot": "The file screenshot.png is missing!",
                 "alreadyExist": "This theme name already exist, please rename the theme name in infos.json.",
-                "successUpload": "The theme was successfully uploaded!"
+                "successUpload": "The theme was successfully uploaded!",
+                "successInstall": "Theme successfully set to %s!"
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",

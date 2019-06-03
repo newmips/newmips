@@ -61,3 +61,7 @@
 		margin-bottom: 10px;
 	}
 }
+
+html#html-login .btn:not(.btn-raised).btn-primary, .input-group-btn .btn:not(.btn-raised).btn-primary {
+	color: #FFF !important;
+}

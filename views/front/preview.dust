@@ -8,7 +8,7 @@
 	{! CodeMirror !}
 	<link href="/css/codemirror/codemirror.css" rel="stylesheet" type="text/css" />
 	<link href="/css/codemirror/customcodemirror.css" rel="stylesheet" type="text/css" />
-	<link href='/css/codemirror/themes/monokai.css' rel='stylesheet' type='text/css'>
+	{! <link href='/css/codemirror/themes/monokai.css' rel='stylesheet' type='text/css'> !}
 	{! Addons CSS !}
 	<link href="/js/plugins/grid-editor/dist/grideditor.css" rel="stylesheet" type="text/css" />
 	<link href="/js/plugins/grid-editor/dist/grideditor-font-awesome.css" rel="stylesheet" type="text/css" />
@@ -63,7 +63,9 @@
 										{@ne key=iframe_url value=-1}
 											<iframe id="iframe" height="764px" width="600px" src="{iframe_url}" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen" style="height:764px;border: 1px solid grey;border-radius: 3px;"></iframe>
 										{/ne}
-
+										<div id="errorIframe" {@eq key=iframe_url value=-1} style='display: block;'{/eq}>
+											<img src="/img/mipsy.png" alt="Error" />
+										</div>
 										<div id="loadingIframe">
 											<img class="animated pulse infinite" src="/img/LOGO-PNG-01-min.png" alt="Loading" />
 										</div>
@@ -164,7 +166,7 @@
 											{#__ key="preview.help-button"/}
 										</div>
 									{/ifTrue}
-									<a class="btn btn-app" target="_blank" href="http://docs.newmips.com">
+									<a class="btn btn-app" target="_blank" href="https://docs.newmips.com">
 										<i class="fa fa-book"></i>{#__ key="button.documentation"/}
 									</a>
 								</div>
@@ -260,7 +262,7 @@
 								<option value="mbo">mbo</option>
 								<option value="mdn-like">mdn-like</option>
 								<option value="midnight">midnight</option>
-								<option value="monokai" selected>monokai</option>
+								<option value="monokai">monokai</option>
 								<option value="neat">neat</option>
 								<option value="neo">neo</option>
 								<option value="night">night</option>
@@ -353,6 +355,8 @@
 		<script src="/js/plugins/moment.js" type="text/javascript"></script>
 		<script src="/js/plugins/mattermost/mattermost-chat.js" type="text/javascript"></script>
 	    <script type="text/javascript">
+	    	if(user_lang = "fr-FR")
+	    		moment.locale('fr');
 	    	$("#message-box").mattermostChat();
 	    </script>
     {:else}
