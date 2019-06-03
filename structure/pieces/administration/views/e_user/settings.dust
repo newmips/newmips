@@ -1,16 +1,16 @@
 {>"layout_m_home"/}
 {<header}
-    <h1>{@__ key="module.m_home"/}<small>{@__ key="module.module"/}</small></h1>
+    <h1>{#__ key="module.m_home"/}<small>{#__ key="module.module"/}</small></h1>
     <ol class="breadcrumb">
         <li>
             <a href="/">
                 <i class="fa fa-home"></i>
-                {@__ key="module.home"/}
+                {#__ key="module.home"/}
             </a>
         </li>
         <!-- SUB MODULE - DO NOT REMOVE -->
         <li class="active">
-            {@__ key="settings.legend"/}
+            {#__ key="settings.legend"/}
         </li>
     </ol>
     {/header}
@@ -19,7 +19,7 @@
         <div class="col-xs-12 connectedSortable">
             <div class="box">
                 <div class="box-header">
-                    <h3 class="box-title">{@__ key="settings.legend"/}</h3>
+                    <h3 class="box-title">{#__ key="settings.legend"/}</h3>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                         <i class="fa fa-minus"></i></button>
@@ -27,7 +27,7 @@
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <label>{@__ key="settings.lang"/}</label><br/>
+                        <label>{#__ key="settings.lang"/}</label><br/>
                         <a data-lang="fr-FR" class='chooseLanguage btn {@eq key=lang_user value="fr-FR"}btn-primary{:else}btn-default{/eq}'>
                             Francais
                         </a>
@@ -45,18 +45,18 @@
                                 <div data-field="f_login" class="fieldLineHeight col-xs-12 col-sm-6">
                                     <div class="form-group">
                                         <label for="f_login">
-                                            {@__ key="entity.e_user.f_login"/}&nbsp;
+                                            {#__ key="entity.e_user.f_login"/}&nbsp;
                                             {@inline_help field="f_login"}
                                             <i data-field="f_login" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                                             {/inline_help}
                                         </label>
-                                        <input class="form-control input" placeholder='{@__ key="entity.e_user.f_login" /}' value="{f_login}" type="text" maxlength="255" disabled="" readonly="">
+                                        <input class="form-control input" placeholder='{#__ key="entity.e_user.f_login" /}' value="{f_login}" type="text" maxlength="255" disabled="" readonly="">
                                     </div>
                                 </div>
                                 <div data-field="f_email" class="fieldLineHeight col-xs-12 col-sm-6">
                                     <div class="form-group">
                                         <label for="f_email">
-                                            {@__ key="entity.e_user.f_email"/}&nbsp;
+                                            {#__ key="entity.e_user.f_email"/}&nbsp;
                                             {@inline_help field="f_email"}
                                             <i data-field="f_email" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                                             {/inline_help}
@@ -65,21 +65,21 @@
                                             <div class="input-group-addon">
                                                 <i class="fa fa-envelope"></i>
                                             </div>
-                                            <input class="form-control input" placeholder='{@__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email">
+                                            <input class="form-control input" placeholder='{#__ key="entity.e_user.f_email" /}' name="f_email" value="{f_email}" type="text" data-type="email">
                                         </div>
                                     </div>
                                 </div>
                                 <div data-field="f_role" class="fieldLineHeight col-xs-12 col-sm-6">
                                     <div class="form-group">
                                         <label for="f_role">
-                                            {@__ key="entity.e_user.r_role" /}
+                                            {#__ key="entity.e_user.r_role" /}
                                             {@inline_help field="r_role"}
                                             <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                                             {/inline_help}
                                         </label>
                                             <select multiple="" class="ajax form-control" data-source="role" data-using="f_label" disabled="" readonly="">
                                                 <option value="">
-                                                    {@__ key="select.default" /}
+                                                    {#__ key="select.default" /}
                                                 </option>
                                                 {#r_role}
                                                     <option value="{id}" selected="">{f_label|string}</option>
@@ -90,14 +90,14 @@
                                     <div data-field="f_group" class="fieldLineHeight col-xs-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="f_group">
-                                                {@__ key="entity.e_user.r_group" /}
+                                                {#__ key="entity.e_user.r_group" /}
                                                 {@inline_help field="r_group"}
                                                 <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                                                 {/inline_help}
                                             </label>
                                             <select multiple="" class="ajax form-control" data-source="group" data-using="f_label" disabled="" readonly="">
                                                 <option value="">
-                                                    {@__ key="select.default" /}
+                                                    {#__ key="select.default" /}
                                                 </option>
                                                 {#r_group}
                                                     <option value="{id}" selected="">{f_label|string}</option>
@@ -107,7 +107,7 @@
                                     </div>
                                 </div>
                                 {/e_user}
-                                <button type="submit" class="btn btn-primary">{@__ key="button.save"/}</button>
+                                <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
                                 <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
                             </form>
                         </div>
