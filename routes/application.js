@@ -868,7 +868,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING");
     instructions.push("add field Name");
     instructions.push("add field Api credentials related to api credentials using client name");
-    instructions.push("add field Commentaires with type regular text");
+    instructions.push("add field Comment with type regular text");
     instructions.push("create entity Task");
     instructions.push("set icon cogs");
     instructions.push("add component status with name State");
@@ -896,11 +896,10 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("entity Media has one Media Task");
     instructions.push("select entity media task");
     instructions.push("add field Task name");
-    instructions.push("add field Task type");
+    instructions.push("add field Task type with type enum and values Manual, Automatic and default value Manual");
     instructions.push("add field Assignment logic");
     instructions.push("add field Program file with type file");
     instructions.push("add field Data flow with type text");
-    instructions.push("add field Program type with type enum and values ACS, Hospital, Essentiel, Etoffée, Spécifique");
 
     instructions.push("entity status has many Action called Actions");
     instructions.push("select entity action");
