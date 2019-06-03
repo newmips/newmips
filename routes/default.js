@@ -65,7 +65,7 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
                     req.session.showytpopup = false;
                 }
 
-                data.version = "";
+                data.version;
                 if(fs.existsSync(__dirname+"/../public/version.txt"))
                     data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
 
