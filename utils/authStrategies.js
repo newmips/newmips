@@ -45,8 +45,9 @@ passport.use(new LocalStrategy({
             return done(null, false);
         }
 
+        let dataColumnName = models.sequelize.options.dialect == 'postgres' ? 'sess' : 'data';
         // Check if current user is already connected
-        let sessions = await models.sequelize.query("SELECT session_id, data FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
+        let sessions = await models.sequelize.query("SELECT "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
         let currentSession;
         for (var i = 0; i < sessions.length; i++) {
             currentSession = JSON.parse(sessions[i].data);
