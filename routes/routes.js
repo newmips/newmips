@@ -123,6 +123,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
                 throw err;
 
             req.session.showytpopup = true;
+            req.session.isgenerator = true; // Needed to differentiate from generated app session.
             res.redirect('/default/home');
         });
     }).catch(err => {
@@ -336,6 +337,8 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
         req.session.cookie.maxAge = 24 * 3600000; // 24h
 
     let email_user = req.session.passport.user.email;
+
+    req.session.isgenerator = true; // Needed to differentiate from generated app session.
 
     // Get gitlab instance
     if(gitlabConf.doGit){
