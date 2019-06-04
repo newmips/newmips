@@ -1,4 +1,4 @@
-var fs = require('fs');
+var fs = require('fs-extra');
 var globalConf = require('../config/global');
 
 
@@ -21,7 +21,7 @@ exports.deleteEntityFile = function (options) {
 };
 
 exports.getFileBuffer64 = function (path, callback) {
-    if (typeof path == 'undefined')
+    if (typeof path == 'undefined' || !fs.existsSync(globalConf.localstorage+path))
         return callback(false, '');
     fs.readFile(globalConf.localstorage + path, function (err, data) {
         if (!err)
