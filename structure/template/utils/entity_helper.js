@@ -11,9 +11,6 @@ const models = require('../models/');
 const enums_radios = require('../utils/enum_radio.js');
 const globalConfig = require('../config/global');
 
-// Winston logger
-const logger = require('./logger');
-
 const funcs = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -79,73 +76,62 @@ const funcs = {
             fs.writeFileSync(__dirname+'/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
         }
     },
-    optimizedFindOne: function(modelName, idObj, options, forceOptions) {
-        // Split SQL request if too many inclusion
-        return new Promise(function(resolve, reject){
-            var include = [];
-            for (var i = 0; i < options.length; i++)
-                if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
-                    var opt = {
-                        model: models[funcs.capitalizeFirstLetter(options[i].target)],
-                        as: options[i].as
-                    };
-                    // Include status children
-                    if (options[i].target == 'e_status')
-                        opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
-                    include.push(opt);
-                }
-
-            if (forceOptions && forceOptions.length)
-                include = include.concat(forceOptions);
-
-            if(include.length >= 6) {
-                var firstLength = Math.floor(include.length / 2);
-                var secondLength = include.length - firstLength;
-
-                var firstInclude = include.slice(0, firstLength);
-                var secondInclude = include.slice(firstLength, include.length);
-
-                models[modelName].findOne({where: {id: idObj}, include: firstInclude}).then(function (entity1) {
-                    models[modelName].findOne({where: {id: idObj}, include: secondInclude}).then(function (entity2) {
-                        for(var item in entity2)
-                            if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_"){
-                                entity1[item] = entity2[item];
-                                entity1.dataValues[item] = entity2.dataValues[item];
-                            }
-                        resolve(entity1);
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                }).catch(reject);
+    // Split SQL request if too many inclusion
+    optimizedFindOne: async function(modelName, idObj, options, forceOptions = []) {
+        const includePromises = [], includes = forceOptions, includeMaxlength = 5;
+        for (var i = 0; i < options.length; i++)
+            if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
+                var opt = {
+                    model: models[funcs.capitalizeFirstLetter(options[i].target)],
+                    as: options[i].as
+                };
+                // Include status children
+                if (options[i].target == 'e_status')
+                    opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
+                includes.push(opt);
             }
-            else
-                models[modelName].findOne({where: {id: idObj}, include: include}).then(function (entity1) {
-                    resolve(entity1);
-                }).catch(reject);
-        });
+
+        // Do a first query to get entity with all its fields and first `includeMaxLength`'nth includes
+        includePromises.push(models[modelName].findOne({where: {id: idObj}, include: includes.splice(0, includeMaxlength)}));
+
+        // While `includes` array isn't empty, query for `includeMaxLength` and delete from array
+        // Fetch only attribute `id` since attributes doesn't change from one query to another
+        while (includes.length > 0) {
+            const limitedInclude = includes.splice(0, includeMaxlength);
+            includePromises.push(models[modelName].findOne({where: {id: idObj}, attributes: ['id'], include: limitedInclude}));
+        }
+
+        const resolvedData = await Promise.all(includePromises);
+
+        // Build final object by copying all 'r_' || 'c_' relations
+        const mainObject = resolvedData[0];
+        for (let i = 1; i < resolvedData.length; i++)
+            for (const alias in resolvedData[i])
+                if(alias.substring(0, 2) == "r_" || alias.substring(0, 2) == "c_"){
+                    mainObject[alias] = resolvedData[i][alias];
+                    mainObject.dataValues[alias] = resolvedData[i].dataValues[alias];
+                }
+        return mainObject;
     },
-    getLoadOnStartData: function(data, options) {
+    getLoadOnStartData: async function(data, options) {
         // Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
-        return new Promise(function(resolve, reject){
-            var todoPromises = [];
-            for (var i = 0; i < options.length; i++){
-                if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
-                    (function(alias){
-                        todoPromises.push(new Promise(function(resolve1, reject1){
-                            models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
-                                // Change alias name to avoid conflict
-                                data[alias+"_all"] = results;
-                                resolve1();
-                            }).catch(reject1);
-                        }))
-                    })(options[i].as)
-                }
+        var todoPromises = [];
+        for (var i = 0; i < options.length; i++){
+            if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
+                (alias => {
+                    todoPromises.push(new Promise(function(resolve, reject){
+                        models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
+                            // Change alias name to avoid conflict
+                            data[alias+"_all"] = results;
+                            resolve();
+                        }).catch(reject);
+                    }))
+                })(options[i].as)
             }
+        }
 
-            Promise.all(todoPromises).then(function(){
-                resolve(data);
-            }).catch(reject)
-        });
+        await Promise.all(todoPromises);
+        return data;
     },
     error: function(err, req, res, redirect, entity) {
         var isKnownError = false;
