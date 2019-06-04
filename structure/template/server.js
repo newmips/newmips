@@ -139,8 +139,20 @@ if(dbConf.dialect == "mysql")
 
 if(dbConf.dialect == "postgres"){
     var pgPool = new pg.Pool(options);
+    pgPool.connect((err, client, done) => {
+        if (err) {console.error(err);}
+        client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
+            if (err) {console.error(err.stack)} else if(!res.rows[0].exists) {
+                // Postgres sessions table do not exist, creating it...
+                client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), (err, res) => {
+                    if (err) {console.error(err)} else {console.log("Postgres sessions table created !");}
+                });
+            }
+        })
+    })
     var sessionStore = new SessionStore({
-        pool: pgPool
+        pool: pgPool,
+        tableName: 'sessions'
     });
 }
 

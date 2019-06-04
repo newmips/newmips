@@ -50,12 +50,17 @@ passport.use(new LocalStrategy({
         let sessions = await models.sequelize.query("SELECT "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
         let currentSession;
         for (var i = 0; i < sessions.length; i++) {
-            currentSession = JSON.parse(sessions[i][dataColumnName]);
+            currentSession = sessions[i][dataColumnName];
+            if(typeof sessions[i][dataColumnName] === "string")
+                currentSession = JSON.parse(sessions[i][dataColumnName]);
+
 
             if(typeof currentSession.passport !== "undefined"
                 && typeof currentSession.passport.user !== "undefined"
                 && moment(currentSession.cookie.expires).diff(moment()) > 0 // Not counting expired session
-                && currentSession.passport.user.id == user.id){
+                && currentSession.passport.user.id == user.id
+                && currentSession.isgenerator){
+                console.log(currentSession);
                 req.session.toastr = [{
                     message: "Cet utilisateur est déjà connecté.",
                     level: "error"
