@@ -689,10 +689,6 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
         ]
     }).then(function(projects) {
 
-        console.log("APPLICATION LIST DEBUG")
-        console.log("NB PROJECT: " + projects.length);
-        console.log("ID USER: " + req.session.passport.user.id)
-
         let data = {};
 
         let iframe_status_url;

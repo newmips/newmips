@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sleep 60
+sleep 20
 
 # Set Git user and email
 git config --global user.name "$HOSTNAME"
