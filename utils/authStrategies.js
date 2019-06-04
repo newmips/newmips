@@ -50,7 +50,7 @@ passport.use(new LocalStrategy({
         let sessions = await models.sequelize.query("SELECT "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
         let currentSession;
         for (var i = 0; i < sessions.length; i++) {
-            currentSession = JSON.parse(sessions[i].data);
+            currentSession = JSON.parse(sessions[i][dataColumnName]);
 
             if(typeof currentSession.passport !== "undefined"
                 && typeof currentSession.passport.user !== "undefined"
