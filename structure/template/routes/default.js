@@ -152,7 +152,7 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
         }
 
         // Component address
-        dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist('e_'+source);
+        dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExists('e_'+source);
 
         Promise.all(imagePromises).then(function() {
             // Open and render dust file

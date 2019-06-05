@@ -31,19 +31,19 @@ exports.getFileBuffer64 = function (path, callback) {
 };
 var deleteEntityLocalFile = function (options) {
     if (!!options.value && !!options.entityName) {
-        var partOfValue = options.value.split('-');
+        const partOfValue = options.value.split('-');
         if (partOfValue.length) {
-            var filePath = globalConf.localstorage + options.entityName + '/' + partOfValue[0] + '/' + options.value;
+            const filePath = globalConf.localstorage + options.entityName + '/' + partOfValue[0] + '/' + options.value;
             fs.unlink(filePath, function (err) {
-                if (!err) {
-                    if (options.type == 'picture') {
-                        //remove thumbnail picture
-                        var fileThumnailPath = globalConf.localstorage + globalConf.thumbnail.folder + options.entityName + '/' + partOfValue[0] + '/' + options.value;
-                        fs.unlink(fileThumnailPath, function (err) {
-                            if (err)
-                                console.error(err);
-                        });
-                    }
+                if (err)
+                    return console.error(err);
+                if (options.type == 'picture') {
+                    //remove thumbnail picture
+                    const fileThumnailPath = globalConf.localstorage + globalConf.thumbnail.folder + options.entityName + '/' + partOfValue[0] + '/' + options.value;
+                    fs.unlink(fileThumnailPath, function (err) {
+                        if (err)
+                            console.error(err);
+                    });
                 }
             });
         }

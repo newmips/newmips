@@ -39,7 +39,7 @@ const funcs = {
 
                 // Fetch thumbnails buffers
                 // Get attribute value
-                let value = data.data[i][field];
+                const value = data.data[i][field];
                 if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
                     const partOfFile = value.split('-');
                     if (partOfFile.length > 1) {

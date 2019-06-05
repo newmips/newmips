@@ -181,8 +181,7 @@ module.exports = {
                         sort(optsArray, i == 0 ? i : i-1);
                     }, 0);
                 }
-                else
-                    return sort(optsArray, i == 0 ? i : i-1)
+                return sort(optsArray, i == 0 ? i : i-1)
             }
             else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
                 && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
@@ -195,8 +194,7 @@ module.exports = {
                         sort(optsArray, i == 0 ? i : i-1);
                     }, 0);
                 }
-                else
-                    return sort(optsArray, i == 0 ? i : i-1);
+                return sort(optsArray, i == 0 ? i : i-1);
 
             }
             if (loopCount % 1000 === 0) {
@@ -205,8 +203,7 @@ module.exports = {
                     sort(optsArray, i+1);
                 }, 0);
             }
-            else
-                return sort(optsArray, i+1);
+            return sort(optsArray, i+1);
         }
         sort(options, 0);
 

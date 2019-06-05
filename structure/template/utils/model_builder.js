@@ -142,6 +142,7 @@ exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp =
         else
             object[prop] = currentValue;
     }
+
     if (addTimestamp && recursionLevel == 0) {
         if (dbConfig.dialect == 'sqlite') {
             // SQLite3 dialect
@@ -221,15 +222,13 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
     }
 }
 
-// Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
+// Check for value in req.body corresponding to hasMany or belongsToMany association in create or update form of an entity
 exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
     return new Promise(function(resolve, reject) {
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
-        // because those values are not updated for now
+        // because those values are not updated yet
 
-        // List unsed value in req.body for now
         var unusedValueFromReqBody = [];
-
         for(var propBody in body){
             var toAdd = true;
             for(var propObj in buildForRouteObj){
