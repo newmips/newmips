@@ -1,6 +1,3 @@
-/*
- * Update local Entity Data before show or any
- */
 const file_helper = require('./file_helper');
 const status_helper = require('./status_helper');
 const model_builder = require('./model_builder');
