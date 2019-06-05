@@ -109,10 +109,10 @@ function entityAccess(userGroups, entityName) {
     try {
         if(userGroups.length == 0)
             return false;
-        var access = getAccess();
-        for (var npsModule in access) {
-            var moduleEntities = access[npsModule].entities;
-            for (var i = 0; i < moduleEntities.length; i++)
+        const access = getAccess();
+        for (const npsModule in access) {
+            const moduleEntities = access[npsModule].entities;
+            for (let i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName) {
                     // Check if group can access entity AND module to which the entity belongs
                     if (!isInBothArray(moduleEntities[i].groups, userGroups)
@@ -137,7 +137,7 @@ exports.entityAccessMiddleware = function(entityName) {
                 return next()
         }
         else {
-            var userGroups = req.session.passport.user.r_group;
+            const userGroups = req.session.passport.user.r_group;
             if (userGroups.length > 0 && entityAccess(userGroups, entityName))
                 return next();
         }
@@ -154,10 +154,10 @@ function actionAccess(userRoles, entityName, action) {
     try {
         if(userRoles.length == 0)
             return false;
-        var access = getAccess();
-        for (var npsModule in access) {
-            var moduleEntities = access[npsModule].entities;
-            for (var i = 0; i < moduleEntities.length; i++)
+        const access = getAccess();
+        for (const npsModule in access) {
+            const moduleEntities = access[npsModule].entities;
+            for (let i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName)
                     return !isInBothArray(moduleEntities[i].actions[action], userRoles)
         }
@@ -170,7 +170,7 @@ exports.actionAccess = actionAccess;
 
 exports.actionAccessMiddleware = function(entityName, action) {
     return function(req, res, next) {
-        var userRoles = req.session.passport.user.r_role;
+        const userRoles = req.session.passport.user.r_role;
         if (userRoles.length > 0 && actionAccess(userRoles, entityName, action))
             return next();
         req.session.toastr = [{
@@ -182,7 +182,7 @@ exports.actionAccessMiddleware = function(entityName, action) {
 }
 
 exports.apiAuthentication = function(req, res, next) {
-    var token = req.query.token;
+    const token = req.query.token;
 
     models.E_api_credentials.findOne({
         where: {
@@ -192,7 +192,7 @@ exports.apiAuthentication = function(req, res, next) {
         if (!credentialsObj)
             return res.status(401).end('Bad Bearer Token');
 
-        var currentTmsp = new Date().getTime();
+        const currentTmsp = new Date().getTime();
         if (parseInt(credentialsObj.f_token_timeout_tmsp) < currentTmsp)
             return res.status(403).json('Bearer Token expired');
 
@@ -214,8 +214,8 @@ exports.accessFileManagment = function(){
         fs.copySync(__dirname +'/../config/access.json', __dirname +'/../config/access.lock.json');
     else {
         // access.lock.json exist, check if new keys to add in access.json
-        let access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
-        let accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
+        const access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
+        const accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
 
         let emptyModuleContent = {
             "groups": [],
