@@ -67,12 +67,12 @@
         "winston": "^2.4.2"
     },
     "devDependencies": {
+        "chai": "^4.2.0",
         "expect.js": "^0.3.1",
         "mocha": "^5.2.0"
-
     },
     "scripts": {
-        "test": "mocha --recursive --watch ./**/__tests__/*.js",
+        "test": "mocha --recursive --watch './**/__tests__/*.js'",
         "start": "node ./server"
     }
 }

@@ -1,9 +1,10 @@
-const expect = require('expect.js');
+const expect = require('chai').expect;
 const lowerFirstWord = require('../attr_helper').lowerFirstWord;
 
+describe('entity_helper', () => {
+  it('Should lower the first word', () => {
+    const expression = lowerFirstWord("AN expression");
 
-it('Should lower the first word', () => {
-  const expression = lowerFirstWord("AN expression");
-
-  expect(expression).to.equal("an expression");
+    expect(expression).to.eql("an expression");
+  });
 });
