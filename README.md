@@ -1,18 +1,16 @@
 # Newmips
 
-Newmips is a computer aided software that enable to create NodeJS applications with a ChatBot. <br>
-Official Website is : <a href="http://www.newmips.com">www.newmips.com</a>
-
+Newmips is a computer aided software that enable to generate NodeJS applications by giving instructions to a bot.<br>
+Official Website is : https://newmips.com
 
 ## Prerequisites
 
-NodeJS v4 minimum<br>
-MySQL or MariaDB server installed and running.
-
+NodeJS >= 8.11.3<br>
+MySQL / MariaDB or Postgres server installed and running.
 
 ## Installation instructions
 
-Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
+Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/dev.zip<br>
 
 Execute the following instructions:<br/>
 <pre>cd newmips-master<br>
@@ -21,26 +19,20 @@ bash install.sh</pre>
 
 Follow the instructions and wait for the : "Newmips ready to be started -> node server.js"
 
-
-
 ## How to start the application
 
 Command line :
 <pre>node server.js</pre>
 or
-<pre>./start_newmips.sh</pre>
+<pre>npm start</pre>
 
 Open your browser on http://127.0.0.1:1337 and log as "admin/admin" by default.
 
 Notice : to create your first application, ports 9000 and 9001 must be available on your computer.
 
-
-
 ## Documentation
 
 Newmips Software documentation is available at https://docs.newmips.com.
-
-
 
 ## Follow us
 
@@ -49,8 +41,6 @@ Newmips Software documentation is available at https://docs.newmips.com.
 <li><a href="https://www.facebook.com/newmips">Facebook</a></li>
 <li><a href="https://www.linkedin.com/company/newmips">LinkedIn</a></li>
 </ul>
-
-
 
 ## License
 
