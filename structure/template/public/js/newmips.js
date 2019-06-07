@@ -452,11 +452,8 @@ function initForm(context) {
                     /*remove file extension starts With _*/
                     if (fileExt)
                         filename = filename.substring(0, filename.lastIndexOf('_'));
-                    
                     var completeFileName = timeFile + '_' + filename + '.' + fileExt;
-                    
                     $("#" + that.attr("id") + "_hidden").val(completeFileName);
-                    
                     return completeFileName;
                 }
             }
@@ -1468,6 +1465,7 @@ function clearString(string) {
     string = string.replace(/\¿/g, "_");
     string = string.replace(/\¡/g, "_");
     string = string.replace(/\÷/g, "_");
+    string = string.replace(/\²/g, "_");
 
     string = string.replace(String.fromCharCode(65533), "e");
     string = string.replace(/[^a-z0-9]/gi, '_').toLowerCase();
