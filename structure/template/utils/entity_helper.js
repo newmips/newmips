@@ -1,162 +1,134 @@
-/*
- * Update local Entity Data before show or any
- */
-var file_helper = require('./file_helper');
-var status_helper = require('./status_helper');
-var model_builder = require('./model_builder');
-var logger = require('./logger');
-var fs = require('fs-extra');
-var language = require('../services/language');
-var models = require('../models/');
-var enums_radios = require('../utils/enum_radio.js');
-var globalConfig = require('../config/global');
+const file_helper = require('./file_helper');
+const status_helper = require('./status_helper');
+const model_builder = require('./model_builder');
+const logger = require('./logger');
+const fs = require('fs-extra');
+const language = require('../services/language');
+const models = require('../models/');
+const enums_radios = require('../utils/enum_radio.js');
+const globalConfig = require('../config/global');
 
-// Winston logger
-var logger = require('./logger');
-
-var funcs = {
+const funcs = {
     capitalizeFirstLetter: function(word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
-    prepareDatalistResult: function(entityName, data, lang_user) {
-        return new Promise(function(resolve, reject) {
-            var attributes = require('../models/attributes/'+entityName);
-            var options = require('../models/options/'+entityName);
+    prepareDatalistResult: async function(entityName, data, lang_user) {
+        const attributes = require('../models/attributes/'+entityName);
+        const options = require('../models/options/'+entityName);
+        const thumbnailFolder = globalConfig.thumbnail.folder;
+        const thumbnailPromises = [];
 
-            // Replace data enum value by translated value for datalist
-            var enumsTranslation = enums_radios.translated(entityName, lang_user, options);
-            var todo = [];
-            for (var i = 0; i < data.data.length; i++) {
-                for (var field in data.data[i]) {
-                    // Look for enum translation
-                    for (var enumEntity in enumsTranslation)
-                        for (var enumField in enumsTranslation[enumEntity])
-                            if (enumField == field)
-                                for (var j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
-                                    if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
-                                        data.data[i][field] = enumsTranslation[enumEntity][enumField][j].translation;
-                                        break;
-                                    }
+        // Replace data enum value by translated value for datalist
+        const enumsTranslation = enums_radios.translated(entityName, lang_user, options);
+        for (let i = 0; i < data.data.length; i++) {
+            fieldLoop:for (const field in data.data[i]) {
+                // Look for enum translation
+                enumHeadLoop:for (const enumEntity in enumsTranslation) {
+                    enumFieldsLoop:for (const enumField in enumsTranslation[enumEntity])
+                        if (enumField == field)
+                            for (let j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
+                                if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
+                                    data.data[i][field] = enumsTranslation[enumEntity][enumField][j].translation;
+                                    // Field is confirmed enum, continue with next field loop
+                                    continue fieldLoop;
+                                }
+                }
 
-                    //get attribute value
-                    var value = data.data[i][field];
-                    //for type picture, get thumbnail picture
-                    if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
-                        var partOfFile = value.split('-');
-                        if (partOfFile.length > 1) {
-                            //if field value have valide picture name, add new task in todo list
-                            //we will use todo list to get all pictures binary
-                            var thumbnailFolder = globalConfig.thumbnail.folder;
-                            var filePath = thumbnailFolder + entityName+'/' + partOfFile[0] + '/' + value;
-                            todo.push({
-                                value: value,
-                                file: filePath,
-                                field: field,
-                                dataIndex: i
-                            });
-                        }
+                // Fetch thumbnails buffers
+                // Get attribute value
+                const value = data.data[i][field];
+                if (typeof attributes[field] != 'undefined' && attributes[field].newmipsType == 'picture' && value != null) {
+                    const partOfFile = value.split('-');
+                    if (partOfFile.length > 1) {
+                        const filePath = `${thumbnailFolder}${entityName}/${partOfFile[0]}/${value}`;
+
+                        (thumbnailTask => {
+                            thumbnailPromises.push(new Promise((resolve, reject) => {
+                                file_helper.getFileBuffer64(thumbnailTask.file, function (success, buffer) {
+                                    data.data[thumbnailTask.i][thumbnailTask.field] = {
+                                        value: thumbnailTask.value,
+                                        buffer: buffer
+                                    };
+                                    resolve();
+                                });
+                            }));
+                        })({value, field, i, file: filePath});
                     }
                 }
             }
-            //check if we have to get some picture buffer before send data
-            if (todo.length) {
-                var counter = 0;
-                for (var i = 0; i < todo.length; i++) {
-                    (function (task) {
-                        file_helper.getFileBuffer64(task.file, function (success, buffer) {
-                            counter++;
-                            data.data[task.dataIndex][task.field] = {
-                                value: task.value,
-                                buffer: buffer
-                            };
-                            if (counter === todo.length)
-                                resolve(data)
+        }
 
-                        });
-                    }(todo[i]));
-                }
-            } else
-                resolve(data)
-        });
+        await Promise.all(thumbnailPromises);
+
+        return data;
     },
     synchro: {
         writeJournal: function(line) {
             if (globalConfig.env != "tablet")
                 return;
-            var journal = JSON.parse(fs.readFileSync(__dirname+'/../sync/journal.json', 'utf8'));
+            const journal = JSON.parse(fs.readFileSync(__dirname+'/../sync/journal.json', 'utf8'));
             if (!journal.transactions instanceof Array)
                 journal.transactions = [];
             journal.transactions.push(line);
             fs.writeFileSync(__dirname+'/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
         }
     },
-    optimizedFindOne: function(modelName, idObj, options, forceOptions) {
-        // Split SQL request if too many inclusion
-        return new Promise(function(resolve, reject){
-            var include = [];
-            for (var i = 0; i < options.length; i++)
-                if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
-                    var opt = {
-                        model: models[funcs.capitalizeFirstLetter(options[i].target)],
-                        as: options[i].as
-                    };
-                    // Include status children
-                    if (options[i].target == 'e_status')
-                        opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
-                    include.push(opt);
-                }
-
-            if (forceOptions && forceOptions.length)
-                include = include.concat(forceOptions);
-
-            if(include.length >= 6) {
-                var firstLength = Math.floor(include.length / 2);
-                var secondLength = include.length - firstLength;
-
-                var firstInclude = include.slice(0, firstLength);
-                var secondInclude = include.slice(firstLength, include.length);
-
-                models[modelName].findOne({where: {id: idObj}, include: firstInclude}).then(function (entity1) {
-                    models[modelName].findOne({where: {id: idObj}, include: secondInclude}).then(function (entity2) {
-                        for(var item in entity2)
-                            if(item.substring(0, 2) == "r_" || item.substring(0, 2) == "c_"){
-                                entity1[item] = entity2[item];
-                                entity1.dataValues[item] = entity2.dataValues[item];
-                            }
-                        resolve(entity1);
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                }).catch(reject);
+    // Split SQL request if too many inclusion
+    optimizedFindOne: async function(modelName, idObj, options, forceOptions = []) {
+        const includePromises = [], includes = forceOptions, includeMaxlength = 5;
+        for (var i = 0; i < options.length; i++)
+            if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
+                var opt = {
+                    model: models[funcs.capitalizeFirstLetter(options[i].target)],
+                    as: options[i].as
+                };
+                // Include status children
+                if (options[i].target == 'e_status')
+                    opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
+                includes.push(opt);
             }
-            else
-                models[modelName].findOne({where: {id: idObj}, include: include}).then(function (entity1) {
-                    resolve(entity1);
-                }).catch(reject);
-        });
+
+        // Do a first query to get entity with all its fields and first `includeMaxLength`'nth includes
+        includePromises.push(models[modelName].findOne({where: {id: idObj}, include: includes.splice(0, includeMaxlength)}));
+
+        // While `includes` array isn't empty, query for `includeMaxLength` and delete from array
+        // Fetch only attribute `id` since attributes doesn't change from one query to another
+        while (includes.length > 0) {
+            const limitedInclude = includes.splice(0, includeMaxlength);
+            includePromises.push(models[modelName].findOne({where: {id: idObj}, attributes: ['id'], include: limitedInclude}));
+        }
+
+        const resolvedData = await Promise.all(includePromises);
+
+        // Build final object by copying all 'r_' || 'c_' relations
+        const mainObject = resolvedData[0];
+        for (let i = 1; i < resolvedData.length; i++)
+            for (const alias in resolvedData[i])
+                if(alias.substring(0, 2) == "r_" || alias.substring(0, 2) == "c_"){
+                    mainObject[alias] = resolvedData[i][alias];
+                    mainObject.dataValues[alias] = resolvedData[i].dataValues[alias];
+                }
+        return mainObject;
     },
-    getLoadOnStartData: function(data, options) {
+    getLoadOnStartData: async function(data, options) {
         // Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
-        return new Promise(function(resolve, reject){
-            var todoPromises = [];
-            for (var i = 0; i < options.length; i++){
-                if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
-                    (function(alias){
-                        todoPromises.push(new Promise(function(resolve1, reject1){
-                            models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
-                                // Change alias name to avoid conflict
-                                data[alias+"_all"] = results;
-                                resolve1();
-                            }).catch(reject1);
-                        }))
-                    })(options[i].as)
-                }
+        var todoPromises = [];
+        for (var i = 0; i < options.length; i++){
+            if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
+                (alias => {
+                    todoPromises.push(new Promise(function(resolve, reject){
+                        models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
+                            // Change alias name to avoid conflict
+                            data[alias+"_all"] = results;
+                            resolve();
+                        }).catch(reject);
+                    }))
+                })(options[i].as)
             }
+        }
 
-            Promise.all(todoPromises).then(function(){
-                resolve(data);
-            }).catch(reject)
-        });
+        await Promise.all(todoPromises);
+        return data;
     },
     error: function(err, req, res, redirect, entity) {
         var isKnownError = false;
