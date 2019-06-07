@@ -21,7 +21,7 @@ REM Create newmips database
 goto :success
 :error
 echo Newmips schema is not created.
-echo Installation is not finished due to mysql trouble. Please start Mysql and try again.
+echo Installation is not finished due to mysql trouble. Please start mysql and try again.
 pause
 goto :eof
 :success
