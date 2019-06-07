@@ -13,18 +13,18 @@ const funcs = {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
     prepareDatalistResult: async function(entityName, data, lang_user) {
-        const attributes = require('../models/attributes/'+entityName);
-        const options = require('../models/options/'+entityName);
+        const attributes = require('../models/attributes/' + entityName);
+        const options = require('../models/options/' + entityName);
         const thumbnailFolder = globalConfig.thumbnail.folder;
         const thumbnailPromises = [];
 
         // Replace data enum value by translated value for datalist
         const enumsTranslation = enums_radios.translated(entityName, lang_user, options);
         for (let i = 0; i < data.data.length; i++) {
-            fieldLoop:for (const field in data.data[i]) {
+            fieldLoop: for (const field in data.data[i]) {
                 // Look for enum translation
-                enumHeadLoop:for (const enumEntity in enumsTranslation) {
-                    enumFieldsLoop:for (const enumField in enumsTranslation[enumEntity])
+                enumHeadLoop: for (const enumEntity in enumsTranslation) {
+                    enumFieldsLoop: for (const enumField in enumsTranslation[enumEntity])
                         if (enumField == field)
                             for (let j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
                                 if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
@@ -44,7 +44,7 @@ const funcs = {
 
                         (thumbnailTask => {
                             thumbnailPromises.push(new Promise((resolve, reject) => {
-                                file_helper.getFileBuffer64(thumbnailTask.file, function (success, buffer) {
+                                file_helper.getFileBuffer64(thumbnailTask.file, function(success, buffer) {
                                     data.data[thumbnailTask.i][thumbnailTask.field] = {
                                         value: thumbnailTask.value,
                                         buffer: buffer
@@ -52,7 +52,12 @@ const funcs = {
                                     resolve();
                                 });
                             }));
-                        })({value, field, i, file: filePath});
+                        })({
+                            value,
+                            field,
+                            i,
+                            file: filePath
+                        });
                     }
                 }
             }
@@ -66,16 +71,18 @@ const funcs = {
         writeJournal: function(line) {
             if (globalConfig.env != "tablet")
                 return;
-            const journal = JSON.parse(fs.readFileSync(__dirname+'/../sync/journal.json', 'utf8'));
+            const journal = JSON.parse(fs.readFileSync(__dirname + '/../sync/journal.json', 'utf8'));
             if (!journal.transactions instanceof Array)
                 journal.transactions = [];
             journal.transactions.push(line);
-            fs.writeFileSync(__dirname+'/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
+            fs.writeFileSync(__dirname + '/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
         }
     },
     // Split SQL request if too many inclusion
     optimizedFindOne: async function(modelName, idObj, options, forceOptions = []) {
-        const includePromises = [], includes = forceOptions, includeMaxlength = 5;
+        const includePromises = [],
+            includes = forceOptions,
+            includeMaxlength = 5;
         for (var i = 0; i < options.length; i++)
             if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
                 var opt = {
@@ -84,18 +91,36 @@ const funcs = {
                 };
                 // Include status children
                 if (options[i].target == 'e_status')
-                    opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
+                    opt.include = {
+                        model: models.E_status,
+                        as: 'r_children',
+                        include: [{
+                            model: models.E_group,
+                            as: "r_accepted_group"
+                        }]
+                    };
                 includes.push(opt);
             }
 
         // Do a first query to get entity with all its fields and first `includeMaxLength`'nth includes
-        includePromises.push(models[modelName].findOne({where: {id: idObj}, include: includes.splice(0, includeMaxlength)}));
+        includePromises.push(models[modelName].findOne({
+            where: {
+                id: idObj
+            },
+            include: includes.splice(0, includeMaxlength)
+        }));
 
         // While `includes` array isn't empty, query for `includeMaxLength` and delete from array
         // Fetch only attribute `id` since attributes doesn't change from one query to another
         while (includes.length > 0) {
             const limitedInclude = includes.splice(0, includeMaxlength);
-            includePromises.push(models[modelName].findOne({where: {id: idObj}, attributes: ['id'], include: limitedInclude}));
+            includePromises.push(models[modelName].findOne({
+                where: {
+                    id: idObj
+                },
+                attributes: ['id'],
+                include: limitedInclude
+            }));
         }
 
         const resolvedData = await Promise.all(includePromises);
@@ -104,7 +129,7 @@ const funcs = {
         const mainObject = resolvedData[0];
         for (let i = 1; i < resolvedData.length; i++)
             for (const alias in resolvedData[i])
-                if(alias.substring(0, 2) == "r_" || alias.substring(0, 2) == "c_"){
+                if (alias.substring(0, 2) == "r_" || alias.substring(0, 2) == "c_") {
                     mainObject[alias] = resolvedData[i][alias];
                     mainObject.dataValues[alias] = resolvedData[i].dataValues[alias];
                 }
@@ -113,13 +138,15 @@ const funcs = {
     getLoadOnStartData: async function(data, options) {
         // Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
         var todoPromises = [];
-        for (var i = 0; i < options.length; i++){
-            if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
+        for (var i = 0; i < options.length; i++) {
+            if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart) {
                 (alias => {
-                    todoPromises.push(new Promise(function(resolve, reject){
-                        models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
+                    todoPromises.push(new Promise(function(resolve, reject) {
+                        models[funcs.capitalizeFirstLetter(options[i].target)].findAll({
+                            raw: true
+                        }).then(function(results) {
                             // Change alias name to avoid conflict
-                            data[alias+"_all"] = results;
+                            data[alias + "_all"] = results;
                             resolve();
                         }).catch(reject);
                     }))
@@ -140,7 +167,7 @@ const funcs = {
 
         try {
             var lang = "fr-FR";
-            if(typeof req.session.lang_user !== "undefined")
+            if (typeof req.session.lang_user !== "undefined")
                 lang = req.session.lang_user;
 
             var __ = language(lang).__;
@@ -150,7 +177,10 @@ const funcs = {
                 for (const validationError of err.errors) {
                     const fieldTrad = __(`entity.${entity}.${validationError.path}`);
                     const message = __(validationError.message, [fieldTrad]);
-                    req.session.toastr.push({level: 'error', message: message});
+                    req.session.toastr.push({
+                        level: 'error',
+                        message: message
+                    });
                 }
                 data.code = 400;
                 isKnownError = true;
@@ -158,34 +188,38 @@ const funcs = {
 
             // Unique value constraint error
             if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-                var message = __('message.unique') + " " + __("entity."+entity+"."+err.errors[0].path);
-                req.session.toastr.push({level: 'error', message: message});
+                var message = __('message.unique') + " " + __("entity." + entity + "." + err.errors[0].path);
+                req.session.toastr.push({
+                    level: 'error',
+                    message: message
+                });
                 data.code = 400;
                 isKnownError = true;
             }
 
         } finally {
-            if (ajax){
+            if (ajax) {
                 return res.status(data.code).send(req.session.toastr);
             }
             if (isKnownError) {
                 return res.redirect(redirect || '/');
-            }
-            else
+            } else
                 console.error(err);
 
             logger.debug(err);
             res.status(data.code).render('common/error', data);
         }
     },
-    getPicturesBuffers: function(entity, modelName, isThumbnail)  {
+    getPicturesBuffers: function(entity, modelName, isThumbnail) {
         return new Promise(function(resolve, reject) {
             if (!entity)
                 resolve();
             var attributes;
             try {
-                attributes = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+modelName+'.json'));
-            } catch(e) {resolve();}
+                attributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + modelName + '.json'));
+            } catch (e) {
+                resolve();
+            }
 
             var bufferPromises = [];
             for (var key in entity.dataValues)
@@ -198,7 +232,7 @@ const funcs = {
                                 return resolveBuf();
                             var path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
                             if (isThumbnail)
-                                path = 'thumbnail/'+path;
+                                path = 'thumbnail/' + path;
                             file_helper.getFileBuffer64(path, function(success, buffer) {
                                 entity.dataValues[keyCopy] = {
                                     value: value,
@@ -236,26 +270,14 @@ const funcs = {
             }
         }
     },
-    findInclude: function(includes, searchType, toFind) {
-        var type = '';
-        switch (searchType) {
-            case "model":
-                type = 'model';
-                break;
-            case "as":
-                type = 'as';
-                break;
-            default:
-                type = 'model';
-                break;
-        }
-        for (var i = 0; i < includes.length; i++) {
-            var include = includes[i];
-            var name = (type == 'model' ? include[type].name : include.as);
-            if (name == toFind) {
-                return include;
-            }
-        }
+
+
+
+    findInclude: function(includes, searchType = "model", toFind) {
+        return includes.find(include => {
+            const searchedName = searchType == 'model' ? include[searchType].name : include.as;
+            return searchedName == toFind;
+        })
     }
 };
 
