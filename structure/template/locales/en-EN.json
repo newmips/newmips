@@ -208,7 +208,10 @@
             "pending_event": "Pending event(s)",
             "startHour": "Start hour",
             "endHour": "End hour",
-            "fill_title": "Please fill the title event input."
+            "fill_title": "Please fill the title event input.",
+            "start_date": "Please fill the start date before.",
+            "start_after_end": "The start date is after the end date, please fix it.",
+            "end_before_start": "The end date is before the start date, please fix it."
         },
         "print": {
             "action": "Print"

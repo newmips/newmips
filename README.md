@@ -35,8 +35,8 @@ node server.js
 </pre>
 
 Open your browser on http://127.0.0.1:1337<br>
-Set your password on the first connection page http://127.0.0.1:1337/first_connection<br>
-Default login is: <b>admin</b>
+Set your password on the first connection page http://127.0.0.1:1337/first_connection?login=admin<br>
+The default generator login is: <b>admin</b>
 
 Notice : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
 

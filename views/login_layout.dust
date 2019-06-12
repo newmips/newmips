@@ -30,14 +30,14 @@
             var toastrArray = [];
         </script>
         {#toastr}
-            <script>
+            <script type="text/javascript">
                 toastrArray.push({
-                    message: '{#__ key=message/}',
+                    message: '{message}',
                     level: "{level}"
                 });
             </script>
         {/toastr}
-        <script>
+        <script type="text/javascript">
             $(document).ready(function() {
                 try {
                     toastr.options = {
