@@ -524,13 +524,14 @@ exports.newAgenda = function (attr, callback) {
 
         var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
         var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
+        var urlEvent = valueEvent.toLowerCase().substring(2);
 
         var viewTemplate = fs.readFileSync(viewFile, 'utf8');
         viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
         viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
         viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
         viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
-        viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
+        viewTemplate = viewTemplate.replace(/URL_EVENT/g, urlEvent);
 
         var writeStream = fs.createWriteStream(viewFile);
         writeStream.write(viewTemplate);
@@ -544,8 +545,7 @@ exports.newAgenda = function (attr, callback) {
             fs.copySync(componentEventViewFolder, eventViewsFolder);
 
             // Replace variable in each files
-            var fileToReplace = ["show_fields", "create_fields", "update_fields"];
-            var urlEvent = valueEvent.toLowerCase().substring(2);
+            var fileToReplace = ["show_fields", "create_fields", "update_fields", "create", "update"];
 
             for (var i = 0; i < fileToReplace.length; i++) {
                 var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
@@ -553,69 +553,68 @@ exports.newAgenda = function (attr, callback) {
 
                 eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
                 eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+                eventTemplate = eventTemplate.replace(/MODULE_NAME/g, moduleName);
 
                 fs.writeFileSync(eventFile, eventTemplate, 'utf8');
             }
 
             // Inject custom_js
-            var fileToInject = ["create", "update"];
+            // var fileToInject = ["create", "update"];
 
-            for (var i = 0; i < fileToInject.length; i++) {
-                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
-                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+            // for (var i = 0; i < fileToInject.length; i++) {
+            //     var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
+            //     var eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
-                eventTemplate += "\n\n" +
-                        "{<custom_js}\n" +
-                        "    <script type='text/javascript'>\n" +
-                        "        var format;\n" +
-                        "        if (lang_user == 'fr-FR')\n" +
-                        "            format = 'DD/MM/YYYY HH:mm';\n" +
-                        "        else\n" +
-                        "            format = 'YYYY-MM-DD HH:mm';\n" +
-                        "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
-                        "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    toastr.error(\"Error: Start date is after end date.\");\n" +
-                        "                    return false;\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    toastr.error(\"Error: End date is before start date.\");\n" +
-                        "                    return false;\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "            return true;" +
-                        "        });\n" +
-                        "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
-                        "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                        "                var start = moment($(this).val(), format);\n" +
-                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    $(this).val('');\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        });\n" +
-                        "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
-                        "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                        "                var end = moment($(this).val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    $(this).val('');\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        });\n" +
-                        "    </script>\n" +
-                        "{/custom_js}\n";
+            //     eventTemplate += "\n\n" +
+            //             "{<custom_js}\n" +
+            //             "    <script type='text/javascript'>\n" +
+            //             "        var format;\n" +
+            //             "        if (lang_user == 'fr-FR')\n" +
+            //             "            format = 'DD/MM/YYYY HH:mm';\n" +
+            //             "        else\n" +
+            //             "            format = 'YYYY-MM-DD HH:mm';\n" +
+            //             "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
+            //             "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    toastr.error(\"Error: Start date is after end date.\");\n" +
+            //             "                    return false;\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    toastr.error(\"Error: End date is before start date.\");\n" +
+            //             "                    return false;\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "            return true;" +
+            //             "        });\n" +
+            //             "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
+            //             "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+            //             "                var start = moment($(this).val(), format);\n" +
+            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    $(this).val('');\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "        });\n" +
+            //             "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
+            //             "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+            //             "                var end = moment($(this).val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    $(this).val('');\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "        });\n" +
+            //             "    </script>\n" +
+            //             "{/custom_js}\n";
 
-                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-            }
-
-
+            //     fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+            // }
             callback();
         });
     }

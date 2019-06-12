@@ -47,6 +47,41 @@ router.post('/waiting', function(req, res) {
     });
 });
 
+router.get('/login', block_access.loginAccess, function(req, res) {
+    res.render('login/login');
+});
+
+router.post('/login', auth.isLoggedIn, function(req, res) {
+
+    if (req.body.remember)
+        req.session.cookie.maxAge = 168 * 3600000; // 1 week
+    else
+        req.session.cookie.maxAge = 24 * 3600000; // 24h
+
+    let email_user = req.session.passport.user.email;
+
+    req.session.isgenerator = true; // Needed to differentiate from generated app session.
+
+    // Get gitlab instance
+    if(gitlabConf.doGit){
+        gitlab.getUser(email_user).then(gitlabUser => {
+            req.session.gitlab = {
+                user: gitlabUser
+            };
+            res.redirect('/default/home');
+        }).catch(err => {
+            console.error(err);
+            req.session.toastr = [{
+                message: "An error occured while getting your gitlab account.",
+                level: "error"
+            }];
+            res.redirect('/logout');
+        })
+    } else {
+        res.redirect('/default/home');
+    }
+});
+
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
     let params = {
         login: "",
@@ -127,13 +162,13 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
             res.redirect('/default/home');
         });
     }).catch(err => {
-        console.log(err);
+        console.error(err);
         req.session.toastr = [{
             message: err.message,
             level: "error"
         }];
         res.redirect('/first_connection?login='+login_user+'&email='+email_user);
-    })
+    });
 });
 
 router.get('/reset_password', block_access.loginAccess, function(req, res) {
@@ -322,42 +357,6 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
         }];
         res.redirect('/login');
     });
-});
-
-router.get('/login', block_access.loginAccess, function(req, res) {
-    res.render('login/login');
-});
-
-// Process the login form
-router.post('/login', auth.isLoggedIn, function(req, res) {
-
-    if (req.body.remember)
-        req.session.cookie.maxAge = 168 * 3600000; // 1 week
-    else
-        req.session.cookie.maxAge = 24 * 3600000; // 24h
-
-    let email_user = req.session.passport.user.email;
-
-    req.session.isgenerator = true; // Needed to differentiate from generated app session.
-
-    // Get gitlab instance
-    if(gitlabConf.doGit){
-        gitlab.getUser(email_user).then(gitlabUser => {
-            req.session.gitlab = {
-                user: gitlabUser
-            };
-            res.redirect('/default/home');
-        }).catch(err => {
-            console.error(err);
-            req.session.toastr = [{
-                message: "An error occured while getting your gitlab account.",
-                level: "error"
-            }];
-            res.redirect('/logout');
-        })
-    } else {
-        res.redirect('/default/home');
-    }
 });
 
 // Logout

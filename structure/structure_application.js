@@ -266,7 +266,7 @@ function initializeWorkflow(id_application, name_application) {
         // Remove notification from administration sidebar
         domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
             $("#notification_menu_item").remove();
-            var diagramMenuLink = '{@actionAccess entity="status" action="read"}\n';
+            var diagramMenuLink = '{#actionAccess entity="status" action="read"}\n';
             diagramMenuLink += '<li>\n';
             diagramMenuLink += '    <a href="/status/diagram">\n';
             diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
