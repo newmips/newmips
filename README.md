@@ -22,6 +22,7 @@ chmod +x install.sh<br>
 bash install.sh</pre>
 
 Follow the instructions and wait for the : "Newmips ready to be started -> node server.js"
+
 <br>
 
 ## How to start the application
