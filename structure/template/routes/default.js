@@ -52,6 +52,10 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                     break;
 
                     case 'piechart':
+                        if (!widget.field) {
+                            console.error('No field defined for widget piechart')
+                            return resolve();
+                        }
                         // Status Piechart
                         if (widget.field.indexOf('s_') == 0) {
                             var statusAlias = 'r_'+widget.field.substring(2);
