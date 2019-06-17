@@ -12,7 +12,6 @@
                 {#__ key="module.home"/}
             </a>
         </li>
-        <!-- SUB MODULE - DO NOT REMOVE -->
         <li class="active">
             {#__ key="entity.custom_data_entity.name_entity"/}
         </li>
@@ -21,10 +20,14 @@
 {<content}
     <div class="box">
         <div class="box-header">
-            <h3 class="box-title">{#__ key="operation.list"/} {#__ key="entity.custom_data_entity.plural_entity"/}</h3>
+            <h3 class="box-title">
+                {#__ key="operation.list"/}&nbsp;
+                {#__ key="entity.custom_data_entity.plural_entity"/}
+            </h3>
             <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                <i class="fa fa-minus"></i></button>
+                    <i class="fa fa-minus"></i>
+                </button>
             </div>
         </div>
         <div class="box-body">
@@ -32,12 +35,16 @@
                 <div class="col-xs-12 connectedSortable">
                     {>"custom_data_entity/list_fields"/}
                     <br>
-                    <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{#__ key="button.return"/}</a>&nbsp;&nbsp;
+                    <a class="btn btn-default" href="javascript:history.back();">
+                        <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{#__ key="button.return"/}
+                    </a>&nbsp;&nbsp;
                     {#actionAccess entity="custom_url_data_entity" action="create"}
-                    <a href="/custom_url_data_entity/create_form">
-                        <button class="btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
-                        </button>
-                    </a>
+                        <a href="/custom_url_data_entity/create_form">
+                            <button class="btn btn-success">
+                                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                                <span>{#__ key="button.create"/}</span>
+                            </button>
+                        </a>
                     {/actionAccess}
                 </div>
             </div>
@@ -51,58 +58,58 @@
     </script>
     {! SHOW !}
     {#actionAccess entity="custom_url_data_entity" action="read"}
-    <script type="text/javascript">
-        DATALIST_BUTTONS.push({
-            render: function (data, type, row) {
-                var aTag = '\
-                    <a class="btn-show" href="/custom_url_data_entity/show?id='+row['id']+'">\
-                        <button class="btn btn-primary">\
-                            <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
-                            <span>{#__ key="button.show" /}</span>\
-                        </button>\
-                    </a>';
-                return aTag;
-            },
-            searchable: false
-        });
-    </script>
+        <script type="text/javascript">
+            DATALIST_BUTTONS.push({
+                render: function (data, type, row) {
+                    var aTag = '\
+                        <a class="btn-show" href="/custom_url_data_entity/show?id='+row['id']+'">\
+                            <button class="btn btn-primary">\
+                                <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
+                                <span>{#__ key="button.show" /}</span>\
+                            </button>\
+                        </a>';
+                    return aTag;
+                },
+                searchable: false
+            });
+        </script>
     {/actionAccess}
     {! UPDATE !}
     {#actionAccess entity="custom_url_data_entity" action="update"}
-    <script type="text/javascript">
-        DATALIST_BUTTONS.push({
-            render: function (data, type, row) {
-                var aTag = '\
-                <a href="/custom_url_data_entity/update_form?id='+row['id']+'">\
-                    <button class="btn btn-warning">\
-                        <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
-                        <span>{#__ key="button.update" /}</span>\
-                    </button>\
-                </a>';
-                return aTag;
-            },
-            searchable: false
-        });
-    </script>
+        <script type="text/javascript">
+            DATALIST_BUTTONS.push({
+                render: function (data, type, row) {
+                    var aTag = '\
+                    <a href="/custom_url_data_entity/update_form?id='+row['id']+'">\
+                        <button class="btn btn-warning">\
+                            <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
+                            <span>{#__ key="button.update" /}</span>\
+                        </button>\
+                    </a>';
+                    return aTag;
+                },
+                searchable: false
+            });
+        </script>
     {/actionAccess}
     {! DELETE !}
     {#actionAccess entity="custom_url_data_entity" action="delete"}
-    <script type="text/javascript">
-        DATALIST_BUTTONS.push({
-            render: function (data, type, row) {
-                var form = '\
-                <form action="/custom_url_data_entity/delete" method="post">\
-                    <input name="id" type="hidden" value="'+row['id']+'" />\
-                    <button class="btn btn-danger btn-confirm">\
-                        <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                        <span>{#__ key="button.delete" /}</span>\
-                    </button>\
-                </form>';
-                return form;
-            },
-            searchable: false
-        });
-    </script>
+        <script type="text/javascript">
+            DATALIST_BUTTONS.push({
+                render: function (data, type, row) {
+                    var form = '\
+                    <form action="/custom_url_data_entity/delete" method="post">\
+                        <input name="id" type="hidden" value="'+row['id']+'" />\
+                        <button class="btn btn-danger btn-confirm">\
+                            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                            <span>{#__ key="button.delete" /}</span>\
+                        </button>\
+                    </form>';
+                    return form;
+                },
+                searchable: false
+            });
+        </script>
     {/actionAccess}
 
     <!-- jQuery UI 1.10.3-->

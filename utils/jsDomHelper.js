@@ -1,9 +1,9 @@
-var fs = require("fs-extra");
-var jsdom = require("jsdom/lib/old-api.js");
-var html = require('html');
-var jquery = fs.readFileSync(__dirname + "/../public/js/jQuery/jquery.min.js", "utf-8");
-var helpers = require("./helpers");
-var prettyGirl = require('pretty');
+const fs = require("fs-extra");
+const jsdom = require("jsdom/lib/old-api.js");
+const html = require('html');
+const jquery = fs.readFileSync(__dirname + "/../public/js/jQuery/jquery.min.js", "utf-8");
+const helpers = require("./helpers");
+const beautify = require('js-beautify').html;
 
 function read(fileName) {
 	return new Promise(function(resolve, reject) {
@@ -93,11 +93,19 @@ function write(fileName, $) {
 		newFileData = newFileData.replace(/&quot;/g, "\"");
 		newFileData = newFileData.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
 
+		newFileData = newFileData.replace(/{#__/g, '{__');
+
 		// Indent generated html
-		newFileData = prettyGirl(newFileData,{indent_size: 4});
+		newFileData = beautify(newFileData, {
+			indent_size: 4,
+			indent_char: " ",
+			indent_with_tabs: false
+		});
+
+		newFileData = newFileData.replace(/{__/g, '{#__');
 
 		// Uncomment dust tags
-		newFileData = newFileData.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');
+		newFileData = newFileData.replace(/<!--({[<>@^?:#\/].+?})-->/g, '$1');
 
 		// Replace placeholder double quote by simple quote to be able to put double quote for {@__ key=""}
 		// Ex: placeholder="{@__ key=||}" -> placeholder='{@__ key=||}'
@@ -107,12 +115,8 @@ function write(fileName, $) {
 		newFileData = newFileData.replace(/placeholder=(.+?)(\|)(.+?)(\|)/g, 'placeholder=$1"$3"');
 
 		// Write back to file
-		var writeStream = fs.createWriteStream(fileName);
-		writeStream.write(newFileData);
-		writeStream.end();
-		writeStream.on('finish', function() {
-			resolve();
-		});
+		fs.writeFileSync(fileName, newFileData, 'utf8');
+		resolve();
 	});
 }
 exports.write = write;

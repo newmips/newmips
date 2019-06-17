@@ -252,7 +252,7 @@ exports.setupDataEntity = function (attr, callback) {
                 let htmlToAdd = "" +
                         "<li>" +
                         "   <a class='sub-module-arianne' href='/default/" + nameModule.toLowerCase().substring(2) + "'>" +
-                        "       {#__ key=\"module." + nameModule.toLowerCase() + "\"/}" +
+                        "       <!--{#__ key=\"module." + nameModule.toLowerCase() + "\"/}-->" +
                         "   </a>" +
                         "</li>";
 

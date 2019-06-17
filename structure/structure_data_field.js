@@ -63,28 +63,31 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     }
 
     // Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
-    var disabled = readOnly ? "disabled" : "";
-    readOnly = readOnly ? "readOnly" : "";
-    var str = "<div data-field='" + dataField + "' class='fieldLineHeight col-xs-12'>\n";
-    str += "    <div class='form-group'>\n";
-    str += "        <label for='" + dataField + "'>\n";
-    str += "                <!--{#__ key=\"entity." + dataEntity + "." + dataField + "\"/}-->&nbsp;\n";
-    str += '                <!--{@inline_help field="' + dataField + '"}-->\n';
-    str += '                    <i data-field="' + dataField + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-    str += '                <!--{/inline_help}-->\n'
-    str += "            </label>\n"
+    let disabled = readOnly ? 'disabled' : '';
+    readOnly = readOnly ? 'readOnly' : '';
+
+    let str = `\
+    <div data-field='${dataField}' class='fieldLineHeight col-xs-12'>\n\
+        <div class='form-group'>\n\
+            <label for='${dataField}'>\n\
+                <!--{#__ key=\"entity.${dataEntity}.${dataField}"/}-->&nbsp;\n\
+                <!--{@inline_help field="${dataField}"}-->\n\
+                    <i data-field="${dataField}" class="inline-help fa fa-info-circle" style="color: #1085EE;"></i>\n\
+                <!--{/inline_help}-->\n\
+            </label>\n`;
+
     // Check type of field
     switch (type) {
         case "string" :
         case "":
-            str += "	<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' maxLength='255' " + readOnly + "/>\n";
+            str += "<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' maxLength='255' " + readOnly + "/>\n";
             break;
         case "color" :
         case "colour":
         case "couleur":
             if (value == "")
                 value = "#000000";
-            str += "    <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
             break;
         case "money":
         case "currency":
@@ -140,11 +143,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "link" :
             if (file == 'show') {
                 str += "    <br><a href='" + value + "' target='_blank' type='url' data-type='url' style='display: table-cell;padding-right: 5px;'>" + value + "</a>\n";
-                str += "    {?" + value2 + "}"
+                str += "    <!--{?" + value2 + "}-->"
                 str += "    <div class='copy-button'>\n";
                 str += "        <i class='fa fa-copy'></i>\n";
                 str += "    </div>\n";
-                str += "    {/" + value2 + "}"
+                str += "    <!--{/" + value2 + "}-->"
             } else {
                 str += "    <div class='input-group'>\n";
                 str += "        <div class='input-group-addon'>\n";
@@ -157,25 +160,25 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "password" :
         case "mot de passe":
         case "secret":
-            str += "	<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='password' " + readOnly + "/>\n";
+            str += "<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='password' " + readOnly + "/>\n";
             break;
         case "number" :
         case "nombre" :
         case "int" :
         case "integer" :
-            str += "	<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
+            str += "<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
             break;
         case "big number" :
         case "big int" :
         case "big integer" :
         case "grand nombre" :
-            str += "    <input class='form-control input' data-custom-type='bigint' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
+            str += "<input class='form-control input' data-custom-type='bigint' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
             break;
         case "decimal" :
         case "double" :
         case "float" :
         case "figures" :
-            str += "	<input class='form-control input' data-custom-type='decimal' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "        <input class='form-control input' data-custom-type='decimal' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
         case "date" :
             str += "   <div class='input-group'>\n";
@@ -183,9 +186,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "            <i class='fa fa-calendar'></i>\n";
             str += "        </div>\n";
             if (file == "show") {
-                str += "		<input class='form-control input datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
             } else if (file == "update") {
-                str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             } else if (file == "create") {
                 str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' " + value + " type='text' " + readOnly + "/>\n";
             }
@@ -207,54 +210,54 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "time" :
         case "heure" :
             if (file == "show") {
-                str += "	<div class='bootstrap-timepicker'>\n";
-                str += "		<div class='input-group'>\n";
-                str += "			<div class='input-group-addon'>\n";
-                str += "				<i class='fa fa-clock-o'></i>\n";
-                str += "			</div>\n";
-                str += "			<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
-                str += "		</div>\n";
-                str += "	</div>\n";
+                str += "    <div class='bootstrap-timepicker'>\n";
+                str += "        <div class='input-group'>\n";
+                str += "            <div class='input-group-addon'>\n";
+                str += "                <i class='fa fa-clock-o'></i>\n";
+                str += "            </div>\n";
+                str += "            <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
+                str += "        </div>\n";
+                str += "    </div>\n";
             } else {
-                str += "	<div class='bootstrap-timepicker'>\n";
-                str += "		<div class='input-group'>\n";
-                str += "			<div class='input-group-addon'>\n";
-                str += "				<i class='fa fa-clock-o'></i>\n";
-                str += "			</div>\n";
-                str += "			<input class='form-control input timepicker' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
-                str += "		</div>\n";
-                str += "	</div>\n";
+                str += "    <div class='bootstrap-timepicker'>\n";
+                str += "        <div class='input-group'>\n";
+                str += "            <div class='input-group-addon'>\n";
+                str += "                <i class='fa fa-clock-o'></i>\n";
+                str += "            </div>\n";
+                str += "            <input class='form-control input timepicker' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        </div>\n";
+                str += "    </div>\n";
             }
             break;
         case "email" :
         case "mail" :
         case "e-mail" :
         case "mel" :
-            str += "	<div class='input-group'>\n";
-            str += "		<div class='input-group-addon'>\n";
-            str += "			<i class='fa fa-envelope'></i>\n";
-            str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='email' " + readOnly + "/>\n";
-            str += "	</div>\n";
+            str += "    <div class='input-group'>\n";
+            str += "        <div class='input-group-addon'>\n";
+            str += "            <i class='fa fa-envelope'></i>\n";
+            str += "        </div>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='email' " + readOnly + "/>\n";
+            str += "    </div>\n";
             break;
         case "tel" :
         case "téléphone" :
         case "portable" :
         case "phone" :
-            str += "	<div class='input-group'>\n";
-            str += "		<div class='input-group-addon'>\n";
-            str += "			<i class='fa fa-phone'></i>\n";
-            str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
-            str += "	</div>\n";
+            str += "    <div class='input-group'>\n";
+            str += "        <div class='input-group-addon'>\n";
+            str += "            <i class='fa fa-phone'></i>\n";
+            str += "        </div>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
+            str += "    </div>\n";
             break;
         case "fax" :
-            str += "	<div class='input-group'>\n";
-            str += "		<div class='input-group-addon'>\n";
-            str += "			<i class='fa fa-fax'></i>\n";
-            str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
-            str += "	</div>\n";
+            str += "    <div class='input-group'>\n";
+            str += "        <div class='input-group-addon'>\n";
+            str += "            <i class='fa fa-fax'></i>\n";
+            str += "        </div>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
+            str += "    </div>\n";
             break;
         case "boolean" :
         case "checkbox" :
@@ -266,11 +269,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 else
                     str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' />\n";
             } else {
-                str += "	{@ifTrue key=" + dataField + "}";
-                str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
-                str += "	{:else}";
-                str += "		<input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
-                str += "	{/ifTrue}";
+                str += "    <!--{@ifTrue key=" + dataField + "}-->";
+                str += "        <input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
+                str += "    <!--{:else}-->";
+                str += "        <input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
+                str += "    <!--{/ifTrue}-->";
             }
             break;
         case "radio" :
@@ -285,46 +288,46 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
 
             if (file == "create") {
                 if (clearDefaultValue != "") {
-                    str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
+                    str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                     str += "    &nbsp;\n<br>\n";
                     str += "    <label class='no-weight'>";
-                    str += "    {@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }\n";
+                    str += "    <!--{@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }-->\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
-                    str += "    {:else}\n";
+                    str += "    <!--{:else}-->\n";
                     str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
-                    str += "    {/eq}\n";
+                    str += "    <!--{/eq}-->\n";
                     str += "    </label>";
-                    str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
+                    str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 } else {
-                    str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
+                    str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                     str += "    &nbsp;\n<br>\n";
                     str += "    <label class='no-weight'>";
                     str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    </label>";
-                    str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
+                    str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 }
             } else if (file == "show") {
-                str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    &nbsp;\n<br>\n";
                 str += "    <label class='no-weight'>";
-                str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
+                str += "    <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
-                str += "    {:else}\n";
+                str += "    <!--{:else}-->\n";
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
-                str += "    {/eq}\n";
+                str += "    <!--{/eq}-->\n";
                 str += "    </label>";
-                str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}\n";
             } else {
-                str += "{#enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    &nbsp;\n<br>\n";
                 str += "    <label class='no-weight'>";
-                str += "    {@eq key=" + value2 + " value=\"{.value}\" }\n";
+                str += "    <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
-                str += "    {:else}\n";
+                str += "    <!--{:else}-->\n";
                 str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
-                str += "    {/eq}\n";
+                str += "    <!--{/eq}-->\n";
                 str += "    </label>";
-                str += "{/enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
             }
             break;
         case "enum" :
@@ -339,7 +342,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "    <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
             } else if (file != "create") {
                 str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
-                str += "        <option value=''>{#__ key=\"select.default\" /}</option>\n";
+                str += "        <option value=''><!--{#__ key=\"select.default\" /}--></option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
@@ -350,7 +353,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "    </select>\n";
             } else if (value != "") {
                 str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
-                str += "        <option value=''>{#__ key=\"select.default\" /}</option>\n";
+                str += "        <option value=''><!--{#__ key=\"select.default\" /}--></option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <!--{@eq key=\"" + value + "\" value=\"{.value}\" }-->\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
@@ -361,7 +364,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "    </select>\n";
             } else {
                 str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
-                str += "        <option value='' selected>{#__ key=\"select.default\" /}</option>\n";
+                str += "        <option value='' selected><!--{#__ key=\"select.default\" /}--></option>\n";
                 str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "            <option value=\"{.value}\"> {.translation} </option>\n";
                 str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
@@ -390,15 +393,15 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "fichier":
         case "file":
             if (file != 'show') {
-                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
+                str += "    <div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
+                str += "    <input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
             } else {
-                str += "	<div class='input-group'>\n";
-                str += "		<div class='input-group-addon'>\n";
-                str += "			<i class='fa fa-download'></i>\n";
-                str += "		</div>\n";
-                str += "		<a href=/default/download?entity=" + dataEntity + "&f={" + value2 + "|urlencode} class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
-                str += "	</div>\n";
+                str += "    <div class='input-group'>\n";
+                str += "        <div class='input-group-addon'>\n";
+                str += "            <i class='fa fa-download'></i>\n";
+                str += "        </div>\n";
+                str += "        <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + "|urlencode} class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
+                str += "    </div>\n";
             }
             break;
         case "img":
@@ -406,54 +409,61 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "image":
         case "photo":
             if (file != 'show') {
-                str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
+                str += "    <div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
+                str += "    <input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
             } else {
-                str += "	<div class='input-group'>\n";
+                str += "    <div class='input-group'>\n";
                 str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value|urlencode} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
-                str += "	</div>\n";
+                str += "    </div>\n";
             }
             break;
         case "cloudfile" :
-            str += "	<div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
-            str += "	<input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
+            str += "    <div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
+            str += "    <input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
             break;
         default :
-            str += "	<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "    <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
 
-    str += "</div>\n</div>\n";
+    str += '\
+        </div>\n\
+    </div>\n';
+
     return str;
 }
 
-function getFieldInHeaderListHtml(type, nameDataField, nameDataEntity) {
-    var dataEntity = nameDataEntity.toLowerCase();
-    var dataField = nameDataField.toLowerCase();
-    var ret = {headers: '', body: ''};
+function getFieldInHeaderListHtml(type, fieldName, entityName) {
+    let entity = entityName.toLowerCase();
+    let field = fieldName.toLowerCase();
+    let result = {
+        headers: '',
+        body: ''
+    };
+
     /* ------------- Add new FIELD in headers ------------- */
-    var str = '<th data-field="' + dataField + '" data-col="' + dataField + '"';
-    str += ' data-type="' + type + '"';
-    str += '>\n';
-    str += '{#__ key="entity.' + dataEntity + '.' + dataField + '"/}\n';
-    str += '</th>';
-    ret.headers = str;
+    let str = '\
+    <th data-field="' + field + '" data-col="' + field + '" data-type="' + type + '" >\n\
+        <!--{#__ key="entity.' + entity + '.' + field + '"/}-->\n\
+    </th>';
+
+    result.headers = str;
 
     /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-    str = '<td data-field="' + dataField + '"';
-    str += ' data-type="' + type + '">';
-    if (type == "text")
-        str += '{' + dataField + '|s}';
-    else if (type == 'picture')
-        str += '<img src="data:image/;base64,{' + dataField + '.buffer}" class="img img-responsive" data-type="picture" name="' + dataField + '" readonly="">';
-    else if (type == 'file')
-        str += '<a href="/default/download?entity=' + dataEntity + '&amp;f={' + dataField + '}" name="' + dataField + '">{' + dataField + '}</a>';
-    else
-        str += '{' + dataField + '}';
-    str += '</td>';
+    // str = '<td data-field="' + field + '"';
+    // str += ' data-type="' + type + '">';
+    // if (type == "text")
+    //     str += '{' + field + '|s}';
+    // else if (type == 'picture')
+    //     str += '<img src="data:image/;base64,{' + field + '.buffer}" class="img img-responsive" data-type="picture" name="' + field + '" readonly="">';
+    // else if (type == 'file')
+    //     str += '<a href="/default/download?entity=' + entity + '&amp;f={' + field + '}" name="' + field + '">{' + field + '}</a>';
+    // else
+    //     str += '{' + field + '}';
+    // str += '</td>';
 
-    ret.body = str;
-    return ret;
+    // result.body = str;
+    return result;
 }
 
 function updateFile(fileBase, file, string, callback) {
@@ -1091,7 +1101,7 @@ function addTab(attr, file, newLi, newTabContent, target) {
                 tabs += '<div class="nav-tabs-custom" id="tabs">';
                 tabs += '   <!--{^hideTab}-->';
                 tabs += '	<ul class="nav nav-tabs">';
-                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{#__ key="entity.' + source + '.label_entity" /}</a></li>';
+                tabs += '		<li class="active"><a data-toggle="tab" href="#home"><!--{#__ key="entity.' + source + '.label_entity" /}--></a></li>';
                 tabs += '	</ul>';
                 tabs += '   <!--{/hideTab}-->';
 
@@ -1158,7 +1168,7 @@ exports.setupHasManyTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">{#__ key="entity.' + source + '.' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></a></li>';
 
             // Create new tab content
             var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
@@ -1205,7 +1215,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
             var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">{#__ key="entity.' + source + '.' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></a></li>';
 
             var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
@@ -1259,14 +1269,14 @@ exports.setupRelatedToField = function (attr, callback) {
     var select = '';
     select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
     select += '     <label for="' + alias + '">\n';
-    select += '         {#__ key="entity.' + source + '.' + alias + '" /}&nbsp;\n'
+    select += '         <!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n'
     select += '         <!--{@inline_help field="' + alias + '"}-->\n';
     select += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
     select += '         <!--{/inline_help}-->\n';
     select += '     </label>\n';
     select += '     <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
     select += '         <option value="">\n';
-    select += '             {#__ key="select.default" /}\n';
+    select += '             <!--{#__ key="select.default" /}-->\n';
     select += '         </option>\n';
     select += '         <!--{#' + alias + '}-->\n';
     select += '         <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n';
@@ -1289,7 +1299,7 @@ exports.setupRelatedToField = function (attr, callback) {
                 // Add read only field in show file. No tab required
                 var str = "";
                 str = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-                str += "    <label for='" + alias + "'> {#__ key=\"entity." + source + "." + alias + "\"/} </label>\n";
+                str += "    <label for='" + alias + "'><!--{#__ key=\"entity." + source + "." + alias + "\"/}--></label>\n";
                 str += "    <input class='form-control input' placeholder='{#__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
                 for (var i = 0; i < usingField.length; i++) {
                     str += "{" + alias + "." + usingField[i].value + "|" + usingField[i].type + "}";
@@ -1327,7 +1337,7 @@ exports.setupRelatedToField = function (attr, callback) {
                                 //var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
                                 str += ' data-type="' + usingField[cpt].type + '"';
                                 str += '>\n';
-                                str += '{#__ key="entity.' + source + '.' + alias + '"/}&nbsp;-&nbsp;{#__ key="entity.' + target + '.' + targetField + '"/}\n';
+                                str += '<!--{#__ key="entity.' + source + '.' + alias + '"/}-->&nbsp;-&nbsp;<!--{#__ key="entity.' + target + '.' + targetField + '"/}-->\n';
                                 str += '</th>\n';
                                 toAddInList.headers = str;
 
@@ -1380,7 +1390,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     // Setup association field for create_fields
     var head = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
     head += '     <label for="f_' + urlAs + '">\n';
-    head += '         {#__ key="entity.' + source + '.' + alias + '" /}\n';
+    head += '         <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n';
     head += '         <!--{@inline_help field="' + alias + '"}-->\n';
     head += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
     head += '         <!--{/inline_help}-->\n';
@@ -1413,7 +1423,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         select += '     <br><br>';
     } else {
         select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
-        select += '         <option value="">{#__ key="select.default" /}</option>\n';
+        select += '         <option value=""><!--{#__ key="select.default" /}--></option>\n';
         select += '         <!--{#' + alias + '}-->\n';
         select += '             <option value="{id}">' + usingOption.join(' - ') + '</option>\n';
         select += '         <!--{/' + alias + '}-->\n';
@@ -1514,7 +1524,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                     domHelper.read(file).then(function ($) {
 
                         select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-                        select += '     <label for="f_' + urlAs + '">{#__ key="entity.' + source + '.' + alias + '" /}</label>\n';
+                        select += '     <label for="f_' + urlAs + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></label>\n';
                         select += '     <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
                         select += '         <!--{#' + alias + '}-->\n';
                         select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
@@ -1573,7 +1583,7 @@ exports.setupHasOneTab = function (attr, callback) {
             var file = fileBase + '/show_fields.dust';
 
             // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">{#__ key="entity.' + source + '.' + alias + '" /}</a></li>';
+            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></a></li>';
 
             // Create new tab content
             var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content"></div></div>';
