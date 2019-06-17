@@ -8,7 +8,6 @@
                 {#__ key="module.home"/}
             </a>
         </li>
-        <!-- SUB MODULE - DO NOT REMOVE -->
         <li class="active">
             {#__ key="entity.custom_data_entity.name_entity"/}
         </li>
@@ -20,10 +19,14 @@
             <form action="/custom_url_data_entity/create" method="post">
                 <div class="box">
                     <div class="box-header">
-                        <h3 class="box-title">{#__ key="operation.create"/} {#__ key="entity.custom_data_entity.name_entity"/}</h3>
+                        <h3 class="box-title">
+                            {#__ key="operation.create"/}&nbsp;
+                            {#__ key="entity.custom_data_entity.name_entity"/}
+                        </h3>
                         <div class="box-tools pull-right">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                            <i class="fa fa-minus"></i></button>
+                                <i class="fa fa-minus"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="box-body">
@@ -34,7 +37,10 @@
                     </div>
 
                     <div class="box-footer">
-                        <a class="btn btn-default" href="javascript:history.back();">{#__ key="button.cancel"/}</a>&nbsp;&nbsp;
+                        <a class="btn btn-default" href="javascript:history.back();">
+                            {#__ key="button.cancel"/}
+                        </a>
+                        &nbsp;&nbsp;
                         {#actionAccess entity="custom_url_data_entity" action="create"}
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
@@ -64,18 +70,18 @@
     </div>
 {/content}
 {<custom_js}
-<script type="text/javascript">
-    $(function() {
-        /* Apply focus on first row's form element */
-        function firstElementFocus(idx) {
-            if(!idx)
-                idx = 0;
-            var element = $(".form-group:eq("+idx+") label:eq(0)").next().focus();
-            if ((element && (!element.is(":visible") || element.prop('disabled') == true || element.prop('readonly') == true))
-            && ($(".form-group").length > 0 && idx <= $(".form-group").length))
-                firstElementFocus(idx+1);
-        }
-        firstElementFocus();
-    });
-</script>
+    <script type="text/javascript">
+        $(function() {
+            /* Apply focus on first row's form element */
+            function firstElementFocus(idx) {
+                if(!idx)
+                    idx = 0;
+                var element = $(".form-group:eq("+idx+") label:eq(0)").next().focus();
+                if ((element && (!element.is(":visible") || element.prop('disabled') == true || element.prop('readonly') == true))
+                && ($(".form-group").length > 0 && idx <= $(".form-group").length))
+                    firstElementFocus(idx+1);
+            }
+            firstElementFocus();
+        });
+    </script>
 {/custom_js}

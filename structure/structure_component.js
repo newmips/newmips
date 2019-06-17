@@ -64,16 +64,22 @@ function addTab(attr, file, newLi, newTabContent) {
             var tabs = '';
             var context;
             if ($("#tabs").length == 0) {
-                tabs += '<div class="nav-tabs-custom" id="tabs">';
-                tabs += '   <!--{^hideTab}-->';
-                tabs += '	<ul class="nav nav-tabs">';
-                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{#__ key="entity.' + source + '.label_entity" /}</a></li>';
-                tabs += '	</ul>';
-                tabs += '   <!--{/hideTab}-->';
-                tabs += '	<div class="tab-content" style="min-height:275px;">';
-                tabs += '		<div id="home" class="tab-pane fade in active"></div>';
-                tabs += '	</div>';
-                tabs += '</div>';
+                tabs = '\
+                <div class="nav-tabs-custom" id="tabs">\n\
+                    <!--{^hideTab}-->\n\
+                        <ul class="nav nav-tabs">\n\
+                            <li class="active">\n\
+                                <a data-toggle="tab" href="#home">\n\
+                                    <!--{#__ key="entity.' + source + '.label_entity" /}-->\n\
+                                </a>\n\
+                            </li>\n\
+                        </ul>\n\
+                    <!--{/hideTab}-->\n\
+                    <div class="tab-content" style="min-height:275px;">\n\
+                        <div id="home" class="tab-pane fade in active"></div>\n\
+                    </div>\n\
+                </div>\n';
+
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
@@ -176,7 +182,7 @@ exports.newLocalFileStorage = function (attr, callback) {
                         fs.mkdirSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName, 0766);
                         fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
 
-                        var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{#__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
+                        var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '"><!--{#__ key="component.' + componentNameLower + '.label_component" /}--></a></li>';
 
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
@@ -194,81 +200,35 @@ exports.newLocalFileStorage = function (attr, callback) {
 }
 
 exports.newPrint = function (attr, callback) {
-    var nameComponent = attr.options.value;
-    var nameComponentLower = nameComponent.toLowerCase();
-    var showComponentName = attr.options.showValue;
-    var entityLower = attr.options.source.toLowerCase();
-    var idApp = attr.id_application;
+    let nameComponent = attr.options.value;
+    let nameComponentLower = nameComponent.toLowerCase();
+    let showComponentName = attr.options.showValue;
+    let entityLower = attr.options.source.toLowerCase();
+    let appID = attr.id_application;
 
-    var showFieldsPath = __dirname + '/../workspace/' + idApp + '/views/' + entityLower + '/show_fields.dust';
+    let showFieldsPath = __dirname + '/../workspace/' + appID + '/views/' + entityLower + '/show_fields.dust';
 
     domHelper.read(showFieldsPath).then(function ($) {
-        var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{#__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
+        let newLi = '\
+        <li>\n\
+            <a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '">\n\
+                <!--{#__ key="component.' + nameComponentLower + '.label_component" /}-->\n\
+            </a>\n\
+        </li>\n';
 
-        var tabContent = "";
-        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane ajax-tab fade' data-tabtype='print'>\n";
-        tabContent += "     <style>";
-        tabContent += "        @page { size: auto;  margin: 0mm; }";
-        tabContent += "        @media print {";
-        tabContent += "            body{";
-        tabContent += "                height: 100%;";
-        tabContent += "            }";
-        tabContent += "            body * {";
-        tabContent += "                visibility: hidden;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content,";
-        tabContent += "            #" + nameComponent + "-content * {";
-        tabContent += "                visibility: visible;";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content {";
-        tabContent += "                position: absolute;";
-        tabContent += "                left: 0;";
-        tabContent += "                top: 0;";
-        tabContent += "                margin: 0px;";
-        tabContent += "                padding: 15px;";
-        tabContent += "                border: 0px;";
-        tabContent += "                width: 100%;";
-        tabContent += "                height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "                font-size: 18px !important;";
-        tabContent += "            }";
-        tabContent += "            .form-control {";
-        tabContent += "                font-size: 18px !important;";
-        tabContent += "            }";
-        tabContent += "            ." + nameComponent + " {";
-        tabContent += "                height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            .tab-content{";
-        tabContent += "                height: 100%;";
-        tabContent += "                min-height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            .content-wrapper{";
-        tabContent += "                height: 100%;";
-        tabContent += "                min-height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            .wrapper{";
-        tabContent += "                height: 100%;";
-        tabContent += "                min-height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content a:after {";
-        tabContent += "                content: '';";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content a[href]:after {";
-        tabContent += "                content: none !important;";
-        tabContent += "            }";
-        tabContent += "        }";
-        tabContent += "     </style>\n";
-        tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{#__ key=\"global_component.print.action\"/}</button>\n";
-        tabContent += "     <div id='" + nameComponent + "-content' class='ajax-content print-tab'>\n";
-        tabContent += "     </div>\n";
-        tabContent += "</div>\n";
+        let cssPrintContent = fs.readFileSync(__dirname + '/../workspace/' + appID + '/public/css/print.css', 'utf8');
+        cssPrintContent = cssPrintContent.replace(/COMPONENT_NAME/g, nameComponent);
+        fs.writeFileSync(__dirname + '/../workspace/' + appID + '/public/css/print_' + nameComponent + '.css', cssPrintContent, 'utf8');
 
-        translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function () {
+        let tabContent = " \
+        <div id='" + nameComponentLower + "' class='tab-pane ajax-tab fade' data-tabtype='print'>\n \
+            <link href='/public/css/print_" + nameComponent + ".css' rel='stylesheet' type='text/css'>\n \
+            <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{#__ key=\"global_component.print.action\"/}--></button>\n \
+            <div id='" + nameComponent + "-content' class='ajax-content print-tab'>\n \
+            </div>\n \
+        </div>\n";
+
+        translateHelper.writeLocales(appID, "component", nameComponent, showComponentName, attr.googleTranslate, function () {
             addTab(attr, showFieldsPath, newLi, tabContent).then(callback);
         });
     });
@@ -824,7 +784,7 @@ exports.newCra = function (attr, callback) {
             newLayoutLI += '<li>\n';
             newLayoutLI += '    <a href="/cra/declare">\n';
             newLayoutLI += '        <i class="fa fa-angle-double-right"></i>\n';
-            newLayoutLI += '        {#__ key="entity.e_cra.custom_button_declare" /}\n';
+            newLayoutLI += '        <!--{#__ key="entity.e_cra.custom_button_declare" /}-->\n';
             newLayoutLI += '    </a>\n';
             newLayoutLI += '</li>\n';
             $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
@@ -950,7 +910,7 @@ exports.newStatus = function (attr, callback) {
                     // Add createdAt column in thead/tbody
                     var newTh = '';
                     newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
-                    newTh += '    {#__ key="defaults.createdAt"/}\n';
+                    newTh += '    <!--{#__ key="defaults.createdAt"/}-->\n';
                     newTh += '</th>\n';
                     $(".fields").each(function () {
                         $(this).find("th:eq(0)").before(newTh);
@@ -1562,8 +1522,9 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
     var entity_path = __dirname + '/pieces/component/document_template/';
     var relationEntityShowFieldsFile = application_path + 'views' + '/' + source + '/show_fields.dust';
-    //new entry for source relation view
-    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
+
+    // New entry for source relation view
+    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '"><!--{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}--></a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
     var sourceDoc = source.substring(2);
     sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);

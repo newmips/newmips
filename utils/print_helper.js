@@ -7,14 +7,14 @@ module.exports = {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
             content += '<div class="dontbreakitplz">\n';
-            content += '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n';
+            content += '<!--{#entityAccess entity="'+target.substring(2)+'" }-->\n';
             content += "<div id='"+targetAlias+"_print' class='row'>\n";
             content += "    <div class=\"col-xs-12\">\n";
-            content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
+            content += "        <h3><!--{#__ key=\"entity."+target+".name_entity\" /}--></h3>\n";
             content += "        <hr>\n";
             content += "    </div>\n";
             content += "    <div class=\"col-xs-12\">\n";
-            content += '        {#'+targetAlias+'}{>"' + target + '/print_fields" /}{/'+targetAlias+'}\n';
+            content += '        <!--{#'+targetAlias+'}-->{>"' + target + '/print_fields" /}{/'+targetAlias+'}\n';
             content += "    </div>\n";
             content += "</div>\n";
             content += '{/entityAccess}\n';
@@ -30,15 +30,15 @@ module.exports = {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = '';
             content += '<div class="dontbreakitplz">\n';
-            content += '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n';
+            content += '<!--{#entityAccess entity="'+target.substring(2)+'" }-->\n';
             content += "<div id='"+targetAlias+"_print' class=\"row\">\n";
             content += "    <div class=\"col-xs-12\">\n";
-            content += "        <h3>{@__ key=\"entity."+target+".name_entity\" /}</h3>\n";
+            content += "        <h3><!--{#__ key=\"entity."+target+".name_entity\" /}--></h3>\n";
             content += "        <hr>\n";
             content += "    </div>\n";
             content += "    <div class=\"col-xs-12\">\n";
             content += '        <!--{#' + targetAlias + ' ' + target + '=' + targetAlias + '}-->\n';
-            content += '        <!--{@eq key=id value=' + target + '[0].id}-->\n';
+            content += '        <!--{#eq key=id value=' + target + '[0].id}-->\n';
             content += '        {>"' + target + '/list_fields" associationAlias="' + targetAlias + '" associationForeignKey="" associationFlag="" associationSource="" associationUrl="" for="hasMany" /}\n';
             content += '        <!--{/eq}-->\n';
             content += '        <!--{:else}-->\n';
@@ -60,10 +60,10 @@ module.exports = {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
             "<div class='dontbreakitplz'>\n"+
-            '<!--{@entityAccess entity="'+target.substring(2)+'" }-->\n'+
+            '<!--{#entityAccess entity="'+target.substring(2)+'" }-->\n'+
             "<div id='"+componentName+"_print' class='row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
-            "        <h3><!--{@__ key=\"component."+componentName+".label_component\" /}--></h3>\n"+
+            "        <h3><!--{#__ key=\"component."+componentName+".label_component\" /}--></h3>\n"+
             "        <hr>\n"+
             "    </div>\n"+
             "    <div class=\"col-xs-12\">\n"+
@@ -71,7 +71,7 @@ module.exports = {
             "           <thead class=\"main\">\n"+
             "               <tr class=\"fields\">\n"+
             "                   <th data-col=\"id\">ID</th>\n"+
-            "                   <th data-field=\"f_filename\" data-col=\"f_filename\"><!--{@__ key=\"global_component.local_file_storage.filename\"/}--></th>\n"+
+            "                   <th data-field=\"f_filename\" data-col=\"f_filename\"><!--{#__ key=\"global_component.local_file_storage.filename\"/}--></th>\n"+
             "               </tr>\n"+
             "           </thead>\n"+
             "           <tbody>\n"+
@@ -98,18 +98,18 @@ module.exports = {
             var sourceTemplatePath = fileBase + '/print_fields.dust';
             var content = ""+
             "<div class='dontbreakitplz'>\n"+
-            "<!--{@entityAccess entity=\""+componentName+"\"}-->\n"+
+            "<!--{#entityAccess entity=\""+componentName+"\"}-->\n"+
             "<div id='"+componentName+"_print' class='row'>\n"+
             "    <div class=\"col-xs-12\">\n"+
-            "        <h3><!--{@__ key=\"component.c_address.label_component\" /}--></h3>\n"+
+            "        <h3><!--{#__ key=\"component.c_address.label_component\" /}--></h3>\n"+
             "        <hr>\n"+
             "    </div>\n"+
             "    <div class=\"col-xs-12\">\n"+
-            "       {#r_" + componentName + " " + componentName + "=r_" + componentName + "}\n"+
-            "       {@eq key=id value=" + componentName + "[0].id}\n"+
+            "       <!--{#r_" + componentName + " " + componentName + "=r_" + componentName + "}-->\n"+
+            "       <!--{#eq key=id value=" + componentName + "[0].id}-->\n"+
             "       {>\"" + componentName + "/list_fields\" associationAlias=\"r_" + componentName + "\" for=\"hasMany\" /}\n"+
-            "       {/eq}\n"+
-            "       {:else}\n"+
+            "       <!--{/eq}-->\n"+
+            "       <!--{:else}-->\n"+
             "       {>\"" + componentName + "/list_fields\" /}\n"+
             "       {/r_" + componentName + "}\n"+
             "   </div>\n"+
