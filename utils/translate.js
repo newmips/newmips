@@ -26,6 +26,29 @@ module.exports = {
         dive(localesObj, object);
         fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json', JSON.stringify(localesObj, null, 4), 'utf8');
     },
+    writeEnumTrad: function (idApplication, entity, field, value, traduction, lang = 'fr-FR') {
+        const enumTrads = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json'));
+
+        let success = false;
+        mainLoop:for (const enumEntity in enumTrads)
+            // Find entity's entry
+            if (entity == enumEntity)
+                // Find field's entry
+                for (const enumField in enumTrads[enumEntity])
+                    if (field == enumField)
+                        // Find enum value entry
+                        for (let i = 0; i < enumTrads[enumEntity][enumField].length; i++)
+                            if (enumTrads[enumEntity][enumField][i].value == value) {
+                                enumTrads[enumEntity][enumField][i].translations[lang] = traduction;
+                                success = true;
+                                break mainLoop;
+                            }
+
+        if (success == true)
+            fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json', JSON.stringify(enumTrads, null, 4), 'utf8');
+
+        return success;
+    },
     writeLocales: function(idApplication, type, keyValue, value, toTranslate, callback) {
 
         // If field value is an array
