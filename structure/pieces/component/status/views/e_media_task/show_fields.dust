@@ -67,24 +67,6 @@
             <div class="show-textarea">{f_data_flow|s}</div>
         </div>
     </div>
-    <div data-field="f_program_type" class="fieldLineHeight col-xs-12">
-        <div class="form-group">
-            <label for="f_program_type">
-                {#__ key="entity.e_media_task.f_program_type"/}&nbsp;
-                {@inline_help field="f_program_type"}
-                <i data-field="f_program_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-                {/inline_help}
-            </label>
-            {^f_program_type}
-            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_program_type" /}' name="f_program_type" type="text" readonly="">
-            {/f_program_type}
-            {#enum_radio.e_media_task.f_program_type}
-            {@eq key=f_program_type value="{.value}" }
-            <input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_program_type" /}' name="f_program_type" value="{.translation}" type="text" readonly="">
-            {/eq}
-            {/enum_radio.e_media_task.f_program_type}
-        </div>
-    </div>
 </div>
 <div class="actions">
     <form action="/media/delete" method="post">
