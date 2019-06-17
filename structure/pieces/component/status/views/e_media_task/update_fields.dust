@@ -97,24 +97,4 @@
             <textarea class="form-control textarea regular-textarea" placeholder='{#__ key="entity.e_media_task.f_data_flow" /}' name="f_data_flow" id="f_data_flow_textareaid" type="text">{f_data_flow|s}</textarea>
         </div>
     </div>
-    <div data-field="f_program_type" class="fieldLineHeight col-xs-12">
-        <div class="form-group">
-            <label for="f_program_type">
-                {#__ key="entity.e_media_task.f_program_type"/}&nbsp;
-                {@inline_help field="f_program_type"}
-                <i data-field="f_program_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-                {/inline_help}
-            </label>
-            <select class="form-control select" name="f_program_type" style="width: 100%;">
-                <option value="">{#__ key="select.default" /}</option>
-                {#enum_radio.e_media_task.f_program_type}
-                {@eq key=f_program_type value="{.value}" }
-                <option value="{.value}" selected=""> {.translation} </option>
-                {:else}
-                <option value="{.value}"> {.translation} </option>
-                {/eq}
-                {/enum_radio.e_media_task.f_program_type}
-            </select>
-        </div>
-    </div>
 </div>
