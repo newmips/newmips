@@ -452,7 +452,7 @@ exports.createWidgetPiechart = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_'+attr.field.codeName+'_widget';
             // Widget box title traduction
-            $2(".box-title").text('{#__ key="defaults.widgets.piechart.'+widgetElemId+'" /}');
+            $2(".box-title").text('<!--{#__ key="defaults.widgets.piechart.'+widgetElemId+'" /}-->');
             // Create widget's html
             var newHtml = "";
             newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';

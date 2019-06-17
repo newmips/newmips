@@ -13,10 +13,23 @@ exports.generateFields = function (componentName, componentCodeName) {
             }
         }
     };
-    var createHtml = '<label>{#__ key="entity.' + componentCodeName + '.label_entity"/}</label>&nbsp;<a href="#" id="info_address_maps"><i class="fa fa-info-circle"></i></a><br><br>\n' +
-            "    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_address_fields '>\n";
-    var updateHtml = '<label>{#__ key="entity.' + componentCodeName + '.label_entity"/}</label>&nbsp;&nbsp;<a href="#" id="info_address_maps"><i class="fa fa-info-circle"></i></a><br>' +
-            "<br>\n    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_address_fields'>\n";
+    var createHtml = `\
+    <label><!--{#__ key="entity.${componentCodeName}.label_entity"/}--></label>&nbsp;\n\
+    <a href="#" id="info_address_maps">\n\
+        <i class="fa fa-info-circle"></i>\n\
+    </a>\n\
+    <br><br>\n\
+    <section id='section_${componentCodeName}_fields' class='col-xs-12 section_address_fields'>\n`;
+
+
+    var updateHtml = `\
+    <label><!--{#__ key="entity.${componentCodeName}.label_entity"/}--></label>&nbsp;&nbsp;\n\
+    <a href="#" id="info_address_maps">\n\
+        <i class="fa fa-info-circle"></i>\n\
+    </a>\n\
+    <br><br>\n\
+    <section id='section_${componentCodeName}_fields' class='col-xs-12 section_address_fields'>\n`;
+
     var showFieldsHtml = '';
     var headers = '';
     var tds = '';
@@ -114,30 +127,32 @@ exports.generateFields = function (componentName, componentCodeName) {
 
             createHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_create + "'>\n"
             createHtml += "            <div class='form-group'>\n";
-            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'><!--{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}--></label>\n";
             createHtml += "                <input class='input form-control address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >\n";
             createHtml += "            </div>\n";
             createHtml += "        </div>\n";
             // Update
             updateHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_udpate + "'>\n"
             updateHtml += "            <div class='form-group'>\n";
-            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'><!--{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}--></label>\n";
             updateHtml += "                <input class='input form-control address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{r_address." + dbcolumn + "}' placeholder='{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">\n";
             updateHtml += "            </div>\n";
             updateHtml += "        </div>\n";
             // Show
             showFieldsHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_show + "'>\n";
             showFieldsHtml += "            <div class='form-group'>\n";
-            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'><!--{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}--></label>\n";
             showFieldsHtml += "                <input class='input form-control " + dbcolumn + " ' value='{r_address." + dbcolumn + "}' placeholder='{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
             showFieldsHtml += "            </div>\n";
             showFieldsHtml += "        </div>\n";
             // Headers
 
-            var header = '<th data-field="r_address.' + dbcolumn + '" data-col="r_address.' + dbcolumn + '">\n';
-            header += '    {#__ key="entity.' + componentCodeName + '.' + dbcolumn + '"/}\n';
-            header += '</th>\n';
-            var td = '\t\t<td data-field="address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
+            let header = `\
+            <th data-field="r_address.${dbcolumn}" data-col="r_address.${dbcolumn}">\n\
+                <!--{#__ key="entity.${componentCodeName}.${dbcolumn}"/}-->\n\
+            </th>\n`;
+
+            let td = `      <td data-field="address.${dbcolumn}">{${dbcolumn}}</td>\n`;
 
             headers += header;
             // tds
@@ -145,7 +160,7 @@ exports.generateFields = function (componentName, componentCodeName) {
             //build fields for parent table
             if (attributeKey === 'label') {
                 singleHeader = '<th data-field="r_address" data-col="r_address.' + dbcolumn + '" data-type="string">'
-                        + '{#__ key="entity.' + componentCodeName + '.label_entity"/}'
+                        + '<!--{#__ key="entity.' + componentCodeName + '.label_entity"/}-->'
                         + '</th>';
                 singleTD = '<td data-field="address">' + '{r_address.' + dbcolumn + '}</td>\n';
             }
