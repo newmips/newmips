@@ -305,6 +305,11 @@ function initializeWorkflow(id_application, name_application) {
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
                 var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_FR.json'));
                 translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
+
+                // Write enum traductions
+                console.log("Translate enum :");
+                console.log(translateHelper.writeEnumTrad(id_application, 'e_media', 'f_type', 'task', 'Tâche', 'fr-FR'));
+
                 finalizeApplication(id_application, name_application).then(resolve).catch(reject);
             });
         });
