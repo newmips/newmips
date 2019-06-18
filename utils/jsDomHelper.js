@@ -93,15 +93,14 @@ function write(fileName, $) {
 		newFileData = newFileData.replace(/&quot;/g, "\"");
 		newFileData = newFileData.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
 
+		// Fix beautify
 		newFileData = newFileData.replace(/{#__/g, '{__');
-
 		// Indent generated html
 		newFileData = beautify(newFileData, {
 			indent_size: 4,
 			indent_char: " ",
 			indent_with_tabs: false
 		});
-
 		newFileData = newFileData.replace(/{__/g, '{#__');
 
 		// Uncomment dust tags
@@ -133,8 +132,15 @@ exports.writeMainLayout = function(fileName, $) {
 		newFileData = newFileData.replace(/&quot;/g, "\"");
 		newFileData = newFileData.replace('<script class="jsdom" src="http://code.jquery.com/jquery.js"></script>', '');
 
+		// Fix beautify
+		newFileData = newFileData.replace(/{#__/g, '{__');
 		// Indent generated html
-		newFileData = prettyGirl(newFileData,{indent_size: 4});
+		newFileData = beautify(newFileData, {
+			indent_size: 4,
+			indent_char: " ",
+			indent_with_tabs: false
+		});
+		newFileData = newFileData.replace(/{__/g, '{#__');
 
 		// Uncomment dust tags
 		newFileData = newFileData.replace(/<!--({[<>@^:#\/].+?})-->/g, '$1');
