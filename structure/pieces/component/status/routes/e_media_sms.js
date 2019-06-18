@@ -79,7 +79,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
             // because those values are not updated for now
             model_builder.setAssocationManyValues(e_media_sms, req.body, createObject, options).then(function() {
                 Promise.all(promises).then(function() {
-                    component_helper.setAddressIfComponentExist(e_media_sms, options, req.body).then(function() {
+                    component_helper.address.setAddressIfComponentExists(e_media_sms, options, req.body).then(function() {
                         res.redirect(redirect);
                     });
                 }).catch(function(err) {
