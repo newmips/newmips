@@ -239,7 +239,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
         // because those values are not updated for now
         model_builder.setAssocationManyValues(e_api_credentials, req.body, createObject, options).then(function () {
             Promise.all(promises).then(function () {
-                component_helper.setAddressIfComponentExist(e_api_credentials, options, req.body).then(function () {
+                component_helper.address.setAddressIfComponentExists(e_api_credentials, options, req.body).then(function () {
                     res.redirect(redirect);
                 });
             }).catch(function (err) {

@@ -251,7 +251,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
         // because those values are not updated for now
         model_builder.setAssocationManyValues(e_user, req.body, createObject, options).then(function() {
             Promise.all(promises).then(function() {
-                component_helper.setAddressIfComponentExist(e_user, options, req.body).then(function() {
+                component_helper.address.setAddressIfComponentExists(e_user, options, req.body).then(function() {
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
