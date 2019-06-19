@@ -172,7 +172,8 @@
             "question": "Are you sure you want to delete this entity ?"
         },
         "empty": "No data to display",
-        "unique": "This field must be unique:"
+        "unique": "This field must be unique:",
+        "relatedtomanycheckbox_required": "A field requires you to check at least one checkbox."
     },
     "entity": {},
     "synchro": {

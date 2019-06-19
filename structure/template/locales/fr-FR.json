@@ -172,7 +172,8 @@
             "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
         },
         "empty": "Aucune donnée à afficher",
-        "unique": "Ce champ doit être unique:"
+        "unique": "Ce champ doit être unique:",
+        "relatedtomanycheckbox_required": "Un champ necessite d'avoir au moins une case cochée."
     },
     "entity": {},
     "synchro": {
