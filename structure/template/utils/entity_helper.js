@@ -77,7 +77,7 @@ const funcs = {
     optimizedFindOne: async function(modelName, idObj, options, forceOptions = []) {
         const includePromises = [], includes = forceOptions, includeMaxlength = 5;
         for (var i = 0; i < options.length; i++)
-            if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple') {
+            if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'relatedToMultipleCheckbox') {
                 var opt = {
                     model: models[funcs.capitalizeFirstLetter(options[i].target)],
                     as: options[i].as

@@ -571,7 +571,7 @@ function deleteDataEntity(attr, callback) {
                                             console.error(err);
                                         clbk();
                                     });
-                                } else if (tmpAttrIn.structureType == "relatedToMultiple") {
+                                } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
                                     tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
                                     deleteDataField(tmpAttrIn, function (err) {
                                         if (err)
@@ -617,7 +617,7 @@ function deleteDataEntity(attr, callback) {
                                                     console.error(err);
                                                 clbk();
                                             });
-                                        } else if (tmpAttrIn.structureType == "relatedToMultiple") {
+                                        } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheck") {
                                             tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
                                             deleteDataField(tmpAttrIn, function(err) {
                                                 if (err)
@@ -916,12 +916,14 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                                 attr.options.value = optionsArray[i].foreignKey;
                             }
                             found = true;
-                        } else if (optionsArray[i].structureType == "relatedToMultiple") {
+                        } else if (optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
                             if (uniqueAttribute.indexOf(wordParam) != -1) {
                                 var err = new Error("structure.field.attributes.notUnique4RelatedToMany");
                                 return callback(err, null);
-                            } else
+                            } else {
+                                attr.structureType = optionsArray[i].structureType;
                                 found = true;
+                            }
                         }
                         break;
                     }
@@ -1239,7 +1241,7 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
 
                 var setRequired = false;
 
-                if (optionObj.structureType == "relatedToMultiple") {
+                if (optionObj.structureType == "relatedToMultiple" || optionObj.structureType == "relatedToMultipleCheckbox") {
                     instructions.push("delete field " + optionObj.as.substring(2));
                     // If related to is required, then rebuilt it required
                     if(optionObj.allowNull === false)
@@ -1317,7 +1319,7 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     structure_data_field.setupHasManyPresetTab(reversedAttr, function () {
                                         resolve();
                                     });
-                                } else if (attr.targetType == "relatedToMultiple") {
+                                } else if (attr.targetType == "relatedToMultiple" || attr.targetType == "relatedToMultipleCheckbox") {
                                     if (typeof optionObj.usingField !== "undefined")
                                         reversedAttr.options.usingField = optionObj.usingField;
                                     structure_data_field.setupRelatedToMultipleField(reversedAttr, function () {
@@ -1975,7 +1977,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                     relation: relation,
                     through: attr.options.through,
                     toSync: toSync,
-                    type: "relatedToMultiple"
+                    type: attr.options.isCheckbox ? "relatedToMultipleCheckbox" : "relatedToMultiple"
                 };
                 if (typeof attr.options.usingField !== "undefined")
                     associationOption.usingField = attr.options.usingField;
@@ -2999,7 +3001,7 @@ exports.addTitle = function (attr, callback) {
                     var found = false;
                     for (var i = 0; i < optionsArray.length; i++) {
                         if (optionsArray[i].showAs == attr.options.afterField) {
-                            if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple") {
+                            if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
                                 found = true;
                                 return resolve();
                             }

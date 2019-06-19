@@ -13,13 +13,13 @@ function select2_ajaxsearch(select, placeholder) {
     var url = select.data('href') ? select.data('href') : select.data('url') ? select.data('url') : '/' + select.data('source') + '/search';
     select.select2({
         placeholder: placeholder,
+        allowClear: true,
         ajax: {
             url: url,
             dataType: 'json',
             method: 'POST',
             delay: 250,
             contentType: "application/json",
-            allowClear: true,
             data: function (params) {
                 var ajaxdata = {
                     search: params.term,
@@ -720,6 +720,7 @@ function validateForm(form) {
         }
         return false;
     }
+
     // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
         toastr.warning(WAIT_UPLOAD_TEXT);
@@ -787,6 +788,26 @@ function validateForm(form) {
             form.append($(input));
         }
     });
+
+    var checkedFound = true;
+    form.find(".relatedtomany-checkbox").each(function () {
+        if($(this).attr('required') == 'required'){
+            checkedFound = false;
+            $(this).find('input[type="checkbox"]').each(function () {
+                if($(this).icheck('update')[0].checked){
+                    checkedFound = true;
+                    return false; // Break
+                }
+            });
+            if(!checkedFound)
+                return false;  // Break
+        }
+    });
+
+    if(!checkedFound){
+        toastr.error(REQUIRED_RELATEDTOMANYCHECKBOX);
+        return false;
+    }
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
     form.find("input[type='checkbox']").each(function () {
@@ -981,6 +1002,14 @@ $(document).ready(function () {
             return false;
         }
         return true;
+    });
+
+    // Splitting display in col-xs-3 related to many checkbox
+    $('.relatedtomany-checkbox').each(function() {
+        var checkboxes = $(this).find('wrap');
+        for(var i = 0; i < checkboxes.length; i+=3) {
+            checkboxes.slice(i, i+3).wrapAll("<div class='col-xs-3' style='margin-bottom: 15px;'></div>");
+        }
     });
 
     /* --------------- Inline Help --------------- */
@@ -1264,7 +1293,6 @@ function initComponentAddress(context) {
     }, 500);
 }
 
-
 function initDocumentTemplateHelper() {
 
     function onClickDocumentTemplateHelper() {
@@ -1289,8 +1317,6 @@ function initDocumentTemplateHelper() {
             });
         }
     }
-
-//    updateDocumentTemplateSubEntities($('#document_template_select_entity').val());
 
     $('#document_template_select_entity').on('change', function () {
         onClickDocumentTemplateHelper();

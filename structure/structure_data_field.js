@@ -378,7 +378,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             else if (file == 'create')
                 str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             else
-                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">{" + value + "|s}</textarea>\n";
+                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">{" + value2 + "|s}</textarea>\n";
 
             break;
         case "regular text" :
@@ -872,143 +872,162 @@ exports.setupDataField = function (attr, callback) {
 
 exports.setRequiredAttribute = function (attr, callback) {
 
-    var possibilityRequired = ["mandatory", "required", "obligatoire"];
-    var possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
-    var entityCodeName = attr.name_data_entity.toLowerCase();
+    let possibilityRequired = ["mandatory", "required", "obligatoire"];
+    let possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
+    let entityCodeName = attr.name_data_entity.toLowerCase();
 
-    var attribute = attr.options.word.toLowerCase();
-    var set = null;
+    let attribute = attr.options.word.toLowerCase();
+    let set = null;
 
     if (possibilityRequired.indexOf(attribute) != -1)
         set = true;
     else if (possibilityOptionnal.indexOf(attribute) != -1)
         set = false;
     else {
-        var err = new Error();
+        let err = new Error();
         err.message = "structure.field.attributes.notUnderstand";
         return callback(err);
     }
 
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
+    let pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
 
-    // Update create_fields.dust file
-    domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
-        if ($("*[data-field='" + attr.options.value + "']").length > 0) {
-            if (set)
-                $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
-            else
-                $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
+    let writeDust = new Promise((resolve, reject) => {
 
-            $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
-            $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
+        // Update create_fields.dust file
+        domHelper.read(pathToViews + '/create_fields.dust').then(function($) {
 
-            domHelper.write(pathToViews + '/create_fields.dust', $).then(function () {
+            if ($("*[data-field='" + attr.options.value + "']").length > 0) {
+                if (set)
+                    $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
+                else
+                    $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
 
-                // Update update_fields.dust file
-                domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
-                    if (set)
-                        $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
-                    else
-                        $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
+                if(attr.structureType == "relatedToMultipleCheckbox"){
+                    $("*[data-field='" + attr.options.value + "']").find('.relatedtomany-checkbox').attr('required', set);
+                } else {
                     $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
                     $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
+                }
 
-                    domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
+                domHelper.write(pathToViews + '/create_fields.dust', $).then(function() {
 
-                        // Update the Sequelize attributes.json to set allowNull
-                        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + entityCodeName + ".json";
-                        var attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
+                    // Update update_fields.dust file
+                    domHelper.read(pathToViews + '/update_fields.dust').then(function($) {
+                        if (set)
+                            $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
+                        else
+                            $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
 
-                        if (attributesObj[attr.options.value]) {
-                            // TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
-                            // In script you can set required a field in user, role or group but it crash the user admin autogeneration
-                            // becaude the required field is not given during the creation
-                            if (entityCodeName != "e_user" && entityCodeName != "e_role" && entityCodeName != "e_group")
-                                attributesObj[attr.options.value].allowNull = set ? false : true;
-                            // Alter column to set default value in DB if models already exist
-                            var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-                            var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-                            if (typeof toSync.queries === "undefined")
-                                toSync.queries = [];
-
-                            var defaultValue = null;
-                            var tableName = attr.id_application + "_" + entityCodeName;
-                            var length = "";
-                            if (attr.sqlDataType == "varchar")
-                                length = "(" + attr.sqlDataTypeLength + ")";
-                            if (set) {
-                                switch (attributesObj[attr.options.value].type) {
-                                    case "STRING":
-                                    case "ENUM":
-                                    case "TEXT":
-                                        defaultValue = "";
-                                        break;
-                                    case "INTEGER":
-                                    case "BIGINT":
-                                    case "DECIMAL":
-                                    case "BOOLEAN":
-                                    case "FLOAT":
-                                    case "DOUBLE":
-                                        defaultValue = 0;
-                                        break;
-                                    case "DATE":
-                                        defaultValue = "1900-01-01 00:00:00.000";
-                                        break;
-                                    case "TIME":
-                                        defaultValue = "00:00:00.0000000";
-                                        break;
-                                    default:
-                                        defaultValue = "";
-                                        break;
-                                }
-                                attributesObj[attr.options.value].defaultValue = defaultValue;
-                                // TODO postgres
-                                if (attr.sqlDataType && attr.dialect == "mysql") {
-                                    // Update all NULL value before set not null
-                                    toSync.queries.push("UPDATE `" + tableName + "` SET `" + attr.options.value + "`='" + defaultValue + "' WHERE `" + attr.options.value + "` IS NULL;");
-                                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NOT NULL");
-                                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT '" + defaultValue + "';");
-                                }
-                            } else {
-                                attributesObj[attr.options.value].defaultValue = null;
-                                // TODO postgres
-                                if (attr.sqlDataType && attr.dialect == "mysql") {
-                                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NULL");
-                                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT NULL;");
-                                }
-                            }
-                            fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
-                            fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+                        if(attr.structureType == "relatedToMultipleCheckbox"){
+                            $("*[data-field='" + attr.options.value + "']").find('.relatedtomany-checkbox').attr('required', set);
                         } else {
-                            // If not in attributes, maybe in options
-                            var pathToOptionJson = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + entityCodeName + ".json";
-                            var optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
-                            var aliasValue = "r_" + attr.options.value.substring(2);
-                            for (var i = 0; i < optionsObj.length; i++)
-                                if (optionsObj[i].as == aliasValue)
-                                    optionsObj[i].allowNull = set ? false : true;
-
-                            // Set option allowNull
-                            fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
+                            $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
+                            $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
                         }
-                        callback();
+
+                        domHelper.write(pathToViews + '/update_fields.dust', $).then(function() {
+                            resolve();
+                        });
                     });
+                }).catch(function(e) {
+                    var err = new Error();
+                    err.message = "structure.field.attributes.fieldNoFound";
+                    err.messageParams = [attr.options.showValue];
+                    reject(err);
                 });
-            }).catch(function (e) {
+            } else {
                 var err = new Error();
                 err.message = "structure.field.attributes.fieldNoFound";
                 err.messageParams = [attr.options.showValue];
-                callback(err, null);
-            });
-        } else {
-            var err = new Error();
-            err.message = "structure.field.attributes.fieldNoFound";
-            err.messageParams = [attr.options.showValue];
-            callback(err, null);
-        }
-    }).catch(function (err) {
-        callback(err, null);
+                reject(err);
+            }
+        }).catch(function(err) {
+            reject(err);
+        });
     });
+
+    writeDust.then(_ => {
+        // Update the Sequelize attributes.json to set allowNull
+        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + entityCodeName + ".json";
+        var attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
+
+        if (attributesObj[attr.options.value]) {
+            // TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
+            // In script you can set required a field in user, role or group but it crash the user admin autogeneration
+            // becaude the required field is not given during the creation
+            if (entityCodeName != "e_user" && entityCodeName != "e_role" && entityCodeName != "e_group")
+                attributesObj[attr.options.value].allowNull = set ? false : true;
+            // Alter column to set default value in DB if models already exist
+            var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
+            var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+            if (typeof toSync.queries === "undefined")
+                toSync.queries = [];
+
+            var defaultValue = null;
+            var tableName = attr.id_application + "_" + entityCodeName;
+            var length = "";
+            if (attr.sqlDataType == "varchar")
+                length = "(" + attr.sqlDataTypeLength + ")";
+            if (set) {
+                switch (attributesObj[attr.options.value].type) {
+                    case "STRING":
+                    case "ENUM":
+                    case "TEXT":
+                        defaultValue = "";
+                        break;
+                    case "INTEGER":
+                    case "BIGINT":
+                    case "DECIMAL":
+                    case "BOOLEAN":
+                    case "FLOAT":
+                    case "DOUBLE":
+                        defaultValue = 0;
+                        break;
+                    case "DATE":
+                        defaultValue = "1900-01-01 00:00:00.000";
+                        break;
+                    case "TIME":
+                        defaultValue = "00:00:00.0000000";
+                        break;
+                    default:
+                        defaultValue = "";
+                        break;
+                }
+                attributesObj[attr.options.value].defaultValue = defaultValue;
+                // TODO postgres
+                if (attr.sqlDataType && attr.dialect == "mysql") {
+                    // Update all NULL value before set not null
+                    toSync.queries.push("UPDATE `" + tableName + "` SET `" + attr.options.value + "`='" + defaultValue + "' WHERE `" + attr.options.value + "` IS NULL;");
+                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NOT NULL");
+                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT '" + defaultValue + "';");
+                }
+            } else {
+                attributesObj[attr.options.value].defaultValue = null;
+                // TODO postgres
+                if (attr.sqlDataType && attr.dialect == "mysql") {
+                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NULL");
+                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT NULL;");
+                }
+            }
+            fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
+            fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+        } else {
+            // If not in attributes, maybe in options
+            var pathToOptionJson = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + entityCodeName + ".json";
+            var optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
+            var aliasValue = "r_" + attr.options.value.substring(2);
+            for (var i = 0; i < optionsObj.length; i++)
+                if (optionsObj[i].as == aliasValue)
+                    optionsObj[i].allowNull = set ? false : true;
+
+            // Set option allowNull
+            fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
+        }
+
+        callback();
+    }).catch(err => {
+        callback(err, null);
+    })
 }
 
 exports.setUniqueField = function (attr, callback) {
@@ -1388,39 +1407,29 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
     }
     // Setup association field for create_fields
-    var head = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-    head += '     <label for="f_' + urlAs + '">\n';
-    head += '         <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n';
-    head += '         <!--{@inline_help field="' + alias + '"}-->\n';
-    head += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-    head += '         <!--{/inline_help}-->\n';
-    head += '     </label>\n';
+    let head = '\
+    <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12" '+ (attr.options.isCheckbox ? 'style="margin-bottom: 25px;"' : "") +'>\n\
+        <div class="form-group">\n\
+            <label for="f_' + urlAs + '">\n\
+                <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
+                <!--{@inline_help field="' + alias + '"}-->\n\
+                    <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
+                <!--{/inline_help}-->\n\
+            </label>\n';
 
-
-    var select = '';
+    let select;
     if (attr.options.isCheckbox) {
-        select += '     <br>'
-        select += '     <!--{#' + alias + '_all}-->\n';
-        select += '         <!--{@eq key=$idx value="0" type="number"}-->\n';
-        select += '             <div class="col-xs-3">\n';
-        select += '         <!--{/eq}-->\n';
-        select += '         <!--{@math key=$idx method="mod" operand="3"}-->\n';
-        select += '             <!--{@eq value="0" type="number"}-->\n';
-        select += '                 <!--{@ne key=$idx value="0" type="number"}-->\n';
-        select += '                     </div>';
-        select += '                     <div class="col-xs-3">';
-        select += '                 <!--{/ne}-->\n';
-        select += '                 <br><label class="no-weight">';
-        select += '                     <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-        select += '                 </label>';
-        select += '             <!--{:else}-->\n';
-        select += '                 <br><label class="no-weight">\n';
-        select += '                     <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-        select += '                 </label>';
-        select += '             <!--{/eq}-->\n';
-        select += '         <!--{/math}-->\n';
-        select += '     <!--{/' + alias + '_all}-->\n';
-        select += '     <br><br>';
+        select = '\
+        <br>\n\
+        <div class="relatedtomany-checkbox">\n\
+            <!--{#' + alias + '_all}-->\n\
+                <wrap>\n\
+                    <label class="no-weight">\n\
+                        <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n\
+                    </label><br>\n\
+                </wrap>\n\
+            <!--{/' + alias + '_all}-->\n\
+        </div>\n';
     } else {
         select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
         select += '         <option value=""><!--{#__ key="select.default" /}--></option>\n';
@@ -1429,81 +1438,41 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         select += '         <!--{/' + alias + '}-->\n';
         select += '     </select>\n';
     }
-    select += '</div>\n</div>\n';
 
     // Update create_fields file
-    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-    var file = 'create_fields';
-    updateFile(fileBase, file, head + select, function () {
+    let fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
+    let file = 'create_fields';
+    updateFile(fileBase, file, head + select, _ => {
+
         if (attr.options.isCheckbox) {
-
-            select = '     <br>'
-            select += '     <!--{#' + alias + '_all}-->\n';
-            select += '         <!--{@eq key=$idx value="0" type="number"}-->\n';
-            select += '             <div class="col-xs-3">\n';
-            select += '         <!--{/eq}-->\n';
-            select += '         <!--{@math key=$idx method="mod" operand="3"}-->\n';
-            select += '             <!--{@eq value="0" type="number"}-->\n';
-            select += '                 <!--{@ne key=$idx value="0" type="number"}-->\n';
-            select += '                     </div>';
-            select += '                     <div class="col-xs-3">';
-            select += '                 <!--{/ne}-->\n';
-            select += '                 <br><label class="no-weight">\n';
-            select += '                     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
-            select += '                         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-            select += '                     <!--{:else}-->\n';
-            select += '                         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-            select += '                     <!--{/existInContextById}-->\n';
-            select += '                 </label>';
-            select += '             <!--{:else}-->\n';
-            select += '                 <br><label class="no-weight">\n';
-            select += '                     <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
-            select += '                         <input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-            select += '                     <!--{:else}-->\n';
-            select += '                         <input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-            select += '                     <!--{/existInContextById}-->\n';
-            select += '                 </label>';
-            select += '             <!--{/eq}-->\n';
-            select += '         <!--{/math}-->\n';
-            select += '     <!--{/' + alias + '_all}-->\n';
-            select += '     <br><br>';
-
+            select = '\
+            <div class="relatedtomany-checkbox">\n\
+                <!--{#' + alias + '_all}-->\n\
+                    <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
+                        <wrap><input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                    <!--{:else}-->\n\
+                        <wrap><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                    <!--{/existInContextById}-->\n\
+                <!--{/' + alias + '_all}-->\n\
+            </div>';
         } else
             select = select.replace(/<option value="{id}">/, '<option value="{id}" selected>');
+
         file = 'update_fields';
         // Update update_fields file
         updateFile(fileBase, file, head + select, function () {
             select = '';
             if (attr.options.isCheckbox) {
-
-                select = '     <br>'
-                select += '     <!--{#' + alias + '_all}-->\n';
-                select += '         <!--{@eq key=$idx value="0" type="number"}-->\n';
-                select += '             <div class="col-xs-3">\n';
-                select += '         <!--{/eq}-->\n';
-                select += '         <!--{@math key=$idx method="mod" operand="3"}-->\n';
-                select += '             <!--{@eq value="0" type="number"}-->\n';
-                select += '                 <!--{@ne key=$idx value="0" type="number"}-->\n';
-                select += '                     </div>';
-                select += '                     <div class="col-xs-3">';
-                select += '                 <!--{/ne}-->\n';
-                select += '                 <br>\n';
-                select += '                 <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
-                select += '                     <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-                select += '                 <!--{:else}-->\n';
-                select += '                     <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-                select += '                 <!--{/existInContextById}-->\n';
-                select += '             <!--{:else}-->\n';
-                select += '                 <br>\n';
-                select += '                 <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n';
-                select += '                     <input type="checkbox" disabled checked name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-                select += '                 <!--{:else}-->\n';
-                select += '                     <input type="checkbox" disabled name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n';
-                select += '                 <!--{/existInContextById}-->\n';
-                select += '             <!--{/eq}-->\n';
-                select += '         <!--{/math}-->\n';
-                select += '     <!--{/' + alias + '_all}-->\n';
-                select += '     <br><br><br>';
+                select = '\
+                <div class="relatedtomany-checkbox">\n\
+                    <!--{#' + alias + '_all}-->\n\
+                        <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
+                            <wrap><input type="checkbox" disabled="" checked="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                        <!--{:else}-->\n\
+                            <wrap><input type="checkbox" disabled="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                        <!--{/existInContextById}-->\n\
+                    <!--{/' + alias + '_all}-->\n\
+                </div>';
 
             } else {
                 select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
@@ -1512,7 +1481,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                 select += '         <!--{/' + alias + '}-->\n';
                 select += '     </select>\n';
             }
-            select += '</div>\n</div>\n';
+            select += '</div>\n';
 
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
@@ -1523,14 +1492,17 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                     file = fileBase + '/print_fields.dust';
                     domHelper.read(file).then(function ($) {
 
-                        select = '<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n<div class="form-group">\n';
-                        select += '     <label for="f_' + urlAs + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></label>\n';
-                        select += '     <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
-                        select += '         <!--{#' + alias + '}-->\n';
-                        select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
-                        select += '         <!--{/' + alias + '}-->\n';
-                        select += '     </select>\n';
-                        select += '</div>\n</div>\n';
+                        select = '\
+                        <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
+                            <div class="form-group">\n\
+                                <label for="f_' + urlAs + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></label>\n\
+                                <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+                                    <!--{#' + alias + '}-->\n\
+                                        <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n\
+                                    <!--{/' + alias + '}-->\n\
+                                </select>\n\
+                            </div>\n\
+                        </div>\n';
 
                         $("#fields").append(select);
                         domHelper.write(file, $).then(function () {
@@ -1617,7 +1589,7 @@ exports.deleteDataField = function (attr, callback) {
 
     for (var i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
-            if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple") {
+            if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple" && dataToWrite[i].structureType != "relatedToMultipleCheckbox") {
                 var err = new Error();
                 err.message = name_data_entity + ' isn\'t a regular field. You might want to use `delete tab` instruction.';
                 return callback(err, null);
@@ -1628,7 +1600,7 @@ exports.deleteDataField = function (attr, callback) {
             info.isConstraint = true;
 
             // Related To Multiple
-            if (dataToWrite[i].structureType == "relatedToMultiple") {
+            if (dataToWrite[i].structureType == "relatedToMultiple" || dataToWrite[i].structureType == "relatedToMultipleCheckbox") {
                 info.isMultipleConstraint = true;
                 info.target = dataToWrite[i].target;
                 info.fieldToDrop = dataToWrite[i].foreignKey + "_" + url_value;
@@ -1705,7 +1677,7 @@ exports.deleteDataField = function (attr, callback) {
 
     let optionsPath = __dirname + '/../workspace/' + idApp + '/models/options/';
     let otherViewsPath = __dirname + '/../workspace/' + idApp + '/views/';
-    let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "hasManyPreset"];
+    let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
     fieldsFiles.push("list_fields");
     // Looking for association with using of the deleted field
     fs.readdirSync(optionsPath).filter(function (file) {

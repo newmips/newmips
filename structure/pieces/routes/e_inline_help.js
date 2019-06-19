@@ -230,7 +230,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "c
                     field: field
                 });
         for (var i = 0; i < optionsObj.length; i++)
-            if (optionsObj[i].structureType == 'relatedTo' || optionsObj[i].structureType == 'relatedToMany')
+            if (optionsObj[i].structureType == 'relatedTo' || optionsObj[i].structureType == 'relatedToMultiple' || optionsObj[i].structureType == 'relatedToMultipleCheckbox')
                 fields.push({
                     tradKey: 'entity.' + entityName + '.' + optionsObj[i].as,
                     field: optionsObj[i].as

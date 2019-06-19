@@ -54,7 +54,6 @@ passport.use(new LocalStrategy({
             if(typeof sessions[i][dataColumnName] === "string")
                 currentSession = JSON.parse(sessions[i][dataColumnName]);
 
-
             if(typeof currentSession.passport !== "undefined"
                 && typeof currentSession.passport.user !== "undefined"
                 && moment(currentSession.cookie.expires).diff(moment()) > 0 // Not counting expired session
