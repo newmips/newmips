@@ -3,7 +3,9 @@
 <div class='actions'>
     <form action="/custom_url_data_entity/delete" method="post">
         <div class="quicklinks">
-            <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{#__ key="button.return"/}</a>
+            <a class="btn btn-default" href="javascript:history.back();">
+                <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{#__ key="button.return"/}
+            </a>
             {#actionAccess entity="custom_url_data_entity" action="delete"}
                 <button class="btn btn-danger btn-confirm">
                     <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
@@ -13,20 +15,23 @@
             {/actionAccess}
             {#actionAccess entity="custom_url_data_entity" action="update"}
                 <a href="/custom_url_data_entity/update_form?id={custom_data_entity.id}" class="btn btn-warning">
-                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update"/}</span>
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+                    <span>{#__ key="button.update"/}</span>
                 </a>
             {/actionAccess}
             {^hideButton}
-            {#actionAccess entity="custom_url_data_entity" action="create"}
-                <a href="/custom_url_data_entity/create_form" class="btn btn-success">
-                    <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
-                </a>
-            {/actionAccess}
-            {#actionAccess entity="custom_url_data_entity" action="read"}
-                <a href="/custom_url_data_entity/list" type="submit" class="btn btn-primary">
-                    <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.list"/}</span>
-                </a>
-            {/actionAccess}
+                {#actionAccess entity="custom_url_data_entity" action="create"}
+                    <a href="/custom_url_data_entity/create_form" class="btn btn-success">
+                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+                        <span>{#__ key="button.create"/}</span>
+                    </a>
+                {/actionAccess}
+                {#actionAccess entity="custom_url_data_entity" action="read"}
+                    <a href="/custom_url_data_entity/list" type="submit" class="btn btn-primary">
+                        <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+                        <span>{#__ key="button.list"/}</span>
+                    </a>
+                {/actionAccess}
             {/hideButton}
         </div>
     </form>

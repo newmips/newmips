@@ -279,3 +279,7 @@ div.dataTables_length select {
 .icon-wrap:hover{
     background: #3c8dbc;
 }
+
+.nav-tabs-custom {
+    box-shadow: 0 !important;
+}
