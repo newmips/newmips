@@ -19,7 +19,7 @@ router.get('/config', block_access.actionAccessMiddleware("address_settings", "r
 });
 
 router.post('/save', block_access.actionAccessMiddleware("address_settings", "create"), function (req, res) {
-    var config = JSON.parse(fs.readFileSync(__dirname + '/../config/e_address_settings.json'));
+    var config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
     var i = 0;
     for (var item in config.entities) {
         config.entities[item].enableMaps = req.body.enableMaps[i];
@@ -36,7 +36,7 @@ router.post('/save', block_access.actionAccessMiddleware("address_settings", "cr
         }
         i++;
     }
-    fs.writeFileSync(__dirname + '/../config/e_address_settings.json', JSON.stringify(config, null, 4));
+    fs.writeFileSync(__dirname + '/../config/address_settings.json', JSON.stringify(config, null, 4));
     req.session.toastr = [{
             message: 'message.update.success',
             level: "success"
@@ -44,10 +44,10 @@ router.post('/save', block_access.actionAccessMiddleware("address_settings", "cr
     res.redirect('/address_settings/config');
 });
 
-router.get('/info_e_address_maps_ajax', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
+router.get('/info_address_maps_ajax', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
     try {
         var translate = require('../services/language');
-        res.status(200).json({message: translate(req.session.lang_user).__("entity.e_address_settings.info_e_address_maps")});
+        res.status(200).json({message: translate(req.session.lang_user).__("component.address_settings.info_address_maps")});
     } catch (e) {
         res.status(500).end();
     }
