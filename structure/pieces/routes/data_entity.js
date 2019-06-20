@@ -294,7 +294,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", false).then(function() {
             // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
