@@ -316,7 +316,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    <!--{/eq}-->\n";
                 str += "    </label>";
-                str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}\n";
+                str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
             } else {
                 str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
                 str += "    &nbsp;\n<br>\n";
