@@ -1294,12 +1294,12 @@ exports.setupRelatedToField = function (attr, callback) {
     select += '         <!--{/inline_help}-->\n';
     select += '     </label>\n';
     select += '     <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
-    select += '         <option value="">\n';
-    select += '             <!--{#__ key="select.default" /}-->\n';
-    select += '         </option>\n';
-    select += '         <!--{#' + alias + '}-->\n';
-    select += '         <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n';
-    select += '         <!--{/' + alias + '}-->\n';
+    // select += '         <option value="">\n';
+    // select += '             <!--{#__ key="select.default" /}-->\n';
+    // select += '         </option>\n';
+    // select += '         <!--{#' + alias + '}-->\n';
+    // select += '         <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n';
+    // select += '         <!--{/' + alias + '}-->\n';
     select += '     </select>\n';
     select += '</div>\n</div>\n';
 
@@ -1431,12 +1431,9 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
             <!--{/' + alias + '_all}-->\n\
         </div>\n';
     } else {
-        select += '     <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
-        select += '         <option value=""><!--{#__ key="select.default" /}--></option>\n';
-        select += '         <!--{#' + alias + '}-->\n';
-        select += '             <option value="{id}">' + usingOption.join(' - ') + '</option>\n';
-        select += '         <!--{/' + alias + '}-->\n';
-        select += '     </select>\n';
+        select = '\
+        <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+        </select>\n';
     }
 
     // Update create_fields file
@@ -1475,11 +1472,12 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                 </div>';
 
             } else {
-                select += '     <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
-                select += '         <!--{#' + alias + '}-->\n';
-                select += '            <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n';
-                select += '         <!--{/' + alias + '}-->\n';
-                select += '     </select>\n';
+                select = '\
+                <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+                    <!--{#' + alias + '}-->\n\
+                        <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n\
+                    <!--{/' + alias + '}-->\n\
+                </select>\n';
             }
             select += '</div>\n';
 
