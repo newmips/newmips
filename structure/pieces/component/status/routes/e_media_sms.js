@@ -160,7 +160,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_media_sms, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_media_sms, options, req.body);
         e_media_sms.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association

@@ -305,7 +305,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_api_credentials, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_api_credentials, options, req.body);
         e_api_credentials.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association

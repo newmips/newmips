@@ -331,7 +331,7 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_user, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_user, options, req.body);
 
         var redirect = '/user/show?id=' + id_e_user;
         // If we are in user settings,then he cannot modify sensible data, and we redirect differently
