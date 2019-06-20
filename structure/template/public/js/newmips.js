@@ -43,7 +43,7 @@ function select2_ajaxsearch(select, placeholder) {
                     return {results: []};
                 var results = [];
                 if (select.attr("multiple") != "multiple" && !params.page)
-                    results.push({id: "", text: placeholder});
+                    results.push({id: "nps_clear_select", text: placeholder});
                 for (var i = 0; i < dataResults.length; i++) {
                     var text = [];
                     for (var field in dataResults[i]) {
@@ -74,6 +74,13 @@ function select2_ajaxsearch(select, placeholder) {
             return data.text;
         }
     });
+
+    // Clear select if default option is chosen, do not work natively with select2
+    if (select.attr("multiple") != "multiple")
+        select.on('change', function(){
+            if($(this).val() == 'nps_clear_select')
+                $(this).val(null).trigger('change');
+        });
 }
 
 // INIT FORM
