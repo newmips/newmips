@@ -10,7 +10,7 @@
                 url: "/support_chat/init",
                 method: "POST",
                 context: this,
-                timeout: 30000,
+                timeout: 50000,
                 success: function(data) {
                     cb();
                 },
@@ -48,7 +48,7 @@
                 data: {
                     text: message
                 },
-                timeout: 30000,
+                timeout: 50000,
                 success: function(post) {
 
                     var messageText = methods.formatMessage(message.trim());
@@ -92,7 +92,7 @@
                 url: '/support_chat/watch',
                 type: "POST",
                 dataType: 'json',
-                timeout: 30000,
+                timeout: 50000,
                 success: function(answer) {
                     var history = answer.posts;
                     var user = answer.user;
