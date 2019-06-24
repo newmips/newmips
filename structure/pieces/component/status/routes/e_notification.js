@@ -34,7 +34,20 @@ router.get('/load/:offset', function(req, res) {
 router.get('/read/:id', function (req, res) {
     var id_e_notification = parseInt(req.params.id);
 
-    models.E_notification.findOne({where: {id: id_e_notification}}).then(function (notification) {
+    // Check if user owns notification
+    models.E_notification.findOne({
+        where: {id: id_e_notification},
+        include: {
+            model: models.E_user,
+            as: 'r_user',
+            where: {id: req.session.passport.user.id}
+        }
+    }).then(function (notification) {
+        if (!notification.r_user) {
+            logger.debug("User id = "+req.session.passport.user.id+" not allowed to read notification "+id_e_notification+".");
+            return res.render('common/error', {error: 401});
+        }
+
         var redirect = notification.f_url != "#" ? notification.f_url : req.headers.referer;
 
         models.E_user.findById(req.session.passport.user.id).then(function(user){
