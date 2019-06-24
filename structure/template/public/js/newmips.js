@@ -138,7 +138,7 @@ function initForm(context) {
     });
 
     /* --------------- Regex on decimal input --------------- */
-    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
+    var reg = new RegExp("^-?[0-9]+([\.\,][0-9]*)?$");
     $("input[data-custom-type='decimal']", context).keyup(function () {
         while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
