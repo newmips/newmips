@@ -1181,7 +1181,9 @@ exports.addNewComponentAddress = function (attr, callback) {
                                             var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                             var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
                                             langFR.entity[componentCodeName] = fields.locales.fr;
+                                            langFR.entity[source].r_address = 'Adresse';
                                             langEN.entity[componentCodeName] = fields.locales.en;
+                                            langEN.entity[source].r_address = 'Address';
 
                                             setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
                                                 //Check if component config exist, if not we create it
@@ -1232,16 +1234,14 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                             fs.copySync(address_path + 'views/config_fields.dust', application_path + 'views/' + address_settings + '/config_fields.dust');
                                                             fs.copySync(address_path + 'route/' + address_settings.substring(2) + '.js', application_path + 'routes/' + address_settings + '.js');
                                                             addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
-                                                                if (!err) {
-                                                                    //add new menu in administration for address settings
-                                                                    addMenuComponentAddressSettings(attr, address_settings, function (err) {
-                                                                        if (!err)
-                                                                            resolve();
-                                                                        else
-                                                                            reject(err);
-                                                                    });
-                                                                } else
-                                                                    reject(err);
+                                                                if (err)
+                                                                    return reject(err);
+                                                                //add new menu in administration for address settings
+                                                                addMenuComponentAddressSettings(attr, address_settings, function (err) {
+                                                                    if (err)
+                                                                        return reject(err);
+                                                                    resolve();
+                                                                });
                                                             });
                                                         } else {
                                                             address_settings_config = JSON.parse(config);

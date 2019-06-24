@@ -263,6 +263,9 @@ function initializeWorkflow(id_application, name_application) {
         // Copy API routes
         fs.copySync(piecesPath + '/api/', workspacePath + '/api/');
 
+        // Remove notification views
+        fs.removeSync(workspacePath+'/views/e_notification');
+
         // Remove notification from administration sidebar
         domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
             $("#notification_menu_item").remove();
