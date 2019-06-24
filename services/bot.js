@@ -1071,15 +1071,6 @@ function getRightWidgetType(originalType) {
         case "statistique":
             return "stats";
 
-        // case "lastrecords":
-        // case "last records":
-        // case "derniers enregistrements":
-        // case "derniersenregistrements":
-        //     return "lastrecords";
-
-        case "piechart":
-            return "piechart";
-
         default:
             return -1;
     }
@@ -1170,6 +1161,9 @@ exports.createWidgetOnEntity = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
+    if (finalType == -1)
+        return {error: 'error.missingParametersInstruction'};
+
     return {
         function: 'createWidgetOnEntity',
         widgetInputType: originalType,
@@ -1181,6 +1175,9 @@ exports.createWidgetOnEntity = function (result) {
 exports.createWidget = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
+
+    if (finalType == -1)
+        return {error: 'error.missingParametersInstruction'};
 
     return {
         function: 'createWidget',
