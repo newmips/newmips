@@ -38,7 +38,7 @@ $("tbody").find("input").on('ifChanged',function(event) {
 		// Loop over module's <tr> to uncheck each checkbox
 		while (trIndex < tableBody.find('tr').length && current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
 			var newTd = current.find('td').eq(tdIndex);
-			newTd.find('input').eq(0).iCheck('uncheck');
+			newTd.find('input').eq(0).icheck('unchecked');
 			current = tableBody.find('tr').eq(trIndex+=1);
 		}
 	}
@@ -53,7 +53,7 @@ $("tbody").find("input").on('ifChanged',function(event) {
 
 		// If module is home don't check it since it doesn't have a checkbox
 		if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0)
-			current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
+			current.find('td').eq(tdIndex).find('input').eq(0).icheck('checked');
 	}
 	return true;
 });

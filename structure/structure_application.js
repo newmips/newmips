@@ -390,6 +390,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 });
                                             }
                                             fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+                                            fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
                                             // Set role-group/user structureType to hasManyPreset to be used by ajax
                                             var opts = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_role.json', 'utf8'));
