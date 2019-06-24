@@ -1285,28 +1285,42 @@ exports.setupRelatedToField = function (attr, callback) {
         usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
     }
     // Setup association field for create_fields
-    var select = '';
-    select += "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-    select += '     <label for="' + alias + '">\n';
-    select += '         <!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n'
-    select += '         <!--{@inline_help field="' + alias + '"}-->\n';
-    select += '             <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n';
-    select += '         <!--{/inline_help}-->\n';
-    select += '     </label>\n';
-    select += '     <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n';
-    // select += '         <option value="">\n';
-    // select += '             <!--{#__ key="select.default" /}-->\n';
-    // select += '         </option>\n';
-    // select += '         <!--{#' + alias + '}-->\n';
-    // select += '         <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n';
-    // select += '         <!--{/' + alias + '}-->\n';
-    select += '     </select>\n';
-    select += '</div>\n</div>\n';
+    let select = '\
+    <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
+        <div class="form-group">\n\
+            <label for="' + alias + '">\n\
+                <!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n\
+                <!--{@inline_help field="' + alias + '"}-->\n\
+                    <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
+                <!--{/inline_help}-->\n\
+            </label>\n\
+            <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+            </select>\n\
+        </div>\n\
+    </div>\n';
 
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
     updateFile(fileBase, file, select, function () {
+
+        select = '\
+        <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
+            <div class="form-group">\n\
+                <label for="' + alias + '">\n\
+                    <!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n\
+                    <!--{@inline_help field="' + alias + '"}-->\n\
+                        <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
+                    <!--{/inline_help}-->\n\
+                </label>\n\
+                <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+                    <!--{#' + alias + '}-->\n\
+                        <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
+                    <!--{/' + alias + '}-->\n\
+                </select>\n\
+            </div>\n\
+        </div>\n';
+
         file = 'update_fields';
         // Update update_fields file
         updateFile(fileBase, file, select, function () {
@@ -1452,8 +1466,15 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
                     <!--{/existInContextById}-->\n\
                 <!--{/' + alias + '_all}-->\n\
             </div>';
-        } else
-            select = select.replace(/<option value="{id}">/, '<option value="{id}" selected>');
+        } else {
+            select = '\
+            <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+                <option value="">{#__ key="select.default" /}</option>\n\
+                <!--{#' + alias + '}-->\n\
+                    <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
+                <!--{/' + alias + '}-->\n\
+            </select>\n';
+        }
 
         file = 'update_fields';
         // Update update_fields file

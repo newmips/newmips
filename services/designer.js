@@ -565,36 +565,51 @@ function deleteDataEntity(attr, callback) {
                             structureType: entityOptions[i].structureType
                         };
                         promises.push({func: function (tmpAttrIn, clbk) {
-                                if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                                    deleteTab(tmpAttrIn, function (err) {
-                                        if (err)
-                                            console.error(err);
-                                        clbk();
-                                    });
-                                } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
-                                    tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                    deleteDataField(tmpAttrIn, function (err) {
-                                        if (err)
-                                            console.error(err);
-                                        clbk();
-                                    });
-                                } else {
-                                    console.warn("WARNING - Unknown option to delete !");
-                                    console.warn(tmpAttrIn);
+                            if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
+                                deleteTab(tmpAttrIn, function (err) {
+                                    if (err)
+                                        console.error(err);
                                     clbk();
-                                }
-                            }, arg: tmpAttr});
+                                });
+                            } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
+                                tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
+                                deleteDataField(tmpAttrIn, function (err) {
+                                    if (err)
+                                        console.error(err);
+                                    clbk();
+                                });
+                            } else {
+                                console.warn("WARNING - Unknown option to delete !");
+                                console.warn(tmpAttrIn);
+                                clbk();
+                            }
+                        }, arg: tmpAttr});
                     }
                 }
 
                 fs.readdirSync(workspacePath + '/models/options/').filter(function (file) {
                     return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
                 }).forEach(function (file) {
-                    var source = file.slice(0, -5);
-                    var options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
-                    for (var i = 0; i < options.length; i++) {
+                    let source = file.slice(0, -5);
+                    let options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
+
+                    // Look for auto_generate key targeting deleted entity and remove them
+                    let idxToRemove = [];
+                    for (let i = 0; i < options.length; i++) {
                         if (options[i].target != name_data_entity)
                             continue;
+                        if (options[i].structureType == 'auto_generate')
+                            idxToRemove.push(i);
+                    }
+                    options = options.filter((val, idx, arr) => {
+                        return idxToRemove.indexOf(idx) == -1
+                    })
+                    fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
+
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].target != name_data_entity)
+                            continue;
+
                         if (options[i].relation == 'hasMany') {
                             let tmpAttr = {
                                 options: {
@@ -644,6 +659,7 @@ function deleteDataEntity(attr, callback) {
                                 id_module: attr.id_module,
                                 structureType: options[i].structureType
                             };
+
                             promises.push({
                                 func: function(tmpAttrIn, clbk) {
                                     db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {

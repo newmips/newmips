@@ -389,7 +389,7 @@ router.post('/update', block_access.actionAccessMiddleware("inline_help", "updat
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_inline_help, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_inline_help, options, req.body);
         e_inline_help.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
