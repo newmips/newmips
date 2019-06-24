@@ -263,18 +263,23 @@ function initializeWorkflow(id_application, name_application) {
         // Copy API routes
         fs.copySync(piecesPath + '/api/', workspacePath + '/api/');
 
+        // Remove notification views
+        fs.removeSync(workspacePath+'/views/e_notification');
+
         // Remove notification from administration sidebar
         domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
             $("#notification_menu_item").remove();
-            var diagramMenuLink = '<!--{#actionAccess entity="status" action="read"}-->\n';
-            diagramMenuLink += '<li>\n';
-            diagramMenuLink += '    <a href="/status/diagram">\n';
-            diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
-            diagramMenuLink += '        <!--{#__ key="component.status.diagram" /}-->\n';
-            diagramMenuLink += '    </a>\n';
-            diagramMenuLink += '</li>\n';
-            diagramMenuLink += '{/actionAccess}\n';
-            $("#status_menu_item ul").append(diagramMenuLink);
+
+            // DIAGRAM MENU
+            // var diagramMenuLink = '<!--{#actionAccess entity="status" action="read"}-->\n';
+            // diagramMenuLink += '<li>\n';
+            // diagramMenuLink += '    <a href="/status/diagram">\n';
+            // diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
+            // diagramMenuLink += '        <!--{#__ key="component.status.diagram" /}-->\n';
+            // diagramMenuLink += '    </a>\n';
+            // diagramMenuLink += '</li>\n';
+            // diagramMenuLink += '{/actionAccess}\n';
+            // $("#status_menu_item ul").append(diagramMenuLink);
             domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
                 // Media pieces
                 var modelMedia = fs.readFileSync(piecesPath + '/models/e_media.js', 'utf8');

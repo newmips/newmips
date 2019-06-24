@@ -30,6 +30,9 @@
             "r_accepted_group": "Accepted group (No group means accepted for all)",
             "f_default": "Is the default status",
             "f_button_label": "Button label"
+		},
+		"e_translation": {
+			"as_r_translations": "Traductions"
 		}
 	}
 }

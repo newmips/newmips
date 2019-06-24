@@ -280,7 +280,7 @@ var delay = (function() {
 function generateColumnSelector(tableID, columns) {
     var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
     var tableHeight = $(tableID).height();
-    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;width:100%;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
 
     var columnsToShow = {columns: []};
     // Loop over the <th> available on page load
@@ -303,7 +303,7 @@ function generateColumnSelector(tableID, columns) {
             if (show)
                 columnsToShow.columns.push(element.data('col'));
 
-            var columnDiv = $('<div style="width:100%;"><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
+            var columnDiv = $('<div><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
             // Initialize column checkbox
             var checkbox = columnDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 

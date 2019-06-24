@@ -162,7 +162,7 @@
                   "name_entity": "Tâche",
                   "plural_entity": "Tâche",
                   "id_entity": "ID",
-                  "r_history_state": "Historique State",
+                  "r_history_state": "Historique Etat",
                   "r_state": "Etat",
                   "s_state": "Etat",
                   "f_title": "Titre",
@@ -175,6 +175,17 @@
                   "r_robot": "Robot",
                   "f_program_file": "Fichier programme",
                   "f_procedure": "Procédure"
+            },
+            "e_history_e_task_s_state": {
+                  "label_entity": "Historique etat tâche",
+                  "name_entity": "Historique etat tâche",
+                  "plural_entity": "Historique etat tâche",
+                  "id_entity": "ID",
+                  "r_state": "Etat",
+                  "f_comment": "Commentaire",
+                  "r_modified_by": "Modifié par",
+                  "as_r_history_state": "Historique Etat",
+                  "as_r_history_e_task_s_state": "Historique etat tâche"
             }
       }
 }
