@@ -281,5 +281,5 @@ div.dataTables_length select {
 }
 
 .nav-tabs-custom {
-    box-shadow: 0 !important;
+    box-shadow: none !important;
 }

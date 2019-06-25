@@ -188,6 +188,17 @@
 			</div>
 		</div>
 	{/showytpopup}
+	{?version}
+		<div class="newmipsVersion">
+			<div class="pull-right">Newmips GPL V3 | {version}</div>
+		</div>
+	{:else}
+		{?globalConf.version}
+			<div class="newmipsVersion">
+				<div class="pull-right">Newmips GPL V3 | {globalConf.version}</div>
+			</div>
+		{/globalConf.version}
+	{/version}
 {/content}
 {<custom_js}
 	{?showytpopup}
