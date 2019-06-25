@@ -1137,9 +1137,12 @@ function addTab(attr, file, newLi, newTabContent, target) {
             // Append created elements to `context` to handle presence of tab or not
             newLi = '<!--{#entityAccess entity="' + target.substring(2) + '"}-->\n' + newLi + '\n<!--{/entityAccess}-->';
             $(".nav-tabs", context).append(newLi);
-            $(".tab-content", context).append('<!--{^hideTab}-->\n\t\t\t<!--{#entityAccess entity="' + target.substring(2) + '"}-->');
-            $(".tab-content", context).append(newTabContent);
-            $(".tab-content", context).append('<!--{/entityAccess}-->\n\t\t\t<!--{/hideTab}-->');
+            $(".tab-content", context).append('\
+                <!--{^hideTab}-->\n\
+                    <!--{#entityAccess entity="' + target.substring(2) + '"}-->\n\
+                        '+newTabContent+'\n\
+                    <!--{/entityAccess}-->\n\
+                <!--{/hideTab}-->\n');
 
             $('body').empty().append(context);
             domHelper.write(file, $).then(function () {
@@ -1150,52 +1153,41 @@ function addTab(attr, file, newLi, newTabContent, target) {
 }
 
 exports.setupHasManyTab = function (attr, callback) {
-    var target = attr.options.target.toLowerCase();
-    var showTarget = attr.options.showTarget.toLowerCase();
-    var urlTarget = attr.options.urlTarget.toLowerCase();
-    var source = attr.options.source.toLowerCase();
-    var showSource = attr.options.showSource.toLowerCase();
-    var urlSource = attr.options.urlSource.toLowerCase();
-    var foreignKey = attr.options.foreignKey.toLowerCase();
-    var alias = attr.options.as.toLowerCase();
-    var showAlias = attr.options.showAs;
-    var urlAs = attr.options.urlAs.toLowerCase();
+    let target = attr.options.target.toLowerCase();
+    let showTarget = attr.options.showTarget.toLowerCase();
+    let urlTarget = attr.options.urlTarget.toLowerCase();
+    let source = attr.options.source.toLowerCase();
+    let showSource = attr.options.showSource.toLowerCase();
+    let urlSource = attr.options.urlSource.toLowerCase();
+    let foreignKey = attr.options.foreignKey.toLowerCase();
+    let alias = attr.options.as.toLowerCase();
+    let showAlias = attr.options.showAs;
+    let urlAs = attr.options.urlAs.toLowerCase();
 
     /* Add Alias in Translation file for tabs */
-    var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-    var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-    var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
-    var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
+    let fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
+    let fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
+    let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+    let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
     dataFR.entity[source][alias] = showAlias;
     dataEN.entity[source][alias] = showAlias;
 
-    var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
-    var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
+    fs.writeFileSync(fileTranslationFR, JSON.stringify(dataFR, null, 4), 'utf8');
+    fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 4), 'utf8');
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
-    stream_fileTranslationFR.end();
-    stream_fileTranslationFR.on('finish', function () {
-        //console.log('File => Translation FR ------------------ UPDATED');
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
-        stream_fileTranslationEN.end();
-        stream_fileTranslationEN.on('finish', function () {
-            //console.log('File => Translation EN ------------------ UPDATED');
+    // Setup association tab for show_fields.dust
+    let fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
+    let file = fileBase + '/show_fields.dust';
 
-            // Setup association tab for show_fields.dust
-            var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-            var file = fileBase + '/show_fields.dust';
+    // Create new tab button
+    let newLi = '<li>\n<a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></a>\n</li>';
 
-            // Create new tab button
-            var newLi = '<li><a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></a></li>';
+    // Create new tab content
+    let newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
-            // Create new tab content
-            var newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
-
-            printHelper.addHasMany(fileBase, target, alias).then(function () {
-                addTab(attr, file, newLi, newTab, target).then(callback);
-            });
-        });
+    printHelper.addHasMany(fileBase, target, alias).then(function () {
+        addTab(attr, file, newLi, newTab, target).then(callback);
     });
 }
 
