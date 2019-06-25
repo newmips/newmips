@@ -1189,7 +1189,7 @@ exports.createWidget = function (result) {
 exports.deleteWidget = function (result) {
     return {
         function: 'deleteWidget',
-        widgetTypes: [getRightWidgetType(result[1])],
+        widgetTypes: [result[1] == 'piechart' ? 'piechart' : getRightWidgetType(result[1])],
         widgetInputType: result[1],
         entityTarget: result[2]
     }
