@@ -1768,12 +1768,11 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 return callback(err, null);
             }
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
-            var optionsSourceObject = JSON.parse(optionsSourceFile);
-            var toSync = true;
+            let optionsSourceObject = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json'));
+            let toSync = true;
             let constraints = true;
             let saveFile = false;
-            // Vérification si une relation existe déjà de la source VERS la target
+            // Check if an association already exists with the same alias
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     // If alias already used
@@ -1782,11 +1781,14 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                             // Remove auto generate key by the generator
                             optionsSourceObject.splice(i, 1);
                             saveFile = true;
-                        } else {
-                            var err = new Error("structure.association.error.alreadySameAlias");
-                            return callback(err, null);
-                        }
+                        } else
+                            return callback(new Error("structure.association.error.alreadySameAlias"), null);
                     }
+                } else if(attr.options.as == optionsSourceObject[i].as){
+                    let err = new Error();
+                    err.message = "database.field.error.alreadyExist";
+                    err.messageParams = [attr.options.showAs];
+                    return callback(err, null);
                 }
             }
 
@@ -1926,6 +1928,11 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                     }
                 } else if (optionsSourceObject[i].relation == "belongsToMany" && (attr.options.as == optionsSourceObject[i].as)) {
                     var err = new Error("structure.association.error.alreadySameAlias");
+                    return callback(err, null);
+                } else if(attr.options.as == optionsSourceObject[i].as){
+                    let err = new Error();
+                    err.message = "database.field.error.alreadyExist";
+                    err.messageParams = [attr.options.showAs];
                     return callback(err, null);
                 }
             }
