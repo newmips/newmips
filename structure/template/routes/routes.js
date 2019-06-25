@@ -50,7 +50,8 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 
     res.render('login/login', {
         message: message,
-        captcha: captcha
+        captcha: captcha,
+        redirect: req.query.r ? req.query.r : null
     });
 });
 
@@ -61,7 +62,8 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     else
         req.session.cookie.expires = 120 * 60 * 1000; // 2h
 
-    res.redirect("/default/home");
+    let redirect = req.query.r ? req.query.r : "/default/home";
+    res.redirect(redirect);
 });
 
 router.get('/refresh_login_captcha', function(req, res) {
