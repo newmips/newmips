@@ -96,6 +96,15 @@ exports.moduleAccessMiddleware = function(moduleName) {
         let userGroups = req.session.passport.user.r_group;
         if (userGroups.length > 0 && moduleAccess(userGroups, moduleName))
             return next();
+
+        if(userGroups.length == 0){
+            req.session.toastr = [{
+                level: 'error',
+                message: "settings.auth_component.no_group"
+            }];
+            return res.redirect('/logout');
+        }
+
         req.session.toastr = [{
             level: 'error',
             message: "settings.auth_component.no_access_group_module"
