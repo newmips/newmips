@@ -64,7 +64,8 @@
             "no_access_group_module": "Your group do not have access to this module.",
             "no_access_group_entity": "Your group do not have access to this entity.",
             "no_access_change_status": "Your group do not have access to change this status.",
-            "no_access_role": "Your role is not allowed to do this action on this entity."
+            "no_access_role": "Your role is not allowed to do this action on this entity.",
+            "no_group": "Your account does not have access to the application, please contact the administrator."
         },
         "db_tool": {
             "title": "DB Tool",
