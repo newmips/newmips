@@ -14,7 +14,7 @@
 
 {<content}
     <div class="header">{#__ key="login.authentication"/}</div>
-    <form action="/login" method="post">
+    <form action="/login{#redirect}?r={.}{/redirect}" method="post">
         <div class="body bg-white">
             <center><img src="/img/logo_newmips.png" alt='Login logo' width="50%" height="50%"/></center>
         </div>
