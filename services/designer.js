@@ -3193,11 +3193,11 @@ function deleteWidget(attr, callback) {
     db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
         if (err)
             return callback(err);
-        db_module.getModuleById(entity.id_module, function (err, module) {
+        db_module.getModuleById(entity.id_module, function (err, dbModule) {
             if (err)
                 return callback(err);
 
-            attr.module = module;
+            attr.module = dbModule;
             attr.entity = entity;
 
             structure_ui.deleteWidget(attr, function (err, info) {
@@ -3211,7 +3211,7 @@ function deleteWidget(attr, callback) {
 exports.deleteWidget = deleteWidget;
 
 function deleteEntityWidgets(attr, callback) {
-    attr.widgetTypes = ['info', 'stats', 'lastrecords'];
+    attr.widgetTypes = ['info', 'stats', 'lastrecords', 'piechart'];
     deleteWidget(attr, function (err) {
         if (err)
             return callback(err);
