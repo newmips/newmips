@@ -507,7 +507,7 @@ exports.createWidgetLastRecords = function(attr, callback) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
             newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
+            newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml +=      $template("body")[0].innerHTML+"\n";
             newHtml += "</div>";
             newHtml += '<!--{/entityAccess}-->';
@@ -542,24 +542,22 @@ exports.createWidgetLastRecords = function(attr, callback) {
 }
 
 exports.deleteWidget = function(attr, callback) {
-    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
-
-    // Delete from controller
-    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var regex = new RegExp("([^]*)(\\/\\/ \\*\\*\\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" start \\| Do not remove \\*\\*\\*)([^]*)(\\/\\/ \\*\\*\\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" end \\| Do not remove \\*\\*\\*)([^]*)", "g");
-    defaultFile = defaultFile.replace(regex, '$1\n\t$5');
-    fs.writeFileSync(workspacePath+'/routes/default.js', defaultFile, 'utf8');
+    const workspacePath = __dirname+'/../workspace/'+attr.id_application;
 
     // Delete from view
     domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
+        let widgetElements = [];
+        // For each widgetType, find corresponding divs using a regex on attr id
+        for (const widgetType of attr.widgetTypes) {
+            widgetElements = $("#widgets > div[data-widget-type="+widgetType+"]").filter(function() {
+                // We don't know piechart's field, use regex to match rest of id
+                const reg = widgetType == 'piechart' ? new RegExp('piechart_'+attr.entity.codeName+'_.*_widget') : new RegExp(widgetType+'_'+attr.entity.codeName+'_widget');
+                return this.id.match(reg);
+            });
 
-        for (var i = 0; i < attr.widgetTypes.length; i++) {
-            var widgetElemId = attr.widgetTypes[i]+'_'+attr.entity.codeName+'_widget';
-
-            // It is possible to have the same widgetType for the same entity
-            // It results in a duplication of the ID, so we loop until there is none left
-            while ($("#"+widgetElemId).length > 0)
-                $("#"+widgetElemId).remove();
+            // Delete matched widget divs
+            for (const elem of widgetElements)
+                $(elem).remove();
         }
 
         domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {
