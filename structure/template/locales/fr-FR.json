@@ -252,7 +252,9 @@
             "stats": {
                 "more_info": "Plus d'infos"
             },
-            "piechart": {}
+            "piechart": {
+                "distribution": "Répartition"
+            }
         },
         "createdAt": "Date de création"
     },

@@ -3082,20 +3082,21 @@ exports.createWidgetPiechart = function (attr, callback) {
             db_field.getCodeNameByNameArray([attr.field], entity.id, function (err, field) {
                 if (err)
                     return callback(err);
-                if (field.length != 1){
-                    let err = new Error();
-                    err.message = "structure.ui.widget.unknown_fields";
-                    err.messageParams = [attr.field];
-                    return callback(err)
+
+                if (field.length == 1) {
+                    attr.found = true;
+                    attr.field = field[0];
                 }
-                attr.field = field[0];
+                // Field not found on entity, set found to false to notify structure_ui to search in entities targeted in options.json
+                else
+                    attr.found = false;
+
                 structure_ui.createWidgetPiechart(attr, function (err, info) {
                     if (err)
                         return callback(err);
                     callback(null, info);
                 });
             });
-
         });
     }
 }
