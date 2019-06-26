@@ -56,7 +56,7 @@ router.post('/create', block_access.isAdmin, (req, res) => {
             enabled: 0,
             first_name: req.body.first_name,
             last_name: req.body.last_name,
-            login: req.body.login,
+            login: req.body.login.toLowerCase(),
             id_role: req.body.role,
             password: null,
             phone: null,
@@ -99,7 +99,7 @@ router.post('/update', block_access.isAdmin, (req, res) => {
         return res.redirect("/users")
     }
     models.User.update({
-        login: req.body.login,
+        login: req.body.login.toLowerCase(),
         last_name: req.body.last_name,
         id_role: req.body.role,
         phone: req.body.phone,
