@@ -24,7 +24,7 @@
                                     <label for="login">
                                         {#__ key="users.login"/}&nbsp;
                                     </label>
-                                    <input class="form-control input" placeholder='{#__ key="users.login" /}' value="{login}" type="text" maxlength="255" name="login">
+                                    <input class="form-control input" placeholder='{#__ key="users.login" /}' value="{login}" type="text" maxlength="255" name="login" style='text-transform: lowercase;'>
                                 </div>
                             </div>
                             <div data-field="first_name" class="col-xs-12 col-sm-6">
