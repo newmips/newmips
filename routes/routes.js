@@ -53,10 +53,10 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
-    if (req.body.remember)
+    if (req.body.remember_me)
         req.session.cookie.maxAge = 168 * 3600000; // 1 week
     else
-        req.session.cookie.maxAge = 24 * 3600000; // 24h
+        req.session.cookie.expires = false; // Logout on browser exit
 
     let email_user = req.session.passport.user.email;
 
