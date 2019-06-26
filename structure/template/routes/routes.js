@@ -57,10 +57,10 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
-    if (req.body.remember)
-        req.session.cookie.expires = false; // Unlimited
+    if (req.body.remember_me)
+        req.session.cookie.maxAge = 168 * 3600000; // 1 week
     else
-        req.session.cookie.expires = 120 * 60 * 1000; // 2h
+        req.session.cookie.expires = false; // Logout on browser exit
 
     let redirect = req.query.r ? req.query.r : "/default/home";
     res.redirect(redirect);

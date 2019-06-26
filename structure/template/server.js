@@ -160,7 +160,8 @@ var sessionInstance = session({
 	store: sessionStore,
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
-	resave: true,
+	resave: false,
+    rolling: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
 	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific

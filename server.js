@@ -172,7 +172,8 @@ app.use(session({
     store: sessionStore,
     cookieName: 'newmipsCookie',
     secret: 'newmipsmakeyourlifebetter',
-    resave: true,
+    resave: false,
+    rolling: true,
     saveUninitialized: false,
     maxAge: 360 * 5,
     key: 'newmipsCookie'
