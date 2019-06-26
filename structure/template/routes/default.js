@@ -40,7 +40,7 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
 
         widgetsPromises.push(((widget, model)=>{
             return new Promise((resolve, reject)=> {
-                var widgetRes = {type: widget.type};
+                const widgetRes = {type: widget.type};
                 switch (widget.type) {
                     case 'info':
                     case 'stats':
@@ -48,7 +48,7 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                             widgetRes.data = widgetData;
                             data[widget.widgetID] = widgetRes;
                             resolve();
-                        }).catch(reject);
+                        }).catch(resolve);
                     break;
 
                     case 'piechart':
@@ -56,7 +56,7 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                             console.error('No field defined for widget piechart')
                             return resolve();
                         }
-                        // Status Piechart
+                        // STATUS PIECHART
                         if (widget.field.indexOf('s_') == 0) {
                             var statusAlias = 'r_'+widget.field.substring(2);
                             models[model].findAll({
@@ -78,9 +78,61 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                 widgetRes.data = dataSet;
                                 data[widget.widgetID] = widgetRes;
                                 resolve();
-                            }).catch(reject);
+                            }).catch(resolve);
                         }
-                        // Field Piechart
+                        // RELATED TO PIECHART
+                        else if (widget.field.indexOf('r_') == 0) {
+                            // Find option matching wdiget's targeted alias
+                            let targetOption;
+                            try {
+                                let options = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+model.toLowerCase()+'.json'));
+                                for (const option of options) {
+                                    if (option.relation == 'belongsTo' && option.as == widget.field) {
+                                        targetOption = option;
+                                        break;
+                                    }
+                                }
+                                if (!targetOption)
+                                    throw new Error();
+                            } catch(e) {
+                                console.error("Couldn't load piechart for "+model+" on field "+widget.field);
+                                return resolve();
+                            }
+
+                            // Build all variables required to query piechart data
+                            const using = targetOption.usingField ? targetOption.usingField : [{value:'id'}];
+                            const selectAttributes = [];
+                            for (const attr of using)
+                                selectAttributes.push('target.'+attr.value);
+                            const foreignKey = targetOption.foreignKey;
+                            const target = models['E'+targetOption.target.substring(1)].getTableName();
+                            const source = models[model].getTableName();
+
+                            models.sequelize.query(`
+                                SELECT
+                                    count(source.id) count, ${selectAttributes.join(', ')}
+                                FROM
+                                    ${source} source
+                                LEFT JOIN
+                                    ${target} target
+                                ON
+                                    target.id = source.${foreignKey}
+                                GROUP BY ${foreignKey}
+                            `, {type: models.sequelize.QueryTypes.SELECT}).then(piechartData => {
+                                const dataSet = {labels: [], data: []};
+                                for (const pie of piechartData) {
+                                    const labels = [];
+                                    for (const attr of using)
+                                        labels.push(pie[attr.value])
+                                    dataSet.labels.push(labels.join(' - '));
+                                    dataSet.data.push(pie.count);
+                                }
+                                widgetRes.data = dataSet;
+                                data[widget.widgetID] = widgetRes;
+                                resolve();
+                            }).catch(resolve);
+                        }
+                        // FIELD PIECHART
                         else {
                             models[model].findAll({
                                 attributes: [widget.field, [models.sequelize.fn('COUNT', 'id'), 'count']],
@@ -93,9 +145,9 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                     if (widget.fieldType == 'enum')
                                         label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
 
-                                    if(dataSet.labels.indexOf(label) != -1){
+                                    if(dataSet.labels.indexOf(label) != -1)
                                         dataSet.data[dataSet.labels.indexOf(label)] += piechartData[i].count
-                                    } else {
+                                    else {
                                         dataSet.labels.push(label);
                                         dataSet.data.push(piechartData[i].count);
                                     }
@@ -103,13 +155,14 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                 widgetRes.data = dataSet;
                                 data[widget.widgetID] = widgetRes;
                                 resolve();
-                            }).catch(reject);
+                            }).catch(resolve);
                         }
                     break;
 
                     default:
                         console.log("Not found widget type "+widget.type);
                         resolve();
+                        break;
                 }
             })
         })(currentWidget, modelName));
@@ -123,6 +176,14 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
 });
 
 // *** Dynamic Module | Do not remove ***
+
+router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
+    res.render('default/m_administration');
+});
+
+router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function(req, res) {
+    res.render('default/m_home');
+});
 
 router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
     var source = req.params.source;
