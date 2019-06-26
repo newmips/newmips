@@ -250,7 +250,9 @@
             "stats": {
                 "more_info": "More info"
             },
-            "piechart": {}
+            "piechart": {
+                "distribution": "Distribution"
+            }
         },
         "createdAt": "Creation date"
     },
