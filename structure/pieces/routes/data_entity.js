@@ -117,7 +117,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
             return res.status(500).end();
         }
 
-        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(function(count) {
             var rawData = {
                 recordsTotal: count,
                 recordsFiltered: count,
@@ -370,7 +370,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     // Find tab option
     var option;
     for (var i = 0; i < options.length; i++)
-        if (options[i].as == req.params.alias) {
+        if (options[i].as == alias) {
             option = options[i];
             break;
         }
@@ -391,9 +391,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         queryOpts.include = {
             model: models[entity_helper.capitalizeFirstLetter(option.target)],
             as: option.as,
-            include: {
-                all: true
-            }
+            include: {all: true}
         }
 
     // Fetch tab data
