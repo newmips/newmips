@@ -446,6 +446,19 @@ exports.createWidgetPiechart = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
+    if (attr.found === false) {
+        let definitlyNotFound = true;
+        var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+attr.entity.codeName+'.json', 'utf8'));
+        for (var j = 0; j < options.length; j++)
+            if (attr.field.toLowerCase() == options[j].showAs.toLowerCase()) {
+                attr.field = {name: options[j].showAs, codeName: options[j].as, type: options[j].newmipsType};
+                definitlyNotFound = false;
+                break;
+            }
+        if (definitlyNotFound)
+            return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [definitlyNotFound.join(', ')]});
+    }
+
     // Add widget to module's layout
     var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
     domHelper.read(layout_view_filename).then(function($) {
