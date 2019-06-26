@@ -465,7 +465,7 @@ exports.createWidgetPiechart = function(attr, callback) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_'+attr.field.codeName+'_widget';
             // Widget box title traduction
-            $2(".box-title").html('<!--{#__ key="defaults.widgets.piechart.'+widgetElemId+'" /}-->');
+            $2(".box-title").html(`<!--{#__ key="defaults.widgets.piechart.distribution" /}-->&nbsp;<!--{#__ key="entity.${attr.entity.codeName}.label_entity" /}-->&nbsp;-&nbsp;<!--{#__ key="entity.${attr.entity.codeName}.${attr.field.codeName}" /}-->`);
             // Create widget's html
             var newHtml = "";
             newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
@@ -475,15 +475,6 @@ exports.createWidgetPiechart = function(attr, callback) {
             newHtml += '<!--{/entityAccess}-->';
             $("#widgets").append(newHtml);
             domHelper.write(layout_view_filename, $).then(function() {
-
-                // Add widget box traduction
-                var tradFR = JSON.parse(fs.readFileSync(workspacePath+'/locales/fr-FR.json', 'utf8'));
-                tradFR.defaults.widgets.piechart[widgetElemId] = 'Répartition '+attr.entity.name+' par '+attr.field.name;
-                fs.writeFileSync(workspacePath+'/locales/fr-FR.json', JSON.stringify(tradFR, null, 4), 'utf8');
-                var tradEN = JSON.parse(fs.readFileSync(workspacePath+'/locales/en-EN.json', 'utf8'));
-                tradEN.defaults.widgets.piechart[widgetElemId] = attr.entity.name+' grouped by '+attr.field.name;
-                fs.writeFileSync(workspacePath+'/locales/en-EN.json', JSON.stringify(tradEN, null, 4), 'utf8');
-
                 callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
             });
         });
