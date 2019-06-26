@@ -398,7 +398,7 @@ $(function() {
                 else if (data.option.structureType == 'print')
                     initPrintTab(tab, data);
                 else
-                    console.error("Bad structureType in option");
+                    return console.error("Bad structureType in option");
 
                 // Init form and td
                 initForm(tab);
