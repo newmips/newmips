@@ -176,7 +176,7 @@
         var options = {
             header: "Besoin d'aide ? Discutez avec nos équipes de support.",
             loading_placeholder: "Connexion en cours ...",
-            queryInterval: 5000
+            queryInterval: 2500
         };
 
         var html = '<div class="slackchat slack-chat-box">';

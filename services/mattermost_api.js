@@ -9,40 +9,26 @@ let token = false, tokenExpire, supportUser, channel = {}, channelName, supportT
 
 exports.init = async (appName) => {
 
-    console.time('Authenticate');
 
     // Get authent token
     if(!token || moment().diff(tokenExpire, "hours" >= 24))
         token = await authenticate();
 
-    console.timeEnd('Authenticate');
 
-    console.time('getChannel');
     // Check that channel for current app + generator exist
     channelName = appName + "-" + globalConfig.host.replace(/\./g, "");
     channel[channelName] = await getChannel(channelName);
-    console.timeEnd('getChannel');
 
     if(!channel[channelName]){
-        console.time('getTeam');
         // Support team is the team where the discussing channel is
         supportTeam = await getTeam(mattermostConfig.team);
-        console.timeEnd('getTeam');
-        console.time('createChannel');
         channel[channelName] = await createChannel(channelName, supportTeam.id);
-        console.timeEnd('createChannel');
-        console.time('getTeam');
         // Newmips team represent all the support person from newmips that will be added to the channel
         newmipsTeam = await getTeam(mattermostConfig.support_members);
-        console.timeEnd('getTeam');
-        console.time('getTeamMembers');
         // Get all newmips team members
         teamMembers = await getTeamMembers(newmipsTeam.id);
-        console.timeEnd('getTeamMembers');
-        console.time('addTeamToChannel');
         // Add all team to the channel
         await addTeamToChannel(teamMembers, channel[channelName].id);
-        console.timeEnd('addTeamToChannel');
     }
 
     return channel[channelName];
@@ -50,19 +36,15 @@ exports.init = async (appName) => {
 
 exports.send = async (appName, message) => {
 
-    console.time('Authenticate');
     // Get authent token
     if(!token || moment().diff(tokenExpire, "hours") >= 24)
         token = await authenticate();
-    console.timeEnd('Authenticate');
 
     // Check that channel for current app + generator exist
     channelName = appName + "-" + globalConfig.host.replace(/\./g, "");
 
-    console.time('getChannel');
     if(!channel[channelName] || typeof channel[channelName] === "undefined")
         channel[channelName] = await getChannel(channelName);
-    console.timeEnd('getChannel');
 
     return await sendMessage(channel[channelName], message);
 }
