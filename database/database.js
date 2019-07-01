@@ -110,3 +110,12 @@ exports.dropFKMultipleDataField = function (attr, callback) {
         callback(err);
     });
 }
+
+exports.dropTable = function(table_name, callback) {
+    sequelize.query(`DROP TABLE ${table_name};`).then(_ =>{
+        callback();
+    }).catch(err => {
+        console.error(err);
+        callback(err);
+    })
+}
