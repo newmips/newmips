@@ -99,7 +99,8 @@ async function authenticate() {
             login_id: mattermostConfig.login,
             password: mattermostConfig.password
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     let callResults = await request(options);
@@ -120,7 +121,8 @@ async function getChannel(channelName) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     // console.log("CALL => getChannel " + channelName);
@@ -139,7 +141,8 @@ async function getTeam(teamName) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     // console.log("CALL => getTeam " + teamName);
@@ -154,7 +157,8 @@ async function getTeamMembers(teamID) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     // console.log("CALL => getTeamMembers");
@@ -177,7 +181,8 @@ async function createChannel(channelName, teamID) {
             header: "A man need a name, euh no, he need help !",
             type: "P"
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     // console.log("CALL => createChannel " + channelName);
@@ -193,7 +198,8 @@ async function addTeamToChannel(teamMembers, channelID) {
             'Content-Type': 'application/json',
             'Authorization': token
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     for (var i = 0; i < teamMembers.length; i++) {
@@ -225,7 +231,8 @@ async function createIncomingWebhook(channelID) {
             channel_id: channelID,
             display_name: "Generated hook from newmips environment"
         },
-        json: true
+        json: true,
+        forever: true
     };
     // console.log("CALL => createIncomingWebhook");
     return await request(options);
@@ -244,7 +251,8 @@ async function getIncomingWebhook(teamID, channelID) {
             per_page: "1000",
             team_id: teamID
         },
-        json: true
+        json: true,
+        forever: true
     };
     // console.log("CALL => getIncomingWebhook");
     let incomingWebhooks = await request(options);
@@ -265,7 +273,8 @@ async function sendMessage(chan, message) {
             channel_id: chan.id,
             message: message
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     // console.log("CALL => sendMessage");
@@ -285,7 +294,8 @@ async function getPosts(chan) {
             page: "0",
             per_page: "50"
         },
-        json: true
+        json: true,
+        forever: true
     };
 
     return await request(options);
