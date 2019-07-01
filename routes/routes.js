@@ -98,7 +98,7 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
-    let login_user = req.body.login_user;
+    let login_user = req.body.login_user.toLowerCase();
     let email_user = req.body.email_user;
     let usernameGitlab = email_user.replace(/\@/g, "").replace(/\./g, "").trim();
 

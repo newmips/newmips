@@ -14,7 +14,7 @@ passport.use(new LocalStrategy({
 
         let user = await models.User.findOne({
             where: {
-                login: login
+                login: login.toLowerCase()
             }
         })
 

@@ -40,7 +40,6 @@ const extend = require('util')._extend;
 const https = require('https');
 const http = require('http');
 
-
 // Winston logger
 const logger = require('./utils/logger');
 
@@ -65,7 +64,7 @@ app.use(morgan('dev', {
         	return true;
     },
     stream: require('split')().on('data', function(line) {
-        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line);
+        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line + "\n");
     })
 }));
 
