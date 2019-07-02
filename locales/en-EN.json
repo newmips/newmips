@@ -139,7 +139,8 @@
         "legend": "Execute a Newmips script",
         "redirecting": "Redirecting...",
         "createScript": "Write a script",
-        "fromFile": "Upload a script"
+        "fromFile": "Upload a script",
+        "alreadyProcessing": "Another user is already running a script, please try again in a few moments."
     },
     "template": {
         "label": "Template",
