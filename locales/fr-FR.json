@@ -139,7 +139,8 @@
         "redirecting": "Redirection...",
         "createScript": "Écrire un script",
         "fromFile": "Depuis un fichier",
-        "template": "Choisissez votre modèle d'application"
+        "template": "Choisissez votre modèle d'application",
+        "alreadyProcessing": "Un autre utilisateur est déjà en train d'exécuter un script, merci de réessayer dans quelques instants."
     },
     "template": {
         "label": "Modèle",

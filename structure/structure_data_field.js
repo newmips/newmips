@@ -1771,16 +1771,16 @@ exports.deleteDataField = function (attr, callback) {
 }
 
 exports.deleteTab = function (attr, callback) {
-    var tabNameWithoutPrefix = attr.options.urlValue.toLowerCase();
-    var name_data_entity = attr.name_data_entity.toLowerCase();
-    var idApp = attr.id_application;
-    var target;
+    let tabNameWithoutPrefix = attr.options.urlValue.toLowerCase();
+    let name_data_entity = attr.name_data_entity.toLowerCase();
+    let idApp = attr.id_application;
+    let target;
 
-    var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
-    var options = JSON.parse(fs.readFileSync(jsonPath));
-    var found = false;
-    var option;
-    let deletedOptionsTarget = []
+    let jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
+    let options = JSON.parse(fs.readFileSync(jsonPath));
+    let found = false;
+    let option;
+    let deletedOptionsTarget = [];
 
     for (var i = 0; i < options.length; i++) {
         if (options[i].as.toLowerCase() !== "r_" + tabNameWithoutPrefix)

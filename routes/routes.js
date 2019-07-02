@@ -180,7 +180,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
     // Check if user with login + email exist in DB
     models.User.findOne({
         where: {
-            login: req.body.login,
+            login: req.body.login.toLowerCase(),
             email: req.body.mail
         }
     }).then(function(user){
@@ -283,8 +283,8 @@ router.get('/reset_password_form/:token', block_access.loginAccess, function(req
 
 router.post('/reset_password_form', block_access.loginAccess, function(req, res) {
 
-    var login_user = req.body.login_user;
-    var email_user = req.body.email_user;
+    let login_user = req.body.login_user.toLowerCase();
+    let email_user = req.body.email_user;
 
     models.User.findOne({
         where: {
@@ -294,7 +294,7 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
         }
     }).then(function(user){
         if(req.body.password_user == req.body.password_user2 && req.body.password_user.length >= 8){
-            var password = bcrypt.hashSync(req.body.password_user2, null, null);
+            let password = bcrypt.hashSync(req.body.password_user2, null, null);
             if(user){
                 if(user.password == "" || user.password == null){
                     models.User.update({
