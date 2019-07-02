@@ -28,8 +28,8 @@ var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
 var translateHelper = require("../utils/translate");
 
-var fs = require('fs-extra');
-var sequelize = require('../models/').sequelize;
+const fs = require('fs-extra');
+const sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
 /* -------------------------- General ---------------------------- */
@@ -567,11 +567,28 @@ function deleteDataEntity(attr, callback) {
                     };
                     promises.push({func: function (tmpAttrIn, clbk) {
                         if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                            deleteTab(tmpAttrIn, function (err) {
-                                if (err)
-                                    console.error(err);
-                                clbk();
-                            });
+                            if(tmpAttrIn.options && tmpAttrIn.options.value != '' && tmpAttrIn.options.value.indexOf('r_history_') != -1){
+                                let statusName = tmpAttrIn.options.value.split('r_history_')[1];
+                                deleteComponentStatus({
+                                    id_application: tmpAttrIn.id_application,
+                                    id_data_entity: tmpAttrIn.id_data_entity,
+                                    options: {
+                                        value : "s_"+statusName,
+                                        urlValue: statusName,
+                                        showValue: statusName
+                                    }
+                                }, err => {
+                                    if (err)
+                                        console.error(err);
+                                    clbk();
+                                });
+                            } else {
+                                deleteTab(tmpAttrIn, err => {
+                                    if (err)
+                                        console.error(err);
+                                    clbk();
+                                });
+                            }
                         } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
                             tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
                             deleteDataField(tmpAttrIn, function (err) {
@@ -2093,6 +2110,86 @@ exports.createNewComponentStatus = function (attr, callback) {
         });
     });
 }
+
+let workspacesModels = {};
+function deleteComponentStatus(attr, callback) {
+
+    let self = this;
+    /* If there is no defined name for the module, set the default */
+    if (typeof attr.options.value === "undefined") {
+        attr.options.value = "s_status";
+        attr.options.urlValue = "status";
+        attr.options.showValue = "Status";
+    }
+
+    db_entity.getDataEntityById(attr.id_data_entity, (err, entity) => {
+        if(err)
+            return callback(err);
+
+        db_field.getFieldByCodeName({
+            codeName: attr.options.value,
+            idEntity: attr.id_data_entity,
+            showValue: attr.options.showValue,
+            showEntity: entity.name,
+        }, (err, field) => {
+            if(err)
+                return callback(err);
+
+            // Looking for status & history status information in options.json
+            let entityOptions = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + entity.codeName + '.json'));
+            let historyInfo, statusFieldInfo;
+
+            for(let option of entityOptions){
+                if(option.as == 'r_'+attr.options.urlValue)
+                    statusFieldInfo = option;
+
+                if(option.as == 'r_history_'+attr.options.urlValue)
+                    historyInfo = option;
+            }
+
+            let modelsPath = __dirname + '/../workspace/' + attr.id_application + '/models/';
+            if(typeof workspacesModels[attr.id_application] === 'undefined'){
+                delete require.cache[require.resolve(modelsPath)];
+                workspacesModels[attr.id_application] = require(modelsPath);
+            }
+            let historyTableName = workspacesModels[attr.id_application]['E_' + historyInfo.target.substring(2)].getTableName();
+
+            structure_component.deleteStatus({
+                appID: attr.id_application,
+                status_field: 's_'+attr.options.urlValue,
+                fk_status: statusFieldInfo.foreignKey,
+                entity: entity.codeName,
+                historyName: historyInfo.target,
+                historyTableName: historyTableName
+            }).then(_ => {
+
+                // Delete metadata in generator DB
+                db_field.deleteDataField({
+                    id_data_entity: attr.id_data_entity,
+                    options: {
+                        value: 's_'+attr.options.urlValue,
+                        showValue: attr.options.urlValue
+                    }
+                }, err => {if(err) console.error(err);});
+
+                db_field.deleteDataField({
+                    id_data_entity: attr.id_data_entity,
+                    options: {
+                        value: statusFieldInfo.foreignKey,
+                        showValue: statusFieldInfo.foreignKey
+                    }
+                }, err => {if(err) console.error(err);});
+
+                callback(null, {
+                    message: 'database.component.delete.success'
+                })
+            }).catch(err => {
+                callback(err);
+            })
+        })
+    })
+}
+exports.deleteComponentStatus = deleteComponentStatus;
 
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function (attr, callback) {

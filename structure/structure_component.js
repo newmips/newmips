@@ -1012,6 +1012,103 @@ exports.newStatus = function (attr, callback) {
     });
 }
 
+exports.deleteStatus = async (data) => {
+
+    let workspacePath = __dirname + '/../workspace/' + data.appID;
+
+    // Delete history views
+    helpers.rmdirSyncRecursive(workspacePath + '/views/' + data.historyName);
+    // Delete history model
+    fs.unlinkSync(workspacePath + '/models/' + data.historyName + '.js');
+    fs.unlinkSync(workspacePath + '/models/attributes/' + data.historyName + '.json');
+    fs.unlinkSync(workspacePath + '/models/options/' + data.historyName + '.json');
+
+    // Add DROP TABLE query in toSync.json
+    let toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
+    if (typeof toSyncObject.queries !== "object")
+        toSyncObject.queries = [];
+
+    toSyncObject.queries.push("DROP TABLE " + data.historyTableName);
+    fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSyncObject, null, 4), 'utf8');
+
+    // Clean attribute status field
+    let attributesPath = workspacePath + '/models/attributes/' + data.entity + '.json';
+    let attributes = JSON.parse(fs.readFileSync(attributesPath), 'utf8');
+    for(let attribute in attributes)
+        if(attribute == data.status_field)
+            delete attributes[attribute];
+    fs.writeFileSync(attributesPath, JSON.stringify(attributes, null, 4), 'utf8');
+
+    // Clean options
+    let source, options, idxToRemove;
+    fs.readdirSync(workspacePath + '/models/options/').filter(file => {
+        return file.indexOf('.') !== 0 && file.slice(-5) === '.json';
+    }).forEach(file => {
+        source = file.slice(0, -5);
+        options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
+        idxToRemove = [];
+
+        // Looking for option link with history table
+        for (let i = 0; i < options.length; i++){
+            if(data.fk_status == options[i].foreignKey){
+                // Status field relation
+                idxToRemove.push(i);
+            } else if (options[i].target == data.historyName){
+                // History table relation
+                idxToRemove.push(i);
+            }
+        }
+
+        options = options.filter((val, idx, arr) => {
+            return idxToRemove.indexOf(idx) == -1
+        });
+
+        fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
+    });
+
+    let statusName = data.status_field.substring(2);
+
+    // Remove status from views
+    let $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/show_fields.dust');
+    $("div[data-field='f_" + statusName + "']").remove();
+    $("a#r_history_" + statusName + "-click").parent().remove();
+    $("div#r_history_" + statusName).remove();
+    await domHelper.write(workspacePath + '/views/' + data.entity + '/show_fields.dust', $);
+
+    $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/print_fields.dust');
+    $("div[data-field='f_" + statusName + "']").remove();
+    $("a#r_history_" + statusName + "-click").parent().remove();
+    $("div#r_history_" + statusName + "_print").remove();
+    await domHelper.write(workspacePath + '/views/' + data.entity + '/print_fields.dust', $);
+
+    $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/list_fields.dust');
+    $("th[data-field='r_" + statusName + "']").remove();
+    await domHelper.write(workspacePath + '/views/' + data.entity + '/list_fields.dust', $);
+
+    // Clean locales
+    translateHelper.removeLocales(data.appID, 'entity', data.historyName, _ => {});
+    translateHelper.removeLocales(data.appID, 'field', [data.entity, "r_history_" + statusName], _ => {});
+    translateHelper.removeLocales(data.appID, 'field', [data.entity, "r_" + statusName], _ => {});
+    translateHelper.removeLocales(data.appID, 'field', [data.entity, "s_" + statusName], _ => {});
+
+    // Clean access
+    let access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.lock.json', 'utf8'));
+    let idToRemove;
+    for (let npsModule in access){
+        idToRemove = false;
+        for (let i = 0; i < access[npsModule].entities.length; i++)
+            if (access[npsModule].entities[i].name == data.historyName.substring(2))
+                idToRemove = i;
+
+        if(idToRemove)
+            access[npsModule].entities = access[npsModule].entities.filter((x, idx) => idx != idToRemove);
+    }
+
+    fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
+
+    return true;
+}
+
 exports.setupChat = function (attr, callback) {
     try {
         var workspacePath = __dirname + '/../workspace/' + attr.id_application;

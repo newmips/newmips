@@ -707,6 +707,8 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
+
+/* STATUS */
 exports.createNewComponentStatus = function (result) {
     var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
@@ -724,6 +726,27 @@ exports.createNewComponentStatusWithName = function (result) {
 
     return checkAndCreateAttr("createNewComponentStatus", options, value);
 }
+
+exports.deleteComponentStatus = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentStatus",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentStatusWithName = function (result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteComponentStatus", options, value);
+};
 
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function (result) {
@@ -2055,6 +2078,35 @@ var training = {
         "créer un composant statut",
         "ajouter composant statut",
         "créer composant statut"
+    ],
+    "deleteComponentStatus": [
+        "delete component status",
+        "remove component status",
+        "supprimer un composant statut",
+        "supprimer un statut",
+        "supprimer composant statut",
+        "supprimer statut"
+    ],
+    "deleteComponentStatusWithName": [
+        "delete component status with name (.*)",
+        "remove component status with name (.*)",
+
+        "delete component status called (.*)",
+        "remove component status called (.*)",
+
+        "supprimer un composant statut appelé (.*)",
+        "supprimer composant statut appelé (.*)",
+        "supprimer le composant statut appelé (.*)",
+        "supprimer un statut appelé (.*)",
+        "supprimer le statut appelé (.*)",
+        "supprimer statut appelé (.*)",
+
+        "supprimer un composant statut nommé (.*)",
+        "supprimer composant statut nommé (.*)",
+        "supprimer le composant statut nommé (.*)",
+        "supprimer un statut nommé (.*)",
+        "supprimer le statut nommé (.*)",
+        "supprimer statut nommé (.*)"
     ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",
