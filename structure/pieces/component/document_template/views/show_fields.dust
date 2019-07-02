@@ -39,19 +39,15 @@
 </div>
 <br>
 <div class="actions">
-    <form action="/document_template/delete" method="post">
-        <div class="quicklinks">
+        <div class="quicklinks ">
             <span>
-                <a href="#" id="document_template_helper">
-                    <button class="btn btn-default"><i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span></button>
-                </a>
-            </span>
-            <span>
-                <button class="btn btn-danger btn-confirm">
-                    <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                    <span>{#__ key="button.delete"/}</span>
-                </button>
-                <input name="id" type="hidden" value="{e_document_template.id}" class="form-control">
+                <form class="btn" action="/document_template/delete" method="post">
+                    <button class="btn btn-danger btn-confirm">
+                        <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                        <span>{#__ key="button.delete"/}</span>
+                    </button>
+                    <input name="id" type="hidden" value="{e_document_template.id}" class="form-control">
+                </form>
             </span>
             <span>
                 <a href="/document_template/update_form?id={e_document_template.id}" class="btn btn-warning">
@@ -72,7 +68,12 @@
                     <span>{#__ key="button.list"/}</span>
                 </a>
             </span>
+            <span>
+                <a href="#" id="document_template_helper" >
+                    <button class="btn btn-default"><i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span></button>
+                </a>
+            </span>
             {/hideButton}
         </div>
-    </form>
+
 </div>

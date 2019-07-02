@@ -1,21 +1,24 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var message = "";
-var multer = require('multer');
-var readline = require('readline');
-var fs = require('fs');
-var fse = require('fs-extra');
-var docBuilder = require('../utils/api_doc_builder');
-var moment = require('moment');
-var designer = require('../services/designer.js');
-var structure_application = require('../structure/structure_application');
-var fs = require("fs");
-var session_manager = require('../services/session.js');
-var parser = require('../services/bot.js');
-var scriptData = [];
-var attrHelper = require('../utils/attr_helper');
-var path = require('path');
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const readline = require('readline');
+const fs = require('fs-extra');
+const path = require('path');
+const moment = require('moment');
+
+const attrHelper = require('../utils/attr_helper');
+const block_access = require('../utils/block_access');
+const docBuilder = require('../utils/api_doc_builder');
+
+const designer = require('../services/designer.js');
+const session_manager = require('../services/session.js');
+const parser = require('../services/bot.js');
+
+const structure_application = require('../structure/structure_application');
+
+let scriptProcessing = false;
+let scriptData = [];
+let message = "";
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
@@ -78,7 +81,7 @@ function execute(req, instruction) {
     });
 }
 
-var mandatoryInstructions = [
+let mandatoryInstructions = [
     "create module home",
     "create module Administration",
     "create entity User",
@@ -213,8 +216,7 @@ var mandatoryInstructions = [
     "entity notification has many user",
     "select module home"
 ];
-var idxAtMandatoryInstructionStart = -1;
-
+let idxAtMandatoryInstructionStart = -1;
 function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed, mandatory instruction included
@@ -298,6 +300,7 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
 router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
+
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;
 
@@ -317,6 +320,16 @@ router.post('/execute', block_access.isLoggedIn, multer({
             id_data_entity: -1
         }
     };
+    if(scriptProcessing){
+        let __ = require("../services/language")(req.session.lang_user).__;
+        scriptData[userId].answers = [{
+            message: __('instructionScript.alreadyProcessing')
+        }];
+        scriptData[userId].over = true;
+        scriptData[userId].overDueToProcessing = true;
+        return res.end();
+    }
+    scriptProcessing = true;
 
     // Get file extension
     var extensionFile = req.file.originalname.split(".");
@@ -379,6 +392,10 @@ router.post('/execute', block_access.isLoggedIn, multer({
         setFieldUnique: {
             value: 1,
             errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        },
+        delete: {
+            value: 1,
+            errorMessage: "Please do not use delete instruction in script mode."
         }
     };
 
@@ -433,8 +450,12 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
+            if(designerFunction.indexOf('delete') != -1)
+                exception.delete.value += 1;
+
             // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
             //     exception.setFieldUnique.value += 1;
+
             fileLines.push(line);
         }
     });
@@ -462,7 +483,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 message: stringError
             });
             scriptData[userId].over = true;
-        } else{
+        } else {
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 // Workspace sequelize instance
@@ -563,6 +584,16 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             id_data_entity: -1
         }
     };
+    if(scriptProcessing){
+        let __ = require("../services/language")(req.session.lang_user).__;
+        scriptData[userId].answers = [{
+            message: __('instructionScript.alreadyProcessing')
+        }];
+        scriptData[userId].over = true;
+        scriptData[userId].overDueToProcessing = true;
+        return res.end();
+    }
+    scriptProcessing = true;
 
     var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
     var tmpPath = __dirname+'/../upload/'+tmpFilename;
@@ -651,6 +682,10 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         setFieldUnique: {
             value: 1,
             errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        },
+        delete: {
+            value: 1,
+            errorMessage: "Please do not use delete instruction in script mode."
         }
     };
 
@@ -702,6 +737,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
+
+            if(designerFunction.indexOf('delete') != -1)
+                exception.delete.value += 1;
 
             // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
             //     exception.setFieldUnique.value += 1;
@@ -788,7 +826,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
                     // Copy choosen template in generated workspace
                     if (templateEntry) {
-                        fse.copySync(__dirname + '/../templates/' + templateEntry, __dirname + '/../workspace/' + idApplication);
+                        fs.copySync(__dirname + '/../templates/' + templateEntry, __dirname + '/../workspace/' + idApplication);
                     }
 
                     // Restart the application server is already running
@@ -850,6 +888,8 @@ router.get('/status', function(req, res) {
         req.session.id_project = scriptData[userId].ids.id_project;
         req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
         req.session.id_module = scriptData[userId].ids.id_module;
+        if(typeof scriptData[userId].overDueToProcessing === 'undefined')
+            scriptProcessing = false;
         scriptData.splice(scriptData.indexOf(userId), 1);
     }
 
