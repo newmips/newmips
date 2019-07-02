@@ -46,12 +46,6 @@ exports.getValidator = function(attrDef) {
 				}
 			}
 
-		case 'password':
-			return {len: {
-				args: [3, 32],
-				msg: "error.validation.password"
-			}}
-
 		case 'url':
 			return {isUrl: {msg: "error.validation.url"}};
 
@@ -63,6 +57,7 @@ exports.getValidator = function(attrDef) {
 		case 'ean8':
 		case 'code39':
 		case 'picture':
+		case 'password':
 			return undefined;
 	}
 }
