@@ -1,22 +1,22 @@
-var fs = require('fs-extra');
-var globalConf = require('../config/global');
+const fs = require('fs-extra');
+const globalConf = require('../config/global');
 
 
 exports.deleteEntityFile = function (options) {
-    if (options) {
-        switch (options.type) {
-            case "local":
-            case "file":
-            case 'picture':
-                deleteEntityLocalFile(options);
-                break;
-            case "cloudfile":
-                deleteEntityCloudFile(options);
-                break;
-            default:
-                console.log("Store type not found");
-                break;
-        }
+    if (!options)
+        return;
+    switch (options.type) {
+        case "local":
+        case "file":
+        case 'picture':
+            deleteEntityLocalFile(options);
+            break;
+        case "cloudfile":
+            deleteEntityCloudFile(options);
+            break;
+        default:
+            console.log("Store type not found");
+            break;
     }
 };
 
@@ -29,7 +29,7 @@ exports.getFileBuffer64 = function (path, callback) {
         return callback(false, '');
     });
 };
-var deleteEntityLocalFile = function (options) {
+const deleteEntityLocalFile = function (options) {
     if (!!options.value && !!options.entityName) {
         const partOfValue = options.value.split('-');
         if (partOfValue.length) {
