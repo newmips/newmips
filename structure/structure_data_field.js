@@ -1114,20 +1114,21 @@ function addTab(attr, file, newLi, newTabContent, target) {
         var source = attr.options.source.toLowerCase();
         domHelper.read(file).then(function ($) {
             // Tabs structure doesn't exist, create it
-            var tabs = '';
-            var context;
+            let context, tabs;
             if ($("#tabs").length == 0) {
-                tabs += '<div class="nav-tabs-custom" id="tabs">';
-                tabs += '   <!--{^hideTab}-->';
-                tabs += '	<ul class="nav nav-tabs">';
-                tabs += '		<li class="active"><a data-toggle="tab" href="#home"><!--{#__ key="entity.' + source + '.label_entity" /}--></a></li>';
-                tabs += '	</ul>';
-                tabs += '   <!--{/hideTab}-->';
-
-                tabs += '	<div class="tab-content" style="min-height:275px;">';
-                tabs += '		<div id="home" class="tab-pane fade in active"></div>';
-                tabs += '	</div>';
-                tabs += '</div>';
+                tabs = '\
+                <div class="nav-tabs-custom" id="tabs">\n\
+                    <!--{^hideTab}-->\n\
+                    <ul class="nav nav-tabs">\n\
+                        <li class="active">\n\
+                            <a data-toggle="tab" href="#home"><!--{#__ key="entity.' + source + '.label_entity" /}--></a>\n\
+                        </li>\n\
+                    </ul>\n\
+                    <!--{/hideTab}-->\n\
+                    <div class="tab-content" style="min-height:275px;">\n\
+                        <div id="home" class="tab-pane fade in active"></div>\n\
+                    </div>\n\
+                </div>\n';
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
