@@ -20,11 +20,11 @@ var component_helper = require('../utils/component_helper');
 // ===========================================
 
 /* GET status page to check if workspace is ready. */
-router.get('/status', function(req, res) {
+router.get('/status', function (req, res) {
     res.sendStatus(200);
 });
 
-router.post('/widgets', block_access.isLoggedIn, function(req, res) {
+router.post('/widgets', block_access.isLoggedIn, function (req, res) {
     var user = req.session.passport.user;
     var widgetsInfo = req.body.widgets;
     var widgetsPromises = [];
@@ -32,38 +32,38 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
 
     for (var i = 0; i < widgetsInfo.length; i++) {
         var currentWidget = widgetsInfo[i];
-        var modelName = 'E_'+currentWidget.entity.substring(2);
+        var modelName = 'E_' + currentWidget.entity.substring(2);
 
         // Check group and role access to widget's entity
         if (!block_access.entityAccess(user.r_group, currentWidget.entity.substring(2)) || !block_access.actionAccess(user.r_role, currentWidget.entity.substring(2), 'read'))
             continue;
 
-        widgetsPromises.push(((widget, model)=>{
-            return new Promise((resolve, reject)=> {
+        widgetsPromises.push(((widget, model) => {
+            return new Promise((resolve, reject) => {
                 var widgetRes = {type: widget.type};
                 switch (widget.type) {
                     case 'info':
                     case 'stats':
-                        models[model].count().then(widgetData=> {
+                        models[model].count().then(widgetData => {
                             widgetRes.data = widgetData;
                             data[widget.widgetID] = widgetRes;
                             resolve();
                         }).catch(reject);
-                    break;
+                        break;
 
                     case 'piechart':
                         // Status Piechart
                         if (widget.field.indexOf('s_') == 0) {
-                            var statusAlias = 'r_'+widget.field.substring(2);
+                            var statusAlias = 'r_' + widget.field.substring(2);
                             models[model].findAll({
-                                attributes: [statusAlias+'.f_name', statusAlias+'.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
-                                group: [statusAlias+'.f_name', statusAlias+'.f_color', statusAlias+'.id'],
+                                attributes: [statusAlias + '.f_name', statusAlias + '.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
+                                group: [statusAlias + '.f_name', statusAlias + '.f_color', statusAlias + '.id'],
                                 include: {model: models.E_status, as: statusAlias},
                                 raw: true
-                            }).then((piechartData)=> {
+                            }).then((piechartData) => {
                                 var dataSet = {labels: [], backgroundColor: [], data: []};
                                 for (var i = 0; i < piechartData.length; i++) {
-                                    if(dataSet.labels.indexOf(piechartData[i].f_name) != -1){
+                                    if (dataSet.labels.indexOf(piechartData[i].f_name) != -1) {
                                         dataSet.data[dataSet.labels.indexOf(piechartData[i].f_name)] += piechartData[i].count
                                     } else {
                                         dataSet.labels.push(piechartData[i].f_name);
@@ -82,14 +82,14 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                 attributes: [widget.field, [models.sequelize.fn('COUNT', 'id'), 'count']],
                                 group: [widget.field],
                                 raw: true
-                            }).then((piechartData)=> {
+                            }).then((piechartData) => {
                                 var dataSet = {labels: [], data: []};
                                 for (var i = 0; i < piechartData.length; i++) {
                                     var label = piechartData[i][widget.field];
                                     if (widget.fieldType == 'enum')
                                         label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
 
-                                    if(dataSet.labels.indexOf(label) != -1){
+                                    if (dataSet.labels.indexOf(label) != -1) {
                                         dataSet.data[dataSet.labels.indexOf(label)] += piechartData[i].count
                                     } else {
                                         dataSet.labels.push(label);
@@ -101,50 +101,54 @@ router.post('/widgets', block_access.isLoggedIn, function(req, res) {
                                 resolve();
                             }).catch(reject);
                         }
-                    break;
+                        break;
 
                     default:
-                        console.log("Not found widget type "+widget.type);
+                        console.log("Not found widget type " + widget.type);
                         resolve();
                 }
             })
         })(currentWidget, modelName));
     }
 
-    Promise.all(widgetsPromises).then(function() {
+    Promise.all(widgetsPromises).then(function () {
         res.json(data);
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.error(err);
     });
 });
 
 // *** Dynamic Module | Do not remove ***
 
-router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
+router.get('/print/:source/:id', block_access.isLoggedIn, function (req, res) {
     var source = req.params.source;
     var id = req.params.id;
 
-    models['E_'+source].findOne({
+    models['E_' + source].findOne({
         where: {id: id},
         include: [{all: true, eager: true}]
-    }).then(function(dustData){
+    }).then(function (dustData) {
         var sourceOptions;
         try {
-            sourceOptions = JSON.parse(fs.readFileSync(__dirname+'/../models/options/e_'+source+'.json', 'utf8'));
-        } catch(e) {res.status(500).end()}
+            sourceOptions = JSON.parse(fs.readFileSync(__dirname + '/../models/options/e_' + source + '.json', 'utf8'));
+        } catch (e) {
+            res.status(500).end()
+        }
 
         // Add enum / radio information
-        dustData.enum_radio = enums_radios.translated("e_"+source, req.session.lang_user, sourceOptions);
+        dustData.enum_radio = enums_radios.translated("e_" + source, req.session.lang_user, sourceOptions);
 
         imagePromises = [];
         // Source entity images
-        imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_'+source));;
+        imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_' + source));
+        ;
         // Relations images
         for (var i = 0; i < sourceOptions.length; i++) {
             // Has many/preset
             if (dustData[sourceOptions[i].as] instanceof Array) {
                 for (var j = 0; j < dustData[sourceOptions[i].as].length; j++)
-                    imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));;
+                    imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));
+                ;
             }
             // Has one
             else
@@ -152,13 +156,13 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
         }
 
         // Component address
-        dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists('e_'+source);
+        dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists('e_' + source);
 
-        Promise.all(imagePromises).then(function() {
+        Promise.all(imagePromises).then(function () {
             // Open and render dust file
-            var file = fs.readFileSync(__dirname+'/../views/e_'+source+'/print_fields.dust', 'utf8');
+            var file = fs.readFileSync(__dirname + '/../views/e_' + source + '/print_fields.dust', 'utf8');
             dust.insertLocalsFn(dustData ? dustData : {}, req);
-            dust.renderSource(file, dustData || {}, function(err, rendered) {
+            dust.renderSource(file, dustData || {}, function (err, rendered) {
                 if (err) {
                     console.error(err);
                     return res.status(500).end();
@@ -234,7 +238,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
     });
 });
 
-router.get('/get_picture', block_access.isLoggedIn, function(req, res) {
+router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
     try {
         let entity = req.query.entity;
         let filename = req.query.src;
@@ -262,7 +266,7 @@ router.get('/get_picture', block_access.isLoggedIn, function(req, res) {
     }
 });
 
-router.get('/download', block_access.isLoggedIn, function(req, res) {
+router.get('/download', block_access.isLoggedIn, function (req, res) {
     try {
         let entity = req.query.entity;
         let filename = req.query.f;
@@ -276,7 +280,7 @@ router.get('/download', block_access.isLoggedIn, function(req, res) {
         if (!fs.existsSync(filePath))
             throw new Error("404 - File not found");
 
-        res.download(filePath, cleanFilename, function(err) {
+        res.download(filePath, cleanFilename, function (err) {
             if (err)
                 throw err;
         });
@@ -290,39 +294,37 @@ router.get('/download', block_access.isLoggedIn, function(req, res) {
     }
 });
 
-router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
-    var entity = req.body.dataEntity;
-    var dataStorage = req.body.dataStorage;
-    var filename = req.body.filename;
-    if (!!entity && !!dataStorage && !!filename) {
-        var partOfFilepath = filename.split('-');
+router.post('/delete-file-ajax', block_access.isLoggedIn, function (req, res) {
+    let entity = req.body.dataEntity;
+    let dataStorage = req.body.dataStorage;
+    let filename = req.body.filename;
+    if (entity && dataStorage && filename) {
+        let partOfFilepath = filename.split('-');
         if (partOfFilepath.length) {
-            var base = partOfFilepath[0];
-            var completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filename;
+            let base = partOfFilepath[0];
+            let completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filename;
             // thumbnail file to delete
-            var completeThumbnailPath = globalConf.localstorage + globalConf.thumbnail.folder + entity + '/' + base + '/' + filename;
+            let completeThumbnailPath = globalConf.localstorage + globalConf.thumbnail.folder + entity + '/' + base + '/' + filename;
             fs.unlink(completeFilePath, function (err) {
                 if (!err) {
-                    req.session.toastr.push({level: 'success', message: "message.delete.success"});
-                    res.json({result: 200, message: ''});
-                    fs.unlink(completeThumbnailPath,function (err) {
-                        if(err)
+                    res.status(200).json({ message: 'message.delete.success'});
+                    fs.unlink(completeThumbnailPath, function (err) {
+                        if (err)
                             console.error(err);
                     });
                 } else {
                     req.session.toastr.push({level: 'error', message: "Internal error"});
-                    res.json({result: 500, message: ''});
+                    res.status(500).json({message: ''});
                 }
-
             });
         } else {
             req.session.toastr.push({level: 'error', message: "File syntax not valid"});
-            res.json({result: 404, message: ''});
+            res.status(404).json({message: ''});
         }
 
     } else {
         req.session.toastr.push({level: 'error', message: "File not found"});
-        res.json({result: 404, message: ''});
+        res.status(400).json({message: 'Request parameters must be set'});
     }
 });
 
