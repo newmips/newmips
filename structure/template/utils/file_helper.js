@@ -2,58 +2,70 @@ var fs = require('fs-extra');
 var globalConf = require('../config/global');
 
 
-exports.deleteEntityFile = function (options) {
-    if (options) {
+exports.deleteFile = function (options) {
+    return new Promise((resolve, reject) => {
+        if (typeof options === 'undefined')
+            return reject(new Error('Delete options must be set'));
+
         switch (options.type) {
-            case "local":
-            case "file":
+            case 'local':
+            case 'file':
             case 'picture':
-                deleteEntityLocalFile(options);
+                resolve(deleteLocalFile(options));
                 break;
-            case "cloudfile":
-                deleteEntityCloudFile(options);
+            case 'cloudfile':
+                resolve(deleteCloudFile(options));
                 break;
             default:
-                console.log("Store type not found");
-                break;
+                return reject(new Error('File type not found'));
         }
-    }
+    });
+
 };
 
-exports.getFileBuffer64 = function (path, callback) {
-    if (typeof path == 'undefined' || !fs.existsSync(globalConf.localstorage+path))
-        return callback(false, '');
-    fs.readFile(globalConf.localstorage + path, function (err, data) {
-        if (!err)
-            return callback(true, new Buffer(data).toString('base64'));
-        return callback(false, '');
+
+exports.getFileBuffer = function (path, options) {
+    return new Promise((resolve, reject) => {
+        const completeFilePath = globalConf.localstorage + path;
+        if (typeof path == 'undefined' || !fs.existsSync(globalConf.localstorage + path))
+            return reject(new Error({code: 404, message: 'File not found'}));
+        let encoding = typeof options !== 'undefined' && options.encoding ? options.encoding : 'base64';
+        resolve(Buffer.from(fs.readFileSync(completeFilePath)).toString(encoding));
     });
 };
-var deleteEntityLocalFile = function (options) {
-    if (!!options.value && !!options.entityName) {
+
+var deleteLocalFile = function (options) {
+    return new Promise((resolve, reject) => {
+        if (typeof options === 'undefined')
+            return reject(new Error('Delete options must be set'));
+        if (!options.value || !options.entityName)
+            return reject(new Error('Field value and entityName are required'));
+
         const partOfValue = options.value.split('-');
+
         if (partOfValue.length) {
             const filePath = globalConf.localstorage + options.entityName + '/' + partOfValue[0] + '/' + options.value;
             fs.unlink(filePath, function (err) {
                 if (err)
-                    return console.error(err);
-                if (options.type == 'picture') {
-                    //remove thumbnail picture
+                    return reject(err);
+                if (options.type === 'picture') {
+                    //remove picture thumbnail 
                     const fileThumnailPath = globalConf.localstorage + globalConf.thumbnail.folder + options.entityName + '/' + partOfValue[0] + '/' + options.value;
                     fs.unlink(fileThumnailPath, function (err) {
                         if (err)
                             console.error(err);
                     });
                 }
+                resolve();
             });
-        }
-
-    }
+        } else
+            reject(new Error('File syntaxe not valid'));
+    });
 };
 
-var deleteEntityCloudFile = function (options) {
-    if (!!options.value && !!options.entity) {
-
-    }
+var deleteCloudFile = function (options) {
+    return new Promise((resolve, reject) => {
+        resolve();
+    });
 };
 
