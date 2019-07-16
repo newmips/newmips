@@ -21,6 +21,11 @@ module.exports = {
             // Session
             locals.session = req.session;
 
+            locals.haveGroup = function(chunk, context, bodies, params) {
+                var userGroups = req.session.passport.user.r_group;
+                var group = params.group;
+                return block_access.haveGroup(userGroups, group);
+            }
             // Access control
             locals.moduleAccess = function(chunk, context, bodies, params) {
                 var userGroups = req.session.passport.user.r_group;
