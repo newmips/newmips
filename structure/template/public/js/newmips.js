@@ -372,7 +372,7 @@ function initForm(context) {
     });
 
     /* --------------- Initialisation de DROPZONE JS - FIELD --------------- */
-    $('.dropzone-field', context).each(function (index) {
+     $('.dropzone-field', context).each(function (index) {
         var that = $(this);
         var type = that.attr('data-type');
         var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
@@ -389,16 +389,12 @@ function initForm(context) {
             thumbnailWidth: 500,
             thumbnailHeight: 500,
             init: function () {
-                this.on("addedfile", function () {
+                this.on("addedfile", function (files) {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else if (!this.files[0].default) {
-                        $("#" + that.attr("id") + "_hidden_name").val(clearString(this.files[0].name));
-                        $("#" + that.attr("id") + "_hidden").val(clearString(this.files[0].name));
                     }
                 });
-
                 this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
@@ -431,6 +427,7 @@ function initForm(context) {
                             },
                             success: function (success) {
                                 $("#" + that.attr("id") + "_hidden").val('');
+                                $("#" + that.attr("id") + "_hidden_name").val('');
                                 if (dropzone.files.length) {
                                     dropzone.removeAllFiles(true);
                                 }
@@ -439,33 +436,29 @@ function initForm(context) {
                     }
                 });
             },
-             renameFilename: function (filename) {
-                /*get file extension before clean*/
-                var fileExt = '';
-                if (filename.indexOf('.') >= 0)
-                    fileExt = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
-                filename = clearString(filename);
-                if (filename.indexOf("dfltImg_") != -1)
-                    return filename.replace("dfltImg_", "");
-                if ($("#" + that.attr("id") + "_hidden").val() != '') {
+            renameFile: function (file) {
+                var filename = file.name;
+                var value = $('#' + dropzoneId + '_hidden').val();
+                if (!value) {
+                    var uuid = uuidv4().replace(/-/g, '');
+                    var filenameCleanedAndRenamed = clearString(filename);
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
-                    /*remove file extension starts With _*/
-                    if (fileExt)
-                        filename = filename.substring(0, filename.lastIndexOf('_'));
-                    var completeFileName = timeFile + '_' + filename + '.' + fileExt;
-                    $("#" + that.attr("id") + "_hidden").val(completeFileName);
-                    return completeFileName;
+                    filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
+                    $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
+                    $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
                 }
+                return filenameCleanedAndRenamed;
             }
         });
         if (type == 'picture')
             dropzoneInit.options.acceptedFiles = 'image/gif, image/png, image/jpeg';
         else if (type === "docx/pdf")
             dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
         var dropzoneId = $(this).attr('id') + '';
-        if ($('#' + dropzoneId + '_hidden').val() != '') {
+        if ($('#' + dropzoneId + '_hidden').val()) {
             var mockFile = {
-                name: "dfltImg_" + $('#' + dropzoneId + '_hidden').val(),
+                name: $('#' + dropzoneId + '_hidden').val(),
                 type: 'mockfile',
                 default: true
             };
@@ -1436,7 +1429,6 @@ function clearString(string) {
     string = string.replace(/\)/g, "_");
     string = string.replace(/\//g, "_");
     string = string.replace(/\\/g, "_");
-    string = string.replace(/\./g, "_");
     string = string.replace(/\;/g, "_");
     string = string.replace(/\?/g, "_");
     string = string.replace(/\"/g, "_");
@@ -1468,7 +1460,7 @@ function clearString(string) {
     string = string.replace(/\²/g, "_");
 
     string = string.replace(String.fromCharCode(65533), "e");
-    string = string.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    string = string.toLowerCase();
 
     return string;
 }
