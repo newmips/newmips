@@ -9,12 +9,12 @@ const enums_radios = require('../utils/enum_radio.js');
 const globalConfig = require('../config/global');
 
 const funcs = {
-    capitalizeFirstLetter: function(word) {
+    capitalizeFirstLetter: function (word) {
         return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     },
-    prepareDatalistResult: async function(entityName, data, lang_user) {
-        const attributes = require('../models/attributes/'+entityName);
-        const options = require('../models/options/'+entityName);
+    prepareDatalistResult: async function (entityName, data, lang_user) {
+        const attributes = require('../models/attributes/' + entityName);
+        const options = require('../models/options/' + entityName);
         const thumbnailFolder = globalConfig.thumbnail.folder;
         const thumbnailPromises = [];
 
@@ -41,14 +41,15 @@ const funcs = {
                     const partOfFile = value.split('-');
                     if (partOfFile.length > 1) {
                         const filePath = `${thumbnailFolder}${entityName}/${partOfFile[0]}/${value}`;
-
                         (thumbnailTask => {
                             thumbnailPromises.push(new Promise((resolve, reject) => {
-                                file_helper.getFileBuffer64(thumbnailTask.file, function (success, buffer) {
+                                file_helper.getFileBuffer(thumbnailTask.file).then(buffer => {
                                     data.data[thumbnailTask.i][thumbnailTask.field] = {
                                         value: thumbnailTask.value,
                                         buffer: buffer
                                     };
+                                }).catch(e => {
+                                }).then(s => {
                                     resolve();
                                 });
                             }));
@@ -63,18 +64,18 @@ const funcs = {
         return data;
     },
     synchro: {
-        writeJournal: function(line) {
+        writeJournal: function (line) {
             if (globalConfig.env != "tablet")
                 return;
-            const journal = JSON.parse(fs.readFileSync(__dirname+'/../sync/journal.json', 'utf8'));
+            const journal = JSON.parse(fs.readFileSync(__dirname + '/../sync/journal.json', 'utf8'));
             if (!journal.transactions instanceof Array)
                 journal.transactions = [];
             journal.transactions.push(line);
-            fs.writeFileSync(__dirname+'/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
+            fs.writeFileSync(__dirname + '/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
         }
     },
     // Split SQL request if too many inclusion
-    optimizedFindOne: async function(modelName, idObj, options, forceOptions = []) {
+    optimizedFindOne: async function (modelName, idObj, options, forceOptions = []) {
         const includePromises = [], includes = forceOptions, includeMaxlength = 5;
         for (var i = 0; i < options.length; i++)
             if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'relatedToMultipleCheckbox') {
@@ -104,22 +105,22 @@ const funcs = {
         const mainObject = resolvedData[0];
         for (let i = 1; i < resolvedData.length; i++)
             for (const alias in resolvedData[i])
-                if(alias.substring(0, 2) == "r_" || alias.substring(0, 2) == "c_"){
+                if (alias.substring(0, 2) == "r_" || alias.substring(0, 2) == "c_") {
                     mainObject[alias] = resolvedData[i][alias];
                     mainObject.dataValues[alias] = resolvedData[i].dataValues[alias];
                 }
         return mainObject;
     },
-    getLoadOnStartData: async function(data, options) {
+    getLoadOnStartData: async function (data, options) {
         // Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
         var todoPromises = [];
-        for (var i = 0; i < options.length; i++){
-            if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart){
+        for (var i = 0; i < options.length; i++) {
+            if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart) {
                 (alias => {
-                    todoPromises.push(new Promise(function(resolve, reject){
-                        models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw:true}).then(function(results){
+                    todoPromises.push(new Promise(function (resolve, reject) {
+                        models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw: true}).then(function (results) {
                             // Change alias name to avoid conflict
-                            data[alias+"_all"] = results;
+                            data[alias + "_all"] = results;
                             resolve();
                         }).catch(reject);
                     }))
@@ -130,7 +131,7 @@ const funcs = {
         await Promise.all(todoPromises);
         return data;
     },
-    error: function(err, req, res, redirect, entity) {
+    error: function (err, req, res, redirect, entity) {
         var isKnownError = false;
         var ajax = req.query.ajax || false;
         var data = {
@@ -140,7 +141,7 @@ const funcs = {
 
         try {
             var lang = "fr-FR";
-            if(typeof req.session.lang_user !== "undefined")
+            if (typeof req.session.lang_user !== "undefined")
                 lang = req.session.lang_user;
 
             var __ = language(lang).__;
@@ -158,85 +159,88 @@ const funcs = {
 
             // Unique value constraint error
             if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-                var message = __('message.unique') + " " + __("entity."+entity+"."+err.errors[0].path);
+                var message = __('message.unique') + " " + __("entity." + entity + "." + err.errors[0].path);
                 req.session.toastr.push({level: 'error', message: message});
                 data.code = 400;
                 isKnownError = true;
             }
 
         } finally {
-            if (ajax){
+            if (ajax) {
                 return res.status(data.code).send(req.session.toastr);
             }
             if (isKnownError) {
                 return res.redirect(redirect || '/');
-            }
-            else
+            } else
                 console.error(err);
 
             logger.debug(err);
             res.status(data.code).render('common/error', data);
         }
     },
-    getPicturesBuffers: function(entity, modelName, isThumbnail)  {
-        return new Promise(function(resolve, reject) {
+    getPicturesBuffers: function (entity, modelName, isThumbnail)  {
+        return new Promise(function (resolve, reject) {
             if (!entity)
                 resolve();
             var attributes;
             try {
-                attributes = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+modelName+'.json'));
-            } catch(e) {resolve();}
+                attributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + modelName + '.json'));
+            } catch (e) {
+                resolve();
+            }
 
             var bufferPromises = [];
             for (var key in entity.dataValues)
                 if (attributes[key] && attributes[key].newmipsType == 'picture') {
-                    (function(keyCopy) {
-                        bufferPromises.push(new Promise(function(resolveBuf, rejectBuf) {
+                    (function (keyCopy) {
+                        bufferPromises.push(new Promise(function (resolveBuf, rejectBuf) {
                             var value = entity.dataValues[keyCopy] || '';
                             var partOfValue = value.split('-');
                             if (partOfValue.length <= 1)
                                 return resolveBuf();
                             var path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
                             if (isThumbnail)
-                                path = 'thumbnail/'+path;
-                            file_helper.getFileBuffer64(path, function(success, buffer) {
+                                path = 'thumbnail/' + path;
+                            file_helper.getFileBuffer(path).then(buffer => {
                                 entity.dataValues[keyCopy] = {
                                     value: value,
                                     buffer: buffer
                                 };
+                            }).catch(e => {
+                            }).then(s => {
                                 resolveBuf();
                             });
                         }));
                     }(key));
                 }
 
-            Promise.all(bufferPromises).then(function() {
+            Promise.all(bufferPromises).then(function () {
                 resolve();
             });
         });
     },
-    removeFiles: function(entityName, entity, attributes) {
-        for (var key in entity.dataValues) {
-            for (var attribute in attributes) {
+    removeFiles: function (entityName, entity, attributes) {
+        for (let key in entity.dataValues) {
+            for (let attribute in attributes) {
                 if ((attributes[attribute].newmipsType === 'file' ||
                         attributes[attribute].newmipsType === "cloudfile" ||
                         attributes[attribute].newmipsType === "picture") &&
-                    attribute == key) {
-                    var value = entity.dataValues[key] || '';
-                    if (value != '' && !!entityName) {
+                        attribute == key) {
+                    let value = entity.dataValues[key];
+                    if (value && entityName) {
                         var options = {
                             entityName: entityName,
                             value: value,
-                            type: attributes[attribute].newmipsType,
+                            type: attributes[attribute].newmipsType
                         };
-                        file_helper.deleteEntityFile(options);
+                        file_helper.deleteFile(options);
                     }
                     break;
                 }
             }
         }
     },
-    findInclude: function(includes, searchType, toFind) {
+    findInclude: function (includes, searchType, toFind) {
         var type = '';
         switch (searchType) {
             case "model":
