@@ -1297,9 +1297,18 @@ function initComponentAddress(context) {
 function initDocumentTemplateHelper() {
 
     function onClickDocumentTemplateHelper() {
-        var select = $('#document_template_select_entity').val();
-        var onclick = "window.open('/document_template/readme/" + select + "', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500')";
-        $('#document_template_helper').attr('onclick', onclick);
+
+        function onClickDocumentTemplateHelper() {
+
+            $('#document_template_helper').click(function (e) {
+                e.preventDefault();
+                var select = $('#document_template_select_entity').val();
+                if (select) {
+                    window.open("/document_template/readme/" + select, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500");
+                }
+                return false;
+            });
+        }
     }
 
     function updateDocumentTemplateSubEntities(entity) {
@@ -1378,7 +1387,7 @@ function initMapsIfComponentAddressExists(context) {
             });
         }
     });
-   
+
     function initComponentAddressMaps(lat, lon, mapsContext) {
         try {
             $(mapsContext).find('.address_maps').each(function () {
