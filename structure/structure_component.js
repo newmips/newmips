@@ -1387,12 +1387,13 @@ exports.addNewComponentAddress = function (attr, callback) {
 exports.deleteComponentAddress = function (attr, callback) {
     try {
         var componentName = 'address_' + attr.id_data_entity;
+        let e_componentName='e_'+componentName;
         var source = attr.entityName;
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        fs.remove(application_path + 'views/' + componentName);
-        fs.remove(application_path + 'models/' + componentName + '.js');
-        fs.remove(application_path + 'models/attributes/' + componentName + '.json');
-        fs.remove(application_path + 'models/options/' + componentName + '.json');
+        fs.remove(application_path + 'views/' + e_componentName);
+        fs.remove(application_path + 'models/' + e_componentName + '.js');
+        fs.remove(application_path + 'models/attributes/' + e_componentName + '.json');
+        fs.remove(application_path + 'models/options/' + e_componentName + '.json');
         var address_settings = "address_settings";
         //remove association
         var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
@@ -1422,8 +1423,8 @@ exports.deleteComponentAddress = function (attr, callback) {
                                     //update locales
                                     var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                     var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                    delete langFR.component[componentName];
-                                    delete langEN.component[componentName];
+                                    delete langFR.entity[e_componentName];
+                                    delete langEN.entity[e_componentName];
                                     //update address settings file
                                     var address_settingsJson = JSON.parse(fs.readFileSync(application_path + 'config/address_settings.json'));
                                     for (var item in address_settingsJson.entities) {
