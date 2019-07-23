@@ -111,7 +111,7 @@ function initForm(context) {
     // Add class regular-textarea to remove summernote plugin
     // Add class no-toolbar to remove summernote toolbar
     $("textarea:not(.regular-textarea):not(.note-codable)", context).each(function () {
-        let toolbar = [
+        var toolbar = [
             ['style', ['style']],
             ['font', ['bold', 'underline', 'clear']],
             ['fontname', ['fontname']],
@@ -501,8 +501,8 @@ function initForm(context) {
 
     // Label click trigger concerned input
     $(document).on("click", "div:not([data-field='']) .form-group label", function () {
-        let htmlType = ["input", "textarea", "select"]
-        let input;
+        var htmlType = ["input", "textarea", "select"]
+        var input;
         for (var i = 0; i < htmlType.length; i++) {
             if ($(this).parent().find(htmlType[i] + "[name='" + $(this).attr("for") + "']").length != 0) {
                 input = $(this).parent().find(htmlType[i] + "[name='" + $(this).attr("for") + "']");
@@ -725,7 +725,7 @@ function validateForm(form) {
                 return true;
             }
         }
-        for (let item in dropzonesComponentArray) {
+        for (var item in dropzonesComponentArray) {
             if ($("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).prop("required") && $("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).val() == "") {
                 return true;
             }
