@@ -456,7 +456,7 @@ exports.createWidgetPiechart = function(attr, callback) {
                 break;
             }
         if (definitlyNotFound)
-            return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [definitlyNotFound.join(', ')]});
+            return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [attr.field]});
     }
 
     // Add widget to module's layout

@@ -38,25 +38,25 @@ exports.generateFields = function (componentName, componentCodeName) {
 
     // For default
     if (addressConf.endpoint.enable) {
-        createHtml += "        <div data-field='address_search_area' class='col-xs-12 div_address_search_area'>\n";
+        createHtml += "        <div data-field='address_search_input' class='col-xs-12 div_address_search_input'>\n";
         createHtml += "            <div class='form-group'>\n";
         createHtml += "                <div class='input-group'>\n";
         createHtml += "                    <div class='input-group-addon'>\n";
         createHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
         createHtml += "                    </div>\n";
-        createHtml += "                    <input class='input form-control address_search_area' id='address_search_area'  type='text' name='f_address_search_area' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
+        createHtml += "                    <input class='input form-control address_search_input' id='address_search_input'  type='text' name='f_address_search_input' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
         createHtml += "                </div>\n";
         createHtml += "            </div>\n";
         createHtml += "            <hr>\n";
         createHtml += "        </div>\n";
 
-        updateHtml += "        <div data-field='address_search_area' class='col-xs-12 div_address_search_area'>\n";
+        updateHtml += "        <div data-field='address_search_input' class='col-xs-12 div_address_search_input'>\n";
         updateHtml += "            <div class='form-group'>\n";
         updateHtml += "                <div class='input-group'>\n";
         updateHtml += "                    <div class='input-group-addon'>\n";
         updateHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
         updateHtml += "                    </div>\n";
-        updateHtml += "                    <input class='input form-control address_search_area' id='address_search_area'  type='text' name='f_address_search_area' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
+        updateHtml += "                    <input class='input form-control address_search_input' id='address_search_input'  type='text' name='f_address_search_input' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
         updateHtml += "                </div>\n";
         updateHtml += "                <input class='input form-control'  type='hidden'  name='address_id' value='{r_address.id}' >\n";
         updateHtml += "            </div>\n";

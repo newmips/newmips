@@ -113,6 +113,13 @@ exports.moduleAccessMiddleware = function(moduleName) {
     }
 }
 
+exports.haveGroup = function(userGroups, group) {
+    for (var i = 0; i < userGroups.length; i++)
+        if (userGroups[i].f_label == group)
+            return true;
+    return false;
+}
+
 // Check if user's group have access to entity
 function entityAccess(userGroups, entityName) {
     try {

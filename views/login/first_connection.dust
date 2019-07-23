@@ -7,19 +7,19 @@
         </div>
         <div class="body bg-gray">
             <div class="form-group">
-                <label for="login_user">{#__ key="login.login"/}</label>
+                <label for="login_user" class="required">{#__ key="login.login"/}</label>
                 <input class="form-control" type="text" name="login_user" value="{login}" placeholder='{#__ key="login.login"/}' required >
             </div>
             <div class="form-group">
-                <label for="email_user">{#__ key="login.mail"/}</label>
+                <label for="email_user" class="required">{#__ key="login.mail"/}</label>
                 <input class="form-control" type="text" name="email_user" value="{email}" placeholder='{#__ key="login.mail"/}' required >
             </div>
             <div class="form-group">
-                <label for="password">{#__ key="login.password"/} {#__ key="login.minimalLength"/}</label>
+                <label for="password" class="required">{#__ key="login.password"/} {#__ key="login.minimalLength"/}</label>
                 <input class="form-control" type="password" name="password_user" id="password" placeholder='{#__ key="login.password"/}' required >
             </div>
             <div class="form-group">
-                <label for="password2">{#__ key="login.confirm_password"/}</label>
+                <label for="password2" class="required">{#__ key="login.confirm_password"/}</label>
                 <input class="form-control" type="password" name="password_user2" id="confirm_password" placeholder='{#__ key="login.confirm_password"/}' required >
             </div>
         </div>
