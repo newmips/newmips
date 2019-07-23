@@ -1799,7 +1799,8 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 return callback(err, null);
             }
             // Check if an association already exists from source to target
-            let optionsSourceObject = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json'));
+            let sourceOptionsPath = __dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json';
+            let optionsSourceObject = JSON.parse(helpers.readFileSyncWithCatch(sourceOptionsPath));
             let toSync = true;
             let constraints = true;
             let saveFile = false;
