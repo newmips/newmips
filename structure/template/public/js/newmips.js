@@ -111,7 +111,7 @@ function initForm(context) {
     // Add class regular-textarea to remove summernote plugin
     // Add class no-toolbar to remove summernote toolbar
     $("textarea:not(.regular-textarea):not(.note-codable)", context).each(function () {
-        var toolbar = [
+        let toolbar = [
             ['style', ['style']],
             ['font', ['bold', 'underline', 'clear']],
             ['fontname', ['fontname']],
@@ -490,8 +490,8 @@ function initForm(context) {
 
     // Label click trigger concerned input
     $(document).on("click", "div:not([data-field='']) .form-group label", function () {
-        var htmlType = ["input", "textarea", "select"]
-        var input;
+        let htmlType = ["input", "textarea", "select"]
+        let input;
         for (var i = 0; i < htmlType.length; i++) {
             if ($(this).parent().find(htmlType[i] + "[name='" + $(this).attr("for") + "']").length != 0) {
                 input = $(this).parent().find(htmlType[i] + "[name='" + $(this).attr("for") + "']");
@@ -546,10 +546,7 @@ function initDropZone(context) {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else {
-                        $("#" + that.attr("id") + "_hidden_name").val(clearString(this.files[0].name));
-                        $("#" + that.attr("id") + "_hidden").val(clearString(this.files[0].name));
-                    }
+                    } 
                 });
                 this.on("sending", function (file, xhr, formData) {
                     var dataComponent = that.attr("data-component");
@@ -572,11 +569,18 @@ function initDropZone(context) {
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
             },
-            renameFilename: function (filename) {
-                filename = clearString(filename);
-                var timeFile = moment().format("YYYYMMDD-HHmmss");
-                $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
-                return timeFile + '_' + filename;
+            renameFile: function (file) {
+                var filename = file.name;
+                var value = $('#' + dropzoneId + '_hidden').val();
+                if (!value) {
+                    var uuid = uuidv4().replace(/-/g, '');
+                    var filenameCleanedAndRenamed = clearString(filename);
+                    var timeFile = moment().format("YYYYMMDD-HHmmss");
+                    filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
+                    $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
+                    $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
+                }
+                return filenameCleanedAndRenamed;
             }
         });
 
@@ -714,7 +718,7 @@ function validateForm(form) {
                 return true;
             }
         }
-        for (var item in dropzonesComponentArray) {
+        for (let item in dropzonesComponentArray) {
             if ($("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).prop("required") && $("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).val() == "") {
                 return true;
             }
@@ -1186,9 +1190,9 @@ $(document).ready(function () {
     $(document).on("click", ".component-print-button", function () {
         // Clear component address
         $(".print-tab .section_address_fields .address_maps").replaceWith(
-                "<div style='position:relative;height:450px;overflow:hidden;'>" +
-                $(".print-tab .section_address_fields .address_maps").find(".olLayerGrid").parent().html() +
-                "</div>");
+            "<div style='position:relative;height:450px;overflow:hidden;'>" +
+            $(".print-tab .section_address_fields .address_maps").find(".olLayerGrid").parent().html() +
+            "</div>");
         window.print();
         return true;
     });
@@ -1372,9 +1376,9 @@ function initMapsIfComponentAddressExists(context) {
             initComponentAddressMaps(f_address_lat, f_address_lon, address_context);
         } else if ((!f_address_lat || !f_address_lon) && f_address_enableMaps) {
             var info = '<div class="alert bg-gray alert-dismissible " >'
-                    + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
-                    + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_address_notValid').val() + '</h4>'
-                    + '</div>';
+                + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
+                + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_address_notValid').val() + '</h4>'
+                + '</div>';
             $('.address_maps', address_context).append(info);
             $('#btnDismissInfoInvalidAddress', address_context).on('click', function () {
                 $('.address_maps', address_context).parent().remove();
@@ -1407,7 +1411,7 @@ function initMapsIfComponentAddressExists(context) {
                 });
                 var iconFeature = new ol.Feature({
                     geometry: new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326',
-                            'EPSG:3857')),
+                        'EPSG:3857')),
                     name: '',
                     population: 4000,
                     rainfall: 500
