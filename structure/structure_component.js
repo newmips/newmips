@@ -1439,7 +1439,7 @@ exports.deleteComponentAddress = function (attr, callback) {
                                             delete langFR.component[address_settings];
                                             delete langEN.component[address_settings];
                                             deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
-                                                require('./structure_module').removeMenuEntry(attr, "administration", address_settings, function (err) {
+                                                require('./structure_module').removeMenuEntry(attr, "administration", 'e_'+address_settings, function (err) {
                                                     if (err)
                                                         reject(err);
                                                     else
