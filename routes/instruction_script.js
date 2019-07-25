@@ -420,7 +420,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
+            console.log(line);
             var parserResult = parser.parse(line);
+            console.log(parserResult);
             // Get the wanted function given by the bot to do some checks
             var designerFunction = parserResult.function;
             var designerValue = null;
@@ -450,7 +452,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
-            if(designerFunction.indexOf('delete') != -1)
+            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
                 exception.delete.value += 1;
 
             // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
@@ -738,7 +740,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
-            if(designerFunction.indexOf('delete') != -1)
+            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
                 exception.delete.value += 1;
 
             // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
