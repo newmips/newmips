@@ -1433,8 +1433,8 @@ exports.deleteComponentAddress = function (attr, callback) {
                                     }
                                     var p = new Promise(function (resolve, reject) {
                                         if (Object.keys(address_settingsJson.entities).length === 0) {
-                                            fs.remove(application_path + 'views/' + address_settings);
-                                            fs.remove(application_path + 'routes/' + address_settings + '.js');
+                                            fs.remove(application_path + 'views/e_' + address_settings);
+                                            fs.remove(application_path + 'routes/e_' + address_settings + '.js');
                                             fs.remove(application_path + 'config/' + address_settings + '.json');
                                             delete langFR.component[address_settings];
                                             delete langEN.component[address_settings];
