@@ -530,9 +530,10 @@ function initDropZone(context) {
         context = document;
 
     /* File Storage Component */
-    $('.dropzone_local_file_component', context).each(function (index) {
+  $('.dropzone_local_file_component', context).each(function (index) {
         var that = $(this);
-        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
+        var dropzoneId = $(this).attr("id");
+        var dropzoneInit = new Dropzone("#" + dropzoneId, {
             url: "/" + that.attr("data-component") + "/file_upload",
             autoProcessQueue: true,
             maxFilesize: 10,
@@ -546,7 +547,7 @@ function initDropZone(context) {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } 
+                    }
                 });
                 this.on("sending", function (file, xhr, formData) {
                     var dataComponent = that.attr("data-component");
