@@ -51,16 +51,16 @@ label.no-weight {
     cursor: pointer;
 }
 /** Component Address**/
-.section_c_address_fields{
+.section_address_fields{
     border:1px solid #dddddd;
     /*margin: 5px;*/
     margin-bottom: 5px;
     padding-bottom: 5px;
 }
-.div_c_address_search_input{
+.div_address_search_input{
     margin-top: -16px;
 }
-.c_address_maps{
+.address_maps{
     margin-top: 25px  !important;
     height: 405px;
     background-color: #efefef;
