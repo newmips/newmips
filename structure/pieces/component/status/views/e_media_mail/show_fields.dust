@@ -23,6 +23,12 @@
             <input class="form-control input" placeholder='{#__ key="entity.e_media_mail.f_from" /}' name="f_from" value="{f_from}" type="text" readonly="">
         </div>
     </div>
+    <div data-field="f_attachments" class="col-xs-12">
+        <div class="form-group">
+            <label for="f_attachments"> {#__ key="entity.e_media_mail.f_attachments"/} {@inline_help field="f_attachments"}&nbsp;<i data-field="f_attachments" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_mail.f_attachments" /}' name="f_attachments" value="{f_attachments}" type="text" readonly="">
+        </div>
+    </div>
     <div data-field="f_subject" class="col-xs-12">
         <div class="form-group">
             <label for="f_subject"> {#__ key="entity.e_media_mail.f_subject"/} {@inline_help field="f_subject"}&nbsp;<i data-field="f_subject" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
