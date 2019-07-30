@@ -190,6 +190,7 @@ let mandatoryInstructions = [
     "add field Cc",
     "add field Cci",
     "add field From",
+    "add field Attachments",
     "add field Subject",
     "add field Content with type text",
     "select entity media notification",

@@ -75,6 +75,7 @@
         var CHOOSE_FIELD = '{#__ key="component.status.choose_from_field" /}';
         var CHOOSE_PHONE_FIELD = '{#__ key="component.status.choose_from_phone_field" /}';
         var CHOOSE_MAIL_FIELD = '{#__ key="component.status.choose_from_email_field" /}';
+        var CHOOSE_FILE_FIELD = '{#__ key="component.status.choose_from_file_field" /}';
         var CHOOSE_USER_TARGET = '{#__ key="component.status.choose_user_target" /}';
 
         $(function() {

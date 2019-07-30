@@ -14,6 +14,7 @@
                   "choose_from_field": "Sélectionner un champ",
                   "choose_from_phone_field": "Sélectionner un champ de type téléphone",
                   "choose_from_email_field": "Sélectionner un champ de type email",
+                  "choose_from_file_field": "Sélectionner un champ de type fichier",
                   "choose_user_target": "Sélectionner un champ lié à un utilisateur",
                   "notification_targets": "Cibles de la notification",
                   "no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici.",
@@ -108,7 +109,8 @@
                   "f_to": "Destinataire",
                   "f_from": "Expéditeur",
                   "f_subject": "Sujet",
-                  "f_content": "Contenu"
+                  "f_content": "Contenu",
+                  "f_attachments": "Pièce(s) jointe(s)"
             },
             "e_media_sms": {
                   "label_entity": "Média SMS",
