@@ -1511,6 +1511,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'views/update_fields.dust', application_path + 'views/' + entity_code_name + '/update_fields.dust');
             fs.copySync(entity_path + 'views/readme.dust', application_path + 'views/' + entity_code_name + '/readme.dust');
             fs.copySync(entity_path + 'views/entity_helper_template.dust', application_path + 'views/' + entity_code_name + '/entity_helper_template.dust');
+            fs.copySync(entity_path + 'views/global_variable_template.dust', application_path + 'views/' + entity_code_name + '/global_variable_template.dust');
             fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
             //copy helper
             fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');

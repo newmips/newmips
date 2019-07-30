@@ -514,8 +514,13 @@ router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("d
 });
 
 router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-    res.json({
-        HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)
+    document_template_helper.buildHTMLGlobalVariables(req.session.lang_user).then(out => {
+        res.status(200).json({
+            HTMLGlobalVariables: out
+        });
+    }).catch(e => {
+        console.error(e);
+        res.status(500).end();
     });
 });
 
