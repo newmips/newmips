@@ -122,6 +122,31 @@ var insertionHandler = {
         insertValue: function(data) {
             return "{field|" + data.id + "}";
         }
+    },
+    file_field: {
+        displaySelector: function(label) {
+            var entity = $("select[name=f_target_entity]").find('option:selected').val();
+            if (!entity)
+                return toastr.warning('Aucune entité n\'est ciblé');
+
+            $.ajax({
+                url: '/media/entity_full_tree/' + entity,
+                success: function(entityTree) {
+                    /* Create select  and options */
+                    var fieldSelect = '<select style="float:left;" class="fileFieldInsertion" name="insertionSelect" data-type="file_field">';
+                    fieldSelect += '<option value="-1">' + CHOOSE_FILE_FIELD + '</option>';
+                    for (var i = 0; i < entityTree.length; i++)
+                        if (entityTree[i].isFile)
+                            fieldSelect += '<option value="' + entityTree[i].codename + '">' + entityTree[i].traduction + '</option>';
+                    fieldSelect += '</select>';
+
+                    $(fieldSelect).appendTo(label).css('width', '230px').select2();
+                }
+            });
+        },
+        insertValue: function(data) {
+            return "{field|" + data.id + "}";
+        }
     }
 }
 
@@ -141,13 +166,15 @@ $(function() {
 
     // When target entity change, reload each related select2
     $("select[name=f_target_entity]").on('change', function() {
-        $(".fieldInsertion, .emailFieldInsertion, .phoneFieldInsertion").each(function() {
+        $(".fieldInsertion, .emailFieldInsertion, .phoneFieldInsertion, .fileFieldInsertion").each(function() {
             var label = $(this).parent('label');
             var handlerType;
             if ($(this).hasClass('emailFieldInsertion'))
                 handlerType = 'email_field';
             else if ($(this).hasClass('phoneFieldInsertion'))
                 handlerType = 'phone_field';
+            else if ($(this).hasClass('fileFieldInsertion'))
+                handlerType = 'file_field';
             else
                 handlerType = 'field';
 
