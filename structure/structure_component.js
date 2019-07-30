@@ -1500,7 +1500,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'models/attributes/e_document_template.json', application_path + 'models/attributes/e_document_template.json');
             fs.copySync(entity_path + 'models/options/e_document_template.json', application_path + 'models/options/e_document_template.json');
             fs.writeFileSync(application_path + 'models/e_document_template.js', modelContent, 'utf8');
-            //copy views files
+            //copy views files. To do after=> move directory
             fs.copySync(entity_path + 'views/create.dust', application_path + 'views/' + entity_code_name + '/create.dust');
             fs.copySync(entity_path + 'views/create_fields.dust', application_path + 'views/' + entity_code_name + '/create_fields.dust');
             fs.copySync(entity_path + 'views/list.dust', application_path + 'views/' + entity_code_name + '/list.dust');
@@ -1510,6 +1510,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'views/update.dust', application_path + 'views/' + entity_code_name + '/update.dust');
             fs.copySync(entity_path + 'views/update_fields.dust', application_path + 'views/' + entity_code_name + '/update_fields.dust');
             fs.copySync(entity_path + 'views/readme.dust', application_path + 'views/' + entity_code_name + '/readme.dust');
+            fs.copySync(entity_path + 'views/entity_helper_template.dust', application_path + 'views/' + entity_code_name + '/entity_helper_template.dust');
             fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
             //copy helper
             fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');
