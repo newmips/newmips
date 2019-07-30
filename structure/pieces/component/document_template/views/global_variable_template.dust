@@ -1,0 +1,22 @@
+<h2>{locales.global.variables}</h2>
+<p>{locales.global.description|s}</p>
+<table class="table table-striped table-responsive">
+    <thead>
+        <tr>
+            <th>{locales.readme.entityTableRow2}</th>
+            <th>{locales.readme.entityTableRow3}</th>
+            <th>{locales.readme.entityTableRow4}</th>
+            <th>{locales.readme.entityTableRow5}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {#globalVariables}
+        <tr>
+            <td>{.name}</td>
+            <td>{{.name}}</td>
+            <td>{.name}</td>
+            <td>{.description}</td>
+        </tr>
+        {/globalVariables}
+    </tbody>
+</table>

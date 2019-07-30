@@ -308,35 +308,16 @@ module.exports = {
 
     },
     buildHTMLGlobalVariables: function (userLang) {
-        var html = '';
-        var l = userLang || lang;
-        var formatDate = 'DD/MM/YYYY';
-        var formatDateTime = 'DD/MM/YYYY HH:mm:ss';
-        if (l === 'en-EN') {
-            formatDate = 'YYYY-MM-DD';
-            formatDateTime = 'YYYY-MM-DD HH:mm:ss';
-        }
-        html += '<h2>' + langMessage[l].global.variables + '</h2>';
-        html += '<p>' + langMessage[l].global.description + '</p>';
-        html += '                 <table class="table table-striped table-responsive">';
-        html += '                     <thead>';
-        html += '                        <tr>';
-        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow2 + '</th>';
-        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow3 + '</th>';
-        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow4 + '</th>';
-        html += '                             <th>' + langMessage[userLang || lang].readme.entityTableRow5 + '</th>';
-        html += '                         </tr>';
-        html += '                    </thead>';
-        html += '                    <tbody>';
-        this.globalVariables.forEach(function (g) {
-            html += '<tr>';
-            html += '<td>' + g.name + '</td>';
-            html += '<td>{' + g.name + '}</td>';
-            html += '<td>' + g.name + '</td>';
-            html += '<td>' + g.description + '</td>';
-            html += '</tr>';
+        const globalVariables = this.globalVariables;
+        return new Promise((resolve, reject) => {
+            const template = fs.readFileSync(__dirname + '/../views/e_document_template/global_variable_template.dust', 'utf8');
+
+            dust.renderSource(template, {globalVariables: globalVariables, locales: langMessage[userLang || lang]}, function (err, out) {
+                if (!err)
+                    return resolve(out);
+                reject(err);
+            });
         });
-        return html;
     },
     randomColor: function (size) {
         var text = "";
