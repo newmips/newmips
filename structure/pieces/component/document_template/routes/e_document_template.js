@@ -13,7 +13,7 @@ const entity_helper = require('../utils/entity_helper');
 const file_helper = require('../utils/file_helper');
 const globalConfig = require('../config/global');
 const document_template_helper = require('../utils/document_template_helper');
-const status_helper=require('../utils/status_helper.js');
+const status_helper = require('../utils/status_helper.js');
 // Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
 
@@ -408,9 +408,9 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             };
                             document_template_helper.generateDoc(options).then(function (infos) {
                                 var filename = (e_entity.id || '') +
-                                        '_' + today.format('DDMMYYYY_HHmmss') +
-                                        '_' + today.unix() +
-                                        infos.ext;
+                                    '_' + today.format('DDMMYYYY_HHmmss') +
+                                    '_' + today.unix() +
+                                    infos.ext;
                                 res.writeHead(200, {
                                     "Content-Type": infos.contentType,
                                     "Content-Disposition": "attachment;filename=" + filename
@@ -497,9 +497,13 @@ router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("d
     var type = req.query.t;
     if (entity) {
         if (type === 'html') {
-            var html = document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
-            res.status(200).json({
-                HTMLRelationsList: html
+            document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user).then(out => {
+                res.status(200).json({
+                    HTMLRelationsList: out
+                });
+            }).catch(e => {
+                console.log(e);
+                res.status(500).end();
             });
         } else
             res.status(200).json({
@@ -510,8 +514,13 @@ router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("d
 });
 
 router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-    res.json({
-        HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)
+    document_template_helper.buildHTMLGlobalVariables(req.session.lang_user).then(out => {
+        res.status(200).json({
+            HTMLGlobalVariables: out
+        });
+    }).catch(e => {
+        console.error(e);
+        res.status(500).end();
     });
 });
 

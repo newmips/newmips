@@ -299,13 +299,13 @@
             <script type="text/javascript">
                 var socket = io();
             </script>
+            {#config.socket.notification}
+                <script src="/js/Newmips/component/notification.js?v={config.version}" type="text/javascript"></script>
+            {/config.socket.notification}
+            {#config.socket.chat}
+                <script src="/js/Newmips/component/chat.js?v={config.version}" type="text/javascript"></script>
+            {/config.socket.chat}
         {/config.socket.enabled}
-        {#config.socket.notification}
-            <script src="/js/Newmips/component/notification.js?v={config.version}" type="text/javascript"></script>
-        {/config.socket.notification}
-        {#config.socket.chat}
-            <script src="/js/Newmips/component/chat.js?v={config.version}" type="text/javascript"></script>
-        {/config.socket.chat}
         {! AdminLTE App !}
         <script src="/js/AdminLteV2/app.min.js" type="text/javascript"></script>
         {! UUID V4 !}
