@@ -64,17 +64,17 @@ app.use(morgan('dev', {
         	return true;
     },
     stream: require('split')().on('data', function(line) {
-        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line + "\n");
+        process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
     })
 }));
 
 require('console-stamp')(console, {
     formatter: function() {
-        return moment().format('MM-DD HH:mm:ss');
+        return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
     },
-    label: false,
-    datePrefix: "",
-    dateSuffix: ""
+    label: true,
+    datePrefix: "[",
+    dateSuffix: "]-- "
 });
 
 // Overide console.warn & console.error to file+line

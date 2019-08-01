@@ -15,6 +15,7 @@ module.exports = {
                 fields: [],
                 email_fields: [],
                 phone_fields: [],
+                file_fields: [],
                 children: []
             }
 
@@ -32,6 +33,8 @@ module.exports = {
                     fieldTree.email_fields.push(field);
                 if (entityFields[field].newmipsType == "phone")
                     fieldTree.phone_fields.push(field);
+                if (entityFields[field].newmipsType == "file" || entityFields[field].newmipsType == "picture")
+                    fieldTree.file_fields.push(field);
                 fieldTree.fields.push(field);
             }
 
@@ -60,6 +63,7 @@ module.exports = {
                 fields: [],
                 email_fields: [],
                 phone_fields: [],
+                file_fields: [],
                 children: []
             }
             try {
@@ -76,6 +80,8 @@ module.exports = {
                     fieldTree.email_fields.push(field);
                 if (entityFields[field].newmipsType == "phone")
                     fieldTree.phone_fields.push(field);
+                if (entityFields[field].newmipsType == "file" || entityFields[field].newmipsType == "picture")
+                    fieldTree.file_fields.push(field);
                 fieldTree.fields.push(field);
             }
 
@@ -85,8 +91,12 @@ module.exports = {
             genealogy.push(entity);
 
             // Building children array
-            for (var i = 0; i < entityAssociations.length; i++)
-                fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+            for (var i = 0; i < entityAssociations.length; i++){
+                // Do not include history & status table in field list
+                if(entityAssociations[i].target.indexOf("e_history_e_") == -1 &&
+                    entityAssociations[i].target.indexOf("e_status") == -1)
+                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+            }
 
             return fieldTree;
         }
@@ -149,7 +159,8 @@ module.exports = {
                     traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
                     target: obj.entity,
                     isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
-                    isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false
+                    isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false,
+                    isFile: obj.file_fields.indexOf(obj.fields[j]) != -1 ? true : false
                 });
             }
 
@@ -331,10 +342,11 @@ module.exports = {
                 models['E_'+entityName.substring(2)].findOne({
                     where: {id: entityId},
                     include: include
-                }).then((entity)=> {
+                }).then(entity => {
 
+                    entity.entity_name = entityName;
                     // Execute newStatus actions
-                    nextStatus.executeActions(entity).then(()=> {
+                    nextStatus.executeActions(entity).then(_ => {
                         // Create history record for this status field
                         var createObject = {};
                         createObject.f_comment = comment;
@@ -347,13 +359,13 @@ module.exports = {
                                 resolve();
                             })
                         });
-                    }).catch((err)=> {
+                    }).catch(err => {
                         console.error(err);
                         var createObject = {};
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
-                        models[historyModel].create(createObject).then(history=> {
+                        models[historyModel].create(createObject).then(history => {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id).then(_ => {
                                 if (userId)
                                     history['setR_modified_by'](userId);
