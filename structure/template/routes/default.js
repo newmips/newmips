@@ -177,14 +177,6 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 
 // *** Dynamic Module | Do not remove ***
 
-router.get('/administration', block_access.isLoggedIn, block_access.moduleAccessMiddleware("administration"), function(req, res) {
-    res.render('default/m_administration');
-});
-
-router.get('/home', block_access.isLoggedIn, block_access.moduleAccessMiddleware("home"), function(req, res) {
-    res.render('default/m_home');
-});
-
 router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
     var source = req.params.source;
     var id = req.params.id;
