@@ -1387,12 +1387,13 @@ exports.addNewComponentAddress = function (attr, callback) {
 exports.deleteComponentAddress = function (attr, callback) {
     try {
         var componentName = 'address_' + attr.id_data_entity;
+        let e_componentName='e_'+componentName;
         var source = attr.entityName;
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        fs.remove(application_path + 'views/' + componentName);
-        fs.remove(application_path + 'models/' + componentName + '.js');
-        fs.remove(application_path + 'models/attributes/' + componentName + '.json');
-        fs.remove(application_path + 'models/options/' + componentName + '.json');
+        fs.remove(application_path + 'views/' + e_componentName);
+        fs.remove(application_path + 'models/' + e_componentName + '.js');
+        fs.remove(application_path + 'models/attributes/' + e_componentName + '.json');
+        fs.remove(application_path + 'models/options/' + e_componentName + '.json');
         var address_settings = "address_settings";
         //remove association
         var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
@@ -1422,8 +1423,8 @@ exports.deleteComponentAddress = function (attr, callback) {
                                     //update locales
                                     var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                     var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                    delete langFR.component[componentName];
-                                    delete langEN.component[componentName];
+                                    delete langFR.entity[e_componentName];
+                                    delete langEN.entity[e_componentName];
                                     //update address settings file
                                     var address_settingsJson = JSON.parse(fs.readFileSync(application_path + 'config/address_settings.json'));
                                     for (var item in address_settingsJson.entities) {
@@ -1432,13 +1433,13 @@ exports.deleteComponentAddress = function (attr, callback) {
                                     }
                                     var p = new Promise(function (resolve, reject) {
                                         if (Object.keys(address_settingsJson.entities).length === 0) {
-                                            fs.remove(application_path + 'views/' + address_settings);
-                                            fs.remove(application_path + 'routes/' + address_settings + '.js');
+                                            fs.remove(application_path + 'views/e_' + address_settings);
+                                            fs.remove(application_path + 'routes/e_' + address_settings + '.js');
                                             fs.remove(application_path + 'config/' + address_settings + '.json');
                                             delete langFR.component[address_settings];
                                             delete langEN.component[address_settings];
                                             deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
-                                                require('./structure_module').removeMenuEntry(attr, "administration", address_settings, function (err) {
+                                                require('./structure_module').removeMenuEntry(attr, "administration", 'e_'+address_settings, function (err) {
                                                     if (err)
                                                         reject(err);
                                                     else
@@ -1499,7 +1500,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'models/attributes/e_document_template.json', application_path + 'models/attributes/e_document_template.json');
             fs.copySync(entity_path + 'models/options/e_document_template.json', application_path + 'models/options/e_document_template.json');
             fs.writeFileSync(application_path + 'models/e_document_template.js', modelContent, 'utf8');
-            //copy views files
+            //copy views files. To do after=> move directory
             fs.copySync(entity_path + 'views/create.dust', application_path + 'views/' + entity_code_name + '/create.dust');
             fs.copySync(entity_path + 'views/create_fields.dust', application_path + 'views/' + entity_code_name + '/create_fields.dust');
             fs.copySync(entity_path + 'views/list.dust', application_path + 'views/' + entity_code_name + '/list.dust');
@@ -1509,6 +1510,8 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'views/update.dust', application_path + 'views/' + entity_code_name + '/update.dust');
             fs.copySync(entity_path + 'views/update_fields.dust', application_path + 'views/' + entity_code_name + '/update_fields.dust');
             fs.copySync(entity_path + 'views/readme.dust', application_path + 'views/' + entity_code_name + '/readme.dust');
+            fs.copySync(entity_path + 'views/entity_helper_template.dust', application_path + 'views/' + entity_code_name + '/entity_helper_template.dust');
+            fs.copySync(entity_path + 'views/global_variable_template.dust', application_path + 'views/' + entity_code_name + '/global_variable_template.dust');
             fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
             //copy helper
             fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');

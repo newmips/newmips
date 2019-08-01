@@ -907,6 +907,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Cc");
     instructions.push("add field Cci");
     instructions.push("add field From");
+    instructions.push("add field Attachments");
     instructions.push("add field Subject");
     instructions.push("add field Content with type text");
     instructions.push("select entity media notification");
