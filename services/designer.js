@@ -3277,6 +3277,13 @@ exports.createWidgetOnEntity = function (attr, callback) {
     });
 }
 
+exports.apero = function (attr, callback) {
+    // \o/
+    callback(null, {
+        message: "Santé !"
+    });
+}
+
 function createWidget(attr, callback) {
     if (attr.widgetType == -1)
         return callback(null, {message: "structure.ui.widget.unknown", messageParams: [attr.widgetInputType]});

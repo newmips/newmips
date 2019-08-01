@@ -1239,7 +1239,17 @@ exports.addTitle = function (result) {
     };
 }
 
+// --- FUN --- //
+exports.apero = function (result) {
+    return {
+        function: "apero"
+    }
+}
+
 var training = {
+    "apero": [
+        "Apéro !"
+    ],
     "showSession": [
         "show session",
         "show the session",
