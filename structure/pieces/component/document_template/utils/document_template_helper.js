@@ -236,30 +236,30 @@ module.exports = {
                     message = "";
                 else if (relation.relation === "belongsToMany" || relation.relation === "hasMany")
                     message = langMessage[userLang || lang].useVariable +
-                            "<p> " + langMessage[userLang || lang].example + ":<br>" +
-                            "<pre>{#" + relation.as + "}<br>" +
-                            "    {variable}<br>" +
-                            "{/" + relation.as + "}" +
-                            "</p></pre><hr>" +
-                            "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>" +
-                            " <pre>" +
-                            "{<br>" +
-                            langMessage[userLang || lang].one + ": [{" + langMessage[userLang || lang].name + ": 'New'}]<br>" +
-                            langMessage[userLang || lang].two + ": [{" + langMessage[userLang || lang].name + ": 'Mips'}]<br>" +
-                            "}</pre><br>" +
-                            langMessage[userLang || lang].output + ": " +
-                            " <pre>" +
-                            "NL<br>" +
-                            "  <b>New</b> <br>" +
-                            "NL <br>" +
-                            "NL <br>" +
-                            "  <b>Mips</b> <br>" +
-                            "NL<br>" +
-                            "</pre><br>" +
-                            "<b> " + langMessage[userLang || lang].nl + "</b> <br>" +
-                            langMessage[userLang || lang].empty + ": <br>" +
-                            "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
-                            "{/" + relation.as + "}</pre><br><br>";
+                        "<p> " + langMessage[userLang || lang].example + ":<br>" +
+                        "<pre>{#" + relation.as + "}<br>" +
+                        "    {variable}<br>" +
+                        "{/" + relation.as + "}" +
+                        "</p></pre><hr>" +
+                        "<i class='fa fa-exclamation-circle' style='color:orange'></i> " + langMessage[userLang || lang].whereIsNL + ": <br>" +
+                        " <pre>" +
+                        "{<br>" +
+                        langMessage[userLang || lang].one + ": [{" + langMessage[userLang || lang].name + ": 'New'}]<br>" +
+                        langMessage[userLang || lang].two + ": [{" + langMessage[userLang || lang].name + ": 'Mips'}]<br>" +
+                        "}</pre><br>" +
+                        langMessage[userLang || lang].output + ": " +
+                        " <pre>" +
+                        "NL<br>" +
+                        "  <b>New</b> <br>" +
+                        "NL <br>" +
+                        "NL <br>" +
+                        "  <b>Mips</b> <br>" +
+                        "NL<br>" +
+                        "</pre><br>" +
+                        "<b> " + langMessage[userLang || lang].nl + "</b> <br>" +
+                        langMessage[userLang || lang].empty + ": <br>" +
+                        "<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
+                        "{/" + relation.as + "}</pre><br><br>";
                 var entity = language(userLang).__('entity.' + relation.target + '.label_entity');
                 result.push({
                     id: i + 1,
@@ -296,89 +296,28 @@ module.exports = {
         return result;
     },
     buildHTML_EntitiesHelperAjax: function (entities, userLang) {
-        var html = '';
-        entities.forEach(function (entity) {
-            html += '<div class="panel box" style="border-top-color:' + entity.color + '">';
-            html += '   <div class="box-header with-border">';
-            html += '             <h4 class="box-title">';
-            html += '                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse' + entity.id + '" aria-expanded="false" class="collapsed">';
-            html += '                      ' + langMessage[userLang || lang].readme.entityInformations + ' ' + entity.entity;
-            html += '                 </a>';
-            html += '             </h4>';
-            html += '        </div>';
-            html += '         <div id="collapse' + entity.id + '" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">';
-            html += '             <div class="col-xs-12">' + entity.message + '</div>';
-            html += '             <div class="box-body">';
-            html += '                 <table class="table table-striped table-responsive">';
-            html += '                     <thead>';
-            html += '                        <tr>';
-            html += '                            <th style="width: 40px">' + langMessage[userLang || lang].readme.entityTableRow1 + '</th>';
-            html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow2 + '</th>';
-            html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow3 + '</th>';
-            html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow4 + '</th>';
-            html += '                             <th>' + langMessage[userLang || lang].readme.entityTableRow5 + '</th>';
-            html += '                         </tr>';
-            html += '                    </thead>';
-            html += '                    <tbody>';
-            entity.attributes.forEach(function (attribute) {
-                html += '            <tr>';
-                html += '            <td><span class="badge bg-red">' + entity.entity + '</span></td>';
-                html += '            <td><span>' + attribute + '</span></td>';
-                html += '             <td>';
-                if (entity.relation == 'belongsTo') {
-                    html += '&#123;' + entity.as + '.' + attribute + '&#125;';
-                } else {
-                    html += '&#123;' + attribute + '&#125;';
-                }
-                html += '             </td>';
-                html += '             <td>';
-                if (entity.relation == 'belongsTo') {
-                    html += entity.as + '.' + attribute;
-                } else {
-                    html += attribute;
-                }
-                html += '             </td>';
-                html += '             <td></td>';
-                html += '         </tr>';
+        return new Promise((resolve, reject) => {
+            const template = fs.readFileSync(__dirname + '/../views/e_document_template/entity_helper_template.dust', 'utf8');
+
+            dust.renderSource(template, {entities: entities, locales: langMessage[userLang || lang]}, function (err, out) {
+                if (!err)
+                    return resolve(out);
+                reject(err);
             });
-            html += '                   </tbody>';
-            html += '               </table>';
-            html += '           </div>';
-            html += '       </div>';
-            html += '   </div>';
         });
-        return html;
+
     },
     buildHTMLGlobalVariables: function (userLang) {
-        var html = '';
-        var l = userLang || lang;
-        var formatDate = 'DD/MM/YYYY';
-        var formatDateTime = 'DD/MM/YYYY HH:mm:ss';
-        if (l === 'en-EN') {
-            formatDate = 'YYYY-MM-DD';
-            formatDateTime = 'YYYY-MM-DD HH:mm:ss';
-        }
-        html += '<h2>' + langMessage[l].global.variables + '</h2>';
-        html += '<p>' + langMessage[l].global.description + '</p>';
-        html += '                 <table class="table table-striped table-responsive">';
-        html += '                     <thead>';
-        html += '                        <tr>';
-        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow2 + '</th>';
-        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow3 + '</th>';
-        html += '                            <th>' + langMessage[userLang || lang].readme.entityTableRow4 + '</th>';
-        html += '                             <th>' + langMessage[userLang || lang].readme.entityTableRow5 + '</th>';
-        html += '                         </tr>';
-        html += '                    </thead>';
-        html += '                    <tbody>';
-        this.globalVariables.forEach(function (g) {
-            html += '<tr>';
-            html += '<td>' + g.name + '</td>';
-            html += '<td>{' + g.name + '}</td>';
-            html += '<td>' + g.name + '</td>';
-            html += '<td>' + g.description + '</td>';
-            html += '</tr>';
+        const globalVariables = this.globalVariables;
+        return new Promise((resolve, reject) => {
+            const template = fs.readFileSync(__dirname + '/../views/e_document_template/global_variable_template.dust', 'utf8');
+
+            dust.renderSource(template, {globalVariables: globalVariables, locales: langMessage[userLang || lang]}, function (err, out) {
+                if (!err)
+                    return resolve(out);
+                reject(err);
+            });
         });
-        return html;
     },
     randomColor: function (size) {
         var text = "";
@@ -487,10 +426,10 @@ var generateDocxDoc = function (options) {
                     try {
                         doc.render();
                         var buf = doc.getZip()
-                                .generate({
-                                    type: 'nodebuffer',
-                                    compression: "DEFLATE"
-                                });
+                            .generate({
+                                type: 'nodebuffer',
+                                compression: "DEFLATE"
+                            });
                         resolve({
                             buffer: buf,
                             contentType: "application/msword",
@@ -553,9 +492,9 @@ var getValue = function (itemPath /*array*/, data, scope /*where value is expect
         var i = 0;
         var key = itemPath[i];
         if (scope && scope.scopePath &&
-                scope.scopePathItem &&
-                scope.scopePath.length &&
-                scope.scopePath.length === scope.scopePathItem.length) {
+            scope.scopePathItem &&
+            scope.scopePath.length &&
+            scope.scopePath.length === scope.scopePathItem.length) {
             //Go to data scope  before search value
             for (var j = 0; j < scope.scopePath.length; j++)
                 data = data[scope.scopePath[j]][scope.scopePathItem[j]];
