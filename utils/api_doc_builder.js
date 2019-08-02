@@ -38,7 +38,7 @@ function routeGet(entity, attributes, options) {
 	return doc.join('\n');
 }
 
-function routeGetId(entity, attributes, options) {
+function routeGetId(entity, attributes, options, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
@@ -184,7 +184,7 @@ function entityDocumentation(entity, attributes, options) {
 	entityDoc += ' *******************************************/\n';
 	entityDoc += '/** @apiDefine '+entity.codeName+' '+capitalizeFirstLetter(entity.name)+ ' */\n';
 	entityDoc += routeGet(entity, attributes, options);
-	entityDoc += routeGetId(entity, attributes);
+	entityDoc += routeGetId(entity, attributes, options);
 	entityDoc += routeGetAssociation(entity, options);
 	entityDoc += routePost(entity, attributes, options);
 	entityDoc += routePut(entity, attributes, options);
