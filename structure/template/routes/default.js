@@ -1,23 +1,17 @@
-// router/routes.js
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var globalConf = require('../config/global');
-var multer = require('multer');
-var fs = require('fs');
-var fse = require('fs-extra');
-var crypto = require('../utils/crypto_helper');
-var upload = multer().single('file');
-var models = require('../models/');
-var Jimp = require("jimp");
-var entity_helper = require('../utils/entity_helper');
-var dust = require('dustjs-linkedin');
-var enums_radios = require('../utils/enum_radio.js');
-var component_helper = require('../utils/component_helper');
-
-// ===========================================
-// Redirection Home =====================
-// ===========================================
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const globalConfig = require('../config/global');
+const multer = require('multer');
+const fs = require('fs-extra');
+const crypto = require('../utils/crypto_helper');
+const upload = multer().single('file');
+const models = require('../models/');
+const Jimp = require("jimp");
+const entity_helper = require('../utils/entity_helper');
+const dust = require('dustjs-linkedin');
+const enums_radios = require('../utils/enum_radio.js');
+const component_helper = require('../utils/component_helper');
 
 /* GET status page to check if workspace is ready. */
 router.get('/status', function (req, res) {
@@ -257,8 +251,8 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
         var folder = req.file.originalname.split('-');
         var dataEntity = req.body.dataEntity;
         if (folder.length > 1 && !!dataEntity) {
-            var basePath = globalConf.localstorage + dataEntity + '/' + folder[0] + '/';
-            fse.mkdirs(basePath, function (err) {
+            var basePath = globalConfig.localstorage + dataEntity + '/' + folder[0] + '/';
+            fs.mkdirs(basePath, function (err) {
                 if (err) {
                     console.error(err);
                     return res.status(500).end(err);
@@ -275,8 +269,8 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 
                 if (req.body.dataType == 'picture') {
                     //We make thumbnail and reuse it in datalist
-                    basePath = globalConf.localstorage + globalConf.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
-                    fse.mkdirs(basePath, function (err) {
+                    basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
+                    fs.mkdirs(basePath, function (err) {
                         if (err)
                             return console.error(err);
 
@@ -284,8 +278,8 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
                             if (err)
                                 return console.error(err);
 
-                            imgThumb.resize(globalConf.thumbnail.height, globalConf.thumbnail.width)
-                                    .quality(globalConf.thumbnail.quality)
+                            imgThumb.resize(globalConfig.thumbnail.height, globalConfig.thumbnail.width)
+                                    .quality(globalConfig.thumbnail.quality)
                                     .write(basePath + req.file.originalname);
                         });
                     });
@@ -301,7 +295,7 @@ router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
         let filename = req.query.src;
         let cleanFilename = filename.substring(16);
         let folderName = filename.split("-")[0];
-        let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+        let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
         if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
             throw new Error("403 - Access forbidden");
@@ -329,7 +323,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
         let filename = req.query.f;
         let cleanFilename = filename.substring(16);
         let folderName = filename.split("-")[0];
-        let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+        let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
         if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
             throw new Error("403 - Access forbidden");
@@ -359,9 +353,9 @@ router.post('/delete-file-ajax', block_access.isLoggedIn, function (req, res) {
         let partOfFilepath = filename.split('-');
         if (partOfFilepath.length) {
             let base = partOfFilepath[0];
-            let completeFilePath = globalConf.localstorage + entity + '/' + base + '/' + filename;
+            let completeFilePath = globalConfig.localstorage + entity + '/' + base + '/' + filename;
             // thumbnail file to delete
-            let completeThumbnailPath = globalConf.localstorage + globalConf.thumbnail.folder + entity + '/' + base + '/' + filename;
+            let completeThumbnailPath = globalConfig.localstorage + globalConfig.thumbnail.folder + entity + '/' + base + '/' + filename;
             fs.unlink(completeFilePath, function (err) {
                 if (!err) {
                     res.status(200).json({ message: 'message.delete.success'});
