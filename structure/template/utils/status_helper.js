@@ -54,10 +54,10 @@ module.exports = {
     },
     // Build entity tree with fields and ALL associations
     fullEntityFieldTree: function (entity, alias = entity) {
-        var genealogy = [];
+        let genealogy = [];
         // Create inner function to use genealogy globaly
         function loadTree(entity, alias) {
-            var fieldTree = {
+            let fieldTree = {
                 entity: entity,
                 alias: alias,
                 fields: [],
@@ -67,15 +67,15 @@ module.exports = {
                 children: []
             }
             try {
-                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+                let entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                let entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
             } catch (e) {
                 console.error(e);
                 return fieldTree;
             }
 
             // Building field array
-            for (var field in entityFields) {
+            for (let field in entityFields) {
                 if (entityFields[field].newmipsType == "email")
                     fieldTree.email_fields.push(field);
                 if (entityFields[field].newmipsType == "phone")
@@ -86,17 +86,34 @@ module.exports = {
             }
 
             // Check if current entity has already been built in this branch of the tree to avoid infinite loop
-            if (genealogy.indexOf(entity) != -1)
-                return fieldTree;
-            genealogy.push(entity);
+            let foundGenealogy = genealogy.filter(x => x.entity == entity);
+            // Entity already proceeded in an other relation
+            if(foundGenealogy.length != 0){
+                // Check for the better depth, if deeper then remove it to keep the closer one
+                if(foundGenealogy[0].depth > depth)
+                    genealogy = genealogy.filter(x => x.entity != entity); // Remove old one
+                else
+                    return fieldTree;
+            }
+
+            genealogy.push({
+                entity: entity,
+                depth: depth
+            });
+
+            let initalDepth = depth;
 
             // Building children array
-            for (var i = 0; i < entityAssociations.length; i++){
+            for (let i = 0; i < entityAssociations.length; i++){
                 // Do not include history & status table in field list
-                if(entityAssociations[i].target.indexOf("e_history_e_") == -1 &&
-                    entityAssociations[i].target.indexOf("e_status") == -1)
+                if(entityAssociations[i].target.indexOf("e_history_e_") == -1
+                    && entityAssociations[i].target.indexOf("e_status") == -1){
+                    depth++;
                     fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+                }
             }
+
+            depth = initalDepth;
 
             return fieldTree;
         }
