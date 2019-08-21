@@ -438,23 +438,17 @@ function init_datatable(tableID, doPagination, context) {
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
-                    // Date
-                    if (columns[meta.col].type == 'date') {
+                    if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD");
-                        } else
-                            cellValue = "-";
-                    }
-                    // Datetime
-                    else if (columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm");
+                            var tmpDate = moment(new Date(cellValue));
+                            if (!tmpDate.isValid())
+                                cellValue = '-';
+                            else {
+                                if (lang_user == "fr-FR")
+                                    cellValue = tmpDate.format(columns[meta.col].type == 'date' ? "DD/MM/YYYY" : "DD/MM/YYYY HH:mm");
+                                else
+                                    cellValue = tmpDate.format(columns[meta.col].type == 'date' ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm");
+                            }
                         } else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
