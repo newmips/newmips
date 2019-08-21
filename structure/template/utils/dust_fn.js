@@ -144,14 +144,14 @@ module.exports = {
 
         dust.filters.filename = function(value) {
             // Remove datetime part from filename display
-            if (value != "" && value.length > 16)
+            if (moment(value.substring(0,16), 'YYYYMMDD-HHmmss_').isValid() && value != "" && value.length > 16)
                 return value.substring(16);
             return value;
         };
 
         // Fix for IE11, encode filename values for query value like "/download/{my_filename}"
         dust.filters.urlencode = function(value) {
-            return encodeURI(value);
+            return encodeURIComponent(value);
         };
     }
 };
