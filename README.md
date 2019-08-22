@@ -7,7 +7,7 @@
 Newmips is a computer aided software that enable to generate NodeJS applications by giving instructions to a bot.<br>
 Official Website is : https://newmips.com
 
-
+<br><br>
 ## Classic Installation
 
 ### Prerequisites
@@ -41,7 +41,7 @@ The default generator login is: <b>admin</b>
 
 Note : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
 
-
+<br><br>
 ## Docker Installation
 
 ### Prerequisites
@@ -106,7 +106,7 @@ The default generator login is: admin
 
 Note : to set up Newmips docker containers, range ports <i>9001</i> to <i>9100</i> must be available on your computer.
 
-
+<br><br>
 ## Documentation
 
 Newmips software documentation is available at : https://docs.newmips.com.
