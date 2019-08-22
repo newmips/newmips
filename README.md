@@ -7,12 +7,15 @@
 Newmips is a computer aided software that enable to generate NodeJS applications by giving instructions to a bot.<br>
 Official Website is : https://newmips.com
 
-## Prerequisites
+<br><br>
+## Classic Installation
+
+### Prerequisites
 
 NodeJS >= 8.11.3<br>
 MySQL / MariaDB or Postgres server installed and running.
 
-## Installation
+### Instructions
 
 Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
 Or git clone: <pre>git clone git@github.com:newmips/newmips.git</pre>
@@ -24,12 +27,10 @@ chmod +x install.sh
 bash install.sh
 </pre>
 
-Follow the instructions and wait for the :<br>
+Follow the instructions and wait for message :<br>
 <i>Newmips ready to be started -> node server.js</i>
 
-## Getting started
-
-Command line :
+Then, execute command line :
 <pre>
 node server.js
 </pre>
@@ -38,11 +39,77 @@ Open your browser on http://127.0.0.1:1337<br>
 Set your password on the first connection page http://127.0.0.1:1337/first_connection?login=admin<br>
 The default generator login is: <b>admin</b>
 
-Notice : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
+Note : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
 
+<br><br>
+## Docker Installation
+
+### Prerequisites
+
+Docker and Docker compose installed
+
+### Instructions
+
+Create (and adapt if necessary) "docker-compose.yml" file:
+
+<pre>
+version: '3.5'
+
+services:
+  newmips:
+    depends_on:
+      - database
+    image: newmips/newmips:latest
+    networks:
+      proxy:
+        ipv4_address: 172.21.0.14
+    ports:
+      - "1337:1337"
+      - "9001-9100:9001-9100"
+    environment:
+      SERVER_IP: "172.21.0.14"
+      DATABASE_IP: "172.21.0.15"
+  database:
+    image: newmips/newmips-mysql:latest
+    networks:
+      proxy:
+        ipv4_address: 172.21.0.15
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd+
+      MYSQL_DATABASE: newmips
+      MYSQL_USER: newmips
+      MYSQL_PASSWORD: newmips
+
+networks:
+  proxy:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/24
+
+volumes:
+  db_data: {}
+</pre>
+
+Execute Docker compose command:
+<pre>
+sudo docker-compose -f docker-compose.yml -p studio up -d
+</pre>
+
+Wait about 15 seconds and open your browser on http://127.0.0.1:1337<br>
+Set your password on the first connection page http://127.0.0.1:1337/first_connection?login=admin<br>
+The default generator login is: admin
+
+Note : to set up Newmips docker containers, range ports <i>9001</i> to <i>9100</i> must be available on your computer.
+
+<br><br>
 ## Documentation
 
-Newmips software documentation is available at => https://docs.newmips.com.
+Newmips software documentation is available at : https://docs.newmips.com.
 
 ## Follow us
 
