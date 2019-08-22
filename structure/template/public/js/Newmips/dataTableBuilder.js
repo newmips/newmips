@@ -438,18 +438,23 @@ function init_datatable(tableID, doPagination, context) {
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
+                    // date / datetime
                     if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
                             var tmpDate = moment(new Date(cellValue));
                             if (!tmpDate.isValid())
                                 cellValue = '-';
                             else {
-                                if (lang_user == "fr-FR")
-                                    cellValue = tmpDate.format(columns[meta.col].type == 'date' ? "DD/MM/YYYY" : "DD/MM/YYYY HH:mm");
-                                else
-                                    cellValue = tmpDate.format(columns[meta.col].type == 'date' ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm");
+                                var format;
+                                if (columns[meta.col].type == 'date')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY" : "YYYY-MM-DD";
+                                else if (columns[meta.col].type == 'datetime')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm";
+
+                                cellValue = tmpDate.format(format || "YYYY-MM-DD");
                             }
-                        } else
+                        }
+                        else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
                         cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"><span style="visibility: hidden;">1</span></i>' : '<i class="fa fa-square-o fa-lg"><span style="visibility: hidden;">0</span></i>';
