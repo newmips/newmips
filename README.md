@@ -7,12 +7,15 @@
 Newmips is a computer aided software that enable to generate NodeJS applications by giving instructions to a bot.<br>
 Official Website is : https://newmips.com
 
-## Prerequisites
+
+## Classic Installation
+
+### Prerequisites
 
 NodeJS >= 8.11.3<br>
 MySQL / MariaDB or Postgres server installed and running.
 
-## Classic Installation
+### Instructions
 
 Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
 Or git clone: <pre>git clone git@github.com:newmips/newmips.git</pre>
@@ -36,11 +39,18 @@ Open your browser on http://127.0.0.1:1337<br>
 Set your password on the first connection page http://127.0.0.1:1337/first_connection?login=admin<br>
 The default generator login is: <b>admin</b>
 
-Notice : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
+Note : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
+
 
 ## Docker Installation
 
-Create "docker-compose.yml" file:
+### Prerequisites
+
+Docker and Docker compose installed
+
+### Instructions
+
+Create (and adapt if necessary) "docker-compose.yml" file:
 
 <pre>
 version: '3.5'
@@ -90,9 +100,13 @@ Execute Docker compose command:
 sudo docker-compose -f docker-compose.yml -p studio up -d
 </pre>
 
+Note : to set up Newmips docker containers, range ports <i>9001</i> to <i>9100</i> must be available on your computer.
+
+
 ## Documentation
 
-Newmips software documentation is available at => https://docs.newmips.com.
+Newmips software documentation is available at : https://docs.newmips.com.
+
 
 ## Follow us
 
@@ -101,6 +115,7 @@ Newmips software documentation is available at => https://docs.newmips.com.
 <li><a href="https://www.facebook.com/newmips">Facebook</a></li>
 <li><a href="https://www.linkedin.com/company/newmips">LinkedIn</a></li>
 </ul>
+
 
 ## License
 
