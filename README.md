@@ -100,6 +100,10 @@ Execute Docker compose command:
 sudo docker-compose -f docker-compose.yml -p studio up -d
 </pre>
 
+Wait about 15 seconds and open your browser on http://127.0.0.1:1337
+Set your password on the first connection page http://127.0.0.1:1337/first_connection?login=admin
+The default generator login is: admin
+
 Note : to set up Newmips docker containers, range ports <i>9001</i> to <i>9100</i> must be available on your computer.
 
 
