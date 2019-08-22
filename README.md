@@ -111,7 +111,6 @@ Note : to set up Newmips docker containers, range ports <i>9001</i> to <i>9100</
 
 Newmips software documentation is available at : https://docs.newmips.com.
 
-<br><br>
 ## Follow us
 
 <ul>
@@ -120,7 +119,6 @@ Newmips software documentation is available at : https://docs.newmips.com.
 <li><a href="https://www.linkedin.com/company/newmips">LinkedIn</a></li>
 </ul>
 
-<br><br>
 ## License
 
 Newmips is released under the GNU GPL v3.0 license.
