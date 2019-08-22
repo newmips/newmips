@@ -30,10 +30,10 @@ EXPOSE 1337 9001-9100
 
 ADD entrypoint.sh /
 # Setup for ssh onto github
-RUN mkdir -p /root/.ssh
+# RUN mkdir -p /root/.ssh
 
-ADD id_rsa /root/.ssh/id_rsa
-RUN chmod 700 /root/.ssh/id_rsa
+# ADD id_rsa /root/.ssh/id_rsa
+# RUN chmod 700 /root/.ssh/id_rsa
 
 # ADD ssh_config /root/.ssh/config
 

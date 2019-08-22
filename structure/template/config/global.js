@@ -1,7 +1,7 @@
 // Global configuration file
 
 const fs = require('fs');
-let env = 'develop';
+let env = 'docker';
 let applicationConf = require('./application.json');
 
 let config = {
@@ -98,7 +98,7 @@ let config = {
     docker: {
         env: 'docker',
         protocol: 'http',
-        protocol_iframe: 'https',
+        protocol_iframe: 'http',
         host: '127.0.0.1',
         localstorage: __dirname + "/../upload/",
         syncfolder: __dirname + '/../sync/',

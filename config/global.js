@@ -46,8 +46,8 @@ let config = {
     docker: {
         env: 'docker',
         protocol: 'http',
-        protocol_iframe: 'https',
-        host: process.env.HOSTNAME,
+        protocol_iframe: 'http',
+        host: '127.0.0.1',
         dns: process.env.DOMAIN_STUDIO,
         dns_cloud: process.env.DOMAIN_CLOUD,
         sub_domain: process.env.SUB_DOMAIN,

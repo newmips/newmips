@@ -105,9 +105,9 @@ exports.setupApplication = function(attr, callback) {
                     ];
 
                     let conn = await mysql.createConnection({
-                        host: globalConf.env == "cloud" ? process.env.DATABASE_IP : dbConf.host,
-                        user: globalConf.env == "cloud" ? "root" : dbConf.user,
-                        password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
+                        host: globalConf.env == "cloud"||"docker" ? process.env.DATABASE_IP : dbConf.host,
+                        user: globalConf.env == "cloud"||"docker" ? "root" : dbConf.user,
+                        password: globalConf.env == "cloud"||"docker" ? "P@ssw0rd+" : dbConf.password
                     });
 
                     for (var i = 0; i < db_requests.length; i++) {
@@ -625,9 +625,9 @@ exports.deleteApplication = function(appID, callback) {
         if(globalConf.separate_workspace_db){
             (async () => {
                 let conn = await mysql.createConnection({
-                    host: globalConf.env == "cloud" ? process.env.DATABASE_IP : dbConf.host,
-                    user: globalConf.env == "cloud" ? "root" : dbConf.user,
-                    password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
+                    host: globalConf.env == "cloud"||"docker" ? process.env.DATABASE_IP : dbConf.host,
+                    user: globalConf.env == "cloud"||"docker" ? "root" : dbConf.user,
+                    password: globalConf.env == "cloud"||"docker" ? "P@ssw0rd+" : dbConf.password
                 });
                 await conn.query("DROP DATABASE IF EXISTS workspace_"+appID+";");
                 conn.end();
