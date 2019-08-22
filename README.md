@@ -40,6 +40,58 @@ The default generator login is: <b>admin</b>
 
 Notice : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
 
+## Docker
+
+Create "docker-compose.yml" file:
+
+<pre>
+version: '3.5'
+
+services:
+  newmips:
+    depends_on:
+      - database
+    image: newmips/newmips:latest
+    networks:
+      proxy:
+        ipv4_address: 172.21.0.14
+    ports:
+      - "1337:1337"
+      - "9001-9100:9001-9100"
+    environment:
+      SERVER_IP: "172.21.0.14"
+      DATABASE_IP: "172.21.0.15"
+  database:
+    image: newmips/newmips-mysql:latest
+    networks:
+      proxy:
+        ipv4_address: 172.21.0.15
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd+
+      MYSQL_DATABASE: newmips
+      MYSQL_USER: newmips
+      MYSQL_PASSWORD: newmips
+
+networks:
+  proxy:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/24
+
+volumes:
+  db_data: {}
+</pre>
+
+Execute Docker compose command:
+<pre>
+sudo docker-compose -f docker-compose.yml -p studio up -d
+</pre>
+
 ## Documentation
 
 Newmips software documentation is available at => https://docs.newmips.com.
