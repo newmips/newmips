@@ -12,7 +12,7 @@ Official Website is : https://newmips.com
 NodeJS >= 8.11.3<br>
 MySQL / MariaDB or Postgres server installed and running.
 
-## Installation
+## Classic Installation
 
 Download and unzip the following archive in your working directory : https://github.com/newmips/newmips/archive/master.zip<br>
 Or git clone: <pre>git clone git@github.com:newmips/newmips.git</pre>
@@ -24,12 +24,10 @@ chmod +x install.sh
 bash install.sh
 </pre>
 
-Follow the instructions and wait for the :<br>
+Follow the instructions and wait for message :<br>
 <i>Newmips ready to be started -> node server.js</i>
 
-## Getting started
-
-Command line :
+Then, execute command line :
 <pre>
 node server.js
 </pre>
@@ -40,7 +38,7 @@ The default generator login is: <b>admin</b>
 
 Notice : to create your first application, ports <i>9000</i> and <i>9001</i> must be available on your computer.
 
-## Docker
+## Docker Installation
 
 Create "docker-compose.yml" file:
 
