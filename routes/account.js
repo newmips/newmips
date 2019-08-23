@@ -1,24 +1,20 @@
-// router/routes.js
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var language = require('../services/language');
-var extend = require('util')._extend;
-// Sequelize
-var models = require('../models/');
-var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto');
-var mail = require('../utils/mailer');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const gitlabConf = require('../config/gitlab.js');
+const models = require('../models/');
 
-router.get('/', block_access.isLoggedIn, function(req, res) {
-    var data = {};
-    // Récupération des toastr en session
-    data.toastr = req.session.toastr;
-    // Nettoyage de la session
-    req.session.toastr = [];
+router.get('/', block_access.isLoggedIn, (req, res) => {
+    let data = {};
     data.user = req.session.passport.user;
-    models.Role.findById(data.user.id_role).then(function(userRole){
+    models.Role.findById(data.user.id_role).then(userRole => {
         data.user.role = userRole;
+
+        if(gitlabConf.doGit){
+        	data.gitlabUser = req.session.gitlab.user;
+        	data.gitlabHost = gitlabConf.protocol + "://" + gitlabConf.url;
+        }
+
         res.render('front/account', data);
     });
 });

@@ -1,0 +1,103 @@
+{>"main_layout"/}
+{<title}
+	{#__ key="menu.settings"/}<small>{#__ key="menu.module"/}</small>
+{/title}
+{<content}
+	<div class="row">
+		<div class="col-xs-12 col-lg-offset-2 col-lg-8">
+			<div class="box box-solid box-default">
+				<div class="box-header bg-primary">
+					<h3 class="box-title" style="color: #fff;">{#__ key="menu.settings"/}</h3>
+				</div>
+				<div class="box-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<br>
+							<div class="form-group">
+								<label>{#__ key="settings.display_language"/}</label>
+								<br><br>
+								<a class='chooseLanguage btn {@eq key=user_lang value="fr-FR"}btn-primary{:else}btn-default{/eq}' data-lang="fr-FR">
+									{#__ key="settings.french"/}
+								</a>&nbsp;&nbsp;
+								<a class='chooseLanguage btn {@eq key=user_lang value="en-EN"}btn-primary{:else}btn-default{/eq}' data-lang="en-EN">
+									{#__ key="settings.english"/}
+								</a>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<br>
+							<div class="form-group">
+								<label>{#__ key="settings.activate_translation"/}</label>
+								<br><br>
+								<a class="chooseTranslate btn {@ifTrue key=toTranslate}btn-primary{:else}btn-default{/ifTrue}" data-activate="true">
+									{#__ key="button.yes"/}
+								</a>&nbsp;&nbsp;
+								<a class="chooseTranslate btn {@ifTrue key=toTranslate}btn-default{:else}btn-primary{/ifTrue}" data-activate="false">
+									{#__ key="button.no"/}
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/content}
+{<custom_js}
+	<script type="text/javascript">
+		var sureResetMsg = '{#__ key="settings.sure_reset"/}';
+		var loginUser = "{user.login}";
+		var mailUser = "{user.email}";
+		$(document).ready(function() {
+			$(document).on("click", ".chooseLanguage", function(){
+				var lang = $(this).data("lang");
+				var ajaxdata = {
+					lang: lang
+				};
+
+				$.ajax({
+					url : '/settings/change_language',
+					type : 'POST',
+					data : JSON.stringify(ajaxdata),
+					dataType : 'json',
+					contentType: "application/json",
+					context: this,
+					success: function (data) {
+						if(data.success){
+							location.reload();
+						}
+					},
+					error: function (error) {
+						console.error(error);
+						toastr.error(error);
+					}
+				});
+			});
+
+			$(document).on("click", ".chooseTranslate", function(){
+				var activate = $(this).data("activate");
+				var ajaxdata = {
+					activate: activate
+				};
+
+				$.ajax({
+					url : '/settings/activate_translation',
+					type : 'POST',
+					data : JSON.stringify(ajaxdata),
+					dataType : 'json',
+					contentType: "application/json",
+					context: this,
+					success: function (data) {
+						if(data.success){
+							location.reload();
+						}
+					},
+					error: function (error) {
+						console.error(error);
+						toastr.error(error);
+					}
+				});
+			});
+		});
+	</script>
+{/custom_js}

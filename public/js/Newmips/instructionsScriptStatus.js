@@ -38,11 +38,11 @@ function fetchStatus() {
                     }
                 }
             } catch (err) {
-                console.log(err);
+                console.error(err);
             }
         },
         error: function(err) {
-            console.log(err);
+            console.error(err);
             $("#scriptSubmit").prop('disabled', false);
             $("#progressbarcontent").hide();
         }
@@ -74,12 +74,13 @@ $(function() {
                     setTimeout(fetchStatus, 50);
                 },
                 error: function(err) {
-                    console.log(err);
+                    console.error(err);
                 }
             });
         } else{
 
             var ajaxData = {
+                template_entry: $("#template_entry").val(),
                 text: $("#createScriptTextarea").val()
             };
             $.ajax({
@@ -98,7 +99,7 @@ $(function() {
                     setTimeout(fetchStatus, 50);
                 },
                 error: function(err) {
-                    console.log(err);
+                    console.error(err);
                 }
             });
         }

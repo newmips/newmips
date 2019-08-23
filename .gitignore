@@ -50,3 +50,4 @@ nbdist/
 sql/import
 structure/template/public/themes/
 package-lock.json
+templates/

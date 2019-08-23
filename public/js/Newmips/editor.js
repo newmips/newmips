@@ -11,16 +11,23 @@ $(document).ready(function() {
     var editorSaveContent = {};
 
     /* -------- Editor Initialisation -------- */
-    var intro1 = "	───▄▀▀▀▄▄▄▄▄▄▄▀▀▀▄───\n" +
-		        "	───█▒▒░░░░░░░░░▒▒█───\n" +
-		        "	────█░░█░░░░░█░░█────\n" +
-		        "	─▄▄──█░░░▀█▀░░░█──▄▄─\n" +
-		        "	█░░█─▀▄░░░░░░░▄▀─█░░█\n" +
-		        "	█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n" +
-		        "	█░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█\n" +
-		        "	█░░║║║╠─║─║─║║║║║╠─░░█\n" +
-		        "	█░░╚╩╝╚╝╚╝╚╝╚╝╩─╩╚╝░░█\n" +
-		        "	█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n\n";
+    // var intro1 = "	───▄▀▀▀▄▄▄▄▄▄▄▀▀▀▄───\n" +
+		  //       "	───█▒▒░░░░░░░░░▒▒█───\n" +
+		  //       "	────█░░█░░░░░█░░█────\n" +
+		  //       "	─▄▄──█░░░▀█▀░░░█──▄▄─\n" +
+		  //       "	█░░█─▀▄░░░░░░░▄▀─█░░█\n" +
+		  //       "	█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█\n" +
+		  //       "	█░░╦─╦╔╗╦─╔╗╔╗╔╦╗╔╗░░█\n" +
+		  //       "	█░░║║║╠─║─║─║║║║║╠─░░█\n" +
+		  //       "	█░░╚╩╝╚╝╚╝╚╝╚╝╩─╩╚╝░░█\n" +
+		  //       "	█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█\n\n\n";
+
+
+    var intro1 = " _____                 _\n";
+    intro1 += "|   | |___ _ _ _ _____|_|___ ___\n";
+    intro1 += "| | | | -_| | | |     | | . |_ -|\n";
+    intro1 += "|_|___|___|_____|_|_|_|_|  _|___|\n";
+    intro1 += "                        |_|\n\n\n";
 
     /* Get browser chosenTheme */
     var chosenTheme = localStorage.getItem("newmips_editor_theme");
@@ -363,7 +370,7 @@ $(document).ready(function() {
                 myEditor.clearHistory();
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 toastr.error("Sorry, an error occured :/");
             }
         });
@@ -393,7 +400,7 @@ $(document).ready(function() {
                 $("#update-file").removeAttr("disabled");
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 toastr.error("Sorry, an error occured :/");
             }
         });

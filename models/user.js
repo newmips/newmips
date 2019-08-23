@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
                 name: 'id_role'
             }
         })
+        User.belongsToMany(models.Application, {
+            foreignKey: 'id_user',
+            through: "application_user"
+        })
     }
 
     return User;

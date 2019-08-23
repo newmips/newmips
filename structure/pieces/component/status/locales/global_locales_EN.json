@@ -5,6 +5,9 @@
 				"illegal_status": "This status is not valid.",
 				"action_error": "One or more actions couldn't be executed. Verify that notifications are enabled or that you have a correct mail configuration."
 			},
+			"diagram": "Diagram",
+			"diagram_description": "Drag statuses below to the diagram on the right. Drop a status on top of another to append it.",
+			"select_status": "Select a status",
 			"next_status": "Next status",
 			"available_status": "Available status",
 			"children": "Next statuses",
@@ -14,6 +17,7 @@
 			"choose_from_field": "Choose a field",
 			"choose_from_phone_field": "Choose a field with type phone",
 			"choose_from_phone_field": "Choose a field with type email",
+			"choose_from_file_field": "Choose a field with type file",
 			"choose_user_target": "Choose field related to user",
 			"notification_targets": "Notification targets",
 			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure it."
@@ -25,7 +29,11 @@
             "apply_default": "Apply this status to entities without status",
             "modal_title": "Comment",
             "r_accepted_group": "Accepted group (No group means accepted for all)",
-            "f_default": "Is the default status"
+            "f_default": "Is the default status",
+            "f_button_label": "Button label"
+		},
+		"e_translation": {
+			"as_r_translations": "Traductions"
 		}
 	}
 }

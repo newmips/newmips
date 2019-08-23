@@ -29,7 +29,7 @@ $(document).ready(function(){
 				revertDuration: 0
 			});
 		} else {
-			toastr.warning("Please fill the title input.");
+			toastr.warning(FILL_TITLE_AGENDA);
 		}
 	});
 

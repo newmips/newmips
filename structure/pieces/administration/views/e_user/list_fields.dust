@@ -1,0 +1,54 @@
+<table id="table_e_user" data-url="/user/datalist" class="dataTable table table-bordered table-striped animated fadeIn" style="display: none;">
+    <thead class="main">
+        <tr class="fields">
+            <th data-field="f_login" data-col="f_login" data-type="string">
+                {#__ key="entity.e_user.f_login"/}
+            </th>
+            <th data-field="f_email" data-col="f_email" data-type="email">
+                {#__ key="entity.e_user.f_email"/}
+            </th>
+            <th data-field="f_label" data-col="r_role.f_label" data-type="string">
+                {#__ key="entity.e_role.label_entity"/}
+            </th>
+            <th data-field="f_label" data-col="r_group.f_label" data-type="string">
+                {#__ key="entity.e_group.label_entity"/}
+            </th>
+            {#actionAccess entity="user" action="read"}
+            <th></th>
+            {/actionAccess}
+            {#actionAccess entity="user" action="update"}
+            <th></th>
+            {/actionAccess}
+            {#actionAccess entity="user" action="delete"}
+            <th></th>
+            {/actionAccess}
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="fields">
+            <th data-field="f_login" data-col="f_login" data-type="string">
+                {#__ key="entity.e_user.f_login"/}
+            </th>
+            <th data-field="f_email" data-col="f_email" data-type="email">
+                {#__ key="entity.e_user.f_email"/}
+            </th>
+            <th data-field="f_label" data-col="r_role.f_label" data-type="string">
+                {#__ key="entity.e_role.label_entity"/}
+            </th>
+            <th data-field="f_label" data-col="r_group.f_label" data-type="string">
+                {#__ key="entity.e_group.label_entity"/}
+            </th>
+            {#actionAccess entity="user" action="read"}
+            <th></th>
+            {/actionAccess}
+            {#actionAccess entity="user" action="update"}
+            <th></th>
+            {/actionAccess}
+            {#actionAccess entity="user" action="delete"}
+            <th></th>
+            {/actionAccess}
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>

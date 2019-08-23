@@ -1,0 +1,107 @@
+{>"layout_m_administration" /}
+{<content}
+	{@eq key=env value="tablet"}
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">{#__ key="synchro.process.title" /}</h3>
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+							<i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="row">
+							<div class="col-lg-12">
+								<button id="synchronize" class="btn btn-info synchronize"><i class="fa fa-rss">&nbsp;</i>&nbsp;&nbsp;{#__ key="synchro.process.synchronize" /}</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{:else}
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">{#__ key="synchro.config.title" /}</h3>
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+							<i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="row">
+							<form method="POST" action="/synchronization/generate">
+								<div class="col-lg-12">
+									<table class="table table-striped">
+										<thead>
+											<tr>
+												<th>Entité</th>
+												<th class="text-center">Cloud > Tablette</th>
+											</tr>
+										</thead>
+										<tbody>
+											{#entities}
+											<tr>
+												<td>{#__ key=tradKey /}</td>
+												{#checked}
+													<td class="text-center"><input id="{tableName}" name="{entity}" value="{tableName}" type="checkbox" checked="" /></td>
+												{:else}
+													<td class="text-center"><input id="{tableName}" name="{entity}" value="{tableName}" type="checkbox"/></td>
+												{/checked}
+											</tr>
+											{/entities}
+										</tbody>
+									</table>
+								</div>
+								<div class="col-lg-12">
+								<button type="submit" class="btn btn-info">{#__ key="button.generate" /}</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/eq}
+{/content}
+
+{<custom_js}
+<script type="text/javascript">
+    function checkSynchroState() {
+        $.ajax({
+            url: '/synchronization/check_state',
+            success: function(data) {
+                if (data.done) {
+                    $("#synchronizeHolder").html('<button id="synchronize" class="btn btn-info synchronize"><i class="fa fa-rss">&nbsp;</i>&nbsp;&nbsp;{#__ key="synchro.process.synchronize" /}</button>');
+                    return toastr.success('Synchronisation effectuée');
+                }
+                if (data.error)
+                    return toastr.error(data.error);
+                setTimeout(checkSynchroState, 500);
+            },
+            error: function() {
+                toastr.error('Problème de synchronisation. Veuillez contacter votre administrateur.');
+            }
+        });
+    }
+
+    $(".synchronize").click(function() {
+        $.ajax({
+            url: '/synchronization/synchronize',
+            method: 'get',
+            data: '',
+            success:function() {
+                $("#synchronizeHolder").html('<i class="fa fa-spin fa-spinner fa-3x"></i>');
+                checkSynchroState();
+            },
+            error:function() {
+                toastr.error('Problème de synchronisation. Veuillez contacter votre administrateur.');
+            }
+        });
+    });
+</script>
+{/custom_js}

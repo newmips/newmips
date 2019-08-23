@@ -61,3 +61,25 @@
 		margin-bottom: 10px;
 	}
 }
+
+/* Login Page Style */
+html#html-login, html#html-login body{
+  background-color: #222d32 !important;
+}
+
+html#html-login .form-box .header {
+  background: #00a65a;
+}
+
+html#html-login .btn.btn-primary:hover, html#html-login .btn.btn-primary:active, html#html-login .btn.btn-primary.hover {
+  background-color: #00a65a;
+}
+
+html#html-login .btn.btn-primary {
+  background-color: #008d4c;
+  border-color: #00a65a;
+}
+
+html#html-login .btn:not(.btn-raised).btn-primary, .input-group-btn .btn:not(.btn-raised).btn-primary {
+	color: #FFF !important;
+}

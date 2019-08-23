@@ -397,8 +397,7 @@ exports.getDataEntityByCodeName = function(idApplication, nameEntity, callback) 
     });
 }
 
-// Get a DataEntity with a given name
-exports.getDataEntityByName = function(nameEntity, idModule, callback) {
+exports.getEntityByName = function(nameEntity, idModule, callback) {
     models.DataEntity.findOne({
         where: {
             name: nameEntity,

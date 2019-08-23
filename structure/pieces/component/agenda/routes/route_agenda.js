@@ -179,7 +179,7 @@ router.post('/delete_event', block_access.actionAccessMiddleware("URL_ROUTE_even
             }
         }).then(function () {
             res.send(true);
-            entity_helper.remove_files("e_URL_ROUTE_event", deleteObject, attributes);
+            entity_helper.removeFiles("e_URL_ROUTE_event", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/URL_ROUTE_event/list');
         });

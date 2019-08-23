@@ -40,10 +40,16 @@
                         <input class="form-control input" placeholder='{#__ key="entity.e_status.f_field" /}' name="{f_field}" value='{#__ key=f_field /}' type="text" readonly="">
                     </div>
                 </div>
-                <div data-field="f_name" class="col-xs-12">
+                <div data-field="f_name" class="col-xs-12 col-sm-6">
                     <div class="form-group">
                         <label for="f_name"> {#__ key="entity.e_status.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
                         <input class="form-control input" placeholder='{#__ key="entity.e_status.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+                    </div>
+                </div>
+                <div data-field="f_button_label" class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <label for="f_button_label"> {#__ key="entity.e_status.f_button_label"/} {@inline_help field="f_button_label"}&nbsp;<i data-field="f_button_label" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_button_label" /}' name="f_button_label" value="{f_button_label}" type="text" readonly="">
                     </div>
                 </div>
                 <div data-field="f_color" class="col-xs-12 col-sm-6">
@@ -158,7 +164,10 @@
                 </select>
                 <br>
                 <input type="hidden" value="{e_status.id}" name="id_status">
-                <button type="submit" class="btn btn-primary">{#__ key="button.save" /}</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                    {#__ key="button.save" /}
+                </button>
             </form>
             <br>
             <a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">

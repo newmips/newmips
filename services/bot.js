@@ -47,7 +47,14 @@ exports.restart = function (result) {
 };
 
 exports.installNodePackage = function (result) {
-    var attr = {};
+    var attr = {
+        specificModule: null
+    };
+
+    // Specific module
+    if(typeof result[1] !== "undefined")
+        attr.specificModule = result[1].trim();
+
     attr.function = "installNodePackage";
     return attr;
 };
@@ -283,12 +290,16 @@ exports.createNewDataField = function (result) {
 exports.createNewDataFieldWithType = function (result) {
 
     var value = result[1];
-    var type = result[2];
+    var type = result[2].toLowerCase().trim();
     var defaultValue = null;
 
     // Default value ?
     if (typeof result[3] !== "undefined")
         defaultValue = result[3];
+        // if(type == 'text')
+        //     console.warn("Default value for type text is not available, it will be ignored.");
+        // else
+        //     defaultValue = result[3];
 
     // Preparing Options
     var options = {
@@ -696,6 +707,8 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
+
+/* STATUS */
 exports.createNewComponentStatus = function (result) {
     var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
@@ -713,6 +726,27 @@ exports.createNewComponentStatusWithName = function (result) {
 
     return checkAndCreateAttr("createNewComponentStatus", options, value);
 }
+
+exports.deleteComponentStatus = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentStatus",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentStatusWithName = function (result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteComponentStatus", options, value);
+};
 
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function (result) {
@@ -1001,7 +1035,6 @@ exports.listLayout = function (result) {
     return attr;
 };
 
-
 exports.setTheme = function (result) {
 
     var value = result[1];
@@ -1061,15 +1094,41 @@ function getRightWidgetType(originalType) {
         case "statistique":
             return "stats";
 
-        case "lastrecords":
-        case "last records":
-        case "derniers enregistrements":
-        case "derniersenregistrements":
-            return "lastrecords";
-
         default:
             return -1;
     }
+}
+
+function buildAttrForPiechart(result) {
+    var attr = {
+        function: 'createWidgetPiechart',
+        widgetType: 'piechart',
+        widgetInputType: 'Piechart'
+    }
+    // Current entity as target
+    if (result.length == 2)
+        attr.field = result[1];
+    // Defined target entity
+    else if (result.length == 3) {
+        attr.entityTarget = result[1].trim();
+        attr.field = result[2].trim();
+    }
+
+    return attr;
+}
+
+exports.createWidgetPiechart = function (result) {
+    var attr = buildAttrForPiechart(result);
+    attr.legend = true;
+
+    return attr;
+}
+
+exports.createWidgetPiechartWithoutLegend = function (result) {
+    var attr = buildAttrForPiechart(result);
+    attr.legend = false;
+
+    return attr;
 }
 
 exports.createWidgetLastRecordsWithLimit = function (result) {
@@ -1125,6 +1184,9 @@ exports.createWidgetOnEntity = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
+    if (finalType == -1)
+        return {error: 'error.missingParametersInstruction'};
+
     return {
         function: 'createWidgetOnEntity',
         widgetInputType: originalType,
@@ -1137,6 +1199,9 @@ exports.createWidget = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
+    if (finalType == -1)
+        return {error: 'error.missingParametersInstruction'};
+
     return {
         function: 'createWidget',
         widgetInputType: originalType,
@@ -1147,7 +1212,7 @@ exports.createWidget = function (result) {
 exports.deleteWidget = function (result) {
     return {
         function: 'deleteWidget',
-        widgetTypes: [getRightWidgetType(result[1])],
+        widgetTypes: [result[1] == 'piechart' ? 'piechart' : getRightWidgetType(result[1])],
         widgetInputType: result[1],
         entityTarget: result[2]
     }
@@ -1160,7 +1225,31 @@ exports.deleteEntityWidgets = function (result) {
     }
 }
 
+exports.addTitle = function (result) {
+    let value = result[1];
+    let afterField = null;
+    if (typeof result[2] !== "undefined")
+        afterField = result[2];
+    return {
+        function: "addTitle",
+        options: {
+            value: value,
+            afterField: afterField
+        }
+    };
+}
+
+// --- FUN --- //
+exports.apero = function (result) {
+    return {
+        function: "apero"
+    }
+}
+
 var training = {
+    "apero": [
+        "Apéro !"
+    ],
     "showSession": [
         "show session",
         "show the session",
@@ -1190,7 +1279,9 @@ var training = {
     ],
     "installNodePackage": [
         "npm install",
+        "npm install (.*)",
         "installer les modules node",
+        "installer le module node (.*)",
         "install node package"
     ],
     "gitPush": [
@@ -1998,6 +2089,35 @@ var training = {
         "ajouter composant statut",
         "créer composant statut"
     ],
+    "deleteComponentStatus": [
+        "delete component status",
+        "remove component status",
+        "supprimer un composant statut",
+        "supprimer un statut",
+        "supprimer composant statut",
+        "supprimer statut"
+    ],
+    "deleteComponentStatusWithName": [
+        "delete component status with name (.*)",
+        "remove component status with name (.*)",
+
+        "delete component status called (.*)",
+        "remove component status called (.*)",
+
+        "supprimer un composant statut appelé (.*)",
+        "supprimer composant statut appelé (.*)",
+        "supprimer le composant statut appelé (.*)",
+        "supprimer un statut appelé (.*)",
+        "supprimer le statut appelé (.*)",
+        "supprimer statut appelé (.*)",
+
+        "supprimer un composant statut nommé (.*)",
+        "supprimer composant statut nommé (.*)",
+        "supprimer le composant statut nommé (.*)",
+        "supprimer un statut nommé (.*)",
+        "supprimer le statut nommé (.*)",
+        "supprimer statut nommé (.*)"
+    ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",
         "create component localfilestorage with name (.*)",
@@ -2501,7 +2621,35 @@ var training = {
         "mettre une icône (.*)",
         "mettre une icone (.*)"
     ],
+    "createWidgetPiechart": [
+        "create widget piechart on entity (.*) for field (.*)",
+        "add widget piechart on entity (.*) for field (.*)",
+        "create widget piechart on entity (.*) for (.*)",
+        "add widget piechart on entity (.*) for (.*)",
+        "create widget piechart for field (.*)",
+        "add widget piechart for field (.*)",
+        "create widget piechart for (.*)",
+        "add widget piechart for (.*)",
+        "ajouter widget piechart sur l\’entité (.*) pour le champ (.*)",
+        "ajouter widget piechart sur entité (.*) pour le champ (.*)",
+        "ajouter widget piechart pour le champ (.*)"
+    ],
+    "createWidgetPiechartWithoutLegend": [
+        "create widget piechart on entity (.*) for field (.*) without legend",
+        "create widget piechart on entity (.*) for (.*) without legend",
+        "create widget piechart for field (.*) without legend",
+        "create widget piechart for (.*) without legend",
+        "add widget piechart on entity (.*) for field (.*) without legend",
+        "add widget piechart on entity (.*) for (.*) without legend",
+        "add widget piechart for field (.*) without legend",
+        "add widget piechart for (.*) without legend",
+        "ajouter widget piechart pour le champ (.*) sans légende",
+        "ajouter widget piechart sur l\’entité (.*) pour le champ (.*) sans légende",
+        "ajouter widget piechart sur entité (.*) pour le champ (.*) sans légende"
+    ],
     "createWidgetLastRecordsWithLimit": [
+        "create widget last records limited to (.*) records with columns (.*)",
+        "create widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "add widget last records limited to (.*) records with columns (.*)",
         "add widget last records on entity (.*) limited to (.*) records with columns (.*)",
         "ajouter un widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)",
@@ -2512,6 +2660,8 @@ var training = {
         "créer widget derniers enregistrements sur l'entité (.*) limité à (.*) enregistrements avec les colonnes (.*)"
     ],
     "createWidgetLastRecords": [
+        "create widget last records with columns (.*)",
+        "create widget last records on entity (.*) with columns (.*)",
         "add widget last records with columns (.*)",
         "add widget last records on entity (.*) with columns (.*)",
         "ajouter un widget derniers enregistrements avec les colonnes (.*)",
@@ -2588,8 +2738,20 @@ var training = {
         "ajouter composant modèle de document appelé (.*)",
         "ajouter composant modèle de document nommé (.*)",
         "ajouter le composant modèle de document appelé (.*)"
+    ],
+    "addTitle": [
+        "add title (.*)",
+        "add title (.*) after (.*)",
+        "add title (.*) after field (.*)",
+
+        "ajouter titre (.*)",
+        "ajouter titre (.*) après (.*)",
+        "ajouter un titre (.*)",
+        "ajouter un titre (.*) après (.*)",
+        "ajouter un titre (.*) après le champ (.*)"
     ]
 };
+
 // ******* Parse *******
 exports.parse = function (instruction) {
 
@@ -2655,7 +2817,7 @@ exports.complete = function (instruction) {
             var variable = false;
             while ((m < l) && (k < n) && (valid)) {
                 // Check if words are the same, goto next word
-                if (template[k] == instr[m]) {
+                if (template[k] == "(.*)" || template[k] == instr[m]) {
                     variable = false;
                     k++;
                 } else {
@@ -2756,7 +2918,7 @@ exports.complete = function (instruction) {
 
     // Sort array of results
     out.sort();
-    out.reverse();
+    // out.reverse();
     return out;
 }
 

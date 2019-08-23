@@ -27,12 +27,16 @@
         <link href='/css/select2/css/select2.min.css' rel='stylesheet' type='text/css'>
         {! Admin LTE Select2 !}
         <link href='/css/AdminLteV2/alt/AdminLTE-select2.min.css' rel='stylesheet' type='text/css'>
-        {! Dropzone !}
+        {! Dropzone 5.5.0!}
         <link href='/css/dropzone/dropzone.min.css' rel='stylesheet' type='text/css'>
         {! JQUERY UI !}
         <link href='/css/jQueryUI/1.12.1/jquery-ui.min.css' rel='stylesheet' type='text/css'>
         {! Summernote textarea !}
         <link href='/js/plugins/summernote/summernote.css' rel='stylesheet' type='text/css'>
+        {! Animated CSS !}
+        <link href="/css/animated.css" rel="stylesheet" type="text/css">
+        {! Open Layer !}
+        <link href="/css/ol/ol.css" rel="stylesheet" type="text/css">
         {! Newmips !}
         <link href='/css/newmips.css?v={config.version}' rel='stylesheet' type='text/css'>
 
@@ -52,12 +56,16 @@
     <body class="skin-blue-light layout-default sidebar-mini">
         <script>
             /* Set sidebar preference */
-            var sidebarPref = localStorage.getItem("newmips_mini_sidebar_preference");
             var d = document.body;
-            if(sidebarPref == "null")
-                sidebarPref = "open";
-            if (sidebarPref == "close" && d.className.indexOf("layout-top-navigation") == -1 && d.className.indexOf("sidebar-collapse") == -1)
-                d.className += " sidebar-collapse";
+            if (d.className.indexOf("layout-top-navigation") == -1) {
+                var sidebarPref = localStorage.getItem("newmips_mini_sidebar_preference");
+                if (sidebarPref == "close" && d.className.indexOf("sidebar-collapse") == -1) {
+                    d.className += " sidebar-collapse";
+                }
+                else {
+                    d.className += " sidebar-open";
+                }
+            }
         </script>
         <div class="wrapper">
             {! Get useful global var like the language and the current user !}
@@ -67,7 +75,9 @@
                 var SELECT_DEFAULT_TEXT = '{#__ key="select.default" /}';
                 var WAIT_UPLOAD_TEXT = '{#__ key="global_component.local_file_storage.wait_upload" /}';
                 var REQUIRED_FILE_TEXT = '{#__ key="global_component.local_file_storage.required_file" /}';
+                var REQUIRED_RELATEDTOMANYCHECKBOX = '{#__ key="message.relatedtomanycheckbox_required" /}';
                 var DEL_CONFIRM_TEXT = '{#__ key="button.delete_confirm"/}';
+                var LOADING_TEXT = '{#__ key="button.loading"/}';
             </script>
             <header class="main-header">
                 <a href="/default/home" class="logo">
@@ -219,7 +229,10 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.close" /}</button>
-                            <button type="submit" class="btn btn-primary">{#__ key="button.save" /}</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                                {#__ key="button.save" /}
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -235,8 +248,8 @@
         <script src="/js/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
         {! Bootstrap 3.0.3 !}
         <script src="/js/Bootstrap/bootstrap.min.js" type="text/javascript"></script>
-        {!OpenStreetMaps!}
-        <script src="/js/plugins/openstreetmaps/OpenLayers.js" type="text/javascript"></script>
+        {!Open Layer!}
+        <script src="/js/plugins/ol/ol.js" type="text/javascript"></script>
         {! Toastr !}
         <script src="/js/plugins/toastr/toastr.min.js" type="text/javascript"></script>
         {! Datepicker !}
@@ -257,7 +270,7 @@
         {! Summernote textarea !}
         <script src='/js/plugins/summernote/summernote.js' type="text/javascript"></script>
         <script src='/js/plugins/summernote/plugin/stt/stt.js' type="text/javascript"></script>
-        {! DropZone !}
+        {! DropZone 5.5.0!}
         <script src="/js/plugins/dropzone/dropzone.min.js" type="text/javascript"></script>
         {! QR CODE !}
         <script src="/js/plugins/qrcode/qrcode.min.js" type="text/javascript"></script>
@@ -286,15 +299,17 @@
             <script type="text/javascript">
                 var socket = io();
             </script>
+            {#config.socket.notification}
+                <script src="/js/Newmips/component/notification.js?v={config.version}" type="text/javascript"></script>
+            {/config.socket.notification}
+            {#config.socket.chat}
+                <script src="/js/Newmips/component/chat.js?v={config.version}" type="text/javascript"></script>
+            {/config.socket.chat}
         {/config.socket.enabled}
-        {#config.socket.notification}
-            <script src="/js/Newmips/component/notification.js?v={config.version}" type="text/javascript"></script>
-        {/config.socket.notification}
-        {#config.socket.chat}
-            <script src="/js/Newmips/component/chat.js?v={config.version}" type="text/javascript"></script>
-        {/config.socket.chat}
         {! AdminLTE App !}
         <script src="/js/AdminLteV2/app.min.js" type="text/javascript"></script>
+        {! UUID V4 !}
+        <script src="/js/plugins/uuid/uuid.min.js?v={config.version}" type="text/javascript"></script>
         {+custom_js /}
     </body>
 </html>

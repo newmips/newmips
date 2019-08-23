@@ -25,6 +25,13 @@
         "remember_me": "Se souvenir de moi",
         "submit": "Soumettre"
     },
+    "deploy": {
+        "deploying": "Déploiement...",
+        "please_wait": "Nous déployons votre application. Cette opération peut prendre quelques minutes. Veuillez patienter...",
+        "ready": "Votre application est prête",
+        "goto": "Aller vers votre application",
+        "stayonpage": "Vous devriez rester sur cette page pendant le déploiement de votre application."
+    },
     "menu": {
         "home": "Accueil",
         "preview": "Prévisualisation",
@@ -41,7 +48,9 @@
         "users": "Users",
         "logs": "Logs",
         "account": "Mon compte",
-        "themes": "Mes thèmes"
+        "themes": "Mes thèmes",
+        "templates": "Modèles d'applications",
+        "users": "Utilisateurs"
     },
     "button": {
         "generate": "Générer",
@@ -49,6 +58,7 @@
         "show": "Afficher",
         "update": "Modifier",
         "delete": "Supprimer",
+        "remove": "Retirer",
         "create": "Créer",
         "list": "Lister",
         "save": "Sauvegarder",
@@ -63,7 +73,9 @@
         "add": "Ajouter",
         "documentation": "Documentation",
         "cancel": "Annuler",
-        "loading": "Chargement..."
+        "loading": "Chargement...",
+        "clone": "Cloner",
+        "understand": "Compris !"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
@@ -74,8 +86,9 @@
         "accessbuttonyt": "C'est parti !",
         "lastthreeapp": "Vos 3 dernières applications",
         "directlinks": {
-            "title": "Gestion des Applications",
+            "title": "Gestion des applications",
             "script": "Script",
+            "templates": "Modèles",
             "theme": "Thèmes",
             "live": "Direct",
             "import": "Import de données",
@@ -91,7 +104,15 @@
         "sureToDelete": "Êtes-vous sûr ?",
         "loading": "Chargement...",
         "projectDelete" : "Projet supprimé !",
-        "appDelete" : "Application supprimée !"
+        "appDelete" : "Application supprimée !",
+        "gitlab": {
+            "modal_title": "Comment cloner cette application ?",
+            "text1": "Afin de pouvoir cloner votre application il suffit d'executer cette commande :",
+            "text2": "Votre identifiant Gitlab est :",
+            "text3": "et votre mot de passe est celui de votre compte générateur"
+        },
+        "no_project_1": "Aucune application générée.",
+        "no_project_2": "Vous pouvez créer une application directement depuis <a href='/'>l'accueil</a> ou à l'aide d'un <a href='/instruction_script/index'>script</a>."
     },
     "editor": {
         "legend": "Éditeur",
@@ -114,10 +135,20 @@
         "print_page": "Page d'impression"
     },
     "instructionScript": {
-        "legend": "Executer un script Newmips",
+        "legend": "Exécuter un script Newmips",
         "redirecting": "Redirection...",
         "createScript": "Écrire un script",
-        "fromFile": "Depuis un fichier"
+        "fromFile": "Depuis un fichier",
+        "template": "Choisissez votre modèle d'application",
+        "alreadyProcessing": "Un autre utilisateur est déjà en train d'exécuter un script, merci de réessayer dans quelques instants."
+    },
+    "template": {
+        "label": "Modèle",
+        "no_version": "La version est manquante dans la configuration de votre générateur, il est nécessaire d'en avoir un pour récupérer les modèles adaptés.",
+        "no_clone": "Impossible de récupérer la liste des modèles newmips, merci de contacter Newmips.",
+        "no_pull": "Impossible de mettre à jour votre dossier de modèles, ceux-ci sont donc potentiellement obsolètes.",
+        "no_checkout": "Impossible de trouver des modèles compatibles avec la version du générateur.",
+        "no_script": "Impossible de trouver le script .nps correspondant au template et à votre langue."
     },
     "live": {
         "legend": "Édition en direct"
@@ -155,7 +186,7 @@
         "reload": "Redémarrer le serveur",
         "issue-button": "Signaler un bug",
         "help-button": "Besoin d'aide ?",
-        "help-disabled": "Le chat slack est désactivé. Activez-le dans config/global.js et fournissez les informations slack dans config/slack.js",
+        "help-disabled": "Le chat support est désactivé. Activez-le dans config/global.js et renseignez votre configuration dans config/mattermost.js",
         "session": {
             "noProject": "Aucune projet sélectionné",
             "noApplication": "Aucune application sélectionnée",
@@ -183,7 +214,11 @@
         "create": "Créer une nouvelle application",
         "selectExisting": "Sélectionner une application existante",
         "plural": "Applications",
-        "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste."
+        "not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste.",
+        "no_access": "Vous n'avez pas accès à cette application."
+    },
+    "select": {
+        "default": "-- Choisir --"
     },
     "module": {
         "label": "Module"
@@ -202,7 +237,8 @@
         "textthree": "simplement revenir en arrière.",
         "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
         "valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (<30) après génération (%s).",
-        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez."
+        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez.",
+        "missingParametersInstruction": "Ils manque des paramètres à votre instruction. Consultez la documentation"
     },
     "back":{
         "list": "Lister les",
@@ -260,7 +296,7 @@
                 "deleted": "Module %s supprimé !"
             },
             "notFound": {
-                "notFounded": "Impossible de trouver le module %s.",
+                "notFound": "Impossible de trouver le module %s.",
                 "withThisID": "Désolé, mais il n'y a pas de module avec cet ID : %s.",
                 "withThisName": "Désolé, mais il n'y a pas de module avec ce nom : %s.",
                 "noModuleInApp": "Désolé, il n'y a aucun module dans cette application.",
@@ -273,8 +309,8 @@
                 "successOnEntity": "Nouveau composant %s (%s) créé sur l'entité %s."
             },
             "notFound": {
-                "notFoundedInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s.",
-                "notFoundedOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité avec l'ID : %s."
+                "notFoundInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s.",
+                "notFoundOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité avec l'ID : %s."
             },
             "delete": {
                 "success": "Le composant a bien été supprimé !",
@@ -326,7 +362,8 @@
         "global": {
             "restart": {
                 "success": "Le serveur a bien été redémarré !",
-                "error": "Oups, le serveur de l'application ne répond pas, vous pouvez essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>"
+                "error": "Oups, le serveur de l'application ne répond pas.<br>Dernière erreur détectée dans les logs:<br>- <b>%s</b><br>Vous pouvez vérifier les logs en cliquant sur l'onglet correspondant et essayer de redémarrer à l'aide de l'instruction: <br>- <b class='click-instruction'>redémarrer le serveur</b>",
+                "missing_module": "Le module node '%s' est manquant ! Vous pouvez l'installer à l'aide de l'instruction:<br>- <b class='click-instruction'>npm install %s</b>"
             },
             "npmInstall": {
                 "success": "Tous les modules node ont bien été installés !"
@@ -354,6 +391,7 @@
             "attributes": {
                 "success": "Le champ %s est désormais %s = %s.",
                 "successKnownAttribute": "Le champ %s est désormais %s.",
+                "successKnownAttributeWarning": "Le champ %s est désormais %s. !ATTENTION! La contrainte en base n'a pas pu être appliquée, la table correspondante n'existe pas au moment de l'instruction.",
                 "notUnderstandGiveAvailable": "Désolé, je ne comprends pas ce que vous souhaitez. Possibilités :<br>%s<br>",
                 "notUnderstand": "Désolé, je ne comprends pas l'attribut demandé.",
                 "fieldNoFound": "Aucun champ avec le nom %s trouvé dans l'entité courante.",
@@ -420,7 +458,8 @@
                 "missingInfo": "Le fichier infos.json est manquant !",
                 "missingScreenshot": "Le fichier screenshot.png est manquant !",
                 "alreadyExist": "Un thème avec ce nom existe déjà, merci de changer le nom du thème dans le infos.json.",
-                "successUpload": "Le thème a bien été ajouté !"
+                "successUpload": "Le thème a bien été ajouté !",
+                "successInstall": "Le thème %s a bien été appliqué !"
             },
             "layout": {
                 "list": "Layout disponibles:<br>%s<br>",
@@ -436,7 +475,12 @@
                 "success": "Widget %s ajouté au module %s",
                 "delete": "Widget %s supprimé avec succès",
                 "all_deleted": "Tous les widgets de %s ont été supprimés",
-                "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s"
+                "unknown_fields": "Impossible d'ajouter le widget car les champs suivants sont inconnus :<br>%s",
+                "no_fields": "Aucun champ fourni. Vous devez spécifier les champs à utiliser pour le widget"
+            },
+            "title": {
+                "success": "Le titre a bien été ajouté !",
+                "missingField": "Le champ %s n'existe pas dans cette entité."
             }
         }
     },
@@ -445,11 +489,34 @@
         "applicationavailable": "L'application est disponible ici : <br> <a href='%s' target='_blank'>%s</a>",
         "deployment": "Nous déployons votre application...<br> Cela peut prendre un certain temps, attendez son déploiement puis cliquez sur le lien suivant :<br> <a href='%s' target='_blank'>%s</a>"
     },
-    "themes":{
+    "themes": {
         "download-default": "Télécharger le modèle de thème",
         "generating": "Génération en cours...",
         "add-theme": "Déposer un thème",
         "wrongExt": "Seul les .zip sont accepté.",
         "default": "Thème par défaut"
+    },
+    "users": {
+        "title": "Utilisateur",
+        "login": "Identifiant",
+        "email": "Email",
+        "role": "Rôle",
+        "applications": "Applications",
+        "enabled": "Activé",
+        "last_name": "Nom",
+        "first_name": "Prénom",
+        "phone": "Téléphone",
+        "not_delete_admin": "Vous ne pouvez pas supprimer l'administrateur principal.",
+        "not_remove_admin_role": "Vous ne pouvez pas enlever le rôle admin à l'administrateur principal."
+    },
+    "action": {
+        "success": {
+            "create": "Création réussie.",
+            "update": "Mise à jour réussie.",
+            "destroy": "La suppression a bien été prise en compte."
+        },
+        "choose": "--- Choisir ---",
+        "missing_values": "Des valeurs sont manquantes, merci de les renseigner.",
+        "no_access_admin": "Vous devez être administrateur pour accèder à cette page."
     }
 }

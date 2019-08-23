@@ -15,12 +15,52 @@ var status_helper = require('../utils/status_helper');
 var globalConfig = require('../config/global');
 var fs = require('fs-extra');
 var dust = require('dustjs-linkedin');
+var language = require('../services/language');
 
 // Enum and radio managment
 var enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
 var logger = require('../utils/logger');
+
+router.get('/diagram', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
+    res.render('e_status/diagram', {statuses: status_helper.entityStatusFieldList()});
+});
+
+router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
+    models.E_status.findAll({where: {f_entity: req.body.f_entity, f_field: req.body.f_field}, include: {model: models.E_action, as: 'r_actions'}}).then((statuses)=> {
+        if (statuses.length == 0)
+            return res.json({statuses: [], connections: []});
+        var tableName = statuses[0].constructor.tableName;
+        var tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
+        models.sequelize.query(`select * from ${tableAppNumber}_status_children`, { type: models.sequelize.QueryTypes.SELECT}).then((connections)=> {
+            res.json({statuses, connections});
+        });
+    });
+});
+
+router.post('/set_children_diagram', block_access.actionAccessMiddleware("status", "update"), (req, res)=> {
+    models.E_status.findOne({where: {id: req.body.parent}}).then(parent => {
+        parent.addR_children(req.body.child).then(_=> {
+            res.sendStatus(200);
+        });
+    });
+});
+
+router.post('/remove_children_diagram', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
+    models.E_status.findOne({where: {id: req.body.id}}).then(status=> {
+        if (!status)
+            return res.sendStatus(500);
+        var tableName = status.constructor.tableName;
+        var tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
+        models.sequelize.query(
+            `DELETE FROM ${tableAppNumber}_status_children WHERE fk_id_parent_status = ? || fk_id_child_status = ?`,
+            {replacements: [status.id, status.id], type: models.sequelize.QueryTypes.DELETE})
+        .then(function(){
+            res.sendStatus(200);
+        })
+    })
+});
 
 router.post('/set_children', block_access.actionAccessMiddleware("status", "read"), function(req, res) {
     var statuses = req.body.next_status || [];
@@ -47,7 +87,16 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
             include: [{
                 model: models.E_media,
                 as: 'r_media',
-                include: {all: true, nested: true}
+                include: [{
+                    model: models.E_media_mail,
+                    as: 'r_media_mail'
+                }, {
+                    model: models.E_media_notification,
+                    as: 'r_media_notification'
+                }, {
+                    model: models.E_media_sms,
+                    as: 'r_media_sms'
+                }]
             }]
         }]
     }).then(function(status) {
@@ -107,15 +156,18 @@ router.get('/list', block_access.actionAccessMiddleware("status", "read"), funct
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_status", req.body, include).then(function (rawData) {
+    filterDataTable("E_status", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_status', rawData, req.session.lang_user).then(function(preparedData) {
+            for (var i = 0; i < preparedData.data.length; i++) {
+                var entity = preparedData.data[i].f_entity;
+                var field = preparedData.data[i].f_field;
+                preparedData.data[i].f_entity = language(req.session.lang_user).__('entity.'+entity+'.label_entity');
+                preparedData.data[i].f_field = language(req.session.lang_user).__('entity.'+entity+'.'+field);
+            }
             res.send(preparedData).end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -126,27 +178,55 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
     var length = parseInt(req.body.length || 10);
 
     var sourceId = req.query.sourceId;
-    var subentityAlias = req.query.subentityAlias;
+    var subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
     var doPagination = req.query.paginate;
 
-    var queryAttributes = [];
+    // Build array of fields for include and search object
+    var isGlobalSearch = req.body.search.value == "" ? false : true;
+    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    search[searchTerm] = [];
+    var toInclude = [];
+    // Loop over columns array
+    for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+        if (columns[i].searchable == 'false')
+            continue;
+
+        // Push column's field into toInclude. toInclude will be used to build the sequelize include. Ex: toInclude = ['r_alias.r_other_alias.f_field', 'f_name']
+        toInclude.push(columns[i].data);
+
+        // Add column own search
+        if (columns[i].search.value != "") {
+            var {type, value} = JSON.parse(columns[i].search.value);
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
+        }
+        // Add column global search
+        if (isGlobalSearch)
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
+    }
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
-            queryAttributes.push(req.body.columns[i].data);
+            toInclude.push(req.body.columns[i].data);
+    // Get sequelize include object
+    var subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
+
+    // ORDER BY
+    var order, stringOrder = req.body.columns[req.body.order[0].column].data;
+    // If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
+    order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
     var include = {
         model: models[subentityModel],
         as: subentityAlias,
-        include: {
-            all: true
-        }
+        order: order,
+        where: search,
+        include: subentityInclude
     }
+
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
     }
-
     models.E_status.findOne({
         where: {
             id: parseInt(sourceId)
@@ -172,7 +252,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
             entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
                 res.send(preparedData).end();
             }).catch(function(err) {
-                console.log(err);
+                console.error(err);
                 logger.debug(err);
                 res.end();
             });
@@ -275,8 +355,10 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "create
 });
 
 router.post('/create', block_access.actionAccessMiddleware("status", "create"), function (req, res) {
-
     var createObject = model_builder.buildForRoute(attributes, options, req.body);
+    let [entity, field] = req.body.entityStatus.split('.');
+    createObject.f_entity = entity;
+    createObject.f_field = field;
 
     models.E_status.create(createObject).then(function (e_status) {
         var redirect = '/status/show?id='+e_status.id;
@@ -358,8 +440,11 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "update
             data.error = 404;
             return res.render('common/error', data);
         }
-
         data.e_status = e_status;
+        data.f_field = e_status.f_field;
+        data.f_entity = e_status.f_entity;
+        data.entityTrad = 'entity.'+data.f_entity+'.label_entity';
+        data.fieldTrad = 'entity.'+data.f_entity+'.'+data.f_field;
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_status, "e_status", true).then(function() {
             if (req.query.ajax) {
@@ -789,7 +874,7 @@ router.post('/delete', block_access.actionAccessMiddleware("status", "delete"), 
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_status", deleteObject, attributes);
+            entity_helper.removeFiles("e_status", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/status/list');
         });

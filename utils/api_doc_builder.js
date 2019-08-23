@@ -1,6 +1,7 @@
 var models = require('../models/');
 var fs = require('fs-extra');
 var exec = require('child_process').exec;
+const path = require("path");
 
 function capitalizeFirstLetter(word) {
 	if(typeof word === "undefined" || !word)
@@ -8,14 +9,21 @@ function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
-function routeGet(entity, attributes) {
+function routeGet(entity, attributes, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {get} /api/'+name+'?token=TOKEN&limit=10&offset=0 1 - Find all');
+	doc.push(' * @api {get} /api/'+name+'?token=TOKEN 1 - Find all');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Fetch records of <code>'+name+'</code> from <code>offset</code> until <code>limit</code>');
 	doc.push(' * @apiGroup '+entity.codeName);
+
+	let possibleIncludes = [];
+	for (var i = 0; i < options.length; i++)
+		possibleIncludes.push(options[i].as);
+	possibleIncludes = `{String=${possibleIncludes.join(',')}}`;
+	doc.push(` * @apiParam (Query parameters) ${possibleIncludes} [include] Include specified association(s) to each <code>${name}</code> result.<br>Multiple values can be given separated by a comma <br><br>Ex: ?include=r_asso1,r_asso2`);
+
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiSuccess {Object[]} '+name+'s List of '+name);
 	for (var attr in attributes)
@@ -30,7 +38,7 @@ function routeGet(entity, attributes) {
 	return doc.join('\n');
 }
 
-function routeGetId(entity, attributes) {
+function routeGetId(entity, attributes, options) {
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
@@ -39,6 +47,13 @@ function routeGetId(entity, attributes) {
 	doc.push(' * @apiDescription Fetch one record of <code>'+name+'</code> with <code>id</code>');
 	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
+
+	let possibleIncludes = [];
+	for (var i = 0; i < options.length; i++)
+		possibleIncludes.push(options[i].as);
+	possibleIncludes = `{String=${possibleIncludes.join(',')}}`;
+	doc.push(` * @apiParam (Query parameters) ${possibleIncludes} [include] Include specified association(s) to each <code>${name}</code> result.<br>Multiple values can be given separated by a comma <br><br>Ex: ?include=r_asso1,r_asso2`);
+
 	doc.push(' * @apiParam (Params parameters) {Integer} id The <code>id</code> of '+name+' to fetch');
 	doc.push(' * @apiSuccess {Object} '+name+' Object of '+name);
 	for (var attr in attributes)
@@ -51,26 +66,25 @@ function routeGetId(entity, attributes) {
 }
 
 function routeGetAssociation(entity, options) {
+	// No association, doc not needed
+	if (options.length == 0)
+		return '';
+
 	var name = entity.codeName.substring(2);
 	var doc = [];
 	doc.push('/**');
-	doc.push(' * @api {get} /api/'+name+'/:id/:association?token=TOKEN&limit=10&offset=0 2.a - Find association');
+	doc.push(' * @api {get} /api/'+name+'/:id/:association?token=TOKEN 2.a - Find association');
 	doc.push(' * @apiVersion 1.0.0');
 	doc.push(' * @apiDescription Fetch records of <code>'+name+'</code>\'s <code>association</code> from <code>offset</code> until <code>limit</code>');
 	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to which <code>association</code> is related');
 
-	var allowedValues = '{String=';
-	for (var i = 0; i < options.length; i++) {
-		allowedValues += options[i].target.substring(2);
-		if (!(i+1 == options.length))
-			allowedValues += ',';
-	}
-	allowedValues += '}';
-	if (allowedValues == '{String=}')
-		return '';
-	doc.push(' * @apiParam (Params parameters) '+allowedValues+' association Name of the related entity');
+	var allowedValues = []
+	for (var i = 0; i < options.length; i++)
+		allowedValues.push(options[i].target.substring(2));
+	allowedValues = `{String=${allowedValues.join(',')}}`;
+	doc.push(` * @apiParam (Params parameters) ${allowedValues} association Name of the related entity`);
 
 	doc.push(' * @apiSuccess {Object} Object Object of <code>association</code>');
 	doc.push(' * @apiSuccess {Integer} limit Limit used to fetch data');
@@ -169,8 +183,8 @@ function entityDocumentation(entity, attributes, options) {
 	entityDoc += ' ********************************************\n';
 	entityDoc += ' *******************************************/\n';
 	entityDoc += '/** @apiDefine '+entity.codeName+' '+capitalizeFirstLetter(entity.name)+ ' */\n';
-	entityDoc += routeGet(entity, attributes);
-	entityDoc += routeGetId(entity, attributes);
+	entityDoc += routeGet(entity, attributes, options);
+	entityDoc += routeGetId(entity, attributess);
 	entityDoc += routeGetAssociation(entity, options);
 	entityDoc += routePost(entity, attributes, options);
 	entityDoc += routePut(entity, attributes, options);
@@ -204,22 +218,22 @@ function build(id_application) {
 					var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
 					documentation += entityDocumentation(entities[i], attributes, options);
 				} catch (e) {
-					console.log('WARNING - API documentation builder: Couldn\'t load '+entities[i].codeName+' attributes and options');
+					; // Status history models can't be loaded
 				}
 			}
 
 			// Write file to workspace's api folder
 			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
 			var isWin = /^win/.test(process.platform), cmd;
-			if(isWin || process.platform == "win32")
-				cmd = "node "+__dirname+'\\..\\node_modules\\apidoc\\bin\\apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
-			else
-				cmd = __dirname+'/../node_modules/apidoc/bin/apidoc -i '+workspacePath+'/api/doc/ -o '+workspacePath+'/api/doc/website';
-			exec(cmd, function(error, stdout, stderr) {
-				if (error)
-					console.log(error);
-				resolve();
-			});
+            if (isWin || process.platform == "win32")
+                cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+            else
+                cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+            exec(cmd, function(error, stdout, stderr) {
+                if (error)
+                    console.error(error);
+                resolve();
+            });
 		}).catch(function(err) {
 			reject(err);
 		});

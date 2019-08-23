@@ -19,9 +19,9 @@ function pushToSyncQuery(id_application, query) {
 exports.dropDataEntity = function (id_application, name_data_entity, callback) {
     var query = "";
     if(sequelize.options.dialect == "mysql")
-        query = "SET FOREIGN_KEY_CHECKS=0;DROP TABLE " + id_application + "_" + name_data_entity.toLowerCase() + ";SET FOREIGN_KEY_CHECKS=1;";
+        query = "SET FOREIGN_KEY_CHECKS=0;DROP TABLE IF EXISTS " + id_application + "_" + name_data_entity.toLowerCase() + ";SET FOREIGN_KEY_CHECKS=1;";
     else if(sequelize.options.dialect == "postgres")
-        query = "DROP TABLE \"" + id_application + "_" + name_data_entity.toLowerCase() + "\" CASCADE;";
+        query = "DROP TABLE IF EXISTS \"" + id_application + "_" + name_data_entity.toLowerCase() + "\" CASCADE;";
     if (!pushToSyncQuery(id_application, query))
         return callback("ERROR: Can't delete in database");
     callback();
@@ -109,4 +109,13 @@ exports.dropFKMultipleDataField = function (attr, callback) {
     }).catch(function (err) {
         callback(err);
     });
+}
+
+exports.dropTable = function(table_name, callback) {
+    sequelize.query(`DROP TABLE ${table_name};`).then(_ =>{
+        callback();
+    }).catch(err => {
+        console.error(err);
+        callback(err);
+    })
 }

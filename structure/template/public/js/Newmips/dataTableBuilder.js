@@ -44,6 +44,8 @@ if (lang_user == "fr-FR") {
         "loadingRecords": "Chargement en cours...",
         "zeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
         "emptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+        "reset_filter": "Réinitialiser les filtres",
+        "scroll_right": "Défilement à droite",
         "paginate": {
             "first": "Premier",
             "previous": "Pr&eacute;c&eacute;dent",
@@ -53,6 +55,15 @@ if (lang_user == "fr-FR") {
         "aria": {
             "sortAscending": ": activer pour trier la colonne par ordre croissant",
             "sortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+        },
+        "choose_columns": "Choix Colonnes",
+        "apply": "Appliquer",
+        "display": "Afficher",
+        "boolean_filter": {
+            "null": "Non renseigné",
+            "checked": "Coché",
+            "unchecked": "Décoché",
+            "all": "Tout"
         }
     };
 } else {
@@ -67,6 +78,8 @@ if (lang_user == "fr-FR") {
         "loadingRecords": "Loading...",
         "zeroRecords": "No record to display",
         "emptyTable": "No data available in this array",
+        "reset_filter": "Reset all filters",
+        "scroll_right": "Scroll right",
         "paginate": {
             "first": "First",
             "previous": "Previous",
@@ -76,6 +89,15 @@ if (lang_user == "fr-FR") {
         "aria": {
             "sortAscending": ": click to sort column by ascending order",
             "sortDescending": ": click to sort column by descending order"
+        },
+        "choose_columns": "Choose Columns",
+        "apply": "Apply",
+        "display": "Display",
+        "boolean_filter": {
+            "null": "Not specified",
+            "checked": "Checked",
+            "unchecked": "Unchecked",
+            "all": "Both"
         }
     };
 }
@@ -211,6 +233,20 @@ function formatDateEN(value) {
     return timeBuild + value.substring(6, 8);
 }
 
+function getValue(cellArrayKeyValue, row) {
+    var i = 0;
+    var key = cellArrayKeyValue[i];
+    do {
+        if (row != null && typeof row[key] !== 'undefined')
+            row = row[key];
+        else
+            return '-';
+        i++;
+        key = cellArrayKeyValue[i];
+    } while (i < cellArrayKeyValue.length);
+    return row;
+}
+
 // Bind search fields
 function saveFilter(value, el, tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
@@ -220,7 +256,7 @@ function saveFilter(value, el, tableId, field) {
     localStorage.setItem("newmips_filter_save_" + tableId, JSON.stringify(filterSave));
 }
 
-function getFilterSave(tableId, field) {
+function getFilter(tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
     if (filterSave == null)
         return "";
@@ -238,45 +274,115 @@ var delay = (function() {
     };
 })();
 
-function init_datatable(tableID, isSubDataList, doPagination, context) {
+// Generate the column selector on datatable button click
+//   - append an absolute div to the datalist button
+//   - display a list of the columns available on page load with a checkbox to hide/show each
+function generateColumnSelector(tableID, columns) {
+    var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
+    var tableHeight = $(tableID).height();
+    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;width:100%;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+
+    var columnsToShow = {columns: []};
+    // Loop over the <th> available on page load
+    for (var i = 0; i < columns.length; i++) {
+        // Column has been hidden through hide column instruction, never show
+        if (columns[i].hidden == true)
+            continue;
+        // Button's <th> doesn't have the .sorting class
+        if (!columns[i].element.hasClass('sorting'))
+            continue;
+
+        (function (current) {
+            var element = current.element, show;
+            // If storageColumnsShow is null, it means it's the first use of this storage, all columns must be shown by default
+            if (storageColumnsShow == null || current.show)
+                show = true;
+            // Show depending on stored columns to show.
+            else
+                show = storageColumnsShow.columns.indexOf(element.data('col')) != -1;
+            if (show)
+                columnsToShow.columns.push(element.data('col'));
+
+            var columnDiv = $('<div><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
+            // Initialize column checkbox
+            var checkbox = columnDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
+
+            // Bind hide/show trigger, build new columnsToShow array. Apply button will use this array
+            checkbox.on('ifToggled', function() {
+                // Show by adding col to columnsToShow
+                if (columnsToShow.columns.indexOf(element.data('col')) == -1)
+                    columnsToShow.columns.push(element.data('col'));
+                // Hide by removing col from columnsToShow
+                else
+                    columnsToShow.columns.splice(columnsToShow.columns.indexOf(element.data('col')), 1);
+            });
+            columnsSelectorDiv.append(columnDiv);
+        })(columns[i]);
+    }
+
+    // Create Apply button and bind click
+    var applyBtn = $('<div style="text-align:center;margin-top:5px;margin-bottom:5px;"><button class="btn btn-primary btn-sm">'+STR_LANGUAGE.apply+'</button></div>');
+    applyBtn.click(function(){
+        // Set new filters to localStorage and reload
+        localStorage.setItem("newmips_shown_columns_save_" + tableID.substring(1), JSON.stringify(columnsToShow));
+        setTimeout(function() {
+            location.reload();
+        }, 100);
+    });
+
+    columnsSelectorDiv.append(applyBtn)
+    return columnsSelectorDiv;
+}
+
+// Close column selector when click event is triggered outside of it
+$(document).mouseup(function(e) {
+    // if the target of the click isn't the container nor a descendant of the container
+    if ($("#columnSelector") && !$("#columnSelector").is(e.target) && $("#columnSelector").has(e.target).length === 0)
+        $("#columnSelector").remove();
+});
+
+function init_datatable(tableID, doPagination, context) {
     if(!context)
         context = document;
-    isSubDataList = typeof isSubDataList !== 'undefined' && isSubDataList == true ? true : false;
     doPagination = typeof doPagination !== 'undefined' ? doPagination : true;
 
+    // Use localStorage shown columns definitions to set data-hidden on columns
+    var shownColumns = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
+
     // Fetch columns from html
-    var columns = [];
-    $(tableID + " .main th", context).each(function () {
-        if (typeof $(this).data('col') !== 'undefined'){
-            if($(this).data("hidden") == "1"){
-                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: true});
-            } else {
-                columns.push({data: $(this).data('col'), type: $(this).data('type'), hidden: false});
+    var columns = [], defaultOrder = {idx: 0, direction: 'DESC'};
+    $(tableID + " .main th", context).each(function (idx) {
+        var col = $(this).data('col');
+        if (typeof col !== 'undefined'){
+            var column = {data: col, type: $(this).data('type'), element: $(this)};
+            column.hidden = $(this).attr("data-hidden") == "1" ? true : false;
+
+            var shouldShowColumn = true;
+            if (shownColumns == null || shownColumns.columns.indexOf(col) != -1) {
+                column.show = true;
+            }
+            else {
+                $(tableID + " .filters th", context).eq(idx).attr('data-show', '0');
+                column.show = false;
+            }
+
+            columns.push(column);
+
+            // Look for default order on field. Presence of `data-default-order` gives the index, value gives direction. Ex: <th data-default-order="ASC">
+            if ($(this).data('default-order')) {
+                defaultOrder.idx = columns.length-1;
+                defaultOrder.direction = $(this).data('default-order');
             }
         }
     });
 
-    function getValue(cellArrayKeyValue, row) {
-        var i = 0;
-        var key = cellArrayKeyValue[i];
-        do {
-            if (row != null && typeof row[key] !== 'undefined') {
-                row = row[key];
-            } else
-                return '-';
-            i++;
-            key = cellArrayKeyValue[i];
-        } while (i < cellArrayKeyValue.length);
-        return row;
-    }
-
     // Columns rendering
     // Server's object doesn't include DB table's prefix, we need to remove it
     // for DataTables to match column and data (column 'pdc.idc_pdc' -> data 'id_pdc')
-    var columnDefs = [];
+    var columnDefs = [], columnsTypes = {};
     for (var i = 0; i < columns.length; i++) {
         var objColumnDefToPush = {};
-        if(columns[i].hidden){
+        if(columns[i].hidden || columns[i].show == false){
             objColumnDefToPush.targets = i;
             objColumnDefToPush.render = function(){return "";};
             objColumnDefToPush.visible = false;
@@ -290,25 +396,33 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
                 var cellValue;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    var entityRelation = columns[meta.col].data.split(".")[0];
-                    var attributeRelation = columns[meta.col].data.split(".")[1];
-                    if (row[entityRelation] != null && typeof row[entityRelation] === "object") {
-                        var valueFromArray = "";
-                        for (var attr in row[entityRelation]) {
-                            // In case of hasMany or belongsToMany value
-                            if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
-                                valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
+                    let entityRelation = columns[meta.col].data.split(".")[0];
+                    let attributeRelation = columns[meta.col].data.split(".")[1];
+                    let valueFromArray = "";
+                    if (row[entityRelation] != null) {
+                        if(Array.isArray(row[entityRelation])){
+                            // In case of related to many / has many values, it's an array
+                            if(row[entityRelation].length == 1){
+                                valueFromArray = row[entityRelation][0][attributeRelation];
                             } else {
-                                var parts = columns[meta.col].data.split('.');
+                                for (let attr in row[entityRelation]) {
+                                    valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
+                                }
+                            }
+                        } else if(typeof row[entityRelation] === "object") {
+                            // In this case it's a belongsTo
+                            for (let attr in row[entityRelation]) {
+                                let parts = columns[meta.col].data.split('.');
                                 valueFromArray = getValue(parts, row);
                             }
-
+                        } else {
+                            // Has one sur une sous entité
+                            let parts = columns[meta.col].data.split('.');
+                            valueFromArray = getValue(parts, row);
                         }
                         cellValue = valueFromArray;
                     } else {
-                        // Has one sur une sous entité
-                        var parts = columns[meta.col].data.split('.');
-                        cellValue = getValue(parts, row);
+                        cellValue = "-";
                     }
                 }
                 // Regular value
@@ -324,24 +438,23 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
-                    // Date
-                    if (columns[meta.col].type == 'date') {
+                    // date / datetime
+                    if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD");
-                        } else
-                            cellValue = "-";
-                    }
-                    // Datetime
-                    else if (columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm");
-                        } else
+                            var tmpDate = moment(new Date(cellValue));
+                            if (!tmpDate.isValid())
+                                cellValue = '-';
+                            else {
+                                var format;
+                                if (columns[meta.col].type == 'date')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY" : "YYYY-MM-DD";
+                                else if (columns[meta.col].type == 'datetime')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm";
+
+                                cellValue = tmpDate.format(format || "YYYY-MM-DD");
+                            }
+                        }
+                        else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
                         cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"><span style="visibility: hidden;">1</span></i>' : '<i class="fa fa-square-o fa-lg"><span style="visibility: hidden;">0</span></i>';
@@ -371,7 +484,7 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
                             // Get current entity by splitting current table id
                             var currentEntity = tableID.split("#table_")[1];
                             var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
-                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+cellValue+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
                         } else
                             cellValue = '';
                     }
@@ -390,10 +503,15 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
                 return cellValue;
             }
         };
+
         if(columns[i].type == "password"){
             objColumnDefToPush.searchable = false;
             objColumnDefToPush.orderable = false;
         }
+
+        // Build columnsTypes. This will be added to ajax call and used sever-side in case of global search
+        columnsTypes[columns[i].data] = columns[i].type || 'string';
+
         columnDefs.push(objColumnDefToPush);
     }
 
@@ -409,23 +527,39 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
     }
 
     // Init DataTable
+    var table, columnSelectionVisible = false;
     var tableOptions = {
         "serverSide": true,
         "ajax": {
             "url": $(tableID, context).data('url'),
-            "type": "POST"
+            "type": "POST",
+            data: function(e) {
+                // Used for global search
+                e.columnsTypes = columnsTypes;
+                return e;
+            }
         },
         "responsive": true,
         "columns": columns,
         "columnDefs": columnDefs,
         "language": STR_LANGUAGE,
         "paging": doPagination,
+        "dom": 'lBfrtip',
         "bLengthChange": true,
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
         "bAutoWidth": false,
-        "order": [ 0, 'desc' ],
+        "order": [ defaultOrder.idx, defaultOrder.direction ],
         "buttons": [
+            {
+                text: STR_LANGUAGE.choose_columns,
+                action: function(e,dt,node,config) {
+                    if ($("#columnSelector").length > 0)
+                        $(node).next().remove();
+                    else
+                        $(node).after(generateColumnSelector(tableID, columns));
+                }
+            },
             {
                 extend: 'print',
                 text: '<i class="fa fa-print"></i>',
@@ -457,9 +591,18 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
                 exportOptions: {
                     columns: ':visible'
                 }
-            }, {
+            },
+            {
+                text: '<i class="fa fa-refresh"></i>',
+                titleAttr: STR_LANGUAGE.reset_filter,
+                action: function ( e, dt, node, config ) {
+                    localStorage.setItem("newmips_filter_save_" + tableID.substring(1), null);
+                    location.reload();
+                }
+            },
+            {
                 text: '<i class="fa fa-arrow-right"></i>',
-                titleAttr: 'Scroll right',
+                titleAttr: STR_LANGUAGE.scroll_right,
                 action: function ( e, dt, node, config ) {
                     $(tableID, context).parents(".table-responsive").animate({scrollLeft: $(tableID, context).width()}, 800);
                 }
@@ -467,8 +610,7 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
         ]
     }
     // Global search
-    tableOptions.dom = isSubDataList ? 'lBrtip' : 'lBfrtip';
-    var table = $(tableID, context).DataTable(tableOptions);
+    table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
     $(tableID+' tbody', context).on('click', 'td img', function () {
@@ -477,26 +619,23 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
             var entity = tableID.replace('#table_', '');
             var cellData = table.cell($(this).parent()).data();
             $.ajax({
-                url: '/default/get_file',
+                url: '/default/get_picture',
                 type: 'GET',
                 data: {entity: entity, src: cellData.value},
                 success: function (result) {
                     if (result.success) {
                         var text = '<div class="modal fade" tabindex="-1" role="dialog">'
-                                + '<div class="modal-dialog" role="document">'
-                                + '<div class="modal-content">'
-                                + '<div class="modal-header skin-blue-light">'
-                                + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                                + '<h4 class="modal-title">' + result.file + '</h4>'
-                                + '</div>'
-                                + '<div class="modal-body">'
-                                + '<p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
-                                + '</div>'
-                                + '<div class="modal-footer">'
-                                + ' <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
-                                + '</div>'
-                                + '</div>'
-                                + '</div>'
+                                + '     <div class="modal-dialog" role="document">'
+                                + '         <div class="modal-content">'
+                                + '             <div class="modal-header skin-blue-light">'
+                                + '                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                                + '                 <h4 class="modal-title">' + result.file + '</h4>'
+                                + '             </div>'
+                                + '             <div class="modal-body">'
+                                + '                 <p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
+                                + '             </div>'
+                                + '         </div>'
+                                + '     </div>'
                                 + '</div>';
                         $(text).modal('show');
                     }
@@ -505,99 +644,122 @@ function init_datatable(tableID, isSubDataList, doPagination, context) {
         }
     });
 
-    if (!isSubDataList) {
-        var startFilterTimer = 0;
-        // Bind search fields
-        $(tableID + ' .filters th', context).each(function (i) {
-            var title = $(this).text();
-            var mainTh = $(this);
-            // Custom
-            var currentField = mainTh.data('field');
-            var val = getFilterSave(tableID.substring(1), currentField);
-            var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
-            function searchInDatalist(searchValue) {
-                var valueObject = {type: '', value: ''};
-                // Special data types re-formating for search
+    var startFilterTimer = 0;
+    // Bind search fields
+    $(tableID + ' .filters th', context).each(function (idx) {
+        var mainTh = $(this);
+        var title = $(this).text();
+
+        // Custom
+        var currentField = mainTh.data('field');
+        var val = getFilter(tableID.substring(1), currentField);
+        var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
+
+        function searchInDatalist(searchValue) {
+            var valueObject = {type: '', value: ''};
+            // Special data types re-formating for search
+            if (typeof mainTh.data('type') !== 'undefined') {
+                if (mainTh.data('type') == 'date') {
+                    valueObject.type = 'date';
+                    searchValue = lang_user == 'fr-FR' ? formatDateFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateEN(mainTh.find("input").inputmask('unmaskedvalue'));
+                }
+                else if (mainTh.data('type') == 'time') {
+                    valueObject.type = 'time';
+                    searchValue = formatTime(mainTh.find("input").inputmask('unmaskedvalue'));
+                }
+                else if (mainTh.data('type') == 'datetime') {
+                    valueObject.type = 'datetime';
+                    searchValue = lang_user == 'fr-FR' ? formatDateTimeFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateTimeEN(mainTh.find("input").inputmask('unmaskedvalue'));
+                }
+                else if (mainTh.data('type') == 'currency'){
+                    valueObject.type = 'currency';
+                }
+                else if (mainTh.data('type') == 'boolean'){
+                    valueObject.type = 'boolean';
+                }
+            }
+            valueObject.value = searchValue;
+            table.columns(idx).search(JSON.stringify(valueObject)).draw();
+        }
+
+        function filterSearch(el){
+            var searchValue = typeof el.value === "undefined" ? $(el).val() : el.value;
+            saveFilter(searchValue, el, $(el).parents("table").attr("id"), $(el).parent().attr("data-field"));
+
+            // If search is empty, clear previous search and draw
+            if (searchValue == "")
+                return table.columns(idx).search('').draw();
+
+            delay(function(){
+                searchInDatalist(searchValue);
+            }, 300);
+        }
+
+        // If it's not an action button
+        if (title != '') {
+            if($(this).attr("data-hidden") == "1" || $(this).attr("data-show") == '0')
+                $(this).hide();
+            else {
+                $(this).show().html('');
+                $(search).appendTo(this).keyup(function () {
+                    filterSearch(this);
+                });
+
+                // Initialize masks on filters inputs
                 if (typeof mainTh.data('type') !== 'undefined') {
-                    // Date
-                    if (mainTh.data('type') == 'date') {
-                        valueObject.type = 'date';
-                        searchValue = lang_user == 'fr-FR' ? formatDateFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateEN(mainTh.find("input").inputmask('unmaskedvalue'));
-                    }
-                    // Time
-                    else if (mainTh.data('type') == 'time') {
-                        valueObject.type = 'time';
-                        searchValue = formatTime(mainTh.find("input").inputmask('unmaskedvalue'));
-                    }
-                    // DateTime
-                    else if (mainTh.data('type') == 'datetime') {
-                        valueObject.type = 'datetime';
-                        searchValue = lang_user == 'fr-FR' ? formatDateTimeFR(mainTh.find("input").inputmask('unmaskedvalue')) : formatDateTimeEN(mainTh.find("input").inputmask('unmaskedvalue'));
-                    }
-                    // Currency
-                    else if (mainTh.data('type') == 'currency') {
-                        valueObject.type = 'currency';
-                    }
-                }
-                valueObject.value = searchValue;
-                table.columns(i).search(JSON.stringify(valueObject)).draw();
-            }
-            // If it's not an action button
-            if (title != '') {
-                if($(this).data("hidden") != 1){
-                    $(this).html('');
-                    $(search).appendTo(this).keyup(function () {
-                        var searchValue = this.value;
-                        saveFilter(searchValue, this, $(this).parents("table").attr("id"), $(this).parent().attr("data-field"));
-                        delay(function(){
-                            searchInDatalist(searchValue);
-                        }, 500);
-                    });
-                    // Initialize masks on filters inputs
-                    if (typeof mainTh.data('type') !== 'undefined') {
-                        if (lang_user == 'fr-FR') {
-                            if (mainTh.data('type') == 'datetime')
-                                $(this).find("input").inputmask({
-                                    mask: "d/m/y h:s:s",
-                                    placeholder: "dd/mm/yyyy hh:mm:ss",
-                                    alias: "datetime",
-                                    timeseparator: ":",
-                                    hourFormat: "24"
-                                });
-                            if (mainTh.data('type') == 'date')
-                                $(this).find("input").inputmask({"alias": "dd/mm/yyyy"});
-                        } else if (lang_user == 'en-EN') {
-                            if (mainTh.data('type') == 'datetime')
-                                $(this).find("input").inputmask({
-                                    mask: "y-m-d h:s:s",
-                                    placeholder: "yyyy-mm-dd hh:mm:ss",
-                                    alias: "datetime",
-                                    timeseparator: ":",
-                                    hourFormat: "24"
-                                });
-                            if (mainTh.data('type') == 'date')
-                                $(this).find("input").inputmask({"alias": "yyyy-mm-dd"});
-                        }
-                        if (mainTh.data('type') == 'time')
+
+                    var datetimeMask = lang_user == 'fr-FR' ? "d/m/y h:s:s" : "y-m-d h:s:s";
+                    var datetimePlaceholder = lang_user == 'fr-FR' ? "jj/mm/aaaa hh:mm:ss" : "yyyy-mm-dd hh:mm:ss";
+                    var dateMask = lang_user == 'fr-FR' ? "dd/mm/yyyy" : "yyyy-mm-dd";
+
+                    switch (mainTh.data('type')){
+
+                        case 'datetime':
                             $(this).find("input").inputmask({
-                                mask: "h:s:s",
-                                placeholder: "hh:mm:ss",
-                                separator: "-"
+                                mask: datetimeMask,
+                                placeholder: datetimePlaceholder,
+                                alias: "datetime",
+                                timeseparator: ":",
+                                hourFormat: "24"
                             });
+                            break;
+
+                        case 'date':
+                            $(this).find("input").inputmask({"alias": dateMask});
+                            break;
+
+                        case 'boolean':
+                            $(this).find("input").replaceWith("\
+                                <select data-type='boolean' style='width: 100% !important;' class='form-control input'>\
+                                    <option value='' selected>"+STR_LANGUAGE.boolean_filter.all+"</option>\
+                                    <option value='null'>"+STR_LANGUAGE.boolean_filter.null+"</option>\
+                                    <option value='checked'>"+STR_LANGUAGE.boolean_filter.checked+"</option>\
+                                    <option value='unchecked'>"+STR_LANGUAGE.boolean_filter.unchecked+"</option>\
+                                </select>");
+                            if(val != "")
+                                $(this).find("select").val(val);
+                            $(this).find("select").on("change", function(){filterSearch(this)});
                     }
-                } else {
-                    $(this).hide();
+
+                    if (mainTh.data('type') == 'time'){
+                        $(this).find("input").inputmask({
+                            mask: "h:s:s",
+                            placeholder: "hh:mm:ss",
+                            separator: "-"
+                        });
+                    }
                 }
             }
-            if (val != "") {
-                // Delay each save filter triggering in order to work properly
-                startFilterTimer += 500;
-                setTimeout(function(){
-                    searchInDatalist(val);
-                }, startFilterTimer);
-            }
-        });
-    }
+        }
+        if (val != "") {
+            // Delay each save filter triggering in order to work properly
+            startFilterTimer += 500;
+            setTimeout(function(){
+                searchInDatalist(val);
+            }, startFilterTimer);
+        }
+    });
+    $(tableID).show();
 }
 
 $(function () {

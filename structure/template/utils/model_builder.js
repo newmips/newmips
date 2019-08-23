@@ -1,6 +1,9 @@
-var bcrypt = require('bcrypt-nodejs');
-var fs = require('fs-extra');
-var Sequelize = require('sequelize');
+const bcrypt = require('bcrypt-nodejs');
+const fs = require('fs-extra');
+const Sequelize = require('sequelize');
+const dbConfig = require('../config/database');
+const validators = require('../models/validators')
+let entity_helper;
 
 function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -16,6 +19,19 @@ exports.addHooks = function (Model, model_name, attributes) {
             else
                 Model.addHook(hookType, hook.func);
         }
+    }
+}
+
+// Parse each entity's fields and check if validation is required
+// Get validator and modify attributes object so sequelize can handle validation
+exports.attributesValidation = function (attributes) {
+    for (let field in attributes) {
+        field = attributes[field];
+        let validation;
+        if (field.validate == true && (validation = validators.getValidator(field)))
+            field.validate = validation;
+        else
+            delete field.validate;
     }
 }
 
@@ -42,11 +58,14 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
                     if (includeObject[i].as == depths[idx])
                         return buildInclude(entityOptions[j].target, includeObject[i].include, depths, ++idx);
 
-                // If include fur current depth doesn't exists, create it and send include array to recursive buildInclude
+                // Uppercase target's first letter to build model name. This is necessary because of component `C`_adresse
+                var modelPrefix = entityOptions[j].target.charAt(0).toUpperCase()+'_';
+                // If include for current depth doesn't exists, create it and send include array to recursive buildInclude
                 var depthInclude = {
-                    model: models['E_'+entityOptions[j].target.slice(2)],
+                    model: models[modelPrefix+entityOptions[j].target.slice(2)],
                     as: depths[idx],
-                    include: []
+                    include: [],
+                    duplicating: false
                 }
                 buildInclude(entityOptions[j].target, depthInclude.include, depths, ++idx);
                 return includeObject.push(depthInclude)
@@ -54,16 +73,62 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
         }
     }
 
-    for (var field = 0; field < fieldsArray.length; field++)
+    for (var field = 0; fieldsArray[field] && field < fieldsArray.length; field++)
         buildInclude(headEntity, globalInclude, fieldsArray[field].split('.'));
 
     return globalInclude;
 }
 
+// Used by filter_datatable and `/subdatalist` to build search query object
+exports.formatSearch = function (column, searchValue, type) {
+    var formatedSearch = {};
+
+    switch(type){
+        case 'datetime':
+            if (searchValue.indexOf(' ') != -1)
+                formatedSearch['$between'] = [searchValue, searchValue];
+            else
+                formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
+            break;
+        case 'date':
+            formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
+            break;
+        case 'boolean':
+            switch(searchValue){
+                case 'null':
+                    formatedSearch = null;
+                    break;
+                case 'checked':
+                    formatedSearch = true;
+                    break;
+                case 'unchecked':
+                    formatedSearch = false;
+                    break;
+            }
+            break;
+        case 'currency':
+            formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
+                like: `${searchValue}%`
+            });
+            break;
+        default:
+            formatedSearch = {
+                $like: '%' + searchValue + '%'
+            };
+            break;
+    }
+
+    var field = column, searchLine = {};
+    if (field.indexOf('.') != -1)
+        field = `$${field}$`;
+
+    searchLine[field] = formatedSearch;
+    return searchLine;
+}
+
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
-exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) {
-    addTimestamp = typeof addTimestamp === 'undefined' ? true : addTimestamp;
+exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp = true, recursionLevel = 0) {
     var object = {};
     for (var prop in attributes) {
         var currentValue = attributes[prop];
@@ -71,15 +136,22 @@ exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp) 
             if (currentValue.type == 'ENUM')
                 object[prop] = DataTypes.ENUM(currentValue.values);
             else
-                object[prop] = objectify(currentValue, DataTypes);
-        } else if (typeof currentValue === 'string')
+                object[prop] = objectify(currentValue, DataTypes, addTimestamp, recursionLevel+1);
+        } else if (typeof currentValue === 'string' && prop != 'newmipsType')
             object[prop] = DataTypes[currentValue];
         else
             object[prop] = currentValue;
     }
-    if (addTimestamp) {
-        object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
-        object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+
+    if (addTimestamp && recursionLevel == 0) {
+        if (dbConfig.dialect == 'sqlite') {
+            // SQLite3 dialect
+            object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.NOW};
+            object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.NOW};
+        } else {
+            object["createdAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+            object["updatedAt"] = {"type": DataTypes.DATE(), "defaultValue": Sequelize.fn('NOW')};
+        }
     }
     return object;
 }
@@ -142,67 +214,21 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
             }
             options.allowNull = true;
 
+            if(association.constraints != null)
+                options.constraints = association.constraints;
+
             models[selfModel][association['relation']](models[target], options);
         }
     }
 }
 
-// Find list of associations to display into list on create_form and update_form
-exports.associationsFinder = function associationsFinder(models, options, attributes) {
-    var foundAssociations = [];
-
-    /* Example limitAttr, set just the needed fields instead of load them all
-    var limitAttr = {
-        r_collectivite: ["id", "f_code_gestion", "f_nom"],
-        r_dechetteries_a_visiter: ["id", "f_code_gestion", "f_nom"],
-        r_intervenant_ecodds: ["id", "f_email"]
-    };*/
-
-    var limitAttr = [];
-    if(typeof attributes !== "undefined")
-        limitAttr = attributes;
-
-    for (var i = 0; i < options.length; i++) {
-        foundAssociations.push(new Promise(function (resolve, reject) {
-            var asso = options[i];
-            (function (option) {
-                var modelName = option.target.charAt(0).toUpperCase() + option.target.slice(1).toLowerCase();
-                var target = option.target;
-
-                if (typeof option.as != "undefined") {
-                    target = option.as.toLowerCase();
-                }
-
-                if(typeof limitAttr[target] !== "undefined"){
-                    models[modelName].findAll({
-                        attributes: limitAttr[target]
-                    }).then(function (entities) {
-                        resolve({model: target, rows: entities || []});
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                } else {
-                    models[modelName].findAll().then(function (entities) {
-                        resolve({model: target, rows: entities || []});
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                }
-            })(asso);
-        }));
-    }
-    return foundAssociations;
-}
-
-// Check for value in req.body that corresponding on hasMany or belongsToMany association in create or update form of an entity
+// Check for value in req.body corresponding to hasMany or belongsToMany association in create or update form of an entity
 exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
     return new Promise(function(resolve, reject) {
         // We have to find value in req.body that are linked to an hasMany or belongsToMany association
-        // because those values are not updated for now
+        // because those values are not updated yet
 
-        // List unsed value in req.body for now
         var unusedValueFromReqBody = [];
-
         for(var propBody in body){
             var toAdd = true;
             for(var propObj in buildForRouteObj){
@@ -242,7 +268,19 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
                                 }
                             }
                             try {
-                                await model['set' + target](value)
+                                await model['set' + target](value);
+                                if (!entity_helper)
+                                    entity_helper = require('./entity_helper');
+
+                                // Log association in Journal
+                                entity_helper.synchro.writeJournal({
+                                    verb: "associate",
+                                    id: model.id,
+                                    target: options[i].target,
+                                    entityName: model._modelOptions.name.singular.toLowerCase(),
+                                    func: 'set' + target,
+                                    ids: value
+                                });
                             } catch(err){
                                 throw err
                             }
@@ -258,35 +296,6 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
             reject(err);
         })
     })
-}
-
-exports.getDatalistInclude = function getDatalistInclude(models, options, columns) {
-    var structureDatalist = [];
-
-    /* Then get attributes from other entity associated to main entity */
-    for (var i = 0; i < options.length; i++) {
-        if (options[i].relation.toLowerCase() == "hasone" || options[i].relation.toLowerCase() == "belongsto") {
-            var target = capitalizeFirstLetter(options[i].target.toLowerCase());
-
-            var include = {
-                model: models[target],
-                as: options[i].as
-            };
-            // Add include's attributes for performance
-            var attributes = [];
-            for (var j = 0; j < columns.length; j++) {
-                if (columns[j].data.indexOf('.') == -1)
-                    continue;
-                var parts = columns[j].data.split('.');
-                if (parts[0] == options[i].as)
-                    attributes.push(parts[1]);
-            }
-            if (attributes.length && target != "E_status")
-                include.attributes = attributes;
-            structureDatalist.push(include);
-        }
-    }
-    return structureDatalist;
 }
 
 exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) {

@@ -30,7 +30,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 
     models.E_media_sms.create(createObject).then(function(e_media_sms) {
         models.E_media.create({
-            f_type: 'SMS',
+            f_type: 'sms',
             f_name: req.body.f_name,
             f_target_entity: req.body.f_target_entity,
             fk_id_media_sms: e_media_sms.id
@@ -79,7 +79,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
             // because those values are not updated for now
             model_builder.setAssocationManyValues(e_media_sms, req.body, createObject, options).then(function() {
                 Promise.all(promises).then(function() {
-                    component_helper.setAddressIfComponentExist(e_media_sms, options, req.body).then(function() {
+                    component_helper.address.setAddressIfComponentExists(e_media_sms, options, req.body).then(function() {
                         res.redirect(redirect);
                     });
                 }).catch(function(err) {
@@ -160,7 +160,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_media_sms, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_media_sms, options, req.body);
         e_media_sms.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
@@ -244,7 +244,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [],
                         subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function(alias) {
@@ -606,7 +606,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media_sms", "delete"
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_media_sms", deleteObject, attributes);
+            entity_helper.removeFiles("e_media_sms", deleteObject, attributes);
         }).catch(function(err) {
             entity_helper.error(err, req, res, '/media_sms/list');
         });

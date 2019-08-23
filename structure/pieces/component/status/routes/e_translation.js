@@ -35,15 +35,12 @@ router.get('/list', block_access.actionAccessMiddleware("translation", "read"), 
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("translation", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_translation", req.body, include).then(function (rawData) {
+    filterDataTable("E_translation", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_translation', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -627,7 +624,7 @@ router.post('/delete', block_access.actionAccessMiddleware("translation", "delet
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_translation", deleteObject, attributes);
+            entity_helper.removeFiles("e_translation", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/translation/list');
         });

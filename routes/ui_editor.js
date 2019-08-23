@@ -91,7 +91,7 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
     });
 }
 
-router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
+router.get('/getPage/:entity/:page', block_access.hasAccessApplication, function(req, res) {
     var page = req.params.page;
     var generatorLanguage = language(req.session.lang_user);
 
@@ -105,7 +105,7 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
     var pageUri = __dirname + '/../workspace/' + req.session.id_application + '/views/' + entity + '/' + page;
     domHelper.read(pageUri).then(function($) {
         // Encapsulate traduction with span to be able to translate, keep comment for later use
-        var tradRegex = new RegExp(/(<!--{@__ key="(.*)" ?\/}-->)/g);
+        var tradRegex = new RegExp(/(<!--{#__ key="(.*)" ?\/}-->)/g);
         $("body #fields")[0].innerHTML = $("body #fields")[0].innerHTML.replace(tradRegex, '<span class="trad-result">$2</span><span class="trad-src">$1</span>');
 
         // Translate each .trad-result
@@ -124,12 +124,12 @@ router.get('/getPage/:entity/:page', block_access.isLoggedIn, function(req, res)
 
         res.status(200).send($("#fields")[0].outerHTML);
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
     });
 });
 
-router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res) {
+router.post('/setPage/:entity/:page', block_access.hasAccessApplication, function(req, res) {
     var page = req.params.page;
     var generatorLanguage = language(req.session.lang_user);
 
@@ -190,7 +190,7 @@ router.post('/setPage/:entity/:page', block_access.isLoggedIn, function(req, res
 
             gitHelper.gitCommit(attr, function(err, infoGit) {
                 if (err)
-                    console.log(err);
+                    console.error(err);
                 if (req.body.applyAll == "true")
                     res.status(200).send(generatorLanguage.__("ui_editor.page_saved_all"));
                 else

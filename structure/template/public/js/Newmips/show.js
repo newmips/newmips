@@ -13,8 +13,8 @@ function isValidJSON(string) {
 }
 
 // Server side you can:
-// Show an error message like this: return res.status(500).send("My Error Message");
-// Show multiple message like this: return res.status(500).send([message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
+// Show an error message: return res.status(500).send("My Error Message");
+// Show multiple message: return res.status(500).send([{message: "Message One",level: "warning"}, {message: "Message Two",level: "error"}, ...]);
 // You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
@@ -33,11 +33,16 @@ function handleError(error, par2, par3) {
                 return toastr.error(error.responseText);
         }
     } catch(e) {
+        if(error.statusText == "timeout"){
+            toastr.error("Server timedout");
+        }
         console.error(error, par2, par3);
     }
 }
 
-function firstElementFocus(tab, idx = 0) {
+function firstElementFocus(tab, idx) {
+    if(!idx)
+        idx = 0;
     var element = $(".form-group:eq("+idx+") label:eq(0)", tab).next().focus();
     if ((element && (element.prop('disabled') == true || element.prop('readonly') == true))
     && ($(".form-group", tab).length > 0 && idx <= $(".form-group", tab).length))
@@ -128,8 +133,16 @@ function select2_fieldset(select, data) {
 // Handle form submition and tab reload
 function ajaxForm(form, tab) {
     form.on('submit', function(e) {
-        if (!validateForm(form))
+        form.find("button[type='submit']").text(LOADING_TEXT).attr("disabled", true);
+
+        // Prevent multiple submittion (double click)
+        if (form.data('submitting') === true)
+            return e.preventDefault();
+        form.data('submitting', true);
+        if (!validateForm(form)) {
+            form.data('submitting', false);
             return false;
+        }
         $.ajax({
             url: $(this).attr('action')+'?ajax=true',
             method: 'post',
@@ -139,32 +152,10 @@ function ajaxForm(form, tab) {
                 tab.find('.ajax-content').show();
                 reloadTab(tab);
             },
-            error: handleError
+            error: handleError,
+            timeout: 15000
         });
         return false;
-    });
-}
-
-function bindFieldsetForm(tab, data) {
-    tab.find('.fieldsetform').each(function() {
-        $(this).submit(function() {
-            var alias = $(this).parents('.tab-pane').attr('id');
-            var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
-            var reqData = $(this).serialize();
-            reqData += '&idEntity='+data.sourceId;
-            var form = this;
-            $.ajax({
-                url: url,
-                method: 'post',
-                data: reqData,
-                success:function() {
-                    /* tables is a global var comming from simpleTable.js */
-                    tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
-                },
-                error: handleError
-            });
-            return false;
-        });
     });
 }
 
@@ -222,7 +213,6 @@ function initHasMany(tab, data) {
     var doPagination = data.option.relation == 'belongsToMany' ? false : true;
 
     var table = tab.find('table');
-    table.find('.filters').remove();
     if (!data.option.noCreateBtn) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
@@ -242,9 +232,9 @@ function initHasMany(tab, data) {
             render: function(data2, type, row) {
                 var form = '\
                 <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                    <input name="id" value="'+row['id']+'" type="hidden"/>\
                     <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                         <span>'+DELETE_TEXT+'</span>\
-                        <input name="id" value="'+row['id']+'" type="hidden"/>\
                     </button>\
                 </form>';
                 return form;
@@ -257,7 +247,7 @@ function initHasMany(tab, data) {
     table.data('url', tableUrl);
 
     // DataTable
-    init_datatable('#'+table.attr('id'), true, doPagination, tab);
+    init_datatable('#'+table.attr('id'), doPagination, tab);
 }
 
 // HAS MANY PRESET
@@ -279,10 +269,35 @@ function initHasManyPreset(tab, data) {
     // Set subdatalist url and subentity to table
     var tableUrl = '/'+tab.data('asso-source').substring(2)+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
     table.data('url', tableUrl);
+    // Define update/delete button to be used by DataList plugin
+    DATALIST_BUTTONS = [{
+        render: function (data2, type, row) {
+            var aTag = '\
+                <a class="btn-show" href="/'+data.option.target.substring(2)+'/show?id='+row['id']+'">\
+                    <button class="btn btn-primary">\
+                        <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+SHOW_TEXT+'</span>\
+                    </button>\
+                </a>';
+            return aTag;
+        },
+        searchable: false
+    }, {
+        render: function(data2, type, row) {
+            var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
+            var form = '\
+                <form action="'+url+'" class="fieldsetform" method="post">\
+                    <input type="hidden" value="'+row['id']+'" name="idRemove">\
+                    <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
+                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
+                </form>';
+            return form;
+        }
+    }];
 
-    simpleTable(table);
+    init_datatable('#'+table.attr('id'), true, tab);
 
-    bindFieldsetForm(tab, data);
+    // bindFieldsetForm(tab, data);
 }
 
 // LOCAL FILE STORAGE
@@ -357,7 +372,7 @@ $(function() {
                 else if (data.option.structureType == 'print')
                     initPrintTab(tab, data);
                 else
-                    console.error("Bad structureType in option");
+                    return console.error("Bad structureType in option");
 
                 // Init form and td
                 initForm(tab);
@@ -390,7 +405,7 @@ $(function() {
                 var isCreate = href.indexOf('update_form') != -1 ? false : true;
                 var action, idInput = '', button = '';
                 var cancel = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
-                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
+                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
                 if (isCreate)
                     action = '/'+target+'/create';
                 else if (!isCreate) {
@@ -441,17 +456,16 @@ $(function() {
 
     $(document).delegate('.fieldsetform', 'submit', function() {
         var alias = $(this).parents('.tab-pane').attr('id');
-        var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
+        var tab = $(this).parents('.ajax-tab');
+        var url = $(this).attr('action');
         var reqData = $(this).serialize();
-        reqData += '&idEntity='+data.sourceId;
-        var form = this;
         $.ajax({
             url: url,
             method: 'post',
             data: reqData,
             success:function() {
-                /* tables is a global var comming from simpleTable.js */
-                tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
+                console.log("FIELDSET REMOVED");
+                reloadTab(tab);
             },
             error: handleError
         });

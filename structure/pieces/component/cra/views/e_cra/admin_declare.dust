@@ -68,7 +68,10 @@
                             <input type="hidden" id="id_cra" name="id_cra" value="{user.r_cra[0].id}">
                             <br><br>
                             <div id="buttonGroup" class="no-print">
-                                <button class="btn btn-warning" type="submit">{#__ key="button.save"/}</button>&nbsp;&nbsp;
+                                <button class="btn btn-warning" type="submit">
+                                    <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                                    {#__ key="button.save"/}
+                                </button>&nbsp;&nbsp;
                                 <button id="validateButton" class="btn btn-primary">{#__ key="entity.e_cra.validate"/}</button>
                             </div>
                             <div id="export" class="no-print" style="display:none;">

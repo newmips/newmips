@@ -28,3 +28,29 @@
 .sidebar-menu > li.active > a {
   border-left-color: #dd4b39;
 }
+.form-title{
+    background-color: #f9fafc;
+    border: 1px solid #dd4b39;
+    border-radius: 3px;
+}
+.form-title h3{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+/* Login Page Style */
+html#html-login, html#html-login body{
+  background-color: #222d32 !important;
+}
+
+html#html-login .form-box .header {
+  background: #dd4b39;
+}
+
+html#html-login .btn.btn-primary:hover, html#html-login .btn.btn-primary:active, html#html-login .btn.btn-primary.hover {
+  background-color: #dd4b39;
+}
+
+html#html-login .btn.btn-primary {
+  background-color: #d73925;
+  border-color: #dd4b39;
+}

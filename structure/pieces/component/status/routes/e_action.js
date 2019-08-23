@@ -35,15 +35,12 @@ router.get('/list', block_access.actionAccessMiddleware("action", "read"), funct
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("action", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_action", req.body, include).then(function (data) {
+    filterDataTable("E_action", req.body).then(function (data) {
         entity_helper.prepareDatalistResult('e_action', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -372,7 +369,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 });
 
 router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionAccessMiddleware("action", "update"), function(req, res) {
-    status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+    status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect('/action/show?id=' + req.params.id_action)
     }).catch((err)=> {
         entity_helper.error(err, req, res, '/action/show?id=' + req.params.id_action);
@@ -523,7 +520,7 @@ router.post('/delete', block_access.actionAccessMiddleware("action", "delete"), 
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_action", deleteObject, attributes);
+            entity_helper.removeFiles("e_action", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/action/list');
         });

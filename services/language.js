@@ -10,7 +10,7 @@ function fetchText(key, params, lang) {
 			console.log(key);
 			return key.toString();
 		} catch(err) {
-			console.log(err)
+			console.error(err)
 			return "Sorry, I can't handle the error message.";
 		}
 	}

@@ -64,16 +64,22 @@ function addTab(attr, file, newLi, newTabContent) {
             var tabs = '';
             var context;
             if ($("#tabs").length == 0) {
-                tabs += '<div class="nav-tabs-custom" id="tabs">';
-                tabs += '   <!--{^hideTab}-->';
-                tabs += '	<ul class="nav nav-tabs">';
-                tabs += '		<li class="active"><a data-toggle="tab" href="#home">{#__ key="entity.' + source + '.label_entity" /}</a></li>';
-                tabs += '	</ul>';
-                tabs += '   <!--{/hideTab}-->';
-                tabs += '	<div class="tab-content" style="min-height:275px;">';
-                tabs += '		<div id="home" class="tab-pane fade in active"></div>';
-                tabs += '	</div>';
-                tabs += '</div>';
+                tabs = '\
+                <div class="nav-tabs-custom" id="tabs">\n\
+                    <!--{^hideTab}-->\n\
+                        <ul class="nav nav-tabs">\n\
+                            <li class="active">\n\
+                                <a data-toggle="tab" href="#home">\n\
+                                    <!--{#__ key="entity.' + source + '.label_entity" /}-->\n\
+                                </a>\n\
+                            </li>\n\
+                        </ul>\n\
+                    <!--{/hideTab}-->\n\
+                    <div class="tab-content" style="min-height:275px;">\n\
+                        <div id="home" class="tab-pane fade in active"></div>\n\
+                    </div>\n\
+                </div>\n';
+
                 context = $(tabs);
                 $("#home", context).append($("#fields"));
                 $("#home", context).append($(".actions"));
@@ -90,7 +96,7 @@ function addTab(attr, file, newLi, newTabContent) {
                 resolve();
             });
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             reject(err);
         });
     });
@@ -176,7 +182,7 @@ exports.newLocalFileStorage = function (attr, callback) {
                         fs.mkdirSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName, 0766);
                         fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
 
-                        var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '">{#__ key="component.' + componentNameLower + '.label_component" /}</a></li>';
+                        var newLi = '<li><a id="' + componentNameLower + '-click" data-toggle="tab" href="#' + componentNameLower + '"><!--{#__ key="component.' + componentNameLower + '.label_component" /}--></a></li>';
 
                         var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + sourceLower;
                         var file = fileBase + '/show_fields.dust';
@@ -194,81 +200,35 @@ exports.newLocalFileStorage = function (attr, callback) {
 }
 
 exports.newPrint = function (attr, callback) {
-    var nameComponent = attr.options.value;
-    var nameComponentLower = nameComponent.toLowerCase();
-    var showComponentName = attr.options.showValue;
-    var entityLower = attr.options.source.toLowerCase();
-    var idApp = attr.id_application;
+    let nameComponent = attr.options.value;
+    let nameComponentLower = nameComponent.toLowerCase();
+    let showComponentName = attr.options.showValue;
+    let entityLower = attr.options.source.toLowerCase();
+    let appID = attr.id_application;
 
-    var showFieldsPath = __dirname + '/../workspace/' + idApp + '/views/' + entityLower + '/show_fields.dust';
+    let showFieldsPath = __dirname + '/../workspace/' + appID + '/views/' + entityLower + '/show_fields.dust';
 
     domHelper.read(showFieldsPath).then(function ($) {
-        var newLi = '<li><a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '"><!--{#__ key="component.' + nameComponentLower + '.label_component" /}--></a></li>';
+        let newLi = '\
+        <li>\n\
+            <a id="' + nameComponentLower + '-click" data-toggle="tab" href="#' + nameComponentLower + '">\n\
+                <!--{#__ key="component.' + nameComponentLower + '.label_component" /}-->\n\
+            </a>\n\
+        </li>\n';
 
-        var tabContent = "";
-        tabContent += "<div id='" + nameComponentLower + "' class='tab-pane ajax-tab fade' data-tabtype='print'>\n";
-        tabContent += "     <style>";
-        tabContent += "        @page { size: auto;  margin: 0mm; }";
-        tabContent += "        @media print {";
-        tabContent += "            body{";
-        tabContent += "                height: 100%;";
-        tabContent += "            }";
-        tabContent += "            body * {";
-        tabContent += "                visibility: hidden;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content,";
-        tabContent += "            #" + nameComponent + "-content * {";
-        tabContent += "                visibility: visible;";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content {";
-        tabContent += "                position: absolute;";
-        tabContent += "                left: 0;";
-        tabContent += "                top: 0;";
-        tabContent += "                margin: 0px;";
-        tabContent += "                padding: 15px;";
-        tabContent += "                border: 0px;";
-        tabContent += "                width: 100%;";
-        tabContent += "                height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "                font-size: 18px !important;";
-        tabContent += "            }";
-        tabContent += "            .form-control {";
-        tabContent += "                font-size: 18px !important;";
-        tabContent += "            }";
-        tabContent += "            ." + nameComponent + " {";
-        tabContent += "                height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            .tab-content{";
-        tabContent += "                height: 100%;";
-        tabContent += "                min-height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            .content-wrapper{";
-        tabContent += "                height: 100%;";
-        tabContent += "                min-height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            .wrapper{";
-        tabContent += "                height: 100%;";
-        tabContent += "                min-height: 100%;";
-        tabContent += "                overflow: visible;";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content a:after {";
-        tabContent += "                content: '';";
-        tabContent += "            }";
-        tabContent += "            #" + nameComponent + "-content a[href]:after {";
-        tabContent += "                content: none !important;";
-        tabContent += "            }";
-        tabContent += "        }";
-        tabContent += "     </style>\n";
-        tabContent += "     <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i>{#__ key=\"global_component.print.action\"/}</button>\n";
-        tabContent += "     <div id='" + nameComponent + "-content' class='ajax-content print-tab'>\n";
-        tabContent += "     </div>\n";
-        tabContent += "</div>\n";
+        let cssPrintContent = fs.readFileSync(__dirname + '/../workspace/' + appID + '/public/css/print.css', 'utf8');
+        cssPrintContent = cssPrintContent.replace(/COMPONENT_NAME/g, nameComponent);
+        fs.writeFileSync(__dirname + '/../workspace/' + appID + '/public/css/print_' + nameComponent + '.css', cssPrintContent, 'utf8');
 
-        translateHelper.writeLocales(idApp, "component", nameComponent, showComponentName, attr.googleTranslate, function () {
+        let tabContent = " \
+        <div id='" + nameComponentLower + "' class='tab-pane ajax-tab fade' data-tabtype='print'>\n \
+            <link href='/public/css/print_" + nameComponent + ".css' rel='stylesheet' type='text/css'>\n \
+            <button data-component='" + nameComponentLower + "' class='component-print-button btn btn-info'><i class='fa fa-print' aria-hidden='true' style='margin-right:5px;'></i><!--{#__ key=\"global_component.print.action\"/}--></button>\n \
+            <div id='" + nameComponent + "-content' class='ajax-content print-tab'>\n \
+            </div>\n \
+        </div>\n";
+
+        translateHelper.writeLocales(appID, "component", nameComponent, showComponentName, attr.googleTranslate, function () {
             addTab(attr, showFieldsPath, newLi, tabContent).then(callback);
         });
     });
@@ -524,13 +484,14 @@ exports.newAgenda = function (attr, callback) {
 
         var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
         var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
+        var urlEvent = valueEvent.toLowerCase().substring(2);
 
         var viewTemplate = fs.readFileSync(viewFile, 'utf8');
         viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
         viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
         viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
         viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
-        viewTemplate = viewTemplate.replace(/URL_EVENT/g, valueEvent.toLowerCase().substring(2));
+        viewTemplate = viewTemplate.replace(/URL_EVENT/g, urlEvent);
 
         var writeStream = fs.createWriteStream(viewFile);
         writeStream.write(viewTemplate);
@@ -544,8 +505,7 @@ exports.newAgenda = function (attr, callback) {
             fs.copySync(componentEventViewFolder, eventViewsFolder);
 
             // Replace variable in each files
-            var fileToReplace = ["show_fields", "create_fields", "update_fields"];
-            var urlEvent = valueEvent.toLowerCase().substring(2);
+            var fileToReplace = ["show_fields", "create_fields", "update_fields", "create", "update"];
 
             for (var i = 0; i < fileToReplace.length; i++) {
                 var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
@@ -553,69 +513,68 @@ exports.newAgenda = function (attr, callback) {
 
                 eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
                 eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+                eventTemplate = eventTemplate.replace(/MODULE_NAME/g, moduleName);
 
                 fs.writeFileSync(eventFile, eventTemplate, 'utf8');
             }
 
             // Inject custom_js
-            var fileToInject = ["create", "update"];
+            // var fileToInject = ["create", "update"];
 
-            for (var i = 0; i < fileToInject.length; i++) {
-                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
-                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+            // for (var i = 0; i < fileToInject.length; i++) {
+            //     var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
+            //     var eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
-                eventTemplate += "\n\n" +
-                        "{<custom_js}\n" +
-                        "    <script type='text/javascript'>\n" +
-                        "        var format;\n" +
-                        "        if (lang_user == 'fr-FR')\n" +
-                        "            format = 'DD/MM/YYYY HH:mm';\n" +
-                        "        else\n" +
-                        "            format = 'YYYY-MM-DD HH:mm';\n" +
-                        "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
-                        "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    toastr.error(\"Error: Start date is after end date.\");\n" +
-                        "                    return false;\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    toastr.error(\"Error: End date is before start date.\");\n" +
-                        "                    return false;\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "            return true;" +
-                        "        });\n" +
-                        "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
-                        "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-                        "                var start = moment($(this).val(), format);\n" +
-                        "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    $(this).val('');\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        });\n" +
-                        "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
-                        "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-                        "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-                        "                var end = moment($(this).val(), format);\n" +
-                        "                if(end.diff(start) < 0){\n" +
-                        "                    $(this).val('');\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        });\n" +
-                        "    </script>\n" +
-                        "{/custom_js}\n";
+            //     eventTemplate += "\n\n" +
+            //             "{<custom_js}\n" +
+            //             "    <script type='text/javascript'>\n" +
+            //             "        var format;\n" +
+            //             "        if (lang_user == 'fr-FR')\n" +
+            //             "            format = 'DD/MM/YYYY HH:mm';\n" +
+            //             "        else\n" +
+            //             "            format = 'YYYY-MM-DD HH:mm';\n" +
+            //             "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
+            //             "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    toastr.error(\"Error: Start date is after end date.\");\n" +
+            //             "                    return false;\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    toastr.error(\"Error: End date is before start date.\");\n" +
+            //             "                    return false;\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "            return true;" +
+            //             "        });\n" +
+            //             "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
+            //             "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
+            //             "                var start = moment($(this).val(), format);\n" +
+            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    $(this).val('');\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "        });\n" +
+            //             "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
+            //             "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
+            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
+            //             "                var end = moment($(this).val(), format);\n" +
+            //             "                if(end.diff(start) < 0){\n" +
+            //             "                    $(this).val('');\n" +
+            //             "                }\n" +
+            //             "            }\n" +
+            //             "        });\n" +
+            //             "    </script>\n" +
+            //             "{/custom_js}\n";
 
-                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-            }
-
-
+            //     fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+            // }
             callback();
         });
     }
@@ -825,7 +784,7 @@ exports.newCra = function (attr, callback) {
             newLayoutLI += '<li>\n';
             newLayoutLI += '    <a href="/cra/declare">\n';
             newLayoutLI += '        <i class="fa fa-angle-double-right"></i>\n';
-            newLayoutLI += '        {#__ key="entity.e_cra.custom_button_declare" /}\n';
+            newLayoutLI += '        <!--{#__ key="entity.e_cra.custom_button_declare" /}-->\n';
             newLayoutLI += '    </a>\n';
             newLayoutLI += '</li>\n';
             $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
@@ -878,10 +837,10 @@ exports.newStatus = function (attr, callback) {
 
     // Replace history table name with history model name in access file
     var access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-    for (var module in access)
-        for (var i = 0; i < access[module].entities.length; i++)
-            if (access[module].entities[i].name == attr.history_table_db_name)
-                access[module].entities[i].name = attr.history_table;
+    for (var npsModule in access)
+        for (var i = 0; i < access[npsModule].entities.length; i++)
+            if (access[npsModule].entities[i].name == attr.history_table_db_name)
+                access[npsModule].entities[i].name = attr.history_table;
 
     fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
     fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
@@ -889,20 +848,23 @@ exports.newStatus = function (attr, callback) {
     // Change target of source entity to match history MODEL name (instead of TABLE name)
     var optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + attr.source + '.json'));
     for (var opt in optionsObj)
-        if (optionsObj[opt].target == 'e_' + attr.history_table_db_name) {
-            optionsObj[opt].target = 'e_' + attr.history_table;
-            break;
-        }
+        if (optionsObj[opt].target == 'e_' + attr.history_table_db_name)
+            {optionsObj[opt].target = 'e_' + attr.history_table;break;}
     fs.writeFileSync(workspacePath + '/models/options/' + attr.source + '.json', JSON.stringify(optionsObj, null, 4), 'utf8');
 
     // Remove useless options on e_status
     var statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
     for (var i = 0; i < statusModel.length; i++)
-        if (statusModel[i].target == 'e_' + attr.history_table_db_name) {
-            statusModel.splice(i, 1);
-            break;
-        }
+        if (statusModel[i].target == 'e_' + attr.history_table_db_name)
+            {statusModel.splice(i, 1);break;}
     fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
+
+    // Remove useless options on e_user (association hasMany with history table needs to be removed)
+    var userModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
+    for (var i = 0; i < userModel.length; i++)
+        if (userModel[i].target == 'e_' + attr.history_table_db_name)
+            {userModel.splice(i, 1);break;}
+    fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
 
     // Remove useless options in toSync
     var toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
@@ -936,49 +898,56 @@ exports.newStatus = function (attr, callback) {
             var statusAliasSubstring = statusAlias.substring(2);
             // Customize history tab list
             domHelper.read(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust').then(function ($) {
-                // Remove buttons
-                $("tbody tr td").slice(4, 7).remove();
-                $("thead").each(function () {
-                    $(this).find("tr th").slice(4, 7).remove();
-                });
-                // Remove id column
-                $("[data-field=id]").remove();
-                // Add createdAt column in thead/tbody
-                var newTh = '';
-                newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
-                newTh += '    {#__ key="defaults.createdAt"/}\n';
-                newTh += '</th>\n';
-                $(".fields").each(function () {
-                    $(this).find("th:eq(0)").before(newTh);
-                });
-                $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
-                // Remove delete button
-                $("#bodyTR td:last").remove();
-                $("table").attr("data-custom-order-index", "3");
-                $("table").attr("data-custom-order", "desc");
+                // History list
+                {
+                    // Remove buttons i.e last two th/td
+                    $("tbody tr td").slice(5, 7).remove();
+                    $("thead").each(function () {
+                        $(this).find("tr th").slice(5, 7).remove();
+                    });
+                    // Remove id column
+                    $("[data-field=id]").remove();
+                    // Add createdAt column in thead/tbody
+                    var newTh = '';
+                    newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
+                    newTh += '    <!--{#__ key="defaults.createdAt"/}-->\n';
+                    newTh += '</th>\n';
+                    $(".fields").each(function () {
+                        $(this).find("th:eq(0)").before(newTh);
+                    });
+                    $("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
+                    // Remove delete button
+                    $("#bodyTR td:last").remove();
+                }
 
-                // Change history tab locales
-                var localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
-                localesFR.entity['e_' + attr.history_table_db_name]['as_r_history_' + attr.options.urlValue] = "Historique " + attr.options.showValue;
-                localesFR.entity['e_' + attr.history_table_db_name]['f_comment'] = "Commentaire";
-                localesFR.entity['e_' + attr.history_table_db_name]['as_r_' + attr.history_table] = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
-                localesFR.entity['e_' + attr.history_table_db_name].label_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
-                localesFR.entity['e_' + attr.history_table_db_name].name_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
-                localesFR.entity['e_' + attr.history_table_db_name].plural_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
-                // Rename traduction key to use history MODEL value, delete old traduction key
-                localesFR.entity['e_' + attr.history_table] = localesFR.entity['e_' + attr.history_table_db_name];
-                localesFR.entity['e_' + attr.history_table_db_name] = undefined;
-                fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
+                // LOCALS
+                {
+                    // Change history tab locales
+                    var localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
+                    localesFR.entity['e_' + attr.history_table_db_name]['as_r_history_' + attr.options.urlValue] = "Historique " + attr.options.showValue;
+                    localesFR.entity['e_' + attr.history_table_db_name]['f_comment'] = "Commentaire";
+                    localesFR.entity['e_' + attr.history_table_db_name]['r_modified_by'] = "Modifié par";
+                    localesFR.entity['e_' + attr.history_table_db_name]['as_r_' + attr.history_table] = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                    localesFR.entity['e_' + attr.history_table_db_name].label_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                    localesFR.entity['e_' + attr.history_table_db_name].name_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                    localesFR.entity['e_' + attr.history_table_db_name].plural_entity = "Historique " + statusAliasSubstring + " " + attr.source.substring(2);
+                    // Rename traduction key to use history MODEL value, delete old traduction key
+                    localesFR.entity['e_' + attr.history_table] = localesFR.entity['e_' + attr.history_table_db_name];
+                    localesFR.entity['e_' + attr.history_table_db_name] = undefined;
+                    // Change entity's status tab name for FR (Historique instead of History)
+                    localesFR.entity[attr.source]['r_history_'+attr.options.urlValue] = "Historique "+attr.options.showValue;
+                    fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
 
-                var localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
-                localesEN.entity['e_' + attr.history_table_db_name]['as_r_' + attr.history_table] = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
-                localesEN.entity['e_' + attr.history_table_db_name].label_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
-                localesEN.entity['e_' + attr.history_table_db_name].name_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
-                localesEN.entity['e_' + attr.history_table_db_name].plural_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
-                // Rename traduction key to use history MODEL value, delete old traduction key
-                localesEN.entity['e_' + attr.history_table] = localesEN.entity['e_' + attr.history_table_db_name];
-                localesEN.entity['e_' + attr.history_table_db_name] = undefined;
-                fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
+                    var localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
+                    localesEN.entity['e_' + attr.history_table_db_name]['as_r_' + attr.history_table] = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                    localesEN.entity['e_' + attr.history_table_db_name].label_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                    localesEN.entity['e_' + attr.history_table_db_name].name_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                    localesEN.entity['e_' + attr.history_table_db_name].plural_entity = "History " + attr.source.substring(2) + " " + statusAliasSubstring;
+                    // Rename traduction key to use history MODEL value, delete old traduction key
+                    localesEN.entity['e_' + attr.history_table] = localesEN.entity['e_' + attr.history_table_db_name];
+                    localesEN.entity['e_' + attr.history_table_db_name] = undefined;
+                    fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
+                }
 
                 domHelper.write(workspacePath + '/views/e_' + attr.history_table + '/list_fields.dust', $).then(function () {
                     // Replace history traductions with history_table key
@@ -995,7 +964,7 @@ exports.newStatus = function (attr, callback) {
                         nextStatusHtml += '<div class="form-group">\n';
                         nextStatusHtml += '     {#' + statusAlias + '.r_children ' + attr.source.substring(2) + 'id=id}\n';
                         nextStatusHtml += '         {#checkStatusPermission status=.}\n';
-                        nextStatusHtml += '             <a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">{f_name}</a>\n';
+                        nextStatusHtml += '             <a data-href="/' + attr.source.substring(2) + '/set_status/{' + attr.source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;"><!--{^f_button_label}{f_name}{:else}{f_button_label}{/f_button_label}--></a>\n';
                         nextStatusHtml += '         {/checkStatusPermission}\n';
                         nextStatusHtml += '     {/' + statusAlias + '.r_children}\n';
                         nextStatusHtml += '</div>\n';
@@ -1041,6 +1010,103 @@ exports.newStatus = function (attr, callback) {
             });
         });
     });
+}
+
+exports.deleteStatus = async (data) => {
+
+    let workspacePath = __dirname + '/../workspace/' + data.appID;
+
+    // Delete history views
+    helpers.rmdirSyncRecursive(workspacePath + '/views/' + data.historyName);
+    // Delete history model
+    fs.unlinkSync(workspacePath + '/models/' + data.historyName + '.js');
+    fs.unlinkSync(workspacePath + '/models/attributes/' + data.historyName + '.json');
+    fs.unlinkSync(workspacePath + '/models/options/' + data.historyName + '.json');
+
+    // Add DROP TABLE query in toSync.json
+    let toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
+    if (typeof toSyncObject.queries !== "object")
+        toSyncObject.queries = [];
+
+    toSyncObject.queries.push("DROP TABLE " + data.historyTableName);
+    fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSyncObject, null, 4), 'utf8');
+
+    // Clean attribute status field
+    let attributesPath = workspacePath + '/models/attributes/' + data.entity + '.json';
+    let attributes = JSON.parse(fs.readFileSync(attributesPath), 'utf8');
+    for(let attribute in attributes)
+        if(attribute == data.status_field)
+            delete attributes[attribute];
+    fs.writeFileSync(attributesPath, JSON.stringify(attributes, null, 4), 'utf8');
+
+    // Clean options
+    let source, options, idxToRemove;
+    fs.readdirSync(workspacePath + '/models/options/').filter(file => {
+        return file.indexOf('.') !== 0 && file.slice(-5) === '.json';
+    }).forEach(file => {
+        source = file.slice(0, -5);
+        options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
+        idxToRemove = [];
+
+        // Looking for option link with history table
+        for (let i = 0; i < options.length; i++){
+            if(data.fk_status == options[i].foreignKey){
+                // Status field relation
+                idxToRemove.push(i);
+            } else if (options[i].target == data.historyName){
+                // History table relation
+                idxToRemove.push(i);
+            }
+        }
+
+        options = options.filter((val, idx, arr) => {
+            return idxToRemove.indexOf(idx) == -1
+        });
+
+        fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
+    });
+
+    let statusName = data.status_field.substring(2);
+
+    // Remove status from views
+    let $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/show_fields.dust');
+    $("div[data-field='f_" + statusName + "']").remove();
+    $("a#r_history_" + statusName + "-click").parent().remove();
+    $("div#r_history_" + statusName).remove();
+    await domHelper.write(workspacePath + '/views/' + data.entity + '/show_fields.dust', $);
+
+    $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/print_fields.dust');
+    $("div[data-field='f_" + statusName + "']").remove();
+    $("a#r_history_" + statusName + "-click").parent().remove();
+    $("div#r_history_" + statusName + "_print").remove();
+    await domHelper.write(workspacePath + '/views/' + data.entity + '/print_fields.dust', $);
+
+    $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/list_fields.dust');
+    $("th[data-field='r_" + statusName + "']").remove();
+    await domHelper.write(workspacePath + '/views/' + data.entity + '/list_fields.dust', $);
+
+    // Clean locales
+    translateHelper.removeLocales(data.appID, 'entity', data.historyName, _ => {});
+    translateHelper.removeLocales(data.appID, 'field', [data.entity, "r_history_" + statusName], _ => {});
+    translateHelper.removeLocales(data.appID, 'field', [data.entity, "r_" + statusName], _ => {});
+    translateHelper.removeLocales(data.appID, 'field', [data.entity, "s_" + statusName], _ => {});
+
+    // Clean access
+    let access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.lock.json', 'utf8'));
+    let idToRemove;
+    for (let npsModule in access){
+        idToRemove = false;
+        for (let i = 0; i < access[npsModule].entities.length; i++)
+            if (access[npsModule].entities[i].name == data.historyName.substring(2))
+                idToRemove = i;
+
+        if(idToRemove)
+            access[npsModule].entities = access[npsModule].entities.filter((x, idx) => idx != idToRemove);
+    }
+
+    fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
+
+    return true;
 }
 
 exports.setupChat = function (attr, callback) {
@@ -1156,15 +1222,15 @@ exports.setupChat = function (attr, callback) {
 exports.addNewComponentAddress = function (attr, callback) {
     try {
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        var c_address_path = __dirname + '/pieces/component/address/';
+        var address_path = __dirname + '/pieces/component/address/';
         var address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
         var componentCodeName = attr.componentCodeName;
         var componentName = attr.componentName;
         var source = attr.entityCodeName;
-        var componentUrl = 'c_address_' + attr.id_data_entity;
-        var c_address_settings = "c_address_settings";
+        var componentUrl = 'e_address_' + attr.id_data_entity;
+        var address_settings = "e_address_settings";
         //models
-        var modelAttributes = JSON.parse(fs.readFileSync(c_address_path + 'models/attributes/c_address.json', 'utf8'));
+        var modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8'));
 
         //generate views data
         var fields = address_utils.generateFields(componentName, componentCodeName);
@@ -1174,19 +1240,18 @@ exports.addNewComponentAddress = function (attr, callback) {
         }
         //save new model component attributes file
         fs.writeFileSync(application_path + 'models/attributes/' + componentCodeName + '.json', JSON.stringify(modelAttributes, null, 4), 'utf8');
-        fs.copySync(c_address_path + 'models/options/c_address.json', application_path + 'models/options/' + componentCodeName + '.json');
+        fs.copySync(address_path + 'models/options/e_address.json', application_path + 'models/options/' + componentCodeName + '.json');
 
         var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
         var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
         var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
         var printFieldsFile = application_path + 'views/' + source + '/' + 'print_fields.dust';
-        var listFieldsFile = application_path + 'views/' + source + '/' + 'list_fields.dust';
 
-        var showHtml = fs.readFileSync(c_address_path + 'views/show.dust', 'utf8');
+        var showHtml = fs.readFileSync(address_path + 'views/show.dust', 'utf8');
         showHtml = showHtml.replace(/COMPONENT_NAME/g, componentCodeName);
 
         var appendTo = '#fields';
-        var mapsHtml = '<div id="' + componentCodeName + '" class="c_address_maps ' + componentCodeName + '" mapsid="' + componentCodeName + '" style="margin-top: 25px !important"></div>';
+        var mapsHtml = '<div id="' + componentCodeName + '" class="address_maps ' + componentCodeName + '" mapsid="' + componentCodeName + '" style="margin-top: 25px !important"></div>';
         fs.mkdirpSync(application_path + 'views/' + componentCodeName);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/maps.dust', mapsHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/create_fields.dust', fields.createHtml);
@@ -1194,7 +1259,6 @@ exports.addNewComponentAddress = function (attr, callback) {
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/fields.dust', fields.showFieldsHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show.dust', showHtml);
         fs.writeFileSync(application_path + 'views/' + componentCodeName + '/list_fields.dust', fields.headers);
-        //fs.copySync(c_address_path + 'views/maps.dust', application_path + 'views/' + componentCodeName + '/maps.dust');
 
         domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
             domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
@@ -1213,68 +1277,68 @@ exports.addNewComponentAddress = function (attr, callback) {
                                             //update locales
                                             var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                             var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                            langFR.component[componentCodeName] = fields.locales.fr;
-                                            langEN.component[componentCodeName] = fields.locales.en;
+                                            langFR.entity[componentCodeName] = fields.locales.fr;
+                                            langFR.entity[source].r_address = 'Adresse';
+                                            langEN.entity[componentCodeName] = fields.locales.en;
+                                            langEN.entity[source].r_address = 'Address';
 
                                             setupComponentModel(attr.id_application, 'address', componentCodeName, 'address', function () {
                                                 //Check if component config exist, if not we create it
                                                 var address_settings_config;
                                                 var p = new Promise(function (resolve, reject) {
-                                                    fs.readFile(application_path + 'config/' + c_address_settings + '.json', function (err, config) {
+                                                    fs.readFile(application_path + 'config/' + address_settings.substring(2) + '.json', function (err, config) {
                                                         if (err) {
                                                             //files doesn't exist
                                                             address_settings_config = {entities: {}};
                                                             //add settings locales
-                                                            langFR.component[c_address_settings] = {
+                                                            langFR.component[address_settings.substring(2)] = {
                                                                 "label_component": "Configuration adresse",
-                                                                "position": "Position de la maps",
+                                                                "position": "Position de la carte",
                                                                 "top": "Au dessus",
                                                                 "right": "A droite",
                                                                 "bottom": "En dessous",
                                                                 "left": "A gauche",
                                                                 "distance": "Afficher la distance",
                                                                 "settings": "Configurer",
-                                                                "enableMaps": "Activer la maps",
+                                                                "enableMaps": "Activer la carte",
                                                                 "entity": "Entité",
                                                                 "zoomBar": "Afficher panneau de zoom",
                                                                 "navigation": "Activer la navigation",
                                                                 "mousePosition": "Afficher les coordonnées de la souris",
                                                                 "addressNotValid": "Adresse non valide",
-                                                                "info_c_address_maps": "Pour avoir une map valide, veuillez utiliser le champ ci-dessous pour saisir l'adresse"
+                                                                "info_address_maps": "Pour avoir une carte valide, veuillez utiliser le champ ci-dessous pour saisir l'adresse"
                                                             };
-                                                            langEN.component[c_address_settings] = {
+                                                            langEN.component[address_settings.substring(2)] = {
                                                                 "label_component": "Addresses settings",
-                                                                "position": "Maps position",
+                                                                "position": "Map position",
                                                                 "top": "Top",
                                                                 "right": "Right",
                                                                 "bottom": "Bottom",
                                                                 "left": "Left",
                                                                 "distance": "Display distance",
                                                                 "settings": "Settings",
-                                                                "enableMaps": "Enable Maps",
+                                                                "enableMaps": "Enable Map",
                                                                 "entity": "Entity",
                                                                 "zoomBar": "Display zoom bar",
                                                                 "navigation": "Enable navigation",
                                                                 "mousePosition": "Display mouse coordinate",
                                                                 "addressNotValid": "Not valid address",
-                                                                "info_c_address_maps": "To have a valid map, please use the field below to enter the address"
+                                                                "info_address_maps": "To have a valid map, please use the field below to enter the address"
                                                             };
                                                             //add component address files
-                                                            fs.mkdirpSync(application_path + 'views/' + c_address_settings);
-                                                            fs.copySync(c_address_path + 'views/config.dust', application_path + 'views/' + c_address_settings + '/config.dust');
-                                                            fs.copySync(c_address_path + 'views/config_fields.dust', application_path + 'views/' + c_address_settings + '/config_fields.dust');
-                                                            fs.copySync(c_address_path + 'route/' + c_address_settings + '.js', application_path + 'routes/' + c_address_settings + '.js');
+                                                            fs.mkdirpSync(application_path + 'views/' + address_settings);
+                                                            fs.copySync(address_path + 'views/config.dust', application_path + 'views/' + address_settings + '/config.dust');
+                                                            fs.copySync(address_path + 'views/config_fields.dust', application_path + 'views/' + address_settings + '/config_fields.dust');
+                                                            fs.copySync(address_path + 'route/' + address_settings.substring(2) + '.js', application_path + 'routes/' + address_settings + '.js');
                                                             addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
-                                                                if (!err) {
-                                                                    //add new menu in administration for address settings
-                                                                    addMenuComponentAddressSettings(attr, c_address_settings, function (err) {
-                                                                        if (!err)
-                                                                            resolve();
-                                                                        else
-                                                                            reject(err);
-                                                                    });
-                                                                } else
-                                                                    reject(err);
+                                                                if (err)
+                                                                    return reject(err);
+                                                                //add new menu in administration for address settings
+                                                                addMenuComponentAddressSettings(attr, address_settings, function (err) {
+                                                                    if (err)
+                                                                        return reject(err);
+                                                                    resolve();
+                                                                });
                                                             });
                                                         } else {
                                                             address_settings_config = JSON.parse(config);
@@ -1300,7 +1364,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                                     fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
                                                     fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
                                                     //update or create address settings
-                                                    fs.writeFileSync(application_path + 'config/' + c_address_settings + '.json', JSON.stringify(address_settings_config, null, 4));
+                                                    fs.writeFileSync(application_path + 'config/' + address_settings.substring(2) + '.json', JSON.stringify(address_settings_config, null, 4));
                                                     callback(null);
                                                 }).catch(function (e) {
                                                     return callback(e);
@@ -1322,27 +1386,27 @@ exports.addNewComponentAddress = function (attr, callback) {
 
 exports.deleteComponentAddress = function (attr, callback) {
     try {
-        var componentName = 'c_address_' + attr.id_data_entity;
-        var componentUrl = attr.entityName.replace('e_', '') + '_address';
+        var componentName = 'address_' + attr.id_data_entity;
+        let e_componentName='e_'+componentName;
         var source = attr.entityName;
         var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        fs.remove(application_path + 'views/' + componentName);
-        fs.remove(application_path + 'models/' + componentName + '.js');
-        fs.remove(application_path + 'models/attributes/' + componentName + '.json');
-        fs.remove(application_path + 'models/options/' + componentName + '.json');
-        var c_address_settings = "c_address_settings";
+        fs.remove(application_path + 'views/' + e_componentName);
+        fs.remove(application_path + 'models/' + e_componentName + '.js');
+        fs.remove(application_path + 'models/attributes/' + e_componentName + '.json');
+        fs.remove(application_path + 'models/options/' + e_componentName + '.json');
+        var address_settings = "address_settings";
         //remove association
         var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
         for (var i = 0; i < relations.length; i++) {
             var relation = relations[i];
-            if (relation.as == 'c_address') {
+            if (relation.as == 'r_address') {
                 relations.splice(i, 1);
                 break;
             }
         }
         //update relation file
         fs.writeFileSync(application_path + 'models/options/' + attr.entityName + '.json', JSON.stringify(relations, null, 4), 'utf8');
-        var removeDiv = '.' + componentName;
+        var removeDiv = '.' + 'e_'+componentName;
         var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
         var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
         var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
@@ -1355,27 +1419,27 @@ exports.deleteComponentAddress = function (attr, callback) {
                     domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
                         domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
                             domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
-                                removeFieldInParentListField(application_path + 'views/' + attr.entityName + '/list_fields.dust', 'c_address', function () {
+                                removeFieldInParentListField(application_path + 'views/' + attr.entityName + '/list_fields.dust', 'r_address', function () {
                                     //update locales
                                     var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                     var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                    delete langFR.component[componentName];
-                                    delete langEN.component[componentName];
+                                    delete langFR.entity[e_componentName];
+                                    delete langEN.entity[e_componentName];
                                     //update address settings file
-                                    var address_settings = JSON.parse(fs.readFileSync(application_path + 'config/c_address_settings.json'));
-                                    for (var item in address_settings.entities) {
+                                    var address_settingsJson = JSON.parse(fs.readFileSync(application_path + 'config/address_settings.json'));
+                                    for (var item in address_settingsJson.entities) {
                                         if (item === attr.entityName)
-                                            delete address_settings.entities[item];
+                                            delete address_settingsJson.entities[item];
                                     }
                                     var p = new Promise(function (resolve, reject) {
-                                        if (Object.keys(address_settings.entities).length === 0) {
-                                            fs.remove(application_path + 'views/' + c_address_settings);
-                                            fs.remove(application_path + 'routes/' + c_address_settings + '.js');
-                                            fs.remove(application_path + 'config/' + c_address_settings + '.json');
-                                            delete langFR.component[c_address_settings];
-                                            delete langEN.component[c_address_settings];
+                                        if (Object.keys(address_settingsJson.entities).length === 0) {
+                                            fs.remove(application_path + 'views/e_' + address_settings);
+                                            fs.remove(application_path + 'routes/e_' + address_settings + '.js');
+                                            fs.remove(application_path + 'config/' + address_settings + '.json');
+                                            delete langFR.component[address_settings];
+                                            delete langEN.component[address_settings];
                                             deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
-                                                require('./structure_module').removeMenuEntry(attr, "administration", c_address_settings, function (err) {
+                                                require('./structure_module').removeMenuEntry(attr, "administration", 'e_'+address_settings, function (err) {
                                                     if (err)
                                                         reject(err);
                                                     else
@@ -1383,7 +1447,7 @@ exports.deleteComponentAddress = function (attr, callback) {
                                                 });
                                             });
                                         } else {
-                                            fs.writeFileSync(application_path + 'config/c_address_settings.json', JSON.stringify(address_settings, null, 4), 'utf8');
+                                            fs.writeFileSync(application_path + 'config/address_settings.json', JSON.stringify(address_settingsJson, null, 4), 'utf8');
                                             resolve();
                                         }
                                     });
@@ -1436,7 +1500,7 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'models/attributes/e_document_template.json', application_path + 'models/attributes/e_document_template.json');
             fs.copySync(entity_path + 'models/options/e_document_template.json', application_path + 'models/options/e_document_template.json');
             fs.writeFileSync(application_path + 'models/e_document_template.js', modelContent, 'utf8');
-            //copy views files
+            //copy views files. To do after=> move directory
             fs.copySync(entity_path + 'views/create.dust', application_path + 'views/' + entity_code_name + '/create.dust');
             fs.copySync(entity_path + 'views/create_fields.dust', application_path + 'views/' + entity_code_name + '/create_fields.dust');
             fs.copySync(entity_path + 'views/list.dust', application_path + 'views/' + entity_code_name + '/list.dust');
@@ -1446,6 +1510,8 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             fs.copySync(entity_path + 'views/update.dust', application_path + 'views/' + entity_code_name + '/update.dust');
             fs.copySync(entity_path + 'views/update_fields.dust', application_path + 'views/' + entity_code_name + '/update_fields.dust');
             fs.copySync(entity_path + 'views/readme.dust', application_path + 'views/' + entity_code_name + '/readme.dust');
+            fs.copySync(entity_path + 'views/entity_helper_template.dust', application_path + 'views/' + entity_code_name + '/entity_helper_template.dust');
+            fs.copySync(entity_path + 'views/global_variable_template.dust', application_path + 'views/' + entity_code_name + '/global_variable_template.dust');
             fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
             //copy helper
             fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');
@@ -1556,8 +1622,9 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
     var entity_path = __dirname + '/pieces/component/document_template/';
     var relationEntityShowFieldsFile = application_path + 'views' + '/' + source + '/show_fields.dust';
-    //new entry for source relation view
-    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '">{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}</a></li>';
+
+    // New entry for source relation view
+    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '"><!--{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}--></a></li>';
     var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
     var sourceDoc = source.substring(2);
     sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);
@@ -1581,7 +1648,7 @@ function addMenuComponentAddressSettings(attr, urlDataEntity, callback) {
         li += "         <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;'>\n";
         li += '             <a href="/address_settings/config">\n';
         li += '                 <i class="fa fa-map-marker"></i>\n';
-        li += '                 <span><!--{#__ key="component.' + urlDataEntity.toLowerCase() + '.label_component" /}--></span>\n';
+        li += '                 <span><!--{#__ key="component.' + urlDataEntity.substring(2).toLowerCase() + '.label_component" /}--></span>\n';
         li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
         li += '             </a>\n';
         li += '         </li>\n';

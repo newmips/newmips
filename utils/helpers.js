@@ -1,6 +1,9 @@
-var fs = require('fs');
-var crypto = require("crypto");
-var models = require('../models/');
+const fs = require('fs');
+const crypto = require("crypto");
+const models = require('../models/');
+const admzip = require('adm-zip');
+const moment = require('moment');
+const exec = require('child_process').exec;
 
 function rmdirSyncRecursive(path) {
     if (fs.existsSync(path)) {
@@ -80,6 +83,39 @@ function readdirSyncRecursive(path, excludeFolder, excludeFile) {
 
         return workspace;
     }
+}
+
+function unzipSync(url, folder, entry) {
+    var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_template_archive.zip";
+    var tmpPath = __dirname+'/../upload/'+tmpFilename;
+    var file = fs.createWriteStream(tmpPath);
+
+    var cmd = 'wget -O ' + tmpPath + ' ' + url;
+    exec(cmd, function (error, stdout, stderr) {
+
+        if (error !== null) {
+            console.log('exec error: ' + error);
+        }
+        var zip = new admzip(tmpPath);
+        zip.extractAllTo(folder);
+        // zip.extractEntryTo(entry, folder, /*maintainEntryPath*/false, /*overwrite*/true);
+
+        var cmd1 = 'cp -r ' + folder + entry + '-master/* ' + folder;
+        exec(cmd1, function (err, stdo, stde) {
+            if (err !== null) {
+                console.log('exec error: ' + err);
+            }
+
+            var cmd2 = 'rm -r ' + folder + entry + '-master';
+            exec(cmd2, function (err2, stdo2, stde2) {
+                if (err2 !== null) {
+                    console.log('exec error: ' + err2);
+                }
+                return true;
+            });
+        });
+
+    });
 }
 
 module.exports = {
@@ -170,7 +206,16 @@ module.exports = {
         }
         return structureDatalist;
     },
+    getLastLoggedError: function (appID) {
+        let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_"+appID+".log", "utf8");
+        // First line of last error in app logs
+        if(logContent.indexOf("Error:") == -1)
+            return "No error detected.";
+        else
+            return logContent.split("Error:")[logContent.split("Error:").length-1].split("\n")[0];
+    },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,
-    sortEditorFolder: sortEditorFolder
+    sortEditorFolder: sortEditorFolder,
+    unzipSync: unzipSync
 }

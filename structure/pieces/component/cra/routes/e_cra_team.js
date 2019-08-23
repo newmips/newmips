@@ -38,7 +38,7 @@ router.post('/generate_holidays', block_access.actionAccessMiddleware("cra_team"
         end: yearEnd
     }, function(err, holidays) {
         if (err) {
-            console.log(err);
+            console.error(err);
             return entity_helper.error(err, req, res);
         }
 
@@ -67,19 +67,16 @@ router.get('/list', block_access.actionAccessMiddleware("cra_team", "read"), fun
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("cra_team", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_cra_team", req.body, include).then(function (rawData) {
+    filterDataTable("E_cra_team", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_cra_team', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -214,7 +211,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra_team", "upda
 
     var relatedToList = [];
     for (var i = 0; i < options.length; i++)
-        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple')
+        if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'relatedToMultipleCheckbox')
             relatedToList.push({
                 model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
                 as: options[i].as
@@ -683,7 +680,7 @@ router.post('/delete', block_access.actionAccessMiddleware("cra_team", "delete")
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_cra_team", deleteObject, attributes);
+            entity_helper.removeFiles("e_cra_team", deleteObject, attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/cra_team/list');
         });

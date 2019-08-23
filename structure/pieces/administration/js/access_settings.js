@@ -30,30 +30,30 @@ $("tbody").find("input").on('ifChanged',function(event) {
 	var tdIndex = $(self).parents('tr').find('td').index($(self).parents('td'));
 	var tableBody = $(self).parents('tbody');
 
-	/* On module uncheck, uncheck all related entities */
-	if ($(self).attr('name').indexOf('module') == 0 && !$(self).is(":checked")) {
-		var current = $(self).parents('tr').next('tr');
-		var trIndex = $(self).parents('tbody').find('tr').index(current);
+	// /* On module uncheck, uncheck all related entities */
+	// if ($(self).attr('name').indexOf('module') == 0 && !$(self).is(":checked")) {
+	// 	var current = $(self).parents('tr').next('tr');
+	// 	var trIndex = $(self).parents('tbody').find('tr').index(current);
 
-		// Loop over module's <tr> to uncheck each checkbox
-		while (trIndex < tableBody.find('tr').length && current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
-			var newTd = current.find('td').eq(tdIndex);
-			newTd.find('input').eq(0).iCheck('uncheck');
-			current = tableBody.find('tr').eq(trIndex+=1);
-		}
-	}
-	/* On entity check, check parent module */
-	else if ($(self).attr('name').indexOf('entity') == 0 && $(self).is(":checked")) {
-		var current = $(self).parents('tr');
-		var trIndex = $(self).parents('tbody').find('tr').index(current);
+	// 	// Loop over module's <tr> to uncheck each checkbox
+	// 	while (trIndex < tableBody.find('tr').length && current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0) {
+	// 		var newTd = current.find('td').eq(tdIndex);
+	// 		newTd.find('input').eq(0).icheck('unchecked');
+	// 		current = tableBody.find('tr').eq(trIndex+=1);
+	// 	}
+	// }
+	// /* On entity check, check parent module */
+	// else if ($(self).attr('name').indexOf('entity') == 0 && $(self).is(":checked")) {
+	// 	var current = $(self).parents('tr');
+	// 	var trIndex = $(self).parents('tbody').find('tr').index(current);
 
-		// Loop upward over <tr> until we find the entity's module <tr>
-		while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0)
-			current = tableBody.find('tr').eq(trIndex-=1);
+	// 	// Loop upward over <tr> until we find the entity's module <tr>
+	// 	while (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module') != 0)
+	// 		current = tableBody.find('tr').eq(trIndex-=1);
 
-		// If module is home don't check it since it doesn't have a checkbox
-		if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0)
-			current.find('td').eq(tdIndex).find('input').eq(0).iCheck('check');
-	}
+	// 	// If module is home don't check it since it doesn't have a checkbox
+	// 	if (current.find('td').eq(tdIndex).find('input').eq(0).attr('name').indexOf('module.home') != 0)
+	// 		current.find('td').eq(tdIndex).find('input').eq(0).icheck('checked');
+	// }
 	return true;
 });

@@ -14,6 +14,9 @@
             <th data-field="f_name" data-col="f_name" data-type="string">
                 {#__ key="entity.e_status.f_name"/}
             </th>
+            <th data-field="f_button_label" data-col="f_button_label" data-type="string">
+                {#__ key="entity.e_status.f_button_label"/}
+            </th>
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {#__ key="entity.e_status.f_color"/}
             </th>
@@ -42,6 +45,9 @@
             </th>
             <th data-field="f_name" data-col="f_name" data-type="string">
                 {#__ key="entity.e_status.f_name"/}
+            </th>
+            <th data-field="f_button_label" data-col="f_button_label" data-type="string">
+                {#__ key="entity.e_status.f_button_label"/}
             </th>
             <th data-field="f_color" data-col="f_color" data-type="color">
                 {#__ key="entity.e_status.f_color"/}
