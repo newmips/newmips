@@ -1,9 +1,8 @@
-var fs = require('fs');
-var helpers = require("./helpers");
-var translateKey = require("../config/googleAPI").translate;
-
+const fs = require('fs');
+const helpers = require("./helpers");
 // Google translation
-var googleTranslate = require('google-translate')(translateKey);
+let translateKey = require("../config/googleAPI").translate;
+const googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
     writeTree: function(idApplication, object, language, replaceBoolean) {
@@ -27,14 +26,36 @@ module.exports = {
         dive(localesObj, object);
         fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json', JSON.stringify(localesObj, null, 4), 'utf8');
     },
+    writeEnumTrad: function (idApplication, entity, field, value, traduction, lang = 'fr-FR') {
+        const enumTrads = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json'));
+
+        let success = false;
+        mainLoop:for (const enumEntity in enumTrads)
+            // Find entity's entry
+            if (entity == enumEntity)
+                // Find field's entry
+                for (const enumField in enumTrads[enumEntity])
+                    if (field == enumField)
+                        // Find enum value entry
+                        for (let i = 0; i < enumTrads[enumEntity][enumField].length; i++)
+                            if (enumTrads[enumEntity][enumField][i].value == value) {
+                                enumTrads[enumEntity][enumField][i].translations[lang] = traduction;
+                                success = true;
+                                break mainLoop;
+                            }
+
+        if (success == true)
+            fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json', JSON.stringify(enumTrads, null, 4), 'utf8');
+
+        return success;
+    },
     writeLocales: function(idApplication, type, keyValue, value, toTranslate, callback) {
 
         // If field value is an array
         if(type == "field"){
             var keyValueField = value[0];
             value = value[1];
-        }
-        else if(type == "aliasfield"){
+        } else if(type == "aliasfield"){
             var alias = value[0];
             value = value[1];
         }
@@ -43,28 +64,25 @@ module.exports = {
         value = value.replace(String.fromCharCode(65533), "€");
 
         // Current application language
-        var languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/language.json');
-        var appLang = JSON.parse(languageFileData);
-        appLang = appLang.lang;
+        let languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/application.json');
+        let appLang = JSON.parse(languageFileData).lang;
 
         // Google won't fr-FR, it just want fr
-        var appLang4Google = appLang.slice(0, -3);
+        let appLang4Google = appLang.slice(0, -3);
 
         // All available languages to write
-        var languagePromises = [];
+        let languagePromises = [];
 
         function pushLanguagePromise(urlFile, dataLocales, file){
             // Create an array of promises to write all translations file
             languagePromises.push(new Promise(function(resolve, reject) {
                 fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 4), function(err) {
                     if (err){
-                        console.log(err);
-                        reject();
+                        console.error(err);
+                        return reject(err);
                     }
-                    else{
-                        //console.log('File => locales/'+file+' ------------------ UPDATED');
-                        resolve();
-                    }
+
+                    resolve();
                 });
             }));
         }
@@ -77,7 +95,7 @@ module.exports = {
                 data.module[keyValue.toLowerCase()] = value2;
             }
             else if(type == "entity"){
-                var content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
+                let content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"name_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"plural_entity": "'+ value2 +'",\n';
                 content += '\t\t\t"id_entity": "ID"\n';
@@ -85,7 +103,7 @@ module.exports = {
                 data.entity[keyValue.toLowerCase()] = JSON.parse(content);
             }
             else if(type == "component"){
-                var content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
+                let content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
                 content += '\t\t\t"name_component" : "'+value2+'",\n';
                 content += '\t\t\t"plural_component" : "'+value2+'"\n';
                 content += '\t\t}\n';
@@ -107,7 +125,7 @@ module.exports = {
                 Promise.all(languagePromises).then(function(){
                     callback();
                 }).catch(function(err){
-                    console.log(err);
+                    console.error(err);
                 });
             }
         }
@@ -211,7 +229,7 @@ module.exports = {
                             dataLocales = addLocales(type, translations.translatedText, dataLocales, workingLocales4Google);
                         }
                         else{
-                            console.log(err);
+                            console.error(err);
                             dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
                         }
                         pushLanguagePromise(urlFile, dataLocales, file);

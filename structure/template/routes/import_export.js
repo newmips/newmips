@@ -54,7 +54,7 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
         let currentFile = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+file))
         // Get through tables
         for (var i=0; i < currentFile.length; i++) {
-            if(typeof currentFile[i].through !== "undefined" && through.indexOf(currentFile[i].through) == -1){
+            if(typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1){
                 through.push(currentFile[i].through);
                 entities.push({tradKey: currentFile[i].through.substring(3), tableName: currentFile[i].through});
             }
@@ -121,7 +121,7 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
                 })
                 // Child Error output
                 childProcess.stderr.on('data', function(stderr) {
-                    // Avoid reject if only warngin
+                    // Avoid reject if only warning
                     if (stderr.toLowerCase().indexOf("warning") != -1){
                         console.log("!! mysqldump ignored warning !!: "+stderr)
                         return;
@@ -153,11 +153,11 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
     fullStdoutToFile(cmd, cmdArgs, dumpPath).then(function(){
         res.download(dumpPath, dumpName, function (err) {
             if (err)
-                console.log(err);
+                console.error(err);
             fs.unlinkSync(dumpPath);
         })
     }).catch(function(err){
-        console.log(err);
+        console.error(err);
     })
 })
 
@@ -191,6 +191,7 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         "-p" + dbConfig.password,
         dbConfig.database,
         "-h" + dbConfig.host,
+        "--default-character-set=utf8",
         "<",
         completeFilePath
     ];
@@ -210,19 +211,17 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 
             // Child Error output
             childProcess.stderr.on('data', function(stderr) {
-                // Avoid reject if only warngin
+                // Avoid reject if only warning
                 if (stderr.toLowerCase().indexOf("warning") != -1) {
                     console.log("!! mysql ignored warning !!: " + stderr)
                     return;
                 }
-                console.log(stderr);
                 childProcess.kill();
                 reject(stderr);
             })
 
             // Child error
             childProcess.on('error', function(error) {
-                console.error(error);
                 childProcess.kill();
                 reject(error);
             })
@@ -242,9 +241,9 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         }];
         res.redirect("/import_export/db_show")
     }).catch(function(err){
-        console.log(err);
+        console.error(err);
         req.session.toastr = [{
-            message: JSON.stringify(err),
+            message: "settings.db_tool.import_error",
             level: "error"
         }];
         res.redirect("/import_export/db_show")
@@ -259,7 +258,7 @@ router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessM
     var dumpPath = __dirname + '/../config/access.json';
     res.download(dumpPath, "access_conf_"+moment().format("YYYYMMDD-HHmmss")+".json", function (err) {
         if (err){
-            console.log(err);
+            console.error(err);
             req.session.toastr.push({
                 message: err,
                 level: "error"

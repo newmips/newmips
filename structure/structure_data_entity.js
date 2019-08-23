@@ -17,12 +17,23 @@ exports.setupAssociation = function (associationOption, callback) {
     var through = associationOption.through;
     var toSync = associationOption.toSync;
     var type = associationOption.type;
+    var constraints = associationOption.constraints;
     var targetType = associationOption.targetType;
 
     // SETUP MODEL OPTIONS FILE
     var optionsFileName = __dirname+'/../workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
     var optionsFile = fs.readFileSync(optionsFileName);
     var optionsObject = JSON.parse(optionsFile);
+
+    // If we are generating automatically a key and the alias is already used, then cancel
+    for (var i = 0; i < optionsObject.length; i++)
+        if(type == "auto_generate" && optionsObject[i].as == as)
+            return callback();
+
+    // Check for other auto_generate keys with same alias, if exist, remove it
+    for (var i = 0; i < optionsObject.length; i++)
+        if(optionsObject[i].as == as && optionsObject[i].type == "auto_generate")
+            optionsObject.splice(i, 1);
 
     var baseOptions = {target: target.toLowerCase(), relation: relation};
     baseOptions.foreignKey = foreignKey;
@@ -42,6 +53,9 @@ exports.setupAssociation = function (associationOption, callback) {
         baseOptions.structureType = type;
     else
         baseOptions.structureType = "";
+
+    if (constraints != null && !constraints)
+        baseOptions.constraints = constraints;
 
     // Save using field in related to and related to many fields
     if (typeof associationOption.usingField !== "undefined")
@@ -228,46 +242,40 @@ exports.setupDataEntity = function (attr, callback) {
     }
 
     function replaceCustomModule(fileBase, file, nameModule, showNameModule, callback) {
-        var fileToWrite = fileBase + '/' + file;
-        data = fs.readFileSync(fileToWrite, 'utf8');
-        var result = data.replace(/custom_module/g, nameModule.toLowerCase());
-        result = result.replace(/custom_show_module/g, showNameModule.toLowerCase());
+        return new Promise((resolve, reject) => {
+            let fileToWrite = fileBase + '/' + file;
+            let data = fs.readFileSync(fileToWrite, 'utf8');
+            let result = data.replace(/custom_module/g, nameModule.toLowerCase());
+            result = result.replace(/custom_show_module/g, showNameModule.toLowerCase());
 
-        if (nameModule.toLowerCase() != "m_home") {
-            var htmlToAdd = "" +
-                    "<li>" +
-                    "   <a class='sub-module-arianne' href='/default/" + nameModule.toLowerCase().substring(2) + "'>" +
-                    "       {#__ key=\"module." + nameModule.toLowerCase() + "\"/}" +
-                    "   </a>" +
-                    "</li>";
+            if (nameModule.toLowerCase() != "m_home") {
+                let htmlToAdd = "" +
+                        "<li>" +
+                        "   <a class='sub-module-arianne' href='/default/" + nameModule.toLowerCase().substring(2) + "'>" +
+                        "       <!--{#__ key=\"module." + nameModule.toLowerCase() + "\"/}-->" +
+                        "   </a>" +
+                        "</li>";
 
-            result = result.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
-        }
+                result = result.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
+            }
 
-        var stream_file = fs.createWriteStream(fileToWrite);
-        /* Node.js 0.10+ emits finish when complete */
-        stream_file.write(result);
-        stream_file.end();
-        stream_file.on('finish', function () {
-            callback();
-        });
+            fs.writeFileSync(fileToWrite, result, "utf8");
+            resolve();
+        })
     }
 
     function replaceCustomDataEntity(fileBase, file, nameDataEntity, showNameDataEntity, urlDataEntity, callback) {
-        var fileToWrite = fileBase + '/' + file;
+        return new Promise((resolve, reject) => {
+            let fileToWrite = fileBase + '/' + file;
 
-        var data = fs.readFileSync(fileToWrite, 'utf8');
-        var result = data.replace(/custom_data_entity/g, nameDataEntity.toLowerCase());
-        result = result.replace(/custom_show_data_entity/g, showNameDataEntity.toLowerCase());
-        result = result.replace(/custom_url_data_entity/g, urlDataEntity.toLowerCase());
+            let data = fs.readFileSync(fileToWrite, 'utf8');
+            let result = data.replace(/custom_data_entity/g, nameDataEntity.toLowerCase());
+            result = result.replace(/custom_show_data_entity/g, showNameDataEntity.toLowerCase());
+            result = result.replace(/custom_url_data_entity/g, urlDataEntity.toLowerCase());
 
-        var stream_file = fs.createWriteStream(fileToWrite);
-
-        stream_file.write(result);
-        stream_file.end();
-        stream_file.on('finish', function () {
-            callback();
-        });
+            fs.writeFileSync(fileToWrite, result, 'utf8');
+            resolve();
+        })
     }
 
     createModelFile(id_application, name_data_entity, function () {
@@ -279,71 +287,58 @@ exports.setupDataEntity = function (attr, callback) {
                         fs.copySync(__dirname + '/pieces/views/entity', __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity.toLowerCase());
                         var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + name_data_entity.toLowerCase();
 
-                        /* Replace all variables 'custom_module' in create.dust */
-                        replaceCustomModule(fileBase, "create.dust", name_module, show_name_module, function () {
-                            /* Replace all variables 'custom_data_entity' in create.dust */
-                            replaceCustomDataEntity(fileBase, "create.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                /* Replace all variables 'custom_data_entity' in create_fields.dust */
-                                replaceCustomDataEntity(fileBase, "create_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                    /* Replace all variables 'custom_module' in show.dust */
-                                    replaceCustomModule(fileBase, "show.dust", name_module, show_name_module, function () {
-                                        /* Replace all variables 'custom_data_entity' in show.dust */
-                                        replaceCustomDataEntity(fileBase, "show.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                            /* Replace all variables 'custom_data_entity' in show.dust */
-                                            replaceCustomDataEntity(fileBase, "print_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                /* Replace all variables 'custom_data_entity' in show_fields.dust */
-                                                replaceCustomDataEntity(fileBase, "show_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                    /* Replace all variables 'custom_module' in update.dust */
-                                                    replaceCustomModule(fileBase, "update.dust", name_module, show_name_module, function () {
-                                                        /* Replace all variables 'custom_data_entity' in update.dust */
-                                                        replaceCustomDataEntity(fileBase, "update.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                            /* Replace all variables 'custom_data_entity' in update_fields.dust */
-                                                            replaceCustomDataEntity(fileBase, "update_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                                /* Replace all variables 'custom_module' in list.dust */
-                                                                replaceCustomModule(fileBase, "list.dust", name_module, show_name_module, function () {
-                                                                    /* Replace all variables 'custom_data_entity' in list.dust */
-                                                                    replaceCustomDataEntity(fileBase, "list.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
-                                                                        /* Replace all variables 'custom_data_entity' in list_fields.dust */
-                                                                        replaceCustomDataEntity(fileBase, "list_fields.dust", name_data_entity, show_name_data_entity, url_name_data_entity, function () {
+                        let dustFilesModule = ["create", "show", "update", "list"];
+                        let promisesModule = [];
 
-                                                                            // Write new data entity to access.json file, within module's context
-                                                                            var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
-                                                                            var accessLockPath = __dirname + '/../workspace/' + id_application + '/config/access.lock.json';
-                                                                            var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
-                                                                            accessObject[name_module.substring(2).toLowerCase()].entities.push({
-                                                                                name: url_name_data_entity,
-                                                                                groups: [],
-                                                                                actions: {
-                                                                                    read: [],
-                                                                                    create: [],
-                                                                                    delete: [],
-                                                                                    update: []
-                                                                                }
-                                                                            });
-                                                                            fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
-                                                                            fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
-                                                                            /* --------------- New translation --------------- */
-                                                                            translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
-                                                                                callback();
-                                                                            });
-                                                                        });
-                                                                    });
-                                                                });
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
+                        for(let i=0; i < dustFilesModule.length; i++){
+                            promisesModule.push(new Promise((resolve, reject) => {
+                                replaceCustomModule(fileBase, dustFilesModule[i]+".dust", name_module, show_name_module).then(() => {
+                                    resolve();
+                                })
+                            }))
+                        }
+
+                        Promise.all(promisesModule).then(() => {
+
+                            let dustFilesEntity = ["create", "create_fields", "show", "print_fields", "show_fields", "update", "update_fields", "list", "list_fields"];
+                            let promisesEntity = [];
+
+                            for(let j=0; j < dustFilesEntity.length; j++){
+                                promisesEntity.push(new Promise((resolve2, reject2) => {
+                                    replaceCustomDataEntity(fileBase, dustFilesEntity[j]+".dust", name_data_entity, show_name_data_entity, url_name_data_entity).then(() => {
+                                        resolve2();
+                                    })
+                                }))
+                            }
+
+                            Promise.all(promisesEntity).then(() => {
+                                // Write new data entity to access.json file, within module's context
+                                var accessPath = __dirname + '/../workspace/' + id_application + '/config/access.json';
+                                var accessLockPath = __dirname + '/../workspace/' + id_application + '/config/access.lock.json';
+                                var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+                                accessObject[name_module.substring(2).toLowerCase()].entities.push({
+                                    name: url_name_data_entity,
+                                    groups: [],
+                                    actions: {
+                                        read: [],
+                                        create: [],
+                                        delete: [],
+                                        update: []
+                                    }
                                 });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
+                                fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+                                fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+                                /* --------------- New translation --------------- */
+                                translateHelper.writeLocales(id_application, "entity", name_data_entity, show_name_data_entity, attr.googleTranslate, function () {
+                                    callback();
+                                })
+                            })
+                        })
+                    })
+                })
+            })
+        })
+    })
 }
 
 exports.deleteDataEntity = function (id_application, name_module, name_data_entity, url_name_data_entity, callback) {

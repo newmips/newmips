@@ -7,6 +7,16 @@
         <li class="active">{#__ key="entity.e_media.label_entity"/}</li>
     </ol>
 {/header}
+{<custom_css_2}
+    <style>
+        .form-group label .select2-container {
+            width: 90% !important;
+        }
+        .mosaic-label{
+            width: 100%;
+        }
+    </style>
+{/custom_css_2}
 {<content}
     <div class="row">
         <div class="col-xs-12 connectedSortable">
@@ -27,7 +37,10 @@
                     </div>
 
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                            {#__ key="button.save"/}
+                        </button>
                     </div>
 
                     {#associationFlag}
@@ -58,6 +71,7 @@
         var CHOOSE_FIELD = '{#__ key="component.status.choose_from_field" /}';
         var CHOOSE_PHONE_FIELD = '{#__ key="component.status.choose_from_phone_field" /}';
         var CHOOSE_MAIL_FIELD = '{#__ key="component.status.choose_from_email_field" /}';
+        var CHOOSE_FILE_FIELD = '{#__ key="component.status.choose_from_file_field" /}';
         var CHOOSE_USER_TARGET = '{#__ key="component.status.choose_user_target" /}';
 
         $(function() {

@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
             },
             onDelete: 'cascade'
         })
+        Application.belongsToMany(models.User, {
+            foreignKey: 'id_application',
+            through: "application_user",
+            as: "users"
+        })
     }
 
     Application.addHook('beforeFindAfterOptions', (application) => {

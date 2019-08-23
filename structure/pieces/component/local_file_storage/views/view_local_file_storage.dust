@@ -6,7 +6,7 @@
 	<input type='hidden' name='SOURCE_LOWER' value="{sourceId}" required>
 	<input type="hidden" name="version" value="1" required>
 	<br>
-	<button type="submit" class="btn btn-primary">{#__ key="button.add"/}</button>
+	{! <button type="submit" class="btn btn-primary">{#__ key="button.add"/}</button> !}
 </form>
 <br class="print-remove">
 <br class="print-remove">

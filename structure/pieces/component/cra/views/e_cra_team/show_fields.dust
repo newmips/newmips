@@ -37,8 +37,8 @@
                     <div class="quicklinks">
                         <span>
                             <button class="btn btn-danger btn-confirm">
-                            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                            <span>{#__ key="button.delete"/}</span>
+                                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+                                <span>{#__ key="button.delete"/}</span>
                             </button>
                             <input name="id" type="hidden" value="{e_cra_team.id}" class="form-control">
                         </span>
@@ -68,14 +68,8 @@
         </div>
         <div id="r_users" class="tab-pane fade">
             <form action="/cra_team/fieldset/r_users/add" method="post">
-                <select style="width:200px;" class="form-control" name="ids" multiple="">
-                    {#r_users_global_list}
-                    {#.f_login}
-                    <option value="{id}">{f_login}</option>
-                    {:else}
-                    <option value="{id}">{id} - f_login not defined</option>
-                    {/.f_login}
-                    {/r_users_global_list}
+                <select multiple="" class="ajax form-control" name="ids" data-source="user" data-using="f_login" style="width:200px;">
+                    <option value="">{#__ key="select.default" /}</option>
                 </select>
                 <button style="margin-left:7px;" type="submit" class="btn btn-success">{#__ key="button.add"/}</button>
                 <input type="hidden" value="{e_cra_team.id}" name="idEntity">

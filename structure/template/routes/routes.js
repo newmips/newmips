@@ -1,14 +1,13 @@
-var moment = require('moment');
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var auth = require('../utils/auth_strategies');
-var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto');
-var mailer = require('../utils/mailer');
-
-//Sequelize
-var models = require('../models/');
+const moment = require('moment');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const auth = require('../utils/auth_strategies');
+const bcrypt = require('bcrypt-nodejs');
+const crypto = require('crypto');
+const mailer = require('../utils/mailer');
+const svgCaptcha = require('svg-captcha');
+const models = require('../models/');
 
 // =====================================
 // HOME PAGE (with login links) ========
@@ -29,23 +28,54 @@ router.post('/status_comment', block_access.isLoggedIn, function(req, res) {
 // =====================================
 router.get('/login', block_access.loginAccess, function(req, res) {
 
-    var msg = "";
-    if(typeof req.session.flash !== "undefined")
-        msg = req.flash('loginMessage');
+    let message, captcha;
+    if(typeof req.session.flash !== "undefined"
+        && typeof req.session.flash.error !== "undefined"
+        && req.session.flash.error.length != 0)
+        message = req.session.flash.error[0];
+
+    delete req.session.flash;
+
+    if(req.session.loginAttempt >= 5){
+        let loginCaptcha = svgCaptcha.create({
+            size: 4, // size of random string
+            ignoreChars: '0oO1iIlL', // filter out some characters
+            noise: 1, // number of noise lines
+            color: false,
+            width: 500
+        });
+        req.session.loginCaptcha = loginCaptcha.text;
+        captcha = loginCaptcha.data;
+    }
 
     res.render('login/login', {
-        message: msg
+        message: message,
+        captcha: captcha,
+        redirect: req.query.r ? req.query.r : null
     });
 });
 
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
-    if (req.body.remember)
-        req.session.cookie.maxAge = 30 * 60 * 1000; // 30min
+    if (req.body.remember_me)
+        req.session.cookie.maxAge = 168 * 3600000; // 1 week
     else
-        req.session.cookie.expires = false;
+        req.session.cookie.expires = false; // Logout on browser exit
 
-    res.redirect("/default/home");
+    let redirect = req.query.r ? req.query.r : "/default/home";
+    res.redirect(redirect);
+});
+
+router.get('/refresh_login_captcha', function(req, res) {
+    let captcha = svgCaptcha.create({
+        size: 4,
+        ignoreChars: '0oO1iIlL',
+        noise: 1,
+        color: false,
+        width: "500"
+    });
+    req.session.loginCaptcha = captcha.text;
+    res.status(200).send(captcha.data);
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
@@ -65,32 +95,46 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
         if(!user){
             req.flash('loginMessage', "login.first_connection.userNotExist");
             res.redirect('/login');
-        }
-        else if(user.f_password != "" && user.f_password != null){
+        } else if (user.f_password != "" && user.f_password != null){
             req.flash('loginMessage', "login.first_connection.alreadyHavePassword");
             res.redirect('/login');
-        }
-        else{
+        } else {
             var password = bcrypt.hashSync(req.body.password_user2, null, null);
 
-            models.E_user.update({
+            user.update({
                 f_password: password,
                 f_enabled: 1
-            }, {
-                where: {
-                    id: user.id
-                }
-            }).then(function(){
-                req.flash('loginMessage', "login.first_connection.success");
-                res.redirect('/login');
-            });
+            }).then(() => {
+                models.E_user.findOne({
+                    where: {id: user.id},
+                    include: [{
+                        model: models.E_group,
+                        as: 'r_group'
+                    }, {
+                        model: models.E_role,
+                        as: 'r_role'
+                    }]
+                }).then(function(user) {
+                    req.login(user, (err) => {
+                        if (err) {
+                            console.error(err);
+                            req.flash('loginMessage', "login.first_connection.success");
+                            return res.redirect('/login');
+                        }
+                        req.session.toastr = [{
+                            message: "login.first_connection.success2",
+                            level: "success"
+                        }];
+                        res.redirect('/default/home');
+                    })
+                })
+            })
         }
-
     }).catch(function(err){
         req.flash('loginMessage', err.message);
         res.redirect('/login');
-    });
-});
+    })
+})
 
 // Affichage de la page reset_password
 router.get('/reset_password', block_access.loginAccess, function(req, res) {
@@ -104,7 +148,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
     var login_user = req.body.login;
     var given_mail = req.body.mail;
 
-    function resetPasswordProcess(idUser, email) {
+    function resetPasswordProcess(user) {
         // Create unique token and insert into user
         var token = crypto.randomBytes(64).toString('hex');
 
@@ -112,14 +156,14 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             f_token_password_reset: token
         }, {
             where: {
-                id: idUser
+                id: user.id
             }
         }).then(function(){
             // Send email with generated token
             var mailOptions = {
                 data: {
                     href: mailer.config.host + '/reset_password/' + token,
-                    email: given_mail
+                    user: user
                 },
                 from: mailer.config.expediteur,
                 to: given_mail,
@@ -131,7 +175,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
                 });
             }).catch(function(err) {
                 // Remove inserted value in user to avoid zombies
-                models.E_user.update({f_token_password_reset: null}, {where: {id: idUser}}).then(function(){
+                models.E_user.update({f_token_password_reset: null}, {where: {id: user.id}}).then(function(){
                     res.render('login/reset_password', {
                         message: err.message
                     });
@@ -151,9 +195,8 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
         }
     }).then(function(user){
         if(user){
-            resetPasswordProcess(user.id, user.email);
-        }
-        else{
+            resetPasswordProcess(user);
+        } else {
             res.render('login/reset_password', {
                 message: "login.reset_password.userNotExist"
             });

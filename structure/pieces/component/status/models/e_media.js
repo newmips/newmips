@@ -15,18 +15,22 @@ module.exports = (sequelize, DataTypes) => {
     Model.associate = builder.buildAssociation('E_media', associations);
 
     Model.prototype.getFieldsToInclude = function() {
-        var self = this;
-        if (!self['r_media_' + self.f_type.toLowerCase()])
-            return reject("No media with type " + self.f_type.toLowerCase());
-        return self['r_media_' + self.f_type.toLowerCase()].parseForInclude();
+        let self = this;
+        let mediaType = self.f_type.toLowerCase();
+        if (!self['r_media_' + mediaType]) {
+            console.error("No media with type " + mediaType);
+            return null;
+        }
+        return self['r_media_' + mediaType].parseForInclude();
     }
 
     Model.prototype.execute = function(data) {
-        var self = this;
+        let self = this;
+        let mediaType = self.f_type.toLowerCase();
         return new Promise(function(resolve, reject) {
-            if (!self['r_media_' + self.f_type.toLowerCase()])
-                return reject("No media with type " + self.f_type.toLowerCase());
-            self['r_media_' + self.f_type.toLowerCase()].execute(resolve, reject, data);
+            if (!self['r_media_' + mediaType])
+                return reject("No media with type " + mediaType);
+            self['r_media_' + mediaType].execute(resolve, reject, data);
         });
     }
     builder.addHooks(Model, 'e_media', attributes_origin);

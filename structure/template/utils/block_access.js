@@ -27,7 +27,7 @@ exports.isLoggedIn = function(req, res, next) {
     else if (req.isAuthenticated())
         return next();
     else
-        res.redirect('/login');
+        res.redirect('/login?r='+req.originalUrl);
 };
 
 //If the user is already identified, he can't access the login page
@@ -78,9 +78,9 @@ function moduleAccess(userGroups, moduleName) {
         if(userGroups.length == 0)
             return false;
         var access = getAccess();
-        for (var module in access)
-            if (module == moduleName)
-                if (!isInBothArray(access[module].groups, userGroups))
+        for (var npsModule in access)
+            if (npsModule == moduleName)
+                if (!isInBothArray(access[npsModule].groups, userGroups))
                     return true;
         return false;
     } catch (e) {
@@ -96,6 +96,15 @@ exports.moduleAccessMiddleware = function(moduleName) {
         let userGroups = req.session.passport.user.r_group;
         if (userGroups.length > 0 && moduleAccess(userGroups, moduleName))
             return next();
+
+        if(userGroups.length == 0){
+            req.session.toastr = [{
+                level: 'error',
+                message: "settings.auth_component.no_group"
+            }];
+            return res.redirect('/logout');
+        }
+
         req.session.toastr = [{
             level: 'error',
             message: "settings.auth_component.no_access_group_module"
@@ -104,21 +113,32 @@ exports.moduleAccessMiddleware = function(moduleName) {
     }
 }
 
+exports.haveGroup = function(userGroups, group) {
+    for (var i = 0; i < userGroups.length; i++)
+        if (userGroups[i].f_label == group)
+            return true;
+    return false;
+}
+
 // Check if user's group have access to entity
 function entityAccess(userGroups, entityName) {
     try {
         if(userGroups.length == 0)
             return false;
-        var access = getAccess();
-        for (var module in access) {
-            var moduleEntities = access[module].entities;
-            for (var i = 0; i < moduleEntities.length; i++)
+        const access = getAccess();
+        for (const npsModule in access) {
+            const moduleEntities = access[npsModule].entities;
+            for (let i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName) {
                     // Check if group can access entity AND module to which the entity belongs
-                    if (!isInBothArray(moduleEntities[i].groups, userGroups)
-                    && !isInBothArray(access[module].groups, userGroups)) {
+                    // if (!isInBothArray(moduleEntities[i].groups, userGroups)
+                    // && !isInBothArray(access[npsModule].groups, userGroups)) {
+                    //     return true;
+                    // }
+
+                    // Check if group can access entity
+                    if (!isInBothArray(moduleEntities[i].groups, userGroups))
                         return true;
-                    }
                 }
         }
         return false;
@@ -130,9 +150,17 @@ exports.entityAccess = entityAccess;
 
 exports.entityAccessMiddleware = function(entityName) {
     return function(req, res, next) {
-        var userGroups = req.session.passport.user.r_group;
-        if (userGroups.length > 0 && entityAccess(userGroups, entityName))
-            return next();
+        // Exception for `/search` routes. We only check for 'read' action access.
+        // Bypass module/entity access check
+        if (req.originalUrl == `/${entityName}/search`) {
+            if (actionAccess(req.session.passport.user.r_role, entityName, 'read'))
+                return next()
+        }
+        else {
+            const userGroups = req.session.passport.user.r_group;
+            if (userGroups.length > 0 && entityAccess(userGroups, entityName))
+                return next();
+        }
         req.session.toastr = [{
             level: 'error',
             message: "settings.auth_component.no_access_group_entity"
@@ -146,10 +174,10 @@ function actionAccess(userRoles, entityName, action) {
     try {
         if(userRoles.length == 0)
             return false;
-        var access = getAccess();
-        for (var module in access) {
-            var moduleEntities = access[module].entities;
-            for (var i = 0; i < moduleEntities.length; i++)
+        const access = getAccess();
+        for (const npsModule in access) {
+            const moduleEntities = access[npsModule].entities;
+            for (let i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName)
                     return !isInBothArray(moduleEntities[i].actions[action], userRoles)
         }
@@ -162,7 +190,7 @@ exports.actionAccess = actionAccess;
 
 exports.actionAccessMiddleware = function(entityName, action) {
     return function(req, res, next) {
-        var userRoles = req.session.passport.user.r_role;
+        const userRoles = req.session.passport.user.r_role;
         if (userRoles.length > 0 && actionAccess(userRoles, entityName, action))
             return next();
         req.session.toastr = [{
@@ -174,7 +202,7 @@ exports.actionAccessMiddleware = function(entityName, action) {
 }
 
 exports.apiAuthentication = function(req, res, next) {
-    var token = req.query.token;
+    const token = req.query.token;
 
     models.E_api_credentials.findOne({
         where: {
@@ -184,10 +212,11 @@ exports.apiAuthentication = function(req, res, next) {
         if (!credentialsObj)
             return res.status(401).end('Bad Bearer Token');
 
-        var currentTmsp = new Date().getTime();
+        const currentTmsp = new Date().getTime();
         if (parseInt(credentialsObj.f_token_timeout_tmsp) < currentTmsp)
             return res.status(403).json('Bearer Token expired');
 
+        req.apiCredentials = credentialsObj;
         next();
     });
 }
@@ -205,13 +234,8 @@ exports.accessFileManagment = function(){
         fs.copySync(__dirname +'/../config/access.json', __dirname +'/../config/access.lock.json');
     else {
         // access.lock.json exist, check if new keys to add in access.json
-        let access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
-        let accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
-
-        let emptyModuleContent = {
-            "groups": [],
-            "entities": []
-        }
+        const access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
+        const accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
 
         let emptyEntityContent = {
             "name": "",
@@ -224,22 +248,23 @@ exports.accessFileManagment = function(){
             }
         }
 
+        let lockEntities, accessEntities, found;
         // Add missing things in access.json
         for (let moduleLock in accessLock) {
             // Generate new module with entities and groups if needed
             if(!access[moduleLock]){
                 console.log("access.json: NEW MODULE: "+moduleLock);
-                access[moduleLock] = emptyModuleContent;
+                access[moduleLock] = {};
                 access[moduleLock].entities = accessLock[moduleLock].entities;
                 access[moduleLock].groups = accessLock[moduleLock].groups;
-                break;
+                continue;
             }
 
             // Loop on entities to add missing ones
-            let lockEntities = accessLock[moduleLock].entities;
-            let accessEntities = access[moduleLock].entities;
+            lockEntities = accessLock[moduleLock].entities;
+            accessEntities = access[moduleLock].entities;
             for (let i = 0; i < lockEntities.length; i++){
-                let found = false;
+                found = false;
                 for (let j = 0; j < accessEntities.length; j++)
                     {if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
                 }
@@ -252,7 +277,76 @@ exports.accessFileManagment = function(){
             }
         }
 
+        // Remove key in access that are not in access.lock
+        for (let nps_module in access) {
+            // Generate new module with entities and groups if needed
+            if(!accessLock[nps_module]){
+                console.log("access.json: REMOVE MODULE: "+nps_module);
+                delete access[nps_module];
+                continue;
+            }
+
+            // Loop on entities to remove missing ones
+            lockEntities = accessLock[nps_module].entities;
+            accessEntities = access[nps_module].entities;
+            idxToRemove = [];
+            for (let i = 0; i < accessEntities.length; i++){
+                found = false;
+                for (let j = 0; j < lockEntities.length; j++)
+                    {if(accessEntities[i].name == lockEntities[j].name){found=true;break;}
+                }
+                if(!found){
+                    // Remove entity from access
+                    idxToRemove.push(i);
+                    console.log("access.json : REMOVE ENTITY "+accessEntities[i].name+" IN MODULE "+nps_module);
+                }
+            }
+
+            access[nps_module].entities = access[nps_module].entities.filter((val, idx, arr) => {
+                return idxToRemove.indexOf(idx) == -1
+            })
+        }
+
         // Write access.json with new entries
         fs.writeFileSync(__dirname +'/../config/access.json', JSON.stringify(access, null, 4), "utf8");
     }
+}
+
+exports.statusGroupAccess = function(req, res, next) {
+
+    let idNewStatus = parseInt(req.params.id_new_status);
+    let userGroups = req.session.passport.user.r_group;
+
+    models.E_status.findOne({
+        where: {
+            id: idNewStatus
+        },
+        include: [{
+            model: models.E_group,
+            as: "r_accepted_group"
+        }]
+    }).then(newStatus => {
+        if(!newStatus){
+            return next();
+        }
+        if(!newStatus.r_accepted_group || newStatus.r_accepted_group.length == 0){
+            // Not groups defined, open for all
+            return next();
+        }
+        for (var i = 0; i < userGroups.length; i++) {
+            for (var j = 0; j < newStatus.r_accepted_group.length; j++) {
+                if(userGroups[i].id == newStatus.r_accepted_group[j].id){
+                    // You are in accepted groups, let's continue
+                    return next();
+                }
+            }
+        }
+
+        console.log("USER "+req.session.passport.user.f_login+" TRYING TO SET STATUS "+idNewStatus+ " BUT IS NOT AUTHORIZED.");
+        req.session.toastr = [{
+            message: "settings.auth_component.no_access_change_status",
+            level: "error"
+        }]
+        return res.redirect("/");
+    })
 }

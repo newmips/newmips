@@ -1,52 +1,51 @@
 // server.js
+
+// Set UTC
 process.env.TZ = 'UTC';
-// Set up ======================================================================
-// Get all the tools we need
-var path = require('path');
-var express = require('express');
-var session = require('express-session');
-var dbConfig = require('./config/database');
+
+const path = require('path');
+const fs = require('fs-extra');
+
+const express = require('express');
+const app = express();
+const session = require('express-session');
+
+const globalConf = require('./config/global');
+const dbConf = require('./config/database');
+const appConf = require('./config/application');
+// const appConf = JSON.parse(fs.readFileSync(__dirname + '/config/application.json'));
 
 // MySql
-if(dbConfig.dialect == "mysql")
+if(dbConf.dialect == "mysql")
     var SessionStore = require('express-mysql-session');
 
 // Postgres
-if(dbConfig.dialect == "postgres"){
+if(dbConf.dialect == "postgres"){
     var pg = require('pg');
     var SessionStore = require('connect-pg-simple')(session);
 }
 
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var app = express();
-var globalConf = require('./config/global');
-var protocol = globalConf.protocol;
-var port = globalConf.port;
-var passport = require('passport');
-var flash = require('connect-flash');
-var block_access = require('./utils/block_access');
-var models = require('./models/');
-var moment = require('moment');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
-// Language
-var language = require('./services/language');
-var languageConfig = require('./config/language');
+const passport = require('passport');
+const flash = require('connect-flash');
+const block_access = require('./utils/block_access');
+const models = require('./models/');
+const moment = require('moment');
+const language = require('./services/language');
 
-var extend = require('util')._extend;
-var https = require('https');
-var http = require('http');
-var fs = require('fs-extra');
+const extend = require('util')._extend;
+const https = require('https');
+const http = require('http');
 
 // Winston logger
-var logger = require('./utils/logger');
+const logger = require('./utils/logger');
 
 // DustJs
-var dust = require('dustjs-linkedin');
-var cons = require('consolidate');
-
-// Configuration ===============================================================
+const dust = require('dustjs-linkedin');
+const cons = require('consolidate');
 
 // Pass passport for configuration
 require('./utils/auth_strategies');
@@ -63,8 +62,52 @@ app.use(morgan('dev', {
     skip: function(req, res) {
         if(req.url == "/")
         	return true;
-    }
+    },
+    stream: require('split')().on('data', function(line) {
+        process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
+    })
 }));
+
+require('console-stamp')(console, {
+    formatter: function() {
+        return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
+    },
+    label: true,
+    datePrefix: "[",
+    dateSuffix: "]-- "
+});
+
+// Overide console.warn & console.error to file+line
+['warn', 'error'].forEach((methodName) => {
+    const originalMethod = console[methodName];
+    console[methodName] = (...args) => {
+        let initiator = 'unknown place';
+        try {
+            throw new Error();
+        } catch (e) {
+            if (typeof e.stack === 'string') {
+                let isFirst = true;
+                for (const line of e.stack.split('\n')) {
+                    const matches = line.match(/^\s+at\s+(.*)/);
+                    if (matches) {
+                        if (!isFirst) {
+                            // first line - current function
+                            // second line - caller (what we are looking for)
+                            initiator = matches[1];
+                            break;
+                        }
+                        isFirst = false;
+                    }
+                }
+            }
+        }
+        const at = initiator.split(__dirname)[1];
+        if (!at)
+            originalMethod.apply(console, [...args]);
+        else
+            originalMethod.apply(console, [...args, `   - ${at}`]);
+    };
+});
 
 // Read cookies (needed for auth)
 app.use(cookieParser());
@@ -83,20 +126,32 @@ app.set('view engine', 'dust');
 
 // Required for passport
 var options = {
-	host: dbConfig.host,
-	port: dbConfig.port,
-	user: dbConfig.user,
-	password: dbConfig.password,
-	database: dbConfig.database
+	host: dbConf.host,
+	port: dbConf.port,
+	user: dbConf.user,
+	password: dbConf.password,
+	database: dbConf.database
 };
 
-if(dbConfig.dialect == "mysql")
+if(dbConf.dialect == "mysql")
     var sessionStore = new SessionStore(options);
 
-if(dbConfig.dialect == "postgres"){
+if(dbConf.dialect == "postgres"){
     var pgPool = new pg.Pool(options);
+    pgPool.connect((err, client, done) => {
+        if (err) {console.error(err);}
+        client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
+            if (err) {console.error(err.stack)} else if(!res.rows[0].exists) {
+                // Postgres sessions table do not exist, creating it...
+                client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), (err, res) => {
+                    if (err) {console.error(err)} else {console.log("Postgres sessions table created !");}
+                });
+            }
+        })
+    })
     var sessionStore = new SessionStore({
-        pool: pgPool
+        pool: pgPool,
+        tableName: 'sessions'
     });
 }
 
@@ -104,10 +159,11 @@ var sessionInstance = session({
 	store: sessionStore,
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
-	resave: true,
+	resave: false,
+    rolling: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
-	key: 'workspaceCookie'+port // We concat port for a workspace specific session, instead of generator specific
+	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific
 });
 var socketSession = require('express-socket.io-session');
 
@@ -149,17 +205,18 @@ if (startedFromGenerator) {
 
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
-    var lang = languageConfig.lang;
 
-    if(req.isAuthenticated()){
-	    if (req.session.lang_user)
-	        lang = req.session.lang_user;
-	    else
-	    	req.session.lang_user = lang;
+    // If not a person (healthcheck service or other spamming services)
+    if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
 
-	    if (typeof req.session.toastr === 'undefined')
-			req.session.toastr = [];
-    }
+    let lang = appConf.lang;
+    if (req.session.lang_user)
+        lang = req.session.lang_user;
+    else
+    	req.session.lang_user = lang;
+
+    if (typeof req.session.toastr === 'undefined')
+		req.session.toastr = [];
 
     res.locals.lang_user = lang;
     res.locals.config = globalConf;
@@ -279,10 +336,19 @@ app.use(function(req, res) {
 
 // Launch ======================================================================
 
-models.sequelize.sync({logging: false, hooks: false}).then(function() {
-    models.sequelize.customAfterSync().then(function() {
-        models.E_user.findAll().then(function(users) {
-            if (!users || users.length == 0) {
+models.sequelize.sync({logging: false, hooks: false}).then(() => {
+    models.sequelize.customAfterSync().then(() => {
+        models.E_user.findAll().then(users => {
+            let hasAdmin = false;
+
+            // Check if user admin is in already created users
+            for (var i = 0; i < users.length; i++) {
+                if(users[i].f_login == "admin"){
+                    hasAdmin = true
+                }
+            }
+
+            if (!users || users.length == 0 || !hasAdmin) {
                 models.E_group.create({
                 	id: 1,
                     version: 0,
@@ -308,7 +374,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
             }
         });
         var server;
-        if (protocol == 'https')
+        if (globalConf.protocol == 'https')
             server = https.createServer(globalConf.ssl, app);
         else
             server = http.createServer(app);
@@ -323,14 +389,20 @@ models.sequelize.sync({logging: false, hooks: false}).then(function() {
 		// Handle access.json file for various situation
 		block_access.accessFileManagment();
 
-		server.listen(port);
-		console.log("Started " + protocol + " on " + port + " !");
+		server.listen(globalConf.port);
+        if (globalConf.env == 'tablet') {
+            try {
+                const cordova = require('cordova-bridge');
+                cordova.channel.send('STARTED');
+            } catch(e) {console.error("Couldn't require 'cordova-bridge'");}
+        }
+		console.log("Started " + globalConf.protocol + " on " + globalConf.port + " !");
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         logger.silly(err);
     })
 }).catch(function(err) {
-    console.log(err);
+    console.error(err);
     logger.silly(err);
 })
 

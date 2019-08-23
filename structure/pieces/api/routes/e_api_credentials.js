@@ -39,19 +39,16 @@ router.get('/list', block_access.actionAccessMiddleware("api_credentials", "read
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("api_credentials", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("E_api_credentials", req.body, include).then(function (rawData) {
+    filterDataTable("E_api_credentials", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_api_credentials', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -62,20 +59,51 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("api_credentials
     var length = parseInt(req.body.length || 10);
 
     var sourceId = req.query.sourceId;
-    var subentityAlias = req.query.subentityAlias;
+    var subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
     var doPagination = req.query.paginate;
 
-    var queryAttributes = [];
+    // Build array of fields for include and search object
+    var isGlobalSearch = req.body.search.value == "" ? false : true;
+    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    search[searchTerm] = [];
+    var toInclude = [];
+    // Loop over columns array
+    for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+        if (columns[i].searchable == 'false')
+            continue;
+
+        // Push column's field into toInclude. toInclude will be used to build the sequelize include. Ex: toInclude = ['r_alias.r_other_alias.f_field', 'f_name']
+        toInclude.push(columns[i].data);
+
+        // Add column own search
+        if (columns[i].search.value != "") {
+            var {type, value} = JSON.parse(columns[i].search.value);
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
+        }
+        // Add column global search
+        if (isGlobalSearch)
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
+    }
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
-            queryAttributes.push(req.body.columns[i].data);
+            toInclude.push(req.body.columns[i].data);
+    // Get sequelize include object
+    var subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
+
+    // ORDER BY
+    var order, stringOrder = req.body.columns[req.body.order[0].column].data;
+    // If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
+    order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
     var include = {
         model: models[subentityModel],
         as: subentityAlias,
-        include: {all: true}
+        order: order,
+        where: search,
+        include: subentityInclude
     }
+
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
@@ -102,7 +130,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("api_credentials
             entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function (preparedData) {
                 res.send(preparedData).end();
             }).catch(function (err) {
-                console.log(err);
+                console.error(err);
                 logger.debug(err);
                 res.end();
             });
@@ -136,13 +164,13 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(function () {
             status_helper.translate(e_api_credentials, attributes, req.session.lang_user);
-            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("e_api_credentials");
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_api_credentials");
             res.render('e_api_credentials/show', data);
         }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -211,15 +239,15 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
         // because those values are not updated for now
         model_builder.setAssocationManyValues(e_api_credentials, req.body, createObject, options).then(function () {
             Promise.all(promises).then(function () {
-                component_helper.setAddressIfComponentExist(e_api_credentials, options, req.body).then(function () {
+                component_helper.address.setAddressIfComponentExists(e_api_credentials, options, req.body).then(function () {
                     res.redirect(redirect);
                 });
             }).catch(function (err) {
-                entity_helper.error(err, req, res, '/api_credentials/create_form');
+                entity_helper.error(err, req, res, '/api_credentials/create_form', "e_user");
             });
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, '/api_credentials/create_form');
+        entity_helper.error(err, req, res, '/api_credentials/create_form', "e_user");
     });
 });
 
@@ -254,10 +282,10 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
             } else
                 res.render('e_api_credentials/update', data);
         }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -277,7 +305,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_api_credentials, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_api_credentials, options, req.body);
         e_api_credentials.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
@@ -296,10 +324,10 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
                 res.redirect(redirect);
             });
         }).catch(function (err) {
-            entity_helper.error(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials);
+            entity_helper.error(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials, "e_user");
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials);
+        entity_helper.error(err, req, res, '/api_credentials/update_form?id=' + id_e_api_credentials, "e_user");
     });
 });
 
@@ -351,7 +379,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function (alias) {
@@ -546,7 +574,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
             });
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, errorRedirect);
+        entity_helper.error(err, req, res, errorRedirect, "e_user");
     });
 });
 
@@ -641,11 +669,11 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("api_
             e_api_credentials['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
                 res.sendStatus(200).end();
             }).catch(function (err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "e_user");
             });
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -671,10 +699,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("api_cre
         e_api_credentials['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
             res.redirect('/api_credentials/show?id=' + idEntity + "#" + alias);
         }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "e_user");
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "e_user");
     });
 });
 
@@ -688,20 +716,20 @@ router.post('/delete', block_access.actionAccessMiddleware("api_credentials", "d
             }
         }).then(function () {
             req.session.toastr = [{
-                    message: 'message.delete.success',
-                    level: "success"
-                }];
+                message: 'message.delete.success',
+                level: "success"
+            }];
 
             var redirect = '/api_credentials/list';
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("e_api_credentials", deleteObject, attributes);
+            entity_helper.removeFiles("e_api_credentials", deleteObject, attributes);
         }).catch(function (err) {
-            entity_helper.error(err, req, res, '/api_credentials/list');
+            entity_helper.error(err, req, res, '/api_credentials/list', "e_user");
         });
     }).catch(function (err) {
-        entity_helper.error(err, req, res, '/api_credentials/list');
+        entity_helper.error(err, req, res, '/api_credentials/list', "e_user");
     });
 });
 

@@ -171,9 +171,6 @@ router.get('/list', teamAdminMiddleware, block_access.actionAccessMiddleware("cr
 });
 
 router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddleware("cra", "read"), function (req, res) {
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-
     var where = {};
     if(req.isAdmin){
         var idTeamUsers = [];
@@ -191,16 +188,16 @@ router.post('/datalist', teamAdminMiddleware, block_access.actionAccessMiddlewar
         }
     }
 
-    filterDataTable("E_cra", req.body, include, where).then(function (rawData) {
+    filterDataTable("E_cra", req.body, null, where).then(function (rawData) {
         entity_helper.prepareDatalistResult('e_cra', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -389,7 +386,7 @@ router.post('/admin/update', teamAdminMiddleware, block_access.actionAccessMiddl
             });
         });
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).send("Unable to update your Activity report");
     });
 });
@@ -542,7 +539,7 @@ router.get('/declare/validate/:id_cra', block_access.actionAccessMiddleware("cra
             return res.status(404).send("Couldn't find Timesheet with id "+id_cra);
         res.status(200).end();
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(404).send("Couldn't update");
     });
 });
@@ -694,7 +691,7 @@ router.post('/declare/update', block_access.actionAccessMiddleware("cra", 'updat
             cra.update({f_user_validated: false});
         });
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).send("Unable to update your Activity report");
     });
 });
@@ -858,34 +855,6 @@ router.get('/export/:id', block_access.actionAccessMiddleware("cra", "read"), fu
                 }];
                 res.redirect(req.headers.referer);
             });
-            // dust.renderSource(dustSrc, {
-            //     activities: activities,
-            //     daysAndLabels: daysAndLabels,
-            //     workedDays: workedDays,
-            //     cra: cra,
-            //     user: user,
-            //     team: team
-            // }, function(err, html) {
-            //     if (err)
-            //         return entity_helper.error(err, req, res);
-
-            //     var fileName = __dirname+'/../views/e_cra/'+cra.id+'_cra_'+cra.f_year+'_'+cra.f_month+'.pdf';
-            //     var myfileName = "CRA_"+user.f_login+"_"+cra.f_year+'_'+cra.f_month+'.pdf';
-
-            //     pdf.create(html, {orientation: "landscape", format: "A4"}).toFile(fileName, function(err, data) {
-            //         if (err)
-            //             return entity_helper.error(err, req, res);
-            //         fs.readFile(fileName, function(err, data) {
-            //             if (err)
-            //                 return entity_helper.error(err, req, res);
-            //             res.writeHead(200, {'Content-disposition': 'attachment; filename='+myfileName, "Content-Type": "application/pdf"});
-            //             res.write(data);
-            //             res.end();
-
-            //             fs.unlinkSync(fileName);
-            //         });
-            //     });
-            // });
         });
     });
 });
@@ -929,18 +898,7 @@ router.get('/show', block_access.actionAccessMiddleware("cra", "read"), function
         }
         /* Update local e_cra data before show */
         data.e_cra = e_cra;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.e_cra[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-            res.render('e_cra/show', data);
-        });
+        res.render('e_cra/show', data);
 
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
@@ -962,17 +920,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("cra", "create"),
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-        data.toastr = req.session.toastr;
-        req.session.toastr = [];
-        res.render('e_cra/create', data);
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
-    });
+    res.render('e_cra/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("cra", "create"), function (req, res) {
@@ -1034,47 +982,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("cra", 'update'),
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
+    models.E_cra.findOne({where: {id: id_e_cra}, include: [{all: true}]}).then(function (e_cra) {
+        if (!e_cra) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.E_cra.findOne({where: {id: id_e_cra}, include: [{all: true}]}).then(function (e_cra) {
-            if (!e_cra) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
-
-            data.e_cra = e_cra;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can found adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.e_cra[name_global_list] = rows;
-
-                if (rows.length > 1) {
-                    for (var j = 0; j < data[model].length; j++) {
-                        if (e_cra[model] != null) {
-                            for (var k = 0; k < e_cra[model].length; k++) {
-                                if (data[model][j].id == e_cra[model][k].id) {
-                                    data[model][j].dataValues.associated = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-            res.render('e_cra/update', data);
-        }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
-        });
+        data.e_cra = e_cra;
+        res.render('e_cra/update', data);
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });

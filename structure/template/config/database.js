@@ -15,7 +15,7 @@ var databaseConf = {
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'mysql' //mysql or postgres
+        dialect: 'mysql'
     },
     production: {
         host: '127.0.0.1',
@@ -23,7 +23,30 @@ var databaseConf = {
         user: 'newmips',
         password: 'newmips',
         database: 'newmips',
-        dialect: 'mysql' //mysql or postgres
+        dialect: 'mysql'
+    },
+    tablet: {
+        dialect: 'sqlite',
+        // iOS
+        // storage: process.env.CORDOVA_APP_DIR + '/../Library/LocalDatabase/newmips.db'
+        // ANDROID :
+        storage: __dirname + '/newmips.db'
+    },
+    docker: {
+        host: process.env.DATABASE_IP || 'database',
+        port: '3306',
+        user: 'newmips',
+        password: 'newmips',
+        database: 'newmips',
+        dialect: 'mysql'
+    },
+    cloud: {
+        host: process.env.DATABASE_IP || 'database',
+        port: '3306',
+        user: 'newmips',
+        password: 'newmips',
+        database: 'newmips',
+        dialect: 'mysql'
     }
 }
 

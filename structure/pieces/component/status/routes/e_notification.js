@@ -25,7 +25,7 @@ router.get('/load/:offset', function(req, res) {
     }).then(function(notifications) {
         res.json(notifications);
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         res.sendStatus(500);
     });
 });
@@ -34,7 +34,20 @@ router.get('/load/:offset', function(req, res) {
 router.get('/read/:id', function (req, res) {
     var id_e_notification = parseInt(req.params.id);
 
-    models.E_notification.findOne({where: {id: id_e_notification}}).then(function (notification) {
+    // Check if user owns notification
+    models.E_notification.findOne({
+        where: {id: id_e_notification},
+        include: {
+            model: models.E_user,
+            as: 'r_user',
+            where: {id: req.session.passport.user.id}
+        }
+    }).then(function (notification) {
+        if (!notification.r_user) {
+            logger.debug("User id = "+req.session.passport.user.id+" not allowed to read notification "+id_e_notification+".");
+            return res.render('common/error', {error: 401});
+        }
+
         var redirect = notification.f_url != "#" ? notification.f_url : req.headers.referer;
 
         models.E_user.findById(req.session.passport.user.id).then(function(user){
@@ -42,12 +55,12 @@ router.get('/read/:id', function (req, res) {
                 res.redirect(redirect);
             });
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             logger.debug("No notification found.");
             return res.render('common/error', {error: 404});
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug("No notification found.");
         return res.render('common/error', {error: 404});
     });
@@ -60,7 +73,7 @@ router.get('/deleteAll', function(req, res) {
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug("No notification found.");
         return res.render('common/error', {error: 404});
     });

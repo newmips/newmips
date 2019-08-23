@@ -35,11 +35,8 @@
                         <a data-lang="en-EN" class='chooseLanguage btn {@eq key=lang_user value="en-EN"}btn-primary{:else}btn-default{/eq}'>
                             English
                         </a>
-                    </div>
-                    <br>
-                    <div class="form-group">
-                        <form action="/user/update" method="post">
-                            <input type="hidden" name="is_settings" value="true">
+                        <br><br>
+                        <form action="/user/settings" method="post">
                             {#e_user}
                             <div id="fields" class="row">
                                 <div data-field="f_login" class="fieldLineHeight col-xs-12 col-sm-6">
@@ -77,70 +74,126 @@
                                             <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                                             {/inline_help}
                                         </label>
-                                            <select multiple="" class="ajax form-control" data-source="role" data-using="f_label" disabled="" readonly="">
-                                                <option value="">
-                                                    {#__ key="select.default" /}
-                                                </option>
-                                                {#r_role}
-                                                    <option value="{id}" selected="">{f_label|string}</option>
-                                                {/r_role}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div data-field="f_group" class="fieldLineHeight col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="f_group">
-                                                {#__ key="entity.e_user.r_group" /}
-                                                {@inline_help field="r_group"}
-                                                <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-                                                {/inline_help}
-                                            </label>
-                                            <select multiple="" class="ajax form-control" data-source="group" data-using="f_label" disabled="" readonly="">
-                                                <option value="">
-                                                    {#__ key="select.default" /}
-                                                </option>
-                                                {#r_group}
-                                                    <option value="{id}" selected="">{f_label|string}</option>
-                                                {/r_group}
-                                            </select>
-                                        </div>
+                                        <select multiple="" class="ajax form-control" data-source="role" data-using="f_label" disabled="" readonly="">
+                                            <option value="">
+                                                {#__ key="select.default" /}
+                                            </option>
+                                            {#r_role}
+                                            <option value="{id}" selected="">{f_label|string}</option>
+                                            {/r_role}
+                                        </select>
                                     </div>
                                 </div>
-                                {/e_user}
-                                <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
-                                <input name="id" type="hidden" placeholder="{e_user.id_entity}" value="{e_user.id}" class="form-control input"/>
-                            </form>
-                        </div>
+                                <div data-field="f_group" class="fieldLineHeight col-xs-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label for="f_group">
+                                            {#__ key="entity.e_user.r_group" /}
+                                            {@inline_help field="r_group"}
+                                            <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                                            {/inline_help}
+                                        </label>
+                                        <select multiple="" class="ajax form-control" data-source="group" data-using="f_label" disabled="" readonly="">
+                                            <option value="">
+                                                {#__ key="select.default" /}
+                                            </option>
+                                            {#r_group}
+                                            <option value="{id}" selected="">{f_label|string}</option>
+                                            {/r_group}
+                                        </select>
+                                    </div>
+                                </div>
+                                {@ifTrue key=isLocal}
+                                    <div class="fieldLineHeight col-xs-12">
+                                        <div class="form-group">
+                                            <label for="old_password">
+                                                {#__ key="settings.old_password"/}
+                                            </label>
+                                            <input class="form-control input" placeholder='{#__ key="settings.old_password"/}' name="old_password" type="password">
+                                        </div>
+                                    </div>
+                                    <div class="fieldLineHeight col-xs-12">
+                                        <div class="form-group">
+                                            <label for="f_role">
+                                                {#__ key="settings.new_password_1"/}
+                                            </label>
+                                            <input class="form-control input" placeholder='{#__ key="settings.new_password_1"/}' name="new_password_1" type="password">
+                                        </div>
+                                    </div>
+                                    <div class="fieldLineHeight col-xs-12">
+                                        <div class="form-group">
+                                            <label for="f_group">
+                                                {#__ key="settings.new_password_2"/}
+                                            </label>
+                                            <input class="form-control input" placeholder='{#__ key="settings.new_password_2"/}' name="new_password_2" type="password">
+                                        </div>
+                                    </div>
+                                {/ifTrue}
+                            </div>
+                            {/e_user}
+                            <br>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                                {#__ key="button.save"/}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        {/content}
-        {<custom_js}
-        <script>
-            $(document).ready(function() {
-                $(document).on("click", ".chooseLanguage", function(){
-                    var lang = $(this).attr("data-lang");
-                    var ajaxdata = {
-                        lang: lang
-                    };
-                    $.ajax({
-                        url : '/default/change_language',
-                        type : 'POST',
-                        data : JSON.stringify(ajaxdata),
-                        dataType : 'json',
-                        contentType: "application/json",
-                        context: this,
-                        success: function (data) {
-                            if(data.success){
-                                location.reload();
-                            }
-                        },
-                        error: function (error) {
-                            console.log(error);
+    </div>
+    {/content}
+    {<custom_js}
+    <script>
+        var notMatchPasswordText = '{#__ key="login.first_connection.passwordNotMatch"/}';
+        $(document).ready(function() {
+            $(document).on("click", ".chooseLanguage", function(){
+                var lang = $(this).attr("data-lang");
+                var ajaxdata = {
+                    lang: lang
+                };
+                $.ajax({
+                    url : '/default/change_language',
+                    type : 'POST',
+                    data : JSON.stringify(ajaxdata),
+                    dataType : 'json',
+                    contentType: "application/json",
+                    context: this,
+                    success: function (data) {
+                        if(data.success){
+                            location.reload();
                         }
-                    });
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    }
                 });
             });
-        </script>
-        {/custom_js}
+
+            $(document).on("keyup", "input[name='new_password_2']", function(){
+                if($("input[name='new_password_2']").val() != $("input[name='new_password_1']").val()){
+                    $(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else if($("input[name='new_password_2']").val() != ""){
+                    $(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+                } else{
+                    $(this).attr("style", "");
+                }
+            });
+
+            $(document).on("keyup", "input[name='new_password_1']", function(){
+                if($(this).val().length < 4){
+                    $(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else{
+                    $(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+                }
+
+                if($("input[name='new_password_2']").val() != $("input[name='new_password_1']").val() && $("input[name='new_password_2']").val() != ""){
+                    $("input[name='new_password_2']").attr("style", "border: 1px solid red !important; border-color: red !important;");
+                } else if($("input[name='new_password_2']").val() != ""){
+                    $("input[name='new_password_2']").attr("style", "border: 1px solid green !important; border-color: green !important;");
+                } else{
+                    $("input[name='new_password_2']").attr("style", "");
+                }
+            });
+        });
+    </script>
+    {/custom_js}

@@ -129,6 +129,8 @@ function addPrefix(string, instructionFunction){
         case 'setFieldAttribute':
         case 'setFieldKnownAttribute':
         case 'setColumnVisibility':
+            if (string == 'id')
+                return string;
             return "f_"+string;
             break;
         case 'foreignKey':
@@ -147,6 +149,7 @@ function addPrefix(string, instructionFunction){
             return "c_"+string;
             break;
         case 'createNewComponentStatus':
+        case 'deleteComponentStatus':
             return "s_"+string;
         default:
             return "u_"+string;

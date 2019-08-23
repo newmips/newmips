@@ -75,6 +75,23 @@
             <input class="form-control input" placeholder='{#__ key="entity.e_media_mail.f_from" /}' name="f_from" value="{f_from}" type="text">
         </div>
     </div>
+    <div data-field="f_attachments" class="col-xs-12">
+        <div class="form-group">
+            <label class="mosaic-label" style="float:left;height: 60px;" for="f_attachments">
+                {#__ key="entity.e_media_mail.f_attachments"/}<br>
+                <div class="btn-group insert-mosaic" style="margin-top:5px;">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-cogs"></i>&nbsp;<span class="caret"></span>
+                    </button>
+                    &nbsp;&nbsp;
+                    <ul class="dropdown-menu">
+                        <li><a class="insert" data-type="field">{#__ key="component.status.choose_from_field" /}</a></li>
+                    </ul>
+                </div>
+            </label>
+            <input class="form-control input" placeholder='{#__ key="entity.e_media_mail.f_attachments" /}' name="f_attachments" value="{f_attachments}" type="text">
+        </div>
+    </div>
     <div data-field="f_subject" class="col-xs-12">
         <div class="form-group">
             <label class="mosaic-label" style="float:left;height: 60px;" for="f_subject">
@@ -106,7 +123,7 @@
                     </ul>
                 </div>
             </label>
-            <textarea class="form-control textarea" placeholder='{#__ key="entity.e_media_mail.f_content" /}' name="f_content" id="f_content_textareaid" type="text">{f_content|s}</textarea>
+            <textarea rows=30 class="form-control textarea regular-textarea" placeholder='{#__ key="entity.e_media_mail.f_content" /}' name="f_content" id="f_content_textareaid" type="text">{f_content|s}</textarea>
         </div>
     </div>
     <input name="id_media_mail" type="hidden" class="media-field" value="{id}">

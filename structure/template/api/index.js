@@ -17,6 +17,8 @@ module.exports = function(app) {
 		file = file.slice(0, -3);
 		if (file == 'default')
 			app.use('/api/', isApiEnabled, require('./'+file));
+		else if (file == 'synchronization')
+			app.use('/api/synchronization', isApiEnabled, block_access.apiAuthentication, require('./'+file));
 		else
 			app.use('/api/'+file.substring(2), isApiEnabled, block_access.apiAuthentication, require('./'+file));
 	});

@@ -1,0 +1,219 @@
+{>"main_layout"/}
+{<title}
+	{#__ key="menu.application"/}<small>{#__ key="menu.module"/}</small>
+{/title}
+{<custom_css}
+	<link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+{/custom_css}
+{<content}
+	<legend>{#__ key="listApplication.legend"/}</legend>
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box-body">
+				<br>
+
+				{^projects}
+				<div class="row">
+					<div class="col-xs-12 col-sm-5">
+						<img src="/img/mipsy.png" class="img-responsive pull-right" style="width:300px;"/>
+					</div>
+					<div class="col-xs-12 col-sm-7" style="padding-top: 100px;">
+						<h2 class="headline">{#__ key="listApplication.no_project_1"/}</h2>
+						<div class="error-content">
+							<h3>{#__ key="listApplication.no_project_2"/}</h3>
+						</div>
+					</div>
+				</div>
+				{/projects}
+				{#projects}
+					<div class="col-lg-offset-2 col-lg-8">
+						<div class="box box-solid box-default">
+							<div class="box-header bg-primary">
+								<h3 class="box-title" style="color: #fff;">
+									{#__ key="project.label"/}: {displayName}
+								</h3>
+							</div>
+							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;">
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="table-responsive">
+											<table class="table no-margin">
+												<thead>
+													<tr>
+														<th>{#__ key="listApplication.id"/}</th>
+														<th>{#__ key="listApplication.name"/}</th>
+														<th>URL</th>
+														<th colspan="2" class="text-center">{#__ key="listApplication.action"/}</th>
+													</tr>
+												</thead>
+												<tbody>
+													{#Applications}
+														<tr>
+															<td>{id}</td>
+															<td>{displayName}</td>
+															<td><a href='{dataValues.url}' target='_blank'>{dataValues.url}</a></td>
+															<td class="text-center">
+																<a class="btn btn-info" href="/application/preview?id_application={id}">
+																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+																	<span>{#__ key="button.preview"/}</span>
+																</a>
+															</td>
+															{?gitlabUser}
+															<td class="text-center">
+																<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
+																	<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
+																	<span>{#__ key="button.clone"/}</span>
+																</button>
+															</td>
+															{/gitlabUser}
+															<td class="text-center">
+																<form class="deleteAppForm">
+																	<button class="btn btn-danger">
+																		<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+																		<span>{#__ key="button.delete"/}</span>
+																	</button>
+																	<input type="hidden" name="instruction" value="delete application {id}" />
+																</form>
+															</td>
+														</tr>
+													{/Applications}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="box-footer">
+								<form class="deleteProjectForm">
+									<button class="btn btn-danger">
+										<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+										<span>{#__ key="button.delete"/}</span>
+									</button>
+									<input type="hidden" name="instruction" value="delete project {id}" />
+								</form>
+							</div>
+						</div>
+					</div>
+				{/projects}
+			</div>
+		</div>
+	</div>
+
+	{?gitlabUser}
+		<div class="modal fade" id="gitlabModal" tabindex="-1" role="dialog" aria-labelledby="gitlabModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header text-center">
+						<h5 class="modal-title" id="gitlabModalLabel">{#__ key="listApplication.gitlab.modal_title" /}</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body text-center">
+						{#__ key="listApplication.gitlab.text1" /}<br><br>
+						<i><b>git clone <span id="gitlab_repo_url"></span></b></i><br><br>
+						{#__ key="listApplication.gitlab.text2" /}<br><br>
+						<i><b>{gitlabUser.name}</b></i><br><br>
+						{#__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">{#__ key="button.understand"/}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/gitlabUser}
+{/content}
+
+{<custom_js}
+	<script type="text/javascript">
+		var sureToDelete = '{#__ key="listApplication.sureToDelete"/}';
+		var loading = '{#__ key="listApplication.loading"/}';
+		var projectDelete = '{#__ key="listApplication.projectDelete"/}';
+		var appDelete = '{#__ key="listApplication.appDelete"/}';
+
+		function deleteApplication(formArray, index) {
+			return new Promise(function(resolve, reject) {
+				(function(arr, idx){
+					$(document.body).css({cursor: 'wait'});
+					var tr = $(arr[idx]).parents('tr');
+					$.ajax({
+						url: '/application/execute',
+						method: 'post',
+						data: {instruction: $(arr[idx]).find('input[name="instruction"]').val()},
+						success: function() {
+							$(tr).remove();
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+						},
+						complete: function() {
+							$(document.body).css({cursor: 'default'});
+							if (arr.length == 1) {
+								toastr.success(appDelete);
+								return resolve();
+							}
+							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
+						}
+					});
+				})(formArray, index);
+			});
+		}
+
+		$(function() {
+			/* Delete Project */
+			$(".deleteProjectForm").submit(function() {
+				var confirm = window.confirm(sureToDelete);
+				if(confirm){
+					var self = this;
+					/* Get all application delete form */
+					var appForms = $(self).parents('.box').find("tbody tr form");
+					$(this).children("button").html(loading);
+
+					/* Disabled all button to prevent mutli click that may cause issue */
+					$(".deleteProjectForm").children("button").prop("disabled", true);
+					$(".deleteAppForm").children("button").prop("disabled", true);
+
+					$(document.body).css({cursor: 'wait'});
+					$.ajax({
+						url: '/application/execute',
+						method: 'post',
+						data: {instruction: $(self).find("input[name='instruction']").val()},
+						context: this,
+						success: function() {
+							toastr.success(projectDelete);
+							$(self).parents('.col-lg-8').remove();
+							$(document.body).css({cursor: 'default'});
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+						},
+						error: function(err){
+							toastr.error(err.responseText);
+							$(document.body).css({cursor: 'default'});
+							$(".deleteProjectForm").children("button").prop("disabled", false);
+							$(".deleteAppForm").children("button").prop("disabled", false);
+							$(this).children("button").remove();
+						}
+					});
+
+					return false;
+				}
+			});
+
+			/* Delete application */
+			$(".deleteAppForm").submit(function(){
+				var confirm = window.confirm(sureToDelete);
+				if(confirm){
+					$(this).children("button").html(loading);
+					$(".deleteProjectForm").children("button").prop("disabled", true);
+					$(".deleteAppForm").children("button").prop("disabled", true);
+					deleteApplication([$(this)], 0);
+					return false;
+				}
+			});
+
+			$(document).on("click", ".gitlab-button", function(){
+				$("#gitlab_repo_url").html($(this).attr("data-repourl"));
+			});
+		});
+	</script>
+{/custom_js}

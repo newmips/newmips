@@ -21,15 +21,7 @@ exports.setupModule = function (attr, callback) {
         // Add new module route to routes/default.js file
         var str = '// *** Dynamic Module | Do not remove ***\n\n';
         str += 'router.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("' + url_name_module + '"), function(req, res) {\n';
-        str += '    var widgetPromises = [];\n'
-        str += '    // *** Widget module ' + name_module.toLowerCase() + ' | Do not remove ***\n';
-        str += '    Promise.all(widgetPromises).then(function(results) {\n';
-        str += '        var data = {};\n';
-        str += '        for (var i = 0; i < results.length; i++)\n';
-        str += '            for (var prop in results[i])\n';
-        str += '                data[prop] = results[i][prop];\n';
-        str += '        res.render(\'default/' + name_module.toLowerCase() + '\', data);\n';
-        str += '    });\n';
+        str += '    res.render(\'default/' + name_module.toLowerCase() + '\');\n';
         str += '});';
         var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
 
@@ -53,7 +45,7 @@ exports.setupModule = function (attr, callback) {
                     if (name_module.toLowerCase() != "m_home") {
                         var moduleAriane = "" +
                                 "<li class='active'>" +
-                                "   {#__ key=\"module." + name_module.toLowerCase() + "\"/}" +
+                                "   <!--{#__ key=\"module." + name_module.toLowerCase() + "\"/}-->" +
                                 "</li>";
                         resultDust = resultDust.replace(/<!-- NEW MODULE -->/g, moduleAriane);
                     }
@@ -80,13 +72,13 @@ exports.setupModule = function (attr, callback) {
                                             var fileName = __dirname + '/../workspace/' + idApp + '/views/layout_' + modules[ibis].codeName.toLowerCase() + '.dust';
                                             domHelper.read(fileName).then(function ($) {
                                                 $("#dynamic_select").empty();
-                                                option = "";
+                                                option = "\n";
                                                 for (var j = 0; j < modules.length; j++) {
-                                                    option += '{#moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}';
-                                                    option += '<option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + attrHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>';
-                                                    option += '{#__ key="module.' + modules[j].codeName.toLowerCase() + '" /}';
-                                                    option += '</option>';
-                                                    option += '{/moduleAccess}';
+                                                    option += '<!--{#moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}-->\n';
+                                                    option += '     <option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + attrHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>\n';
+                                                    option += '         <!--{#__ key="module.' + modules[j].codeName.toLowerCase() + '" /}-->\n';
+                                                    option += '     </option>\n';
+                                                    option += '<!--{/moduleAccess}-->\n';
                                                 }
 
                                                 $("#dynamic_select").append(option);

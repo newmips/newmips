@@ -6,11 +6,29 @@
 Core: General style
 ----------------------------
 */
+
+.status-to-self:before {
+    font-family: "Font Awesome";
+    content: "\f021";
+    font: normal normal normal 14px/1 FontAwesome;
+    float: left;
+}
+
+input[type=file]: {
+    height: auto;
+}
+
 /* DataTables buttons*/
 .dt-buttons: {
     margin-left: 20px;
 }
 select.form-control{
+    width: 100%;
+}
+select.form-control.ajax{
+    width: 100% !important;
+}
+.form-group .select2-container {
     width: 100% !important;
 }
 .select2-dropdown .select2-search__field:focus, .select2-search--inline .select2-search__field:focus {
@@ -20,7 +38,8 @@ select.form-control{
 .hover:hover,
 .inline-help:hover,
 input[type=color]:hover,
-.insert:hover {
+.insert:hover,
+table > tbody > tr:hover {
     cursor: pointer;
 }
 
@@ -29,18 +48,19 @@ input[type=color]:hover,
 }
 label.no-weight {
     font-weight: normal !important;
+    cursor: pointer;
 }
 /** Component Address**/
-.section_c_address_fields{
+.section_address_fields{
     border:1px solid #dddddd;
     /*margin: 5px;*/
     margin-bottom: 5px;
     padding-bottom: 5px;
 }
-.div_c_address_search_area{
+.div_address_search_input{
     margin-top: -16px;
 }
-.c_address_maps{
+.address_maps{
     margin-top: 25px  !important;
     height: 405px;
     background-color: #efefef;
@@ -258,4 +278,8 @@ div.dataTables_length select {
 
 .icon-wrap:hover{
     background: #3c8dbc;
+}
+
+.nav-tabs-custom {
+    box-shadow: none !important;
 }

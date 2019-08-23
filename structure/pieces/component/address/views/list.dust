@@ -50,10 +50,10 @@
     </div>
     <div id="table_custom_data_component_delete" style="display:none;">
         <form action="/URL_COMPONENT_ADDRESS/delete" method="post">
+            <input name="id" type="hidden"/>
             <button class="btn btn-danger btn-confirm">
                 <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
                 <span>{#__ key="button.delete" /}</span>
-                <input name="id" type="hidden"/>
             </button>
         </form>
     </div>
@@ -106,10 +106,10 @@
             render: function (data, type, row) {
                 var form = '\
                 <form action="/URL_COMPONENT_ADDRESS/delete" method="post">\
-                    <button onclick="return confirm(\'Etes-vous sûr de vouloir supprimer cet enregistrement ?\');" class="btn btn-danger">\
+                    <input name="id" type="hidden" value="'+row['id']+'" />\
+                    <button class="btn btn-danger btn-confirm">\
                         <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                         <span>{#__ key="button.delete" /}</span>\
-                        <input name="id" type="hidden" value="'+row['id']+'" />\
                     </button>\
                 </form>';
                 return form;
@@ -157,7 +157,7 @@
             $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
 
             $('tbody').on('click', 'tr', function (e) {
-                if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger"))
+                if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
                     return;
                 if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                     window.location = $(this).find('td > a.btn-show:first').attr('href');

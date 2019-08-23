@@ -12,10 +12,10 @@ var process_manager = require('../services/process_manager.js');
 var process_server_per_app = process_manager.process_server_per_app;
 var session_manager = require('../services/session.js');
 var designer = require('../services/designer.js');
-var fs = require("fs");
-var fse = require('fs-extra');
+var fs = require('fs-extra');
 var parser = require('../services/bot.js');
 var globalConf = require('../config/global.js');
+var gitlabConf = require('../config/gitlab.js');
 var helpers = require('../utils/helpers');
 var attrHelper = require('../utils/attr_helper');
 var gitHelper = require('../utils/git_helper');
@@ -27,7 +27,7 @@ var pourcent_generation = {};
 
 // Exclude from Editor
 var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "language.json", "webdav.js"];
+var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 function initPreviewData(idApplication, data){
     return new Promise(function(resolve, reject) {
@@ -66,7 +66,7 @@ function initPreviewData(idApplication, data){
         Promise.all(innerPromises).then(function() {
             return resolve(data);
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             reject(err);
         });
     });
@@ -85,7 +85,7 @@ function setChat(req, idApp, idUser, user, content, params, isError){
     if(content != "chat.welcome" || chats[idApp][idUser].items.length < 1){
         chats[idApp][idUser].items.push({
             user: user,
-            dateEmission: moment().format("DD MMM HH:mm"),
+            dateEmission: req.moment().format("DD MMM HH:mm"),
             content: content,
             params: params || [],
             isError: isError || false
@@ -130,59 +130,58 @@ function execute(req, instruction) {
                 if (err) {
                     var msgErr = __(err.message, err.messageParams || []);
                     // Error handling code goes here
-                    console.log("ERROR : ", msgErr);
-                    reject(msgErr);
-                } else {
-
-                    switch(attr.function){
-                        case "selectProject":
-                        case "createNewProject":
-                            req.session.id_project = info.insertId;
-                            req.session.id_application = null;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "selectApplication":
-                        case "createNewApplication":
-                            req.session.id_application = info.insertId;
-                            req.session.name_application = info.name_application;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "selectModule":
-                        case "createNewModule":
-                            req.session.id_module = info.insertId;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "createNewEntity":
-                        case "selectEntity":
-                        case "createNewEntityWithBelongsTo":
-                        case "createNewEntityWithHasMany":
-                        case "createNewBelongsTo":
-                        case "createNewHasMany":
-                        case "createNewFieldRelatedTo":
-                            req.session.id_data_entity = info.insertId;
-                            break;
-                        case "deleteProject":
-                            req.session.id_project = null;
-                            req.session.id_application = null;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "deleteApplication":
-                            req.session.id_application = null;
-                            req.session.id_module = null;
-                            req.session.id_data_entity = null;
-                            break;
-                        case "deleteModule":
-                            req.session.id_module = info.homeID;
-                            req.session.id_data_entity = null;
-                            break;
-                    }
-
-                    var msgInfo = __(info.message, info.messageParams || []);
-                    resolve();
+                    console.error(err);
+                    return reject(msgErr);
                 }
+
+                switch(attr.function){
+                    case "selectProject":
+                    case "createNewProject":
+                        req.session.id_project = info.insertId;
+                        req.session.id_application = null;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "selectApplication":
+                    case "createNewApplication":
+                        req.session.id_application = info.insertId;
+                        req.session.name_application = info.name_application;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "selectModule":
+                    case "createNewModule":
+                        req.session.id_module = info.insertId;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "createNewEntity":
+                    case "selectEntity":
+                    case "createNewEntityWithBelongsTo":
+                    case "createNewEntityWithHasMany":
+                    case "createNewBelongsTo":
+                    case "createNewHasMany":
+                    case "createNewFieldRelatedTo":
+                        req.session.id_data_entity = info.insertId;
+                        break;
+                    case "deleteProject":
+                        req.session.id_project = null;
+                        req.session.id_application = null;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "deleteApplication":
+                        req.session.id_application = null;
+                        req.session.id_module = null;
+                        req.session.id_data_entity = null;
+                        break;
+                    case "deleteModule":
+                        req.session.id_module = info.homeID;
+                        req.session.id_data_entity = null;
+                        break;
+                }
+
+                var msgInfo = __(info.message, info.messageParams || []);
+                resolve();
             });
         } catch (e) {
             reject(e);
@@ -191,7 +190,7 @@ function execute(req, instruction) {
 }
 
 // Preview Get
-router.get('/preview', block_access.isLoggedIn, function(req, res) {
+router.get('/preview', block_access.hasAccessApplication, function(req, res) {
 
     var id_application = req.query.id_application;
     var timeoutServer = 30000;
@@ -224,8 +223,8 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
         req.session.id_project = application.id_project;
 
         models.Module.findAll({where: {id_application: application.id}, order: [["id_application", "ASC"]]}).then(function(modules) {
-            var module = modules[0];
-            req.session.id_module = module.id;
+            let currentModule = modules[0];
+            req.session.id_module = currentModule.id;
             var math = require('math');
             var port = math.add(9000, application.id);
             var env = Object.create(process.env);
@@ -235,7 +234,7 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
             var serverCheckCount = 0;
             if (process_server_per_app[application.id] == null || typeof process_server_per_app[application.id] === "undefined") {
                 // Launch server for preview
-                process_server_per_app[application.id] = process_manager.launchChildProcess(application.id, env);
+                process_server_per_app[application.id] = process_manager.launchChildProcess(req, application.id, env);
                 timer = 500;
             }
 
@@ -256,38 +255,51 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                 attr.gitlabUser = null;
 
             session_manager.getSession(attr, req, function(err, info) {
-                docBuilder.build(req.session.id_application).catch(function(err){
-                    console.log(err);
-                });
-
                 data.session = info;
 
                 initPreviewData(req.session.id_application, data).then(function(data) {
-                    var initialTimestamp = new Date().getTime();
+                    let initialTimestamp = new Date().getTime();
+                    let iframe_status_url;
                     function checkServer() {
                         if (new Date().getTime() - initialTimestamp > timeoutServer) {
-                            setChat(req, id_application, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
+
+                            // Get last error from app logs
+                            let lastError = helpers.getLastLoggedError(id_application);
+                            let chatKey = "structure.global.restart.error";
+                            let chatParams = [lastError];
+
+                            // If missing module error
+                            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                                chatKey = "structure.global.restart.missing_module";
+                                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                                chatParams = [lastError, lastError];
+                            }
+
+                            setChat(req, id_application, currentUserID, "Mipsy", chatKey, chatParams, true);
                             data.iframe_url = -1;
                             data.chat = chats[id_application][currentUserID];
                             return res.render('front/preview', data);
                         }
 
-                        var iframe_status_url = protocol_iframe + '://';
-                        if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                            iframe_status_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + '/default/status';
+                        iframe_status_url = protocol_iframe + '://';
+                        if (globalConf.env == 'cloud')
+                            iframe_status_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
                         else
                             iframe_status_url += host + ":" + port + "/default/status";
+
+                        let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
+
                         request({
-                            "rejectUnauthorized": false,
-                            "url": iframe_status_url,
-                            "method": "GET"
+                            rejectUnauthorized: rejectUnauthorized,
+                            url: iframe_status_url,
+                            method: "GET"
                         }, function(error, response, body) {
                             if (error)
                                 return setTimeout(checkServer, 100);
 
                             //Check for right status code
                             if (response.statusCode !== 200) {
-                                console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
                                 return setTimeout(checkServer, 100);
                             }
 
@@ -295,15 +307,8 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
                             console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
 
                             data.error = 0;
-                            data.application = module;
-
-                            var iframe_home_url = protocol_iframe + '://';
-                            if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                iframe_home_url += globalConf.host + '-' + application.codeName.substring(2) + globalConf.dns + "/default/home";
-                            else
-                                iframe_home_url += host + ":" + port + "/default/home";
-
-                            data.iframe_url = iframe_home_url;
+                            data.application = currentModule;
+                            data.iframe_url = iframe_status_url.split("/default/status")[0]+"/default/home";
                             data.idApp = application.id;
 
                             // Let's do git init or commit depending the env (only on cloud env for now)
@@ -324,18 +329,18 @@ router.get('/preview', block_access.isLoggedIn, function(req, res) {
     }).catch(function(err) {
         initPreviewData(req.session.id_application, data).then(function(data) {
             data.code = 500;
-            console.log(err);
+            console.error(err);
             res.render('common/error', data);
         }).catch(function(err) {
             data.code = 500;
-            console.log(err);
+            console.error(err);
             res.render('common/error', data);
         });
     });
 });
 
 // AJAX Preview Post
-router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
+router.post('/fastpreview', block_access.hasAccessApplication, function(req, res) {
 
     var math = require('math');
     var port = math.add(9000, req.session.id_application);
@@ -370,7 +375,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             /* Add instruction in chat */
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
 
-            /* Lower the first word for the basic parser jison */
+            /* Lower the first word for the basic parser json */
             instruction = attrHelper.lowerFirstWord(instruction);
 
             /* Parse the instruction to get an object for the designer */
@@ -387,11 +392,10 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
             attr.googleTranslate = req.session.toTranslate || false;
             attr.lang_user = req.session.lang_user;
             attr.currentUser = req.session.passport.user;
+            attr.gitlabUser = null;
 
             if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
                 attr.gitlabUser = req.session.gitlab.user;
-            else
-                attr.gitlabUser = null;
 
             if (typeof attr.error !== 'undefined'){
                 var err = new Error();
@@ -399,6 +403,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                 err.messageParams = attr.errorParams;
                 throw err;
             }
+
             if (typeof designer[attr.function] !== 'function')
                 throw new Error("Designer doesn't have function "+attr.function);
 
@@ -410,7 +415,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                 var toRestart = false;
                 if (err) {
                     // Error handling code goes here
-                    console.log(err);
+                    console.error(err);
 
                     if(typeof err.message === "undefined")
                         answer = err;
@@ -452,13 +457,12 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
                     // Store key entities in session for futur instruction
                     session_manager.setSession(attr.function, req, info, data);
-
                     if (attr.function == "deleteApplication"){
                         return res.send({
                             toRedirect: true,
                             url: "/default/home"
                         });
-                    } else if (attr.function == 'restart'){
+                    } else if (attr.function == 'restart' || attr.function == 'installNodePackage'){
                         toRestart = true;
                     }
 
@@ -484,7 +488,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                     process_manager.killChildProcess(process_server_per_app[req.session.id_application].pid, function() {
 
                         // Launch a new server instance to reload resources
-                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req.session.id_application, env);
+                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req, req.session.id_application, env);
 
                         // Load session values
                         var newAttr = {};
@@ -496,32 +500,48 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
                         session_manager.getSession(newAttr, req, function(err, info) {
 
                             docBuilder.build(req.session.id_application).catch(function(err){
-                                console.log(err);
+                                console.error(err);
                             });
                             data.session = info;
 
                             initPreviewData(req.session.id_application, data).then(function(data) {
+                                let initialTimestamp = new Date().getTime();
+                                let iframe_status_url;
 
-                                var initialTimestamp = new Date().getTime();
                                 function checkServer() {
+                                    // Server Timeout
                                     if (new Date().getTime() - initialTimestamp > timeoutServer) {
-                                        // Timeout
+
+                                        // Get last error from app logs
+                                        let lastError = helpers.getLastLoggedError(currentAppID);
+                                        let chatKey = "structure.global.restart.error";
+                                        let chatParams = [lastError];
+
+                                        // If missing module error
+                                        if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                                            chatKey = "structure.global.restart.missing_module";
+                                            lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                                            chatParams = [lastError, lastError];
+                                        }
+
+                                        setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
                                         data.iframe_url = -1;
-                                        setChat(req, currentAppID, currentUserID, "Mipsy", "structure.global.restart.error", [], true);
                                         data.chat = chats[currentAppID][currentUserID];
                                         return res.send(data);
                                     }
 
-                                    var iframe_status_url = protocol_iframe + '://';
-                                    if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                                        iframe_status_url += globalConf.host + '-' + req.session.name_application + globalConf.dns + '/default/status';
+                                    iframe_status_url = protocol_iframe + '://';
+                                    if (globalConf.env == 'cloud')
+                                        iframe_status_url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + '/default/status';
                                     else
                                         iframe_status_url += host + ":" + port + "/default/status";
 
+                                    let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
+
                                     request({
-                                        "rejectUnauthorized": false,
-                                        "url": iframe_status_url,
-                                        "method": "GET"
+                                        rejectUnauthorized: rejectUnauthorized,
+                                        url: iframe_status_url,
+                                        method: "GET"
                                     }, function(error, response, body) {
                                         // Check for error
                                         if (error)
@@ -529,7 +549,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 
                                         // Check for right status code
                                         if (response.statusCode !== 200) {
-                                            console.log('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                                            console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
                                             return setTimeout(checkServer, 100);
                                         }
 
@@ -582,7 +602,7 @@ router.post('/fastpreview', block_access.isLoggedIn, function(req, res) {
 });
 
 // Dropzone FIELD ajax upload file
-router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
+router.post('/set_logo', block_access.hasAccessApplication, function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
             if (req.body.storageType == 'local') {
@@ -595,7 +615,7 @@ router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
                 var dataEntity = req.body.dataEntity;
                 if (!!dataEntity) {
                     var basePath = __dirname + "/../workspace/" + req.body.idApp + "/public/img/" + dataEntity + '/';
-                    fse.mkdirs(basePath, function (err) {
+                    fs.mkdirs(basePath, function (err) {
                         if (!err) {
                             var uploadPath = basePath + req.file.originalname;
                             var outStream = fs.createWriteStream(uploadPath);
@@ -609,7 +629,7 @@ router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
                             if (req.body.dataType == 'picture') {
                                 //We make thumbnail and reuse it in datalist
                                 basePath = __dirname + "/../workspace/"+req.body.idApp+"/public/img/"+ dataEntity + '/' +  configLogo.folder ;
-                                fse.mkdirs(basePath, function (err) {
+                                fs.mkdirs(basePath, function (err) {
                                     if (!err) {
                                         Jimp.read(uploadPath, function (err, imgThumb) {
                                             if (!err) {
@@ -617,16 +637,16 @@ router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
                                                         .quality(configLogo.quality)  // set JPEG quality
                                                         .write(basePath + req.file.originalname);
                                             } else {
-                                                console.log(err);
+                                                console.error(err);
                                             }
                                         });
                                     } else {
-                                        console.log(err);
+                                        console.error(err);
                                     }
                                 });
                             }
                         } else{
-                            console.log(err);
+                            console.error(err);
                             res.status(500).end(err);
                         }
                     });
@@ -641,7 +661,7 @@ router.post('/set_logo', block_access.isLoggedIn, function (req, res) {
                 res.status(500).end(err);
             }
         } else{
-            console.log(err);
+            console.error(err);
             res.status(500).end(err);
         }
     });
@@ -654,39 +674,53 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     models.Project.findAll({
         include: [{
             model: models.Application,
+            required: true,
             include: [{
-                model: models.Module,
-                include: [{
-                    model: models.DataEntity
-                }]
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                },
+                required: true
             }]
         }],
         order: [
             [models.Application, 'id', 'DESC']
         ]
     }).then(function(projects) {
-        var data = {};
 
-        var iframe_status_url;
-        var host = globalConf.host;
-        var port;
+        let data = {};
 
-        for(var i=0; i<projects.length; i++){
-            for(var j=0; j<projects[i].Applications.length; j++){
+        let iframe_status_url;
+        let host = globalConf.host;
+        let port;
+        let appName;
+
+        for (var i = 0; i < projects.length; i++) {
+            for (var j = 0; j < projects[i].Applications.length; j++) {
+
                 iframe_status_url = globalConf.protocol_iframe + '://';
                 port = 9000 + parseInt(projects[i].Applications[j].id);
-                if (globalConf.env == 'cloud' || globalConf.env == 'cloud_recette')
-                    iframe_status_url += host + '-' + projects[i].Applications[j].codeName.substring(2) + globalConf.dns + '/';
-                else
+                appName = projects[i].Applications[j].codeName.substring(2);
+
+                if (globalConf.env == 'cloud'){
+                    iframe_status_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+                } else {
                     iframe_status_url += host + ":" + port + "/";
+                }
+
+                if(gitlabConf.doGit){
+                    projects[i].dataValues.Applications[j].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
+                    data.gitlabUser = req.session.gitlab.user;
+                }
 
                 projects[i].dataValues.Applications[j].dataValues.url = iframe_status_url;
             }
         }
         data.projects = projects;
         res.render('front/application', data);
-    }).catch(function(error) {
-        console.log(error);
+    }).catch(function(err) {
+        console.error(err);
         data.code = 500;
         res.render('common/error', data);
     });
@@ -710,7 +744,7 @@ router.post('/execute', block_access.isLoggedIn, function(req, res) {
                 res.send(data);
             }
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             if (++done == instruction.length) {
                 data.id_application = req.session.id_application;
                 res.status(500).send(err);
@@ -728,7 +762,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     var select_project = req.body.selectProject || '';
 
     if(select_project == "" && (name_project == "" || name_application == "")){
-        console.log("Une erreur est survenue. Projet et/ou application non renseigné.");
+        console.error("Une erreur est survenue. Projet et/ou application non renseigné.");
         req.session.toastr = [{
             message: "Une erreur est survenue. Projet et/ou application non renseigné.",
             level: "error"
@@ -736,7 +770,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
         return res.redirect('/default/home');
     }
     else if(name_application == ""){
-        console.log("Une erreur est survenue. Nom d'application non renseigné.");
+        console.error("Une erreur est survenue. Nom d'application non renseigné.");
         req.session.toastr = [{
             message: "Une erreur est survenue. Nom d'application non renseigné.",
             level: "error"
@@ -766,6 +800,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create entity User");
     instructions.push("add field login");
     instructions.push("set field login required");
+    instructions.push("set field login unique");
     instructions.push("add field password");
     instructions.push("add field email with type email");
     instructions.push("add field token_password_reset");
@@ -774,10 +809,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("create entity Role");
     instructions.push("add field label");
     instructions.push("set field label required");
+    instructions.push("set field label unique");
     instructions.push("set icon asterisk");
     instructions.push("create entity Group");
     instructions.push("add field label");
     instructions.push("set field label required");
+    instructions.push("set field label unique");
     instructions.push("set icon users");
     instructions.push("select entity User");
     instructions.push("add field Role related to many Role using label");
@@ -795,6 +832,14 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field group related to many Group using label");
     instructions.push("add field Token");
     instructions.push("add field Token timeout TMSP");
+    instructions.push("add entity Synchronization");
+    instructions.push("entity Synchronization has one API credentials");
+    instructions.push("add field Journal backup file");
+    instructions.push("add entity Synchro credentials");
+    instructions.push("add field Cloud host with type url");
+    instructions.push("add field Client key");
+    instructions.push("add field Client secret");
+    instructions.push("set icon unlink");
     instructions.push("add widget stat on entity User");
 
     // Component status base
@@ -805,6 +850,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Name");
     instructions.push("add field Color with type color");
     instructions.push("add field Accepted group related to many Group using Label");
+    instructions.push("add field Button label");
     instructions.push("add field Position with type number");
     instructions.push("add field Default with type boolean");
     instructions.push("add field Comment with type boolean");
@@ -813,15 +859,44 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("select entity translation");
     instructions.push("add field Language");
     instructions.push("add field Value");
+    instructions.push("create entity Robot");
+    instructions.push("set icon android");
+    instructions.push("add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING");
+    instructions.push("add field Name");
+    instructions.push("add field Api credentials related to api credentials using client name");
+    instructions.push("add field Comment with type regular text");
+    instructions.push("create entity Task");
+    instructions.push("set icon cogs");
+    instructions.push("add component status with name State");
+    instructions.push("add field Title");
+    instructions.push("set field Title required");
+    instructions.push("add field Type with type enum and values Manual, Automatic and default value Manual");
+    instructions.push("add field Planned date with type date");
+    instructions.push("add field Execution start date with type date");
+    instructions.push("add field Execution finish date with type date");
+    instructions.push("add field Duration with type decimal");
+    instructions.push("add field Data flow with type regular text");
+    instructions.push("add field Robot related to Robot using Name");
+    instructions.push("add field Program file with type file");
+    instructions.push("add field Procedure with type regular text");
+    instructions.push("add component localfilestorage with name Documents");
     instructions.push("create entity Media");
     instructions.push("set icon envelope");
-    instructions.push("add field Type with type enum and values Mail, Notification, SMS");
+    instructions.push("add field Type with type enum and values Mail, Notification, SMS, Task");
     instructions.push("add field Name");
     instructions.push("set field Name required");
     instructions.push("add field Target entity");
     instructions.push("entity Media has one Media Mail");
     instructions.push("entity Media has one Media Notification");
     instructions.push("entity Media has one Media SMS");
+    instructions.push("entity Media has one Media Task");
+    instructions.push("select entity media task");
+    instructions.push("add field Task name");
+    instructions.push("add field Task type with type enum and values Manual, Automatic and default value Manual");
+    instructions.push("add field Assignment logic");
+    instructions.push("add field Program file with type file");
+    instructions.push("add field Data flow with type text");
+
     instructions.push("entity status has many Action called Actions");
     instructions.push("select entity action");
     instructions.push("add field Media related to Media using name");
@@ -832,6 +907,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     instructions.push("add field Cc");
     instructions.push("add field Cci");
     instructions.push("add field From");
+    instructions.push("add field Attachments");
     instructions.push("add field Subject");
     instructions.push("add field Content with type text");
     instructions.push("select entity media notification");
@@ -872,10 +948,9 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
                 docBuilder.build(req.session.id_application);
                 res.redirect('/application/preview?id_application=' + req.session.id_application);
-            });
+            })
             return;
         }
-
         execute(req, recurInstructions[idx]).then(function(){
             pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
             recursiveExecute(recurInstructions, ++idx);

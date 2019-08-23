@@ -48,25 +48,40 @@ const operatorsAliases = {
     $col: Op.col
 };
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
-    host: dbConfig.host,
-    logging: false,
-    port: dbConfig.port,
-    dialect: dbConfig.dialect,
-    dialectOptions: {
-        multipleStatements: true
-    },
-    define: {
-        timestamps: false
-    },
-    charset: 'utf8',
-    collate: 'utf8_general_ci',
-    timezone: moment_timezone.tz.guess(),
-    operatorsAliases
-});
+let sequelizeOptions;
+if (dbConfig.dialect == 'sqlite'){
+    sequelizeOptions = {
+        dialect: dbConfig.dialect,
+        storage: dbConfig.storage,
+        logging: false,
+        operatorsAliases
+    }
+} else {
+    sequelizeOptions = {
+        host: dbConfig.host,
+        logging: false,
+        port: dbConfig.port,
+        dialect: dbConfig.dialect,
+        dialectOptions: {
+            multipleStatements: true
+        },
+        define: {
+            timestamps: false
+        },
+        charset: 'utf8',
+        collate: 'utf8_general_ci',
+        timezone: moment_timezone.tz.guess(),
+        operatorsAliases
+    }
+}
+
+var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, sequelizeOptions);
 
 sequelize.customAfterSync = function() {
     return new Promise(function(resolve, reject) {
+        if (globalConf.env == "tablet")
+            return resolve();
+
         var toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
 
         var promises = [];
@@ -179,7 +194,12 @@ sequelize.customAfterSync = function() {
                         (function(sourceEntity, option) {
                             promises.push(new Promise(function(resolve0, reject0) {
                                 var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
-                                var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
+                                try {
+                                    var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
+                                } catch(err) {
+                                    console.error("Unable to find model "+tableName+", skipping toSync query.")
+                                    return resolve0();
+                                }
                                 var targetName;
                                 // Status specific target. Get real history table name from attributes
                                 if (option.target.indexOf('e_history_') == 0) {
@@ -253,7 +273,7 @@ sequelize.customAfterSync = function() {
                         toSyncProdObject.queries.push(queries[idx]);
                         execQuery(queries, idx+1);
                     }).catch(function(err){
-                        console.log(err);
+                        console.error(err);
                         execQuery(queries, idx+1);
                     });
                 }
@@ -285,7 +305,7 @@ sequelize.customAfterSync = function() {
 }
 
 fs.readdirSync(__dirname).filter(function(file) {
-    var excludeFiles = ['hooks.js'];
+    var excludeFiles = ['hooks.js', 'validators.js'];
     return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js') && excludeFiles.indexOf(file) == -1;
 }).forEach(function(file) {
     var model = sequelize['import'](path.join(__dirname, file));

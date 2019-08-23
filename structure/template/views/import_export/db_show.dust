@@ -53,7 +53,7 @@
 												{/entities}
 											</span>
 											<br>
-											<button data-toggle="modal" data-target="#db_password" class="btn btn-primary btn-modal">{#__ key="settings.db_tool.export_action" /}</button>
+											<button data-toggle="modal" data-action='{#__ key="settings.db_tool.export_action" /}' data-target="#db_password" class="btn btn-primary btn-modal">{#__ key="settings.db_tool.export_action" /}</button>
 										</div>
 									</form>
 								</div>
@@ -72,7 +72,7 @@
 											    <input type="hidden" name="import_file" id="import_file_dropzone_hidden" required>
 											</div>
 											<br>
-											<button data-toggle="modal" data-target="#db_password" class="btn btn-primary btn-modal">{#__ key="settings.db_tool.import_action" /}</button>
+											<button data-toggle="modal" data-action='{#__ key="settings.db_tool.import_action" /}' data-target="#db_password" class="btn btn-primary btn-modal">{#__ key="settings.db_tool.import_action" /}</button>
 										</div>
 									</form>
 								</div>
@@ -110,21 +110,21 @@ $(document).ready(function() {
 
 	$(document).on("ifChecked", "input[name='all_db']", function(){
 		$("#checkbox-entities").hide("fast");
-		$("input:not([name='all_db'])").iCheck("uncheck");
+		$("input:not([name='all_db'])").icheck("uncheck");
 	});
 
 	$(document).on("ifUnchecked", "input[name='all_db']", function(){
 		$("#checkbox-entities").show("fast");
-		$("input:not([name='all_db'])").iCheck("uncheck");
+		$("input:not([name='all_db'])").icheck("uncheck");
 	});
 
 	$(document).on("ifClicked", "input:not([name='all_db'])", function(){
-		$("input[name='all_db']").iCheck("uncheck");
+		$("input[name='all_db']").icheck("uncheck");
 	});
 
 	$(document).on("click", "button[data-target='#db_password']", function(){
 		$("#execute_button").attr("data-form", $(this).parents("form").attr("id"));
-		$("#execute_button").text($(this).text() + " !");
+		$("#execute_button").text($(this).data("action") + " !");
 		$("#execute_button").prop("disabled", false);
 		$("input[name='db_password']").val("");
 		setTimeout(function(){
@@ -142,7 +142,7 @@ $(document).ready(function() {
 			setTimeout(function(){
 				$("#db_password").modal("hide");
 				$("#export_form input[type='checkbox']").each(function(){
-					$(this).iCheck('uncheck')
+					$(this).icheck('uncheck')
 				});
 			}, 2000);
 		}

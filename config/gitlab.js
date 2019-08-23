@@ -1,6 +1,6 @@
-var globalConf = require('./global');
+const globalConf = require('./global');
 
-var config = {
+let config = {
     develop: {
         doGit: false, // Should the application try to push your app on a repository ?
         protocol: "http",
@@ -27,6 +27,24 @@ var config = {
         useSSH: true,
         adminUser: "",
         privateToken: ""
+    },
+    docker: {
+        doGit: false,
+        protocol: "http",
+        url: "",
+        sshUrl: "",
+        useSSH: true,
+        adminUser: "",
+        privateToken: ""
+    },
+    cloud: {
+        doGit: true,
+        protocol: "http",
+        url: process.env.GITLAB_HOME,
+        sshUrl: "git@gitlab." + process.env.DOMAIN_STUDIO,
+        useSSH: true,
+        adminUser: process.env.GITLAB_LOGIN,
+        privateToken: process.env.GITLAB_PRIVATE_TOKEN
     }
 }
 

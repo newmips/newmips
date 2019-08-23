@@ -7,6 +7,7 @@ var auth = require('../utils/authStrategies');
 var helper = require('../utils/helpers');
 var fs = require("fs");
 var language = require("../services/language");
+const readLastLines = require('read-last-lines');
 
 // Bot completion
 var bot = require('../services/bot.js');
@@ -21,13 +22,39 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
 
     models.Project.findAll({
         include: [{
-            model: models.Application
+            model: models.Application,
+            required: true,
+            include: [{
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                }
+            }]
         }]
     }).then(function(projects) {
         // Count number of available Applications
         // Get application module
-        models.Application.findAll({order: [['id', 'DESC']], limit: 3}).then(function(lastThreeApp){
-            models.Application.count().then(function(nbApp){
+        models.Application.findAll({
+            order: [['id', 'DESC']],
+            limit: 3,
+            include: [{
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                }
+            }]
+        }).then(function(lastThreeApp){
+            models.Application.count({
+                include: [{
+                    model: models.User,
+                    as: "users",
+                    where: {
+                        id: req.session.passport.user.id
+                    }
+                }]
+            }).then(function(nbApp){
                 data.projects = projects;
                 data.lastThreeApp = lastThreeApp;
                 data.nb_application = nbApp;
@@ -38,18 +65,21 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
                     req.session.showytpopup = false;
                 }
 
-                data.version = "";
+                data.version;
                 if(fs.existsSync(__dirname+"/../public/version.txt"))
                     data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
 
                 res.render('front/home', data);
-            });
+            }).catch(function(err){
+                res.render('common/error', {code: 500});
+            })
         }).catch(function(err){
-            data.code = 500;
-            res.render('common/error', data);
-        });
-    });
-});
+            res.render('common/error', {code: 500});
+        })
+    }).catch(function(err){
+        res.render('common/error', {code: 500});
+    })
+})
 
 // AJAX loading applications from a choosen project ( To fill select in home )
 router.post('/get_applications_by_project', block_access.isLoggedIn, function(req, res){
@@ -57,23 +87,35 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
     models.Application.findAll({
         where: {
             id_project: req.body.idProject
-        }
-    }).then(function(applications){
+        },
+        include: [{
+            model: models.User,
+            as: "users",
+            where: {
+                id: req.session.passport.user.id
+            }
+        }]
+    }).then((applications) => {
         if(applications){
-            res.json({
-                applications: applications
-            });
-        }
-        else{
+            res.json({applications: applications});
+        } else {
             res.status(500).send("Oups, something's broken.");
         }
     });
 });
 
-router.get('/update_logs', function(req, res) {
-    try{
-        res.send(fs.readFileSync(__dirname + "/../all.log"));
-    } catch(e){
+router.post('/update_logs', block_access.isLoggedIn, function(req, res) {
+    try {
+        if(!isNaN(req.body.idApp)){
+            readLastLines.read(__dirname + "/../workspace/logs/app_"+req.body.idApp+".log", 1000).then(lines => {
+                res.status(200).send(lines);
+            });
+        } else {
+            readLastLines.read(__dirname + "/../all.log", 1000).then(lines => {
+                res.status(200).send(lines);
+            });
+        }
+    } catch(e) {
         console.log(e);
         res.send(false);
     }

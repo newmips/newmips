@@ -27,9 +27,9 @@
                 <option value="-1">{#__ key="select.default" /}</option>
                 {#target_entities}
                     {@eq key=f_target_entity value="{codename}"}
-                        <option value="{codename}" selected> {#__ key=tradKey /} </option>
+                        <option value="{codename}" selected>{trad}</option>
                     {:else}
-                        <option value="{codename}"> {#__ key=tradKey /} </option>
+                        <option value="{codename}">{trad}</option>
                     {/eq}
                 {/target_entities}
             </select>
@@ -50,4 +50,9 @@
             {>"e_media_sms/update_fields" /}
         </div>
     {/r_media_sms}
+    {#r_media_task}
+        <div id="media-task" class="media-type col-xs-12">
+            {>"e_media_task/update_fields" /}
+        </div>
+    {/r_media_task}
 </div>

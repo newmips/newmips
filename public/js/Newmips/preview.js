@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
     function getTranslation(key, params, callback) {
         var ajaxData = {
             key: key,
@@ -17,7 +16,7 @@ $(document).ready(function() {
                 callback(answer.value);
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 callback(key);
             }
         });
@@ -75,7 +74,7 @@ $(document).ready(function() {
                     $("a#custom-grid-editor-print-layout").trigger("click");
             },
             error: function(err) {
-                console.log(err);
+                console.error(err);
                 toastr.error(err.responseText);
             }
         });
@@ -102,7 +101,7 @@ $(document).ready(function() {
                 $(this).prop("disabled", false);
             },
             error: function(err) {
-                console.log(err);
+                console.error(err);
                 toastr.error(err.responseText);
             }
         });
@@ -145,8 +144,40 @@ $(document).ready(function() {
                     "<script src='/js/plugins/codemirror/mode/sql/sql.js' type='text/javascript' />" +
                     "<script type='text/javascript' src='/js/Newmips/editor.js'/>");
                 isEditorStarted = true;
+                // Load treeview js for side menu
+                $("#codemirror-menu ul.sidebar-menu .treeview").tree();
                 $("#loadingEditorIframe").remove();
             }, 500);
+            // Load file/folder sidebar
+            var side_menu_html = "";
+            function generateSidebarEditor(menu){
+                for (var i = 0; i < menu.length; i++) {
+                    if(typeof menu[i].path !== "undefined"){
+                        side_menu_html += ""+
+                            "<li>"+
+                            "   <a class='load-file' href='#' data-path="+menu[i].path+" data-filename="+menu[i].title+">"+
+                            "       <i class='fa fa-file'></i>"+
+                            "       &nbsp;&nbsp;"+menu[i].title+
+                            "   </a>"+
+                            "</li>";
+                    } else if(typeof menu[i].under !== "undefined") {
+                        side_menu_html += ""+
+                            "<li class='ui-state-default treeview' style='display:block;'>"+
+                            "    <a href='#'>"+
+                            "        <i class='fa fa-folder'></i>"+
+                            "        <span>"+menu[i].title+"</span>"+
+                            "        <i class='fa fa-angle-left pull-right'></i>"+
+                            "    </a>"+
+                            "    <ul class='treeview-menu'>";
+                            generateSidebarEditor(menu[i].under)
+                            side_menu_html += ""+
+                            "    </ul>"+
+                            "</li>";
+                    }
+                }
+            }
+            generateSidebarEditor(workspaceFolder)
+            $("#codemirror-menu ul.sidebar-menu").append(side_menu_html);
         }
     });
 
@@ -244,6 +275,13 @@ $(document).ready(function() {
             method: 'POST',
             data: $(this).serialize(),
             success: function(data) {
+
+                if(data.iframe_url == -1){
+                    $("#loadingIframe").hide();
+                    $("#errorIframe").show();
+                    return;
+                }
+
                 if (data.toRedirect)
                     return window.location.href = data.url;
 
@@ -359,7 +397,7 @@ $(document).ready(function() {
                 });
             },
             error: function(error) {
-                console.log(error);
+                console.error(error);
                 toastr.error("Sorry, an error occured :/");
             }
         });
@@ -434,28 +472,68 @@ $(document).ready(function() {
     /////////
     // Logs
     /////////
+    var flagBottom = true;
+    var flagStopReload = false;
+    var logsInitialized = false;
+    var logsInterval;
+    var objDiv = document.getElementById("logs-content");
     function updateLog() {
-        $.ajax({
-            url: '/default/update_logs',
-            success: function(data) {
-                $("#logs-content").html(data);
-                setTimeout(updateLog, 1000);
-            },
-            error: function(err) {
-                console.log(err);
-            }
-        });
+        if($('#logs-content').is(":visible") && !flagStopReload){
+            $.ajax({
+                url: '/default/update_logs',
+                method: "POST",
+                data: {
+                    idApp: idApp
+                },
+                success: function(data) {
+                    $("#logs-content").html(data);
+                    if(flagBottom){
+                        objDiv.scrollTop = objDiv.scrollHeight;
+                    }
+                    logsInterval = window.setTimeout(updateLog, 1000);
+                },
+                error: function(err) {
+                    console.error(err);
+                }
+            });
+        } else {
+            logsInterval = window.setTimeout(updateLog, 1000);
+        }
     }
 
     $(document).on("click", "#start-logs", function() {
-        updateLog();
-        $('#logs-content').slimScroll({
-            start: "bottom",
-            height: "800px",
-            railVisible: true,
-			alwaysVisible: true,
-			color: '#FFF',
-			size: '10px'
-        });
-    })
+        if(!logsInitialized){
+            logsInitialized = true;
+            setTimeout(function(){
+                updateLog();
+            }, 1000);
+
+            $('#logs-content').slimScroll({
+                start: "bottom",
+                height: "800px",
+                railVisible: true,
+    			alwaysVisible: true,
+    			color: '#FFF',
+    			size: '10px'
+            }).bind('slimscrolling', function (e, pos) {
+                if($(this)[0].scrollHeight - pos <= 1000) {
+                    flagBottom = true;
+                } else {
+                    flagBottom = false;
+                }
+            });
+        }
+    });
+
+    /* Stop logs from reloading for 10 seconds to enable user to copy/paste */
+    $(document).on('mousedown', '#logs-content', function(e) {
+        /* Only right click */
+        if(e.which == 1){
+            flagStopReload = true;
+            setTimeout(function(){
+                console.log("END");
+                flagStopReload = false;
+            }, 10000)
+        }
+    });
 })

@@ -1,0 +1,104 @@
+{>"main_layout"/}
+{<title}
+	{#__ key="menu.account"/}<small>{#__ key="menu.module"/}</small>
+{/title}
+{<content}
+	<div class="row">
+		<div class="col-xs-12 col-lg-offset-2 col-lg-8">
+			<div class="box box-solid box-default">
+				<div class="box-header bg-primary">
+					<h3 class="box-title" style="color: #fff;">{#__ key="menu.account"/}</h3>
+				</div>
+				<div class="box-body"><br>
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label>{#__ key="settings.display_infos"/}</label>
+								<br><br>
+								<div class="col-xs-12 col-sm-4">{#__ key="settings.infos.env"/}:<br>
+									<input class="form-control input" id="inputEnv" readonly />
+									<br><br>{#__ key="settings.infos.login"/}:<br>
+									<input class="form-control input" value="{user.login}" readonly />
+									<br><br>{#__ key="settings.infos.role"/}:<br>
+									<input class="form-control input" value="{user.role.name}" readonly />
+									<br><br>
+								</div>
+								<div class="col-xs-12 col-sm-4">{#__ key="settings.infos.lastname"/}:<br>
+									<input class="form-control input" value="{user.last_name}" readonly />
+									<br><br>{#__ key="settings.infos.firstname"/}:<br>
+									<input class="form-control input" value="{user.first_name}" readonly />
+								</div>
+								<div class="col-xs-12 col-sm-4">{#__ key="settings.infos.phone"/}:<br>
+									<input class="form-control input" value="{user.phone}" readonly />
+									<br><br>{#__ key="settings.infos.email"/}:<br>
+									<input class="form-control input" value="{user.email}" readonly />
+								</div>
+							</div>
+						</div>
+						{?gitlabUser}
+							<div class="col-xs-12 col-sm-6">
+								<div class="form-group">
+									<label>Gitlab</label>
+									<br><br>
+									<div class="col-xs-12">Gitlab URL:<br>
+										<input class="form-control input" value="{gitlabHost}" readonly />
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-sm-6">
+								<div class="form-group">
+									<br><br>
+									<div class="col-xs-12">Login:<br>
+										<input class="form-control input" value="{gitlabUser.email}" readonly />
+									</div>
+								</div>
+							</div>
+
+						{/gitlabUser}
+						<div class="col-xs-12"><br>
+							<div class="form-group">
+								<br><br>
+								<label>{#__ key="settings.change_password"/}</label>
+								<br><br><a class="resetPassword btn btn-primary">{#__ key="settings.reset_button"/}</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{/content}
+{<custom_js}
+	<script type="text/javascript">
+		var sureResetMsg = '{#__ key="settings.sure_reset"/}';
+		var loginUser = "{user.login}";
+		var mailUser = "{user.email}";
+		$(document).ready(function() {
+			$("#inputEnv").val(window.location.href.split("/account")[0]);
+			$(document).on("click", ".resetPassword", function(){
+				var sure = confirm(sureResetMsg);
+				if(sure){
+					var ajaxdata = {
+						login: loginUser,
+						mail: mailUser
+					};
+
+					$.ajax({
+						url : '/settings/reset_password',
+						type : 'POST',
+						data : JSON.stringify(ajaxdata),
+						dataType : 'json',
+						contentType: "application/json",
+						context: this,
+						success: function (success) {
+							window.location.href = "/logout";
+						},
+						error: function (error) {
+							location.reload();
+						}
+					});
+				}
+			});
+		});
+	</script>
+{/custom_js}

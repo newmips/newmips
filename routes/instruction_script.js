@@ -1,19 +1,24 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var message = "";
-var multer = require('multer');
-var readline = require('readline');
-var fs = require('fs');
-var docBuilder = require('../utils/api_doc_builder');
-var moment = require('moment');
-var designer = require('../services/designer.js');
-var structure_application = require('../structure/structure_application');
-var fs = require("fs");
-var session_manager = require('../services/session.js');
-var parser = require('../services/bot.js');
-var scriptData = [];
-var attrHelper = require('../utils/attr_helper');
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const readline = require('readline');
+const fs = require('fs-extra');
+const path = require('path');
+const moment = require('moment');
+
+const attrHelper = require('../utils/attr_helper');
+const block_access = require('../utils/block_access');
+const docBuilder = require('../utils/api_doc_builder');
+
+const designer = require('../services/designer.js');
+const session_manager = require('../services/session.js');
+const parser = require('../services/bot.js');
+
+const structure_application = require('../structure/structure_application');
+
+let scriptProcessing = false;
+let scriptData = [];
+let message = "";
 
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
@@ -76,12 +81,13 @@ function execute(req, instruction) {
     });
 }
 
-var mandatoryInstructions = [
+let mandatoryInstructions = [
     "create module home",
     "create module Administration",
     "create entity User",
     "add field login",
     "set field login required",
+    "set field login unique",
     "add field password",
     "add field email with type email",
     "add field token_password_reset",
@@ -90,10 +96,12 @@ var mandatoryInstructions = [
     "create entity Role",
     "add field label",
     "set field label required",
+    "set field label unique",
     "set icon asterisk",
     "create entity Group",
     "add field label",
     "set field label required",
+    "set field label unique",
     "set icon users",
     "select entity User",
     "add field Role related to many Role using label",
@@ -111,6 +119,13 @@ var mandatoryInstructions = [
     "set icon key",
     "add field role related to many Role using label",
     "add field group related to many Group using label",
+    "add entity Synchronization",
+    "add field Journal backup file",
+    "entity Synchronization has one API credentials",
+    "add entity Synchro credentials",
+    "add field Cloud host with type url",
+    "add field Client key",
+    "add field Client secret",
     "add widget stat on entity User",
     "add entity Status",
     "set icon tags",
@@ -119,6 +134,7 @@ var mandatoryInstructions = [
     "add field Name",
     "add field Color with type color",
     "add field Accepted group related to many Group using Label",
+    "add field Button label",
     "add field Position with type number",
     "add field Default with type boolean",
     "add field Comment with type boolean",
@@ -129,7 +145,7 @@ var mandatoryInstructions = [
     "add field Value",
     "create entity Media",
     "set icon envelope",
-    "add field Type with type enum and values Mail, Notification, SMS",
+    "add field Type with type enum and values Mail, Notification, SMS, Task",
     "add field Name",
     "set field Name required",
     "add field Target entity",
@@ -138,14 +154,43 @@ var mandatoryInstructions = [
     "add field Media related to Media using name",
     "add field Order with type number",
     "add field Execution with type enum and values Immédiate, Différée with default value Immédiate",
+    "create entity Robot",
+    "set icon android",
+    "add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING",
+    "add field Name",
+    "add field Api credentials related to api credentials using client name",
+    "add field Comment with type regular text",
+    "create entity Task",
+    "set icon cogs",
+    "add component status with name State",
+    "add field Title",
+    "set field Title required",
+    "add field Type with type enum and values Manual, Automatic and default value Manual",
+    "add field Planned date with type date",
+    "add field Execution start date with type date",
+    "add field Execution finish date with type date",
+    "add field Duration with type decimal",
+    "add field Data flow with type regular text",
+    "add field Robot related to Robot using Name",
+    "add field Program file with type file",
+    "add field Procedure with type regular text",
+    "add component localfilestorage with name Documents",
     "entity Media has one Media Mail",
     "entity Media has one Media Notification",
     "entity Media has one Media SMS",
+    "entity Media has one Media Task",
+    "select entity media task",
+    "add field Task name",
+    "add field Task type with type enum and values Manual, Automatic and default value Manual",
+    "add field Assignment logic",
+    "add field Program file with type file",
+    "add field Data flow with type text",
     "select entity media mail",
     "add field To",
     "add field Cc",
     "add field Cci",
     "add field From",
+    "add field Attachments",
     "add field Subject",
     "add field Content with type text",
     "select entity media notification",
@@ -172,8 +217,7 @@ var mandatoryInstructions = [
     "entity notification has many user",
     "select module home"
 ];
-var idxAtMandatoryInstructionStart = -1;
-
+let idxAtMandatoryInstructionStart = -1;
 function recursiveExecute(req, instructions, idx) {
     return new Promise(function(resolve, reject) {
         // All instructions executed, mandatory instruction included
@@ -257,6 +301,7 @@ router.get('/index', block_access.isLoggedIn, function(req, res) {
 router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
+
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;
 
@@ -276,6 +321,16 @@ router.post('/execute', block_access.isLoggedIn, multer({
             id_data_entity: -1
         }
     };
+    if(scriptProcessing){
+        let __ = require("../services/language")(req.session.lang_user).__;
+        scriptData[userId].answers = [{
+            message: __('instructionScript.alreadyProcessing')
+        }];
+        scriptData[userId].over = true;
+        scriptData[userId].overDueToProcessing = true;
+        return res.end();
+    }
+    scriptProcessing = true;
 
     // Get file extension
     var extensionFile = req.file.originalname.split(".");
@@ -338,6 +393,10 @@ router.post('/execute', block_access.isLoggedIn, multer({
         setFieldUnique: {
             value: 1,
             errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        },
+        delete: {
+            value: 1,
+            errorMessage: "Please do not use delete instruction in script mode."
         }
     };
 
@@ -362,7 +421,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
+            console.log(line);
             var parserResult = parser.parse(line);
+            console.log(parserResult);
             // Get the wanted function given by the bot to do some checks
             var designerFunction = parserResult.function;
             var designerValue = null;
@@ -392,8 +453,12 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
-            if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
-                exception.setFieldUnique.value += 1;
+            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
+                exception.delete.value += 1;
+
+            // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
+            //     exception.setFieldUnique.value += 1;
+
             fileLines.push(line);
         }
     });
@@ -421,7 +486,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                 message: stringError
             });
             scriptData[userId].over = true;
-        } else{
+        } else {
             scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 // Workspace sequelize instance
@@ -470,7 +535,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
                         process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
                             if(err)
-                                console.log(err);
+                                console.error(err);
 
                             // Preparation to start a new child server
                             var math = require('math');
@@ -479,7 +544,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                             env.PORT = port;
 
                             // Launch server for preview
-                            process_server_per_app[idApplication] = process_manager.launchChildProcess(idApplication, env);
+                            process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
 
                             // Finish and redirect to the application
                             scriptData[userId].over = true;
@@ -489,7 +554,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
                     }
                 });
             }).catch(function(err) {
-                console.log(err);
+                console.error(err);
                 scriptData[userId].over = true;
             });
         }
@@ -522,12 +587,59 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             id_data_entity: -1
         }
     };
+    if(scriptProcessing){
+        let __ = require("../services/language")(req.session.lang_user).__;
+        scriptData[userId].answers = [{
+            message: __('instructionScript.alreadyProcessing')
+        }];
+        scriptData[userId].over = true;
+        scriptData[userId].overDueToProcessing = true;
+        return res.end();
+    }
+    scriptProcessing = true;
 
     var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
     var tmpPath = __dirname+'/../upload/'+tmpFilename;
 
+    // Load template script and unzip master file if application is created using template
+    let templateEntry = req.body.template_entry;
+    let template = {};
+
     fs.openSync(tmpPath, 'w');
-    fs.writeFileSync(tmpPath, req.body.text);
+    if(templateEntry){
+        let templateLang;
+        switch(req.session.lang_user.toLowerCase()) {
+            case "fr-fr":
+                templateLang = "fr";
+                break;
+            case "en-en":
+                templateLang = "en";
+                break;
+            default:
+                templateLang = "fr";
+                break;
+        }
+
+        var files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
+        let found = false;
+        for (var i = 0; i < files.length; i++) {
+            var filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+            if (filename.indexOf("_"+templateLang+"_") != -1 && filename.indexOf(".nps") != -1) {
+                fs.writeFileSync(tmpPath, fs.readFileSync(filename));
+                found = true;
+                break;
+            };
+        };
+        if(!found){
+            req.session.toastr = [{
+                message: "template.no_script",
+                level: "error"
+            }]
+            return res.redirect("/templates");
+        }
+    } else {
+        fs.writeFileSync(tmpPath, req.body.text);
+    }
 
     // Open file descriptor
     var rl = readline.createInterface({
@@ -573,6 +685,10 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         setFieldUnique: {
             value: 1,
             errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        },
+        delete: {
+            value: 1,
+            errorMessage: "Please do not use delete instruction in script mode."
         }
     };
 
@@ -625,8 +741,11 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
                 exception.createEntityGroup.value += 1;
 
-            if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
-                exception.setFieldUnique.value += 1;
+            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
+                exception.delete.value += 1;
+
+            // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
+            //     exception.setFieldUnique.value += 1;
 
             fileLines.push(line);
         }
@@ -694,7 +813,24 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                         }
                     }
 
+                    // If there is data to add in template
+                    if (templateEntry && fs.existsSync(__dirname + '/../templates/' + templateEntry + "/data.json")){
+                        let dataSqlContent = JSON.parse(fs.readFileSync(__dirname + '/../templates/' + templateEntry + "/data.json", "utf8"), null, 4);
+                        if(dataSqlContent.length != 0 && !toSyncObject.queries)
+                            toSyncObject.queries = [];
+                        for (let i = 0; i < dataSqlContent.length; i++) {
+                            for (let j = 0; j < dataSqlContent[i].queries.length; j++) {
+                                toSyncObject.queries.push(dataSqlContent[i].queries[j].replace(dataSqlContent[i].table, idApplication+"_"+dataSqlContent[i].table))
+                            }
+                        }
+                    }
+
                     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
+
+                    // Copy choosen template in generated workspace
+                    if (templateEntry) {
+                        fs.copySync(__dirname + '/../templates/' + templateEntry, __dirname + '/../workspace/' + idApplication);
+                    }
 
                     // Restart the application server is already running
                     var process_manager = require('../services/process_manager.js');
@@ -704,7 +840,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
                         process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
                             if(err)
-                                console.log(err);
+                                console.error(err);
 
                             // Preparation to start a new child server
                             var math = require('math');
@@ -713,7 +849,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                             env.PORT = port;
 
                             // Launch server for preview
-                            process_server_per_app[idApplication] = process_manager.launchChildProcess(idApplication, env);
+                            process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
 
                             // Finish and redirect to the application
                             scriptData[userId].over = true;
@@ -722,10 +858,10 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                         scriptData[userId].over = true;
                     }
                 }).catch(function(err) {
-                    console.log(err);
+                    console.error(err);
                 });
             }).catch(function(err) {
-                console.log(err);
+                console.error(err);
                 scriptData[userId].over = true;
             });
         }
@@ -755,6 +891,8 @@ router.get('/status', function(req, res) {
         req.session.id_project = scriptData[userId].ids.id_project;
         req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
         req.session.id_module = scriptData[userId].ids.id_module;
+        if(typeof scriptData[userId].overDueToProcessing === 'undefined')
+            scriptProcessing = false;
         scriptData.splice(scriptData.indexOf(userId), 1);
     }
 

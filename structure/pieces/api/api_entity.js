@@ -37,7 +37,7 @@ router.get('/', function(req, res) {
 
     var where = {};
     for (var field in req.query)
-        if (field.indexOf('f_') == 0 && attributes[field])
+        if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
             where[field] = req.query[field];
     if (Object.keys(where).length)
         query.where = where;
@@ -75,9 +75,15 @@ router.get('/:id', function(req, res) {
                         as: options[j].as
                     });
     }
-    var query = {limit: answer.limit, offset: answer.offset, where: {id: id_ENTITY_NAME}};
+    var query = {limit: answer.limit, offset: answer.offset, };
     if (include.length)
         query.include = include;
+
+    var where = {id: id_ENTITY_NAME};
+    for (var field in req.query)
+        if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
+            where[field] = req.query[field];
+    query.where = where;
 
     models.MODEL_NAME.findOne(query).then(function(ENTITY_NAME) {
         if (!ENTITY_NAME) {
@@ -107,13 +113,22 @@ router.get('/:id/:association', function(req, res) {
 
     var include = null;
     for (var i = 0; i < options.length; i++) {
-        if (options[i].as == 'r_'+association) {
-            include = {
-                model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
-                as: options[i].as,
-                limit: answer.limit,
-                offset: answer.offset
-            };
+        if (options[i].as == 'r_' + association) {
+            if (options[i].relation.toLowerCase().indexOf('many') != -1) {
+                include = {
+                    model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                    as: options[i].as
+                };
+                delete answer.limit;
+                delete answer.offset;
+            }
+            else
+                include = {
+                    model: models[entity_helper.capitalizeFirstLetter(options[i].target)],
+                    as: options[i].as,
+                    limit: answer.limit,
+                    offset: answer.offset
+                }
             break;
         }
     }

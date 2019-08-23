@@ -26,10 +26,13 @@
                         </div>
 
                         <div class="box-footer">
-                            <button type="submit" class="btn btn-primary">{#__ key="button.save"/}</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+                                {#__ key="button.save"/}
+                            </button>
                             &nbsp;&nbsp;
                             <a href="#" id="document_template_helper" class="btn btn-default">
-                                <i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span></button>
+                                <i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span>
                             </a>
                         </div>
 
@@ -53,62 +56,3 @@
             </div>
         </div>
         {/content}
-        {<custom_js}
-        <script type="text/javascript">
-            $(function () {
-                function setOnClick() {
-                    var select = $('#f_entity').val();
-                    var onclick = "window.open('/document_template/readme/" + select + "', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500')";
-                    $('#document_template_helper').attr('onclick', onclick);
-                }
-                function updateRelations(entity) {
-                    if (entity) {
-                        $.ajax({
-                            url: '/document_template/entities/' + entity + '/relations',
-                            methode: 'GET',
-                            success: function (data) {
-                                if (data.relations) {
-                                    $('#f_exclude_relations').empty();
-                                    data.relations.forEach(function (relation) {
-                                        $('#f_exclude_relations').append('<option value=' + relation + ' selected>' + relation + '</option>');
-                                    });
-                                }
-                            }
-                        });
-                    }
-                }
-                setOnClick();
-                updateRelations($('#f_entity').val());
-                $('#f_entity').on('change', function () {
-                    setOnClick();
-                    updateRelations($(this).val());
-                });
-                $('#info_relations').on('click', function (e) {
-                    e.preventDefault();
-                    $.ajax({
-                        url: '/document_template/help/subEntities',
-                        methode: 'GET',
-                        success: function (data) {
-                            if (data && data.message) {
-                                var html = '<div class="modal fade" tabindex="-1" role="dialog">';
-                                html += '<div class="modal-dialog" role="document">';
-                                html += '<div class="modal-content">';
-                                html += '<div class="modal-header" style="background:#3c8dbc;color:#ffffff">';
-                                html += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-                                html += '<h4 class="modal-title">Information</h4>';
-                                html += '</div>';
-                                html += '<div class="modal-body">';
-                                html += data.message;
-                                html += '</div>';
-                                html += '</div>';
-                                html += '</div>';
-                                html += '</div>';
-                                $(html).modal('show');
-                            }
-                        }
-                    });
-                    return false;
-                });
-            });
-            </script>
-            {/custom_js}

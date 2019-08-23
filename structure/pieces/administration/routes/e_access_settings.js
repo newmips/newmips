@@ -1,18 +1,13 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var access_helper = require('../utils/access_helper');
-var dust = require('dustjs-linkedin');
-var fs = require('fs');
-var language = require('../services/language')('fr-FR');
-var moment = require("moment");
-var globalConf = require('../config/global');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const access_helper = require('../utils/access_helper');
+const dust = require('dustjs-linkedin');
+const fs = require('fs');
+const language = require('../services/language')('fr-FR');
 
-// Datalist
-var filterDataTable = require('../utils/filter_datatable');
-
-// Winston logger
-var logger = require('../utils/logger');
+// Entity that shall be ignored to build group/role menu
+const ignoreEntityList = ['notification'];
 
 router.get('/show_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
     var data = {};
@@ -29,6 +24,9 @@ router.get('/show_group', block_access.isLoggedIn, block_access.actionAccessMidd
         for(var i=0; i<values.modules.length; i++){
             values.modules[i].tradKeyModule = "module.m_"+values.modules[i].name;
             for(var j=0; j<values.modules[i].entities.length; j++){
+                if (ignoreEntityList.includes(values.modules[i].entities[j]))
+                    continue;
+
                 // Access_settings isn't an entity
                 if(values.modules[i].entities[j].name == "access_settings")
                     values.modules[i].entities[j].tradKeyEntity = "settings.title";
@@ -62,6 +60,9 @@ router.get('/show_role', block_access.isLoggedIn, block_access.actionAccessMiddl
         for(var i=0; i<values.modules.length; i++){
             values.modules[i].tradKeyModule = "module.m_"+values.modules[i].name;
             for(var j=0; j<values.modules[i].entities.length; j++){
+                if (ignoreEntityList.includes(values.modules[i].entities[j]))
+                    continue;
+
                 // Access_settings isn't an entity
                 if(values.modules[i].entities[j].name == "access_settings")
                     values.modules[i].entities[j].tradKeyEntity = "settings.title";

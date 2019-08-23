@@ -41,19 +41,16 @@ router.get('/list', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
-
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("MODEL_VALUE_CONTACT", req.body, include).then(function (rawData) {
+    filterDataTable("MODEL_VALUE_CONTACT", req.body).then(function (rawData) {
         entity_helper.prepareDatalistResult('CODE_VALUE_CONTACT', rawData, req.session.lang_user).then(function (preparedData) {
             res.send(preparedData).end();
         }).catch(function (err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -150,18 +147,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
 
         /* Update local CODE_VALUE_CONTACT data before show */
         data.CODE_VALUE_CONTACT = CODE_VALUE_CONTACT;
-        var associationsFinder = model_builder.associationsFinder(models, options);
-
-        Promise.all(associationsFinder).then(function (found) {
-            for (var i = 0; i < found.length; i++) {
-                data.CODE_VALUE_CONTACT[found[i].model + "_global_list"] = found[i].rows;
-                data[found[i].model] = found[i].rows;
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-            res.render('CODE_VALUE_CONTACT/show', data);
-        });
+        res.render('CODE_VALUE_CONTACT/show', data);
 
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
@@ -183,17 +169,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, options);
-
-    Promise.all(associationsFinder).then(function (found) {
-        for (var i = 0; i < found.length; i++)
-            data[found[i].model] = found[i].rows;
-        data.toastr = req.session.toastr;
-        req.session.toastr = [];
-        res.render('CODE_VALUE_CONTACT/create', data);
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
-    });
+    res.render('CODE_VALUE_CONTACT/create', data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
@@ -283,7 +259,7 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("CODE_VALUE_CONTACT",deleteObject,attributes);
+            entity_helper.removeFiles("CODE_VALUE_CONTACT",deleteObject,attributes);
         }).catch(function (err) {
             entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/list');
         });
@@ -308,47 +284,14 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
         data.associationUrl = req.query.associationUrl;
     }
 
-    var associationsFinder = model_builder.associationsFinder(models, optionsSettings);
+    models.MODEL_VALUE_SETTINGS.findOne({where: {id: id_CODE_VALUE_SETTINGS}, include: [{all: true}]}).then(function (CODE_VALUE_SETTINGS) {
+        if (!CODE_VALUE_SETTINGS) {
+            data.error = 404;
+            return res.render('common/error', data);
+        }
 
-    Promise.all(associationsFinder).then(function (found) {
-        models.MODEL_VALUE_SETTINGS.findOne({where: {id: id_CODE_VALUE_SETTINGS}, include: [{all: true}]}).then(function (CODE_VALUE_SETTINGS) {
-            if (!CODE_VALUE_SETTINGS) {
-                data.error = 404;
-                return res.render('common/error', data);
-            }
-
-            data.CODE_VALUE_SETTINGS = CODE_VALUE_SETTINGS;
-            var name_global_list = "";
-
-            for (var i = 0; i < found.length; i++) {
-                var model = found[i].model;
-                var rows = found[i].rows;
-                data[model] = rows;
-
-                // Example : Gives all the adresses in the context Personne for the UPDATE field, because UPDATE field is in the context Personne.
-                // So in the context Personne we can found adresse.findAll through {#adresse_global_list}{/adresse_global_list}
-                name_global_list = model + "_global_list";
-                data.CODE_VALUE_SETTINGS[name_global_list] = rows;
-
-                if (rows.length > 1) {
-                    for (var j = 0; j < data[model].length; j++) {
-                        if (CODE_VALUE_SETTINGS[model] != null) {
-                            for (var k = 0; k < CODE_VALUE_SETTINGS[model].length; k++) {
-                                if (data[model][j].id == CODE_VALUE_SETTINGS[model][k].id) {
-                                    data[model][j].dataValues.associated = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            data.toastr = req.session.toastr;
-            req.session.toastr = [];
-            res.render('CODE_VALUE_CONTACT/settings', data);
-        }).catch(function (err) {
-            entity_helper.error(err, req, res, "/");
-        });
+        data.CODE_VALUE_SETTINGS = CODE_VALUE_SETTINGS;
+        res.render('CODE_VALUE_CONTACT/settings', data);
     }).catch(function (err) {
         entity_helper.error(err, req, res, "/");
     });

@@ -1,4 +1,4 @@
-<table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped">
+<table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped animated fadeIn" style="display: none;">
     <thead class="main">
 		<tr class='fields'>
 			<th data-field="id" data-col="id">
@@ -32,46 +32,5 @@
     	</tr>
     </thead>
     <tbody>
-		{#custom_data_entity}
-		<tr id='bodyTR'>
-			<td data-field="id">{id}</td>
-			{@eq key=for value="fieldset"}
-				{#actionAccess entity="custom_url_data_entity" action="update"}
-					<td>
-						<form class='fieldsetform'>
-							<input type='hidden' value='{id}' name='idRemove'>
-							<button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.remove" /}</span></button>
-						</form>
-					</td>
-				{/actionAccess}
-			{/eq}
-	    	{@eq key=for value="hasMany"}
-				{#actionAccess entity="custom_url_data_entity" action="read"}
-				<td>
-					<!--<a class="btn btn-primary" href="/custom_url_data_entity/show?id={id}&amp;hideButton=1"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.show" /}</span></a>-->
-				</td>
-				{/actionAccess}
-			{/eq}
-			{#actionAccess entity="custom_url_data_entity" action="update"}
-			<td>
-				{@eq key=for value="hasMany"}
-					<a class="ajax btn btn-warning" data-id="{id}" data-href="/custom_url_data_entity/update_form?id={id}&associationAlias={associationAlias}&associationForeignKey={associationForeignKey}&associationFlag={associationFlag}&associationSource={associationSource}&associationUrl={associationUrl}&ajax=true"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update" /}</span></a>
-				{/eq}
-			</td>
-			{/actionAccess}
-			{#actionAccess entity="custom_url_data_entity" action="delete"}
-			<td>
-				{@eq key=for value="hasMany"}
-					<form action="/custom_url_data_entity/delete" class="ajax" method="post">
-			            <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-			                <span>{#__ key="button.delete" /}</span>
-			                <input name="id" value="{id}" type="hidden"/>
-			            </button>
-			        </form>
-				{/eq}
-			</td>
-			{/actionAccess}
-		</tr>
-		{/custom_data_entity}
     </tbody>
 </table>

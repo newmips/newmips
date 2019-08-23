@@ -30,18 +30,16 @@ router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
-    /* Looking for include to get all associated related to data for the datalist ajax loading */
-    var include = model_builder.getDatalistInclude(models, options, req.body.columns);
-    filterDataTable("MODEL_NAME", req.body, include).then(function(rawData) {
+    filterDataTable("MODEL_NAME", req.body).then(function(rawData) {
         entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function(preparedData) {
             res.send(preparedData).end();
         }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             logger.debug(err);
             res.end();
         });
     }).catch(function(err) {
-        console.log(err);
+        console.error(err);
         logger.debug(err);
         res.end();
     });
@@ -52,45 +50,42 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
     var length = parseInt(req.body.length || 10);
 
     var sourceId = req.query.sourceId;
-    var subentityAlias = req.query.subentityAlias;
+    var subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
     var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
-    var subentityOptions = JSON.parse(fs.readFileSync(__dirname+"/../models/options/"+req.query.subentityModel+".json"));
-    var subentityInclude = model_builder.getDatalistInclude(models, subentityOptions, req.body.columns);
     var doPagination = req.query.paginate;
 
-    var queryAttributes = [];
+    // Build array of fields for include and search object
+    var isGlobalSearch = req.body.search.value == "" ? false : true;
+    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    search[searchTerm] = [];
+    var toInclude = [];
+    // Loop over columns array
+    for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+        if (columns[i].searchable == 'false')
+            continue;
+
+        // Push column's field into toInclude. toInclude will be used to build the sequelize include. Ex: toInclude = ['r_alias.r_other_alias.f_field', 'f_name']
+        toInclude.push(columns[i].data);
+
+        // Add column own search
+        if (columns[i].search.value != "") {
+            var {type, value} = JSON.parse(columns[i].search.value);
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
+        }
+        // Add column global search
+        if (isGlobalSearch)
+            search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
+    }
     for (var i = 0; i < req.body.columns.length; i++)
         if (req.body.columns[i].searchable == 'true')
-            queryAttributes.push(req.body.columns[i].data);
+            toInclude.push(req.body.columns[i].data);
+    // Get sequelize include object
+    var subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
-    /* ORDER BY */
-    var order;
-    var stringOrder = req.body.columns[req.body.order[0].column].data;
-    var arrayOrder = stringOrder.split(".");
-
-    /* If there are inclusions, seperate with dot */
-    if (arrayOrder.length > 1) {
-        order = [];
-        var orderContent = [];
-        for (var j = 0; j < arrayOrder.length; j++) {
-            if (j < arrayOrder.length - 1) {
-                var modelInclude = entity_helper.searchInInclude(subentityInclude, arrayOrder[j]);
-                orderContent.push({
-                    model: models[modelInclude.model.name],
-                    as: arrayOrder[j]
-                });
-            } else {
-                /* Add the field and the order */
-                orderContent.push(arrayOrder[j]);
-                orderContent.push(req.body.order[0].dir);
-            }
-        }
-        /* Create the new order for the Sequelize request */
-        order.push(orderContent);
-    } else {
-        // Defining a simple order by
-        order = [[req.body.columns[req.body.order[0].column].data, req.body.order[0].dir]];
-    }
+    // ORDER BY
+    var order, stringOrder = req.body.columns[req.body.order[0].column].data;
+    // If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
+    order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
     var include = {
         model: models[subentityModel],
@@ -98,11 +93,18 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
         order: order,
         include: subentityInclude
     }
+    if (search[searchTerm].length > 0)
+        include.where = search;
+
+    if (search[searchTerm].length > 0)
+        include.where = search;
 
     if (doPagination == "true") {
         include.limit = length;
         include.offset = start;
     }
+
+    include.required = false;
 
     models.MODEL_NAME.findOne({
         where: {
@@ -115,21 +117,19 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
             return res.status(500).end();
         }
 
-        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(function(count) {
             var rawData = {
                 recordsTotal: count,
                 recordsFiltered: count,
                 data: []
             };
             for (var i = 0; i < ENTITY_NAME[subentityAlias].length; i++)
-                rawData.data.push(ENTITY_NAME[subentityAlias][i].get({
-                    plain: true
-                }));
+                rawData.data.push(ENTITY_NAME[subentityAlias][i].get({plain: true}));
 
             entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
                 res.send(preparedData).end();
             }).catch(function(err) {
-                console.log(err);
+                console.error(err);
                 logger.debug(err);
                 res.end();
             });
@@ -161,18 +161,18 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
         // Update some data before show, e.g get picture binary
         entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
             status_helper.translate(ENTITY_NAME, attributes, req.session.lang_user);
-            data.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist("ENTITY_NAME");
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("ENTITY_NAME");
             // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(data, options).then(function(data) {
                 res.render('ENTITY_NAME/show', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "ENTITY_NAME");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     });
 });
 
@@ -194,7 +194,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         var view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
         res.render(view, data);
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/bb/create_form');
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
     })
 });
 
@@ -228,7 +228,20 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
                     var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
                     if (typeof association['add' + modelName] !== 'undefined') {
-                        association['add' + modelName](ENTITY_NAME.id).then(resolve).catch(function(err) {
+                        association['add' + modelName](ENTITY_NAME.id).then(_ => {
+                            if(globalConfig.env == "tablet"){
+                                // Write add association to synchro journal
+                                entity_helper.synchro.writeJournal({
+                                    verb: "associate",
+                                    id: req.body.associationFlag,
+                                    target: "ENTITY_NAME",
+                                    entityName: req.body.associationSource,
+                                    func: 'add' + modelName,
+                                    ids: ENTITY_NAME.id
+                                });
+                            }
+                            resolve();
+                        }).catch(function(err) {
                             reject(err);
                         });
                     } else {
@@ -246,15 +259,15 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
         // because those values are not updated for now
         model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function() {
             Promise.all(promises).then(function() {
-                component_helper.setAddressIfComponentExist(ENTITY_NAME, options, req.body).then(function() {
+                component_helper.address.setAddressIfComponentExists(ENTITY_NAME, options, req.body).then(function() {
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form');
+                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
             });
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form');
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
     });
 });
 
@@ -281,7 +294,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", false).then(function() {
             // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
@@ -292,13 +305,13 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
                 } else
                     res.render('ENTITY_NAME/update', data);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, "/");
+                entity_helper.error(err, req, res, "/", "ENTITY_NAME");
             })
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         })
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     })
 });
 
@@ -322,7 +335,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(ENTITY_NAME, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(ENTITY_NAME, options, req.body);
         ENTITY_NAME.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
@@ -340,13 +353,13 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 
                 res.redirect(redirect);
             }).catch(function(err) {
-                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+                entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
             });
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME);
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
     });
 });
 
@@ -357,7 +370,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     // Find tab option
     var option;
     for (var i = 0; i < options.length; i++)
-        if (options[i].as == req.params.alias) {
+        if (options[i].as == alias) {
             option = options[i];
             break;
         }
@@ -378,9 +391,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         queryOpts.include = {
             model: models[entity_helper.capitalizeFirstLetter(option.target)],
             as: option.as,
-            include: {
-                all: true
-            }
+            include: {all: true}
         }
 
     // Fetch tab data
@@ -393,6 +404,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         var dustFile, idSubentity, promisesData = [];
         var subentityOptions = [];
 
+        // Default value
+        option.noCreateBtn = false;
+
         // Build tab specific variables
         switch (option.structureType) {
             case 'hasOne':
@@ -404,12 +418,17 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
                     // Fetch status children to be able to switch status
                     // Apply getR_children() on each current status
                     var subentityOptions = require('../models/options/' + option.target);
-                    dustData.componentAddressConfig = component_helper.getMapsConfigIfComponentAddressExist(option.target);
+                    dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
                     for (var i = 0; i < subentityOptions.length; i++)
                         if (subentityOptions[i].target.indexOf('e_status') == 0)
                             (function(alias) {
                                 promisesData.push(new Promise(function(resolve, reject) {
-                                    dustData[alias].getR_children().then(function(children) {
+                                    dustData[alias].getR_children({
+                                        include: [{
+                                            model: models.E_group,
+                                            as: "r_accepted_group"
+                                        }]
+                                    }).then(function(children) {
                                         dustData[alias].r_children = children;
                                         resolve();
                                     });
@@ -501,11 +520,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     });
 });
 
-router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
-    status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.query.comment).then(()=> {
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), block_access.statusGroupAccess, function(req, res) {
+    status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
-    }).catch((err)=> {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME);
+    }).catch(err => {
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME, "ENTITY_NAME");
     });
 });
 
@@ -592,22 +611,21 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
     models.MODEL_NAME.findAndCountAll(where).then(function(results) {
         results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
         // Format value like date / datetime / etc...
-        for (var field in attributes) {
-            for (var i = 0; i < results.rows.length; i++) {
-                for (var fieldSelect in results.rows[i]) {
-                    if(fieldSelect == field){
+        for (var field in attributes)
+            for (var i = 0; i < results.rows.length; i++)
+                for (var fieldSelect in results.rows[i])
+                    if(fieldSelect == field)
                         switch(attributes[field].newmipsType) {
                             case "date":
-                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+                                if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
+                                    results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
                                 break;
                             case "datetime":
-                                results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+                                if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
+                                    results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
                                 break;
                         }
-                    }
-                }
-            }
-        }
+
         res.json(results);
     }).catch(function(e) {
         console.error(e);
@@ -615,7 +633,7 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
     var alias = req.params.alias;
     var idToRemove = req.body.idRemove;
     var idEntity = req.body.idEntity;
@@ -632,13 +650,29 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
         }
 
         // Get all associations
-        ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
+        ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(aliasEntities => {
+
+            if(globalConfig.env == "tablet"){
+                let target = "";
+                for (let i = 0; i < options.length; i++)
+                    if (options[i].as == alias)
+                        {target = options[i].target; break;}
+                entity_helper.synchro.writeJournal({
+                    verb: "associate",
+                    id: idEntity,
+                    target: target,
+                    entityName: "ENTITY_NAME",
+                    func: 'remove' + entity_helper.capitalizeFirstLetter(alias),
+                    ids: idToRemove
+                });
+            }
+
             res.sendStatus(200).end();
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     });
 });
 
@@ -670,10 +704,10 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
         ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
             res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, "/");
+            entity_helper.error(err, req, res, "/", "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, "/");
+        entity_helper.error(err, req, res, "/", "ENTITY_NAME");
     });
 });
 
@@ -685,11 +719,12 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             id: id_ENTITY_NAME
         }
     }).then(function(deleteObject) {
-        models.MODEL_NAME.destroy({
-            where: {
-                id: id_ENTITY_NAME
-            }
-        }).then(function() {
+        if (!deleteObject) {
+            data.error = 404;
+            logger.debug("No data entity found.");
+            return res.render('common/error', data);
+        }
+        deleteObject.destroy().then(function() {
             req.session.toastr = [{
                 message: 'message.delete.success',
                 level: "success"
@@ -699,12 +734,12 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.remove_files("ENTITY_NAME", deleteObject, attributes);
+            entity_helper.removeFiles("ENTITY_NAME", deleteObject, attributes);
         }).catch(function(err) {
-            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list');
+            entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list', "ENTITY_NAME");
         });
     }).catch(function(err) {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list');
+        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list', "ENTITY_NAME");
     });
 });
 

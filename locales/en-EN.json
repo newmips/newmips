@@ -25,6 +25,13 @@
         "remember_me": "Remember me",
         "submit": "Submit"
     },
+    "deploy": {
+        "deploying": "Deploying...",
+        "please_wait": "We're deploying your application, this can take a few minutes, please wait...",
+        "ready": "Your application is ready",
+        "goto": "Go to your application",
+        "stayonpage": "You should stay on this page during your application's deployment."
+    },
     "menu": {
         "home": "Home",
         "preview": "Preview",
@@ -41,7 +48,9 @@
         "users": "Users",
         "logs": "Logs",
         "account": "My account",
-        "themes": "My themes"
+        "themes": "My themes",
+        "templates": "Applications templates",
+        "users": "Users"
     },
     "button": {
         "generate": "Generate",
@@ -49,6 +58,7 @@
         "show": "Show",
         "update": "Modify",
         "delete": "Delete",
+        "remove": "Remove",
         "create": "Create",
         "list": "List",
         "save": "Save",
@@ -64,7 +74,9 @@
         "documentation": "Documentation",
         "cancel": "Cancel",
         "loading": "Loading...",
-        "help": "Help"
+        "help": "Help",
+        "clone": "Clone",
+        "understand": "Get it !"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -77,6 +89,7 @@
         "directlinks": {
             "title": "Application manager",
             "script": "Script",
+            "templates": "Template",
             "theme": "Themes",
             "live": "Live",
             "import": "Data Import",
@@ -92,7 +105,15 @@
         "sureToDelete": "Are you sure ?",
         "loading": "Loading...",
         "projectDelete" : "Project successfully deleted!",
-        "appDelete" : "Application successfully deleted!"
+        "appDelete" : "Application successfully deleted!",
+        "gitlab": {
+            "modal_title": "How to clone this application ?",
+            "text1": "In order to clone your application just execute this command:",
+            "text2": "Your Gitlab login is:",
+            "text3": "and your password is the one you use on your generator account"
+        },
+        "no_project_1": "No application found.",
+        "no_project_2": "You can generate one directly from <a href='/'>home</a> or with a <a href='/instruction_script/index'>script</a>."
     },
     "editor": {
         "legend": "Editor",
@@ -118,7 +139,16 @@
         "legend": "Execute a Newmips script",
         "redirecting": "Redirecting...",
         "createScript": "Write a script",
-        "fromFile": "Upload a script"
+        "fromFile": "Upload a script",
+        "alreadyProcessing": "Another user is already running a script, please try again in a few moments."
+    },
+    "template": {
+        "label": "Template",
+        "no_version": "The version is missing in config/global in your generator, it is necessary to have one to retrieve the appropriate models.",
+        "no_clone": "Unable to retrieve the list of newmips templates, please contact Newmips.",
+        "no_pull": "Impossible to update your template folder, be careful they are potentially obsolete.",
+        "no_checkout": "Unable to find templates compatible with the generator version.",
+        "no_script": "Unable to find the .nps script corresponding to the template and your language."
     },
     "live":{
         "legend": "Live edition"
@@ -156,7 +186,7 @@
         "reload": "Restart server",
         "issue-button": "Report an issue",
         "help-button": "Need help ?",
-        "help-disabled": "Slack chat is disabled. Activate it in config/global.js and provide slack information in config/slack.js",
+        "help-disabled": "Support chat is disabled. Activate it in config/global.js and provide mattermost information in config/slack.js",
         "session": {
             "noProject": "No project selected",
             "noApplication": "No application selected",
@@ -184,7 +214,11 @@
         "create": "Create a new application",
         "selectExisting": "Select an existing application",
         "plural": "Applications",
-        "not_started": "There is no application running. Select one in the list."
+        "not_started": "There is no application running. Select one in the list.",
+        "no_access": "You have no access to this application."
+    },
+    "select": {
+        "default": "-- Choose --"
     },
     "module": {
         "label": "Module"
@@ -203,7 +237,8 @@
         "textthree": "simply go back.",
         "404": "The link you followed may be broken, or the page may have been removed.",
         "valueTooLong": "Sorry, but the given value (%s) is too long (<30).",
-        "cannotFindInstruction": "Sorry, I do not understand what you're asking of me."
+        "cannotFindInstruction": "Sorry, I do not understand what you're asking of me.",
+        "missingParametersInstruction": "You're missing parameters for this instruction. Check with the documentation"
     },
     "back":{
         "list": "List",
@@ -261,7 +296,7 @@
                 "deleted": "Module %s deleted !"
             },
             "notFound": {
-                "notFounded": "Unable to find module %s.",
+                "notFound": "Unable to find module %s.",
                 "withThisID": "Sorry, but there is no entity with this ID : %s.",
                 "withThisName": "Sorry, but there is no entity with this name : %s.",
                 "noModuleInApp": "Sorry, there is no module in this application.",
@@ -274,8 +309,8 @@
                 "successOnEntity": "New component %s (%s) created on entity %s."
             },
             "notFound": {
-                "notFoundedInModule": "Sorry, no component with the name %s exist in the module with id %s.",
-                "notFoundedOnEntity": "Sorry, no component with the name %s exist on the entity with id %s."
+                "notFoundInModule": "Sorry, no component with the name %s exist in the module with id %s.",
+                "notFoundOnEntity": "Sorry, no component with the name %s exist on the entity with id %s."
             },
             "delete": {
                 "success": "The component has been successfully deleted!",
@@ -327,7 +362,8 @@
         "global": {
             "restart": {
                 "success": "Server restarded!",
-                "error": "Ouch, the application server is not responding, you can try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>"
+                "error": "Ouch, the application server is not responding.<br>Last error found in logs:<br>- <b>%s</b><br>You can check the logs and try restarting with the instruction: <br>- <b class='click-instruction'>restart server</b>",
+                "missing_module": "The node module '%s' is missing ! You can install it with the instruction:<br>- <b class='click-instruction'>npm install %s</b>"
             },
             "npmInstall": {
                 "success": "All node modules have been successfully installed !"
@@ -355,6 +391,7 @@
             "attributes": {
                 "success": "The field %s is now %s = %s.",
                 "successKnownAttribute": "The field %s is now %s.",
+                "successKnownAttributeWarning": "The %s field is now %s. !WARNING! The database constraint could not be applied, the corresponding table does not exist at the time of the instruction.",
                 "notUnderstandGiveAvailable": "Sorry, I do not understand what you want to do. Available attributes:<br>%s<br>",
                 "notUnderstand": "Unable to understand the given attribute.",
                 "fieldNoFound": "No field with name %s found in the current entity.",
@@ -421,7 +458,8 @@
                 "missingInfo": "The file infos.json is missing!",
                 "missingScreenshot": "The file screenshot.png is missing!",
                 "alreadyExist": "This theme name already exist, please rename the theme name in infos.json.",
-                "successUpload": "The theme was successfully uploaded!"
+                "successUpload": "The theme was successfully uploaded!",
+                "successInstall": "Theme successfully set to %s!"
             },
             "layout": {
                 "list": "Available layout:<br>%s<br>",
@@ -437,7 +475,12 @@
                 "success": "Widget %s added to module %s",
                 "delete": "Widget %s successfully deleted",
                 "all_deleted": "All widget of %s have been removed",
-                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s"
+                "unknown_fields": "Unable to add widget because these fields are unkown :<br>%s",
+                "no_fields": "No field given. You have to specify which field to use for this widget"
+            },
+            "title": {
+                "success": "The title has been successfully added !",
+                "missingField": "The field %s do not exist in this entity."
             }
         }
     },
@@ -452,5 +495,28 @@
         "add-theme": "Upload a theme",
         "wrongExt": "Only .zip are accepted.",
         "default": "Default theme"
+    },
+    "users":{
+        "title": "User",
+        "login": "Identifiant",
+        "email": "Email",
+        "role": "Role",
+        "applications": "Applications",
+        "enabled": "Enabled",
+        "last_name": "Lastname",
+        "first_name": "Firstname",
+        "phone": "Phone",
+        "not_delete_admin": "You cannot delete the main administrator.",
+        "not_remove_admin_role": "You cannot remove the admin role from the main administrator."
+    },
+    "action": {
+        "success": {
+            "create": "Create successful",
+            "update": "Update successful",
+            "destroy": "successfully deleted."
+        },
+        "choose": "--- Choose ---",
+        "missing_values": "Some values are missing, please fill them in.",
+        "no_access_admin": "You have to be an administrator to access this page."
     }
 }

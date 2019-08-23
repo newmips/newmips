@@ -48,7 +48,6 @@ exports.sendTemplate = function(templateName, options, attachments) {
 			dust.renderSource(template, options.data, function(err, rendered) {
 				options.html = rendered;
 
-
 				if (attachments)
 					options.attachments = attachments;
 
@@ -93,7 +92,7 @@ exports.sendMailAsyncCustomTransport = function(mailOptions, config) {
         customTransporter.sendMail(mailOptions, function(error, info) {
             if (error) {
                 console.error(error);
-                reject(error);
+                return reject(error);
             }
             console.log(info);
             resolve(info);

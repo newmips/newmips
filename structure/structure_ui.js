@@ -234,7 +234,7 @@ exports.setTheme = function(attr, callback) {
     var askedTheme = attr.options.value.toLowerCase();
     askedTheme = askedTheme.trim().replace(/ /g, "-");
 
-    function retrieveTheme(themePath){
+    function retrieveTheme(themePath) {
         var themesDir = fs.readdirSync(themePath).filter(function(folder) {
             return (folder.indexOf('.') == -1);
         });
@@ -251,50 +251,60 @@ exports.setTheme = function(attr, callback) {
     var themeWorkspacePath = __dirname + '/../workspace/' + idApplication + '/public/themes';
     var themeListAvailableWorkspace = retrieveTheme(themeWorkspacePath);
 
-    if(themeListAvailableWorkspace.indexOf(askedTheme) != -1)
+    if (themeListAvailableWorkspace.indexOf(askedTheme) != -1)
         themeReady();
     else {
         // If not found in workspace, look for not imported theme exisiting in structure/template
         var themeTemplatePath = __dirname + '/../structure/template/public/themes';
         var themeListAvailableTemplate = retrieveTheme(themeTemplatePath);
-        if(themeListAvailableTemplate.indexOf(askedTheme) != -1){
+        if (themeListAvailableTemplate.indexOf(askedTheme) != -1) {
             fs.copySync(themeTemplatePath + "/" + askedTheme + "/", themeWorkspacePath + "/" + askedTheme + "/");
             themeReady();
-        }
-        else
-            notFound();
-    }
-
-    function notFound(){
-        var err = new Error();
-        err.message = "structure.ui.theme.cannotFind";
-        var msgParams = "";
-        for(var i=0; i<themeListAvailableWorkspace.length; i++)
-            msgParams += "-  " + themeListAvailableWorkspace[i] + "<br>";
-        err.messageParams = [msgParams];
-        callback(err, null);
-    }
-
-    function themeReady(){
-        var mainLayoutPath = __dirname + '/../workspace/' + idApplication + '/views/main_layout.dust';
-        var themeInformation = JSON.parse(fs.readFileSync(__dirname + "/../workspace/" + idApplication + "/public/themes/"+askedTheme+"/infos.json"));
-        domHelper.read(mainLayoutPath).then(function($) {
-            var oldTheme = $("link[data-type='theme']").attr("data-theme");
-            $("link[data-type='theme']").replaceWith("<link href='/themes/"+askedTheme+"/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='"+askedTheme+"'>");
-            // If the theme need js inclusion
-            if(typeof themeInformation.js !== "undefined")
-                for(var i=0; i<themeInformation.js.length; i++){
-                    $("body script:last").after("<script type='text/javascript'></script>");
-                    $("body script:last").attr('src', "/themes/"+askedTheme+"/js/"+themeInformation.js[i]);
-                }
-            domHelper.writeMainLayout(mainLayoutPath, $).then(function() {
-                var info = {};
-                info.message = "Theme set to " + attr.options.value + " !";
-                callback(null, info);
-            });
-        }).catch(function(err){
+        } else {
+            var err = new Error();
+            err.message = "structure.ui.theme.cannotFind";
+            var msgParams = "";
+            for (var i = 0; i < themeListAvailableWorkspace.length; i++)
+                msgParams += "-  " + themeListAvailableWorkspace[i] + "<br>";
+            err.messageParams = [msgParams];
             callback(err, null);
-        });
+        }
+    }
+
+    function themeReady() {
+        let themeInformation = JSON.parse(fs.readFileSync(__dirname + "/../workspace/" + idApplication + "/public/themes/" + askedTheme + "/infos.json"));
+        let promises = [];
+        let layoutToWrite = ["main_layout", "login_layout"];
+
+        for (let i = 0; i < layoutToWrite.length; i++) {
+            promises.push(new Promise((resolve, reject) => {
+                let layoutPath = __dirname + '/../workspace/' + idApplication + '/views/'+layoutToWrite[i]+'.dust';
+                domHelper.read(layoutPath).then(function($) {
+                    let oldTheme = $("link[data-type='theme']").attr("data-theme");
+                    $("link[data-type='theme']").replaceWith("<link href='/themes/" + askedTheme + "/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='" + askedTheme + "'>");
+                    // If the theme need js inclusion
+                    if (typeof themeInformation.js !== "undefined")
+                        for (let j = 0; j < themeInformation.js.length; j++) {
+                            $("body script:last").after("<script type='text/javascript'></script>");
+                            $("body script:last").attr('src', "/themes/" + askedTheme + "/js/" + themeInformation.js[j]);
+                        }
+                    domHelper.writeMainLayout(layoutPath, $).then(_ => {
+                        resolve();
+                    });
+                }).catch(function(err) {
+                    reject(err);
+                });
+            }))
+        }
+
+        Promise.all(promises).then(_ => {
+            callback(null, {
+                message: "structure.ui.theme.successInstall",
+                messageParams: [attr.options.value]
+            });
+        }).catch(err => {
+            callback(err, null);
+        })
     }
 }
 
@@ -351,25 +361,50 @@ exports.setIcon = function(attr, callback) {
     });
 }
 
+exports.addTitle = function (attr, callback) {
+
+    let entityCodeName = attr.entityCodeName.toLowerCase();
+    let pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
+    let viewsToProcess = ["create_fields", "update_fields", "show_fields"];
+    let processPromises = [];
+
+    let title = "<div class='col-xs-12 text-center'>\n<div class='form-group form-title'>\n<h3>"+attr.options.value+"</h3>\n</div>\n</div>\n";
+
+    for (var i = 0; i < viewsToProcess.length; i++) {
+        processPromises.push(new Promise((resolve, reject) => {
+            let currentView = viewsToProcess[i];
+            domHelper.read(pathToViews + '/'+currentView+'.dust').then(function ($) {
+                if(attr.options.afterField){
+                    $("div[data-field="+attr.fieldCodeName+"]").after(title);
+                } else {
+                    $("#fields").append(title);
+                }
+                domHelper.write(pathToViews + '/'+currentView+'.dust', $).then(function () {
+                    resolve();
+                }).catch(e => {
+                    var err = new Error();
+                    err.message = "structure.field.attributes.fieldNoFound";
+                    err.messageParams = [attr.options.showValue];
+                    reject(err);
+                });
+            }).catch(err => {
+                reject(err);
+            });
+        }))
+    }
+
+    Promise.all(processPromises).then(() => {
+        callback(null, {
+            message: "structure.ui.title.success"
+        })
+    }).catch(err => {
+        callback(err);
+    })
+}
+
 exports.createWidget = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
-
-    // Add widget's query to routes/default controller
-    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1);
-    var insertCode = '';
-    insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
-    insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.count().then(function(result){\n';
-    insertCode += "\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': result});\n';
-    insertCode += "\t\t});\n";
-    insertCode += "\t}));\n";
-    insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
-    insertCode += "\t// *** Widget module "+attr.module.codeName+" | Do not remove ***\n";
-
-    insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
-    fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
 
     var layout_filename = 'layout_'+attr.module.codeName+'.dust';
     // Get entity's icon
@@ -384,11 +419,11 @@ exports.createWidget = function(attr, callback) {
 
                 // Create widget's html
                 var newHtml = "";
-                newHtml += "<div id='"+widgetElemId+"' class='col-sm-3 col-xs-12'>\n";
                 newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+                newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-3 col-xs-12'>\n";
                 newHtml +=      $2("body")[0].innerHTML+"\n";
-                newHtml += '<!--{/entityAccess}-->';
                 newHtml += "</div>";
+                newHtml += '<!--{/entityAccess}-->';
                 newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
                 newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
                 $("#widgets").append(newHtml);
@@ -399,9 +434,48 @@ exports.createWidget = function(attr, callback) {
                 domHelper.write(layout_view_filename, $).then(function() {
                     callback(null, {message: "structure.ui.widget.success", messageParams: [attr.widgetInputType, attr.module.name]});
                 }).catch(function(err) {
-                    console.log(err)
+                    console.error(err)
                     callback(err);
                 });
+            });
+        });
+    });
+}
+
+exports.createWidgetPiechart = function(attr, callback) {
+    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
+    var piecesPath = __dirname+'/pieces/';
+
+    if (attr.found === false) {
+        let definitlyNotFound = true;
+        var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+attr.entity.codeName+'.json', 'utf8'));
+        for (var j = 0; j < options.length; j++)
+            if (attr.field.toLowerCase() == options[j].showAs.toLowerCase()) {
+                attr.field = {name: options[j].showAs, codeName: options[j].as, type: options[j].newmipsType};
+                definitlyNotFound = false;
+                break;
+            }
+        if (definitlyNotFound)
+            return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [attr.field]});
+    }
+
+    // Add widget to module's layout
+    var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
+    domHelper.read(layout_view_filename).then(function($) {
+        domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
+            var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_'+attr.field.codeName+'_widget';
+            // Widget box title traduction
+            $2(".box-title").html(`<!--{#__ key="defaults.widgets.piechart.distribution" /}-->&nbsp;<!--{#__ key="entity.${attr.entity.codeName}.label_entity" /}-->&nbsp;-&nbsp;<!--{#__ key="entity.${attr.entity.codeName}.${attr.field.codeName}" /}-->`);
+            // Create widget's html
+            var newHtml = "";
+            newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-field-type='"+attr.field.type+"' data-field='"+attr.field.codeName+"' data-legend='"+attr.legend+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-4 col-xs-12'>\n";
+            newHtml +=      $2("body")[0].innerHTML+"\n";
+            newHtml += "</div>";
+            newHtml += '<!--{/entityAccess}-->';
+            $("#widgets").append(newHtml);
+            domHelper.write(layout_view_filename, $).then(function() {
+                callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
             });
         });
     });
@@ -411,54 +485,54 @@ exports.createWidgetLastRecords = function(attr, callback) {
     var workspacePath = __dirname+'/../workspace/'+attr.id_application;
     var piecesPath = __dirname+'/pieces/';
 
-    // Add widget's query to routes/default controller
-    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var modelName = attr.entity.codeName.charAt(0).toUpperCase() + attr.entity.codeName.toLowerCase().slice(1)
-    var insertCode = '';
-    insertCode += "// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" start | Do not remove ***\n";
-    insertCode += "\twidgetPromises.push(new Promise(function(resolve, reject){\n";
-    insertCode += "\t\tmodels."+modelName+'.findAll({limit: '+attr.limit+', order: [["id", "DESC"]], raw: true}).then(function(result){\n';
-    insertCode += "\t\t\tentity_helper.prepareDatalistResult('"+attr.entity.codeName+"', {data:result}, req.session.lang_user).then(function(preparedData) {\n"
-    insertCode += "\t\t\t\tresolve({"+attr.entity.codeName+'_'+attr.widgetType+': preparedData.data});\n';
-    insertCode += "\t\t\t});\n";
-    insertCode += "\t\t});\n";
-    insertCode += "\t}));\n";
-    insertCode += "\t// *** Widget call "+attr.entity.codeName+" "+attr.widgetType+" end | Do not remove ***\n\n";
-    insertCode += "\t// *** Widget module "+attr.module.codeName+" | Do not remove ***\n";
+    // Look for related to fields in entity's options
+    var definitlyNotFound = [];
+    var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+attr.entity.codeName+'.json', 'utf8'));
+    for (var i = 0; i < attr.columns.length; i++) {
+        if (attr.columns[i].found == true)
+            continue;
+        for (var j = 0; j < options.length; j++)
+            if (attr.columns[i].name.toLowerCase() == options[j].showAs.toLowerCase()) {
+                attr.columns[i] = {name: options[j].showAs, codeName: options[j].as, found: true};
+                break;
+            }
+        if (!attr.columns[i].found)
+            definitlyNotFound.push(attr.columns[i].name);
+    }
+    if (definitlyNotFound.length > 0)
+        return callback(null, {message: 'structure.ui.widget.unknown_fields', messageParams: [definitlyNotFound.join(', ')]});
 
-    insertCode = defaultFile.replace("// *** Widget module "+attr.module.codeName+" | Do not remove ***", insertCode);
-    fs.writeFileSync(workspacePath+'/routes/default.js', insertCode);
+    if (!attr.columns || attr.columns.length == 0)
+        return callback(null, {message: 'structure.ui.widget.no_fields'});
 
     var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
     domHelper.read(layout_view_filename).then(function($) {
         domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($template) {
             var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
             var newHtml = "";
-            newHtml += "<div id='"+widgetElemId+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
+            newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='col-xs-12 col-sm-"+(attr.columns.length > 4 ? '12' : '6')+"'>\n";
             newHtml +=      $template("body")[0].innerHTML+"\n";
-            newHtml += '<!--{/entityAccess}-->';
             newHtml += "</div>";
+            newHtml += '<!--{/entityAccess}-->';
             newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
             newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
-
             $("#widgets").append(newHtml);
 
             domHelper.read(workspacePath+'/views/'+attr.entity.codeName+'/list_fields.dust').then(function($list) {
                 try {
-                    var thead = '<thead><tr>', tbody = '<tbody><!--{#'+attr.entity.codeName+'_lastrecords}--><tr class="widget-row hover" data-href="/'+attr.entity.codeName.substring(2)+'/show?id={id}">';
+                    var thead = '<thead><tr>';
                     for (var i = 0; i < attr.columns.length; i++) {
                         var field = attr.columns[i].codeName.toLowerCase();
-                        var type = $list('[data-field="'+field+'"]').data('type');
-                        var col = $list('[data-field="'+field+'"]').data('col')
-                        thead += '<th data-type="'+type+'" data-col="'+col+'"><!--{#__ key="entity.'+attr.entity.codeName+'.'+field+'" /}--></th>';
-                        tbody += '<td data-type="'+type+'" data-col="'+col+'">{'+field+'}</td>';
+                        var type = $list('th[data-field="'+field+'"]').data('type');
+                        var col = $list('th[data-field="'+field+'"]').data('col');
+                        var fieldTradKey = field != 'id' ? field : 'id_entity';
+                        thead += '<th data-field="'+field+'" data-type="'+type+'" data-col="'+col+'"><!--{#__ key="entity.'+attr.entity.codeName+'.'+fieldTradKey+'" /}--></th>';
                     }
                     thead += '</tr></thead>';
-                    tbody += '</tr><!--{/'+attr.entity.codeName+'_lastrecords}--></tbody>';
 
-                    $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead+tbody);
-                    $("#"+attr.entity.codeName.substring(2)+'_lastrecords').attr('data-entity', attr.entity.codeName);
+                    $("#"+attr.entity.codeName.substring(2)+'_lastrecords').html(thead);
+                    $("#"+attr.entity.codeName.substring(2)+'_lastrecords').attr('data-limit', attr.limit);
                     domHelper.write(layout_view_filename, $).then(function() {
                         callback(null, {message: 'structure.ui.widget.success', messageParams: [attr.widgetInputType, attr.module.name]});
                     });
@@ -472,24 +546,22 @@ exports.createWidgetLastRecords = function(attr, callback) {
 }
 
 exports.deleteWidget = function(attr, callback) {
-    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
-
-    // Delete from controller
-    var defaultFile = fs.readFileSync(workspacePath+'/routes/default.js', 'utf8');
-    var regex = new RegExp("([^]*)(\\/\\/ \\*\\*\\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" start \\| Do not remove \\*\\*\\*)([^]*)(\\/\\/ \\*\\*\\* Widget call "+attr.entity.codeName+" "+attr.widgetType+" end \\| Do not remove \\*\\*\\*)([^]*)", "g");
-    defaultFile = defaultFile.replace(regex, '$1\n\t$5');
-    fs.writeFileSync(workspacePath+'/routes/default.js', defaultFile, 'utf8');
+    const workspacePath = __dirname+'/../workspace/'+attr.id_application;
 
     // Delete from view
     domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
+        let widgetElements = [];
+        // For each widgetType, find corresponding divs using a regex on attr id
+        for (const widgetType of attr.widgetTypes) {
+            widgetElements = $("#widgets > div[data-widget-type="+widgetType+"]").filter(function() {
+                // We don't know piechart's field, use regex to match rest of id
+                const reg = widgetType == 'piechart' ? new RegExp('piechart_'+attr.entity.codeName+'_.*_widget') : new RegExp(widgetType+'_'+attr.entity.codeName+'_widget');
+                return this.id.match(reg);
+            });
 
-        for (var i = 0; i < attr.widgetTypes.length; i++) {
-            var widgetElemId = attr.widgetTypes[i]+'_'+attr.entity.codeName+'_widget';
-
-            // It is possible to have the same widgetType for the same entity
-            // It results in a duplication of the ID, so we loop until there is none left
-            while ($("#"+widgetElemId).length > 0)
-                $("#"+widgetElemId).remove();
+            // Delete matched widget divs
+            for (const elem of widgetElements)
+                $(elem).remove();
         }
 
         domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {

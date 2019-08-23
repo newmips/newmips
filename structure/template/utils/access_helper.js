@@ -1,54 +1,47 @@
-var models = require('../models/');
-var fs = require('fs-extra');
-var block_access = require('./block_access');
+const models = require('../models/');
+const fs = require('fs-extra');
+const block_access = require('./block_access');
 
 // Get workspace modules and entities list
 // Also get workspace's groups and roles
-exports.getPreviewData = function() {
-	return new Promise(function(resolve, reject) {
-		var values = {};
-		// Get groups from workspace
-		models.E_group.findAll().then(function(groups) {
-			values.groups = groups || [];
-			// Get roles from workspace
-			models.E_role.findAll().then(function(roles) {
-				values.roles = roles || [];
+exports.getPreviewData = async function() {
+	const values = {};
+	const promises = [models.E_group.findAll(), models.E_role.findAll()];
 
-				// Get access configuration
-				var access = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
+	const [groups, roles] = await Promise.all(promises);
+	values.groups = groups || [];
+	values.roles = roles || [];
 
-				// Restructure access object for dustjs
-				var modules = [];
-				for (var module in access) {
-					access[module].name = module;
-					modules.push(access[module]);
-				}
+	// Get access configuration
+	const access = JSON.parse(fs.readFileSync(__dirname+'/../config/access.json', 'utf8'));
 
-				values.modules = modules;
-				resolve(values);
-			});
-		}).catch(function(err) {
-			reject(err);
-		});
-	});
+	// Restructure access object for dustjs
+	const modules = [];
+	for (const accessModule in access) {
+		access[accessModule].name = accessModule;
+		modules.push(access[accessModule]);
+	}
+
+	values.modules = modules;
+	return values;
 }
 
 exports.setGroupAccess = function(modules, entities) {
-	var accessFileName = __dirname+'/../config/access.json';
-	var access = JSON.parse(fs.readFileSync(accessFileName, 'utf8'));
+	const accessFileName = __dirname+'/../config/access.json';
+	const access = JSON.parse(fs.readFileSync(accessFileName, 'utf8'));
 
 	// Loop through access.json modules
-	for (var module in access) {
+	for (const accessModule in access) {
 		// Set new groups to module if needed
-		if (typeof modules[module] !== 'undefined' && module != 'home')
-			access[module].groups = modules[module];
+		if (typeof modules[accessModule] !== 'undefined' && accessModule != 'home')
+			access[accessModule].groups = modules[accessModule];
 
 		// Loop through access.json entities
-		for (var i = 0; i < access[module].entities.length; i++) {
-			var entity = access[module].entities[i];
+		for (let i = 0; i < access[accessModule].entities.length; i++) {
+			const entity = access[accessModule].entities[i];
 			// Set new groups to entity if needed
 			if (typeof entities[entity.name] !== 'undefined')
-				access[module].entities[i].groups = entities[entity.name];
+				access[accessModule].entities[i].groups = entities[entity.name];
 		}
 	}
 
@@ -60,13 +53,13 @@ exports.setGroupAccess = function(modules, entities) {
 }
 
 exports.setRoleAccess = function(entities) {
-	var accessFileName = __dirname+'/../config/access.json';
-	var access = JSON.parse(fs.readFileSync(accessFileName, 'utf8'));
+	const accessFileName = __dirname+'/../config/access.json';
+	const access = JSON.parse(fs.readFileSync(accessFileName, 'utf8'));
 
-	for (var module in access) {
-		for (var i = 0; i < access[module].entities.length; i++) {
-			if (typeof entities[access[module].entities[i].name] !== 'undefined')
-				access[module].entities[i].actions = entities[access[module].entities[i].name];
+	for (const accessModule in access) {
+		for (let i = 0; i < access[accessModule].entities.length; i++) {
+			if (typeof entities[access[accessModule].entities[i].name] !== 'undefined')
+				access[accessModule].entities[i].actions = entities[access[accessModule].entities[i].name];
 		}
 	}
 

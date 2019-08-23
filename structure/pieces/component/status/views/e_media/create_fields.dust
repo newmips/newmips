@@ -22,7 +22,7 @@
             <select class="form-control select media-field" required="" name="f_target_entity">
                 <option value="" selected="">{#__ key="select.default" /}</option>
                 {#target_entities}
-                    <option value="{codename}"> {#__ key=tradKey /} </option>
+                    <option value="{codename}">{trad}</option>
                 {/target_entities}
             </select>
         </div>
@@ -35,5 +35,8 @@
     </div>
     <div id="media-sms" class="media-type col-xs-12" style="display: none;">
         {>"e_media_sms/create_fields" /}
+    </div>
+    <div id="media-task" class="media-type col-xs-12" style="display: none;">
+        {>"e_media_task/create_fields" /}
     </div>
 </div>

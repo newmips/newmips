@@ -98,7 +98,6 @@
                         methods.querySlack($this);
                         setTimeout(querySlackChannel, window.slackChat._options.queryInterval);
                     }
-
                 }();
 
                 $('.slackchat .slack-new-message').focus();
