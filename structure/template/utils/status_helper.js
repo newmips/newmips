@@ -192,9 +192,21 @@ module.exports = {
         // loopCount is used to avoid "Maximum call stack exedeed" error with large arrays.
         // Using setTimeout (even with 0 milliseconds) will end the current call stack and create a new one.
         // Even with 0 milliseconds timeout execution can be realy slower, so we reset call stack once every 1000 lap
-        var loopCount = 0;
-        function sort(optsArray, i) {
-            loopCount++;
+        function stackProtectedRecursion(sortFunc, ...args) {
+            if (!this.loopCount)
+                this.loopCount = 0;
+            this.loopCount++;
+            if (this.loopCount % 1000 === 0) {
+                this.loopCount = 0;
+                return setTimeout(() => {
+                    console.log(...args);
+                    sortFunc(...args);
+                }, 0);
+            }
+            return sortFunc(...args);
+        }
+        function sort(optsArray, i = 0) {
+            if (i < 0) i = 0;
             if (!optsArray[i+1])
                 return;
             var firstParts = optsArray[i].traduction.split(separator);
@@ -203,37 +215,21 @@ module.exports = {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                if (loopCount % 1000 === 0) {
-                    loopCount = 0;
-                    return setTimeout(() => {
-                        sort(optsArray, i == 0 ? i : i-1);
-                    }, 0);
-                }
-                return sort(optsArray, i == 0 ? i : i-1)
+                i--;
             }
             else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
                 && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                if (loopCount % 1000 === 0) {
-                    loopCount = 0;
-                    return setTimeout(() => {
-                        sort(optsArray, i == 0 ? i : i-1);
-                    }, 0);
-                }
-                return sort(optsArray, i == 0 ? i : i-1);
+                i--;
+            }
+            else
+                i++;
 
-            }
-            if (loopCount % 1000 === 0) {
-                loopCount = 0;
-                return setTimeout(() => {
-                    sort(optsArray, i+1);
-                }, 0);
-            }
-            return sort(optsArray, i+1);
+            return stackProtectedRecursion(sort, optsArray, i);
         }
-        sort(options, 0);
+        sort(options);
 
         return options;
     },
