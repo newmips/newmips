@@ -184,7 +184,7 @@ function entityDocumentation(entity, attributes, options) {
 	entityDoc += ' *******************************************/\n';
 	entityDoc += '/** @apiDefine '+entity.codeName+' '+capitalizeFirstLetter(entity.name)+ ' */\n';
 	entityDoc += routeGet(entity, attributes, options);
-	entityDoc += routeGetId(entity, attributes);
+	entityDoc += routeGetId(entity, attributess);
 	entityDoc += routeGetAssociation(entity, options);
 	entityDoc += routePost(entity, attributes, options);
 	entityDoc += routePut(entity, attributes, options);

@@ -53,10 +53,10 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 
 router.post('/login', auth.isLoggedIn, function(req, res) {
 
-    if (req.body.remember)
+    if (req.body.remember_me)
         req.session.cookie.maxAge = 168 * 3600000; // 1 week
     else
-        req.session.cookie.maxAge = 24 * 3600000; // 24h
+        req.session.cookie.expires = false; // Logout on browser exit
 
     let email_user = req.session.passport.user.email;
 
@@ -98,7 +98,7 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
-    let login_user = req.body.login_user;
+    let login_user = req.body.login_user.toLowerCase();
     let email_user = req.body.email_user;
     let usernameGitlab = email_user.replace(/\@/g, "").replace(/\./g, "").trim();
 
@@ -180,7 +180,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
     // Check if user with login + email exist in DB
     models.User.findOne({
         where: {
-            login: req.body.login,
+            login: req.body.login.toLowerCase(),
             email: req.body.mail
         }
     }).then(function(user){
@@ -283,8 +283,8 @@ router.get('/reset_password_form/:token', block_access.loginAccess, function(req
 
 router.post('/reset_password_form', block_access.loginAccess, function(req, res) {
 
-    var login_user = req.body.login_user;
-    var email_user = req.body.email_user;
+    let login_user = req.body.login_user.toLowerCase();
+    let email_user = req.body.email_user;
 
     models.User.findOne({
         where: {
@@ -294,7 +294,7 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
         }
     }).then(function(user){
         if(req.body.password_user == req.body.password_user2 && req.body.password_user.length >= 8){
-            var password = bcrypt.hashSync(req.body.password_user2, null, null);
+            let password = bcrypt.hashSync(req.body.password_user2, null, null);
             if(user){
                 if(user.password == "" || user.password == null){
                     models.User.update({

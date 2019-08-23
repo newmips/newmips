@@ -29,13 +29,13 @@ let config = {
         privateToken: ""
     },
     docker: {
-        doGit: true,
+        doGit: false,
         protocol: "http",
-        url: process.env.GITLAB_HOME,
-        sshUrl: "git@gitlab." + process.env.DOMAIN_STUDIO,
+        url: "",
+        sshUrl: "",
         useSSH: true,
-        adminUser: process.env.GITLAB_LOGIN,
-        privateToken: process.env.GITLAB_PRIVATE_TOKEN
+        adminUser: "",
+        privateToken: ""
     },
     cloud: {
         doGit: true,

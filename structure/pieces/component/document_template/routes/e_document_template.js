@@ -1,26 +1,29 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_document_template');
-var options = require('../models/options/e_document_template');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var globalConfig = require('../config/global');
-var document_template_helper = require('../utils/document_template_helper');
+const models = require('../models/');
+const attributes = require('../models/attributes/e_document_template');
+const options = require('../models/options/e_document_template');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const file_helper = require('../utils/file_helper');
+const globalConfig = require('../config/global');
+const document_template_helper = require('../utils/document_template_helper');
+const status_helper = require('../utils/status_helper.js');
 // Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
-var moment = require('moment');
+const moment = require('moment');
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
+const mimeTypes = require('mime-types');
 
-var SELECT_PAGE_SIZE = 10;
+const SELECT_PAGE_SIZE = 10;
+
 
 router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
     res.render('e_document_template/list');
@@ -368,11 +371,11 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             var completeFilePath = globalConfig.localstorage + 'e_document_template/' + partOfFilepath[0] + '/' + e_model_document.f_file;
                             var today = moment();
                             var isDust = false;
-                            if (completeFilePath.indexOf('.dust') != -1) {
+                            if (completeFilePath.indexOf('.dust') >= 0) {
                                 isDust = true;
                                 completeFilePath = completeFilePath.replace('.dust', '.html');
                             }
-                            var mimeType = require('mime-types').lookup(completeFilePath);
+                            var mimeType = mimeTypes.lookup(completeFilePath);
                             if (isDust)
                                 completeFilePath = completeFilePath.replace('.html', '.dust');
                             var reworkOptions = {
@@ -405,9 +408,9 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                             };
                             document_template_helper.generateDoc(options).then(function (infos) {
                                 var filename = (e_entity.id || '') +
-                                        '_' + today.format('DDMMYYYY_HHmmss') +
-                                        '_' + today.unix() +
-                                        infos.ext;
+                                    '_' + today.format('DDMMYYYY_HHmmss') +
+                                    '_' + today.unix() +
+                                    infos.ext;
                                 res.writeHead(200, {
                                     "Content-Type": infos.contentType,
                                     "Content-Disposition": "attachment;filename=" + filename
@@ -419,18 +422,46 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
                                         message: e.message,
                                         level: "error"
                                     }];
-                                res.redirect(req.headers.referer);
+                                res.redirect('/document_template/list');
                             });
-                        } else
-                            res.redirect(req.headers.referer);
-                    } else
-                        res.redirect(req.headers.referer);
+                        } else {
+                            req.session.toastr = [
+                                {
+                                    level: 'error',
+                                    message: 'Nom du fichier template non valide'
+                                }
+                            ];
+                            res.redirect('/document_template/list');
+                        }
+                    } else {
+                        req.session.toastr = [
+                            {
+                                level: 'error',
+                                message: 'Entité cible non trouvée'
+                            }
+                        ];
+                        res.redirect('/document_template/list');
+                    }
                 });
-            } else
-                res.redirect(req.headers.referer);
+            } else {
+                req.session.toastr = [
+                    {
+                        level: 'error',
+                        message: 'Fichier template non disponible'
+                    }
+                ];
+                res.redirect('/document_template/list');
+            }
         });
-    } else
-        res.redirect(req.headers.referer);
+    } else {
+        req.session.toastr = [
+            {
+                level: 'error',
+                message: 'Erreur interne. Veuillez contacter votre administrateur'
+            }
+        ];
+        res.redirect('/document_template/list');
+    }
 });
 
 router.get('/readme/:entity', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
@@ -454,7 +485,7 @@ router.get('/help/:type', block_access.actionAccessMiddleware("document_template
     var type = req.params.type;
 
     if (type === "subEntities") {
-        res.json({
+        res.status(200).json({
             message: document_template_helper.getSubEntitiesHelp(req.session.lang_user)
         });
     } else
@@ -466,21 +497,30 @@ router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("d
     var type = req.query.t;
     if (entity) {
         if (type === 'html') {
-            var html = document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user);
-            res.json({
-                HTMLRelationsList: html
+            document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user).then(out => {
+                res.status(200).json({
+                    HTMLRelationsList: out
+                });
+            }).catch(e => {
+                console.log(e);
+                res.status(500).end();
             });
         } else
-            res.json({
+            res.status(200).json({
                 relations: document_template_helper.getRelations(entity)
             });
     } else
-        res.end([]);
+        res.status(200).end([]);
 });
 
 router.get('/global-variables', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-    res.json({
-        HTMLGlobalVariables: document_template_helper.buildHTMLGlobalVariables(req.session.lang_user)
+    document_template_helper.buildHTMLGlobalVariables(req.session.lang_user).then(out => {
+        res.status(200).json({
+            HTMLGlobalVariables: out
+        });
+    }).catch(e => {
+        console.error(e);
+        res.status(500).end();
     });
 });
 

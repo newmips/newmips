@@ -28,8 +28,8 @@ var attrHelper = require("../utils/attr_helper");
 var gitHelper = require("../utils/git_helper");
 var translateHelper = require("../utils/translate");
 
-var fs = require('fs-extra');
-var sequelize = require('../models/').sequelize;
+const fs = require('fs-extra');
+const sequelize = require('../models/').sequelize;
 
 /* --------------------------------------------------------------- */
 /* -------------------------- General ---------------------------- */
@@ -547,168 +547,215 @@ function deleteDataEntity(attr, callback) {
         var workspacePath = __dirname + '/../workspace/' + id_application;
 
         db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function (err, entityId) {
-            if (err) {
-                callback(err, null);
-            } else {
-                var entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + name_data_entity + '.json'));
-                for (var i = 0; i < entityOptions.length; i++) {
-                    if (entityOptions[i].relation == 'hasMany') {
-                        var tmpAttr = {
+            if (err)
+                return callback(err, null);
+
+            // Delete entity relations
+            var entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + name_data_entity + '.json'));
+            for (var i = 0; i < entityOptions.length; i++) {
+                if (entityOptions[i].relation == 'hasMany') {
+                    var tmpAttr = {
+                        options: {
+                            value: entityOptions[i].as,
+                            urlValue: entityOptions[i].as.substring(2)
+                        },
+                        id_project: attr.id_project,
+                        id_application: attr.id_application,
+                        id_module: attr.id_module,
+                        id_data_entity: entityId,
+                        structureType: entityOptions[i].structureType
+                    };
+                    promises.push({func: function (tmpAttrIn, clbk) {
+                        if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
+                            if(tmpAttrIn.options && tmpAttrIn.options.value != '' && tmpAttrIn.options.value.indexOf('r_history_') != -1){
+                                let statusName = tmpAttrIn.options.value.split('r_history_')[1];
+                                deleteComponentStatus({
+                                    id_application: tmpAttrIn.id_application,
+                                    id_data_entity: tmpAttrIn.id_data_entity,
+                                    options: {
+                                        value : "s_"+statusName,
+                                        urlValue: statusName,
+                                        showValue: statusName
+                                    }
+                                }, err => {
+                                    if (err)
+                                        console.error(err);
+                                    clbk();
+                                });
+                            } else {
+                                deleteTab(tmpAttrIn, err => {
+                                    if (err)
+                                        console.error(err);
+                                    clbk();
+                                });
+                            }
+                        } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
+                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
+                            deleteDataField(tmpAttrIn, function (err) {
+                                if (err)
+                                    console.error(err);
+                                clbk();
+                            });
+                        } else {
+                            console.warn("WARNING - Unknown option to delete !");
+                            console.warn(tmpAttrIn);
+                            clbk();
+                        }
+                    }, arg: tmpAttr});
+                }
+                else if (entityOptions[i].relation == 'belongsToMany') {
+                    promises.push({
+                        func: function(tableName, clbk) {
+                            database.dropTable(tableName, function(err) {
+                                if (err)
+                                    console.error("Unable to delete junction table "+tableName);
+                                clbk();
+                            })
+                        },
+                        arg: entityOptions[i].through
+                    })
+                }
+            }
+
+            // Delete relation comming from other entities
+            fs.readdirSync(workspacePath + '/models/options/').filter(function (file) {
+                return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
+            }).forEach(function (file) {
+                let source = file.slice(0, -5);
+                let options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
+
+                // Look for auto_generate key targeting deleted entity and remove them
+                let idxToRemove = [];
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].target != name_data_entity)
+                        continue;
+                    if (options[i].structureType == 'auto_generate')
+                        idxToRemove.push(i);
+                }
+                options = options.filter((val, idx, arr) => {
+                    return idxToRemove.indexOf(idx) == -1
+                })
+                fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
+
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].target != name_data_entity)
+                        continue;
+
+                    if (options[i].relation == 'hasMany') {
+                        let tmpAttr = {
                             options: {
-                                value: entityOptions[i].as,
-                                urlValue: entityOptions[i].as.substring(2)
+                                value: options[i].as,
+                                urlValue: options[i].as.substring(2)
                             },
                             id_project: attr.id_project,
                             id_application: attr.id_application,
                             id_module: attr.id_module,
-                            id_data_entity: entityId,
-                            structureType: entityOptions[i].structureType
+                            structureType: options[i].structureType
                         };
-                        promises.push({func: function (tmpAttrIn, clbk) {
-                                if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                                    deleteTab(tmpAttrIn, function (err) {
-                                        if (err)
-                                            console.error(err);
-                                        clbk();
-                                    });
-                                } else if (tmpAttrIn.structureType == "relatedToMultiple") {
-                                    tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                    deleteDataField(tmpAttrIn, function (err) {
-                                        if (err)
-                                            console.error(err);
-                                        clbk();
-                                    });
-                                } else {
-                                    console.warn("WARNING - Unknown option to delete !");
-                                    console.warn(tmpAttrIn);
-                                    clbk();
-                                }
-                            }, arg: tmpAttr});
-                    }
-                }
 
-                fs.readdirSync(workspacePath + '/models/options/').filter(function (file) {
-                    return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
-                }).forEach(function (file) {
-                    var source = file.slice(0, -5);
-                    var options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
-                    for (var i = 0; i < options.length; i++) {
-                        if (options[i].target != name_data_entity)
-                            continue;
-                        if (options[i].relation == 'hasMany') {
-                            let tmpAttr = {
-                                options: {
-                                    value: options[i].as,
-                                    urlValue: options[i].as.substring(2)
-                                },
-                                id_project: attr.id_project,
-                                id_application: attr.id_application,
-                                id_module: attr.id_module,
-                                structureType: options[i].structureType
-                            };
-
-                            promises.push({
-                                func: function(tmpAttrIn, clbk) {
-                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
-                                        tmpAttrIn.id_data_entity = sourceID;
-                                        if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                                            deleteTab(tmpAttrIn, function(err) {
-                                                if (err)
-                                                    console.error(err);
-                                                clbk();
-                                            });
-                                        } else if (tmpAttrIn.structureType == "relatedToMultiple") {
-                                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                            deleteDataField(tmpAttrIn, function(err) {
-                                                if (err)
-                                                    console.error(err);
-                                                clbk();
-                                            });
-                                        } else {
-                                            console.warn("WARNING - Unknown option to delete !");
-                                            console.warn(tmpAttrIn);
+                        promises.push({
+                            func: function(tmpAttrIn, clbk) {
+                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
+                                    tmpAttrIn.id_data_entity = sourceID;
+                                    if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
+                                        deleteTab(tmpAttrIn, function(err) {
+                                            if (err)
+                                                console.error(err);
                                             clbk();
-                                        }
-                                    });
-                                },
-                                arg: tmpAttr
-                            });
-                        } else if (options[i].relation == 'belongsTo') {
-                            let tmpAttr = {
-                                options: {
-                                    value: options[i].as,
-                                    urlValue: options[i].as.substring(2)
-                                },
-                                id_project: attr.id_project,
-                                id_application: attr.id_application,
-                                id_module: attr.id_module,
-                                structureType: options[i].structureType
-                            };
-                            promises.push({
-                                func: function(tmpAttrIn, clbk) {
-                                    db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
-                                        tmpAttrIn.id_data_entity = sourceID;
-                                        if (tmpAttrIn.structureType == "relatedTo") {
-                                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                            deleteDataField(tmpAttrIn, function(err) {
-                                                if (err)
-                                                    console.error(err);
-                                                clbk();
-                                            });
-                                        } else if (tmpAttrIn.structureType == "hasOne") {
-                                            deleteTab(tmpAttrIn, function(err) {
-                                                if (err)
-                                                    console.error(err);
-                                                clbk();
-                                            });
-                                        } else {
-                                            console.warn("WARNING - Unknown option to delete !");
-                                            console.warn(tmpAttrIn);
+                                        });
+                                    } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheck") {
+                                        tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
+                                        deleteDataField(tmpAttrIn, function(err) {
+                                            if (err)
+                                                console.error(err);
                                             clbk();
-                                        }
-                                    });
-                                },
-                                arg: tmpAttr
-                            });
-                        }
-                    }
-                });
-
-                attr.entityTarget = attr.options.showValue;
-                deleteEntityWidgets(attr, function (err) {
-                    if (err)
-                        return callback(err);
-
-                    function orderedTasks(tasks, idx, overClbk) {
-                        if (!tasks[idx])
-                            return overClbk();
-                        tasks[idx].func(tasks[idx].arg, function () {
-                            orderedTasks(tasks, idx + 1, overClbk);
+                                        });
+                                    } else {
+                                        console.warn("WARNING - Unknown option to delete !");
+                                        console.warn(tmpAttrIn);
+                                        clbk();
+                                    }
+                                });
+                            },
+                            arg: tmpAttr
                         });
                     }
-                    orderedTasks(promises, 0, function () {
-                        db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, attr.id_module, function (err, name_module) {
+                    else if (options[i].relation == 'belongsTo') {
+                        let tmpAttr = {
+                            options: {
+                                value: options[i].as,
+                                urlValue: options[i].as.substring(2)
+                            },
+                            id_project: attr.id_project,
+                            id_application: attr.id_application,
+                            id_module: attr.id_module,
+                            structureType: options[i].structureType
+                        };
+
+                        promises.push({
+                            func: function(tmpAttrIn, clbk) {
+                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
+                                    tmpAttrIn.id_data_entity = sourceID;
+                                    if (tmpAttrIn.structureType == "relatedTo") {
+                                        tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
+                                        deleteDataField(tmpAttrIn, function(err) {
+                                            if (err)
+                                                console.error(err);
+                                            clbk();
+                                        });
+                                    } else if (tmpAttrIn.structureType == "hasOne") {
+                                        deleteTab(tmpAttrIn, function(err) {
+                                            if (err)
+                                                console.error(err);
+                                            clbk();
+                                        });
+                                    } else {
+                                        console.warn("WARNING - Unknown option to delete !");
+                                        console.warn(tmpAttrIn);
+                                        clbk();
+                                    }
+                                });
+                            },
+                            arg: tmpAttr
+                        });
+                    }
+                }
+            });
+
+            attr.entityTarget = attr.options.showValue;
+            deleteEntityWidgets(attr, function (err) {
+                if (err)
+                    return callback(err);
+
+                function orderedTasks(tasks, idx, overClbk) {
+                    if (!tasks[idx])
+                        return overClbk();
+                    tasks[idx].func(tasks[idx].arg, function () {
+                        orderedTasks(tasks, idx + 1, overClbk);
+                    });
+                }
+                orderedTasks(promises, 0, function () {
+                    db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, attr.id_module, function (err, name_module) {
+                        if (err)
+                            return callback(err, null);
+                        database.dropDataEntity(id_application, name_data_entity, function (err) {
                             if (err)
-                                return callback(err, null);
-                            database.dropDataEntity(id_application, name_data_entity, function (err) {
+                                return callback(err);
+                            attr.name_data_entity = name_data_entity;
+                            attr.show_name_data_entity = show_name_data_entity;
+                            db_entity.deleteDataEntity(attr, function (err, infoDB) {
                                 if (err)
                                     return callback(err);
-                                attr.name_data_entity = name_data_entity;
-                                attr.show_name_data_entity = show_name_data_entity;
-                                db_entity.deleteDataEntity(attr, function (err, infoDB) {
-                                    if (err)
-                                        return callback(err);
-                                    var url_name_data_entity = attr.options.urlValue;
-                                    structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function () {
-                                        infoDB.deletedEntityId = entityId;
-                                        callback(null, infoDB);
-                                    });
+                                var url_name_data_entity = attr.options.urlValue;
+                                structure_data_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function () {
+                                    infoDB.deletedEntityId = entityId;
+                                    callback(null, infoDB);
                                 });
                             });
                         });
                     });
                 });
-            }
+            });
         });
     });
 }
@@ -916,12 +963,14 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                                 attr.options.value = optionsArray[i].foreignKey;
                             }
                             found = true;
-                        } else if (optionsArray[i].structureType == "relatedToMultiple") {
+                        } else if (optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
                             if (uniqueAttribute.indexOf(wordParam) != -1) {
                                 var err = new Error("structure.field.attributes.notUnique4RelatedToMany");
                                 return callback(err, null);
-                            } else
+                            } else {
+                                attr.structureType = optionsArray[i].structureType;
                                 found = true;
+                            }
                         }
                         break;
                     }
@@ -1239,7 +1288,7 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
 
                 var setRequired = false;
 
-                if (optionObj.structureType == "relatedToMultiple") {
+                if (optionObj.structureType == "relatedToMultiple" || optionObj.structureType == "relatedToMultipleCheckbox") {
                     instructions.push("delete field " + optionObj.as.substring(2));
                     // If related to is required, then rebuilt it required
                     if(optionObj.allowNull === false)
@@ -1317,7 +1366,7 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     structure_data_field.setupHasManyPresetTab(reversedAttr, function () {
                                         resolve();
                                     });
-                                } else if (attr.targetType == "relatedToMultiple") {
+                                } else if (attr.targetType == "relatedToMultiple" || attr.targetType == "relatedToMultipleCheckbox") {
                                     if (typeof optionObj.usingField !== "undefined")
                                         reversedAttr.options.usingField = optionObj.usingField;
                                     structure_data_field.setupRelatedToMultipleField(reversedAttr, function () {
@@ -1750,12 +1799,12 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                 return callback(err, null);
             }
             // Check if an association already exists from source to target
-            var optionsSourceFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json');
-            var optionsSourceObject = JSON.parse(optionsSourceFile);
-            var toSync = true;
+            let sourceOptionsPath = __dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json';
+            let optionsSourceObject = JSON.parse(helpers.readFileSyncWithCatch(sourceOptionsPath));
+            let toSync = true;
             let constraints = true;
             let saveFile = false;
-            // Vérification si une relation existe déjà de la source VERS la target
+            // Check if an association already exists with the same alias
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     // If alias already used
@@ -1764,11 +1813,14 @@ exports.createNewFieldRelatedTo = function (attr, callback) {
                             // Remove auto generate key by the generator
                             optionsSourceObject.splice(i, 1);
                             saveFile = true;
-                        } else {
-                            var err = new Error("structure.association.error.alreadySameAlias");
-                            return callback(err, null);
-                        }
+                        } else
+                            return callback(new Error("structure.association.error.alreadySameAlias"), null);
                     }
+                } else if(attr.options.as == optionsSourceObject[i].as){
+                    let err = new Error();
+                    err.message = "database.field.error.alreadyExist";
+                    err.messageParams = [attr.options.showAs];
+                    return callback(err, null);
                 }
             }
 
@@ -1909,6 +1961,11 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                 } else if (optionsSourceObject[i].relation == "belongsToMany" && (attr.options.as == optionsSourceObject[i].as)) {
                     var err = new Error("structure.association.error.alreadySameAlias");
                     return callback(err, null);
+                } else if(attr.options.as == optionsSourceObject[i].as){
+                    let err = new Error();
+                    err.message = "database.field.error.alreadyExist";
+                    err.messageParams = [attr.options.showAs];
+                    return callback(err, null);
                 }
             }
 
@@ -1975,7 +2032,7 @@ exports.createNewFieldRelatedToMultiple = function (attr, callback) {
                     relation: relation,
                     through: attr.options.through,
                     toSync: toSync,
-                    type: "relatedToMultiple"
+                    type: attr.options.isCheckbox ? "relatedToMultipleCheckbox" : "relatedToMultiple"
                 };
                 if (typeof attr.options.usingField !== "undefined")
                     associationOption.usingField = attr.options.usingField;
@@ -2054,6 +2111,86 @@ exports.createNewComponentStatus = function (attr, callback) {
         });
     });
 }
+
+let workspacesModels = {};
+function deleteComponentStatus(attr, callback) {
+
+    let self = this;
+    /* If there is no defined name for the module, set the default */
+    if (typeof attr.options.value === "undefined") {
+        attr.options.value = "s_status";
+        attr.options.urlValue = "status";
+        attr.options.showValue = "Status";
+    }
+
+    db_entity.getDataEntityById(attr.id_data_entity, (err, entity) => {
+        if(err)
+            return callback(err);
+
+        db_field.getFieldByCodeName({
+            codeName: attr.options.value,
+            idEntity: attr.id_data_entity,
+            showValue: attr.options.showValue,
+            showEntity: entity.name,
+        }, (err, field) => {
+            if(err)
+                return callback(err);
+
+            // Looking for status & history status information in options.json
+            let entityOptions = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + entity.codeName + '.json'));
+            let historyInfo, statusFieldInfo;
+
+            for(let option of entityOptions){
+                if(option.as == 'r_'+attr.options.urlValue)
+                    statusFieldInfo = option;
+
+                if(option.as == 'r_history_'+attr.options.urlValue)
+                    historyInfo = option;
+            }
+
+            let modelsPath = __dirname + '/../workspace/' + attr.id_application + '/models/';
+            if(typeof workspacesModels[attr.id_application] === 'undefined'){
+                delete require.cache[require.resolve(modelsPath)];
+                workspacesModels[attr.id_application] = require(modelsPath);
+            }
+            let historyTableName = workspacesModels[attr.id_application]['E_' + historyInfo.target.substring(2)].getTableName();
+
+            structure_component.deleteStatus({
+                appID: attr.id_application,
+                status_field: 's_'+attr.options.urlValue,
+                fk_status: statusFieldInfo.foreignKey,
+                entity: entity.codeName,
+                historyName: historyInfo.target,
+                historyTableName: historyTableName
+            }).then(_ => {
+
+                // Delete metadata in generator DB
+                db_field.deleteDataField({
+                    id_data_entity: attr.id_data_entity,
+                    options: {
+                        value: 's_'+attr.options.urlValue,
+                        showValue: attr.options.urlValue
+                    }
+                }, err => {if(err) console.error(err);});
+
+                db_field.deleteDataField({
+                    id_data_entity: attr.id_data_entity,
+                    options: {
+                        value: statusFieldInfo.foreignKey,
+                        showValue: statusFieldInfo.foreignKey
+                    }
+                }, err => {if(err) console.error(err);});
+
+                callback(null, {
+                    message: 'database.component.delete.success'
+                })
+            }).catch(err => {
+                callback(err);
+            })
+        })
+    })
+}
+exports.deleteComponentStatus = deleteComponentStatus;
 
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = function (attr, callback) {
@@ -2999,7 +3136,7 @@ exports.addTitle = function (attr, callback) {
                     var found = false;
                     for (var i = 0; i < optionsArray.length; i++) {
                         if (optionsArray[i].showAs == attr.options.afterField) {
-                            if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple") {
+                            if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
                                 found = true;
                                 return resolve();
                             }
@@ -3057,20 +3194,21 @@ exports.createWidgetPiechart = function (attr, callback) {
             db_field.getCodeNameByNameArray([attr.field], entity.id, function (err, field) {
                 if (err)
                     return callback(err);
-                if (field.length != 1){
-                    let err = new Error();
-                    err.message = "structure.ui.widget.unknown_fields";
-                    err.messageParams = [attr.field];
-                    return callback(err)
+
+                if (field.length == 1) {
+                    attr.found = true;
+                    attr.field = field[0];
                 }
-                attr.field = field[0];
+                // Field not found on entity, set found to false to notify structure_ui to search in entities targeted in options.json
+                else
+                    attr.found = false;
+
                 structure_ui.createWidgetPiechart(attr, function (err, info) {
                     if (err)
                         return callback(err);
                     callback(null, info);
                 });
             });
-
         });
     }
 }
@@ -3139,6 +3277,13 @@ exports.createWidgetOnEntity = function (attr, callback) {
     });
 }
 
+exports.apero = function (attr, callback) {
+    // \o/
+    callback(null, {
+        message: "Santé !"
+    });
+}
+
 function createWidget(attr, callback) {
     if (attr.widgetType == -1)
         return callback(null, {message: "structure.ui.widget.unknown", messageParams: [attr.widgetInputType]});
@@ -3168,11 +3313,11 @@ function deleteWidget(attr, callback) {
     db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
         if (err)
             return callback(err);
-        db_module.getModuleById(entity.id_module, function (err, module) {
+        db_module.getModuleById(entity.id_module, function (err, dbModule) {
             if (err)
                 return callback(err);
 
-            attr.module = module;
+            attr.module = dbModule;
             attr.entity = entity;
 
             structure_ui.deleteWidget(attr, function (err, info) {
@@ -3186,7 +3331,7 @@ function deleteWidget(attr, callback) {
 exports.deleteWidget = deleteWidget;
 
 function deleteEntityWidgets(attr, callback) {
-    attr.widgetTypes = ['info', 'stats', 'lastrecords'];
+    attr.widgetTypes = ['info', 'stats', 'lastrecords', 'piechart'];
     deleteWidget(attr, function (err) {
         if (err)
             return callback(err);

@@ -230,7 +230,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "c
                     field: field
                 });
         for (var i = 0; i < optionsObj.length; i++)
-            if (optionsObj[i].structureType == 'relatedTo' || optionsObj[i].structureType == 'relatedToMany')
+            if (optionsObj[i].structureType == 'relatedTo' || optionsObj[i].structureType == 'relatedToMultiple' || optionsObj[i].structureType == 'relatedToMultipleCheckbox')
                 fields.push({
                     tradKey: 'entity.' + entityName + '.' + optionsObj[i].as,
                     field: optionsObj[i].as
@@ -389,7 +389,7 @@ router.post('/update', block_access.actionAccessMiddleware("inline_help", "updat
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_inline_help, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_inline_help, options, req.body);
         e_inline_help.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association

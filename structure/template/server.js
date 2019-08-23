@@ -40,7 +40,6 @@ const extend = require('util')._extend;
 const https = require('https');
 const http = require('http');
 
-
 // Winston logger
 const logger = require('./utils/logger');
 
@@ -65,17 +64,17 @@ app.use(morgan('dev', {
         	return true;
     },
     stream: require('split')().on('data', function(line) {
-        process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line);
+        process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
     })
 }));
 
 require('console-stamp')(console, {
     formatter: function() {
-        return moment().format('MM-DD HH:mm:ss');
+        return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
     },
-    label: false,
-    datePrefix: "",
-    dateSuffix: ""
+    label: true,
+    datePrefix: "[",
+    dateSuffix: "]-- "
 });
 
 // Overide console.warn & console.error to file+line
@@ -160,7 +159,8 @@ var sessionInstance = session({
 	store: sessionStore,
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
-	resave: true,
+	resave: false,
+    rolling: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
 	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific

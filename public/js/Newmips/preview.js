@@ -490,14 +490,14 @@ $(document).ready(function() {
                     if(flagBottom){
                         objDiv.scrollTop = objDiv.scrollHeight;
                     }
-                    logsInterval = window.setTimeout(updateLog, 3000);
+                    logsInterval = window.setTimeout(updateLog, 1000);
                 },
                 error: function(err) {
                     console.error(err);
                 }
             });
         } else {
-            logsInterval = window.setTimeout(updateLog, 3000);
+            logsInterval = window.setTimeout(updateLog, 1000);
         }
     }
 

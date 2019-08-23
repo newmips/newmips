@@ -42,7 +42,7 @@
         "passport": "^0.4.0",
         "passport-local": "~1.0.0",
         "pg": "^7.4.3",
-        "public-holidays": "^0.1.1",
+        "public-holidays": "^0.2.2",
         "randomstring": "^1.1.5",
         "sequelize": "^4.37.10",
         "socket.io": "^2.1.1",

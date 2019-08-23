@@ -15,6 +15,7 @@ module.exports = {
                 fields: [],
                 email_fields: [],
                 phone_fields: [],
+                file_fields: [],
                 children: []
             }
 
@@ -32,6 +33,8 @@ module.exports = {
                     fieldTree.email_fields.push(field);
                 if (entityFields[field].newmipsType == "phone")
                     fieldTree.phone_fields.push(field);
+                if (entityFields[field].newmipsType == "file" || entityFields[field].newmipsType == "picture")
+                    fieldTree.file_fields.push(field);
                 fieldTree.fields.push(field);
             }
 
@@ -51,42 +54,66 @@ module.exports = {
     },
     // Build entity tree with fields and ALL associations
     fullEntityFieldTree: function (entity, alias = entity) {
-        var genealogy = [];
+        let genealogy = [];
         // Create inner function to use genealogy globaly
         function loadTree(entity, alias) {
-            var fieldTree = {
+            let fieldTree = {
                 entity: entity,
                 alias: alias,
                 fields: [],
                 email_fields: [],
                 phone_fields: [],
+                file_fields: [],
                 children: []
             }
             try {
-                var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-                var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+                let entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                let entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
             } catch (e) {
                 console.error(e);
                 return fieldTree;
             }
 
             // Building field array
-            for (var field in entityFields) {
+            for (let field in entityFields) {
                 if (entityFields[field].newmipsType == "email")
                     fieldTree.email_fields.push(field);
                 if (entityFields[field].newmipsType == "phone")
                     fieldTree.phone_fields.push(field);
+                if (entityFields[field].newmipsType == "file" || entityFields[field].newmipsType == "picture")
+                    fieldTree.file_fields.push(field);
                 fieldTree.fields.push(field);
             }
 
             // Check if current entity has already been built in this branch of the tree to avoid infinite loop
-            if (genealogy.indexOf(entity) != -1)
-                return fieldTree;
-            genealogy.push(entity);
+            let foundGenealogy = genealogy.filter(x => x.entity == entity);
+            // Entity already proceeded in an other relation
+            if(foundGenealogy.length != 0){
+                // Check for the better depth, if deeper then remove it to keep the closer one
+                if(foundGenealogy[0].depth > depth)
+                    genealogy = genealogy.filter(x => x.entity != entity); // Remove old one
+                else
+                    return fieldTree;
+            }
+
+            genealogy.push({
+                entity: entity,
+                depth: depth
+            });
+
+            let initalDepth = depth;
 
             // Building children array
-            for (var i = 0; i < entityAssociations.length; i++)
-                fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+            for (let i = 0; i < entityAssociations.length; i++){
+                // Do not include history & status table in field list
+                if(entityAssociations[i].target.indexOf("e_history_e_") == -1
+                    && entityAssociations[i].target.indexOf("e_status") == -1){
+                    depth++;
+                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+                }
+            }
+
+            depth = initalDepth;
 
             return fieldTree;
         }
@@ -149,7 +176,8 @@ module.exports = {
                     traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
                     target: obj.entity,
                     isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
-                    isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false
+                    isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false,
+                    isFile: obj.file_fields.indexOf(obj.fields[j]) != -1 ? true : false
                 });
             }
 
@@ -164,9 +192,21 @@ module.exports = {
         // loopCount is used to avoid "Maximum call stack exedeed" error with large arrays.
         // Using setTimeout (even with 0 milliseconds) will end the current call stack and create a new one.
         // Even with 0 milliseconds timeout execution can be realy slower, so we reset call stack once every 1000 lap
-        var loopCount = 0;
-        function sort(optsArray, i) {
-            loopCount++;
+        function stackProtectedRecursion(sortFunc, ...args) {
+            if (!this.loopCount)
+                this.loopCount = 0;
+            this.loopCount++;
+            if (this.loopCount % 1000 === 0) {
+                this.loopCount = 0;
+                return setTimeout(() => {
+                    console.log(...args);
+                    sortFunc(...args);
+                }, 0);
+            }
+            return sortFunc(...args);
+        }
+        function sort(optsArray, i = 0) {
+            if (i < 0) i = 0;
             if (!optsArray[i+1])
                 return;
             var firstParts = optsArray[i].traduction.split(separator);
@@ -175,37 +215,21 @@ module.exports = {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                if (loopCount % 1000 === 0) {
-                    loopCount = 0;
-                    return setTimeout(() => {
-                        sort(optsArray, i == 0 ? i : i-1);
-                    }, 0);
-                }
-                return sort(optsArray, i == 0 ? i : i-1)
+                i--;
             }
             else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
                 && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
                 var swap = optsArray[i+1];
                 optsArray[i+1] = optsArray[i];
                 optsArray[i] = swap;
-                if (loopCount % 1000 === 0) {
-                    loopCount = 0;
-                    return setTimeout(() => {
-                        sort(optsArray, i == 0 ? i : i-1);
-                    }, 0);
-                }
-                return sort(optsArray, i == 0 ? i : i-1);
+                i--;
+            }
+            else
+                i++;
 
-            }
-            if (loopCount % 1000 === 0) {
-                loopCount = 0;
-                return setTimeout(() => {
-                    sort(optsArray, i+1);
-                }, 0);
-            }
-            return sort(optsArray, i+1);
+            return stackProtectedRecursion(sort, optsArray, i);
         }
-        sort(options, 0);
+        sort(options);
 
         return options;
     },
@@ -331,10 +355,11 @@ module.exports = {
                 models['E_'+entityName.substring(2)].findOne({
                     where: {id: entityId},
                     include: include
-                }).then((entity)=> {
+                }).then(entity => {
 
+                    entity.entity_name = entityName;
                     // Execute newStatus actions
-                    nextStatus.executeActions(entity).then(()=> {
+                    nextStatus.executeActions(entity).then(_ => {
                         // Create history record for this status field
                         var createObject = {};
                         createObject.f_comment = comment;
@@ -347,13 +372,13 @@ module.exports = {
                                 resolve();
                             })
                         });
-                    }).catch((err)=> {
+                    }).catch(err => {
                         console.error(err);
                         var createObject = {};
                         createObject.f_comment = comment;
                         createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
                         createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
-                        models[historyModel].create(createObject).then(history=> {
+                        models[historyModel].create(createObject).then(history => {
                             entity['setR'+statusAlias.substring(1)](nextStatus.id).then(_ => {
                                 if (userId)
                                     history['setR_modified_by'](userId);

@@ -13,10 +13,23 @@ exports.generateFields = function (componentName, componentCodeName) {
             }
         }
     };
-    var createHtml = '<label>{#__ key="entity.' + componentCodeName + '.label_entity"/}</label>&nbsp;<a href="#" id="info_address_maps"><i class="fa fa-info-circle"></i></a><br><br>\n' +
-            "    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_address_fields '>\n";
-    var updateHtml = '<label>{#__ key="entity.' + componentCodeName + '.label_entity"/}</label>&nbsp;&nbsp;<a href="#" id="info_address_maps"><i class="fa fa-info-circle"></i></a><br>' +
-            "<br>\n    <section id='section_" + componentCodeName + "_fields' class='col-xs-12 section_address_fields'>\n";
+    var createHtml = `\
+    <label>{#__ key="entity.${componentCodeName}.label_entity"/}</label>&nbsp;\n\
+    <a href="#" id="info_address_maps">\n\
+        <i class="fa fa-info-circle"></i>\n\
+    </a>\n\
+    <br><br>\n\
+    <section id='section_${componentCodeName}_fields' class='col-xs-12 section_address_fields'>\n`;
+
+
+    var updateHtml = `\
+    <label>{#__ key="entity.${componentCodeName}.label_entity"/}</label>&nbsp;&nbsp;\n\
+    <a href="#" id="info_address_maps">\n\
+        <i class="fa fa-info-circle"></i>\n\
+    </a>\n\
+    <br><br>\n\
+    <section id='section_${componentCodeName}_fields' class='col-xs-12 section_address_fields'>\n`;
+
     var showFieldsHtml = '';
     var headers = '';
     var tds = '';
@@ -25,25 +38,25 @@ exports.generateFields = function (componentName, componentCodeName) {
 
     // For default
     if (addressConf.endpoint.enable) {
-        createHtml += "        <div data-field='address_search_area' class='col-xs-12 div_address_search_area'>\n";
+        createHtml += "        <div data-field='address_search_input' class='col-xs-12 div_address_search_input'>\n";
         createHtml += "            <div class='form-group'>\n";
         createHtml += "                <div class='input-group'>\n";
         createHtml += "                    <div class='input-group-addon'>\n";
         createHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
         createHtml += "                    </div>\n";
-        createHtml += "                    <input class='input form-control address_search_area' id='address_search_area'  type='text' name='f_address_search_area' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
+        createHtml += "                    <input class='input form-control address_search_input' id='address_search_input'  type='text' name='f_address_search_input' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
         createHtml += "                </div>\n";
         createHtml += "            </div>\n";
         createHtml += "            <hr>\n";
         createHtml += "        </div>\n";
 
-        updateHtml += "        <div data-field='address_search_area' class='col-xs-12 div_address_search_area'>\n";
+        updateHtml += "        <div data-field='address_search_input' class='col-xs-12 div_address_search_input'>\n";
         updateHtml += "            <div class='form-group'>\n";
         updateHtml += "                <div class='input-group'>\n";
         updateHtml += "                    <div class='input-group-addon'>\n";
         updateHtml += "                        <i class='fa fa-map-marker' aria-hidden='true'></i>\n";
         updateHtml += "                    </div>\n";
-        updateHtml += "                    <input class='input form-control address_search_area' id='address_search_area'  type='text' name='f_address_search_area' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
+        updateHtml += "                    <input class='input form-control address_search_input' id='address_search_input'  type='text' name='f_address_search_input' placeholder='{#__ key=\"entity." + componentCodeName + ".search\"/}' >\n";
         updateHtml += "                </div>\n";
         updateHtml += "                <input class='input form-control'  type='hidden'  name='address_id' value='{r_address.id}' >\n";
         updateHtml += "            </div>\n";
@@ -114,30 +127,32 @@ exports.generateFields = function (componentName, componentCodeName) {
 
             createHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_create + "'>\n"
             createHtml += "            <div class='form-group'>\n";
-            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            createHtml += "                <label for='" + dbcolumn + "' class='" + required + "'>{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}</label>\n";
             createHtml += "                <input class='input form-control address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + " " + defaultValue + "  type='" + type + "' placeholder='{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + " >\n";
             createHtml += "            </div>\n";
             createHtml += "        </div>\n";
             // Update
             updateHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_udpate + "'>\n"
             updateHtml += "            <div class='form-group'>\n";
-            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            updateHtml += "                <label for='" + dbcolumn + "' class='" + required + "'>{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}</label>\n";
             updateHtml += "                <input class='input form-control address_field " + dbcolumn + " ' " + min + " " + max + " field='" + apiField + "' " + pattern + "  type='" + type + "' value='{r_address." + dbcolumn + "}' placeholder='{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' " + required + ">\n";
             updateHtml += "            </div>\n";
             updateHtml += "        </div>\n";
             // Show
             showFieldsHtml += "        <div data-field='" + dbcolumn + "' class='col-xs-12' style='display:" + display_show + "'>\n";
             showFieldsHtml += "            <div class='form-group'>\n";
-            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'> {#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/} </label>\n";
+            showFieldsHtml += "                <label for='" + dbcolumn + "' class='" + required + "'>{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}</label>\n";
             showFieldsHtml += "                <input class='input form-control " + dbcolumn + " ' value='{r_address." + dbcolumn + "}' placeholder='{#__ key=\"entity." + componentCodeName + "." + dbcolumn + "\"/}' name='" + dbcolumn + "' id='" + dbcolumn + "' readonly>\n";
             showFieldsHtml += "            </div>\n";
             showFieldsHtml += "        </div>\n";
             // Headers
 
-            var header = '<th data-field="r_address.' + dbcolumn + '" data-col="r_address.' + dbcolumn + '">\n';
-            header += '    {#__ key="entity.' + componentCodeName + '.' + dbcolumn + '"/}\n';
-            header += '</th>\n';
-            var td = '\t\t<td data-field="address.' + dbcolumn + '">' + '{' + dbcolumn + '}</td>\n';
+            let header = `\
+            <th data-field="r_address.${dbcolumn}" data-col="r_address.${dbcolumn}">\n\
+                {#__ key="entity.${componentCodeName}.${dbcolumn}"/}\n\
+            </th>\n`;
+
+            let td = `      <td data-field="address.${dbcolumn}">{${dbcolumn}}</td>\n`;
 
             headers += header;
             // tds

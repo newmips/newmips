@@ -32,7 +32,7 @@
             <input class="form-control input" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_place" /}' name="f_place" value="{f_place}" type="text" maxlength="255" readonly="">
         </div>
     </div>
-    <div data-field="f_start_date" class="fieldLineHeight col-xs-12col-sm-6">
+    <div data-field="f_start_date" class="fieldLineHeight col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_start_date">
                 {#__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date"/}&nbsp;
@@ -49,7 +49,7 @@
             </div>
         </div>
     </div>
-    <div data-field="f_end_date" class="fieldLineHeight col-xs-12col-sm-6">
+    <div data-field="f_end_date" class="fieldLineHeight col-xs-12 col-sm-6">
         <div class="form-group">
             <label for="f_end_date">
                 {#__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date"/}&nbsp;
