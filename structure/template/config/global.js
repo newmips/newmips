@@ -1,7 +1,7 @@
 // Global configuration file
 
 const fs = require('fs');
-let env = 'docker';
+let env = 'develop';
 let applicationConf = require('./application.json');
 
 let config = {
