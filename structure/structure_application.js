@@ -105,9 +105,9 @@ exports.setupApplication = function(attr, callback) {
                     ];
 
                     let conn = await mysql.createConnection({
-                        host: globalConf.env == "cloud" ? process.env.DATABASE_IP : dbConf.host,
-                        user: globalConf.env == "cloud" ? "root" : dbConf.user,
-                        password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
+                        host: globalConf.env == "cloud"||"docker" ? process.env.DATABASE_IP : dbConf.host,
+                        user: globalConf.env == "cloud"||"docker" ? "root" : dbConf.user,
+                        password: globalConf.env == "cloud"||"docker" ? "P@ssw0rd+" : dbConf.password
                     });
 
                     for (var i = 0; i < db_requests.length; i++) {
@@ -263,18 +263,23 @@ function initializeWorkflow(id_application, name_application) {
         // Copy API routes
         fs.copySync(piecesPath + '/api/', workspacePath + '/api/');
 
+        // Remove notification views
+        fs.removeSync(workspacePath+'/views/e_notification');
+
         // Remove notification from administration sidebar
         domHelper.read(workspacePath + '/views/layout_m_administration.dust').then(function($) {
             $("#notification_menu_item").remove();
-            var diagramMenuLink = '{#actionAccess entity="status" action="read"}\n';
-            diagramMenuLink += '<li>\n';
-            diagramMenuLink += '    <a href="/status/diagram">\n';
-            diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
-            diagramMenuLink += '        {@__ key="component.status.diagram" /}\n';
-            diagramMenuLink += '    </a>\n';
-            diagramMenuLink += '</li>\n';
-            diagramMenuLink += '{/actionAccess}\n';
-            $("#status_menu_item ul").append(diagramMenuLink);
+
+            // DIAGRAM MENU
+            // var diagramMenuLink = '<!--{#actionAccess entity="status" action="read"}-->\n';
+            // diagramMenuLink += '<li>\n';
+            // diagramMenuLink += '    <a href="/status/diagram">\n';
+            // diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
+            // diagramMenuLink += '        <!--{#__ key="component.status.diagram" /}-->\n';
+            // diagramMenuLink += '    </a>\n';
+            // diagramMenuLink += '</li>\n';
+            // diagramMenuLink += '{/actionAccess}\n';
+            // $("#status_menu_item ul").append(diagramMenuLink);
             domHelper.write(workspacePath + '/views/layout_m_administration.dust', $).then(function() {
                 // Media pieces
                 var modelMedia = fs.readFileSync(piecesPath + '/models/e_media.js', 'utf8');
@@ -305,6 +310,10 @@ function initializeWorkflow(id_application, name_application) {
                 translateHelper.writeTree(id_application, newLocalesEN, 'en-EN');
                 var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_FR.json'));
                 translateHelper.writeTree(id_application, newLocalesFR, 'fr-FR');
+
+                // Write enum traductions
+                translateHelper.writeEnumTrad(id_application, 'e_media', 'f_type', 'task', 'Tâche', 'fr-FR');
+
                 finalizeApplication(id_application, name_application).then(resolve).catch(reject);
             });
         });
@@ -386,6 +395,7 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 });
                                             }
                                             fs.writeFileSync(workspacePath + '/config/access.json', JSON.stringify(access, null, 4), 'utf8');
+                                            fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
                                             // Set role-group/user structureType to hasManyPreset to be used by ajax
                                             var opts = JSON.parse(fs.readFileSync(workspacePath+'/models/options/e_role.json', 'utf8'));
@@ -404,133 +414,133 @@ exports.initializeApplication = function(id_application, id_user, name_applicati
                                                 $("#synchronization_menu_item").remove();
                                                 $("#synchro_credentials_menu_item").remove();
                                                 // Put back Synchro in sidebar
-                                                li += '{#entityAccess entity="synchro"}\n';
+                                                li += '<!--{#entityAccess entity="synchro"}-->\n';
                                                 li += '     <li id="synchro_menu_item" style="display:block;" class="treeview">\n';
                                                 li += '         <a href="#">\n';
                                                 li += '             <i class="fa fa-refresh"></i>\n';
-                                                li += '             <span>{#__ key="synchro.title" /}</span>\n';
+                                                li += '             <span><!--{#__ key="synchro.title" /}--></span>\n';
                                                 li += '             <i class="fa fa-angle-left pull-right"></i>\n';
                                                 li += '         </a>\n';
                                                 li += '         <ul class="treeview-menu">\n';
-                                                li += '             {@ne key=config.env value="tablet"}\n';
+                                                li += '             <!--{@ne key=config.env value="tablet"}-->\n';
                                                 li += '                 <li>\n';
                                                 li += '                     <a href="/synchronization/show">\n';
                                                 li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {#__ key="synchro.configure" /}\n';
+                                                li += '                         <!--{#__ key="synchro.configure" /}-->\n';
                                                 li += '                     </a>\n';
                                                 li += '                 </li>\n';
                                                 li += '                 <li>\n';
                                                 li += '                     <a href="/synchronization/list_dump">\n';
                                                 li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {#__ key="synchro.list" /}\n';
+                                                li += '                         <!--{#__ key="synchro.list" /}-->\n';
                                                 li += '                     </a>\n';
                                                 li += '                 </li>\n';
-                                                li += '             {/ne}\n';
-                                                li += '             {@eq key=config.env value="tablet"}\n';
+                                                li += '             <!--{/ne}-->\n';
+                                                li += '             <!--{@eq key=config.env value="tablet"}-->\n';
                                                 li += '                 <li>\n';
                                                 li += '                     <a href="/synchronization/show">\n';
                                                 li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {#__ key="synchro.process.synchronize" /}\n';
+                                                li += '                         <!--{#__ key="synchro.process.synchronize" /}-->\n';
                                                 li += '                     </a>\n';
                                                 li += '                 </li>\n';
-                                                li += '             {/eq}\n';
+                                                li += '             <!--{/eq}-->\n';
                                                 li += '         </ul>\n';
                                                 li += '     </li>\n';
-                                                li += '{/entityAccess}\n';
+                                                li += '<!--{/entityAccess}-->\n';
 
-                                                li += '{@eq key=config.env value="tablet"}\n';
-                                                li += '     {#entityAccess entity="synchro_credentials"}\n';
+                                                li += '<!--{@eq key=config.env value="tablet"}-->\n';
+                                                li += '     <!--{#entityAccess entity="synchro_credentials"}\n';
                                                 li += '     <li id="synchro_credentials_menu_item" style="display:block;" class="treeview">\n';
                                                 li += '         <a href="#">\n';
                                                 li += '             <i class="fa fa-unlink"></i>\n';
-                                                li += '             <span>{#__ key="entity.e_synchro_credentials.label_entity" /}</span>\n';
+                                                li += '             <span><!--{#__ key="entity.e_synchro_credentials.label_entity" /}--></span>\n';
                                                 li += '             <i class="fa fa-angle-left pull-right"></i>\n';
                                                 li += '         </a>\n';
                                                 li += '         <ul class="treeview-menu">\n';
-                                                li += '             {#actionAccess entity="synchro_credentials" action="create"}\n';
+                                                li += '             <!--{#actionAccess entity="synchro_credentials" action="create"}-->\n';
                                                 li += '                 <li>\n';
                                                 li += '                     <a href="/synchro_credentials/create_form">\n';
                                                 li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {#__ key="operation.create" /}\n';
+                                                li += '                         <!--{#__ key="operation.create" /}-->\n';
                                                 li += '                     </a>\n';
                                                 li += '                 </li>\n';
-                                                li += '             {/actionAccess}\n';
-                                                li += '             {#actionAccess entity="synchro_credentials" action="read"}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
+                                                li += '             <!--{#actionAccess entity="synchro_credentials" action="read"}-->\n';
                                                 li += '                 <li>\n';
                                                 li += '                     <a href="/synchro_credentials/list">\n';
                                                 li += '                         <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                         {#__ key="operation.list" /}\n';
+                                                li += '                         <!--{#__ key="operation.list" /}-->\n';
                                                 li += '                     </a>\n';
                                                 li += '                 </li>\n';
-                                                li += '             {/actionAccess}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
                                                 li += '         </ul>\n';
                                                 li += '     </li>\n';
-                                                li += '     {/entityAccess}\n';
-                                                li += '{/eq}\n';
+                                                li += '     <!--{/entityAccess}-->\n';
+                                                li += '<!--{/eq}-->\n';
 
-                                                li += '{#entityAccess entity="import_export"}\n';
+                                                li += '<!--{#entityAccess entity="import_export"}-->\n';
                                                 li += '     <li id="import_export_menu_item" class="treeview">\n';
                                                 li += '         <a href="#">\n';
                                                 li += '             <i class="fa fa-arrows-v"></i>\n';
-                                                li += '             <span>{#__ key="settings.import_export.title" /}</span>\n';
+                                                li += '             <span><!--{#__ key="settings.import_export.title" /}--></span>\n';
                                                 li += '             <i class="fa fa-angle-left pull-right"></i>\n';
                                                 li += '         </a>\n';
                                                 li += '         <ul class="treeview-menu">\n';
-                                                li += '             {#actionAccess entity="db_tool" action="read"}\n';
+                                                li += '             <!--{#actionAccess entity="db_tool" action="read"}-->\n';
                                                 li += '             <li>\n';
                                                 li += '                 <a href="/import_export/db_show">\n';
                                                 li += '                     <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                     {#__ key="settings.db_tool.title" /}\n';
+                                                li += '                     <!--{#__ key="settings.db_tool.title" /}-->\n';
                                                 li += '                 </a>\n';
                                                 li += '             </li>\n';
-                                                li += '             {/actionAccess}\n';
-                                                li += '             {#actionAccess entity="access_tool" action="read"}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
+                                                li += '             <!--{#actionAccess entity="access_tool" action="read"}-->\n';
                                                 li += '             <li>\n';
                                                 li += '                 <a href="/import_export/access_show">\n';
                                                 li += '                     <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                     {#__ key="settings.tool_menu" /}\n';
+                                                li += '                     <!--{#__ key="settings.tool_menu" /}-->\n';
                                                 li += '                 </a>\n';
                                                 li += '             </li>\n';
-                                                li += '             {/actionAccess}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
                                                 li += '         </ul>\n';
                                                 li += '     </li>\n';
-                                                li += '{/entityAccess}\n';
+                                                li += '<!--{/entityAccess}-->\n';
 
-                                                li += '{#entityAccess entity="access_settings"}\n';
+                                                li += '<!--{#entityAccess entity="access_settings"}-->\n';
                                                 li += '     <li id="access_settings_menu_item" class="treeview">\n';
                                                 li += '         <a href="#">\n';
                                                 li += '             <i class="fa fa-cog"></i>\n';
-                                                li += '             <span>{#__ key="settings.title" /}</span>\n';
+                                                li += '             <span><!--{#__ key="settings.title" /}--></span>\n';
                                                 li += '             <i class="fa fa-angle-left pull-right"></i>\n';
                                                 li += '         </a>\n';
                                                 li += '         <ul class="treeview-menu">\n';
-                                                li += '             {#actionAccess entity="access_settings_role" action="read"}\n';
+                                                li += '             <!--{#actionAccess entity="access_settings_role" action="read"}-->\n';
                                                 li += '             <li>\n';
                                                 li += '                 <a href="/access_settings/show_role">\n';
                                                 li += '                     <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                     {#__ key="entity.e_role.label_entity" /}\n';
+                                                li += '                     <!--{#__ key="entity.e_role.label_entity" /}-->\n';
                                                 li += '                 </a>\n';
                                                 li += '             </li>\n';
-                                                li += '             {/actionAccess}\n';
-                                                li += '             {#actionAccess entity="access_settings_group" action="read"}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
+                                                li += '             <!--{#actionAccess entity="access_settings_group" action="read"}-->\n';
                                                 li += '             <li>\n';
                                                 li += '                 <a href="/access_settings/show_group">\n';
                                                 li += '                     <i class="fa fa-angle-double-right"></i>\n';
-                                                li += '                     {#__ key="entity.e_group.label_entity" /}\n';
+                                                li += '                     <!--{#__ key="entity.e_group.label_entity" /}-->\n';
                                                 li += '                 </a>\n';
                                                 li += '             </li>\n';
-                                                li += '             {/actionAccess}\n';
-                                                li += '             {#actionAccess entity="access_settings_api" action="read"}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
+                                                li += '             <!--{#actionAccess entity="access_settings_api" action="read"}-->\n';
                                                 li += '             <li>\n';
                                                 li += '                 <a href="/access_settings/show_api">\n';
                                                 li += '                     <i class="fa fa-angle-double-right"></i>\n';
                                                 li += '                     API\n';
                                                 li += '                 </a>\n';
                                                 li += '             </li>\n';
-                                                li += '             {/actionAccess}\n';
+                                                li += '             <!--{/actionAccess}-->\n';
                                                 li += '         </ul>\n';
                                                 li += '     </li>\n';
-                                                li += '{/entityAccess}\n';
+                                                li += '<!--{/entityAccess}-->\n';
 
                                                 $("#sortable").append(li);
 
@@ -615,9 +625,9 @@ exports.deleteApplication = function(appID, callback) {
         if(globalConf.separate_workspace_db){
             (async () => {
                 let conn = await mysql.createConnection({
-                    host: globalConf.env == "cloud" ? process.env.DATABASE_IP : dbConf.host,
-                    user: globalConf.env == "cloud" ? "root" : dbConf.user,
-                    password: globalConf.env == "cloud" ? "P@ssw0rd+" : dbConf.password
+                    host: globalConf.env == "cloud"||"docker" ? process.env.DATABASE_IP : dbConf.host,
+                    user: globalConf.env == "cloud"||"docker" ? "root" : dbConf.user,
+                    password: globalConf.env == "cloud"||"docker" ? "P@ssw0rd+" : dbConf.password
                 });
                 await conn.query("DROP DATABASE IF EXISTS workspace_"+appID+";");
                 conn.end();

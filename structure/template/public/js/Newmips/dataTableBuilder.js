@@ -280,7 +280,7 @@ var delay = (function() {
 function generateColumnSelector(tableID, columns) {
     var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
     var tableHeight = $(tableID).height();
-    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;width:100%;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
 
     var columnsToShow = {columns: []};
     // Loop over the <th> available on page load
@@ -303,7 +303,7 @@ function generateColumnSelector(tableID, columns) {
             if (show)
                 columnsToShow.columns.push(element.data('col'));
 
-            var columnDiv = $('<div style="width:100%;"><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
+            var columnDiv = $('<div><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
             // Initialize column checkbox
             var checkbox = columnDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
@@ -438,24 +438,23 @@ function init_datatable(tableID, doPagination, context) {
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
-                    // Date
-                    if (columns[meta.col].type == 'date') {
+                    // date / datetime
+                    if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD");
-                        } else
-                            cellValue = "-";
-                    }
-                    // Datetime
-                    else if (columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm");
-                        } else
+                            var tmpDate = moment(new Date(cellValue));
+                            if (!tmpDate.isValid())
+                                cellValue = '-';
+                            else {
+                                var format;
+                                if (columns[meta.col].type == 'date')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY" : "YYYY-MM-DD";
+                                else if (columns[meta.col].type == 'datetime')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm";
+
+                                cellValue = tmpDate.format(format || "YYYY-MM-DD");
+                            }
+                        }
+                        else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
                         cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"><span style="visibility: hidden;">1</span></i>' : '<i class="fa fa-square-o fa-lg"><span style="visibility: hidden;">0</span></i>';
@@ -485,7 +484,7 @@ function init_datatable(tableID, doPagination, context) {
                             // Get current entity by splitting current table id
                             var currentEntity = tableID.split("#table_")[1];
                             var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
-                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURI(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
                         } else
                             cellValue = '';
                     }

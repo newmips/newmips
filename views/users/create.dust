@@ -17,7 +17,7 @@
                                 <label for="login" class="required">
                                     {#__ key="users.login"/}&nbsp;
                                 </label>
-                                <input class="form-control input" placeholder='{#__ key="users.login" /}' type="text" maxlength="255" name="login" required>
+                                <input class="form-control input" placeholder='{#__ key="users.login" /}' type="text" maxlength="255" name="login" required style='text-transform: lowercase;'>
                             </div>
                         </div>
                         <div data-field="role" class="col-xs-12 col-sm-6">

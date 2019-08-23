@@ -139,7 +139,8 @@
         "redirecting": "Redirection...",
         "createScript": "Écrire un script",
         "fromFile": "Depuis un fichier",
-        "template": "Choisissez votre modèle d'application"
+        "template": "Choisissez votre modèle d'application",
+        "alreadyProcessing": "Un autre utilisateur est déjà en train d'exécuter un script, merci de réessayer dans quelques instants."
     },
     "template": {
         "label": "Modèle",
@@ -236,7 +237,8 @@
         "textthree": "simplement revenir en arrière.",
         "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
         "valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (<30) après génération (%s).",
-        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez."
+        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez.",
+        "missingParametersInstruction": "Ils manque des paramètres à votre instruction. Consultez la documentation"
     },
     "back":{
         "list": "Lister les",

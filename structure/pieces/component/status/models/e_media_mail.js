@@ -1,12 +1,13 @@
-var builder = require('../utils/model_builder');
-var fs = require('fs-extra');
-var mailer = require('../utils/mailer.js');
+const builder = require('../utils/model_builder');
+const fs = require('fs-extra');
+const mailer = require('../utils/mailer.js');
+const moment = require('moment');
+const globalConf = require('../config/global');
 
-var attributes_origin = require("./attributes/e_media_mail.json");
-var associations = require("./options/e_media_mail.json");
-var moment = require('moment');
+let attributes_origin = require("./attributes/e_media_mail.json");
+let associations = require("./options/e_media_mail.json");
 
-var INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci'];
+let INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments'];
 
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -23,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     // Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
     //      Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
     Model.prototype.parseForInclude = function() {
-        var fieldsToParse = ['f_from','f_to','f_cc','f_cci','f_subject', 'f_content'];
+        var fieldsToParse = ['f_from','f_to','f_cc','f_cci','f_subject', 'f_content', 'f_attachments'];
         var valuesForInclude = [];
         for (var i = 0; i < fieldsToParse.length; i++) {
             var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
@@ -136,16 +137,38 @@ module.exports = (sequelize, DataTypes) => {
             var newString = self[property];
             var regex = new RegExp(/{field\|([^}]*)}/g),
                 matches = null;
-            while ((matches = regex.exec(self[property])) != null)
-                newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
-            self[property] = newString || "";
+            // Need an array for attachments, not a string
+            if(property == 'f_attachments'){
+                newString = [];
+                while ((matches = regex.exec(self[property])) != null)
+                    newString.push({
+                        filename: diveData(dataInstance, matches[1].split('.'), 0),
+                        path: getFilePath(diveData(dataInstance, matches[1].split('.'), 0))
+                    });
+                self[property] = newString || [];
+            }
+
+            else{
+                while ((matches = regex.exec(self[property])) != null)
+                    newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
+                self[property] = newString || "";
+            }
+
             return self[property];
+        }
+
+        function getFilePath(filename){
+            let entity = dataInstance.entity_name;
+            let cleanFilename = filename.substring(16);
+            let folderName = filename.split("-")[0];
+            let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+            return filePath;
         }
 
         // Replace {group|id} and {user|id} placeholders before inserting variables
         // to avoid trying to replace placeholders as entity's fields
-        insertGroupAndUserEmail().then(function() {
+        insertGroupAndUserEmail().then(_ => {
             // Build mail options and replace entity's fields
             var options = {
                 from: insertVariablesValue('f_from'),
@@ -156,8 +179,10 @@ module.exports = (sequelize, DataTypes) => {
                 data: dataInstance
             };
 
+            let attachmentsFile = insertVariablesValue('f_attachments');
+
             // Send mail
-            mailer.sendHtml(insertVariablesValue('f_content'), options).then(resolve).catch(reject);
+            mailer.sendHtml(insertVariablesValue('f_content'), options, attachmentsFile).then(resolve).catch(reject);
         });
     };
 

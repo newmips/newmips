@@ -251,7 +251,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
         // because those values are not updated for now
         model_builder.setAssocationManyValues(e_user, req.body, createObject, options).then(function() {
             Promise.all(promises).then(function() {
-                component_helper.setAddressIfComponentExist(e_user, options, req.body).then(function() {
+                component_helper.address.setAddressIfComponentExists(e_user, options, req.body).then(function() {
                     res.redirect(redirect);
                 });
             }).catch(function(err) {
@@ -331,7 +331,7 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_user, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_user, options, req.body);
 
         var redirect = '/user/show?id=' + id_e_user;
         // If we are in user settings,then he cannot modify sensible data, and we redirect differently

@@ -159,32 +159,6 @@ function ajaxForm(form, tab) {
     });
 }
 
-// function bindFieldsetForm(tab, data) {
-//     tab.find('.fieldsetform').each(function() {
-//         $(this).submit(function() {
-//             var alias = $(this).parents('.tab-pane').attr('id');
-//             var url = '/'+data.sourceName+'/fieldset/'+alias+'/remove?ajax=true';
-//             var reqData = $(this).serialize();
-//             reqData += '&idEntity='+data.sourceId;
-//             console.log(alias);
-//             console.log(url);
-//             console.log(reqData);
-//             alert('Fieldsetform');
-//             var form = this;
-//             $.ajax({
-//                 url: url,
-//                 method: 'post',
-//                 data: reqData,
-//                 success:function() {
-//                     reloadTab(tab);
-//                 },
-//                 error: handleError
-//             });
-//             return false;
-//         });
-//     });
-// }
-
 function currencyFormat(num) {
     if(num != null)
         return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
@@ -398,7 +372,7 @@ $(function() {
                 else if (data.option.structureType == 'print')
                     initPrintTab(tab, data);
                 else
-                    console.error("Bad structureType in option");
+                    return console.error("Bad structureType in option");
 
                 // Init form and td
                 initForm(tab);

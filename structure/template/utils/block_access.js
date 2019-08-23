@@ -27,7 +27,7 @@ exports.isLoggedIn = function(req, res, next) {
     else if (req.isAuthenticated())
         return next();
     else
-        res.redirect('/login');
+        res.redirect('/login?r='+req.originalUrl);
 };
 
 //If the user is already identified, he can't access the login page
@@ -96,12 +96,28 @@ exports.moduleAccessMiddleware = function(moduleName) {
         let userGroups = req.session.passport.user.r_group;
         if (userGroups.length > 0 && moduleAccess(userGroups, moduleName))
             return next();
+
+        if(userGroups.length == 0){
+            req.session.toastr = [{
+                level: 'error',
+                message: "settings.auth_component.no_group"
+            }];
+            return res.redirect('/logout');
+        }
+
         req.session.toastr = [{
             level: 'error',
             message: "settings.auth_component.no_access_group_module"
         }];
         return res.redirect('/');
     }
+}
+
+exports.haveGroup = function(userGroups, group) {
+    for (var i = 0; i < userGroups.length; i++)
+        if (userGroups[i].f_label == group)
+            return true;
+    return false;
 }
 
 // Check if user's group have access to entity
@@ -115,10 +131,14 @@ function entityAccess(userGroups, entityName) {
             for (let i = 0; i < moduleEntities.length; i++)
                 if (moduleEntities[i].name == entityName) {
                     // Check if group can access entity AND module to which the entity belongs
-                    if (!isInBothArray(moduleEntities[i].groups, userGroups)
-                    && !isInBothArray(access[npsModule].groups, userGroups)) {
+                    // if (!isInBothArray(moduleEntities[i].groups, userGroups)
+                    // && !isInBothArray(access[npsModule].groups, userGroups)) {
+                    //     return true;
+                    // }
+
+                    // Check if group can access entity
+                    if (!isInBothArray(moduleEntities[i].groups, userGroups))
                         return true;
-                    }
                 }
         }
         return false;
@@ -217,11 +237,6 @@ exports.accessFileManagment = function(){
         const access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
         const accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
 
-        let emptyModuleContent = {
-            "groups": [],
-            "entities": []
-        }
-
         let emptyEntityContent = {
             "name": "",
             "groups": [],
@@ -233,22 +248,23 @@ exports.accessFileManagment = function(){
             }
         }
 
+        let lockEntities, accessEntities, found;
         // Add missing things in access.json
         for (let moduleLock in accessLock) {
             // Generate new module with entities and groups if needed
             if(!access[moduleLock]){
                 console.log("access.json: NEW MODULE: "+moduleLock);
-                access[moduleLock] = emptyModuleContent;
+                access[moduleLock] = {};
                 access[moduleLock].entities = accessLock[moduleLock].entities;
                 access[moduleLock].groups = accessLock[moduleLock].groups;
-                break;
+                continue;
             }
 
             // Loop on entities to add missing ones
-            let lockEntities = accessLock[moduleLock].entities;
-            let accessEntities = access[moduleLock].entities;
+            lockEntities = accessLock[moduleLock].entities;
+            accessEntities = access[moduleLock].entities;
             for (let i = 0; i < lockEntities.length; i++){
-                let found = false;
+                found = false;
                 for (let j = 0; j < accessEntities.length; j++)
                     {if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
                 }
@@ -259,6 +275,36 @@ exports.accessFileManagment = function(){
                     console.log("access.json : NEW ENTITY "+lockEntities[i].name+" IN MODULE "+moduleLock);
                 }
             }
+        }
+
+        // Remove key in access that are not in access.lock
+        for (let nps_module in access) {
+            // Generate new module with entities and groups if needed
+            if(!accessLock[nps_module]){
+                console.log("access.json: REMOVE MODULE: "+nps_module);
+                delete access[nps_module];
+                continue;
+            }
+
+            // Loop on entities to remove missing ones
+            lockEntities = accessLock[nps_module].entities;
+            accessEntities = access[nps_module].entities;
+            idxToRemove = [];
+            for (let i = 0; i < accessEntities.length; i++){
+                found = false;
+                for (let j = 0; j < lockEntities.length; j++)
+                    {if(accessEntities[i].name == lockEntities[j].name){found=true;break;}
+                }
+                if(!found){
+                    // Remove entity from access
+                    idxToRemove.push(i);
+                    console.log("access.json : REMOVE ENTITY "+accessEntities[i].name+" IN MODULE "+nps_module);
+                }
+            }
+
+            access[nps_module].entities = access[nps_module].entities.filter((val, idx, arr) => {
+                return idxToRemove.indexOf(idx) == -1
+            })
         }
 
         // Write access.json with new entries

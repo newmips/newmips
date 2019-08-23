@@ -64,7 +64,8 @@
             "no_access_group_module": "Votre groupe n'a pas accès à ce module.",
             "no_access_group_entity": "Votre groupe n'a pas accès à cette entité.",
             "no_access_change_status": "Votre groupe n'a pas le droit de changer ce statut.",
-            "no_access_role": "Votre rôle n'a pas accès à cette action sur cette entité."
+            "no_access_role": "Votre rôle n'a pas accès à cette action sur cette entité.",
+            "no_group": "Votre compte n'a pas d'accès à l'application, merci de contacter l'administrateur."
         },
         "db_tool": {
             "title": "Outil BDD",
@@ -172,7 +173,8 @@
             "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
         },
         "empty": "Aucune donnée à afficher",
-        "unique": "Ce champ doit être unique:"
+        "unique": "Ce champ doit être unique:",
+        "relatedtomanycheckbox_required": "Un champ necessite d'avoir au moins une case cochée."
     },
     "entity": {},
     "synchro": {
@@ -250,7 +252,9 @@
             "stats": {
                 "more_info": "Plus d'infos"
             },
-            "piechart": {}
+            "piechart": {
+                "distribution": "Répartition"
+            }
         },
         "createdAt": "Date de création"
     },

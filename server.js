@@ -80,11 +80,11 @@ app.use(morgan('dev', {
 if(globalConf.env != "develop"){
     require('console-stamp')(console, {
         formatter: function() {
-            return moment().format('MM-DD HH:mm:ss');
+            return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
         },
-        label: false,
-        datePrefix: "",
-        dateSuffix: ""
+        label: true,
+        datePrefix: "[",
+        dateSuffix: "]-- "
     });
 }
 
@@ -172,7 +172,8 @@ app.use(session({
     store: sessionStore,
     cookieName: 'newmipsCookie',
     secret: 'newmipsmakeyourlifebetter',
-    resave: true,
+    resave: false,
+    rolling: true,
     saveUninitialized: false,
     maxAge: 360 * 5,
     key: 'newmipsCookie'
@@ -329,6 +330,10 @@ models.sequelize.sync({
     console.log("ERROR - SYNC");
     logger.silly(err);
     console.error(err);
+});
+
+process.on('SIGINT', function() {
+    process.exit(1);
 });
 
 module.exports = app;

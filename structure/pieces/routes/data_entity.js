@@ -117,7 +117,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
             return res.status(500).end();
         }
 
-        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+        ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(function(count) {
             var rawData = {
                 recordsTotal: count,
                 recordsFiltered: count,
@@ -294,7 +294,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
         ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
         data.ENTITY_NAME = ENTITY_NAME;
         // Update some data before show, e.g get picture binary
-        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", true).then(function() {
+        entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", false).then(function() {
             // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
             entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
                 if (req.query.ajax) {
@@ -370,7 +370,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
     // Find tab option
     var option;
     for (var i = 0; i < options.length; i++)
-        if (options[i].as == req.params.alias) {
+        if (options[i].as == alias) {
             option = options[i];
             break;
         }
@@ -391,9 +391,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
         queryOpts.include = {
             model: models[entity_helper.capitalizeFirstLetter(option.target)],
             as: option.as,
-            include: {
-                all: true
-            }
+            include: {all: true}
         }
 
     // Fetch tab data
@@ -525,7 +523,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), block_access.statusGroupAccess, function(req, res) {
     status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
-    }).catch((err)=> {
+    }).catch(err => {
         entity_helper.error(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME, "ENTITY_NAME");
     });
 });

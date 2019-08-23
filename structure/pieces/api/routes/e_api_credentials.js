@@ -239,7 +239,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
         // because those values are not updated for now
         model_builder.setAssocationManyValues(e_api_credentials, req.body, createObject, options).then(function () {
             Promise.all(promises).then(function () {
-                component_helper.setAddressIfComponentExist(e_api_credentials, options, req.body).then(function () {
+                component_helper.address.setAddressIfComponentExists(e_api_credentials, options, req.body).then(function () {
                     res.redirect(redirect);
                 });
             }).catch(function (err) {
@@ -305,7 +305,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_api_credentials, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_api_credentials, options, req.body);
         e_api_credentials.update(updateObject).then(function () {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association

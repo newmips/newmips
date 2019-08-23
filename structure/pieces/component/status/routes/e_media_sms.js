@@ -79,7 +79,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
             // because those values are not updated for now
             model_builder.setAssocationManyValues(e_media_sms, req.body, createObject, options).then(function() {
                 Promise.all(promises).then(function() {
-                    component_helper.setAddressIfComponentExist(e_media_sms, options, req.body).then(function() {
+                    component_helper.address.setAddressIfComponentExists(e_media_sms, options, req.body).then(function() {
                         res.redirect(redirect);
                     });
                 }).catch(function(err) {
@@ -160,7 +160,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
             logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
-        component_helper.updateAddressIfComponentExist(e_media_sms, options, req.body);
+        component_helper.address.updateAddressIfComponentExists(e_media_sms, options, req.body);
         e_media_sms.update(updateObject).then(function() {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association

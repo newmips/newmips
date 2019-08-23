@@ -107,11 +107,11 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
 router.post('/update_logs', block_access.isLoggedIn, function(req, res) {
     try {
         if(!isNaN(req.body.idApp)){
-            readLastLines.read(__dirname + "/../workspace/logs/app_"+req.body.idApp+".log", 1000).then((lines) => {
+            readLastLines.read(__dirname + "/../workspace/logs/app_"+req.body.idApp+".log", 1000).then(lines => {
                 res.status(200).send(lines);
             });
         } else {
-            readLastLines.read(__dirname + "/../all.log", 1000).then((lines) => {
+            readLastLines.read(__dirname + "/../all.log", 1000).then(lines => {
                 res.status(200).send(lines);
             });
         }

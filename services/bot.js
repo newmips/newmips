@@ -707,6 +707,8 @@ exports.relationshipHasManyPresetUsing = function (result) {
 };
 
 // ******* COMPONENT Actions ******* //
+
+/* STATUS */
 exports.createNewComponentStatus = function (result) {
     var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
@@ -724,6 +726,27 @@ exports.createNewComponentStatusWithName = function (result) {
 
     return checkAndCreateAttr("createNewComponentStatus", options, value);
 }
+
+exports.deleteComponentStatus = function (result) {
+
+    var options = {};
+
+    var attr = {
+        function: "deleteComponentStatus",
+        options: options
+    };
+    return attr;
+};
+
+exports.deleteComponentStatusWithName = function (result) {
+    var value = result[1];
+    var options = {
+        value: value,
+        processValue: true
+    };
+
+    return checkAndCreateAttr("deleteComponentStatus", options, value);
+};
 
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function (result) {
@@ -1071,15 +1094,6 @@ function getRightWidgetType(originalType) {
         case "statistique":
             return "stats";
 
-        // case "lastrecords":
-        // case "last records":
-        // case "derniers enregistrements":
-        // case "derniersenregistrements":
-        //     return "lastrecords";
-
-        case "piechart":
-            return "piechart";
-
         default:
             return -1;
     }
@@ -1170,6 +1184,9 @@ exports.createWidgetOnEntity = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
+    if (finalType == -1)
+        return {error: 'error.missingParametersInstruction'};
+
     return {
         function: 'createWidgetOnEntity',
         widgetInputType: originalType,
@@ -1182,6 +1199,9 @@ exports.createWidget = function (result) {
     var originalType = result[1];
     var finalType = getRightWidgetType(originalType);
 
+    if (finalType == -1)
+        return {error: 'error.missingParametersInstruction'};
+
     return {
         function: 'createWidget',
         widgetInputType: originalType,
@@ -1192,7 +1212,7 @@ exports.createWidget = function (result) {
 exports.deleteWidget = function (result) {
     return {
         function: 'deleteWidget',
-        widgetTypes: [getRightWidgetType(result[1])],
+        widgetTypes: [result[1] == 'piechart' ? 'piechart' : getRightWidgetType(result[1])],
         widgetInputType: result[1],
         entityTarget: result[2]
     }
@@ -1219,7 +1239,17 @@ exports.addTitle = function (result) {
     };
 }
 
+// --- FUN --- //
+exports.apero = function (result) {
+    return {
+        function: "apero"
+    }
+}
+
 var training = {
+    "apero": [
+        "Apéro !"
+    ],
     "showSession": [
         "show session",
         "show the session",
@@ -2058,6 +2088,35 @@ var training = {
         "créer un composant statut",
         "ajouter composant statut",
         "créer composant statut"
+    ],
+    "deleteComponentStatus": [
+        "delete component status",
+        "remove component status",
+        "supprimer un composant statut",
+        "supprimer un statut",
+        "supprimer composant statut",
+        "supprimer statut"
+    ],
+    "deleteComponentStatusWithName": [
+        "delete component status with name (.*)",
+        "remove component status with name (.*)",
+
+        "delete component status called (.*)",
+        "remove component status called (.*)",
+
+        "supprimer un composant statut appelé (.*)",
+        "supprimer composant statut appelé (.*)",
+        "supprimer le composant statut appelé (.*)",
+        "supprimer un statut appelé (.*)",
+        "supprimer le statut appelé (.*)",
+        "supprimer statut appelé (.*)",
+
+        "supprimer un composant statut nommé (.*)",
+        "supprimer composant statut nommé (.*)",
+        "supprimer le composant statut nommé (.*)",
+        "supprimer un statut nommé (.*)",
+        "supprimer le statut nommé (.*)",
+        "supprimer statut nommé (.*)"
     ],
     "createNewComponentLocalFileStorageWithName": [
         "create component local file storage with name (.*)",

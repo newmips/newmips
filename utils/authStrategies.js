@@ -14,7 +14,7 @@ passport.use(new LocalStrategy({
 
         let user = await models.User.findOne({
             where: {
-                login: login
+                login: login.toLowerCase()
             }
         })
 
@@ -46,26 +46,24 @@ passport.use(new LocalStrategy({
         }
 
         let dataColumnName = models.sequelize.options.dialect == 'postgres' ? 'sess' : 'data';
+        let sessionIDCol = models.sequelize.options.dialect == 'postgres' ? 'sid' : 'session_id';
         // Check if current user is already connected
-        let sessions = await models.sequelize.query("SELECT "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
-        let currentSession;
+        let sessions = await models.sequelize.query("SELECT "+sessionIDCol+", "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
+        let currentSession, sessionID;
         for (var i = 0; i < sessions.length; i++) {
+            sessionID = sessions[i][sessionIDCol];
             currentSession = sessions[i][dataColumnName];
+
             if(typeof sessions[i][dataColumnName] === "string")
                 currentSession = JSON.parse(sessions[i][dataColumnName]);
 
-
             if(typeof currentSession.passport !== "undefined"
                 && typeof currentSession.passport.user !== "undefined"
-                && moment(currentSession.cookie.expires).diff(moment()) > 0 // Not counting expired session
+                && moment().isBefore(currentSession.cookie.expires) // Not counting expired session
                 && currentSession.passport.user.id == user.id
                 && currentSession.isgenerator){
-                console.log(currentSession);
-                req.session.toastr = [{
-                    message: "Cet utilisateur est déjà connecté.",
-                    level: "error"
-                }];
-                return done(null, false);
+                console.log("USER ALREADY LOGGED IN:", currentSession.passport.user.login);
+                await models.sequelize.query("DELETE FROM sessions WHERE "+sessionIDCol+" = '"+sessionID+"';", {type: models.sequelize.QueryTypes.DELETE});
             }
         }
 

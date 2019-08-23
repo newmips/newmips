@@ -21,6 +21,11 @@ module.exports = {
             // Session
             locals.session = req.session;
 
+            locals.haveGroup = function(chunk, context, bodies, params) {
+                var userGroups = req.session.passport.user.r_group;
+                var group = params.group;
+                return block_access.haveGroup(userGroups, group);
+            }
             // Access control
             locals.moduleAccess = function(chunk, context, bodies, params) {
                 var userGroups = req.session.passport.user.r_group;
@@ -139,14 +144,14 @@ module.exports = {
 
         dust.filters.filename = function(value) {
             // Remove datetime part from filename display
-            if (value != "" && value.length > 16)
+            if (moment(value.substring(0,16), 'YYYYMMDD-HHmmss_').isValid() && value != "" && value.length > 16)
                 return value.substring(16);
             return value;
         };
 
         // Fix for IE11, encode filename values for query value like "/download/{my_filename}"
         dust.filters.urlencode = function(value) {
-            return encodeURI(value);
+            return encodeURIComponent(value);
         };
     }
 };

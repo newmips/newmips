@@ -16,11 +16,7 @@
 {/header}
 
 {<content}
-	<div id="widgets" class='row'>
-	<table>
-
-	</table>
-	</div>
+	<div id="widgets" class='row'></div>
 {/content}
 
 {<custom_js}
