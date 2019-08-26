@@ -461,11 +461,22 @@ function init_datatable(tableID, doPagination, context) {
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
-                        var statusObj = row[columns[meta.col].data.split(".")[0]];
-                        if(statusObj != null)
-                            cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
-                        else
-                            cellValue = "-";
+                        var keys = columns[meta.col].data.split(".");
+
+                        // Handle status display no matter how deep the object is
+                        function recursiveWay(obj, idx){
+                            if(typeof obj[keys[idx]] === 'string')
+                                return obj;
+                            else if(Array.isArray(obj[keys[idx]]) && obj[keys[idx]].length > 0)
+                                return recursiveWay(obj[keys[idx]][0], ++idx); // If array, consider using the first item of it.
+                            else if(typeof obj[keys[idx]] === 'object')
+                                return recursiveWay(obj[keys[idx]], ++idx);
+                            else
+                                return "-";
+                        }
+
+                        var statusObj = recursiveWay(row, 0);
+                        cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
