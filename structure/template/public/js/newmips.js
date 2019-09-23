@@ -390,6 +390,7 @@ function initForm(context) {
             uploadMultiple: false,
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
+            dictRemoveFileConfirmation: "Êtes-vous sur de vouloir supprimer ce fichier ?",
             dictCancelUpload: "Annuler",
             dictInvalidFileType: "Vous ne pouvez pas uploader un fichier de ce type.",
             autoDiscover: false,
@@ -402,6 +403,7 @@ function initForm(context) {
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                     }
                 });
+
                 this.on("sending", function (file, xhr, formData) {
                     var storageType = that.attr("data-storage");
                     var dataEntity = that.attr("data-entity");
@@ -410,22 +412,29 @@ function initForm(context) {
                     formData.append("dataEntity", dataEntity);
                     formData.append("dataType", dataType);
                 });
+
                 this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
+
                 this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
+
+                this.on("complete", function (file, xhr, formData) {
+                    /* Add possibility to download the uploaded file in the dropzone */
+                    $(file.previewTemplate).find('a.dz-remove').after(
+                        '<a style="text-align: center;cursor: pointer;display: block;" href="/default/download?entity='+that.attr("data-entity")+'&f='+$("#" + that.attr("id") + "_hidden").val()+'">Télécharger</a>');
+                });
+
                 this.on('removedfile', function (file) {
                     if (file.status != "error") {
                         var dropzone = this;
-                        if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?'))
-                            return false;
                         $.ajax({
-                            url: '/default/delete-file-ajax',
+                            url: '/default/delete_file',
                             type: 'post',
                             data: {
                                 dataEntity: that.attr("data-entity"),
@@ -459,7 +468,7 @@ function initForm(context) {
         });
 
         if (type == 'picture')
-            dropzoneInit.options.acceptedFiles = 'image/gif, image/png, image/jpeg';
+            dropzoneInit.options.acceptedFiles = 'image/gif,image/png,image/jpeg';
         else if (type === "docx/pdf")
             dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
@@ -472,6 +481,10 @@ function initForm(context) {
             };
             dropzoneInit.files.push(mockFile);
             dropzoneInit.emit('addedfile', mockFile);
+            if(typeof $('#' + dropzoneId + '_hidden').data('buffer') === undefined)
+                dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
+            else
+                dropzoneInit.emit('thumbnail', mockFile, "https://newmips.com/wp-content/uploads/2019/09/download-file.png");
             dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
             dropzoneInit.emit('complete', mockFile);
         }

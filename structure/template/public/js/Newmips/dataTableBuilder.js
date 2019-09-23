@@ -247,6 +247,28 @@ function getValue(cellArrayKeyValue, row) {
     return row;
 }
 
+function currencyFormat(num) {
+    if(num != null)
+        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+    else
+        return "";
+}
+
+// Dive trough the object to find the key we are looking for
+function diveObj(obj, idx, keys){
+    if(!obj)
+        return '-';
+
+    if(Array.isArray(obj[keys[idx]]) && obj[keys[idx]].length > 0)
+        return diveObj(obj[keys[idx]][0], ++idx, keys);
+    else if(typeof obj[keys[idx]] === 'object')
+        return diveObj(obj[keys[idx]], ++idx, keys);
+    else if(obj[keys[idx]] && typeof obj[keys[idx]] !== undefined)
+        return obj;
+    else
+        return '-';
+}
+
 // Bind search fields
 function saveFilter(value, el, tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
@@ -393,48 +415,18 @@ function init_datatable(tableID, doPagination, context) {
         objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
-                var cellValue;
+                var cellValue, keys;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    let entityRelation = columns[meta.col].data.split(".")[0];
-                    let attributeRelation = columns[meta.col].data.split(".")[1];
-                    let valueFromArray = "";
-                    if (row[entityRelation] != null) {
-                        if(Array.isArray(row[entityRelation])){
-                            // In case of related to many / has many values, it's an array
-                            if(row[entityRelation].length == 1){
-                                valueFromArray = row[entityRelation][0][attributeRelation];
-                            } else {
-                                for (let attr in row[entityRelation]) {
-                                    valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
-                                }
-                            }
-                        } else if(typeof row[entityRelation] === "object") {
-                            // In this case it's a belongsTo
-                            for (let attr in row[entityRelation]) {
-                                let parts = columns[meta.col].data.split('.');
-                                valueFromArray = getValue(parts, row);
-                            }
-                        } else {
-                            // Has one sur une sous entité
-                            let parts = columns[meta.col].data.split('.');
-                            valueFromArray = getValue(parts, row);
-                        }
-                        cellValue = valueFromArray;
-                    } else {
-                        cellValue = "-";
-                    }
+                    keys = columns[meta.col].data.split(".");
+                    cellValue = diveObj(row, 0, keys);
+
+                    if(typeof cellValue === 'object')
+                        cellValue = cellValue[keys.slice(-1)[0]];
                 }
                 // Regular value
                 else
                     cellValue = row[columns[meta.col].data];
-
-                function currencyFormat(num) {
-                    if(num != null)
-                        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-                    else
-                        return "";
-                }
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
@@ -461,21 +453,8 @@ function init_datatable(tableID, doPagination, context) {
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
-                        var keys = columns[meta.col].data.split(".");
-
-                        // Handle status display no matter how deep the object is
-                        function recursiveWay(obj, idx){
-                            if(typeof obj[keys[idx]] === 'string')
-                                return obj;
-                            else if(Array.isArray(obj[keys[idx]]) && obj[keys[idx]].length > 0)
-                                return recursiveWay(obj[keys[idx]][0], ++idx); // If array, consider using the first item of it.
-                            else if(typeof obj[keys[idx]] === 'object')
-                                return recursiveWay(obj[keys[idx]], ++idx);
-                            else
-                                return "-";
-                        }
-
-                        var statusObj = recursiveWay(row, 0);
+                        keys = columns[meta.col].data.split(".");
+                        var statusObj = diveObj(row, 0, keys);
                         cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
