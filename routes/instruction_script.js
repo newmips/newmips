@@ -333,11 +333,11 @@ router.post('/execute', block_access.isLoggedIn, multer({
     scriptProcessing = true;
 
     // Get file extension
-    var extensionFile = req.file.originalname.split(".");
+    let extensionFile = req.file.originalname.split(".");
     extensionFile = extensionFile[extensionFile.length -1];
     // Read file to determine encoding
-    var fileContent = fs.readFileSync(req.file.path);
-    var encoding = require('jschardet').detect(fileContent);
+    let fileContent = fs.readFileSync(req.file.path);
+    let encoding = require('jschardet').detect(fileContent);
     // If extension or encoding is not supported, send error
     if ((extensionFile != 'txt' && extensionFile != 'nps') || (encoding.encoding.toLowerCase() != 'utf-8' && encoding.encoding.toLowerCase() != 'windows-1252' && encoding.encoding.toLowerCase() != 'ascii')) {
         scriptData[userId].answers.push({
@@ -350,18 +350,18 @@ router.post('/execute', block_access.isLoggedIn, multer({
     }
 
     // Open file descriptor
-    var rl = readline.createInterface({
+    let rl = readline.createInterface({
         input: fs.createReadStream(req.file.path)
     });
 
     // Read file line by line, check for empty line, line comment, scope comment
-    var fileLines = [],
+    let fileLines = [],
         commenting = false,
         invalidScript = false;
 
     /* If one of theses value is to 2 after readings all lines then there is an error,
     line to 1 are set because they are mandatory lines added by the generator */
-    var exception = {
+    let exception = {
         createNewProject : {
             value: 0,
             errorMessage: "You can't create or select more than one project in the same script."
@@ -401,7 +401,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     };
 
     rl.on('line', function(sourceLine) {
-        var line = sourceLine;
+        let line = sourceLine;
 
         // Empty line || One line comment scope
         if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
@@ -568,10 +568,12 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
 /* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
+
     // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
     idxAtMandatoryInstructionStart = -1;
 
-    var userId = req.session.passport.user.id;
+    let userId = req.session.passport.user.id;
+    let __ = require("../services/language")(req.session.lang_user).__;
 
     // Init scriptData object for user. (session simulation)
     scriptData[userId] = {
@@ -587,8 +589,8 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             id_data_entity: -1
         }
     };
+
     if(scriptProcessing){
-        let __ = require("../services/language")(req.session.lang_user).__;
         scriptData[userId].answers = [{
             message: __('instructionScript.alreadyProcessing')
         }];
@@ -598,14 +600,15 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
     }
     scriptProcessing = true;
 
-    var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
-    var tmpPath = __dirname+'/../upload/'+tmpFilename;
+    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
+    let tmpPath = __dirname+'/../upload/'+tmpFilename;
 
     // Load template script and unzip master file if application is created using template
     let templateEntry = req.body.template_entry;
     let template = {};
 
     fs.openSync(tmpPath, 'w');
+
     if(templateEntry){
         let templateLang;
         switch(req.session.lang_user.toLowerCase()) {
@@ -620,23 +623,30 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 break;
         }
 
-        var files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
-        let found = false;
-        for (var i = 0; i < files.length; i++) {
-            var filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
-            if (filename.indexOf("_"+templateLang+"_") != -1 && filename.indexOf(".nps") != -1) {
-                fs.writeFileSync(tmpPath, fs.readFileSync(filename));
-                found = true;
-                break;
-            };
-        };
-        if(!found){
-            req.session.toastr = [{
-                message: "template.no_script",
-                level: "error"
-            }]
-            return res.redirect("/templates");
+        let files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
+        let filename = false;
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].indexOf(".nps") != -1) {
+                if(!filename)
+                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+                else if(files[i].indexOf("_"+templateLang+"_") != -1)
+                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+            }
         }
+
+        if(!filename){
+            scriptData[userId].answers = [{
+                message: __('template.no_script')
+            }];
+            scriptData[userId].over = true;
+            scriptProcessing = false;
+            return res.end();
+        }
+
+        // Write template script in the tmpPath
+        fs.writeFileSync(tmpPath, fs.readFileSync(filename));
+
     } else {
         fs.writeFileSync(tmpPath, req.body.text);
     }

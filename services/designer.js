@@ -1,4 +1,4 @@
-// Database Generator
+// Newmips Database
 const db_project = require("../database/project");
 const db_application = require("../database/application");
 const db_module = require("../database/module");
@@ -9,27 +9,28 @@ const database = require("../database/database");
 
 // Session
 const session = require("./session");
-const cloud_manager = require('../services/cloud_manager');
 
-// Bot
-var bot = require('../services/bot.js');
+// Bot grammar
+let bot = require('../services/bot.js');
 
-// Structure
-var structure_application = require("../structure/structure_application");
-var structure_module = require("../structure/structure_module");
-var structure_data_entity = require("../structure/structure_data_entity");
-var structure_data_field = require("../structure/structure_data_field");
-var structure_component = require("../structure/structure_component");
-var structure_ui = require("../structure/structure_ui");
+// Structure files
+let structure_application = require("../structure/structure_application");
+let structure_module = require("../structure/structure_module");
+let structure_data_entity = require("../structure/structure_data_entity");
+let structure_data_field = require("../structure/structure_data_field");
+let structure_component = require("../structure/structure_component");
+let structure_ui = require("../structure/structure_ui");
 
-// Other
-var helpers = require("../utils/helpers");
-var attrHelper = require("../utils/attr_helper");
-var gitHelper = require("../utils/git_helper");
-var translateHelper = require("../utils/translate");
+// Utils
+let helpers = require("../utils/helpers");
+let attrHelper = require("../utils/attr_helper");
+let gitHelper = require("../utils/git_helper");
+let translateHelper = require("../utils/translate");
 
+// Others
 const fs = require('fs-extra');
 const sequelize = require('../models/').sequelize;
+const cloud_manager = require('../services/cloud_manager');
 
 /* --------------------------------------------------------------- */
 /* -------------------------- General ---------------------------- */
@@ -1358,6 +1359,44 @@ function belongsToMany(attr, optionObj, setupFunction, exportsContext) {
                                     id_data_entity: attr.id_data_entity
                                 };
 
+                                // { function: 'createNewHasManyPreset',
+                                //   options: 
+                                //    { target: 'e_user',
+                                //      source: 'e_projet',
+                                //      foreignKey: 'fk_id_projet_participant_using_login',
+                                //      as: 'r_participant_using_login',
+                                //      processValue: true,
+                                //      showTarget: 'User',
+                                //      urlTarget: 'user',
+                                //      showSource: 'Projet',
+                                //      urlSource: 'projet',
+                                //      showForeignKey: 'id_projet_participant using login',
+                                //      showAs: 'Participant using Login',
+                                //      urlAs: 'participant_using_login',
+                                //      through: '11_e_projet_e_user' },
+                                //   instruction: 'entity Projet has many existing User called Participant using Login',
+                                //   id_project: 11,
+                                //   id_application: 11,
+                                //   id_module: 30,
+                                //   id_data_entity: 147,
+                                //   googleTranslate: false,
+                                //   lang_user: 'fr-FR',
+                                //   currentUser: 
+                                //    { id: 1,
+                                //      email: 'admin@admin.fr',
+                                //      enabled: true,
+                                //      first_name: 'admin',
+                                //      last_name: 'NEWMIPS',
+                                //      login: 'admin',
+                                //      password: '$2a$10$h2kI8qTdNqlh64FeqzRGjOVzhRGr60xf5b/JCL/R.y4747uvSwj1u',
+                                //      phone: null,
+                                //      token_password_reset: null,
+                                //      version: 1,
+                                //      id_role: 1 },
+                                //   gitlabUser: null,
+                                //   targetType: 'auto_generate' }
+
+
                                 if (attr.targetType == "hasMany") {
                                     structure_data_field.setupHasManyTab(reversedAttr, function () {
                                         resolve();
@@ -1510,7 +1549,9 @@ exports.createNewHasMany = function (attr, callback) {
             for (var i = 0; i < optionsObject.length; i++) {
                 if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase()
                     && optionsObject[i].target.toLowerCase() != attr.options.target.toLowerCase()
-                    && optionsObject[i].relation != "belongsTo") {
+                    && optionsObject[i].relation != "belongsTo"
+                    && optionsObject[i].structureType != "auto_generate") {
+
                     doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
                     belongsToMany(attr, optionsObject[i], "setupHasManyTab", exportsContext).then(function () {
@@ -1643,9 +1684,9 @@ exports.createNewHasManyPreset = function (attr, callback) {
                 return callback(err, null);
 
             let sourceOptionsPath = __dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.source.toLowerCase() + '.json';
-            var optionsSourceFile = helpers.readFileSyncWithCatch(sourceOptionsPath);
-            var optionsSourceObject = JSON.parse(optionsSourceFile);
-            var toSync = true;
+            let optionsSourceFile = helpers.readFileSyncWithCatch(sourceOptionsPath);
+            let optionsSourceObject = JSON.parse(optionsSourceFile);
+            let toSync = true;
             let saveFile = false;
             // Vérification si une relation existe déjà de la source VERS la target
             for (var i = 0; i < optionsSourceObject.length; i++) {
@@ -1666,7 +1707,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
 
             attr.options.through = attr.id_application + "_" + idEntitySource + "_" + entityTarget.id + "_" + attr.options.as.substring(2);
             if (attr.options.through.length > 55) {
-                var err = new Error();
+                let err = new Error();
                 err.message = "error.valueTooLong";
                 err.messageParams = [attr.options.through];
                 return callback(err, null);
@@ -1676,33 +1717,39 @@ exports.createNewHasManyPreset = function (attr, callback) {
             if(saveFile)
                 fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8")
 
+            let optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
+            let targetOptions = JSON.parse(optionsFile);
+            let cptExistingHasMany = 0;
 
-            var optionsFile = helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + attr.options.target.toLowerCase() + '.json');
-            var optionsObject = JSON.parse(optionsFile);
-            var cptExistingHasMany = 0;
+            // Preparing variable
+            let source = attr.options.source.toLowerCase();
+            let target = attr.options.target.toLowerCase();
 
             // Check if there is no or just one belongsToMany to do
-            for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+            for (let i = 0; i < targetOptions.length; i++)
+                if (targetOptions[i].target.toLowerCase() == source && targetOptions[i].relation != "belongsTo")
                     cptExistingHasMany++;
-                }
-            }
 
             /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
             if (cptExistingHasMany > 1) {
-                var err = new Error("structure.association.error.tooMuchHasMany");
+                let err = new Error("structure.association.error.tooMuchHasMany");
                 return callback(err, null);
             }
 
-            var doingBelongsToMany = false;
-
+            let doingBelongsToMany = false, targetObjTarget;
             // Vérification si une relation existe déjà de la target VERS la source
-            for (var i = 0; i < optionsObject.length; i++) {
-                if (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo") {
+            for (let i = 0; i < targetOptions.length; i++) {
+                targetObjTarget = targetOptions[i].target.toLowerCase();
+
+                if (targetObjTarget == source
+                    && targetObjTarget != target
+                    && targetOptions[i].relation != "belongsTo"
+                    && targetOptions[i].structureType != "auto_generate") {
+
                     doingBelongsToMany = true;
                     /* Then lets create the belongs to many association */
-                    belongsToMany(attr, optionsObject[i], "setupHasManyPresetTab", exportsContext).then(function () {
-                        var info = {};
+                    belongsToMany(attr, targetOptions[i], "setupHasManyPresetTab", exportsContext).then(function () {
+                        let info = {};
                         info.insertId = attr.id_data_entity;
                         info.message = "structure.association.hasManyExisting.success";
                         info.messageParams = [attr.options.showTarget, attr.options.showSource];
@@ -1711,9 +1758,9 @@ exports.createNewHasManyPreset = function (attr, callback) {
                         console.error(err);
                         return callback(err, null);
                     });
-                } else if (attr.options.source.toLowerCase() != attr.options.target.toLowerCase()
-                        && (optionsObject[i].target.toLowerCase() == attr.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
-                        && (optionsObject[i].foreignKey == attr.options.foreignKey)) {
+                } else if (source != target
+                    && (targetObjTarget == source && targetOptions[i].relation == "belongsTo")
+                    && targetOptions[i].foreignKey == attr.options.foreignKey) {
                     // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
                     toSync = false;
                 }
