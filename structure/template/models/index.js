@@ -7,7 +7,6 @@ var basename = path.basename(module.filename);
 var dbConfig = require('../config/database');
 var globalConf = require('../config/global');
 var moment = require('moment');
-var moment_timezone = require('moment-timezone');
 var db = {};
 
 const Op = Sequelize.Op;
@@ -70,7 +69,6 @@ if (dbConfig.dialect == 'sqlite'){
         },
         charset: 'utf8',
         collate: 'utf8_general_ci',
-        timezone: moment_timezone.tz.guess(),
         operatorsAliases
     }
 }
