@@ -80,11 +80,11 @@ app.use(morgan('dev', {
 if(globalConf.env != "develop"){
     require('console-stamp')(console, {
         formatter: function() {
-            return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
+            return moment().format('MM-DD HH:mm:ss');
         },
-        label: true,
-        datePrefix: "[",
-        dateSuffix: "]-- "
+        label: false,
+        datePrefix: "",
+        dateSuffix: ""
     });
 }
 
