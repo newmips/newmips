@@ -114,7 +114,7 @@ module.exports = {
                         console.log("GIT: Git commit after new instruction.");
                         console.log(repoUrl);
 
-                        var commitMsg = "New commit: Function:"+attr.function+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
+                        var commitMsg = attr.function+" -> App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
                         simpleGit.add('.')
                         .commit(commitMsg, function(err, answer){
                             if(err)
@@ -305,7 +305,7 @@ module.exports = {
                 if(!gitProcesses[originName]){
                     // Set gitProcesses to prevent any other git command during this process
                     gitProcesses[originName] = true;
-                    var commitMsg = "New commit: Function:"+attr.function+" App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
+                    var commitMsg = attr.function+" -> App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
                     simpleGit.add('.')
                     .commit(commitMsg, function(err, answer){
                         gitProcesses[originName] = false;
