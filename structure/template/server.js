@@ -70,11 +70,11 @@ app.use(morgan('dev', {
 
 require('console-stamp')(console, {
     formatter: function() {
-        return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
+        return moment().format('MM-DD HH:mm:ss');
     },
-    label: true,
-    datePrefix: "[",
-    dateSuffix: "]-- "
+    label: false,
+    datePrefix: "",
+    dateSuffix: ""
 });
 
 // Overide console.warn & console.error to file+line

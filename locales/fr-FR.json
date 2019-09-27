@@ -13,7 +13,8 @@
             "success": "Mise à jour effectuée. Vous pouvez désormais vous connecter avec votre identifiant et votre nouveau mot de passe.",
             "hasAlreadyPassword": "Mise à jour impossible. Cet utilisateur possède déjà un mot de passe.",
             "userNotExist": "Erreur, cet utilisateur n'existe pas.",
-            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 8 caractères."
+            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 8 caractères.",
+            "userNotActivate": "Votre compte n'est pas activé, merci de faire la procédure de première connexion."
         },
         "authentication": "Connexion",
         "login": "Login",

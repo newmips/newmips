@@ -183,7 +183,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             login: req.body.login.toLowerCase(),
             email: req.body.mail
         }
-    }).then(function(user){
+    }).then(user => {
         if(!user){
             req.session.toastr = [{
                 message: "login.first_connection.userNotExist",
@@ -192,8 +192,16 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             return res.render('login/reset_password');
         }
 
+        if(!user.password && !user.enabled){
+            req.session.toastr = [{
+                message: "login.first_connection.userNotActivate",
+                level: "error"
+            }];
+            return res.redirect('/first_connection');
+        }
+
         // Create unique token and insert into user
-        var token = crypto.randomBytes(64).toString('hex');
+        let token = crypto.randomBytes(64).toString('hex');
 
         models.User.update({
             token_password_reset: token
