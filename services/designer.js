@@ -284,6 +284,7 @@ function deleteApplication(attr, callback) {
                 let err = new Error("You do not have access to this application, you cannot delete it.")
                 return callback(err, null);
             }
+
             structure_application.deleteApplication(id_application, function (err, infoStructure) {
                 if (err)
                     return callback(err, null);
@@ -311,6 +312,7 @@ function deleteApplication(attr, callback) {
                         var request = "";
                         if(sequelize.options.dialect == "mysql")
                             request += "SET FOREIGN_KEY_CHECKS=0;";
+
                         for (var i = 0; i < results.length; i++) {
                             for (var prop in results[i]) {
                                 // Postgres additionnal check
@@ -324,8 +326,10 @@ function deleteApplication(attr, callback) {
                                 }
                             }
                         }
+
                         if(sequelize.options.dialect == "mysql")
                             request += "SET FOREIGN_KEY_CHECKS=1;";
+
                         sequelize.query(request).then(function () {
                             callback(null, infoDB);
                         }).catch(function(err){
@@ -1002,27 +1006,30 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                 })
             } else if (uniqueAttribute.indexOf(wordParam) != -1) {
 
-                var sourceEntity = attr.id_application + "_" + attr.name_data_entity;
-                var constraintName = attr.id_application + "_" + attr.name_data_entity + "_" + attr.options.value + "_unique";
+                let sourceEntity = attr.id_application + "_" + attr.name_data_entity;
+                let constraintName = sourceEntity + "_" + attr.options.value + "_unique";
 
-                var possibilityUnique = ["unique"];
-                var possibilityNotUnique = ["not-unique", "non-unique"];
+                let possibilityUnique = ["unique"];
+                let possibilityNotUnique = ["not-unique", "non-unique"];
 
-                var attribute = attr.options.word.toLowerCase();
-                var request = "";
+                let attribute = attr.options.word.toLowerCase();
+                let request = "";
+
+                // Get application database, it won't be newmips if seperate DB
+                let appDBConf = require(__dirname+'/../workspace/' + attr.id_application + '/config/database.js');
 
                 // Add or remove the unique constraint ?
                 if(sequelize.options.dialect == "mysql"){
                     if (possibilityUnique.indexOf(attribute) != -1) {
-                        request = "ALTER TABLE `" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
+                        request = "ALTER TABLE `" + appDBConf.database + "`.`" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + attr.options.value + "`);";
                     } else if (possibilityNotUnique.indexOf(attribute) != -1) {
-                        request = "ALTER TABLE `" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
+                        request = "ALTER TABLE `" + appDBConf.database + "`.`" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
                     }
                 } else if (sequelize.options.dialect == "postgres"){
                     if (possibilityUnique.indexOf(attribute) != -1) {
-                        request = "ALTER TABLE \"" + sourceEntity + "\" ADD CONSTRAINT \"" + constraintName + "\" UNIQUE (" + attr.options.value + ");";
+                        request = "ALTER TABLE \"" + appDBConf.database + "\".\"" + sourceEntity + "\" ADD CONSTRAINT \"" + constraintName + "\" UNIQUE (" + attr.options.value + ");";
                     } else if (possibilityNotUnique.indexOf(attribute) != -1) {
-                        request = "ALTER TABLE \"" + sourceEntity + "\" DROP INDEX \"" + constraintName + "\";";
+                        request = "ALTER TABLE \"" + appDBConf.database + "\".\"" + sourceEntity + "\" DROP INDEX \"" + constraintName + "\";";
                     }
                 }
 
