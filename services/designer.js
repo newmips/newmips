@@ -2526,7 +2526,7 @@ exports.createNewComponentAgenda = function (attr, callback) {
 
 exports.deleteAgenda = function (attr, callback) {
 
-    var exportsContext = this;
+    let exportsContext = this;
 
     /* If there is no defined name for the module */
     if (typeof attr.options.value === "undefined") {
@@ -2536,48 +2536,47 @@ exports.deleteAgenda = function (attr, callback) {
     }
 
     // Check if component with this name is in this module
-    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function (err, component) {
+    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, (err, component) => {
         if (!component) {
-            var err = new Error("database.component.notFound.notFoundInModule");
+            let err = new Error("database.component.notFound.notFoundInModule");
             err.messageParams = [attr.options.showValue, attr.id_module];
             return callback(err, null);
-        } else {
+        }
 
-            var showValueEvent = attr.options.showValue + " Event";
-            var showValueCategory = attr.options.showValue + " Category";
+        let showValueEvent = attr.options.showValue + " Event";
+        let showValueCategory = attr.options.showValue + " Category";
 
-            var instructions = [
-                "delete entity " + showValueCategory,
-                "delete entity " + showValueEvent,
-            ];
+        let instructions = [
+            "delete entity " + showValueCategory,
+            "delete entity " + showValueEvent,
+        ];
 
-            // Start doing necessary instruction for component creation
-            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function (err) {
+        // Start doing necessary instruction for component creation
+        exportsContext.recursiveInstructionExecute(attr, instructions, 0, err => {
+            if (err)
+                return callback(err, null);
+
+            // Create the component in newmips database
+            db_component.deleteComponentOnModule(attr.options.value, attr.id_module, (err, info) => {
                 if (err)
                     return callback(err, null);
 
-                // Create the component in newmips database
-                db_component.deleteComponentOnModule(attr.options.value, attr.id_module, function (err, info) {
+                db_module.getModuleById(attr.id_module, (err, module) => {
                     if (err)
                         return callback(err, null);
 
-                    db_module.getModuleById(attr.id_module, function (err, module) {
+                    attr.options.moduleName = module.codeName;
+                    structure_component.deleteAgenda(attr, err => {
                         if (err)
                             return callback(err, null);
 
-                        attr.options.moduleName = module.codeName;
-                        structure_component.deleteAgenda(attr, function (err) {
-                            if (err)
-                                return callback(err, null);
-                            var info = {
-                                message: "database.component.delete.success"
-                            };
-                            callback(null, info);
+                        callback(null, {
+                            message: "database.component.delete.success"
                         });
                     });
                 });
             });
-        }
+        });
     });
 }
 
