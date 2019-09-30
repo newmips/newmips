@@ -134,6 +134,7 @@ $(document).ready(function() {
                 eventId: event.eventId,
                 start: startDate,
                 end: endDate,
+                allDay: event.allDay,
                 idUser: event.resourceId || null,
                 idUsers: event.resourceIds || null
             };
