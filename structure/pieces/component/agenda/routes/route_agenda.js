@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-
-// Sequelize
 const models = require('../models/');
-
 const model_builder = require('../utils/model_builder');
 const moment = require("moment");
-
 const attributes = require('../models/attributes/e_URL_ROUTE_event');
 const options = require('../models/options/e_URL_ROUTE_event');
-const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
