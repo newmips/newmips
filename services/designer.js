@@ -1202,6 +1202,11 @@ exports.createNewHasOne = function (attr, callback) {
                             return callback(err, null);
                         }
                     }
+                } else if(attr.options.as == optionsSourceObject[i].as){
+                    let err = new Error();
+                    err.message = "database.field.error.alreadyExist";
+                    err.messageParams = [attr.options.showAs];
+                    return callback(err, null);
                 }
             }
 
@@ -1468,6 +1473,11 @@ exports.createNewHasMany = function (attr, callback) {
                         return callback(err, null);
                     }
                 }
+            } else if(attr.options.as == optionsSourceObject[i].as){
+                let err = new Error();
+                err.message = "database.field.error.alreadyExist";
+                err.messageParams = [attr.options.showAs];
+                return callback(err, null);
             }
         }
 
@@ -1695,7 +1705,7 @@ exports.createNewHasManyPreset = function (attr, callback) {
             let optionsSourceObject = JSON.parse(optionsSourceFile);
             let toSync = true;
             let saveFile = false;
-            // Vérification si une relation existe déjà de la source VERS la target
+            // Vérification si une relation existe déjà avec cet alias
             for (var i = 0; i < optionsSourceObject.length; i++) {
                 if (optionsSourceObject[i].target.toLowerCase() == attr.options.target.toLowerCase()) {
                     // If alias already used
@@ -1709,6 +1719,11 @@ exports.createNewHasManyPreset = function (attr, callback) {
                             return callback(err, null);
                         }
                     }
+                } else if(attr.options.as == optionsSourceObject[i].as){
+                    let err = new Error();
+                    err.message = "database.field.error.alreadyExist";
+                    err.messageParams = [attr.options.showAs];
+                    return callback(err, null);
                 }
             }
 
