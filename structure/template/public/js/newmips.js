@@ -1443,7 +1443,7 @@ function initMapsIfComponentAddressExists(context) {
                         // comment the following two lines to have the mouse position
                         // be placed within the map.
                         className: 'custom-mouse-position',
-//                        target: document.getElementById('mouse-position'),
+                        // target: document.getElementById('mouse-position'),
                         undefinedHTML: '&nbsp;'
                     });
                     options.controls.push(mousePositionControl);
@@ -1478,11 +1478,9 @@ function initMapsIfComponentAddressExists(context) {
     }
 }
 
+// Clear string from every special char
 function clearString(string) {
-
-    // Remove space before and after
     string = string.trim();
-    // Remove multipe spaces
     string = string.replace(/\s\s+/g, ' ');
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
@@ -1492,34 +1490,28 @@ function clearString(string) {
     string = string.replace(/\É/g, "e");
     string = string.replace(/\Ê/g, "e");
     string = string.replace(/\Ë/g, "e");
-
     string = string.replace(/à/g, "a");
     string = string.replace(/â/g, "a");
     string = string.replace(/ä/g, "a");
     string = string.replace(/\À/g, "a");
     string = string.replace(/\Â/g, "a");
     string = string.replace(/\Ä/g, "a");
-
     string = string.replace(/ô/g, "o");
     string = string.replace(/ö/g, "o");
-
     string = string.replace(/î/g, "i");
     string = string.replace(/ï/g, "i");
     string = string.replace(/Î/g, "i");
     string = string.replace(/Ï/g, "i");
-
     string = string.replace(/û/g, "u");
     string = string.replace(/ù/g, "u");
     string = string.replace(/ü/g, "u");
     string = string.replace(/\Ù/g, "u");
     string = string.replace(/\Ü/g, "u");
     string = string.replace(/\Û/g, "u");
-
     string = string.replace(/ç/g, "c");
     string = string.replace(/ĉ/g, "c");
     string = string.replace(/\Ç/g, "c");
     string = string.replace(/\Ĉ/g, "c");
-
     string = string.replace(/'/g, "_");
     string = string.replace(/,/g, "_");
     string = string.replace(/ /g, "_");
@@ -1559,10 +1551,34 @@ function clearString(string) {
     string = string.replace(/\¡/g, "_");
     string = string.replace(/\÷/g, "_");
     string = string.replace(/\²/g, "_");
-
     string = string.replace(String.fromCharCode(65533), "e");
     string = string.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
     string = string.toLowerCase();
-
     return string;
+}
+
+// Generate and open a modal
+function doModal(title, content) {
+    $('#tmp_text_modal').remove();
+    var modal_html = '\
+    <div id="tmp_text_modal" class="modal fade" tabindex="-1" role="dialog">\
+        <div class="modal-dialog" role="document">\
+            <div class="modal-content">\
+                <div class="modal-header">\
+                    <a class="close" data-dismiss="modal">×</a>\
+                    <h4>' + title + '</h4>\
+                </div>\
+                <div class="modal-body">\
+                    <p>' + content.replace(/(?:\r\n|\r|\n)/g, '<br>') + '</p>\
+                </div>\
+                <div class="modal-footer">\
+                    <span class="btn btn-default" data-dismiss="modal">\
+                        Fermer\
+                    </span>\
+                </div>\
+            </div>\
+        </div>\
+    </div>';
+    $("body").append(modal_html);
+    $("#tmp_text_modal").modal();
 }

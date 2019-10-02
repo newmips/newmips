@@ -487,7 +487,7 @@ function init_datatable(tableID, doPagination, context) {
                         cellValue = '●●●●●●●●●';
                     } else if(columns[meta.col].type == 'text'){
                         if(cellValue && cellValue.length > 75)
-                            cellValue = cellValue.slice(0, 75) + "...";
+                            cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + $.parseHTML(cellValue.slice(0, 75))[0].innerHTML + "...<span style='display: none;'>" + cellValue + "</span></span>";
                     }
                 }
                 return cellValue;
@@ -755,5 +755,48 @@ function init_datatable(tableID, doPagination, context) {
 $(function () {
     $(".dataTable").each(function () {
         init_datatable('#' + $(this).attr('id'));
+    });
+
+    // Datalist JS
+
+    /* Make the table horizontaly scrollable with mouse drag on it */
+    var x,y,top,left = 0,down;
+    /* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
+    var scrolling = false;
+
+    $("tbody").css("cursor", "pointer");
+
+    $("tbody").mousedown(function(e){
+        if(!e.ctrlKey){
+            e.preventDefault();
+            down=true;
+            x=e.pageX;
+            left=$(".table-responsive").scrollLeft();
+        }
+    });
+
+    $("tbody").mousemove(function(e){
+        if(down){
+            scrolling = true;
+            var newX=e.pageX;
+            $(".table-responsive").scrollLeft(left-newX+x);
+        }
+    });
+
+    $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+    $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+
+    $('tbody').on('click', 'tr', function (e) {
+        if(!e.ctrlKey){
+            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).hasClass("np_text_modal") || $(e.target).parents("button.btn-danger").length != 0 || $(e.target).is("img"))
+                return;
+            if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
+                window.location = $(this).find('td > a.btn-show:first').attr('href');
+        }
+    });
+
+    // Text modal in datalist
+    $(document).on('click', '.np_text_modal', function(){
+        doModal('Contenu', $(this).find('span').html());
     });
 });
