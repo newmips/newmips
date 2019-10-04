@@ -101,7 +101,8 @@ exports.setupApplication = function(attr, callback) {
                         "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'127.0.0.1' IDENTIFIED BY 'workspace_" + appID + "';",
                         "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'%' IDENTIFIED BY 'workspace_" + appID + "';",
                         "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'127.0.0.1';",
-                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';"
+                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';",
+                        "GRANT ALL PRIVILEGES ON " + dbConf.user + ".* TO '" + dbConf.user + "'@'%';"
                     ];
 
                     let conn = await mysql.createConnection({
