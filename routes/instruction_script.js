@@ -16,8 +16,11 @@ const parser = require('../services/bot.js');
 
 const structure_application = require('../structure/structure_application');
 
-let scriptProcessing = false;
-let scriptData = [];
+let scriptProcessing = {
+    timeout: moment(),
+    state: false
+};
+let scriptData = {};
 let message = "";
 
 function execute(req, instruction) {
@@ -321,7 +324,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
             id_data_entity: -1
         }
     };
-    if(scriptProcessing){
+
+    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
         let __ = require("../services/language")(req.session.lang_user).__;
         scriptData[userId].answers = [{
             message: __('instructionScript.alreadyProcessing')
@@ -330,7 +334,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
         scriptData[userId].overDueToProcessing = true;
         return res.end();
     }
-    scriptProcessing = true;
+
+    scriptProcessing.state = true;
+    scriptProcessing.timeout = moment();
 
     // Get file extension
     let extensionFile = req.file.originalname.split(".");
@@ -421,9 +427,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
-            console.log(line);
             var parserResult = parser.parse(line);
-            console.log(parserResult);
             // Get the wanted function given by the bot to do some checks
             var designerFunction = parserResult.function;
             var designerValue = null;
@@ -590,7 +594,8 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         }
     };
 
-    if(scriptProcessing){
+    // Processing already occured less than the last 100 seconds
+    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
         scriptData[userId].answers = [{
             message: __('instructionScript.alreadyProcessing')
         }];
@@ -598,7 +603,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         scriptData[userId].overDueToProcessing = true;
         return res.end();
     }
-    scriptProcessing = true;
+
+    scriptProcessing.state = true;
+    scriptProcessing.timeout = moment();
 
     let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
     let tmpPath = __dirname+'/../upload/'+tmpFilename;
@@ -640,7 +647,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 message: __('template.no_script')
             }];
             scriptData[userId].over = true;
-            scriptProcessing = false;
+            scriptProcessing.state = false;
             return res.end();
         }
 
@@ -847,6 +854,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     //var process_server = process_manager.process_server;
                     var process_server_per_app = process_manager.process_server_per_app;
 
+
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
                         process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
                             if(err)
@@ -884,9 +892,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 });
 
 // Script execution status
-router.get('/status', function(req, res) {
-    var userId = req.session.passport.user.id;
-    var stats = {
+router.get('/status', (req, res) => {
+    let userId = req.session.passport.user.id;
+    let stats = {
         totalInstruction: scriptData[userId].totalInstruction,
         doneInstruction: scriptData[userId].doneInstruction,
         over: scriptData[userId].over,
@@ -902,8 +910,8 @@ router.get('/status', function(req, res) {
         req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
         req.session.id_module = scriptData[userId].ids.id_module;
         if(typeof scriptData[userId].overDueToProcessing === 'undefined')
-            scriptProcessing = false;
-        scriptData.splice(scriptData.indexOf(userId), 1);
+            scriptProcessing.state = false;
+        delete scriptData[userId];
     }
 
     res.send(stats).end();
