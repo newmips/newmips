@@ -55,15 +55,21 @@ exports.deploy = (attr, callback) => {
                 if(err)
                 	return callback(err, null);
 
+                let appName = attr.appCodeName.split("_").slice(1).join("_");
+                let nameRepo = globalConfig.host + '-' + appName;
+                let subdomain = globalConfig.sub_domain + '-' + appName + '-' + globalConfig.dns_cloud.replace('.', '-');
+
                 gitHelper.gitRemotes(attr, (err, remotes) => {
-                    console.log("TEST REMOTES");
-                    console.log(remotes);
 
-                    let appName = attr.appCodeName.split("_").slice(1).join("_");
-                    let nameRepo = globalConfig.host + '-' + appName;
-                    let subdomain = globalConfig.sub_domain + '-' + appName + '-' + globalConfig.dns_cloud.replace('.', '-');
+                    // Gitlab url handling
+                    let gitlabUrl = "";
+                    if(remotes.length > 0 && remotes[0].refs && remotes[0].refs.fetch)
+                        gitlabUrl = remotes[0].refs.fetch; // Getting actuel .git fetch remote
+                    else
+                        gitlabUrl = gitlabConfig.sshUrl + ":" + attr.gitlabUser.username + "/" + repoName + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
 
-                    portainerDeploy(nameRepo, subdomain, appID, appName, attr.gitlabUser).then(data => {
+                    console.log('Cloning in cloud: ' + gitlabUrl);
+                    portainerDeploy(nameRepo, subdomain, appID, appName).then(data => {
                         return callback(null, {
                             message: "botresponse.deployment",
                             messageParams: [data.url, data.url]
@@ -85,9 +91,8 @@ exports.deploy = (attr, callback) => {
     });
 }
 
-async function portainerDeploy(repoName, subdomain, appID, appName, gitlabUser){
+async function portainerDeploy(repoName, subdomain, appID, appName){
 	// Preparing all needed values
-	let gitlabUrl = gitlabConfig.sshUrl + ":" + gitlabUser.username + "/" + repoName + ".git";
     let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
     let cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
 
