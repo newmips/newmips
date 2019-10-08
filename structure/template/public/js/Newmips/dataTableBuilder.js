@@ -534,7 +534,22 @@ function init_datatable(tableID, doPagination, context) {
         "columnDefs": columnDefs,
         "language": STR_LANGUAGE,
         "paging": doPagination,
-        "dom": 'lBfrtip',
+        "dom": 'RlBfrtip',
+        "stateSave": true,
+        stateSaveCallback: function(settings, data) {
+            var sizes = [];
+            for (var i = 0; i < settings.aoColumns.length; i++)
+                sizes.push($(settings.aoColumns[i].nTh).width()+'px');
+            localStorage.setItem(tableID+'_columns_sizes', JSON.stringify(sizes));
+        },
+        stateLoadCallback: function(settings) {
+            var sizes = JSON.parse(localStorage.getItem(tableID+'_columns_sizes'));
+            if (!sizes)
+                return;
+            for (var i = 0; i < settings.aoColumns.length; i++)
+                if (sizes[i])
+                    $(settings.aoColumns[i].nTh).width(sizes[i]);
+        },
         "bLengthChange": true,
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
