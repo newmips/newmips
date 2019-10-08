@@ -51,27 +51,32 @@ exports.deploy = (attr, callback) => {
         	return callback(err);
 
         gitHelper.gitTag(appID, applicationConf.version, applicationPath).then(_ => {
-            gitHelper.gitPush(attr, (err, infoGit)=> {
+            gitHelper.gitPush(attr, (err, infoGit) => {
                 if(err)
                 	return callback(err, null);
 
-                let appName = attr.appCodeName.split("_").slice(1).join("_");
-                let nameRepo = globalConfig.host + '-' + appName;
-                let subdomain = globalConfig.sub_domain + '-' + appName + '-' + globalConfig.dns_cloud.replace('.', '-');
+                gitHelper.gitRemotes(attr, (err, remotes) => {
+                    console.log("TEST REMOTES");
+                    console.log(remotes);
 
-                portainerDeploy(nameRepo, subdomain, appID, appName, attr.gitlabUser).then(data => {
-                    return callback(null, {
-                        message: "botresponse.deployment",
-                        messageParams: [data.url, data.url]
+                    let appName = attr.appCodeName.split("_").slice(1).join("_");
+                    let nameRepo = globalConfig.host + '-' + appName;
+                    let subdomain = globalConfig.sub_domain + '-' + appName + '-' + globalConfig.dns_cloud.replace('.', '-');
+
+                    portainerDeploy(nameRepo, subdomain, appID, appName, attr.gitlabUser).then(data => {
+                        return callback(null, {
+                            message: "botresponse.deployment",
+                            messageParams: [data.url, data.url]
+                        });
+                    }).catch(err => {
+                        if(typeof err.message !== "undefined")
+                            console.error(err.message);
+                        else
+                            console.error(err);
+
+                        return callback(err);
                     });
-                }).catch(err => {
-                    if(typeof err.message !== "undefined")
-                        console.error(err.message);
-                    else
-                        console.error(err);
-
-                    return callback(err);
-                });
+                })
             });
         }).catch(function(e) {
             console.log(e);
