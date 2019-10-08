@@ -69,7 +69,7 @@ exports.deploy = (attr, callback) => {
                         gitlabUrl = gitlabConfig.sshUrl + ":" + attr.gitlabUser.username + "/" + repoName + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
 
                     console.log('Cloning in cloud: ' + gitlabUrl);
-                    portainerDeploy(nameRepo, subdomain, appID, appName).then(data => {
+                    portainerDeploy(nameRepo, subdomain, appID, appName, gitlabUrl).then(data => {
                         return callback(null, {
                             message: "botresponse.deployment",
                             messageParams: [data.url, data.url]
@@ -91,7 +91,7 @@ exports.deploy = (attr, callback) => {
     });
 }
 
-async function portainerDeploy(repoName, subdomain, appID, appName){
+async function portainerDeploy(repoName, subdomain, appID, appName, gitlabUrl){
 	// Preparing all needed values
     let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
     let cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
