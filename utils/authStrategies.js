@@ -59,6 +59,7 @@ passport.use(new LocalStrategy({
 
             if(typeof currentSession.passport !== "undefined"
                 && typeof currentSession.passport.user !== "undefined"
+                && currentSession.cookie.expires
                 && moment().isBefore(currentSession.cookie.expires) // Not counting expired session
                 && currentSession.passport.user.id == user.id
                 && currentSession.isgenerator){
