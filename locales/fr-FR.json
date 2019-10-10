@@ -110,7 +110,8 @@
             "modal_title": "Comment cloner cette application ?",
             "text1": "Afin de pouvoir cloner votre application il suffit d'executer cette commande :",
             "text2": "Votre identifiant Gitlab est :",
-            "text3": "et votre mot de passe est celui de votre compte générateur"
+            "text3": "et votre mot de passe est celui de votre compte générateur ou de votre compte Gitlab si vous l'avez changé sur gitlab",
+            "text4": "(Si vous avez oublié votre mot de passe vous pouvez faire une procédure de changement de mot de passe sur le générateur, cela changera aussi celui de votre compte gitlab)"
         },
         "no_project_1": "Aucune application générée.",
         "no_project_2": "Vous pouvez créer une application directement depuis <a href='/'>l'accueil</a> ou à l'aide d'un <a href='/instruction_script/index'>script</a>."
