@@ -10,6 +10,12 @@ function fetchStatus() {
         success: function(data) {
             try {
 
+                // Skip current update status due to internal serveur error
+                if(data.skip){
+                    setTimeout(fetchStatus, 50);
+                    return;
+                }
+
                 $("#instructionCount").text('Instructions : ' + data.doneInstruction + ' / ' + data.totalInstruction);
 
                 var percent = (Number(data.doneInstruction) * 100 / Number(data.totalInstruction)).toFixed(0);
@@ -22,18 +28,21 @@ function fetchStatus() {
                     else
                         $("#answers").html("<b>" + data.text[0].message + "</b><br><br>" + $("#answers").html());
                 }
+
                 if (!data.over)
                     setTimeout(fetchStatus, 50);
                 else {
                     if (percent >= 100) {
                         window.location.href = "/application/preview?id_application="+data.id_application+"&timeout=50000";
-                        /*$("#goTo").attr('href', $("#goTo").attr('href')+data.id_application);*/
                         $("#goTo").show();
                         $("#scriptSubmit").prop('disabled', false);
                         $("#goTo").prop('disabled', false);
                         $("#progressbarcontent").hide();
                     } else {
-                        $("#scriptSubmit").prop('disabled', false);
+                        // Wait 2 sec before let user click again on button
+                        setTimeout(function(){
+                            $("#scriptSubmit").prop('disabled', false);
+                        }, 2000);
                         $("#progressbarcontent").hide();
                     }
                 }
