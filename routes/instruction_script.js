@@ -893,28 +893,34 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
 // Script execution status
 router.get('/status', (req, res) => {
-    let userId = req.session.passport.user.id;
-    let stats = {
-        totalInstruction: scriptData[userId].totalInstruction,
-        doneInstruction: scriptData[userId].doneInstruction,
-        over: scriptData[userId].over,
-        text: scriptData[userId].answers
-    };
-    scriptData[userId].answers = [];
+    try {
+        let userId = req.session.passport.user.id;
+        let stats = {
+            totalInstruction: scriptData[userId].totalInstruction,
+            doneInstruction: scriptData[userId].doneInstruction,
+            over: scriptData[userId].over,
+            text: scriptData[userId].answers
+        };
+        scriptData[userId].answers = [];
 
-    // Script over, remove data from array
-    if (stats.over) {
-        stats.id_application = scriptData[userId].ids.id_application;
-        req.session.id_application = scriptData[userId].ids.id_application;
-        req.session.id_project = scriptData[userId].ids.id_project;
-        req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
-        req.session.id_module = scriptData[userId].ids.id_module;
-        if(typeof scriptData[userId].overDueToProcessing === 'undefined')
-            scriptProcessing.state = false;
-        delete scriptData[userId];
+        // Script over, remove data from array
+        if (stats.over) {
+            stats.id_application = scriptData[userId].ids.id_application;
+            req.session.id_application = scriptData[userId].ids.id_application;
+            req.session.id_project = scriptData[userId].ids.id_project;
+            req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
+            req.session.id_module = scriptData[userId].ids.id_module;
+            if(typeof scriptData[userId].overDueToProcessing === 'undefined')
+                scriptProcessing.state = false;
+            delete scriptData[userId];
+        }
+
+        res.send(stats).end();
+    } catch(err) {
+        res.send({
+            skip: true
+        }).end();
     }
-
-    res.send(stats).end();
 });
 
 module.exports = router;
