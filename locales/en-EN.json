@@ -111,7 +111,8 @@
             "modal_title": "How to clone this application ?",
             "text1": "In order to clone your application just execute this command:",
             "text2": "Your Gitlab login is:",
-            "text3": "and your password is the one you use on your generator account"
+            "text3": "and your password is the one of your generator account or your Gitlab account if you have changed it on gitlab",
+            "text4": "(If you have forgotten your password you can do a password change procedure on the generator, it will also change the password of your gitlab account)"
         },
         "no_project_1": "No application found.",
         "no_project_2": "You can generate one directly from <a href='/'>home</a> or with a <a href='/instruction_script/index'>script</a>."

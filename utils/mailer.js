@@ -40,7 +40,7 @@ exports.sendMail_Reset_Password = (data, res) => {
                 Une demande de réinitialisation de mot de passe a été effectuée pour votre compte : ' + data.mail_user + '.\
                 <br>\
                 Si vous êtes à l\'origine de cette demande, veuillez cliquer sur le lien suivant :\
-                <br>\
+                <br><br>\
                 <a href="' + mailConfig.host + '/reset_password_form/' + data.token + '">Réinitialisation du mot de passe</a>.\
                 <br><br>\
                 Si vous n\'êtes pas à l\'origine de cette demande, veuillez ignorer cet email.\
