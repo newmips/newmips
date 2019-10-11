@@ -1,9 +1,14 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var models = require('../models/');
-var fs = require('fs-extra');
-var moment = require("moment");
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const models = require('../models/');
+const fs = require('fs-extra');
+const moment = require("moment");
+
+// Gitlab API
+const gitlab = require('../services/gitlab_api');
+const gitlabConf = require('../config/gitlab.js');
+const globalConf = require('../config/global.js');
 
 router.get('/', block_access.isAdmin, (req, res) => {
     data = {};
@@ -108,7 +113,7 @@ router.post('/update', block_access.isAdmin, (req, res) => {
         where: {
             id: req.body.id
         }
-    }).then(() => {
+    }).then(_ => {
         req.session.toastr = [{
             message: "action.success.update",
             level: "success"
@@ -129,7 +134,7 @@ router.post('/delete', block_access.isAdmin, (req, res) => {
         where: {
             id: req.body.id
         }
-    }).then(() => {
+    }).then(_ => {
         req.session.toastr = [{
             message: 'action.success.destroy',
             level: "success"
@@ -139,58 +144,81 @@ router.post('/delete', block_access.isAdmin, (req, res) => {
 })
 
 router.post('/assign', block_access.isAdmin, (req, res) => {
-    var app = req.body.app;
-    var userId = req.body.id_user;
-    models.User.findById(userId).then(user => {
-        if (!user) {
-            data.code = 404;
-            console.log("User not found");
-            return res.render('common/error', data);
+    (async () => {
+        let appID = req.body.app;
+        let userID = req.body.id_user;
+        let user = await models.User.findByPk(userID);
+
+        if (!user)
+            throw new Error("User not found");
+
+        await user.addApplication(appID);
+
+        // Add user to gitlab project too
+        if(gitlabConf.doGit){
+            if(!Array.isArray(appID))
+                appID = [appID];
+
+            let gitlabUser = await gitlab.getUser(user.email);
+
+            for (let i = 0; i < appID.length; i++) {
+                let application = await models.Application.findByPk(appID[i]);
+                let projectName = globalConf.host + "-" + application.codeName.substring(2);
+                let gitlabProject = await gitlab.getProject(projectName);
+                await gitlab.addUserToProject(gitlabUser.id, gitlabProject.id);
+            }
         }
 
-        user.addApplication(app).then(() => {
-            res.redirect('/users/show/'+userId+"#applications");
-        }).catch((err) => {
-            data.code = 500;
-            console.error(err);
-            return res.render('common/error', data);
-        })
-    }).catch((err) => {
-        data.code = 500;
+        return userID;
+    })().then(userID => {
+        res.redirect('/users/show/'+userID+"#applications");
+    }).catch(err => {
         console.error(err);
-        return res.render('common/error', data);
+        return res.render('common/error', {
+            code: 500
+        });
     })
 })
 
 router.post('/remove_access', block_access.isAdmin, (req, res) => {
-    let appId = req.body.id_app;
-    let userId = req.body.id_user;
-    let data = {};
-    models.User.findById(userId).then(user => {
-        if (!user) {
-            data.code = 404;
-            console.log("User not found");
-            return res.render('common/error', data);
+
+    (async () => {
+        let appID = req.body.id_app;
+        let userID = req.body.id_user;
+        let user = await models.User.findByPk(userID);
+
+        let data = {};
+        if (!user)
+            throw new Error('404 - User not found');
+
+        let applications = await user.getApplications();
+
+        // Remove entity from association array
+        for (var i = 0; i < applications.length; i++)
+            if (applications[i].id == appID) {
+                applications.splice(i, 1);
+                break;
+            }
+
+        await user.setApplications(applications);
+
+        // Remove gitlab access
+        if(gitlabConf.doGit){
+            let application = await models.Application.findByPk(appID);
+            let projectName = globalConf.host + "-" + application.codeName.substring(2);
+            let gitlabProject = await gitlab.getProject(projectName);
+            let gitlabUser = await gitlab.getUser(user.email);
+            await gitlab.removeUserFromProject(gitlabUser.id, gitlabProject.id);
         }
 
-        // Get all associations
-        user.getApplications().then(applications => {
-            // Remove entity from association array
-            for (var i = 0; i < applications.length; i++)
-                if (applications[i].id == appId) {
-                    applications.splice(i, 1);
-                    break;
-                }
-
-            // Set back associations without removed entity
-            user.setApplications(applications).then(() => {
-                res.redirect('/users/show/'+userId+"#applications");
-            })
-        })
-    }).catch((err) => {
-        data.code = 500;
+        return user.id;
+    })().then(userID => {
+        res.redirect('/users/show/'+userID+"#applications");
+    }).catch(err => {
         console.error(err);
-        return res.render('common/error', data);
+        return res.render('common/error', {
+            code: 500
+        });
     })
 })
 

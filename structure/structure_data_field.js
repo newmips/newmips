@@ -968,6 +968,8 @@ exports.setRequiredAttribute = function (attr, callback) {
             var length = "";
             if (attr.sqlDataType == "varchar")
                 length = "(" + attr.sqlDataTypeLength + ")";
+
+            // Set required
             if (set) {
                 switch (attributesObj[attr.options.value].type) {
                     case "STRING":
@@ -1002,6 +1004,7 @@ exports.setRequiredAttribute = function (attr, callback) {
                     toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT '" + defaultValue + "';");
                 }
             } else {
+                // Set optional
                 attributesObj[attr.options.value].defaultValue = null;
                 // TODO postgres
                 if (attr.sqlDataType && attr.dialect == "mysql") {

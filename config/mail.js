@@ -55,7 +55,7 @@ let mailConf = {
         },
         expediteur: 'NoReply <no-reply@newmips.com>',
         administrateur: 'Responsable Newmips <contact@newmips.com>',
-        host: 'https://'+process.env.HOSTNAME+'.newmips.studio'
+        host: 'https://'+process.env.SUB_DOMAIN+'.newmips.studio'
     },
     cloud: {
         transport: {
@@ -69,7 +69,7 @@ let mailConf = {
         },
         expediteur: 'NoReply <no-reply@newmips.com>',
         administrateur: 'Responsable Newmips <contact@newmips.com>',
-        host: 'https://'+process.env.HOSTNAME+'.newmips.studio'
+        host: 'https://'+process.env.SUB_DOMAIN+'.newmips.studio'
     }
 }
 

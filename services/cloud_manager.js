@@ -51,7 +51,7 @@ exports.deploy = (attr, callback) => {
         	return callback(err);
 
         gitHelper.gitTag(appID, applicationConf.version, applicationPath).then(_ => {
-            gitHelper.gitPush(attr, (err, infoGit)=> {
+            gitHelper.gitPush(attr, (err, infoGit) => {
                 if(err)
                 	return callback(err, null);
 
@@ -59,19 +59,30 @@ exports.deploy = (attr, callback) => {
                 let nameRepo = globalConfig.host + '-' + appName;
                 let subdomain = globalConfig.sub_domain + '-' + appName + '-' + globalConfig.dns_cloud.replace('.', '-');
 
-                portainerDeploy(nameRepo, subdomain, appID, appName, attr.gitlabUser).then(data => {
-                    return callback(null, {
-                        message: "botresponse.deployment",
-                        messageParams: [data.url, data.url]
-                    });
-                }).catch(err => {
-                    if(typeof err.message !== "undefined")
-                        console.error(err.message);
-                    else
-                        console.error(err);
+                gitHelper.gitRemotes(attr, (err, remotes) => {
 
-                    return callback(err);
-                });
+                    // Gitlab url handling
+                    let gitlabUrl = "";
+                    if(remotes.length > 0 && remotes[0].refs && remotes[0].refs.fetch)
+                        gitlabUrl = remotes[0].refs.fetch; // Getting actuel .git fetch remote
+                    else
+                        gitlabUrl = gitlabConfig.sshUrl + ":" + attr.gitlabUser.username + "/" + repoName + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
+
+                    console.log('Cloning in cloud: ' + gitlabUrl);
+                    portainerDeploy(nameRepo, subdomain, appID, appName, gitlabUrl).then(data => {
+                        return callback(null, {
+                            message: "botresponse.deployment",
+                            messageParams: [data.url, data.url]
+                        });
+                    }).catch(err => {
+                        if(typeof err.message !== "undefined")
+                            console.error(err.message);
+                        else
+                            console.error(err);
+
+                        return callback(err);
+                    });
+                })
             });
         }).catch(function(e) {
             console.log(e);
@@ -80,9 +91,8 @@ exports.deploy = (attr, callback) => {
     });
 }
 
-async function portainerDeploy(repoName, subdomain, appID, appName, gitlabUser){
+async function portainerDeploy(repoName, subdomain, appID, appName, gitlabUrl){
 	// Preparing all needed values
-	let gitlabUrl = gitlabConfig.sshUrl + ":" + gitlabUser.username + "/" + repoName + ".git";
     let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
     let cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
 
