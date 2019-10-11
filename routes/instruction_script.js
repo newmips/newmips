@@ -305,11 +305,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
 
-    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
-    idxAtMandatoryInstructionStart = -1;
-
     var userId = req.session.passport.user.id;
-
     // Init scriptData object for user. (session simulation)
     scriptData[userId] = {
         over: false,
@@ -334,6 +330,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
         scriptData[userId].overDueToProcessing = true;
         return res.end();
     }
+
+    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
+    idxAtMandatoryInstructionStart = -1;
 
     scriptProcessing.state = true;
     scriptProcessing.timeout = moment();
@@ -573,9 +572,6 @@ router.post('/execute', block_access.isLoggedIn, multer({
 /* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
-    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
-    idxAtMandatoryInstructionStart = -1;
-
     let userId = req.session.passport.user.id;
     let __ = require("../services/language")(req.session.lang_user).__;
 
@@ -603,6 +599,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         scriptData[userId].overDueToProcessing = true;
         return res.end();
     }
+
+    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
+    idxAtMandatoryInstructionStart = -1;
 
     scriptProcessing.state = true;
     scriptProcessing.timeout = moment();
