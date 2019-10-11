@@ -1,13 +1,13 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require('sequelize');
-var basename = path.basename(module.filename);
-var env = require('../config/global');
-var dbConfig = require('../config/database');
-var moment_timezone = require('moment-timezone');
-var db = {};
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const env = require('../config/global');
+const dbConfig = require('../config/database');
+
+let basename = path.basename(module.filename);
+let db = {};
 
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -47,7 +47,7 @@ const operatorsAliases = {
     $col: Op.col
 };
 
-var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
+const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
     host: dbConfig.host,
     logging: false,
     port: dbConfig.port,
@@ -60,14 +60,13 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.passwor
     },
     charset: 'utf8',
     collate: 'utf8_general_ci',
-    timezone: moment_timezone.tz.guess(),
     operatorsAliases
 })
 
 fs.readdirSync(__dirname).filter(function(file) {
     return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
 }).forEach(function(file) {
-    var model = sequelize['import'](path.join(__dirname, file));
+    let model = sequelize['import'](path.join(__dirname, file));
     db[model.name] = model;
 })
 

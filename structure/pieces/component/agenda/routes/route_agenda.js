@@ -1,20 +1,12 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-
-// Sequelize
-var models = require('../models/');
-
-var model_builder = require('../utils/model_builder');
-var moment = require("moment");
-
-var attributes = require('../models/attributes/e_URL_ROUTE_event');
-var options = require('../models/options/e_URL_ROUTE_event');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-
-// Winston logger
-var logger = require('../utils/logger');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const models = require('../models/');
+const model_builder = require('../utils/model_builder');
+const moment = require("moment");
+const attributes = require('../models/attributes/e_URL_ROUTE_event');
+const options = require('../models/options/e_URL_ROUTE_event');
+const entity_helper = require('../utils/entity_helper');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
@@ -145,16 +137,17 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
     });
 });
 
-router.post('/update_event_drop', block_access.actionAccessMiddleware("URL_ROUTE_event", 'update'), function(req, res) {
+router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_event", 'update'), function(req, res) {
 
-    var updateObj = {
+    let updateObj = {
         f_start_date: req.body.start,
-        f_end_date: req.body.end
+        f_end_date: req.body.end,
+        f_all_day: typeof req.body.allDay === 'boolean' ? req.body.allDay : false
     };
 
-    models.CODE_NAME_EVENT_MODEL.findById(req.body.eventId).then(function(currentEvent){
+    models.E_agenda_event.findById(req.body.eventId).then(function(currentEvent){
         currentEvent.update(updateObj, {where: {id: req.body.eventId}}).then(function(updateEvent){
-            var users = [];
+            let users = [];
             if(req.body.idUsers != null){
                 users = req.body.idUsers;
             } else if (req.body.idUser != null){

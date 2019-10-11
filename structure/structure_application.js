@@ -101,20 +101,22 @@ exports.setupApplication = function(attr, callback) {
                         "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'127.0.0.1' IDENTIFIED BY 'workspace_" + appID + "';",
                         "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'%' IDENTIFIED BY 'workspace_" + appID + "';",
                         "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'127.0.0.1';",
-                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';"
+                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';",
+                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO '" + dbConf.user + "'@'127.0.0.1';",
+                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO '" + dbConf.user + "'@'%';"
                     ];
 
                     let conn = await mysql.createConnection({
-                        host: globalConf.env == "cloud"||"docker" ? process.env.DATABASE_IP : dbConf.host,
-                        user: globalConf.env == "cloud"||"docker" ? "root" : dbConf.user,
-                        password: globalConf.env == "cloud"||"docker" ? "P@ssw0rd+" : dbConf.password
+                        host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+                        user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+                        password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
                     });
 
-                    for (var i = 0; i < db_requests.length; i++) {
+                    for (var i = 0; i < db_requests.length; i++)
                         await conn.query(db_requests[i]);
-                    }
 
                     conn.end();
+                    return;
                 }
 
                 workspace_db().then(_ => {
@@ -625,9 +627,9 @@ exports.deleteApplication = function(appID, callback) {
         if(globalConf.separate_workspace_db){
             (async () => {
                 let conn = await mysql.createConnection({
-                    host: globalConf.env == "cloud"||"docker" ? process.env.DATABASE_IP : dbConf.host,
-                    user: globalConf.env == "cloud"||"docker" ? "root" : dbConf.user,
-                    password: globalConf.env == "cloud"||"docker" ? "P@ssw0rd+" : dbConf.password
+                    host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+                    user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+                    password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
                 });
                 await conn.query("DROP DATABASE IF EXISTS workspace_"+appID+";");
                 conn.end();

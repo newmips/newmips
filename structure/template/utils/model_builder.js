@@ -107,8 +107,8 @@ exports.formatSearch = function (column, searchValue, type) {
             }
             break;
         case 'currency':
-            formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
-                like: `${searchValue}%`
+            formatedSearch = require('../models').Sequelize.where(require('../models').Sequelize.col(column), {
+                $like: searchValue + '%'
             });
             break;
         default:
