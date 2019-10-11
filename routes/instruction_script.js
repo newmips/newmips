@@ -16,8 +16,11 @@ const parser = require('../services/bot.js');
 
 const structure_application = require('../structure/structure_application');
 
-let scriptProcessing = false;
-let scriptData = [];
+let scriptProcessing = {
+    timeout: moment(),
+    state: false
+};
+let scriptData = {};
 let message = "";
 
 function execute(req, instruction) {
@@ -302,11 +305,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), function(req, res) {
 
-    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
-    idxAtMandatoryInstructionStart = -1;
-
     var userId = req.session.passport.user.id;
-
     // Init scriptData object for user. (session simulation)
     scriptData[userId] = {
         over: false,
@@ -321,7 +320,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
             id_data_entity: -1
         }
     };
-    if(scriptProcessing){
+
+    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
         let __ = require("../services/language")(req.session.lang_user).__;
         scriptData[userId].answers = [{
             message: __('instructionScript.alreadyProcessing')
@@ -330,14 +330,19 @@ router.post('/execute', block_access.isLoggedIn, multer({
         scriptData[userId].overDueToProcessing = true;
         return res.end();
     }
-    scriptProcessing = true;
+
+    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
+    idxAtMandatoryInstructionStart = -1;
+
+    scriptProcessing.state = true;
+    scriptProcessing.timeout = moment();
 
     // Get file extension
-    var extensionFile = req.file.originalname.split(".");
+    let extensionFile = req.file.originalname.split(".");
     extensionFile = extensionFile[extensionFile.length -1];
     // Read file to determine encoding
-    var fileContent = fs.readFileSync(req.file.path);
-    var encoding = require('jschardet').detect(fileContent);
+    let fileContent = fs.readFileSync(req.file.path);
+    let encoding = require('jschardet').detect(fileContent);
     // If extension or encoding is not supported, send error
     if ((extensionFile != 'txt' && extensionFile != 'nps') || (encoding.encoding.toLowerCase() != 'utf-8' && encoding.encoding.toLowerCase() != 'windows-1252' && encoding.encoding.toLowerCase() != 'ascii')) {
         scriptData[userId].answers.push({
@@ -350,18 +355,18 @@ router.post('/execute', block_access.isLoggedIn, multer({
     }
 
     // Open file descriptor
-    var rl = readline.createInterface({
+    let rl = readline.createInterface({
         input: fs.createReadStream(req.file.path)
     });
 
     // Read file line by line, check for empty line, line comment, scope comment
-    var fileLines = [],
+    let fileLines = [],
         commenting = false,
         invalidScript = false;
 
     /* If one of theses value is to 2 after readings all lines then there is an error,
     line to 1 are set because they are mandatory lines added by the generator */
-    var exception = {
+    let exception = {
         createNewProject : {
             value: 0,
             errorMessage: "You can't create or select more than one project in the same script."
@@ -401,7 +406,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     };
 
     rl.on('line', function(sourceLine) {
-        var line = sourceLine;
+        let line = sourceLine;
 
         // Empty line || One line comment scope
         if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
@@ -421,9 +426,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
-            console.log(line);
             var parserResult = parser.parse(line);
-            console.log(parserResult);
             // Get the wanted function given by the bot to do some checks
             var designerFunction = parserResult.function;
             var designerValue = null;
@@ -568,10 +571,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
 /* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
-    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
-    idxAtMandatoryInstructionStart = -1;
 
-    var userId = req.session.passport.user.id;
+    let userId = req.session.passport.user.id;
+    let __ = require("../services/language")(req.session.lang_user).__;
 
     // Init scriptData object for user. (session simulation)
     scriptData[userId] = {
@@ -587,8 +589,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             id_data_entity: -1
         }
     };
-    if(scriptProcessing){
-        let __ = require("../services/language")(req.session.lang_user).__;
+
+    // Processing already occured less than the last 100 seconds
+    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
         scriptData[userId].answers = [{
             message: __('instructionScript.alreadyProcessing')
         }];
@@ -596,16 +599,22 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         scriptData[userId].overDueToProcessing = true;
         return res.end();
     }
-    scriptProcessing = true;
 
-    var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
-    var tmpPath = __dirname+'/../upload/'+tmpFilename;
+    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
+    idxAtMandatoryInstructionStart = -1;
+
+    scriptProcessing.state = true;
+    scriptProcessing.timeout = moment();
+
+    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
+    let tmpPath = __dirname+'/../upload/'+tmpFilename;
 
     // Load template script and unzip master file if application is created using template
     let templateEntry = req.body.template_entry;
     let template = {};
 
     fs.openSync(tmpPath, 'w');
+
     if(templateEntry){
         let templateLang;
         switch(req.session.lang_user.toLowerCase()) {
@@ -620,23 +629,30 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 break;
         }
 
-        var files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
-        let found = false;
-        for (var i = 0; i < files.length; i++) {
-            var filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
-            if (filename.indexOf("_"+templateLang+"_") != -1 && filename.indexOf(".nps") != -1) {
-                fs.writeFileSync(tmpPath, fs.readFileSync(filename));
-                found = true;
-                break;
-            };
-        };
-        if(!found){
-            req.session.toastr = [{
-                message: "template.no_script",
-                level: "error"
-            }]
-            return res.redirect("/templates");
+        let files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
+        let filename = false;
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].indexOf(".nps") != -1) {
+                if(!filename)
+                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+                else if(files[i].indexOf("_"+templateLang+"_") != -1)
+                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+            }
         }
+
+        if(!filename){
+            scriptData[userId].answers = [{
+                message: __('template.no_script')
+            }];
+            scriptData[userId].over = true;
+            scriptProcessing.state = false;
+            return res.end();
+        }
+
+        // Write template script in the tmpPath
+        fs.writeFileSync(tmpPath, fs.readFileSync(filename));
+
     } else {
         fs.writeFileSync(tmpPath, req.body.text);
     }
@@ -837,6 +853,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     //var process_server = process_manager.process_server;
                     var process_server_per_app = process_manager.process_server_per_app;
 
+
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
                         process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
                             if(err)
@@ -874,29 +891,35 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 });
 
 // Script execution status
-router.get('/status', function(req, res) {
-    var userId = req.session.passport.user.id;
-    var stats = {
-        totalInstruction: scriptData[userId].totalInstruction,
-        doneInstruction: scriptData[userId].doneInstruction,
-        over: scriptData[userId].over,
-        text: scriptData[userId].answers
-    };
-    scriptData[userId].answers = [];
+router.get('/status', (req, res) => {
+    try {
+        let userId = req.session.passport.user.id;
+        let stats = {
+            totalInstruction: scriptData[userId].totalInstruction,
+            doneInstruction: scriptData[userId].doneInstruction,
+            over: scriptData[userId].over,
+            text: scriptData[userId].answers
+        };
+        scriptData[userId].answers = [];
 
-    // Script over, remove data from array
-    if (stats.over) {
-        stats.id_application = scriptData[userId].ids.id_application;
-        req.session.id_application = scriptData[userId].ids.id_application;
-        req.session.id_project = scriptData[userId].ids.id_project;
-        req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
-        req.session.id_module = scriptData[userId].ids.id_module;
-        if(typeof scriptData[userId].overDueToProcessing === 'undefined')
-            scriptProcessing = false;
-        scriptData.splice(scriptData.indexOf(userId), 1);
+        // Script over, remove data from array
+        if (stats.over) {
+            stats.id_application = scriptData[userId].ids.id_application;
+            req.session.id_application = scriptData[userId].ids.id_application;
+            req.session.id_project = scriptData[userId].ids.id_project;
+            req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
+            req.session.id_module = scriptData[userId].ids.id_module;
+            if(typeof scriptData[userId].overDueToProcessing === 'undefined')
+                scriptProcessing.state = false;
+            delete scriptData[userId];
+        }
+
+        res.send(stats).end();
+    } catch(err) {
+        res.send({
+            skip: true
+        }).end();
     }
-
-    res.send(stats).end();
 });
 
 module.exports = router;

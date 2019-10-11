@@ -148,8 +148,8 @@
                                     </li>
                                     {! Menu Body !}
                                     <li class="user-body">
-                                        <div class="col-xs-6 text-center"><a target="_blank" href="http://newmips.com">{#__ key="navbar.about"/}</a></div>
-                                        <div class="col-xs-6 text-center"><a target="_blank" href="http://newmips.com/contact">{#__ key="navbar.support"/}</a></div>
+                                        <div class="col-xs-6 text-center"><a target="_blank" href="https://newmips.com">{#__ key="navbar.about"/}</a></div>
+                                        <div class="col-xs-6 text-center"><a target="_blank" href="https://newmips.com/contact">{#__ key="navbar.support"/}</a></div>
                                     </li>
                                     {! Menu Footer !}
                                     <li class="user-footer">

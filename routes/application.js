@@ -16,6 +16,10 @@ var fs = require('fs-extra');
 var parser = require('../services/bot.js');
 var globalConf = require('../config/global.js');
 var gitlabConf = require('../config/gitlab.js');
+
+// Gitlab API
+const gitlab = require('../services/gitlab_api');
+
 var helpers = require('../utils/helpers');
 var attrHelper = require('../utils/attr_helper');
 var gitHelper = require('../utils/git_helper');
@@ -669,32 +673,35 @@ router.post('/set_logo', block_access.hasAccessApplication, function (req, res) 
 
 // List all applications
 router.get('/list', block_access.isLoggedIn, function(req, res) {
-    var data = {};
-
-    models.Project.findAll({
-        include: [{
-            model: models.Application,
-            required: true,
+    (async () => {
+        let projects = await models.Project.findAll({
             include: [{
-                model: models.User,
-                as: "users",
-                where: {
-                    id: req.session.passport.user.id
-                },
-                required: true
-            }]
-        }],
-        order: [
-            [models.Application, 'id', 'DESC']
-        ]
-    }).then(function(projects) {
-
-        let data = {};
+                model: models.Application,
+                required: true,
+                include: [{
+                    model: models.User,
+                    as: "users",
+                    where: {
+                        id: req.session.passport.user.id
+                    },
+                    required: true
+                }]
+            }],
+            order: [
+                [models.Application, 'id', 'DESC']
+            ]
+        });
 
         let iframe_status_url;
         let host = globalConf.host;
         let port;
         let appName;
+        let data = {};
+
+        // Get user project for clone url generation
+        let gitlabProjects = [];
+        if(gitlabConf.doGit)
+            gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
 
         for (var i = 0; i < projects.length; i++) {
             for (var j = 0; j < projects[i].Applications.length; j++) {
@@ -710,20 +717,26 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
                 }
 
                 if(gitlabConf.doGit){
-                    projects[i].dataValues.Applications[j].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
-                    data.gitlabUser = req.session.gitlab.user;
+                    let project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
+                    if(project) {
+                        // projects[i].dataValues.Applications[j].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
+                        projects[i].dataValues.Applications[j].dataValues.repo_url = project.http_url_to_repo;
+                        data.gitlabUser = req.session.gitlab.user;
+                    }
                 }
-
                 projects[i].dataValues.Applications[j].dataValues.url = iframe_status_url;
             }
         }
-        data.projects = projects;
+
+        data.projects = projects
+        return data;
+    })().then(data => {
         res.render('front/application', data);
-    }).catch(function(err) {
+    }).catch(err => {
         console.error(err);
         data.code = 500;
         res.render('common/error', data);
-    });
+    })
 });
 
 router.post('/execute', block_access.isLoggedIn, function(req, res) {
