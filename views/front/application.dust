@@ -59,12 +59,14 @@
 																</a>
 															</td>
 															{?gitlabUser}
-															<td class="text-center">
-																<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
-																	<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
-																	<span>{#__ key="button.clone"/}</span>
-																</button>
-															</td>
+																{?dataValues.repo_url}
+																	<td class="text-center">
+																		<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
+																			<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
+																			<span>{#__ key="button.clone"/}</span>
+																		</button>
+																	</td>
+																{/dataValues.repo_url}
 															{/gitlabUser}
 															<td class="text-center">
 																<form class="deleteAppForm">
@@ -114,7 +116,8 @@
 						<i><b>git clone <span id="gitlab_repo_url"></span></b></i><br><br>
 						{#__ key="listApplication.gitlab.text2" /}<br><br>
 						<i><b>{gitlabUser.name}</b></i><br><br>
-						{#__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
+						{#__ key="listApplication.gitlab.text3" /}&nbsp;<i class="fa fa-smile-o"></i><br><br>
+						<i>{#__ key="listApplication.gitlab.text4" /}</i>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" data-dismiss="modal">{#__ key="button.understand"/}</button>

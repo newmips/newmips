@@ -1,6 +1,6 @@
 function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 
-    var attr = {
+    let attr = {
         function: instructionsFunction,
         options: options
     };
@@ -21,33 +21,33 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 // ******* BASIC Actions ******* //
 exports.showSession = function (result) {
 
-    var attr = {};
+    let attr = {};
     attr.function = "showSession";
     return attr;
 };
 
 exports.help = function (result) {
 
-    var attr = {};
+    let attr = {};
     attr.function = "help";
     return attr;
 };
 
 exports.deploy = function (result) {
 
-    var attr = {};
+    let attr = {};
     attr.function = "deploy";
     return attr;
 };
 
 exports.restart = function (result) {
-    var attr = {};
+    let attr = {};
     attr.function = "restart";
     return attr;
 };
 
 exports.installNodePackage = function (result) {
-    var attr = {
+    let attr = {
         specificModule: null
     };
 
@@ -60,25 +60,25 @@ exports.installNodePackage = function (result) {
 };
 
 exports.gitPush = function (result) {
-    var attr = {};
+    let attr = {};
     attr.function = "gitPush";
     return attr;
 };
 
 exports.gitPull = function (result) {
-    var attr = {};
+    let attr = {};
     attr.function = "gitPull";
     return attr;
 };
 
 exports.gitCommit = function (result) {
-    var attr = {};
+    let attr = {};
     attr.function = "gitCommit";
     return attr;
 };
 
 exports.gitStatus = function (result) {
-    var attr = {};
+    let attr = {};
     attr.function = "gitStatus";
     return attr;
 };
@@ -86,12 +86,12 @@ exports.gitStatus = function (result) {
 // ******* SELECT Actions ******* //
 exports.selectProject = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         "value": value
     };
 
-    var attr = {
+    let attr = {
         function: "selectProject",
         options: options
     };
@@ -100,12 +100,12 @@ exports.selectProject = function (result) {
 
 exports.selectApplication = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value
     };
 
-    var attr = {
+    let attr = {
         function: "selectApplication",
         options: options
     };
@@ -114,12 +114,12 @@ exports.selectApplication = function (result) {
 
 exports.selectModule = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value
     };
 
-    var attr = {
+    let attr = {
         function: "selectModule",
         options: options
     };
@@ -128,12 +128,12 @@ exports.selectModule = function (result) {
 
 exports.selectEntity = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value.trim()
     };
 
-    var attr = {
+    let attr = {
         function: "selectEntity",
         options: options
     };
@@ -144,14 +144,14 @@ exports.selectEntity = function (result) {
 exports.setFieldAttribute = function (result) {
 
     // Set entity name as the first option in options array
-    var options = {
+    let options = {
         value: result[1],
         word: result[2],
         attributeValue: result[3],
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "setFieldAttribute",
         options: options
     };
@@ -161,13 +161,13 @@ exports.setFieldAttribute = function (result) {
 exports.setFieldKnownAttribute = function (result) {
 
     // Set entity name as the first option in options array
-    var options = {
+    let options = {
         value: result[1],
         word: result[2],
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "setFieldKnownAttribute",
         options: options
     };
@@ -178,13 +178,13 @@ exports.setFieldKnownAttribute = function (result) {
 exports.setColumnVisibility = function (result) {
 
     // Set entity name as the first option in options array
-    var options = {
+    let options = {
         value: result[1],
         word: result[2],
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "setColumnVisibility",
         options: options
     };
@@ -194,13 +194,13 @@ exports.setColumnVisibility = function (result) {
 exports.setColumnHidden = function (result) {
 
     // Set entity name as the first option in options array
-    var options = {
+    let options = {
         value: result[1],
         word: "hidden",
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "setColumnVisibility",
         options: options
     };
@@ -210,13 +210,13 @@ exports.setColumnHidden = function (result) {
 exports.setColumnVisible = function (result) {
 
     // Set entity name as the first option in options array
-    var options = {
+    let options = {
         value: result[1],
         word: "visible",
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "setColumnVisibility",
         options: options
     };
@@ -226,8 +226,8 @@ exports.setColumnVisible = function (result) {
 // ******* CREATE Actions ******* //
 exports.createNewProject = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -237,8 +237,8 @@ exports.createNewProject = function (result) {
 
 exports.createNewApplication = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -248,8 +248,8 @@ exports.createNewApplication = function (result) {
 
 exports.createNewModule = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -259,8 +259,8 @@ exports.createNewModule = function (result) {
 
 exports.createNewEntity = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -271,14 +271,14 @@ exports.createNewEntity = function (result) {
 exports.createNewDataField = function (result) {
 
     // Field name has not been defined
-    var value = result[1];
-    var defaultValue = null;
+    let value = result[1];
+    let defaultValue = null;
 
     // Default value ?
     if (typeof result[2] !== "undefined")
         defaultValue = result[2];
 
-    var options = {
+    let options = {
         value: value,
         defaultValue: defaultValue,
         processValue: true
@@ -289,9 +289,9 @@ exports.createNewDataField = function (result) {
 
 exports.createNewDataFieldWithType = function (result) {
 
-    var value = result[1];
-    var type = result[2].toLowerCase().trim();
-    var defaultValue = null;
+    let value = result[1];
+    let type = result[2].toLowerCase().trim();
+    let defaultValue = null;
 
     // Default value ?
     if (typeof result[3] !== "undefined")
@@ -302,7 +302,7 @@ exports.createNewDataFieldWithType = function (result) {
         //     defaultValue = result[3];
 
     // Preparing Options
-    var options = {
+    let options = {
         value: value,
         type: type,
         defaultValue: defaultValue,
@@ -314,15 +314,15 @@ exports.createNewDataFieldWithType = function (result) {
 
 exports.createNewDataFieldWithTypeEnum = function (result) {
 
-    var value = result[1];
-    var allValues = result[2];
-    var defaultValue = null;
+    let value = result[1];
+    let allValues = result[2];
+    let defaultValue = null;
 
     // Default value ?
     if (typeof result[3] !== "undefined")
         defaultValue = result[3];
 
-    var options = {
+    let options = {
         value: value,
         type: "enum",
         allValues: allValues,
@@ -335,15 +335,15 @@ exports.createNewDataFieldWithTypeEnum = function (result) {
 
 exports.createNewDataFieldWithTypeRadio = function (result) {
 
-    var value = result[1];
-    var allValues = result[2];
-    var defaultValue = null;
+    let value = result[1];
+    let allValues = result[2];
+    let defaultValue = null;
 
     // Default value ?
     if (typeof result[3] !== "undefined")
         defaultValue = result[3];
 
-    var options = {
+    let options = {
         value: value,
         type: "radio",
         allValues: allValues,
@@ -357,14 +357,14 @@ exports.createNewDataFieldWithTypeRadio = function (result) {
 // ******* DELETE Actions ******* //
 exports.deleteProject = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteProject",
         options: options
     };
@@ -373,14 +373,14 @@ exports.deleteProject = function (result) {
 
 exports.deleteApplication = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteApplication",
         options: options
     };
@@ -389,14 +389,14 @@ exports.deleteApplication = function (result) {
 
 exports.deleteModule = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteModule",
         options: options
     };
@@ -405,14 +405,14 @@ exports.deleteModule = function (result) {
 
 exports.deleteDataEntity = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteDataEntity",
         options: options
     };
@@ -421,14 +421,14 @@ exports.deleteDataEntity = function (result) {
 
 exports.deleteDataField = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteDataField",
         options: options
     };
@@ -437,14 +437,14 @@ exports.deleteDataField = function (result) {
 
 exports.deleteTab = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteTab",
         options: options
     };
@@ -454,7 +454,7 @@ exports.deleteTab = function (result) {
 // ******* LIST Actions ******* //
 exports.listProject = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listProject"
     };
     return attr;
@@ -462,7 +462,7 @@ exports.listProject = function (result) {
 
 exports.listApplication = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listApplication"
     };
     return attr;
@@ -470,7 +470,7 @@ exports.listApplication = function (result) {
 
 exports.listModule = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listModule"
     };
     return attr;
@@ -478,7 +478,7 @@ exports.listModule = function (result) {
 
 exports.listDataEntity = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listDataEntity"
     };
     return attr;
@@ -486,7 +486,7 @@ exports.listDataEntity = function (result) {
 
 exports.listDataField = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listDataField"
     };
     return attr;
@@ -498,10 +498,10 @@ exports.listDataField = function (result) {
 // Tabs in show
 exports.relationshipHasOne = function (result) {
 
-    var source = result[1];
-    var target = result[2];
+    let source = result[1];
+    let target = result[2];
 
-    var options = {
+    let options = {
         target: target,
         source: source,
         foreignKey: "id_" + target.toLowerCase(),
@@ -514,11 +514,11 @@ exports.relationshipHasOne = function (result) {
 
 exports.relationshipHasOneWithName = function (result) {
 
-    var source = result[1];
-    var target = result[2];
-    var as = result[3];
+    let source = result[1];
+    let target = result[2];
+    let as = result[3];
 
-    var options = {
+    let options = {
         target: target,
         source: source,
         foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
@@ -533,10 +533,10 @@ exports.relationshipHasOneWithName = function (result) {
 // --------- Field in create / update / show ---------
 exports.createFieldRelatedTo = function (result) {
 
-    var as = result[1];
-    var target = result[2];
+    let as = result[1];
+    let target = result[2];
 
-    var options = {
+    let options = {
         target: target,
         foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
@@ -548,11 +548,11 @@ exports.createFieldRelatedTo = function (result) {
 
 exports.createFieldRelatedToUsing = function (result) {
 
-    var as = result[1];
-    var target = result[2];
-    var usingField = result[3];
+    let as = result[1];
+    let target = result[2];
+    let usingField = result[3];
 
-    var options = {
+    let options = {
         target: target,
         foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
         as: as,
@@ -565,11 +565,11 @@ exports.createFieldRelatedToUsing = function (result) {
 
 exports.createFieldRelatedToMultiple = function (result) {
 
-    var as = result[1];
-    var target = result[2];
+    let as = result[1];
+    let target = result[2];
 
     // Preparing Options
-    var options = {
+    let options = {
         target: target,
         as: as,
         processValue: true
@@ -580,11 +580,11 @@ exports.createFieldRelatedToMultiple = function (result) {
 
 exports.createFieldRelatedToMultipleUsing = function (result) {
 
-    var as = result[1];
-    var target = result[2];
-    var usingField = result[3];
+    let as = result[1];
+    let target = result[2];
+    let usingField = result[3];
 
-    var options = {
+    let options = {
         target: target,
         as: as,
         usingField: usingField,
@@ -596,11 +596,11 @@ exports.createFieldRelatedToMultipleUsing = function (result) {
 
 exports.createFieldRelatedToMultipleCheckbox = function (result) {
 
-    var as = result[1];
-    var target = result[2];
+    let as = result[1];
+    let target = result[2];
 
     // Preparing Options
-    var options = {
+    let options = {
         target: target,
         isCheckbox: true,
         as: as,
@@ -612,11 +612,11 @@ exports.createFieldRelatedToMultipleCheckbox = function (result) {
 
 exports.createFieldRelatedToMultipleCheckboxUsing = function (result) {
 
-    var as = result[1];
-    var target = result[2];
-    var usingField = result[3];
+    let as = result[1];
+    let target = result[2];
+    let usingField = result[3];
 
-    var options = {
+    let options = {
         target: target,
         as: as,
         usingField: usingField,
@@ -631,10 +631,10 @@ exports.createFieldRelatedToMultipleCheckboxUsing = function (result) {
 // Tabs in show
 exports.relationshipHasMany = function (result) {
 
-    var source = result[1];
-    var target = result[2];
+    let source = result[1];
+    let target = result[2];
 
-    var options = {
+    let options = {
         target: target,
         source: source,
         foreignKey: "id_" + source.toLowerCase(),
@@ -647,11 +647,11 @@ exports.relationshipHasMany = function (result) {
 
 exports.relationshipHasManyWithName = function (result) {
 
-    var source = result[1];
-    var target = result[2];
-    var as = result[3];
+    let source = result[1];
+    let target = result[2];
+    let as = result[3];
 
-    var options = {
+    let options = {
         target: target,
         source: source,
         foreignKey: "id_" + source.toLowerCase() + "_" + as.toLowerCase(),
@@ -663,16 +663,16 @@ exports.relationshipHasManyWithName = function (result) {
 };
 
 exports.relationshipHasManyPreset = function (result) {
-    var source = result[1];
-    var target = result[2];
-    var as = target;
-    var foreignKey = "id_" + source.toLowerCase();
+    let source = result[1];
+    let target = result[2];
+    let as = target;
+    let foreignKey = "id_" + source.toLowerCase();
 
     if (typeof result[3] !== "undefined")
         as = result[3];
     foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
-    var options = {
+    let options = {
         target: target,
         source: source,
         foreignKey: foreignKey,
@@ -684,17 +684,17 @@ exports.relationshipHasManyPreset = function (result) {
 };
 
 exports.relationshipHasManyPresetUsing = function (result) {
-    var source = result[1];
-    var target = result[2];
-    var usingField = result[3];
-    var as = target;
-    var foreignKey = "id_" + source.toLowerCase();
+    let source = result[1];
+    let target = result[2];
+    let usingField = result[3];
+    let as = target;
+    let foreignKey = "id_" + source.toLowerCase();
 
     if (typeof result[4] !== "undefined")
         as = result[4];
     foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
-    var options = {
+    let options = {
         target: target,
         source: source,
         foreignKey: foreignKey,
@@ -710,7 +710,7 @@ exports.relationshipHasManyPresetUsing = function (result) {
 
 /* STATUS */
 exports.createNewComponentStatus = function (result) {
-    var defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
+    let defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
         function: "createNewComponentStatus",
         options: {value: defaultValue, processValue: true}
@@ -718,8 +718,8 @@ exports.createNewComponentStatus = function (result) {
 }
 
 exports.createNewComponentStatusWithName = function (result) {
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -729,9 +729,9 @@ exports.createNewComponentStatusWithName = function (result) {
 
 exports.deleteComponentStatus = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "deleteComponentStatus",
         options: options
     };
@@ -739,8 +739,8 @@ exports.deleteComponentStatus = function (result) {
 };
 
 exports.deleteComponentStatusWithName = function (result) {
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -751,9 +751,9 @@ exports.deleteComponentStatusWithName = function (result) {
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "createNewComponentLocalFileStorage",
         options: options
     };
@@ -762,8 +762,8 @@ exports.createNewComponentLocalFileStorage = function (result) {
 
 exports.createNewComponentLocalFileStorageWithName = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -774,9 +774,9 @@ exports.createNewComponentLocalFileStorageWithName = function (result) {
 /* CONTACT FORM */
 exports.createNewComponentContactForm = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "createNewComponentContactForm",
         options: options
     };
@@ -785,8 +785,8 @@ exports.createNewComponentContactForm = function (result) {
 
 exports.createNewComponentContactFormWithName = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -796,9 +796,9 @@ exports.createNewComponentContactFormWithName = function (result) {
 
 exports.deleteComponentContactForm = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "deleteComponentContactForm",
         options: options
     };
@@ -806,8 +806,8 @@ exports.deleteComponentContactForm = function (result) {
 };
 
 exports.deleteComponentContactFormWithName = function (result) {
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -818,9 +818,9 @@ exports.deleteComponentContactFormWithName = function (result) {
 /* AGENDA */
 exports.createNewComponentAgenda = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "createNewComponentAgenda",
         options: options
     };
@@ -829,8 +829,8 @@ exports.createNewComponentAgenda = function (result) {
 
 exports.createNewComponentAgendaWithName = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -840,9 +840,9 @@ exports.createNewComponentAgendaWithName = function (result) {
 
 exports.deleteAgenda = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "deleteAgenda",
         options: options
     };
@@ -851,8 +851,8 @@ exports.deleteAgenda = function (result) {
 
 exports.deleteAgendaWithName = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value,
         processValue: true
     };
@@ -873,7 +873,7 @@ exports.createNewComponentCra = function (result) {
  * @returns {function name and user instruction}
  */
 exports.createNewComponentAddress = function (result) {
-    var options = {
+    let options = {
         componentName: "Address",
         instruction: result[0]
     };
@@ -886,7 +886,7 @@ exports.createNewComponentAddress = function (result) {
  * @returns {function name and user instruction}
  */
 exports.createNewComponentAddressWithName = function (result) {
-    var options = {
+    let options = {
         componentName: result[1],
         instruction: result[0]
     };
@@ -907,9 +907,9 @@ exports.deleteComponentAddress = function (result) {
 /* PRINT */
 exports.createNewComponentPrint = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "createNewComponentPrint",
         options: options
     };
@@ -918,14 +918,14 @@ exports.createNewComponentPrint = function (result) {
 
 exports.createNewComponentPrintWithName = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "createNewComponentPrint",
         options: options
     };
@@ -934,9 +934,9 @@ exports.createNewComponentPrintWithName = function (result) {
 
 exports.deleteComponentPrint = function (result) {
 
-    var options = {};
+    let options = {};
 
-    var attr = {
+    let attr = {
         function: "deleteComponentPrint",
         options: options
     };
@@ -945,14 +945,14 @@ exports.deleteComponentPrint = function (result) {
 
 exports.deleteComponentPrintWithName = function (result) {
 
-    var value = result[1];
+    let value = result[1];
 
-    var options = {
+    let options = {
         value: value,
         processValue: true
     };
 
-    var attr = {
+    let attr = {
         function: "deleteComponentPrint",
         options: options
     };
@@ -970,7 +970,7 @@ exports.createComponentDocumentTemplate = function (result) {
 };
 
 exports.createComponentDocumentTemplateWithName = function (result) {
-    var options={
+    let options={
         instruction:result[0],
         componentName:result[1]
     };
@@ -995,12 +995,12 @@ exports.createComponentChat = function (result) {
 
 // ******* INTERFACE Actions ******* //
 exports.setLogo = function (result) {
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value
     };
 
-    var attr = {
+    let attr = {
         function: "setLogo",
         options: options
     };
@@ -1008,19 +1008,19 @@ exports.setLogo = function (result) {
 };
 
 exports.removeLogo = function (result) {
-    var attr = {};
+    let attr = {};
     attr.function = "removeLogo";
     return attr;
 };
 
 exports.setLayout = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value
     };
 
-    var attr = {
+    let attr = {
         function: "setLayout",
         options: options
     };
@@ -1029,7 +1029,7 @@ exports.setLayout = function (result) {
 
 exports.listLayout = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listLayout"
     };
     return attr;
@@ -1037,12 +1037,12 @@ exports.listLayout = function (result) {
 
 exports.setTheme = function (result) {
 
-    var value = result[1];
-    var options = {
+    let value = result[1];
+    let options = {
         value: value
     };
 
-    var attr = {
+    let attr = {
         function: "setTheme",
         options: options
     };
@@ -1051,7 +1051,7 @@ exports.setTheme = function (result) {
 
 exports.listTheme = function (result) {
 
-    var attr = {
+    let attr = {
         function: "listTheme"
     };
     return attr;
@@ -1062,7 +1062,7 @@ exports.listIcon = function (result) {
 }
 
 exports.setIcon = function (result) {
-    var attr = {
+    let attr = {
         function: "setIcon",
         iconValue: result[1]
     };
@@ -1070,7 +1070,7 @@ exports.setIcon = function (result) {
 }
 
 exports.setIconToEntity = function (result) {
-    var attr = {
+    let attr = {
         function: "setIconToEntity",
         iconValue: result[1],
         entityTarget: result[2]
@@ -1100,7 +1100,7 @@ function getRightWidgetType(originalType) {
 }
 
 function buildAttrForPiechart(result) {
-    var attr = {
+    let attr = {
         function: 'createWidgetPiechart',
         widgetType: 'piechart',
         widgetInputType: 'Piechart'
@@ -1118,21 +1118,21 @@ function buildAttrForPiechart(result) {
 }
 
 exports.createWidgetPiechart = function (result) {
-    var attr = buildAttrForPiechart(result);
+    let attr = buildAttrForPiechart(result);
     attr.legend = true;
 
     return attr;
 }
 
 exports.createWidgetPiechartWithoutLegend = function (result) {
-    var attr = buildAttrForPiechart(result);
+    let attr = buildAttrForPiechart(result);
     attr.legend = false;
 
     return attr;
 }
 
 exports.createWidgetLastRecordsWithLimit = function (result) {
-    var attr = {
+    let attr = {
         function: 'createWidgetLastRecords',
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
@@ -1150,14 +1150,14 @@ exports.createWidgetLastRecordsWithLimit = function (result) {
     }
 
     // Remove unwanted spaces from columns
-    for (var i = 0; i < attr.columns.length; i++)
+    for (let i = 0; i < attr.columns.length; i++)
         attr.columns[i] = attr.columns[i].trim();
 
     return attr;
 }
 
 exports.createWidgetLastRecords = function (result) {
-    var attr = {
+    let attr = {
         function: 'createWidgetLastRecords',
         widgetType: 'lastrecords',
         widgetInputType: 'last records',
@@ -1174,15 +1174,15 @@ exports.createWidgetLastRecords = function (result) {
     }
 
     // Remove unwanted spaces from columns
-    for (var i = 0; i < attr.columns.length; i++)
+    for (let i = 0; i < attr.columns.length; i++)
         attr.columns[i] = attr.columns[i].trim();
 
     return attr;
 }
 
 exports.createWidgetOnEntity = function (result) {
-    var originalType = result[1];
-    var finalType = getRightWidgetType(originalType);
+    let originalType = result[1];
+    let finalType = getRightWidgetType(originalType);
 
     if (finalType == -1)
         return {error: 'error.missingParametersInstruction'};
@@ -1196,8 +1196,8 @@ exports.createWidgetOnEntity = function (result) {
 }
 
 exports.createWidget = function (result) {
-    var originalType = result[1];
-    var finalType = getRightWidgetType(originalType);
+    let originalType = result[1];
+    let finalType = getRightWidgetType(originalType);
 
     if (finalType == -1)
         return {error: 'error.missingParametersInstruction'};
@@ -1246,7 +1246,7 @@ exports.apero = function (result) {
     }
 }
 
-var training = {
+let training = {
     "apero": [
         "Apéro !"
     ],
@@ -2755,16 +2755,16 @@ var training = {
 // ******* Parse *******
 exports.parse = function (instruction) {
 
-    var instructionResult = {
+    let instructionResult = {
         instructionLength: 0
     };
 
-    for (var action in training) {
-        for (var i = 0; i < training[action].length; i++) {
-            var regStr = training[action][i];
-            var regExp = new RegExp(regStr, "ig");
+    for (let action in training) {
+        for (let i = 0; i < training[action].length; i++) {
+            let regStr = training[action][i];
+            let regExp = new RegExp(regStr, "ig");
 
-            var result = regExp.exec(instruction);
+            let result = regExp.exec(instruction);
             if (result !== null) {
                 /* Get the most complicated instruction found */
                 if (instructionResult.instructionLength < regStr.length) {
@@ -2777,7 +2777,7 @@ exports.parse = function (instruction) {
             }
         }
     }
-    var attr = {};
+    let attr = {};
     if (typeof instructionResult.action !== "undefined") {
         attr = this[instructionResult.action](instructionResult.result);
         attr.instruction = instruction;
@@ -2791,52 +2791,52 @@ exports.parse = function (instruction) {
 // ******* Completion *******
 exports.complete = function (instruction) {
 
-    var answers = [];
-    var p = 0;
+    let answers = [];
+    let p = 0;
 
     // Check all training key phrases
-    for (var action in training) {
+    for (let action in training) {
 
         // Check each blocks
-        for (var i = 0; i < training[action].length; i++) {
+        for (let i = 0; i < training[action].length; i++) {
 
             // Template to compare to
-            var template = training[action][i].split(" ");
+            let template = training[action][i].split(" ");
 
             // Split current key phrase and instructions into arrays to loop
-            var instr = instruction.trim().split(" ");
+            let instr = instruction.trim().split(" ");
 
-            var k = 0; // index in template
-            var m = 0; // index in instruction
+            let k = 0; // index in template
+            let m = 0; // index in instruction
 
-            var l = instr.length;
-            var n = template.length;
+            let l = instr.length;
+            let n = template.length;
 
-            var answer = " ";
-            var valid = true;
-            var variable = false;
+            let answer = " ";
+            let valid = true;
+            let letiable = false;
             while ((m < l) && (k < n) && (valid)) {
                 // Check if words are the same, goto next word
                 if (template[k] == "(.*)" || template[k] == instr[m]) {
-                    variable = false;
+                    letiable = false;
                     k++;
                 } else {
                     // Check if beginning of word are the same
-                    var sublen = instr[m].length;
+                    let sublen = instr[m].length;
                     if (template[k].substring(0, sublen) == instr[m]) {
                         // Do not increment k, we are still on keyword
-                        variable = false;
+                        letiable = false;
                     } else {
-                        // If we parse the variable value
+                        // If we parse the letiable value
                         if (template[k] == "(.*)") {
                             // Check next word
                             if (template[k + 1]) {
                                 k++;
-                                variable = true;
+                                letiable = true;
                             }
                         } else {
-                            // If we are not parsing a variable, it means template is not appropriate => Exit
-                            if (!variable)
+                            // If we are not parsing a letiable, it means template is not appropriate => Exit
+                            if (!letiable)
                                 valid = false;
                         }
                     }
@@ -2847,8 +2847,8 @@ exports.complete = function (instruction) {
 
             // Instruction has respected template, so send next keyword if any
             if ((valid) && (m == l)) {
-                var found = false;
-                var firstLoop = true;
+                let found = false;
+                let firstLoop = true;
 
                 while ((k < n) && !found) {
                     // Return next keyword
@@ -2857,12 +2857,12 @@ exports.complete = function (instruction) {
                     else {
                         if (template[k - 1] == "type")
                             answer = answer + "[type] ";
-                        // Return [variable] to explain this is something dynamic
+                        // Return [letiable] to explain this is something dynamic
                         else
-                            answer = answer + "[variable] ";
+                            answer = answer + "[letiable] ";
 
-                        // If first loop on variable, we need to display possible end of instruction
-                        // Else, it means we have keyword at the beginning of suggestion, so we cut on variable step
+                        // If first loop on letiable, we need to display possible end of instruction
+                        // Else, it means we have keyword at the beginning of suggestion, so we cut on letiable step
                         if (!firstLoop)
                             found = true;
                     }
@@ -2908,7 +2908,7 @@ exports.complete = function (instruction) {
     }
 
     // Filter array of results (remove double values)
-    var i, j, len = answers.length,
+    let i, j, len = answers.length,
             out = [],
             obj = {};
     for (i = 0; i < len; i++)

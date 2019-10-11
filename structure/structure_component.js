@@ -1,9 +1,9 @@
-var fs = require("fs-extra");
-var domHelper = require('../utils/jsDomHelper');
-var translateHelper = require("../utils/translate");
-var helpers = require("../utils/helpers");
-var printHelper = require("../utils/print_helper");
-var moment = require("moment");
+const fs = require("fs-extra");
+const domHelper = require('../utils/jsDomHelper');
+const translateHelper = require("../utils/translate");
+const helpers = require("../utils/helpers");
+const printHelper = require("../utils/print_helper");
+const moment = require("moment");
 
 function setupComponentModel(idApplication, folderComponent, componentName, filename, callback) {
     // CREATE MODEL FILE
@@ -699,36 +699,38 @@ exports.newAgenda = function (attr, callback) {
     });
 }
 
-exports.deleteAgenda = function (attr, callback) {
+exports.deleteAgenda = (attr, callback) => {
 
-    var idApplication = attr.id_application;
-    var urlComponent = attr.options.urlValue.toLowerCase();
+    let appID = attr.id_application;
+    let urlComponent = attr.options.urlValue.toLowerCase();
 
-    var baseFolder = __dirname + '/../workspace/' + idApplication;
-    var layoutFileName = baseFolder + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+    let baseFolder = __dirname + '/../workspace/' + appID;
+    let layoutFileName = baseFolder + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+
+    // Remove agenda controller
+    fs.unlinkSync(baseFolder + '/routes/' + attr.options.value + '.js');
 
     // Delete views folder
     helpers.rmdirSyncRecursive(baseFolder + '/views/' + attr.options.value);
 
-    domHelper.read(layoutFileName).then(function ($) {
-
+    domHelper.read(layoutFileName).then($ => {
         $("#" + urlComponent + "_menu_item").remove();
         // Write back to file
-        domHelper.write(layoutFileName, $).then(function () {
+        domHelper.write(layoutFileName, $).then(_ => {
 
             // Clean empty and useless dust helper created by removing <li>
-            var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+            let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
             // Remove empty dust helper
             layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
-            var writeStream = fs.createWriteStream(layoutFileName);
+            let writeStream = fs.createWriteStream(layoutFileName);
             writeStream.write(layoutContent);
             writeStream.end();
-            writeStream.on('finish', function () {
+            writeStream.on('finish', _ => {
                 callback();
             });
         });
-    }).catch(function (err) {
+    }).catch(err => {
         callback(err, null);
     });
 }

@@ -52,6 +52,29 @@ exports.createUser = async (infos) => {
     }
 }
 
+exports.updateUser = async (user, obj) => {
+    let options = {
+        uri: gitlabURL + "/users/"+user.id,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Private-Token': token
+        },
+        qs: obj,
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    console.log("GITLAB CALL => updateUser");
+
+    try {
+        let user = await request(options);
+        return user.length == 0 ? false : user[0];
+    } catch(err){
+        console.error(err);
+        throw new Error("An error occured while getting gitlab user.");
+    }
+}
+
 exports.createProjectForUser = async (infos) => {
     let options = {
         uri: gitlabURL + "/projects/user/"+infos.user_id,
@@ -96,6 +119,30 @@ exports.addMemberToProject = async (infos) => {
     }
 }
 
+exports.getAllProjects = async () => {
+    let options = {
+        uri: gitlabURL + "/projects",
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Private-Token': token
+        },
+        qs: {
+            search: globalConf.host // Reduce search on current generator repository
+        },
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    console.log("GITLAB CALL => getAllProjects");
+
+    try {
+        return await request(options);
+    } catch(err){
+        console.error(err);
+        throw new Error("An error occured while getting gitlab project.");
+    }
+}
+
 exports.getProject = async (projectName) => {
     let options = {
         uri: gitlabURL + "/projects",
@@ -103,6 +150,9 @@ exports.getProject = async (projectName) => {
         headers: {
             'Content-Type': 'application/json',
             'Private-Token': token
+        },
+        qs: {
+            search: globalConf.host // Reduce search on current generator repository
         },
         json: true // Automatically stringifies the body to JSON
     };
@@ -116,6 +166,74 @@ exports.getProject = async (projectName) => {
     } catch(err){
     	console.error(err);
     	throw new Error("An error occured while getting gitlab project.");
+    }
+}
+
+exports.getProjectForUser = async (userID) => {
+    let options = {
+        uri: gitlabURL + "/users/"+userID+"/projects",
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Private-Token': token
+        },
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    console.log("GITLAB CALL => getProjectsForUser");
+
+    try {
+        return await request(options);
+    } catch(err){
+        console.error(err);
+        throw new Error("An error occured while getting gitlab project.");
+    }
+}
+
+exports.addUserToProject = async (userID, projectID) => {
+    let options = {
+        uri: gitlabURL + "/projects/"+projectID+"/members",
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Private-Token': token
+        },
+        qs: {
+            user_id: userID,
+            access_level: 30
+        },
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    console.log("GITLAB CALL => addUserToProject");
+
+    try {
+        return await request(options);
+    } catch(err) {
+        console.warn("An error occured while adding user to gitlab project.");
+        console.error(err.message);
+        // throw new Error("An error occured while adding user to gitlab project.");
+    }
+}
+
+exports.removeUserFromProject = async (userID, projectID) => {
+    let options = {
+        uri: gitlabURL + "/projects/"+projectID+"/members/"+userID,
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Private-Token': token
+        },
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    console.log("GITLAB CALL => removeUserFromProject");
+
+    try {
+        return await request(options);
+    } catch(err){
+        console.warn("An error occured while remove user from gitlab project.")
+        console.error(err.message);
     }
 }
 

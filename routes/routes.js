@@ -65,10 +65,29 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
     // Get gitlab instance
     if(gitlabConf.doGit){
         gitlab.getUser(email_user).then(gitlabUser => {
-            req.session.gitlab = {
-                user: gitlabUser
-            };
-            res.redirect('/default/home');
+
+            if (gitlabUser){
+                req.session.gitlab = {
+                    user: gitlabUser
+                };
+                return res.redirect('/default/home');
+            }
+
+            // Generate gitlab user if not found
+            let usernameGitlab = email_user.replace(/\@/g, "").replace(/\./g, "").trim();
+            gitlabUser = gitlab.createUser({
+                email: email_user,
+                password: req.body.password_user,
+                username: usernameGitlab,
+                name: usernameGitlab,
+                admin: false,
+                skip_confirmation: true
+            }).then(gitlabUser => {
+                req.session.gitlab = {
+                    user: gitlabUser
+                };
+                res.redirect('/default/home');
+            })
         }).catch(err => {
             console.error(err);
             req.session.toastr = [{
@@ -126,17 +145,15 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
         if(gitlabConf.doGit){
             let gitlabUser = await gitlab.getUser(email_user);
 
-            if (!gitlabUser) {
+            if (!gitlabUser)
                 gitlabUser = await gitlab.createUser({
                     email: email_user,
                     password: req.body.password_user2,
                     username: usernameGitlab,
-                    name: email_user,
-                    website_url: globalConf.host,
+                    name: usernameGitlab,
                     admin: false,
-                    confirm: false
+                    skip_confirmation: true
                 })
-            }
 
             req.session.gitlab = {
                 user: gitlabUser
@@ -183,7 +200,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             login: req.body.login.toLowerCase(),
             email: req.body.mail
         }
-    }).then(function(user){
+    }).then(user => {
         if(!user){
             req.session.toastr = [{
                 message: "login.first_connection.userNotExist",
@@ -192,8 +209,16 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
             return res.render('login/reset_password');
         }
 
+        if(!user.password && !user.enabled){
+            req.session.toastr = [{
+                message: "login.first_connection.userNotActivate",
+                level: "error"
+            }];
+            return res.redirect('/first_connection');
+        }
+
         // Create unique token and insert into user
-        var token = crypto.randomBytes(64).toString('hex');
+        let token = crypto.randomBytes(64).toString('hex');
 
         models.User.update({
             token_password_reset: token
@@ -286,77 +311,94 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
     let login_user = req.body.login_user.toLowerCase();
     let email_user = req.body.email_user;
 
-    models.User.findOne({
-        where: {
-            login: login_user,
-            email: email_user,
-            $or: [{password: ""}, {password: null}]
+    (async () => {
+        let user = await models.User.findOne({
+            where: {
+                login: login_user,
+                email: email_user,
+                $or: [{password: ""}, {password: null}]
+            }
+        });
+
+        if(req.body.password_user != req.body.password_user2 || req.body.password_user.length < 8) {
+            throw {
+                message: "login.first_connection.passwordNotMatch",
+                redirect: '/reset_password_form/'+user.token_password_reset
+            }
         }
-    }).then(function(user){
-        if(req.body.password_user == req.body.password_user2 && req.body.password_user.length >= 8){
-            let password = bcrypt.hashSync(req.body.password_user2, null, null);
-            if(user){
-                if(user.password == "" || user.password == null){
-                    models.User.update({
-                        password: password,
-                        token_password_reset: null
-                    }, {
-                        where: {
-                            id: user.id
-                        }
-                    }).then(function(){
-                        // Autologin after first connection form done
-                        models.User.findOne({
-                            where: {
-                                id: user.id
-                            }
-                        }).then(function(connectedUser){
-                            req.login(connectedUser, function(err) {
-                                if (err) {
-                                    console.error(err);
-                                    req.session.toastr = [{
-                                        message: err.message,
-                                        level: "error"
-                                    }];
-                                    res.redirect('/login');
-                                } else{
-                                    req.session.toastr = [{
-                                        message: "login.passwordReset",
-                                        level: "success"
-                                    }];
-                                    res.redirect('/default/home');
-                                }
-                            });
-                        });
-                    });
-                } else{
-                    req.session.toastr = [{
-                        message: "login.first_connection.hasAlreadyPassword",
-                        level: "error"
-                    }];
-                    res.redirect('/login');
-                }
-            } else{
+
+        let password = bcrypt.hashSync(req.body.password_user2, null, null);
+
+        if(!user){
+            throw {
+                message: "login.first_connection.userNotExist",
+                redirect: '/login'
+            }
+        }
+
+        if(user.password && user.password != ''){
+            throw {
+                message: "login.first_connection.hasAlreadyPassword",
+                redirect: '/login'
+            }
+        }
+
+        await models.User.update({
+            password: password,
+            token_password_reset: null
+        }, {
+            where: {
+                id: user.id
+            }
+        });
+
+        // Update Gitlab password
+        if(gitlabConf.doGit){
+            let gitlabUser = await gitlab.getUser(email_user);
+
+            if(!gitlabUser)
+                console.warn('Cannot update gitlab user password, user not found.');
+            else {
+                await gitlab.updateUser(gitlabUser, {
+                    password: req.body.password_user2,
+                    skip_reconfirmation: true
+                });
+            }
+        }
+
+        // Autologin after first connection form done
+        let connectedUser = await models.User.findOne({
+            where: {
+                id: user.id
+            }
+        });
+
+        return connectedUser;
+
+    })().then(connectedUser => {
+        req.login(connectedUser, err => {
+            if (err) {
+                console.error(err);
                 req.session.toastr = [{
-                    message: "login.first_connection.userNotExist",
+                    message: err.message,
                     level: "error"
                 }];
                 res.redirect('/login');
+            } else {
+                req.session.toastr = [{
+                    message: "login.passwordReset",
+                    level: "success"
+                }];
+                res.redirect('/default/home');
             }
-        } else{
-            req.session.toastr = [{
-                message: "login.first_connection.passwordNotMatch",
-                level: "error"
-            }];
-            res.redirect('/reset_password_form/'+user.token_password_reset);
-        }
-    }).catch(function(err){
+        });
+    }).catch(err => {
         req.session.toastr = [{
             message: err.message,
             level: "error"
         }];
-        res.redirect('/login');
-    });
+        res.redirect(err.redirect ? err.redirect : '/login');
+    })
 });
 
 // Logout

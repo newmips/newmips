@@ -13,7 +13,8 @@
             "success": "Mise à jour effectuée. Vous pouvez désormais vous connecter avec votre identifiant et votre nouveau mot de passe.",
             "hasAlreadyPassword": "Mise à jour impossible. Cet utilisateur possède déjà un mot de passe.",
             "userNotExist": "Erreur, cet utilisateur n'existe pas.",
-            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 8 caractères."
+            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 8 caractères.",
+            "userNotActivate": "Votre compte n'est pas activé, merci de faire la procédure de première connexion."
         },
         "authentication": "Connexion",
         "login": "Login",
@@ -109,7 +110,8 @@
             "modal_title": "Comment cloner cette application ?",
             "text1": "Afin de pouvoir cloner votre application il suffit d'executer cette commande :",
             "text2": "Votre identifiant Gitlab est :",
-            "text3": "et votre mot de passe est celui de votre compte générateur"
+            "text3": "et votre mot de passe est celui de votre compte générateur ou de votre compte Gitlab si vous l'avez changé sur gitlab",
+            "text4": "(Si vous avez oublié votre mot de passe vous pouvez faire une procédure de changement de mot de passe sur le générateur, cela changera aussi celui de votre compte gitlab)"
         },
         "no_project_1": "Aucune application générée.",
         "no_project_2": "Vous pouvez créer une application directement depuis <a href='/'>l'accueil</a> ou à l'aide d'un <a href='/instruction_script/index'>script</a>."
@@ -237,7 +239,7 @@
         "textthree": "simplement revenir en arrière.",
         "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
         "valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (<30) après génération (%s).",
-        "cannotFindInstruction": "Désolé, je ne comprend pas ce que vous me demandez.",
+        "cannotFindInstruction": "Désolé, je ne comprends pas ce que vous me demandez.",
         "missingParametersInstruction": "Ils manque des paramètres à votre instruction. Consultez la documentation"
     },
     "back":{
