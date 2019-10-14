@@ -486,8 +486,10 @@ function init_datatable(tableID, doPagination, context) {
                     } else if (columns[meta.col].type == 'password'){
                         cellValue = '●●●●●●●●●';
                     } else if(columns[meta.col].type == 'text'){
-                        if(cellValue && cellValue.length > 75)
-                            cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + $.parseHTML(cellValue.slice(0, 75))[0].innerHTML + "...<span style='display: none;'>" + cellValue + "</span></span>";
+                        if(cellValue && cellValue.length > 75){
+                            var shortText = $.parseHTML(cellValue.slice(0, 75))[0].data ? $.parseHTML(cellValue.slice(0, 75))[0].data : $.parseHTML(cellValue.slice(0, 75))[0].innerHTML;
+                            cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + shortText + "...<span style='display: none;'>" + cellValue + "</span></span>";
+                        }
                     }
                 }
                 return cellValue;
