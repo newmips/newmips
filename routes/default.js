@@ -15,7 +15,33 @@ var bot = require('../services/bot.js');
 //Sequelize
 var models = require('../models/');
 
+const Metadata = require('../database/metadata');
+
 router.get('/home', block_access.isLoggedIn, function(req, res) {
+
+    // --- TEST METADATA ---
+
+    const myMetadata = new Metadata();
+    const myApp58 = myMetadata.getApplication('test_metadata');
+    const newModule = myApp58.addModule("TESTNEWMODULE");
+    newModule.addEntity('TESTNEWENTITY');
+    myApp58.addModule("TESTNEWMODULE");
+    myApp58.save();
+
+    console.log(myApp58);
+
+
+
+
+
+
+
+
+
+
+
+
+
     var data = {};
     // Set ReturnTo URL in cas of unauthenticated users trying to reach a page
     req.session.returnTo = req.protocol + '://' + req.get('host') + req.originalUrl;
