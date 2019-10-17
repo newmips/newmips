@@ -1,37 +1,44 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var multer = require('multer');
-var moment = require('moment');
-var request = require('request');
-var docBuilder = require('../utils/api_doc_builder');
-var upload = multer().single('file');
-var Jimp = require("jimp");
-var logger = require('../utils/logger');
-var process_manager = require('../services/process_manager.js');
-var process_server_per_app = process_manager.process_server_per_app;
-var session_manager = require('../services/session.js');
-var designer = require('../services/designer.js');
-var fs = require('fs-extra');
-var parser = require('../services/bot.js');
-var globalConf = require('../config/global.js');
-var gitlabConf = require('../config/gitlab.js');
+const express = require('express');
+const router = express.Router();
+const fs = require('fs-extra');
+const moment = require('moment');
+const request = require('request');
+const models = require('../models/');
+const readline = require('readline');
+const multer = require('multer');
+const upload = multer().single('file');
+const Jimp = require("jimp");
 
-// Gitlab API
+// Config
+const globalConf = require('../config/global.js');
+const gitlabConf = require('../config/gitlab.js');
+
+// Services
+const process_manager = require('../services/process_manager.js');
+const process_server_per_app = process_manager.process_server_per_app;
+const session_manager = require('../services/session.js');
+const designer = require('../services/designer.js');
+const parser = require('../services/bot.js');
 const gitlab = require('../services/gitlab_api');
 
-var helpers = require('../utils/helpers');
-var attrHelper = require('../utils/attr_helper');
-var gitHelper = require('../utils/git_helper');
-var models = require('../models/');
-var readline = require('readline');
-var structure_application = require('../structure/structure_application');
+// Utils
+const block_access = require('../utils/block_access');
+const docBuilder = require('../utils/api_doc_builder');
+const logger = require('../utils/logger');
+const helpers = require('../utils/helpers');
+const dataHelper = require('../utils/data_helper');
+const gitHelper = require('../utils/git_helper');
 
-var pourcent_generation = {};
+// Metadata
+const metadata = require('../database/metadata')();
+
+const structure_application = require('../structure/structure_application');
+
+let pourcent_generation = {};
 
 // Exclude from Editor
-var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
+let excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
+let excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 function initPreviewData(idApplication, data){
     return new Promise(function(resolve, reject) {
@@ -97,98 +104,57 @@ function setChat(req, idApp, idUser, user, content, params, isError){
     }
 }
 
-function execute(req, instruction) {
-    return new Promise(function(resolve, reject) {
+function execute(req, instruction, __) {
+    return new Promise((resolve, reject) => {
         try {
 
-            /* Lower the first word for the basic parser jison */
-            instruction = attrHelper.lowerFirstWord(instruction);
+            console.log(instruction);
+
+            // Lower the first word for the basic parser json
+            instruction = dataHelper.lowerFirstWord(instruction);
 
             // Instruction to be executed
-            var attr = parser.parse(instruction);
+            let data = parser.parse(instruction);
 
-            /* Rework the attr to get value for the code / url / show */
-            attr = attrHelper.reworkAttr(attr);
+            // Rework the data to get value for the code / url / show
+            data = dataHelper.reworkData(data);
 
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-            attr.googleTranslate = req.session.toTranslate || false;
-            attr.lang_user = req.session.lang_user;
-            attr.currentUser = req.session.passport.user;
+            if (typeof data.error !== 'undefined')
+                throw data.error;
 
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
-            else
-                attr.gitlabUser = null;
+            data.app_name = req.session.app_name;
+            data.module_name = req.session.module_name;
+            data.entity_name = req.session.entity_name;
+            data.googleTranslate = req.session.toTranslate || false;
+            data.lang_user = req.session.lang_user;
+            data.currentUser = req.session.passport.user;
+            data.gitlabUser = null;
 
-            var __ = require("../services/language")(req.session.lang_user).__;
+            if(typeof req.session.gitlab !== 'undefined'
+                && typeof req.session.gitlab.user !== 'undefined'
+                && !isNaN(req.session.gitlab.user.id))
+                data.gitlabUser = req.session.gitlab.user;
 
-            if (typeof attr.error !== 'undefined')
-                throw attr.error;
+            if(data.function != 'createNewApplication')
+                data.application = metadata.getApplication(data.app_name);
 
-            // Function is finally executed as "global()" using the static dialog designer
-            // "Options" and "Session values" are sent using the attr attribute
-            return designer[attr.function](attr, function(err, info) {
+            designer[data.function](data, (err, info) => {
                 if (err) {
-                    var msgErr = __(err.message, err.messageParams || []);
-                    // Error handling code goes here
+                    // Error handling
+                    let msgErr = __(err.message, err.messageParams || []);
                     console.error(err);
                     return reject(msgErr);
                 }
 
-                switch(attr.function){
-                    case "selectProject":
-                    case "createNewProject":
-                        req.session.id_project = info.insertId;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "selectApplication":
-                    case "createNewApplication":
-                        req.session.id_application = info.insertId;
-                        req.session.name_application = info.name_application;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "selectModule":
-                    case "createNewModule":
-                        req.session.id_module = info.insertId;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "createNewEntity":
-                    case "selectEntity":
-                    case "createNewEntityWithBelongsTo":
-                    case "createNewEntityWithHasMany":
-                    case "createNewBelongsTo":
-                    case "createNewHasMany":
-                    case "createNewFieldRelatedTo":
-                        req.session.id_data_entity = info.insertId;
-                        break;
-                    case "deleteProject":
-                        req.session.id_project = null;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "deleteApplication":
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "deleteModule":
-                        req.session.id_module = info.homeID;
-                        req.session.id_data_entity = null;
-                        break;
-                }
+                // Save metadata
+                if(data.application)
+                    data.application.save();
 
-                var msgInfo = __(info.message, info.messageParams || []);
-                resolve();
+                session_manager.setSession(data.function, req, info);
+                return resolve();
             });
-        } catch (e) {
-            reject(e);
+        } catch (err) {
+            reject(err);
         }
     });
 }
@@ -380,12 +346,12 @@ router.post('/fastpreview', block_access.hasAccessApplication, function(req, res
             setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
 
             /* Lower the first word for the basic parser json */
-            instruction = attrHelper.lowerFirstWord(instruction);
+            instruction = dataHelper.lowerFirstWord(instruction);
 
             /* Parse the instruction to get an object for the designer */
             var attr = parser.parse(instruction);
             /* Rework the attr to get value for the code / url / show */
-            attr = attrHelper.reworkAttr(attr);
+            attr = dataHelper.reworkData(attr);
             data.iframe_url = process_manager.childUrl(req, attr.function);
             // We simply add session values in attributes array
             attr.instruction = instruction;
@@ -739,73 +705,28 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     })
 });
 
-router.post('/execute', block_access.isLoggedIn, function(req, res) {
-
-    var instruction = req.body.instruction || '';
-
-    var data = {
-        instruction: instruction
-    };
-
-    instruction = instruction.split(';');
-
-    var done = 0;
-    for (var i = 0; i < instruction.length; i++) {
-        execute(req, instruction[i]).then(function() {
-            if (++done == instruction.length) {
-                data.id_application = req.session.id_application;
-                res.send(data);
-            }
-        }).catch(function(err) {
-            console.error(err);
-            if (++done == instruction.length) {
-                data.id_application = req.session.id_application;
-                res.status(500).send(err);
-            }
-        });
-    }
+router.post('/delete', block_access.isLoggedIn, function(req, res) {
+    execute(req, "delete application " + req.body.appName).then(_ => {
+        res.status(200).send(data);
+    }).catch(err => {
+        console.error(err);
+        res.status(500).send(err);
+    });
 });
 
 router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     pourcent_generation[req.session.passport.user.id] = 1;
-
-    var name_project = req.body.project || '';
-    var name_application = req.body.application || '';
-    var select_project = req.body.selectProject || '';
-
-    if(select_project == "" && (name_project == "" || name_application == "")){
-        console.error("Une erreur est survenue. Projet et/ou application non renseigné.");
+    if (req.body.application == "") {
         req.session.toastr = [{
-            message: "Une erreur est survenue. Projet et/ou application non renseigné.",
+            message: "Merci de renseigner un nom d'application.",
             level: "error"
         }];
         return res.redirect('/default/home');
     }
-    else if(name_application == ""){
-        console.error("Une erreur est survenue. Nom d'application non renseigné.");
-        req.session.toastr = [{
-            message: "Une erreur est survenue. Nom d'application non renseigné.",
-            level: "error"
-        }];
-        return res.redirect('/default/home');
-    }
-    var data = {
-        "error": 1,
-        "menu": "live",
-        "answers": "",
-        "instruction": instructions
-    };
 
-    var done = 0;
-
-    var instructions = [];
-    if(select_project != "")
-        instructions.push("select project " + select_project);
-    else
-        instructions.push("create project " + name_project);
-
-    instructions.push("create application " + name_application);
+    let instructions = [];
+    instructions.push("create application " + req.body.application);
     instructions.push("create module home");
 
     // Authentication module
@@ -955,27 +876,28 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     // Set home module selected
     instructions.push("select module home");
 
-    function recursiveExecute(recurInstructions, idx) {
-        // All instructions executed
-        if (recurInstructions.length == idx) {
-            structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
-                docBuilder.build(req.session.id_application);
-                res.redirect('/application/preview?id_application=' + req.session.id_application);
-            })
-            return;
+    // Needed for translation purpose
+    let __ = require("../services/language")(req.session.lang_user).__;
+
+    (async () => {
+        for (let i = 0; i < instructions.length; i++) {
+            await execute(req, instructions[i], __);
+            pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
         }
-        execute(req, recurInstructions[idx]).then(function(){
-            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
-            recursiveExecute(recurInstructions, ++idx);
-        }).catch(function(err){
-            req.session.toastr = [{
-                message: err,
-                level: "error"
-            }];
-            return res.redirect('/default/home');
-        });
-    }
-    recursiveExecute(instructions, 0);
+        await structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.app_name)
+        return;
+    })().then(_ => {
+        // Build API documentation
+        docBuilder.build(req.session.id_application);
+        res.redirect('/application/preview/' + req.session.id_application);
+    }).catch(err => {
+        console.error(err);
+        req.session.toastr = [{
+            message: err.message,
+            level: "error"
+        }];
+        return res.redirect('/default/home');
+    });
 });
 
 router.get('/get_pourcent_generation', block_access.isLoggedIn, function(req, res) {

@@ -20,6 +20,12 @@ class Entity {
 		return this._components;
 	}
 
+	getField(field_name) {
+        if(this._fields.filter(x => x.name == field_name).length > 0)
+            return this._fields.filter(x => x.name == field_name)[0];
+        return false;
+    }
+
 	addField(field) {
 
     	if(typeof field === 'string')

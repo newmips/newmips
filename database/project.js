@@ -1,205 +1,181 @@
 // **** Database Generator Project ****
 
 //Sequelize
-var models = require('../models/');
+const models = require('../models/');
 
 // Select
-exports.selectProject = function(attr, callback) {
-
+exports.selectProject = (attr, callback) => {
     // Set options variable using the attribute array
-    var options = attr.options;
-    var type_option;
-    var where = {};
+    let options = attr.options;
+    let type_option;
+    let where = {
+        where: {}
+    };
 
     if (isNaN(options.value)) {
-        // Value is the name of project
-        var nameProject = options.value;
-        where = {
-            where: {
-                name: nameProject
-            }
-        }
+        // Value is the displayName of project
+        where.where.displayName = options.value;
         type_option = "Name"
     } else {
         // Value is the ID of project
-        var id_project = options.value;
-        where = {
-            where: {
-                id: id_project
-            }
-        }
+        where.where.id = options.value;
         type_option = "ID"
     }
 
-    models.Project.findOne(where).then(function(project) {
+    models.Project.findOne(where).then(project => {
         if (!project) {
-            var err = new Error();
-            err.message = "database.project.notFound.withThis"+type_option;
+            let err = new Error();
+            err.message = "database.project.notFound.withThis" + type_option;
             err.messageParams = [options.value];
             return callback(err, null);
         }
 
-        var info = {
+        callback(null, {
             insertId: project.id,
             message: "database.project.select.selected",
-            messageParams: [project.name, project.id]
-        };
-        callback(null, info);
-    }).catch(function(err) {
+            messageParams: [project.displayName, project.id]
+        });
+    }).catch(err => {
         callback(err, null);
     });
 }
 
 // Create
-exports.createNewProject = function(attr, callback) {
-
-    // Set options variable using the attribute array
-    var options = attr.options;
-    var name_project = options.value;
-    var show_name_project = options.showValue;
-
+exports.createNewProject = (attr, callback) => {
+    let options = attr.options;
     models.Project.create({
-        name: show_name_project,
-        displayName: show_name_project,
-        codeName: name_project,
+        displayName: options.showValue,
+        codeName: options.value,
         version: 1
-    }).then(function(created_project) {
-        var info = {
+    }).then(created_project => {
+        callback(null, {
             insertId: created_project.id,
             message: "database.project.create.success",
-            messageParams: [show_name_project, created_project.id]
-        }
-        callback(null, info);
-    }).catch(function(err) {
+            messageParams: [options.showValue, created_project.id]
+        });
+    }).catch(err => {
         callback(err, null);
     });
 }
 
 // List
-exports.listProject = function(attr, callback) {
+exports.listProject = (attr, callback) => {
 
     models.Project.findAll({
-        order: [["id", "DESC"]]
-    }).then(function(projects) {
-        var info = new Array();
+        order: [
+            ["id", "DESC"]
+        ]
+    }).then(projects => {
+        let info = new Array();
         info.message = "<br><ul>";
         if (projects.length == 0) {
             info.message += " - <br>";
         } else {
-            for(var i=0; i<projects.length; i++){
-                info.message += "<li>" + projects[i].id + " | " + projects[i].name + "</li>";
+            for (let i = 0; i < projects.length; i++) {
+                info.message += "<li>" + projects[i].id + " | " + projects[i].displayName + "</li>";
             }
         }
         info.message += "</ul>";
         info.rows = projects;
         callback(null, info);
 
-    }).catch(function(err) {
+    }).catch(err => {
         callback(err, null);
     });
 }
 
 // Delete
-exports.deleteProject = function(value, callback) {
+exports.deleteProject = (value, callback) => {
 
-    try {
-        var where = {
-            where: {}
-        };
+    let where = {
+        where: {}
+    };
 
-        if(isNaN(value)){
-            where.where = {
-                name: value
-            };
-        }
-        else{
-            where.where = {
-                id: value
-            };
-        }
+    if (isNaN(value))
+        where.where.displayName = value;
+    else
+        where.where.id = value;
 
-        models.Project.destroy(where).then(function() {
-            var info = {
-                message: "database.project.delete.deleted",
-                messageParams: [value]
-            };
-            callback(null, info);
-        }).catch(function(err) {
-            callback(err, null);
+    models.Project.destroy(where).then(_ => {
+        return callback(null, {
+            message: "database.project.delete.deleted",
+            messageParams: [value]
         });
-    } catch(err) {
+    }).catch(err => {
         callback(err, null);
-    }
+    });
+
 }
 
 // GetById
-exports.getNameProjectById = function(idProject, callback) {
+exports.getNameProjectById = (idProject, callback) => {
 
-    models.Project.findById(idProject).then(function(project){
-        if(!project){
-            var err = new Error();
+    models.Project.findById(idProject).then(project => {
+        if (!project) {
+            let err = new Error();
             err.message = "database.project.notFound.withThisID";
             err.messageParams = [idProject];
             return callback(err, null);
         }
-        callback(null, project.name);
-    }).catch(function(err){
+        callback(null, project.displayName);
+    }).catch(err => {
         callback(err, null);
     });
 }
 
-exports.getProjectApplications = function(project, callback){
-    var where = {where: {}, include: [models.Application]};
-    var type = "";
+exports.getProjectApplications = (project, callback) => {
+    let where = {
+        where: {},
+        include: [models.Application]
+    };
 
-    if (isNaN(project)){
-        where.where = {name: project};
+    let type = "";
+    if (isNaN(project)) {
+        where.where.displayName = project;
         type = "Name";
-    }
-    else{
-        where.where = {id: project};
+    } else {
+        where.where.id = project;
         type = "ID";
     }
-    models.Project.findOne(where).then(function(project){
-        if(!project){
+
+    models.Project.findOne(where).then(project => {
+        if (!project) {
             var err = new Error();
-            err.message = "database.project.notFound.withThis"+type_option;
+            err.message = "database.project.notFound.withThis" + type;
             err.messageParams = [project];
             return callback(err, null);
         }
 
         callback(null, project.Applications);
-    }).catch(function(err){
+    }).catch(err => {
         callback(err, null);
     });
 }
 
 // Check if current user has all the application access in the project
-exports.checkAccessAllApplication = function(attr, callback){
-    return new Promise((resolve, reject) => {
-        models.Project.findOne({
-            where: {
-                id: attr.options.showValue
-            },
+exports.checkAccessAllApplication = async(attr, callback) => {
+
+    let project = await models.Project.findOne({
+        where: {
+            id: attr.options.showValue
+        },
+        include: [{
+            model: models.Application,
             include: [{
-                model: models.Application,
-                include: [{
-                    model: models.User,
-                    as: "users"
-                }]
+                model: models.User,
+                as: "users"
             }]
-        }).then(project => {
-            let hasAccess;
-            for (var i = 0; i < project.Applications.length; i++) {
-                hasAccess = false;
-                for (var j = 0; j < project.Applications[i].users.length; j++) {
-                    if(project.Applications[i].users[j].id == attr.currentUser.id)
-                        hasAccess = true;
-                }
-                if(!hasAccess)
-                    return resolve(false)
-            }
-            resolve(true);
-        })
+        }]
     });
+
+    let hasAccess;
+    for (var i = 0; i < project.Applications.length; i++) {
+        hasAccess = false;
+        for (var j = 0; j < project.Applications[i].users.length; j++)
+            if (project.Applications[i].users[j].id == attr.currentUser.id)
+                hasAccess = true;
+        if (!hasAccess)
+            return false;
+    }
+    return true;
 }

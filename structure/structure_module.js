@@ -1,115 +1,91 @@
-var fs = require("fs-extra");
-var domHelper = require('../utils/jsDomHelper');
-var translateHelper = require("../utils/translate");
-var attrHelper = require('../utils/attr_helper');
+const fs = require("fs-extra");
+const domHelper = require('../utils/jsDomHelper');
+const translateHelper = require("../utils/translate");
+const dataHelper = require('../utils/data_helper');
 
-exports.setupModule = function (attr, callback) {
-    var idApp = attr.id_application;
+exports.setupModule = async (data) => {
+
+    let appName = data.app_name;
 
     // Initialize variables according to options
-    var options = attr.options;
-    var name_module = options.value;
-    var show_name_module = options.showValue;
-    var url_name_module = options.urlValue;
+    let name_module = data.options.value;
+    let show_name_module = data.options.showValue;
+    let url_name_module = data.options.urlValue;
 
     // Read routes/default.js file
-    var file = __dirname + '/../workspace/' + idApp + '/routes/default.js';
-    fs.readFile(file, 'utf8', function (err, data) {
-        if (err)
-            return callback(err, null);
+    let file = __dirname + '/../workspace/' + appName + '/routes/default.js';
 
-        // Add new module route to routes/default.js file
-        var str = '// *** Dynamic Module | Do not remove ***\n\n';
-        str += 'router.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("' + url_name_module + '"), function(req, res) {\n';
-        str += '    res.render(\'default/' + name_module.toLowerCase() + '\');\n';
-        str += '});';
-        var result = data.replace('// *** Dynamic Module | Do not remove ***', str);
+    let defaultjs = fs.readFileSync(file, 'utf8');
+    // Add new module route to routes/default.js file
+    let str = '// *** Dynamic Module | Do not remove ***\n\n';
+    str += 'router.get(\'/' + url_name_module.toLowerCase() + '\', block_access.isLoggedIn, block_access.moduleAccessMiddleware("' + url_name_module + '"), function(req, res) {\n';
+    str += '    res.render(\'default/' + name_module.toLowerCase() + '\');\n';
+    str += '});';
+    let result = defaultjs.replace('// *** Dynamic Module | Do not remove ***', str);
 
-        fs.writeFile(file, result, 'utf8', function (err) {
-            if (err)
-                return callback(err, null);
+    fs.writeFileSync(file, result, 'utf8');
 
-            // Create views/default/MODULE_NAME.dust file
-            var fileToCreate = __dirname + '/../workspace/' + idApp + '/views/default/' + name_module.toLowerCase() + '.dust';
-            fs.copy(__dirname + '/pieces/views/default/custom_module.dust', fileToCreate, function (err) {
-                if (err)
-                    return callback(err, null);
+    // Create views/default/MODULE_NAME.dust file
+    let fileToCreate = __dirname + '/../workspace/' + appName + '/views/default/' + name_module.toLowerCase() + '.dust';
+    fs.copySync(__dirname + '/pieces/views/default/custom_module.dust', fileToCreate);
 
-                //Replace all variables 'custom_module' in new created file
-                fs.readFile(fileToCreate, 'utf8', function (err, dataDust) {
-                    if (err)
-                        return callback(err, null);
+    // Replace all variables 'custom_module' in new created file
+    let dataDust = fs.readFileSync(fileToCreate, 'utf8');
 
-                    // Replace custom_module occurence and write to file
-                    var resultDust = dataDust.replace(/custom_module/g, name_module.toLowerCase());
-                    if (name_module.toLowerCase() != "m_home") {
-                        var moduleAriane = "" +
-                                "<li class='active'>" +
-                                "   <!--{#__ key=\"module." + name_module.toLowerCase() + "\"/}-->" +
-                                "</li>";
-                        resultDust = resultDust.replace(/<!-- NEW MODULE -->/g, moduleAriane);
-                    }
-                    resultDust = resultDust.replace(/custom_show_module/g, show_name_module.toLowerCase());
-                    fs.writeFile(fileToCreate, resultDust, 'utf8', function (err) {
-                        if (err)
-                            return callback(err, null);
+    // Replace custom_module occurence and write to file
+    let resultDust = dataDust.replace(/custom_module/g, name_module.toLowerCase());
+    if (name_module.toLowerCase() != "m_home") {
+        let moduleAriane = "" +
+            "<li class='active'>" +
+            "   <!--{#__ key=\"module." + name_module.toLowerCase() + "\"/}-->" +
+            "</li>";
+        resultDust = resultDust.replace(/<!-- NEW MODULE -->/g, moduleAriane);
+    }
+    resultDust = resultDust.replace(/custom_show_module/g, show_name_module.toLowerCase());
 
-                        translateHelper.writeLocales(idApp, "module", name_module, show_name_module, attr.googleTranslate, function () {
-                            // Create module's layout file
-                            file = __dirname + '/../workspace/' + idApp + '/views/layout_' + name_module.toLowerCase() + '.dust';
-                            fs.copy(__dirname + '/pieces/views/layout_custom_module.dust', file, function (err) {
-                                if (err)
-                                    return callback(err, null);
+    fs.writeFileSync(fileToCreate, resultDust, 'utf8');
 
-                                // Loop over module list to add new module's <option> tag in all modules <select> tags
-                                var promises = [];
-                                var modules = attr.modules;
-                                var option;
+    await translateHelper.writeLocales(appName, "module", name_module, show_name_module, data.googleTranslate)
 
-                                for (var i = 0; i < modules.length; i++) {
-                                    promises.push(new Promise(function (resolve, reject) {
-                                        (function (ibis) {
-                                            var fileName = __dirname + '/../workspace/' + idApp + '/views/layout_' + modules[ibis].codeName.toLowerCase() + '.dust';
-                                            domHelper.read(fileName).then(function ($) {
-                                                $("#dynamic_select").empty();
-                                                option = "\n";
-                                                for (var j = 0; j < modules.length; j++) {
-                                                    option += '<!--{#moduleAccess module="' + attrHelper.removePrefix(modules[j].codeName, "module") + '"}-->\n';
-                                                    option += '     <option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + attrHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[ibis].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>\n';
-                                                    option += '         <!--{#__ key="module.' + modules[j].codeName.toLowerCase() + '" /}-->\n';
-                                                    option += '     </option>\n';
-                                                    option += '<!--{/moduleAccess}-->\n';
-                                                }
+    // Create module's layout file
+    file = __dirname + '/../workspace/' + appName + '/views/layout_' + name_module.toLowerCase() + '.dust';
+    fs.copySync(__dirname + '/pieces/views/layout_custom_module.dust', file);
 
-                                                $("#dynamic_select").append(option);
+    // Loop over module list to add new module's <option> tag in all modules <select> tags
+    let promises = [];
+    let modules = data.modules;
+    let option;
 
-                                                domHelper.write(fileName, $).then(function () {
-                                                    resolve();
-                                                });
-                                            });
-                                        })(i);
-                                    }));
-                                }
-
-                                // Wait for all the layouts to be modified before calling `callback()`
-                                Promise.all(promises).then(function () {
-                                    var accessPath = __dirname + '/../workspace/' + idApp + '/config/access.json';
-                                    var accessLockPath = __dirname + '/../workspace/' + idApp + '/config/access.lock.json';
-                                    var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
-                                    accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
-                                    fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
-                                    fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
-                                    callback();
-                                }).catch(function (err) {
-                                    callback(err, null);
-                                });
-                            });
-                        });
-                    });
-                });
-            });
+    for (let i = 0; i < modules.length; i++) {
+        promises.push(async () => {
+            let fileName = __dirname + '/../workspace/' + appName + '/views/layout_' + modules[i].name + '.dust';
+            let $ = await domHelper.read(fileName);
+            $("#dynamic_select").empty();
+            option = "\n";
+            for (let j = 0; j < modules.length; j++) {
+                option += '<!--{#moduleAccess module="' + dataHelper.removePrefix(modules[j].codeName, "module") + '"}-->\n';
+                option += '     <option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + dataHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[i].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>\n';
+                option += '         <!--{#__ key="module.' + modules[j].codeName.toLowerCase() + '" /}-->\n';
+                option += '     </option>\n';
+                option += '<!--{/moduleAccess}-->\n';
+            }
+            $("#dynamic_select").append(option);
+            await domHelper.write(fileName, $);
         });
-    });
+    }
+
+    // Wait for all the layouts to be modified before calling `callback()`
+    await Promise.all(promises);
+
+    // Access settings handling
+    let accessPath = __dirname + '/../workspace/' + appName + '/config/access.json';
+    let accessLockPath = __dirname + '/../workspace/' + appName + '/config/access.lock.json';
+    let accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+    accessObject[url_name_module.toLowerCase()] = {groups: [], entities: []};
+    fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
+    fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
+
+    return true;
 }
 
 exports.deleteModule = function (attr, callback) {

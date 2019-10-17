@@ -1,10 +1,10 @@
 // **** Database Generator Application ****
 
-//Sequelize
-var models = require('../models/');
+// Sequelize
+const models = require('../models/');
 
 // Select
-exports.selectApplication = function(attr, callback) {
+exports.selectApplication = (attr, callback) => {
 
     // Set options variable using the attribute array
     var options = attr.options;
@@ -53,7 +53,7 @@ exports.selectApplication = function(attr, callback) {
 }
 
 // Check if application already
-exports.exist = function(attr, callback) {
+exports.exist = (attr, callback) => {
 
     var options = attr.options;
     var value = options.value.toLowerCase();
@@ -79,7 +79,7 @@ exports.exist = function(attr, callback) {
 }
 
 // Create
-exports.createNewApplication = function(attr, callback) {
+exports.createNewApplication = (attr, callback) => {
 
     var name_application;
     var id_project = -1;
@@ -132,7 +132,7 @@ exports.deleteApplication = function(idApp, callback) {
 }
 
 // List
-exports.listApplication = function(attr, callback) {
+exports.listApplication = (attr, callback) => {
 
     models.Application.findAll({
         order: [["id", "DESC"]]
@@ -214,7 +214,7 @@ exports.getCodeNameApplicationById = function(idApp, callback) {
     })
 }
 
-exports.checkAccess = function(attr, callback) {
+exports.checkAccess = (attr, callback) => {
     return new Promise((resolve, reject) => {
         models.User.findOne({
             where: {

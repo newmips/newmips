@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const moment = require('moment');
 
-const attrHelper = require('../utils/attr_helper');
+const dataHelper = require('../utils/data_helper');
 const block_access = require('../utils/block_access');
 const docBuilder = require('../utils/api_doc_builder');
 
@@ -23,6 +23,8 @@ let scriptProcessing = {
 let scriptData = {};
 let message = "";
 
+const metadata = require('../database/metadata')();
+
 function execute(req, instruction) {
     return new Promise(function(resolve, reject) {
         var userId = req.session.passport.user.id;
@@ -30,12 +32,12 @@ function execute(req, instruction) {
         try {
 
             /* Lower the first word for the basic parser jison */
-            instruction = attrHelper.lowerFirstWord(instruction);
+            instruction = dataHelper.lowerFirstWord(instruction);
 
             var attr = parser.parse(instruction);
 
             /* Rework the attr to get value for the code / url / show */
-            attr = attrHelper.reworkAttr(attr);
+            attr = dataHelper.reworkData(attr);
 
             attr.id_project = scriptData[userId].ids.id_project;
             attr.id_application = scriptData[userId].ids.id_application;

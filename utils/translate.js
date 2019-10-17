@@ -49,13 +49,16 @@ module.exports = {
 
         return success;
     },
-    writeLocales: function(idApplication, type, keyValue, value, toTranslate, callback) {
+    writeLocales: async (appName, type, keyValue, value, toTranslate) => {
+
+        if(keyValue)
+            keyValue = keyValue.toLowerCase();
 
         // If field value is an array
-        if(type == "field"){
+        if (type == "field") {
             var keyValueField = value[0];
             value = value[1];
-        } else if(type == "aliasfield"){
+        } else if (type == "aliasfield") {
             var alias = value[0];
             value = value[1];
         }
@@ -64,7 +67,7 @@ module.exports = {
         value = value.replace(String.fromCharCode(65533), "€");
 
         // Current application language
-        let languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/application.json');
+        let languageFileData = helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/config/application.json');
         let appLang = JSON.parse(languageFileData).lang;
 
         // Google won't fr-FR, it just want fr
@@ -73,187 +76,103 @@ module.exports = {
         // All available languages to write
         let languagePromises = [];
 
-        function pushLanguagePromise(urlFile, dataLocales, file){
-            // Create an array of promises to write all translations file
-            languagePromises.push(new Promise(function(resolve, reject) {
-                fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 4), function(err) {
-                    if (err){
-                        console.error(err);
-                        return reject(err);
-                    }
-
-                    resolve();
-                });
-            }));
-        }
-
-        function addLocales(type, value2, data, lang){
-            if(type == "application"){
-                data.app.name = value2;
-            }
-            else if(type == "module"){
-                data.module[keyValue.toLowerCase()] = value2;
-            }
-            else if(type == "entity"){
-                let content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"name_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"plural_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"id_entity": "ID"\n';
-                content += '\t\t}\n';
-                data.entity[keyValue.toLowerCase()] = JSON.parse(content);
-            }
-            else if(type == "component"){
-                let content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
-                content += '\t\t\t"name_component" : "'+value2+'",\n';
-                content += '\t\t\t"plural_component" : "'+value2+'"\n';
-                content += '\t\t}\n';
-                data.component[keyValue.toLowerCase()] = JSON.parse(content);
-            }
-            else if(type == "field"){
-                data.entity[keyValue.toLowerCase()][keyValueField.toLowerCase()] = value2;
-            }
-            else if(type == "aliasfield"){
-                data.entity[keyValue.toLowerCase()][alias.toLowerCase()] = value2;
-            }
-
-            return data;
-        }
-
-        function doneLocales(cpt, length){
-            // If process is over we can continue
-            if(cpt == length){
-                Promise.all(languagePromises).then(function(){
-                    callback();
-                }).catch(function(err){
-                    console.error(err);
-                });
-            }
-        }
-
         // Get all the differents languages to handle
-        var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
+        let localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(function(file) {
             return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
-        var nbLocales = localesDir.length;
-        var localesCpt = 0;
-        var manualModuleTranslationArray = ["home"];
-        var manualEntityTranslationArray = ["user", "role", "group"];
-        var manualFieldTranslationArray = ["login", "email", "role", "group", "label"];
-
-        localesDir.forEach(function(file){
-            var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
-            delete require.cache[require.resolve(urlFile)];
-            var dataLocales = require(urlFile);
-            var workingLocales = file.slice(0, -5);
-            var workingLocales4Google = workingLocales.slice(0, -3);
-
-            if(type == "module" && manualModuleTranslationArray.indexOf(value.toLowerCase()) != -1){
-                if(value.toLowerCase() == "home"){
-                    if(workingLocales == "fr-FR"){
-                        dataLocales[type][keyValue.toLowerCase()] = "Accueil";
-                    }else{
-                        dataLocales[type][keyValue.toLowerCase()] = "Home";
+        function addLocal(type, data, lang, value){
+            switch(type) {
+                case 'application':
+                    data.app.name = value;
+                    break;
+                case 'module':
+                    if(value == 'home')
+                        value = lang == "fr-FR" ? "Accueil" : "Home";
+                    data.module[keyValue] = value;
+                    break;
+                case 'entity':
+                    switch(value) {
+                        case 'user':
+                            value = lang == 'fr-FR' ? 'Utilisateur' : 'User';
+                            break;
+                        case 'role':
+                            value = lang == 'fr-FR' ? 'Rôle' : 'Role';
+                            break;
+                        case 'group':
+                            value = lang == 'fr-FR' ? 'Groupe' : 'Group';
+                            break;
                     }
-                }
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-            } else if(type == "entity" && manualEntityTranslationArray.indexOf(value.toLowerCase()) != -1){
-                if(value.toLowerCase() == "user"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Utilisateur";
-                    }else{
-                        value = "User";
+                    data.entity[keyValue] = {
+                        label_entity: value,
+                        name_entity: value,
+                        plural_entity: value,
+                        id_entity: "ID"
+                    };
+                    break;
+                case 'component':
+                    data.component[keyValue] = {
+                        label_component: value,
+                        name_component: value,
+                        plural_component: value
                     }
-                } else if(value.toLowerCase() == "role"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Rôle";
-                    }else{
-                        value = "Role";
-                    }
-                } else if(value.toLowerCase() == "group"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Groupe";
-                    }else{
-                        value = "Group";
-                    }
-                }
-
-                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-            } else if((type == "field" || type == "aliasfield") && manualFieldTranslationArray.indexOf(value.toLowerCase()) != -1){
-                if(value.toLowerCase() == "login"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Identifiant";
-                    }else{
-                        value = "Login";
-                    }
-                } else if(value.toLowerCase() == "role"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Rôle";
-                    }else{
-                        value = "Role";
-                    }
-                } else if(value.toLowerCase() == "email"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Email";
-                    }else{
-                        value = "Email";
-                    }
-                } else if(value.toLowerCase() == "group"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Groupe";
-                    }else{
-                        value = "Group";
-                    }
-                } else if(value.toLowerCase() == "label"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Libellé";
-                    }else{
-                        value = "Label";
-                    }
-                }
-
-                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-
-            } else if(workingLocales != appLang){
-                if(translateKey != "" && toTranslate){
-                    googleTranslate.translate(value, appLang4Google, workingLocales4Google, function(err, translations) {
-                        if(!err){
-                            dataLocales = addLocales(type, translations.translatedText, dataLocales, workingLocales4Google);
-                        }
-                        else{
-                            console.error(err);
-                            dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                        }
-                        pushLanguagePromise(urlFile, dataLocales, file);
-                        localesCpt++;
-                        doneLocales(localesCpt, nbLocales);
-                    });
-                }
-                else{
-                    if(translateKey == "" && googleTranslate && toTranslate)
-                        console.log("Error: Empty API key for google translation!");
-
-                    dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                    pushLanguagePromise(urlFile, dataLocales, file);
-                    localesCpt++;
-                    doneLocales(localesCpt, nbLocales);
-                }
-            } else{
-                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
+                    break;
+                case 'field':
+                    switch(value) {
+                        case 'login':
+                            value = lang == "fr-FR" ? "Identifiant" : "Login";
+                            break;
+                        case 'role':
+                            value = lang == "fr-FR" ? "Rôle" : "Role";
+                            break;
+                        case 'email':
+                            value = "Email";
+                            break;
+                        case 'group':
+                            value = lang == "fr-FR" ? "Groupe" : "Group";
+                            break;
+                        case 'label':
+                            value = lang == "fr-FR" ? "Libellé" : "Label";
+                            break;
+                    };
+                    data.entity[keyValue][keyValueField] = value;
+                    break;
             }
-        });
+            return data;
+        }
+
+        let file, promises = [];
+        for (let i = 0; i < localesDir.length; i++) {
+            promises.push(new Promise((resolve, reject) => {
+                file = localesDir[i];
+                let urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
+                let dataLocales = JSON.parse(fs.readFileSync(urlFile));
+                let workingLocales = file.slice(0, -5);
+                let workingLocales4Google = workingLocales.slice(0, -3);
+
+                // Google translate
+                if (workingLocales != appLang && (translateKey != "" && toTranslate)) {
+                    ((fileURL, data, lang) => {
+                        googleTranslate.translate(value, appLang4Google, workingLocales4Google, (err, translations) => {
+                            if (err)
+                                console.error(err);
+                            else
+                                value = translations.translatedText;
+
+                            data = addLocal(type, data, lang, value);
+                            fs.writeFileSync(fileURL, JSON.stringify(data, null, 4));
+                            resolve();
+                        });
+                    })(urlFile, dataLocales, workingLocales)
+                } else {
+                    dataLocales = addLocal(type, dataLocales, workingLocales, value);
+                    fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
+                    resolve();
+                }
+            }));
+        }
+
+        await Promise.all(promises);
     },
     removeLocales: function(idApplication, type, value, callback){
         // Get all the differents languages to handle

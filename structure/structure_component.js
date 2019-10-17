@@ -1275,7 +1275,7 @@ exports.addNewComponentAddress = function (attr, callback) {
                                 domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
                                     domHelper.write(printFieldsFile, $printFieldsFile).then(function () {
                                         var parentBaseFile = application_path + 'views/' + attr.entityCodeName;
-                                        require('./structure_data_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body, function () {
+                                        require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body, function () {
                                             //update locales
                                             var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
                                             var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));

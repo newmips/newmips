@@ -7,57 +7,61 @@ const Field = require('./field_v2');
 const Component = require('./component_v2');
 
 class Application {
-    constructor(name) {
+    constructor(name, gitlabID) {
         this._name = name;
+        this._gitlabID = gitlabID;
+
         this._modules = [];
         this._components = [];
     }
 
-    static load(application) {
+    // --- Statics ---
+    static load(name) {
         try {
-            const metadata = JSON.parse(fs.readFileSync(workspacePath + application.name + '/config/metadata.json'));
+            const app = new Application(name);
+            const metadata = JSON.parse(fs.readFileSync(workspacePath + name + '/config/metadata.json'));
 
 	        // Modules loading
             let modules = [];
-	        for (let np_module in metadata[application.name].modules) {
+	        for (let np_module in metadata[name].modules) {
 	            const currentModule = new Module(np_module);
 
 	            // Entities loading
-	            for (let entity in metadata[application.name].modules[np_module].entities) {
+	            for (let entity in metadata[name].modules[np_module].entities) {
                     const currentEntity = new Entity(entity);
 	                currentModule.addEntity(currentEntity);
 
 	                // Fields loading
-	                for (let field in metadata[application.name].modules[np_module].entities[entity].fields)
+	                for (let field in metadata[name].modules[np_module].entities[entity].fields)
 	                    currentEntity.addField(new Entity(entity));
 
                     // Entity components loading
-                    for (let component_type in metadata[application.name].modules[np_module].entities[entity].components)
-                        for(let component in metadata[application.name].modules[np_module].entities[entity].components[component_type])
+                    for (let component_type in metadata[name].modules[np_module].entities[entity].components)
+                        for(let component in metadata[name].modules[np_module].entities[entity].components[component_type])
                             currentEntity.addComponent(new Component(component, component_type));
 	            }
 
                 // Module components loading
-                for (let component_type in metadata[application.name].modules[np_module].components)
-                    for(let component in metadata[application.name].modules[np_module].components[component_type])
+                for (let component_type in metadata[name].modules[np_module].components)
+                    for(let component in metadata[name].modules[np_module].components[component_type])
                         currentModule.addComponent(new Component(component, component_type));
 
                 modules.push(currentModule);
 	        }
-            application.modules = modules;
+            app.modules = modules;
 
             // Application components loading
-            for (let component_type in metadata[application.name].components)
-                for(let component in metadata[application.name].components[component_type])
-                    application.addComponent(new Component(component, component_type));
+            for (let component_type in metadata[name].components)
+                for(let component in metadata[name].components[component_type])
+                    app.addComponent(new Component(component, component_type));
 
-            return application;
+            return app;
         } catch (err) {
-            console.error(err);
             return null;
         }
     }
 
+    // --- Getters ---
     get name() {
         return this._name;
     }
@@ -66,15 +70,21 @@ class Application {
         return this._modules;
     }
 
+    // --- Setters ---
+    set gitlabID(id){
+        this._gitlabID = id;
+    }
+
     set modules(modules) {
         this._modules = modules;
     }
 
+    // --- Methods ---
     addModule(np_module) {
-        if(typeof np_module === 'string')
+        if (typeof np_module === 'string')
             np_module = new Module(np_module);
 
-        if (this._modules.filter(x => x.name == np_module.name).length != 0){
+        if (this._modules.filter(x => x.name == np_module.name).length != 0) {
             console.warn("addModule => Module already loaded in the application instance.")
             return this._modules.filter(x => x.name == np_module.name)[0];
         }
@@ -83,26 +93,31 @@ class Application {
         return np_module;
     }
 
+    getModule(module_name) {
+        if(this._modules.filter(x => x.name == module_name).length > 0)
+            return this._modules.filter(x => x.name == module_name)[0];
+        return false;
+    }
+
     addComponent(component) {
         this._components.push(component);
         return true;
-    }
-
-    getModuleByName(name) {
-        for (np_module of this._modules)
-            if (np_module.name == name)
-                return np_module
-        return null;
     }
 
     save() {
         let newMetadata = {};
         let appName = this._name;
 
+        if(this._gitlabID)
+            newMetadata.gitlabID = this._gitlabID;
+
         const actual_metadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
 
         // Getting old application specific properties
-        newMetadata[appName] = actual_metadata[appName];
+        newMetadata[appName] = {};
+        if(actual_metadata[appName])
+            newMetadata[appName] = actual_metadata[appName];
+
         newMetadata[appName].modules = {};
         newMetadata[appName].components = {};
 
@@ -144,8 +159,8 @@ class Application {
                 for (let component in entity.components) {
                     component = entity.components[component];
 
-                	if(!newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type])
-                		newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type] = {};
+                    if(!newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type])
+                        newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type] = {};
 
                     newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = {};
 
@@ -158,8 +173,8 @@ class Application {
             for (let component in np_module.components) {
                 component = np_module.components[component];
 
-            	if(!newMetadata[appName].modules[np_module.name].components[component.type])
-            		newMetadata[appName].modules[np_module.name].components[component.type] = {};
+                if(!newMetadata[appName].modules[np_module.name].components[component.type])
+                    newMetadata[appName].modules[np_module.name].components[component.type] = {};
 
                 if (newMetadata[appName].modules[np_module.name].components[component.type][component.name])
                     newMetadata[appName].modules[np_module.name].components[component.type][component.name] = actual_metadata[appName].modules[np_module.name].components[component.type][component.name];

@@ -74,7 +74,7 @@
 																		<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
 																		<span>{#__ key="button.delete"/}</span>
 																	</button>
-																	<input type="hidden" name="instruction" value="delete application {id}" />
+																	<input type="hidden" name="codeName" value="{codeName}" />
 																</form>
 															</td>
 														</tr>
@@ -135,83 +135,32 @@
 		var projectDelete = '{#__ key="listApplication.projectDelete"/}';
 		var appDelete = '{#__ key="listApplication.appDelete"/}';
 
-		function deleteApplication(formArray, index) {
-			return new Promise(function(resolve, reject) {
-				(function(arr, idx){
-					$(document.body).css({cursor: 'wait'});
-					var tr = $(arr[idx]).parents('tr');
-					$.ajax({
-						url: '/application/execute',
-						method: 'post',
-						data: {instruction: $(arr[idx]).find('input[name="instruction"]').val()},
-						success: function() {
-							$(tr).remove();
-							$(".deleteProjectForm").children("button").prop("disabled", false);
-							$(".deleteAppForm").children("button").prop("disabled", false);
-						},
-						complete: function() {
-							$(document.body).css({cursor: 'default'});
-							if (arr.length == 1) {
-								toastr.success(appDelete);
-								return resolve();
-							}
-							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
-						}
-					});
-				})(formArray, index);
-			});
-		}
-
-		$(function() {
-			/* Delete Project */
-			$(".deleteProjectForm").submit(function() {
-				var confirm = window.confirm(sureToDelete);
-				if(confirm){
-					var self = this;
-					/* Get all application delete form */
-					var appForms = $(self).parents('.box').find("tbody tr form");
-					$(this).children("button").html(loading);
-
-					/* Disabled all button to prevent mutli click that may cause issue */
-					$(".deleteProjectForm").children("button").prop("disabled", true);
-					$(".deleteAppForm").children("button").prop("disabled", true);
-
-					$(document.body).css({cursor: 'wait'});
-					$.ajax({
-						url: '/application/execute',
-						method: 'post',
-						data: {instruction: $(self).find("input[name='instruction']").val()},
-						context: this,
-						success: function() {
-							toastr.success(projectDelete);
-							$(self).parents('.col-lg-8').remove();
-							$(document.body).css({cursor: 'default'});
-							$(".deleteProjectForm").children("button").prop("disabled", false);
-							$(".deleteAppForm").children("button").prop("disabled", false);
-						},
-						error: function(err){
-							toastr.error(err.responseText);
-							$(document.body).css({cursor: 'default'});
-							$(".deleteProjectForm").children("button").prop("disabled", false);
-							$(".deleteAppForm").children("button").prop("disabled", false);
-							$(this).children("button").remove();
-						}
-					});
-
-					return false;
-				}
-			});
-
-			/* Delete application */
+		$(document).ready(function() {
+			/* --- Delete application --- */
 			$(".deleteAppForm").submit(function(){
-				var confirm = window.confirm(sureToDelete);
-				if(confirm){
-					$(this).children("button").html(loading);
-					$(".deleteProjectForm").children("button").prop("disabled", true);
-					$(".deleteAppForm").children("button").prop("disabled", true);
-					deleteApplication([$(this)], 0);
-					return false;
-				}
+				if(!window.confirm(sureToDelete))
+					return;
+				$(this).children("button").html(loading);
+				$(".deleteAppForm").children("button").prop("disabled", true);
+				$(document.body).css({cursor: 'wait'});
+				$.ajax({
+					url: '/application/delete',
+					method: 'POST',
+					data: {
+						appName: $(this).find('input[name="codeName"]').val()
+					},
+					success: function() {
+						$(tr).remove();
+						$(".deleteAppForm").children("button").prop("disabled", false);
+					},
+					complete: function() {
+						$(document.body).css({cursor: 'default'});
+						if (arr.length == 1)
+							toastr.success(appDelete);
+					}
+				});
+
+				return false;
 			});
 
 			$(document).on("click", ".gitlab-button", function(){

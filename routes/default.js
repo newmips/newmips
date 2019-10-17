@@ -15,41 +15,13 @@ var bot = require('../services/bot.js');
 //Sequelize
 var models = require('../models/');
 
-const Metadata = require('../database/metadata');
-
 router.get('/home', block_access.isLoggedIn, function(req, res) {
 
-    // --- TEST METADATA ---
+    (async () => {
+        // Set ReturnTo URL in cas of unauthenticated users trying to reach a page
+        req.session.returnTo = req.protocol + '://' + req.get('host') + req.originalUrl;
 
-    const myMetadata = new Metadata();
-    const myApp58 = myMetadata.getApplication('test_metadata');
-    const newModule = myApp58.addModule("TESTNEWMODULE");
-    newModule.addEntity('TESTNEWENTITY');
-    myApp58.addModule("TESTNEWMODULE");
-    myApp58.save();
-
-    console.log(myApp58);
-
-
-
-
-
-
-
-
-
-
-
-
-
-    var data = {};
-    // Set ReturnTo URL in cas of unauthenticated users trying to reach a page
-    req.session.returnTo = req.protocol + '://' + req.get('host') + req.originalUrl;
-
-    models.Project.findAll({
-        include: [{
-            model: models.Application,
-            required: true,
+        const applications = await models.Application.findAll({
             include: [{
                 model: models.User,
                 as: "users",
@@ -57,11 +29,11 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
                     id: req.session.passport.user.id
                 }
             }]
-        }]
-    }).then(function(projects) {
+        });
+
         // Count number of available Applications
         // Get application module
-        models.Application.findAll({
+        const lastThreeApp = await models.Application.findAll({
             order: [['id', 'DESC']],
             limit: 3,
             include: [{
@@ -71,40 +43,29 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
                     id: req.session.passport.user.id
                 }
             }]
-        }).then(function(lastThreeApp){
-            models.Application.count({
-                include: [{
-                    model: models.User,
-                    as: "users",
-                    where: {
-                        id: req.session.passport.user.id
-                    }
-                }]
-            }).then(function(nbApp){
-                data.projects = projects;
-                data.lastThreeApp = lastThreeApp;
-                data.nb_application = nbApp;
-                data.showytpopup = false;
-                // Check if we have to show the You Tube popup
-                if(req.session.showytpopup){
-                    data.showytpopup = true;
-                    req.session.showytpopup = false;
-                }
+        });
 
-                data.version;
-                if(fs.existsSync(__dirname+"/../public/version.txt"))
-                    data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
+        let data = {};
+        data.applications = applications;
+        data.lastThreeApp = lastThreeApp;
+        data.nb_application = applications.length;
+        data.showytpopup = false;
+        // Check if we have to show the You Tube popup
+        if(req.session.showytpopup){
+            data.showytpopup = true;
+            req.session.showytpopup = false;
+        }
 
-                res.render('front/home', data);
-            }).catch(function(err){
-                res.render('common/error', {code: 500});
-            })
-        }).catch(function(err){
-            res.render('common/error', {code: 500});
-        })
-    }).catch(function(err){
+        data.version;
+        if(fs.existsSync(__dirname+"/../public/version.txt"))
+            data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
+
+        return data;
+    })().then(data => {
+        res.render('front/home', data);
+    }).catch(err => {
         res.render('common/error', {code: 500});
-    })
+    });
 })
 
 // AJAX loading applications from a choosen project ( To fill select in home )

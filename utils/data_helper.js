@@ -198,21 +198,21 @@ module.exports = {
     lowerFirstWord: lowerFirstWord,
     addPrefix: addPrefix,
     removePrefix: removePrefix,
-    reworkAttr: function(attr){
-        if(typeof attr.options !== "undefined"){
+    reworkData: (data) => {
+        if(typeof data.options !== "undefined"){
             /* If the instruction create something there is inevitably a value. We have to clean this value for the code */
-            if(typeof attr.options.value !== "undefined" && attr.options.processValue){
+            if(typeof data.options.value !== "undefined" && data.options.processValue){
 
                 /* Keep the value for the trad file */
-                attr.options.showValue = attr.options.value.trim();
+                data.options.showValue = data.options.value.trim();
                 // Remove multipe spaces
-                attr.options.showValue = attr.options.showValue.replace(/\s\s+/g, ' ');
+                data.options.showValue = data.options.showValue.replace(/\s\s+/g, ' ');
                 /* Clean the name of the value */
-                attr.options.value = clearString(attr.options.value);
+                data.options.value = clearString(data.options.value);
 
-                if (attr.function == 'createNewApplication') {
-                    attr.options.value = attr.options.value.replace(/_/g, "-");
-                    if (!validateString(attr.options.value)){
+                if (data.function == 'createNewApplication') {
+                    data.options.value = data.options.value.replace(/_/g, "-");
+                    if (!validateString(data.options.value)){
                         var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
                         errorText += "<ul>";
                         errorText += "<li>- Caractères alphanumériques uniquement.</li>";
@@ -224,62 +224,62 @@ module.exports = {
                         errorText += "</ul>";
 
                         // Generate an error to throw in controller.
-                        attr.error = errorText;
+                        data.error = errorText;
                     }
                 }
 
                 /* Value that will be used in url */
-                attr.options.urlValue = attr.options.value.toLowerCase();
+                data.options.urlValue = data.options.value.toLowerCase();
                 /* Create a prefix depending the type of the created value (project, app, module, entity, field) */
-                attr.options.value = addPrefix(attr.options.value, attr.function);
+                data.options.value = addPrefix(data.options.value, data.function);
                 /* Always lower the code value */
-                attr.options.value = attr.options.value.toLowerCase();
+                data.options.value = data.options.value.toLowerCase();
             }
             /* In case of instruction about Association / Relation there is a target instead of a value */
-            else if(typeof attr.options.target !== "undefined" && attr.options.processValue){
+            else if(typeof data.options.target !== "undefined" && data.options.processValue){
 
-                attr.options.showTarget = attr.options.target.trim();
-                attr.options.target = clearString(attr.options.target);
-                attr.options.urlTarget = attr.options.target.toLowerCase();
-                attr.options.target = addPrefix(attr.options.target, attr.function);
-                attr.options.target = attr.options.target.toLowerCase();
+                data.options.showTarget = data.options.target.trim();
+                data.options.target = clearString(data.options.target);
+                data.options.urlTarget = data.options.target.toLowerCase();
+                data.options.target = addPrefix(data.options.target, data.function);
+                data.options.target = data.options.target.toLowerCase();
 
-                if(typeof attr.options.source !== "undefined"){
-                    attr.options.showSource = attr.options.source.trim();
-                    attr.options.source = clearString(attr.options.source);
-                    attr.options.urlSource = attr.options.source.toLowerCase();
-                    attr.options.source = addPrefix(attr.options.source, attr.function);
-                    attr.options.source = attr.options.source.toLowerCase();
+                if(typeof data.options.source !== "undefined"){
+                    data.options.showSource = data.options.source.trim();
+                    data.options.source = clearString(data.options.source);
+                    data.options.urlSource = data.options.source.toLowerCase();
+                    data.options.source = addPrefix(data.options.source, data.function);
+                    data.options.source = data.options.source.toLowerCase();
                 }
 
-                if(typeof attr.options.foreignKey !== "undefined"){
-                    attr.options.showForeignKey = attr.options.foreignKey.trim();
-                    attr.options.foreignKey = clearString(attr.options.foreignKey);
-                    attr.options.foreignKey = addPrefix(attr.options.foreignKey, "foreignKey");
-                    attr.options.foreignKey = attr.options.foreignKey.toLowerCase();
+                if(typeof data.options.foreignKey !== "undefined"){
+                    data.options.showForeignKey = data.options.foreignKey.trim();
+                    data.options.foreignKey = clearString(data.options.foreignKey);
+                    data.options.foreignKey = addPrefix(data.options.foreignKey, "foreignKey");
+                    data.options.foreignKey = data.options.foreignKey.toLowerCase();
                 }
 
-                if(typeof attr.options.as !== "undefined"){
-                    attr.options.showAs = attr.options.as.trim();
-                    attr.options.as = clearString(attr.options.as);
-                    attr.options.urlAs = attr.options.as.toLowerCase();
-                    attr.options.as = addPrefix(attr.options.as, "alias");
-                    attr.options.as = attr.options.as.toLowerCase();
+                if(typeof data.options.as !== "undefined"){
+                    data.options.showAs = data.options.as.trim();
+                    data.options.as = clearString(data.options.as);
+                    data.options.urlAs = data.options.as.toLowerCase();
+                    data.options.as = addPrefix(data.options.as, "alias");
+                    data.options.as = data.options.as.toLowerCase();
                 }
 
-                if(typeof attr.options.usingField !== "undefined"){
-                    var usingFields = attr.options.usingField.split(",");
-                    attr.options.showUsingField = attr.options.usingField.split(",");
+                if(typeof data.options.usingField !== "undefined"){
+                    var usingFields = data.options.usingField.split(",");
+                    data.options.showUsingField = data.options.usingField.split(",");
                     for (var j = 0; j < usingFields.length; j++) {
                         usingFields[j] = usingFields[j].trim();
                         usingFields[j] = clearString(usingFields[j]);
                         usingFields[j] = addPrefix(usingFields[j], "using");
                         usingFields[j] = usingFields[j].toLowerCase();
                     }
-                    attr.options.usingField = usingFields;
+                    data.options.usingField = usingFields;
                 }
             }
         }
-        return attr;
+        return data;
     }
 }
