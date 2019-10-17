@@ -20,6 +20,12 @@ class Module {
         return this._components;
     }
 
+    getEntity(entity_name) {
+        if(this._entities.filter(x => x.name == entity_name).length > 0)
+            return this._entities.filter(x => x.name == entity_name)[0];
+        return false;
+    }
+
     addEntity(entity) {
 
     	if(typeof entity === 'string')

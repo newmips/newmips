@@ -9,19 +9,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: DataTypes.STRING,
         displayName: DataTypes.STRING,
-        codeName: DataTypes.STRING,
-        version: DataTypes.INTEGER
+        codeName: DataTypes.STRING
     }, {
         tableName: "application"
     })
 
     Application.associate = (models) => {
-        Application.belongsTo(models.Project, {
-            foreignKey: {
-                name: 'id_project'
-            },
-            onDelete: 'cascade'
-        })
         Application.hasMany(models.Module, {
             foreignKey: {
                 name: 'id_application'

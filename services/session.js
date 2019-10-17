@@ -137,62 +137,58 @@ exports.getSession = function(attr, req, callback) {
 }
 
 // Set session in POST application
-exports.setSession = function(attrFunction, req, info, data) {
+exports.setSession = function(npFunction, req, info, data) {
 
     let iframeUrl;
-    switch(attrFunction){
-        case "selectProject":
-        case "createNewProject":
-            req.session.id_project = info.insertId;
-            req.session.id_application = null;
-            req.session.id_module = null;
-            req.session.id_data_entity = null;
-            break;
+    switch(npFunction){
         case "selectApplication":
         case "createNewApplication":
-            req.session.id_application = info.insertId;
-            req.session.id_module = null;
-            req.session.id_data_entity = null;
+            req.session.app_name = info.application.name;
+            req.session.module_name = null;
+            req.session.entity_name = null;
             break;
         case "selectModule":
         case "createNewModule":
-            req.session.id_module = info.insertId;
-            req.session.id_data_entity = null;
-
-            // Redirect iframe to new module
-            iframeUrl = data.iframe_url.split("/");
-            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/default/"+info.moduleName.toLowerCase();
+            req.session.module_name = info.module.name;
+            req.session.entity_name = null;
+            if (data && data.iframe_url) {
+                // Redirect iframe to new module
+                iframeUrl = data.iframe_url.split("/");
+                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/" + info.module.name;
+            }
             break;
         case "selectEntity":
-            req.session.id_data_entity = info.insertId;
-            req.session.id_module = info.moduleId;
-            if (info.doRedirect) {
+            req.session.entity_name = info.insertId;
+            req.session.module_name = info.moduleId;
+            if (data && data.iframe_url && info.doRedirect) {
                 iframeUrl = data.iframe_url.split("/");
-                data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/list";
+                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/" + info.urlEntity + "/list";
             }
             break;
         case "createNewEntity":
-            req.session.id_data_entity = info.insertId;
-            iframeUrl = data.iframe_url.split("/");
-            data.iframe_url = iframeUrl[0]+"//"+iframeUrl[2]+"/"+info.urlEntity+"/create_form";
+            req.session.entity_name = info.entity.name;
+            if (data && data.iframe_url) {
+                iframeUrl = data.iframe_url.split("/");
+                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/" + info.entity.name.substring(2) + "/create_form";
+            }
             break;
         case "createNewEntityWithBelongsTo":
         case "createNewEntityWithHasMany":
         case "createNewBelongsTo":
         case "createNewHasMany":
         case "createNewFieldRelatedTo":
-            req.session.id_data_entity = info.insertId;
+            req.session.entity_name = info.insertId;
             break;
         case "deleteProject":
             req.session.id_project = null;
             req.session.id_application = null;
             req.session.id_module = null;
-            req.session.id_data_entity = null;
+            req.session.entity_name = null;
             break;
         case "deleteApplication":
             req.session.id_application = null;
             req.session.id_module = null;
-            req.session.id_data_entity = null;
+            req.session.entity_name = null;
             req.session.toastr = [{
                 message: 'actions.delete.application',
                 level: "success"
@@ -200,15 +196,15 @@ exports.setSession = function(attrFunction, req, info, data) {
             break;
         case "deleteModule":
             req.session.id_module = info.homeID;
-            req.session.id_data_entity = null;
+            req.session.entity_name = null;
             // Redirect iframe to new module
             iframeUrl = data.iframe_url.split("/default/");
             data.iframe_url = iframeUrl[0]+"/default/home";
             break;
         case "deleteDataEntity":
             // If we were on the deleted entity we has to reset the entity session
-            if(data.session.id_data_entity == info.deletedEntityId)
-                req.session.id_data_entity = null;
+            if(data.session.entity_name == info.deletedEntityId)
+                req.session.entity_name = null;
             break;
     }
 }

@@ -80,7 +80,7 @@
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
-        "title": "Créez ou sélectionnez un Projet ainsi qu'une Application.",
+        "title": "Vous pouvez sélectionner ou créer une Application",
         "subtitle": "Et nous nous occupons du reste !",
         "ytmodaltitle": "Bienvenue sur le générateur Newmips",
         "ytmodalcontent": "Pour bien démarrer, suivez nos tutoriels et apprenez rapidement à utiliser le générateur Newmips !",
@@ -268,10 +268,10 @@
         },
         "application": {
             "select": {
-                "selected": "Application %s (%s) sélectionnée."
+                "selected": "Application %s sélectionnée."
             },
             "create": {
-                "success" : "Nouvelle application %s (%s) créée."
+                "success" : "Nouvelle application %s créée."
             },
             "delete":{
                 "deleted": "Application %s supprimée !"
@@ -285,10 +285,10 @@
         },
         "module": {
             "select": {
-                "selected": "Module %s (%s) sélectionné."
+                "selected": "Module %s sélectionné."
             },
             "create": {
-                "success" : "Vous venez d'ajouter un nouveau module %s (%s)<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le module %s</b>.",
+                "success" : "Vous venez d'ajouter un nouveau module %s<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le module %s</b>.",
                 "alreadyExist": "Un module avec un nom identique ou similaire à %s existe déjà."
             },
             "list": {
@@ -307,7 +307,7 @@
         },
         "component":{
             "create": {
-                "success" : "Nouveau composant %s (%s) créé.",
+                "success" : "Nouveau composant %s créé.",
                 "successOnEntity": "Nouveau composant %s (%s) créé sur l'entité %s."
             },
             "notFound": {
@@ -325,7 +325,7 @@
                 "valid": "Merci d'indiquer un nom ou ID valide."
             },
             "create": {
-                "success": "Vous venez de créer la nouvelle entité %s (%s) au sein du module %s. Pour la supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'entité %s</b>.",
+                "success": "Vous venez de créer la nouvelle entité %s au sein du module %s. Pour la supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer l'entité %s</b>.",
                 "alreadyExist": "Entité avec un nom (%s) identique ou similaire existe déjà.",
                 "addComponent": "Impossible d'ajouter le composant sur l'entité, aucune entité trouvée avec le nom de code %s."
             },
@@ -348,7 +348,7 @@
                 "alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
             },
             "create": {
-                "created": "Vous venez d'ajouter un nouveau champ %s (%s) à l'entité %s.<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
+                "created": "Vous venez d'ajouter un nouveau champ %s à l'entité %s.<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",
                 "foreignKeyCreated": "Nouvelle clé étrangère %s | %s créée."
             },
             "delete": {

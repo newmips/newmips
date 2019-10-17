@@ -69,121 +69,81 @@ function installAppModules(attr) {
 exports.installAppModules = installAppModules;
 
 // Application
-exports.setupApplication = function(attr, callback) {
+exports.setupApplication = async (data) => {
 
-    var appID = attr.id_application;
+    let appName = data.options.value;
+    let appDisplayName = data.options.showValue;
 
-    // Check each options variable to set properties
-    var options = attr.options;
-    var name_application = options.value;
-    var show_name_application = options.showValue;
-    var repoFile = options.repoFile;
+    try {
+        await installAppModules();
+    } catch(err) {
+        throw new Error("An error occurred while initializing the node modules.");
+    }
 
-    installAppModules().then(function() {
-        // *** Copy template folder to new workspace ***
-        fs.copy(__dirname + '/template/', __dirname + '/../workspace/' + appID, function(err) {
-            if (err) {
-                var err = new Error();
-                err.message = "An error occurred while copying template folder.";
-                return callback(err, null);
-            }
+    // *** Copy template folder to new workspace ***
+    fs.copySync(__dirname + '/template/', __dirname + '/../workspace/' + appName);
 
-            /* --------------- New translation --------------- */
-            translateHelper.writeLocales(appID, "application", null, show_name_application, attr.googleTranslate, function() {
+    await translateHelper.writeLocales(appName, "application", null, appDisplayName, data.googleTranslate);
 
-                async function workspace_db(){
-                    if(!globalConf.separate_workspace_db)
-                        return;
+    // Create database instance for application
+    let db_requests = [
+        "CREATE DATABASE IF NOT EXISTS np_" + appName + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
+        "CREATE USER IF NOT EXISTS 'np_" + appName + "'@'127.0.0.1' IDENTIFIED BY 'np_" + appName + "';",
+        "CREATE USER IF NOT EXISTS 'np_" + appName + "'@'%' IDENTIFIED BY 'np_" + appName + "';",
+        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO 'np_" + appName + "'@'127.0.0.1';",
+        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO 'np_" + appName + "'@'%';",
+        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO '" + dbConf.user + "'@'127.0.0.1';"
+    ];
 
-                    // Create database instance for application
-                    let db_requests = [
-                        "CREATE DATABASE IF NOT EXISTS workspace_" + appID + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
-                        "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'127.0.0.1' IDENTIFIED BY 'workspace_" + appID + "';",
-                        "CREATE USER IF NOT EXISTS 'workspace_" + appID + "'@'%' IDENTIFIED BY 'workspace_" + appID + "';",
-                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'127.0.0.1';",
-                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO 'workspace_" + appID + "'@'%';",
-                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO '" + dbConf.user + "'@'127.0.0.1';",
-                        "GRANT ALL PRIVILEGES ON workspace_" + appID + ".* TO '" + dbConf.user + "'@'%';"
-                    ];
+    let conn = await mysql.createConnection({
+        host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+        user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+        password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
+    });
 
-                    let conn = await mysql.createConnection({
-                        host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-                        user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-                        password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
-                    });
-
-                    for (var i = 0; i < db_requests.length; i++)
-                        await conn.query(db_requests[i]);
-
-                    conn.end();
-                    return;
-                }
-
-                workspace_db().then(_ => {
-                    if(globalConf.separate_workspace_db){
-                        try {
-                            // Change config file to point on database instance
-                            var appDatabaseConfig = fs.readFileSync(__dirname + '/../workspace/' + appID + '/config/database.js', 'utf8');
-                            appDatabaseConfig = appDatabaseConfig.replace(/newmips/g, 'workspace_' + appID, 'utf8');
-                            fs.writeFileSync(__dirname + '/../workspace/' + appID + '/config/database.js', appDatabaseConfig);
-                        } catch (err) {
-                            console.log(err);
-                            return callback(err, null);
-                        }
-                    }
-
-                    let nameAppWithoutPrefix = name_application.substring(2);
-
-                    // Create the application repository on gitlab
-                    if (!gitlabConf.doGit)
-                        return callback();
-
-                    (async () => {
-
-                        if (!attr.gitlabUser)
-                            attr.gitlabUser = await gitlab.getUser(attr.currentUser.email);
-
-                        let idUserGitlab = attr.gitlabUser.id;
-
-                        let newGitlabProject = {
-                            user_id: idUserGitlab,
-                            name: globalConf.host + "-" + nameAppWithoutPrefix,
-                            description: "A generated Newmips workspace.",
-                            issues_enabled: false,
-                            merge_requests_enabled: false,
-                            wiki_enabled: false,
-                            snippets_enabled: false,
-                            public: false
-                        };
-
-                        let newRepo = await gitlab.createProjectForUser(newGitlabProject);
-                        await gitlab.addMemberToProject({
-                            id: newRepo.id,
-                            user_id: 1, // Admin
-                            access_level: 40
-                        })
-
-                        return;
-
-                    })().then(_ => {
-                        callback();
-                    }).catch(err => {
-                        console.error(err);
-                    })
-                }).catch(err => {
-                    console.error(err);
-                    var err = new Error();
-                    err.message = "An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?";
-                    return callback(err);
-                })
-            })
-        })
-    }).catch(function(err) {
+    try {
+        for (let i = 0; i < db_requests.length; i++)
+            await conn.query(db_requests[i]);
+    } catch(err) {
         console.error(err);
-        var err = new Error();
-        err.message = "An error occurred while initializing the node modules.";
-        return callback(err);
+        throw new Error("An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?");;
+    }
+
+    conn.end();
+
+    // Update workspace database config file to point on the new separate DB
+    let appDatabaseConfig = fs.readFileSync(__dirname + '/../workspace/' + appName + '/config/database.js', 'utf8');
+    appDatabaseConfig = appDatabaseConfig.replace(/newmips/g, 'workspace_' + appName, 'utf8');
+    fs.writeFileSync(__dirname + '/../workspace/' + appName + '/config/database.js', appDatabaseConfig);
+
+    // Create the application repository on gitlab ?
+    if (!gitlabConf.doGit)
+        return false;
+
+    if (!data.gitlabUser)
+        data.gitlabUser = await gitlab.getUser(data.currentUser.email);
+
+    let idUserGitlab = data.gitlabUser.id;
+
+    let newGitlabProject = {
+        user_id: idUserGitlab,
+        name: globalConf.host + "-" + appNameWithoutPrefix,
+        description: "A generated Newmips workspace.",
+        issues_enabled: false,
+        merge_requests_enabled: false,
+        wiki_enabled: false,
+        snippets_enabled: false,
+        public: false
+    };
+
+    let newRepo = await gitlab.createProjectForUser(newGitlabProject);
+    await gitlab.addMemberToProject({
+        id: newRepo.id,
+        user_id: 1, // Admin
+        access_level: 40
     })
+
+    return newRepo;
 }
 
 function finalizeApplication(id_application, name_application) {

@@ -2,19 +2,17 @@ var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 var translateHelper = require("../utils/translate");
 var helpers = require("../utils/helpers");
-var attrHelper = require("../utils/attr_helper");
+var dataHelper = require("../utils/data_helper");
 var printHelper = require("../utils/print_helper");
 var moment = require("moment");
 
-function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, values, defaultValue) {
-    var dataField = nameDataField.toLowerCase();
-    var dataEntity = nameDataEntity.toLowerCase();
+function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue) {
     /* Value in input managment */
-    var value = "";
-    var value2 = "";
+    let value = "";
+    let value2 = "";
     if (file != "create") {
-        value = "{" + dataField + "}";
-        value2 = dataField;
+        value = "{" + field + "}";
+        value2 = field;
     } else if (defaultValue != null) {
         switch (type) {
             case "number" :
@@ -54,7 +52,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                     console.log("ERROR: Invalid default value " + defaultValue + " for boolean input.")
                 break;
             case "enum" :
-                value = attrHelper.clearString(defaultValue);
+                value = dataHelper.clearString(defaultValue);
                 break;
             default :
                 value = defaultValue;
@@ -67,12 +65,12 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     readOnly = readOnly ? 'readOnly' : '';
 
     let str = `\
-    <div data-field='${dataField}' class='fieldLineHeight col-xs-12'>\n\
+    <div data-field='${field}' class='fieldLineHeight col-xs-12'>\n\
         <div class='form-group'>\n\
-            <label for='${dataField}'>\n\
-                <!--{#__ key=\"entity.${dataEntity}.${dataField}"/}-->&nbsp;\n\
-                <!--{@inline_help field="${dataField}"}-->\n\
-                    <i data-field="${dataField}" class="inline-help fa fa-info-circle" style="color: #1085EE;"></i>\n\
+            <label for='${field}'>\n\
+                <!--{#__ key=\"entity.${entity}.${field}"/}-->&nbsp;\n\
+                <!--{@inline_help field="${field}"}-->\n\
+                    <i data-field="${field}" class="inline-help fa fa-info-circle" style="color: #1085EE;"></i>\n\
                 <!--{/inline_help}-->\n\
             </label>\n`;
 
@@ -80,14 +78,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
     switch (type) {
         case "string" :
         case "":
-            str += "<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' maxLength='255' " + readOnly + "/>\n";
+            str += "<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' maxLength='255' " + readOnly + "/>\n";
             break;
         case "color" :
         case "colour":
         case "couleur":
             if (value == "")
                 value = "#000000";
-            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
             break;
         case "money":
         case "currency":
@@ -96,7 +94,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "		<div class='input-group-addon'>\n";
             str += "			<i class='fa fa-money'></i>\n";
             str += "		</div>\n";
-            str += "		<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
+            str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "euro":
@@ -106,7 +104,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "        <div class='input-group-addon'>\n";
             str += "            <i class='fa fa-euro'></i>\n";
             str += "        </div>\n";
-            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' data-type='currency' " + readOnly + "/>\n";
             str += "    </div>\n";
             break;
         case "qrcode":
@@ -115,9 +113,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "			<i class='fa fa-qrcode'></i>\n";
             str += "		</div>\n";
             if (file == "show")
-                str += "	<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
+                str += "	<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "ean8":
@@ -133,9 +131,9 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "			<i class='fa fa-barcode'></i>\n";
             str += "		</div>\n";
             if (file == "show")
-                str += "	<input class='form-control input' data-custom-type='" + type + "' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='" + type + "' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' show='true' type='text' data-type='barcode' " + readOnly + "/>\n";
             else
-                str += "	<input class='form-control input' data-custom-type='" + type + "' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
+                str += "	<input class='form-control input' data-custom-type='" + type + "' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' data-type='barcode' type='" + inputType + "'" + readOnly + "/>\n";
             str += "	</div>\n";
             break;
         case "url" :
@@ -153,32 +151,32 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "        <div class='input-group-addon'>\n";
                 str += "            <i class='fa fa-link'></i>\n";
                 str += "        </div>\n";
-                str += "    <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
+                str += "    <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='url' data-type='url' " + readOnly + "/>\n";
                 str += "    </div>\n";
             }
             break;
         case "password" :
         case "mot de passe":
         case "secret":
-            str += "<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='password' " + readOnly + "/>\n";
+            str += "<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='password' " + readOnly + "/>\n";
             break;
         case "number" :
         case "nombre" :
         case "int" :
         case "integer" :
-            str += "<input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
+            str += "<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='number' max='2147483648' " + readOnly + "/>\n";
             break;
         case "big number" :
         case "big int" :
         case "big integer" :
         case "grand nombre" :
-            str += "<input class='form-control input' data-custom-type='bigint' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
+            str += "<input class='form-control input' data-custom-type='bigint' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='number' max='9223372036854775807' " + readOnly + "/>\n";
             break;
         case "decimal" :
         case "double" :
         case "float" :
         case "figures" :
-            str += "        <input class='form-control input' data-custom-type='decimal' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "        <input class='form-control input' data-custom-type='decimal' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
         case "date" :
             str += "   <div class='input-group'>\n";
@@ -186,11 +184,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "            <i class='fa fa-calendar'></i>\n";
             str += "        </div>\n";
             if (file == "show") {
-                str += "        <input class='form-control input datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             } else if (file == "update") {
-                str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             } else if (file == "create") {
-                str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' " + value + " type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' " + value + " type='text' " + readOnly + "/>\n";
             }
             str += "    </div>\n";
             break;
@@ -200,11 +198,11 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "            <i class='fa fa-calendar'></i> + <i class='fa fa-clock-o'></i>\n";
             str += "        </div>\n";
             if (file == "show")
-                str += "        <input class='form-control input datetimepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
             else if (file == "update")
-                str += "        <input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             else if (file == "create")
-                str += "        <input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' " + value + " type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' " + value + " type='text' " + readOnly + "/>\n";
             str += "    </div>\n";
             break;
         case "time" :
@@ -215,7 +213,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "            <div class='input-group-addon'>\n";
                 str += "                <i class='fa fa-clock-o'></i>\n";
                 str += "            </div>\n";
-                str += "            <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
+                str += "            <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|time}' type='text' " + readOnly + "/>\n";
                 str += "        </div>\n";
                 str += "    </div>\n";
             } else {
@@ -224,7 +222,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
                 str += "            <div class='input-group-addon'>\n";
                 str += "                <i class='fa fa-clock-o'></i>\n";
                 str += "            </div>\n";
-                str += "            <input class='form-control input timepicker' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+                str += "            <input class='form-control input timepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
                 str += "        </div>\n";
                 str += "    </div>\n";
             }
@@ -237,7 +235,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "        <div class='input-group-addon'>\n";
             str += "            <i class='fa fa-envelope'></i>\n";
             str += "        </div>\n";
-            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' data-type='email' " + readOnly + "/>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' data-type='email' " + readOnly + "/>\n";
             str += "    </div>\n";
             break;
         case "tel" :
@@ -248,7 +246,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "        <div class='input-group-addon'>\n";
             str += "            <i class='fa fa-phone'></i>\n";
             str += "        </div>\n";
-            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='tel' " + readOnly + "/>\n";
             str += "    </div>\n";
             break;
         case "fax" :
@@ -256,7 +254,7 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "        <div class='input-group-addon'>\n";
             str += "            <i class='fa fa-fax'></i>\n";
             str += "        </div>\n";
-            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='number' " + readOnly + "/>\n";
+            str += "        <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='number' " + readOnly + "/>\n";
             str += "    </div>\n";
             break;
         case "boolean" :
@@ -265,14 +263,14 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             str += "    &nbsp;\n<br>\n";
             if (file == "create") {
                 if (value === true)
-                    str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' checked />\n";
+                    str += "    <input class='form-control input' name='" + field + "' type='checkbox' checked />\n";
                 else
-                    str += "    <input class='form-control input' name='" + dataField + "' type='checkbox' />\n";
+                    str += "    <input class='form-control input' name='" + field + "' type='checkbox' />\n";
             } else {
-                str += "    <!--{@ifTrue key=" + dataField + "}-->";
-                str += "        <input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
+                str += "    <!--{@ifTrue key=" + field + "}-->";
+                str += "        <input class='form-control input' name='" + field + "' value='" + value + "' type='checkbox' checked " + disabled + "/>\n";
                 str += "    <!--{:else}-->";
-                str += "        <input class='form-control input' name='" + dataField + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
+                str += "        <input class='form-control input' name='" + field + "' value='" + value + "' type='checkbox' " + disabled + "/>\n";
                 str += "    <!--{/ifTrue}-->";
             }
             break;
@@ -281,126 +279,126 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
             var clearValues = [];
             var clearDefaultValue = "";
             for (var i = 0; i < values.length; i++)
-                clearValues[i] = attrHelper.clearString(values[i]);
+                clearValues[i] = dataHelper.clearString(values[i]);
 
             if (typeof defaultValue !== "undefined" && defaultValue != "" && defaultValue != null)
-                clearDefaultValue = attrHelper.clearString(defaultValue);
+                clearDefaultValue = dataHelper.clearString(defaultValue);
 
             if (file == "create") {
                 if (clearDefaultValue != "") {
-                    str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                    str += "<!--{#enum_radio." + entity + "." + field + "}-->\n";
                     str += "    &nbsp;\n<br>\n";
                     str += "    <label class='no-weight'>";
                     str += "    <!--{@eq key=\"" + clearDefaultValue + "\" value=\"{.value}\" }-->\n";
-                    str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "        <input class='form-control input' name='" + field + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    <!--{:else}-->\n";
-                    str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "        <input class='form-control input' name='" + field + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    <!--{/eq}-->\n";
                     str += "    </label>";
-                    str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                    str += "<!--{/enum_radio." + entity + "." + field + "}-->\n";
                 } else {
-                    str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                    str += "<!--{#enum_radio." + entity + "." + field + "}-->\n";
                     str += "    &nbsp;\n<br>\n";
                     str += "    <label class='no-weight'>";
-                    str += "    <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                    str += "    <input class='form-control input' name='" + field + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                     str += "    </label>";
-                    str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                    str += "<!--{/enum_radio." + entity + "." + field + "}-->\n";
                 }
             } else if (file == "show") {
-                str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "<!--{#enum_radio." + entity + "." + field + "}-->\n";
                 str += "    &nbsp;\n<br>\n";
                 str += "    <label class='no-weight'>";
                 str += "    <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
-                str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "        <input class='form-control input' name='" + entity + "." + field + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    <!--{:else}-->\n";
-                str += "        <input class='form-control input' name='" + dataEntity + "." + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "        <input class='form-control input' name='" + entity + "." + field + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    <!--{/eq}-->\n";
                 str += "    </label>";
-                str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "<!--{/enum_radio." + entity + "." + field + "}-->\n";
             } else {
-                str += "<!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "<!--{#enum_radio." + entity + "." + field + "}-->\n";
                 str += "    &nbsp;\n<br>\n";
                 str += "    <label class='no-weight'>";
                 str += "    <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
-                str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "        <input class='form-control input' name='" + field + "' value='{.value}' checked type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    <!--{:else}-->\n";
-                str += "        <input class='form-control input' name='" + dataField + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
+                str += "        <input class='form-control input' name='" + field + "' value='{.value}' type='radio' " + disabled + "/>&nbsp;{.translation}\n";
                 str += "    <!--{/eq}-->\n";
                 str += "    </label>";
-                str += "<!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "<!--{/enum_radio." + entity + "." + field + "}-->\n";
             }
             break;
         case "enum" :
             if (file == "show") {
                 str += "    <!--{^" + value2 + "}-->\n";
-                str += "        <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' type='text' " + readOnly + "/>\n";
+                str += "        <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
                 str += "    <!--{/" + value2 + "}-->\n";
-                str += "    <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "    <!--{#enum_radio." + entity + "." + field + "}-->\n";
                 str += "        <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
-                str += "            <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='{.translation}' type='text' " + readOnly + "/>\n";
+                str += "            <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{.translation}' type='text' " + readOnly + "/>\n";
                 str += "        <!--{/eq}-->\n";
-                str += "    <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "    <!--{/enum_radio." + entity + "." + field + "}-->\n";
             } else if (file != "create") {
-                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
+                str += "    <select class='form-control select' name='" + field + "' " + disabled + " width='100%'>\n";
                 str += "        <option value=''><!--{#__ key=\"select.default\" /}--></option>\n";
-                str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{#enum_radio." + entity + "." + field + "}-->\n";
                 str += "            <!--{@eq key=" + value2 + " value=\"{.value}\" }-->\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
                 str += "            <!--{:else}-->\n";
                 str += "                <option value=\"{.value}\"> {.translation} </option>\n";
                 str += "            <!--{/eq}-->\n";
-                str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{/enum_radio." + entity + "." + field + "}-->\n";
                 str += "    </select>\n";
             } else if (value != "") {
-                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
+                str += "    <select class='form-control select' name='" + field + "' " + disabled + " width='100%'>\n";
                 str += "        <option value=''><!--{#__ key=\"select.default\" /}--></option>\n";
-                str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{#enum_radio." + entity + "." + field + "}-->\n";
                 str += "            <!--{@eq key=\"" + value + "\" value=\"{.value}\" }-->\n";
                 str += "                <option value=\"{.value}\" selected> {.translation} </option>\n";
                 str += "            <!--{:else}-->\n";
                 str += "                <option value=\"{.value}\"> {.translation} </option>\n";
                 str += "            <!--{/eq}-->\n";
-                str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{/enum_radio." + entity + "." + field + "}-->\n";
                 str += "    </select>\n";
             } else {
-                str += "    <select class='form-control select' name='" + dataField + "' " + disabled + " width='100%'>\n";
+                str += "    <select class='form-control select' name='" + field + "' " + disabled + " width='100%'>\n";
                 str += "        <option value='' selected><!--{#__ key=\"select.default\" /}--></option>\n";
-                str += "        <!--{#enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{#enum_radio." + entity + "." + field + "}-->\n";
                 str += "            <option value=\"{.value}\"> {.translation} </option>\n";
-                str += "        <!--{/enum_radio." + dataEntity + "." + dataField + "}-->\n";
+                str += "        <!--{/enum_radio." + entity + "." + field + "}-->\n";
                 str += "    </select>\n";
             }
             break;
         case "text" :
         case "texte" :
             if (file == 'show')
-                str += "    <div class='show-textarea'>{" + dataField + "|s}</div>\n";
+                str += "    <div class='show-textarea'>{" + field + "|s}</div>\n";
             else if (file == 'create')
-                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
+                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' id='" + field + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             else
-                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">{" + value2 + "|s}</textarea>\n";
+                str += "    <textarea class='form-control textarea' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' id='" + field + "_textareaid' type='text' " + readOnly + ">{" + value2 + "|s}</textarea>\n";
 
             break;
         case "regular text" :
         case "texte standard" :
-            value = "{" + dataField + "|s}";
+            value = "{" + field + "|s}";
             if (file == 'show')
                 str += "    <textarea readonly='readonly' class='show-textarea regular-textarea'>" + value + "</textarea>\n";
             else
-                str += "    <textarea class='form-control textarea regular-textarea' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' id='" + dataField + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
+                str += "    <textarea class='form-control textarea regular-textarea' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' id='" + field + "_textareaid' type='text' " + readOnly + ">" + value + "</textarea>\n";
             break;
         case "localfile" :
         case "fichier":
         case "file":
             if (file != 'show') {
-                str += "    <div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-entity='" + dataEntity + "' ></div>\n";
-                str += "    <input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value='" + value + "'/>\n";
+                str += "    <div class='dropzone dropzone-field' id='" + field + "_dropzone' data-storage='local' data-entity='" + entity + "' ></div>\n";
+                str += "    <input type='hidden' name='" + field + "' id='" + field + "_dropzone_hidden' value='" + value + "'/>\n";
             } else {
                 str += "    <div class='input-group'>\n";
                 str += "        <div class='input-group-addon'>\n";
                 str += "            <i class='fa fa-download'></i>\n";
                 str += "        </div>\n";
-                str += "        <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + "|urlencode} class='form-control text-left' name=" + dataField + ">{" + value2 + "|filename}</a>\n";
+                str += "        <a href=/default/download?entity=" + entity + "&f={" + value2 + "|urlencode} class='form-control text-left' name=" + field + ">{" + value2 + "|filename}</a>\n";
                 str += "    </div>\n";
             }
             break;
@@ -409,20 +407,20 @@ function getFieldHtml(type, nameDataField, nameDataEntity, readOnly, file, value
         case "image":
         case "photo":
             if (file != 'show') {
-                str += "    <div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='local' data-type='picture' data-entity='" + dataEntity + "' ></div>\n";
-                str += "    <input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
+                str += "    <div class='dropzone dropzone-field' id='" + field + "_dropzone' data-storage='local' data-type='picture' data-entity='" + entity + "' ></div>\n";
+                str += "    <input type='hidden' name='" + field + "' id='" + field + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
             } else {
                 str += "    <div class='input-group'>\n";
-                str += "            <a href=/default/download?entity=" + dataEntity + "&f={" + value2 + ".value|urlencode} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + dataField + "  " + readOnly + " height='400' width='400' /></a>\n";
+                str += "            <a href=/default/download?entity=" + entity + "&f={" + value2 + ".value|urlencode} ><img src=data:image/;base64,{" + value2 + ".buffer}  class='img img-responsive' data-type='picture' alt=" + value + " name=" + field + "  " + readOnly + " height='400' width='400' /></a>\n";
                 str += "    </div>\n";
             }
             break;
         case "cloudfile" :
-            str += "    <div class='dropzone dropzone-field' id='" + dataField + "_dropzone' data-storage='cloud' data-entity='" + dataEntity + "' ></div>\n";
-            str += "    <input type='hidden' name='" + dataField + "' id='" + dataField + "_dropzone_hidden' />";
+            str += "    <div class='dropzone dropzone-field' id='" + field + "_dropzone' data-storage='cloud' data-entity='" + entity + "' ></div>\n";
+            str += "    <input type='hidden' name='" + field + "' id='" + field + "_dropzone_hidden' />";
             break;
         default :
-            str += "    <input class='form-control input' placeholder='{#__ key=|entity." + dataEntity + "." + dataField + "| /}' name='" + dataField + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+            str += "    <input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
             break;
     }
 
@@ -466,12 +464,11 @@ function getFieldInHeaderListHtml(type, fieldName, entityName) {
     return result;
 }
 
-function updateFile(fileBase, file, string, callback) {
+async function updateFile(fileBase, file, string) {
     fileToWrite = fileBase + '/' + file + '.dust';
-    domHelper.read(fileToWrite).then(function ($) {
-        $("#fields").append(string);
-        domHelper.write(fileToWrite, $).then(callback);
-    })
+    let $ = await domHelper.read(fileToWrite);
+    $("#fields").append(string);
+    await domHelper.write(fileToWrite, $)
 }
 
 function updateListFile(fileBase, file, thString, bodyString, callback) {
@@ -489,76 +486,69 @@ function updateListFile(fileBase, file, thString, bodyString, callback) {
     });
 }
 
-exports.setupDataField = function (attr, callback) {
+exports.setupField = async (data) => {
 
-    var id_application = attr.id_application;
-    var name_module = attr.name_module;
-    var name_data_entity = attr.name_data_entity;
-    var codeName_data_entity = attr.codeName_data_entity;
-    var type_data_field;
-    var values_data_field;
+    // let id_application = data.id_application;
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let entity_name = data.entity.name;
+    let field_type = "string",
+        field_values;
     /* ----------------- 1 - Initialize variables according to options ----------------- */
-    var options = attr.options;
-    var name_data_field = options.value;
-    var show_name_data_field = options.showValue;
-    var defaultValue = null;
-    var defaultValueForOption = null;
+    let options = data.options;
+    let field_name = options.value;
+    let defaultValue = null;
+    let defaultValueForOption = null;
 
     if (typeof options.defaultValue !== "undefined" && options.defaultValue != null)
         defaultValue = options.defaultValue;
 
     // If there is a WITH TYPE in the instruction
     if (typeof options.type !== "undefined")
-        type_data_field = options.type;
-    else
-        type_data_field = "string";
+        field_type = options.type;
 
     // Cut allValues for ENUM or other type
     if (typeof options.allValues !== "undefined") {
-        var values = options.allValues;
+        let values = options.allValues;
         if (values.indexOf(",") != -1) {
-            values_data_field = values.split(",");
-            for (var j = 0; j < values_data_field.length; j++)
-                values_data_field[j] = values_data_field[j].trim();
+            field_values = values.split(",");
+            for (let j = 0; j < field_values.length; j++)
+                field_values[j] = field_values[j].trim();
         } else {
-            var err = new Error();
-            err.message = "structure.field.attributes.noSpace";
-            return callback(err, null);
+            throw new Error('structure.field.attributes.noSpace');
         }
 
-        var sameResults_sorted = values_data_field.slice().sort();
-        var sameResults = [];
-        for (var i = 0; i < values_data_field.length - 1; i++)
+        let sameResults_sorted = field_values.slice().sort();
+        let sameResults = [];
+        for (let i = 0; i < field_values.length - 1; i++)
             if (sameResults_sorted[i + 1] == sameResults_sorted[i])
                 sameResults.push(sameResults_sorted[i]);
 
-        if (sameResults.length > 0) {
-            var err = new Error();
-            err.message = "structure.field.attributes.sameValue";
-            return callback(err, null);
-        }
+        if (sameResults.length > 0)
+            throw new Error('structure.field.attributes.noSpace');
     }
 
     /* ----------------- 2 - Update the entity model, add the attribute ----------------- */
 
     // attributes.json
-    var attributesFileName = __dirname + '/../workspace/' + id_application + '/models/attributes/' + codeName_data_entity.toLowerCase() + '.json';
-    var attributesFile = fs.readFileSync(attributesFileName);
-    var attributesObject = JSON.parse(attributesFile);
+    let attributesFileName = workspacePath + '/models/attributes/' + entity_name + '.json';
+    let attributesObject = JSON.parse(fs.readFileSync(attributesFileName));
+
     // toSync.json
-    var toSyncFileName = __dirname + '/../workspace/' + id_application + '/models/toSync.json';
-    var toSyncFile = fs.readFileSync(toSyncFileName);
-    var toSyncObject = JSON.parse(toSyncFile);
-    if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] === "undefined")
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()] = {attributes: {}};
-    else if (typeof toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes === "undefined")
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes = {};
+    let toSyncFileName = workspacePath + '/models/toSync.json';
+    let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
-    var typeForModel = "STRING";
-    var typeForDatalist = "string";
+    if (typeof toSyncObject[entity_name] === "undefined")
+        toSyncObject[entity_name] = {
+            attributes: {}
+        };
+    else if (typeof toSyncObject[entity_name].attributes === "undefined")
+        toSyncObject[entity_name].attributes = {};
 
-    switch (type_data_field) {
-        case "password" :
+    let typeForModel = "STRING";
+    let typeForDatalist = "string";
+
+    switch (field_type) {
+        case "password":
         case "mot de passe":
         case "secret":
             typeForModel = "STRING";
@@ -570,17 +560,17 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "STRING";
             typeForDatalist = "color";
             break;
-        case "number" :
-        case "int" :
-        case "integer" :
-        case "nombre" :
+        case "number":
+        case "int":
+        case "integer":
+        case "nombre":
             typeForModel = "INTEGER";
             typeForDatalist = "integer";
             break;
-        case "big number" :
-        case "big int" :
-        case "big integer" :
-        case "grand nombre" :
+        case "big number":
+        case "big int":
+        case "big integer":
+        case "grand nombre":
             typeForModel = "BIGINT";
             typeForDatalist = "integer";
             break;
@@ -605,65 +595,65 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "DOUBLE";
             typeForDatalist = "currency";
             break;
-        case "float" :
-        case "double" :
-        case "decimal" :
-        case "figures" :
+        case "float":
+        case "double":
+        case "decimal":
+        case "figures":
             typeForModel = "STRING";
             break;
-        case "date" :
+        case "date":
             typeForModel = "DATE";
             typeForDatalist = "date";
             break;
-        case "datetime" :
+        case "datetime":
             typeForModel = "DATE";
             typeForDatalist = "datetime";
             break;
-        case "time" :
-        case "heure" :
+        case "time":
+        case "heure":
             typeForModel = "TIME";
             typeForDatalist = "time";
             break;
-        case "email" :
-        case "mail" :
-        case "e-mail" :
-        case "mel" :
+        case "email":
+        case "mail":
+        case "e-mail":
+        case "mel":
             typeForModel = "STRING";
             typeForDatalist = "email";
             break;
-        case "phone" :
-        case "tel" :
-        case "téléphone" :
-        case "portable" :
+        case "phone":
+        case "tel":
+        case "téléphone":
+        case "portable":
             typeForModel = "STRING";
             typeForDatalist = "tel";
             break;
-        case "fax" :
+        case "fax":
             typeForModel = "STRING";
             break;
-        case "checkbox" :
-        case "boolean" :
-        case "case à cocher" :
+        case "checkbox":
+        case "boolean":
+        case "case à cocher":
             typeForModel = "BOOLEAN";
             typeForDatalist = "boolean";
             break;
-        case "radio" :
-        case "case à sélectionner" :
+        case "radio":
+        case "case à sélectionner":
             typeForModel = "ENUM";
             typeForDatalist = "enum";
             break;
-        case "enum" :
+        case "enum":
             typeForModel = "ENUM";
             typeForDatalist = "enum";
             break;
-        case "text" :
-        case "texte" :
-        case "regular text" :
-        case "texte standard" :
+        case "text":
+        case "texte":
+        case "regular text":
+        case "texte standard":
             typeForModel = "TEXT";
             typeForDatalist = "text";
             break;
-        case "localfile" :
+        case "localfile":
         case "file":
         case "fichier":
             typeForModel = "STRING";
@@ -675,7 +665,7 @@ exports.setupDataField = function (attr, callback) {
         case "photo":
             typeForModel = "STRING";
             typeForDatalist = "picture";
-            type_data_field = 'picture';
+            field_type = 'picture';
             break;
         case "ean8":
         case "ean13":
@@ -692,10 +682,10 @@ exports.setupDataField = function (attr, callback) {
             typeForModel = "TEXT";
             typeForDatalist = "barcode";
             break;
-        case "cloudfile" :
+        case "cloudfile":
             typeForModel = "STRING";
             break;
-        default :
+        default:
             typeForModel = "STRING";
             break;
     }
@@ -714,160 +704,146 @@ exports.setupDataField = function (attr, callback) {
         }
     }
 
-    if (type_data_field == "enum") {
+    if (field_type == "enum") {
         // Remove all special caractere for all enum values
-        var cleanEnumValues = [];
-        if (typeof values_data_field === "undefined") {
-            var err = new Error();
-            err.message = "structure.field.attributes.missingValues";
-            return callback(err, null);
-        }
-        for (var i = 0; i < values_data_field.length; i++)
-            cleanEnumValues[i] = attrHelper.clearString(values_data_field[i]);
+        let cleanEnumValues = [];
+        if (typeof field_values === "undefined")
+            throw new Error('structure.field.attributes.missingValues');
 
-        attributesObject[name_data_field.toLowerCase()] = {
+        for (let i = 0; i < field_values.length; i++)
+            cleanEnumValues[i] = dataHelper.clearString(field_values[i]);
+
+        attributesObject[field_name] = {
             "type": typeForModel,
             "values": cleanEnumValues,
             "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+        toSyncObject[entity_name].attributes[field_name] = {
             "type": typeForModel,
             "values": cleanEnumValues,
             "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
-    } else if (type_data_field == "radio") {
+    } else if (field_type == "radio") {
         // Remove all special caractere for all enum values
-        var cleanRadioValues = [];
-        if (typeof values_data_field === "undefined") {
-            var err = new Error();
-            err.message = "structure.field.attributes.missingValues";
-            return callback(err, null);
-        }
-        for (var i = 0; i < values_data_field.length; i++)
-            cleanRadioValues[i] = attrHelper.clearString(values_data_field[i]);
-        attributesObject[name_data_field.toLowerCase()] = {
+        let cleanRadioValues = [];
+        if (typeof field_values === "undefined")
+            throw new Error('structure.field.attributes.missingValues');
+
+        for (let i = 0; i < field_values.length; i++)
+            cleanRadioValues[i] = dataHelper.clearString(field_values[i]);
+
+        attributesObject[field_name] = {
             "type": typeForModel,
             "values": cleanRadioValues,
             "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+        toSyncObject[entity_name].attributes[field_name] = {
             "type": typeForModel,
             "values": cleanRadioValues,
             "newmipsType": "enum",
             "defaultValue": defaultValueForOption
         };
-    } else if(["text", "texte" , "regular text", "texte standard"].indexOf(type_data_field) != -1){
+    } else if (["text", "texte", "regular text", "texte standard"].indexOf(field_type) != -1) {
         // No DB default value for type text, mysql do not handling it.
-        attributesObject[name_data_field.toLowerCase()] = {
+        attributesObject[field_name] = {
             "type": typeForModel,
-            "newmipsType": type_data_field
+            "newmipsType": field_type
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+        toSyncObject[entity_name].attributes[field_name] = {
             "type": typeForModel,
-            "newmipsType": type_data_field
+            "newmipsType": field_type
         }
     } else {
-        attributesObject[name_data_field.toLowerCase()] = {
+        attributesObject[field_name] = {
             "type": typeForModel,
-            "newmipsType": type_data_field,
+            "newmipsType": field_type,
             "defaultValue": defaultValueForOption
         };
-        toSyncObject[id_application + "_" + codeName_data_entity.toLowerCase()].attributes[name_data_field.toLowerCase()] = {
+        toSyncObject[entity_name].attributes[field_name] = {
             "type": typeForModel,
-            "newmipsType": type_data_field,
+            "newmipsType": field_type,
             "defaultValue": defaultValueForOption
         }
     }
 
     // Add default "validate" property to true, setting to false will disable sequelize's validation on the field
-    attributesObject[name_data_field.toLowerCase()].validate = true;
+    attributesObject[field_name].validate = true;
 
     fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
     fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));
 
     // Translation for enum and radio values
-    if (type_data_field == "enum") {
-        var fileEnum = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
-        var enumData = JSON.parse(fs.readFileSync(fileEnum));
-        var key = name_data_field.toLowerCase();
-        var json = {};
-        if (enumData[codeName_data_entity.toLowerCase()])
-            json = enumData[codeName_data_entity.toLowerCase()];
-        json[key] = [];
-        for (var i = 0; i < values_data_field.length; i++) {
-            json[key].push({
+    if (field_type == "enum") {
+        let fileEnum = workspacePath + '/locales/enum_radio.json';
+        let enumData = JSON.parse(fs.readFileSync(fileEnum));
+        let json = {};
+        if (enumData[entity_name])
+            json = enumData[entity_name];
+        json[field_name] = [];
+        for (let i = 0; i < field_values.length; i++) {
+            json[field_name].push({
                 value: cleanEnumValues[i],
                 translations: {
-                    "fr-FR": values_data_field[i],
-                    "en-EN": values_data_field[i]
+                    "fr-FR": field_values[i],
+                    "en-EN": field_values[i]
                 }
             });
         }
-        enumData[codeName_data_entity.toLowerCase()] = json;
-
+        enumData[entity_name] = json;
         // Write Enum file
-        var stream_fileEnum = fs.createWriteStream(fileEnum);
-        stream_fileEnum.write(JSON.stringify(enumData, null, 4));
-        stream_fileEnum.end();
+        fs.writeFileSync(fileEnum, JSON.stringify(enumData, null, 4));
     }
 
     // Translation for radio values
-    if (type_data_field == "radio") {
-        var fileRadio = __dirname + '/../workspace/' + id_application + '/locales/enum_radio.json';
-        var radioData = JSON.parse(fs.readFileSync(fileRadio));
-        var key = name_data_field.toLowerCase();
-        var json = {};
-        if (radioData[codeName_data_entity.toLowerCase()])
-            json = radioData[codeName_data_entity.toLowerCase()];
-        json[key] = [];
-        for (var i = 0; i < values_data_field.length; i++)
-            json[key].push({
+    if (field_type == "radio") {
+        let fileRadio = workspacePath + '/locales/enum_radio.json';
+        let radioData = JSON.parse(fs.readFileSync(fileRadio));
+        let json = {};
+        if (radioData[entity_name])
+            json = radioData[entity_name];
+        json[field_name] = [];
+        for (let i = 0; i < field_values.length; i++)
+            json[field_name].push({
                 value: cleanRadioValues[i],
                 translations: {
-                    "fr-FR": values_data_field[i],
-                    "en-EN": values_data_field[i]
+                    "fr-FR": field_values[i],
+                    "en-EN": field_values[i]
                 }
             });
-        radioData[codeName_data_entity.toLowerCase()] = json;
+        radioData[entity_name] = json;
 
         // Write Enum file
-        var stream_fileRadio = fs.createWriteStream(fileRadio);
-        stream_fileRadio.write(JSON.stringify(radioData, null, 4));
-        stream_fileRadio.end();
+        fs.writeFileSync(fileRadio, JSON.stringify(enumData, null, 4));
     }
 
     /* ----------------- 4 - Add the fields in all the views  ----------------- */
-    var fileBase = __dirname + '/../workspace/' + id_application + '/views/' + codeName_data_entity.toLowerCase();
-    /* Update the show_fields.dust file with a disabled input */
-    var stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, true, "show", values_data_field, defaultValue);
-    updateFile(fileBase, "show_fields", stringToWrite, function () {
-        /* Add _print to id and name to avoid error in print tab */
-        stringToWrite = stringToWrite.replace(/id=['"](.[^'"]*)['"]/g, "id=\"$1_print\"");
-        stringToWrite = stringToWrite.replace(/name=['"](.[^'"]*)['"]/g, "name=\"$1_print\"");
-        /* Update the print_fields.dust file */
-        updateFile(fileBase, "print_fields", stringToWrite, function () {
-            /* Update the create_fields.dust file */
-            stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "create", values_data_field, defaultValue);
-            updateFile(fileBase, "create_fields", stringToWrite, function () {
-                /* Update the update_fields.dust file */
-                stringToWrite = getFieldHtml(type_data_field, name_data_field, codeName_data_entity, false, "update", values_data_field, defaultValue);
-                updateFile(fileBase, "update_fields", stringToWrite, function () {
-                    /* Update the list_fields.dust file */
-                    stringToWrite = getFieldInHeaderListHtml(typeForDatalist, name_data_field, codeName_data_entity);
-                    updateListFile(fileBase, "list_fields", stringToWrite.headers, stringToWrite.body, function () {
+    let fileBase = workspacePath + '/views/' + entity_name;
 
-                        /* --------------- New translation --------------- */
-                        translateHelper.writeLocales(id_application, "field", codeName_data_entity, [name_data_field, show_name_data_field], attr.googleTranslate, function () {
-                            callback(null, "Data field successfully created.");
-                        });
-                    });
-                });
-            });
-        });
-    });
+    let filePromises = [];
+    /* show_fields.dust file with a disabled input */
+    let field_html = getFieldHtml(field_type, field_name, entity_name, true, "show", field_values, defaultValue);
+    filePromises.push(updateFile(fileBase, "show_fields", field_html));
+
+    /* create_fields.dust */
+    field_html = getFieldHtml(field_type, field_name, entity_name, false, "create", field_values, defaultValue);
+    filePromises.push(updateFile(fileBase, "create_fields", field_html));
+
+    /* update_fields.dust */
+    field_html = getFieldHtml(field_type, field_name, entity_name, false, "update", field_values, defaultValue);
+    filePromises.push(updateFile(fileBase, "update_fields", field_html));
+
+    /* list_fields.dust */
+    field_html = getFieldInHeaderListHtml(typeForDatalist, field_name, entity_name);
+    filePromises.push(updateListFile(fileBase, "list_fields", field_html.headers, field_html.body));
+
+    await Promise.all(filePromises);
+    // Field application locales
+    await translateHelper.writeLocales(data.application.name, "field", entity_name, [field_name, data.options.showValue], data.googleTranslate);
+
+    return;
 }
 
 exports.setRequiredAttribute = function (attr, callback) {
@@ -1308,7 +1284,7 @@ exports.setupRelatedToField = function (attr, callback) {
     // Update create_fields file
     var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     var file = 'create_fields';
-    updateFile(fileBase, file, select, function () {
+    updateFile(fileBase, file, select).then(_ => {
 
         select = '\
         <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
@@ -1329,7 +1305,7 @@ exports.setupRelatedToField = function (attr, callback) {
 
         file = 'update_fields';
         // Update update_fields file
-        updateFile(fileBase, file, select, function () {
+        updateFile(fileBase, file, select).then(_ => {
 
             // Setup association tab for show_fields.dust
             file = fileBase + '/show_fields.dust';
@@ -1459,7 +1435,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
     // Update create_fields file
     let fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
     let file = 'create_fields';
-    updateFile(fileBase, file, head + select, _ => {
+    updateFile(fileBase, file, head + select).then(_ => {
 
         if (attr.options.isCheckbox) {
             select = '\
@@ -1484,7 +1460,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
 
         file = 'update_fields';
         // Update update_fields file
-        updateFile(fileBase, file, head + select, function () {
+        updateFile(fileBase, file, head + select).then(_ => {
             select = '';
             if (attr.options.isCheckbox) {
                 select = '\
