@@ -56,7 +56,7 @@ module.exports = {
     fullEntityFieldTree: function (entity, alias = entity) {
         let genealogy = [];
         // Create inner function to use genealogy globaly
-        function loadTree(entity, alias) {
+        function loadTree(entity, alias, depth = 0) {
             let fieldTree = {
                 entity: entity,
                 alias: alias,
@@ -66,9 +66,10 @@ module.exports = {
                 file_fields: [],
                 children: []
             }
+            let entityFields, entityAssociations;
             try {
-                let entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-                let entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+                entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
             } catch (e) {
                 console.error(e);
                 return fieldTree;
@@ -86,34 +87,28 @@ module.exports = {
             }
 
             // Check if current entity has already been built in this branch of the tree to avoid infinite loop
-            let foundGenealogy = genealogy.filter(x => x.entity == entity);
-            // Entity already proceeded in an other relation
-            if(foundGenealogy.length != 0){
-                // Check for the better depth, if deeper then remove it to keep the closer one
-                if(foundGenealogy[0].depth > depth)
-                    genealogy = genealogy.filter(x => x.entity != entity); // Remove old one
-                else
-                    return fieldTree;
-            }
+            for (const [idx, genealogyBranch] of genealogy.entries())
+                if (genealogyBranch.entity == entity) {
+                    // Keep smallest depth
+                    if (genealogyBranch.depth > depth)
+                        genealogy.splice(idx, 1);
+                    else
+                        return fieldTree;
+                }
 
             genealogy.push({
                 entity: entity,
                 depth: depth
             });
 
-            let initalDepth = depth;
-
             // Building children array
             for (let i = 0; i < entityAssociations.length; i++){
                 // Do not include history & status table in field list
                 if(entityAssociations[i].target.indexOf("e_history_e_") == -1
                     && entityAssociations[i].target.indexOf("e_status") == -1){
-                    depth++;
-                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
+                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as, depth+1));
                 }
             }
-
-            depth = initalDepth;
 
             return fieldTree;
         }
