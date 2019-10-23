@@ -484,6 +484,9 @@ function init_datatable(tableID, doPagination, context) {
                             // Get current entity by splitting current table id
                             var currentEntity = tableID.split("#table_")[1];
                             var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
+                            // Remove uuid
+                            if(justFilename[32] == '_')
+                                justFilename = justFilename.substring(33);
                             cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
                         } else
                             cellValue = '';
