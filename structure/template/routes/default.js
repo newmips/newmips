@@ -294,6 +294,11 @@ router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
         let entity = req.query.entity;
         let filename = req.query.src;
         let cleanFilename = filename.substring(16);
+
+        // Remove uuid
+        if(cleanFilename[32] == '_')
+            cleanFilename = cleanFilename.substring(33);
+
         let folderName = filename.split("-")[0];
         let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
@@ -322,6 +327,11 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
         let entity = req.query.entity;
         let filename = req.query.f;
         let cleanFilename = filename.substring(16);
+
+        // Remove uuid
+        if(cleanFilename[32] == '_')
+            cleanFilename = cleanFilename.substring(33);
+
         let folderName = filename.split("-")[0];
         let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
@@ -350,6 +360,11 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
         let entity = req.body.dataEntity;
         let filename = req.body.filename;
         let cleanFilename = filename.substring(16);
+
+        // Remove uuid
+        if(cleanFilename[32] == '_')
+            cleanFilename = cleanFilename.substring(33);
+
         let folderName = filename.split("-")[0];
         let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
