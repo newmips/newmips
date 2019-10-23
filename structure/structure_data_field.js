@@ -630,6 +630,7 @@ exports.setupDataField = function (attr, callback) {
         case "mel" :
             typeForModel = "STRING";
             typeForDatalist = "email";
+            type_data_field = "email";
             break;
         case "phone" :
         case "tel" :
