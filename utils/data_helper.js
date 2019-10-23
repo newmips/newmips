@@ -112,6 +112,7 @@ function addPrefix(string, instructionFunction){
             return "m_"+string;
             break;
         case 'createNewEntity':
+        case 'selectEntity':
         case 'deleteDataEntity':
         case 'createNewHasOne':
         case 'createNewHasMany':
@@ -192,12 +193,17 @@ function removePrefix(string, type){
     return string;
 }
 
+function capitalizeFirstLetter(word) {
+    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+}
+
 module.exports = {
     clearString: clearString,
     validateString: validateString,
     lowerFirstWord: lowerFirstWord,
     addPrefix: addPrefix,
     removePrefix: removePrefix,
+    capitalizeFirstLetter: capitalizeFirstLetter,
     reworkData: (data) => {
         if(typeof data.options !== "undefined"){
             /* If the instruction create something there is inevitably a value. We have to clean this value for the code */

@@ -10,7 +10,7 @@ class Metadata {
 
 	getApplication(name){
 		// Looking for already loaded app
-		for(let app in this._applications)
+		for(let app of this._applications)
 			if(app.name == name)
 				return app
 

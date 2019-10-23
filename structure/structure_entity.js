@@ -4,38 +4,37 @@ const structure_field = require('./structure_field');
 const helpers = require('../utils/helpers');
 const translateHelper = require("../utils/translate");
 
-// Create associations between the models
-exports.setupAssociation = function (associationOption, callback) {
+// Create entity associations between the models
+exports.setupAssociation = (data) => {
 
-    var idApp = associationOption.idApp;
-    var source = associationOption.source;
-    var target = associationOption.target;
-    var foreignKey = associationOption.foreignKey;
-    var as = associationOption.as;
-    var showAs = associationOption.showAs;
-    var relation = associationOption.relation;
-    var through = associationOption.through;
-    var toSync = associationOption.toSync;
-    var type = associationOption.type;
-    var constraints = associationOption.constraints;
-    var targetType = associationOption.targetType;
+    let workspacePath = __dirname+'/../workspace/' + data.application.name;
+    let source = data.source;
+    let target = data.target;
+    let foreignKey = data.foreignKey;
+    let as = data.as;
+    let showAs = data.showAs;
+    let relation = data.relation;
+    let through = data.through;
+    let toSync = data.toSync;
+    let type = data.type;
+    let constraints = data.constraints;
+    let targetType = data.targetType;
 
     // SETUP MODEL OPTIONS FILE
-    var optionsFileName = __dirname+'/../workspace/' + idApp + '/models/options/' + source.toLowerCase() + '.json';
-    var optionsFile = fs.readFileSync(optionsFileName);
-    var optionsObject = JSON.parse(optionsFile);
+    let optionsFileName = workspacePath + '/models/options/' + source + '.json';
+    let optionsObject = JSON.parse(fs.readFileSync(optionsFileName));
 
     // If we are generating automatically a key and the alias is already used, then cancel
-    for (var i = 0; i < optionsObject.length; i++)
+    for (let i = 0; i < optionsObject.length; i++)
         if(type == "auto_generate" && optionsObject[i].as == as)
-            return callback();
+            return;
 
     // Check for other auto_generate keys with same alias, if exist, remove it
-    for (var i = 0; i < optionsObject.length; i++)
+    for (let i = 0; i < optionsObject.length; i++)
         if(optionsObject[i].as == as && optionsObject[i].type == "auto_generate")
             optionsObject.splice(i, 1);
 
-    var baseOptions = {target: target.toLowerCase(), relation: relation};
+    let baseOptions = {target: target, relation: relation};
     baseOptions.foreignKey = foreignKey;
     baseOptions.as = as;
     baseOptions.showAs = showAs;
@@ -47,59 +46,47 @@ exports.setupAssociation = function (associationOption, callback) {
         if(source == target)
             baseOptions.otherKey += "_bis";
     }
+
+    baseOptions.structureType = "";
     if (typeof targetType !== "undefined")
         baseOptions.targetType = targetType;
     if (type != null)
         baseOptions.structureType = type;
-    else
-        baseOptions.structureType = "";
 
     if (constraints != null && !constraints)
         baseOptions.constraints = constraints;
 
     // Save using field in related to and related to many fields
-    if (typeof associationOption.usingField !== "undefined")
-        baseOptions.usingField = associationOption.usingField;
+    if (typeof data.usingField !== "undefined")
+        baseOptions.usingField = data.usingField;
 
     // Load this association directly in standard route data
-    if (typeof associationOption.loadOnStart !== "undefined" && associationOption.loadOnStart)
+    if (typeof data.loadOnStart !== "undefined" && data.loadOnStart)
         baseOptions.loadOnStart = true;
 
     optionsObject.push(baseOptions);
 
     if (toSync) {
         // SETUP toSync.json
-        var toSyncFileName = __dirname+'/../workspace/' + idApp + '/models/toSync.json';
-        var toSyncFile = fs.readFileSync(toSyncFileName);
-        var toSyncObject = JSON.parse(toSyncFile);
+        let toSyncFileName = workspacePath + '/models/toSync.json';
+        let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
-        if (typeof toSyncObject[idApp + "_" + source.toLowerCase()] === "undefined") {
-            toSyncObject[idApp + "_" + source.toLowerCase()] = {};
-            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
+        if (typeof toSyncObject[source] === "undefined") {
+            toSyncObject[source] = {};
+            toSyncObject[source].options = [];
         }
-        else if (typeof toSyncObject[idApp + "_" + source.toLowerCase()].options === "undefined")
-            toSyncObject[idApp + "_" + source.toLowerCase()].options = [];
+        else if (typeof toSyncObject[source].options === "undefined")
+            toSyncObject[source].options = [];
 
-        toSyncObject[idApp + "_" + source.toLowerCase()].options.push(baseOptions);
+        toSyncObject[source].options.push(baseOptions);
+        fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));
     }
 
-    var writeStream = fs.createWriteStream(optionsFileName);
-    writeStream.write(JSON.stringify(optionsObject, null, 4));
-    writeStream.end();
-    writeStream.on('finish', function () {
-        if (toSync) {
-            var writeStream2 = fs.createWriteStream(toSyncFileName);
-            writeStream2.write(JSON.stringify(toSyncObject, null, 4));
-            writeStream2.end();
-            writeStream2.on('finish', function () {
-                callback();
-            });
-        } else
-            callback();
-    });
+    fs.writeFileSync(optionsFileName, JSON.stringify(optionsObject, null, 4));
+    return;
 }
 
-exports.setupDataEntity = async (data, callback) => {
+exports.setupEntity = async (data) => {
 
     let module_name = data.np_module.name;
     let addInSidebar = true;
@@ -121,7 +108,7 @@ exports.setupDataEntity = async (data, callback) => {
         entity_url = data.options.urlValue;
     }
 
-    let entity_model = entity_name.charAt(0) + entity_name.slice(1);
+    let entity_model = entity_name.charAt(0).toUpperCase() + entity_name.toLowerCase().slice(1);
 
     // CREATE MODEL FILE
     let modelTemplate = fs.readFileSync(piecesPath + '/models/data_entity.js', 'utf8');
@@ -145,7 +132,7 @@ exports.setupDataEntity = async (data, callback) => {
     fs.writeFileSync(workspacePath + '/models/attributes/' + entity_name + '.json', JSON.stringify(baseAttributes, null, 4));
 
     // CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
-    fs.writeFileSync(workspacePath + '/models/options/' + entity_name + '.json', []);
+    fs.writeFileSync(workspacePath + '/models/options/' + entity_name + '.json', JSON.stringify([], null, 4));
 
     // CREATE ROUTE FILE
     let routeTemplate = fs.readFileSync(piecesPath + '/routes/data_entity.js', 'utf8');

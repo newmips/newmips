@@ -1,14 +1,14 @@
-var db_project = require("../database/project");
-var db_application = require("../database/application");
-var db_module = require("../database/module");
-var db_entity = require("../database/data_entity");
-var globalConf = require("../config/global.js");
-var gitHelper = require("../utils/git_helper");
-var fs = require('fs-extra');
-var language = require("../services/language");
+const db_project = require("../database/project");
+const db_application = require("../database/application");
+const db_module = require("../database/module");
+const db_entity = require("../database/data_entity");
+const globalConf = require("../config/global.js");
+const gitHelper = require("../utils/git_helper");
+const fs = require('fs-extra');
+const language = require("../services/language");
 
 //Sequelize
-var models = require('../models/');
+const models = require('../models/');
 
 // Help
 exports.help = function(attr, callback) {
@@ -158,11 +158,11 @@ exports.setSession = function(npFunction, req, info, data) {
             }
             break;
         case "selectEntity":
-            req.session.entity_name = info.insertId;
-            req.session.module_name = info.moduleId;
+            req.session.entity_name = info.entity.name;
+            req.session.module_name = info.module.name;
             if (data && data.iframe_url && info.doRedirect) {
                 iframeUrl = data.iframe_url.split("/");
-                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/" + info.urlEntity + "/list";
+                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/" + info.entity.name.substring(2) + "/list";
             }
             break;
         case "createNewEntity":
@@ -177,7 +177,7 @@ exports.setSession = function(npFunction, req, info, data) {
         case "createNewBelongsTo":
         case "createNewHasMany":
         case "createNewFieldRelatedTo":
-            req.session.entity_name = info.insertId;
+            req.session.entity_name = info.entity.name;
             break;
         case "deleteProject":
             req.session.id_project = null;
@@ -263,27 +263,20 @@ exports.setSessionForInstructionScript = function(attrFunction, userArray, info)
     }
 }
 
-// Set session in an given attr obj
-exports.setSessionInAttr = function(attr, info) {
+// Set session only in a given obj
+exports.setSessionObj = function(data, info) {
 
-    switch(attr.function){
-        case "selectProject":
-        case "createNewProject":
-            attr.id_project = info.insertId;
-            attr.id_application = null;
-            attr.id_module = null;
-            attr.id_data_entity = null;
-            break;
+    switch(data.function){
         case "selectApplication":
         case "createNewApplication":
-            attr.id_application = info.insertId;
-            attr.id_module = null;
-            attr.id_data_entity = null;
+            data.app_name = info.application.name;
+            data.module_name = null;
+            data.entity_name = null;
             break;
         case "selectModule":
         case "createNewModule":
-            attr.id_module = info.insertId;
-            attr.id_data_entity = null;
+            data.module_name = info.module.name;
+            data.entity_name = null;
             break;
         case "createNewEntity":
         case "selectEntity":
@@ -292,22 +285,18 @@ exports.setSessionInAttr = function(attr, info) {
         case "createNewBelongsTo":
         case "createNewHasMany":
         case "createNewFieldRelatedTo":
-            attr.id_data_entity = info.insertId;
-            break;
-        case "deleteProject":
-            attr.id_project = null;
-            attr.id_application = null;
-            attr.id_module = null;
-            attr.id_data_entity = null;
+            data.entity_name = info.entity.name;
             break;
         case "deleteApplication":
-            attr.id_application = null;
-            attr.id_module = null;
-            attr.id_data_entity = null;
+            data.app_name = null;
+            data.module_name = null;
+            data.entity_name = null;
             break;
         case "deleteModule":
-            attr.id_module = info.homeID;
-            attr.id_data_entity = null;
+            data.module_name = info.homeID;
+            data.entity_name = null;
             break;
     }
+
+    return data;
 }

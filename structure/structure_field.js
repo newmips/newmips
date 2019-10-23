@@ -1,10 +1,10 @@
-var fs = require("fs-extra");
-var domHelper = require('../utils/jsDomHelper');
-var translateHelper = require("../utils/translate");
-var helpers = require("../utils/helpers");
-var dataHelper = require("../utils/data_helper");
-var printHelper = require("../utils/print_helper");
-var moment = require("moment");
+const fs = require("fs-extra");
+const domHelper = require('../utils/jsDomHelper');
+const translateHelper = require("../utils/translate");
+const helpers = require("../utils/helpers");
+const dataHelper = require("../utils/data_helper");
+const printHelper = require("../utils/print_helper");
+const moment = require("moment");
 
 function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue) {
     /* Value in input managment */
@@ -465,30 +465,31 @@ function getFieldInHeaderListHtml(type, fieldName, entityName) {
 }
 
 async function updateFile(fileBase, file, string) {
-    fileToWrite = fileBase + '/' + file + '.dust';
+    let fileToWrite = fileBase + '/' + file + '.dust';
     let $ = await domHelper.read(fileToWrite);
     $("#fields").append(string);
-    await domHelper.write(fileToWrite, $)
+    await domHelper.write(fileToWrite, $);
+    return;
 }
 
-function updateListFile(fileBase, file, thString, bodyString, callback) {
+async function updateListFile(fileBase, file, thString) {
     fileToWrite = fileBase + '/' + file + '.dust';
-    domHelper.read(fileToWrite).then(function ($) {
-        // Count th to know where to insert new th (-4 because of actions th + id, show/update/delete)
-        var thCount = $(".main").find('th').length - 4;
-        // Add to header thead and filter thead
-        $(".fields").each(function () {
-            $(this).find('th').eq(thCount).after(thString);
-        });
+    let $ = await domHelper.read(fileToWrite)
 
-        // Write back to file
-        domHelper.write(fileToWrite, $).then(callback);
+    // Count th to know where to insert new th (-4 because of actions th + id, show/update/delete)
+    let thCount = $(".main").find('th').length - 4;
+    // Add to header thead and filter thead
+    $(".fields").each(function () {
+        $(this).find('th').eq(thCount).after(thString);
     });
+
+    // Write back to file
+    await domHelper.write(fileToWrite, $);
+    return;
 }
 
 exports.setupField = async (data) => {
 
-    // let id_application = data.id_application;
     let workspacePath = __dirname + '/../workspace/' + data.application.name;
     let entity_name = data.entity.name;
     let field_type = "string",
@@ -704,9 +705,9 @@ exports.setupField = async (data) => {
         }
     }
 
+    let cleanEnumValues = [];
     if (field_type == "enum") {
         // Remove all special caractere for all enum values
-        let cleanEnumValues = [];
         if (typeof field_values === "undefined")
             throw new Error('structure.field.attributes.missingValues');
 
@@ -837,7 +838,7 @@ exports.setupField = async (data) => {
 
     /* list_fields.dust */
     field_html = getFieldInHeaderListHtml(typeForDatalist, field_name, entity_name);
-    filePromises.push(updateListFile(fileBase, "list_fields", field_html.headers, field_html.body));
+    filePromises.push(updateListFile(fileBase, "list_fields", field_html.headers));
 
     await Promise.all(filePromises);
     // Field application locales
@@ -846,201 +847,171 @@ exports.setupField = async (data) => {
     return;
 }
 
-exports.setRequiredAttribute = function (attr, callback) {
+exports.setRequiredAttribute = async (data) => {
 
     let possibilityRequired = ["mandatory", "required", "obligatoire"];
     let possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
-    let entityCodeName = attr.name_data_entity.toLowerCase();
 
-    let attribute = attr.options.word.toLowerCase();
+    let attribute = data.options.word.toLowerCase();
     let set = null;
 
     if (possibilityRequired.indexOf(attribute) != -1)
         set = true;
     else if (possibilityOptionnal.indexOf(attribute) != -1)
         set = false;
-    else {
-        let err = new Error();
-        err.message = "structure.field.attributes.notUnderstand";
-        return callback(err);
+    else
+        throw new Error('structure.field.attributes.notUnderstand');
+
+    let pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity_name;
+
+    // Update create_fields.dust file
+    let $ = await domHelper.read(pathToViews + '/create_fields.dust');
+
+    if ($("*[data-field='" + data.options.value + "']").length == 0) {
+        let err = new Error('structure.field.attributes.fieldNoFound');
+        err.messageParams = [data.options.showValue];
+        throw err;
     }
 
-    let pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + entityCodeName;
+    if (set)
+        $("*[data-field='" + data.options.value + "']").find('label:first').addClass('required');
+    else
+        $("*[data-field='" + data.options.value + "']").find('label:first').removeClass('required');
 
-    let writeDust = new Promise((resolve, reject) => {
+    if(data.structureType == "relatedToMultipleCheckbox"){
+        $("*[data-field='" + data.options.value + "']").find('.relatedtomany-checkbox').data('required', set);
+    } else {
+        $("*[data-field='" + data.options.value + "']").find('input').prop('required', set);
+        $("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
+    }
 
-        // Update create_fields.dust file
-        domHelper.read(pathToViews + '/create_fields.dust').then(function($) {
+    await domHelper.write(pathToViews + '/create_fields.dust', $);
 
-            if ($("*[data-field='" + attr.options.value + "']").length > 0) {
-                if (set)
-                    $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
-                else
-                    $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
+    // Update update_fields.dust file
+    $ = await domHelper.read(pathToViews + '/update_fields.dust');
+    if (set)
+        $("*[data-field='" + data.options.value + "']").find('label:first').addClass('required');
+    else
+        $("*[data-field='" + data.options.value + "']").find('label:first').removeClass('required');
 
-                if(attr.structureType == "relatedToMultipleCheckbox"){
-                    $("*[data-field='" + attr.options.value + "']").find('.relatedtomany-checkbox').attr('required', set);
-                } else {
-                    $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
-                    $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
-                }
+    if(data.structureType == "relatedToMultipleCheckbox"){
+        $("*[data-field='" + data.options.value + "']").find('.relatedtomany-checkbox').data('required', set);
+    } else {
+        $("*[data-field='" + data.options.value + "']").find('input').prop('required', set);
+        $("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
+    }
 
-                domHelper.write(pathToViews + '/create_fields.dust', $).then(function() {
+    await domHelper.write(pathToViews + '/update_fields.dust', $);
 
-                    // Update update_fields.dust file
-                    domHelper.read(pathToViews + '/update_fields.dust').then(function($) {
-                        if (set)
-                            $("*[data-field='" + attr.options.value + "']").find('label:first').addClass('required');
-                        else
-                            $("*[data-field='" + attr.options.value + "']").find('label:first').removeClass('required');
+    // Update the Sequelize attributes.json to set allowNull
+    let pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
+    let attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
 
-                        if(attr.structureType == "relatedToMultipleCheckbox"){
-                            $("*[data-field='" + attr.options.value + "']").find('.relatedtomany-checkbox').attr('required', set);
-                        } else {
-                            $("*[data-field='" + attr.options.value + "']").find('input').prop('required', set);
-                            $("*[data-field='" + attr.options.value + "']").find('select').prop('required', set);
-                        }
+    if (attributesObj[data.options.value]) {
+        // TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
+        // In script you can set required a field in user, role or group but it crash the user admin autogeneration
+        // becaude the required field is not given during the creation
+        if (data.entity_name != "e_user" && data.entity_name != "e_role" && data.entity_name != "e_group")
+            attributesObj[data.options.value].allowNull = set ? false : true;
+        // Alter column to set default value in DB if models already exist
+        let jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+        let toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+        if (typeof toSync.queries === "undefined")
+            toSync.queries = [];
 
-                        domHelper.write(pathToViews + '/update_fields.dust', $).then(function() {
-                            resolve();
-                        });
-                    });
-                }).catch(function(e) {
-                    var err = new Error();
-                    err.message = "structure.field.attributes.fieldNoFound";
-                    err.messageParams = [attr.options.showValue];
-                    reject(err);
-                });
-            } else {
-                var err = new Error();
-                err.message = "structure.field.attributes.fieldNoFound";
-                err.messageParams = [attr.options.showValue];
-                reject(err);
+        let defaultValue = null;
+        let tableName = data.entity_name;
+        let length = "";
+        if (data.sqlDataType == "varchar")
+            length = "(" + data.sqlDataTypeLength + ")";
+
+        // Set required
+        if (set) {
+            switch (attributesObj[data.options.value].type) {
+                case "STRING":
+                case "ENUM":
+                case "TEXT":
+                    defaultValue = "";
+                    break;
+                case "INTEGER":
+                case "BIGINT":
+                case "DECIMAL":
+                case "BOOLEAN":
+                case "FLOAT":
+                case "DOUBLE":
+                    defaultValue = 0;
+                    break;
+                case "DATE":
+                    defaultValue = "1900-01-01 00:00:00.000";
+                    break;
+                case "TIME":
+                    defaultValue = "00:00:00.0000000";
+                    break;
+                default:
+                    defaultValue = "";
+                    break;
             }
-        }).catch(function(err) {
-            reject(err);
-        });
-    });
-
-    writeDust.then(_ => {
-        // Update the Sequelize attributes.json to set allowNull
-        var pathToAttributesJson = __dirname + '/../workspace/' + attr.id_application + '/models/attributes/' + entityCodeName + ".json";
-        var attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
-
-        if (attributesObj[attr.options.value]) {
-            // TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
-            // In script you can set required a field in user, role or group but it crash the user admin autogeneration
-            // becaude the required field is not given during the creation
-            if (entityCodeName != "e_user" && entityCodeName != "e_role" && entityCodeName != "e_group")
-                attributesObj[attr.options.value].allowNull = set ? false : true;
-            // Alter column to set default value in DB if models already exist
-            var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-            var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-            if (typeof toSync.queries === "undefined")
-                toSync.queries = [];
-
-            var defaultValue = null;
-            var tableName = attr.id_application + "_" + entityCodeName;
-            var length = "";
-            if (attr.sqlDataType == "varchar")
-                length = "(" + attr.sqlDataTypeLength + ")";
-
-            // Set required
-            if (set) {
-                switch (attributesObj[attr.options.value].type) {
-                    case "STRING":
-                    case "ENUM":
-                    case "TEXT":
-                        defaultValue = "";
-                        break;
-                    case "INTEGER":
-                    case "BIGINT":
-                    case "DECIMAL":
-                    case "BOOLEAN":
-                    case "FLOAT":
-                    case "DOUBLE":
-                        defaultValue = 0;
-                        break;
-                    case "DATE":
-                        defaultValue = "1900-01-01 00:00:00.000";
-                        break;
-                    case "TIME":
-                        defaultValue = "00:00:00.0000000";
-                        break;
-                    default:
-                        defaultValue = "";
-                        break;
-                }
-                attributesObj[attr.options.value].defaultValue = defaultValue;
-                // TODO postgres
-                if (attr.sqlDataType && attr.dialect == "mysql") {
-                    // Update all NULL value before set not null
-                    toSync.queries.push("UPDATE `" + tableName + "` SET `" + attr.options.value + "`='" + defaultValue + "' WHERE `" + attr.options.value + "` IS NULL;");
-                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NOT NULL");
-                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT '" + defaultValue + "';");
-                }
-            } else {
-                // Set optional
-                attributesObj[attr.options.value].defaultValue = null;
-                // TODO postgres
-                if (attr.sqlDataType && attr.dialect == "mysql") {
-                    toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + attr.options.value + "` `" + attr.options.value + "` " + attr.sqlDataType + length + " NULL");
-                    toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + attr.options.value + "` SET DEFAULT NULL;");
-                }
+            attributesObj[data.options.value].defaultValue = defaultValue;
+            // TODO postgres
+            if (data.sqlDataType && data.dialect == "mysql") {
+                // Update all NULL value before set not null
+                toSync.queries.push("UPDATE `" + tableName + "` SET `" + data.options.value + "`='" + defaultValue + "' WHERE `" + data.options.value + "` IS NULL;");
+                toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NOT NULL");
+                toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT '" + defaultValue + "';");
             }
-            fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
-            fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
         } else {
-            // If not in attributes, maybe in options
-            var pathToOptionJson = __dirname + '/../workspace/' + attr.id_application + '/models/options/' + entityCodeName + ".json";
-            var optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
-            var aliasValue = "r_" + attr.options.value.substring(2);
-            for (var i = 0; i < optionsObj.length; i++)
-                if (optionsObj[i].as == aliasValue)
-                    optionsObj[i].allowNull = set ? false : true;
-
-            // Set option allowNull
-            fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
+            // Set optional
+            attributesObj[data.options.value].defaultValue = null;
+            // TODO postgres
+            if (data.sqlDataType && data.dialect == "mysql") {
+                toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NULL");
+                toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT NULL;");
+            }
         }
+        fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
+        fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
+    } else {
+        // If not in attributes, maybe in options
+        let pathToOptionJson = __dirname + '/../workspace/' + data.application.name + '/models/options/' + data.entity_name + ".json";
+        let optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
+        let aliasValue = "r_" + data.options.value.substring(2);
+        for (let i = 0; i < optionsObj.length; i++)
+            if (optionsObj[i].as == aliasValue)
+                optionsObj[i].allowNull = set ? false : true;
 
-        callback();
-    }).catch(err => {
-        callback(err, null);
-    })
+        // Set option allowNull
+        fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
+    }
+
+    return;
 }
 
-exports.setUniqueField = function (attr, callback) {
+exports.setUniqueField = (data) => {
 
-    var possibilityUnique = ["unique"];
-    var possibilityNotUnique = ["not-unique", "non-unique"];
+    let possibilityUnique = ["unique"];
+    let possibilityNotUnique = ["not-unique", "non-unique"];
 
-    var attribute = attr.options.word.toLowerCase();
-    var set = null;
-
-    var idApplication = attr.id_application;
-    var codeName_data_entity = attr.name_data_entity.toLowerCase();
+    let attribute = data.options.word.toLowerCase();
+    let set = null;
 
     if (possibilityUnique.indexOf(attribute) != -1)
         set = true;
     else if (possibilityNotUnique.indexOf(attribute) != -1)
         set = false;
-    else {
-        var err = new Error();
-        err.message = "structure.field.attributes.notUnderstand";
-        return callback(err);
-    }
+    else
+        throw new Error('structure.field.attributes.notUnderstand');
 
     // Update the Sequelize attributes.json to set unique
-    var pathToAttributesJson = __dirname + '/../workspace/' + idApplication + '/models/attributes/' + codeName_data_entity + ".json";
-    var attributesContent = fs.readFileSync(pathToAttributesJson);
-    var attributesObj = JSON.parse(attributesContent);
+    let pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
+    let attributesContent = fs.readFileSync(pathToAttributesJson);
+    let attributesObj = JSON.parse(attributesContent);
 
     // If the current field is an fk field then we won't find it in attributes.json
-    if (typeof attributesObj[attr.options.value] !== "undefined")
-        attributesObj[attr.options.value].unique = set ? true : false;
+    if (typeof attributesObj[data.options.value] !== "undefined")
+        attributesObj[data.options.value].unique = set ? true : false;
     fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
-    callback();
+    return;
 }
 
 exports.setFieldAttribute = function (attr, callback) {
@@ -1132,21 +1103,17 @@ function addTab(attr, file, newLi, newTabContent, target) {
     });
 }
 
-exports.setupHasManyTab = function (attr, callback) {
-    let target = attr.options.target.toLowerCase();
-    let showTarget = attr.options.showTarget.toLowerCase();
-    let urlTarget = attr.options.urlTarget.toLowerCase();
-    let source = attr.options.source.toLowerCase();
-    let showSource = attr.options.showSource.toLowerCase();
-    let urlSource = attr.options.urlSource.toLowerCase();
-    let foreignKey = attr.options.foreignKey.toLowerCase();
-    let alias = attr.options.as.toLowerCase();
-    let showAlias = attr.options.showAs;
-    let urlAs = attr.options.urlAs.toLowerCase();
+exports.setupHasManyTab = async (data) => {
+    let target = data.options.target;
+    let source = data.options.source;
+    let urlSource = data.options.urlSource;
+    let alias = data.options.as;
+    let foreignKey = data.options.foreignKey;
+    let showAlias = data.options.showAs;
 
     /* Add Alias in Translation file for tabs */
-    let fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-    let fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
+    let fileTranslationFR = __dirname + '/../workspace/' + data.application.name + '/locales/fr-FR.json';
+    let fileTranslationEN = __dirname + '/../workspace/' + data.application.name + '/locales/en-EN.json';
     let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
     let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
@@ -1157,7 +1124,7 @@ exports.setupHasManyTab = function (attr, callback) {
     fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 4), 'utf8');
 
     // Setup association tab for show_fields.dust
-    let fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
+    let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
     let file = fileBase + '/show_fields.dust';
 
     // Create new tab button
@@ -1171,9 +1138,7 @@ exports.setupHasManyTab = function (attr, callback) {
     // Create new tab content
     let newTab = '	<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
-    printHelper.addHasMany(fileBase, target, alias).then(function () {
-        addTab(attr, file, newLi, newTab, target).then(callback);
-    });
+    return await addTab(data, file, newLi, newTab, target);
 }
 
 exports.setupHasManyPresetTab = function (attr, callback) {
@@ -1227,46 +1192,42 @@ exports.setupHasManyPresetTab = function (attr, callback) {
     });
 }
 
-exports.saveHasManyData = function (attr, data, foreignKey, callback) {
-    var jsonPath = __dirname + '/../workspace/' + attr.id_application + '/models/toSync.json';
-    var toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+exports.saveHasManyData = (data, workspaceData, foreignKey) => {
+    let jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+    let toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     toSync.queries = [];
-    var firstKey = "fk_id_" + attr.options.source;
-    var secondKey = "fk_id_" + attr.options.target;
+    let firstKey = "fk_id_" + data.options.source;
+    let secondKey = "fk_id_" + data.options.target;
     /* Insert value in toSync queries array to add values of the old has many in the belongs to many */
-    for (var i = 0; i < data.length; i++)
-        toSync.queries.push("INSERT INTO " + attr.options.through + "(" + firstKey + ", " + secondKey + ") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
+    for (let i = 0; i < data.length; i++)
+        toSync.queries.push("INSERT INTO " + data.options.through + "(" + firstKey + ", " + secondKey + ") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
     fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
-    callback();
+    return;
 }
 
-exports.setupRelatedToField = function (attr, callback) {
-    var target = attr.options.target.toLowerCase();
-    var showTarget = attr.options.showTarget.toLowerCase();
-    var urlTarget = attr.options.urlTarget.toLowerCase();
-    var source = attr.options.source.toLowerCase();
-    var showSource = attr.options.showSource.toLowerCase();
-    var urlSource = attr.options.urlSource.toLowerCase();
-    var foreignKey = attr.options.foreignKey.toLowerCase();
-    var alias = attr.options.as.toLowerCase();
-    var showAlias = attr.options.showAs;
-    var urlAs = attr.options.urlAs.toLowerCase();
+exports.setupRelatedToField = async (data) => {
+    let target = data.options.target;
+    let urlTarget = data.options.urlTarget;
+    let source = data.source_entity.name;
+    let alias = data.options.as;
+    let urlAs = data.options.urlAs;
 
     // Check if field is used in select, default to id
-    var usingField = [{value: "id", type: "string"}];
-    var showUsingField = ["ID"];
+    let usingField = [{value: "id", type: "string"}];
+    let showUsingField = ["ID"];
 
-    if (typeof attr.options.usingField !== "undefined")
-        usingField = attr.options.usingField;
-    if (typeof attr.options.showUsingField !== "undefined")
-        showUsingField = attr.options.showUsingField;
+    if (typeof data.options.usingField !== "undefined")
+        usingField = data.options.usingField;
+    if (typeof data.options.showUsingField !== "undefined")
+        showUsingField = data.options.showUsingField;
 
-    var usingList = [], usingOption = [];
-    for (var i = 0; i < usingField.length; i++) {
+    let usingList = [], usingOption = [];
+    for (let i = 0; i < usingField.length; i++) {
         usingList.push(usingField[i].value);
         usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
     }
-    // Setup association field for create_fields
+
+    // --- CREATE_FIELD ---
     let select = '\
     <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
         <div class="form-group">\n\
@@ -1281,130 +1242,106 @@ exports.setupRelatedToField = function (attr, callback) {
         </div>\n\
     </div>\n';
 
-    // Update create_fields file
-    var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-    var file = 'create_fields';
-    updateFile(fileBase, file, select).then(_ => {
+    let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
+    let file = 'create_fields';
+    await updateFile(fileBase, file, select);
 
-        select = '\
-        <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
-            <div class="form-group">\n\
-                <label for="' + alias + '">\n\
-                    <!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n\
-                    <!--{@inline_help field="' + alias + '"}-->\n\
-                        <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
-                    <!--{/inline_help}-->\n\
-                </label>\n\
-                <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-                    <!--{#' + alias + '}-->\n\
-                        <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
-                    <!--{/' + alias + '}-->\n\
-                </select>\n\
-            </div>\n\
-        </div>\n';
+    // --- UPDATE_FIELD ---
+    select = '\
+    <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
+        <div class="form-group">\n\
+            <label for="' + alias + '">\n\
+                <!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n\
+                <!--{@inline_help field="' + alias + '"}-->\n\
+                    <i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
+                <!--{/inline_help}-->\n\
+            </label>\n\
+            <select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+                <!--{#' + alias + '}-->\n\
+                    <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
+                <!--{/' + alias + '}-->\n\
+            </select>\n\
+        </div>\n\
+    </div>\n';
 
-        file = 'update_fields';
-        // Update update_fields file
-        updateFile(fileBase, file, select).then(_ => {
+    file = 'update_fields';
+    await updateFile(fileBase, file, select);
 
-            // Setup association tab for show_fields.dust
-            file = fileBase + '/show_fields.dust';
-            domHelper.read(file).then(function ($) {
+    // --- SHOW_FIELD ---
+    // Add read only field in show file. No tab required
+    let str = "";
+    str = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
+    str += "    <label for='" + alias + "'><!--{#__ key=\"entity." + source + "." + alias + "\"/}--></label>\n";
+    str += "    <input class='form-control input' placeholder='{#__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
+    for (let i = 0; i < usingField.length; i++) {
+        str += "{" + alias + "." + usingField[i].value + "|" + usingField[i].type + "}";
+        if (i != usingField.length - 1)
+            str += " - ";
+    }
+    str += "' ";
+    str += "type='text' readOnly />\n";
+    str += "</div>\n</div>\n";
 
-                // Add read only field in show file. No tab required
-                var str = "";
-                str = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-                str += "    <label for='" + alias + "'><!--{#__ key=\"entity." + source + "." + alias + "\"/}--></label>\n";
-                str += "    <input class='form-control input' placeholder='{#__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
-                for (var i = 0; i < usingField.length; i++) {
-                    str += "{" + alias + "." + usingField[i].value + "|" + usingField[i].type + "}";
-                    if (i != usingField.length - 1)
-                        str += " - ";
-                }
-                str += "' ";
-                str += "type='text' readOnly />\n";
-                str += "</div>\n</div>\n";
-                $("#fields").append(str);
+    file = fileBase + '/show_fields.dust';
+    let $ = await domHelper.read(file);
+    $("#fields").append(str);
 
-                domHelper.write(file, $).then(function () {
-                    // Add the related to field in the entity print template
-                    file = fileBase + '/print_fields.dust';
-                    domHelper.read(file).then(function ($) {
-                        $("#fields").append(str);
-                        domHelper.write(file, $).then(function () {
-                            function done() {
-                                translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                                    callback(null, "Field related to successfully created");
-                                });
-                            }
-                            function writeDatalist(cpt) {
-                                if (cpt >= usingField.length) {
-                                    done();
-                                    return true;
-                                }
+    await domHelper.write(file, $)
 
-                                var targetField = (usingField[cpt].value == "id") ? "id_entity" : usingField[cpt].value;
+    for (let i = 0; i < usingField.length; i++) {
+        let targetField = (usingField[i].value == "id") ? "id_entity" : usingField[i].value;
 
-                                // Add <th> in list_field
-                                var toAddInList = {headers: '', body: ''};
-                                /* ------------- Add new FIELD in headers ------------- */
-                                var str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
-                                //var str = '<th data-field="' + alias + '.' + usingField[cpt].value + '" data-col="' + alias + '.' + usingField[cpt].value + '"';
-                                str += ' data-type="' + usingField[cpt].type + '"';
-                                str += '>\n';
-                                str += '<!--{#__ key="entity.' + source + '.' + alias + '"/}-->&nbsp;-&nbsp;<!--{#__ key="entity.' + target + '.' + targetField + '"/}-->\n';
-                                str += '</th>\n';
-                                toAddInList.headers = str;
+        // Add <th> in list_field
+        let toAddInList = {headers: '', body: ''};
 
-                                /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-                                //str = '<td data-field="' + alias + '.' + usingField[cpt].value + '"';
-                                str = '<td data-field="' + alias + '"';
-                                str += ' data-type="' + usingField[cpt].type + '"';
-                                str += ' >{' + alias + '.' + usingField[cpt].value + '}</td>';
-                                toAddInList.body = str;
+        /* ------------- Add new FIELD in headers ------------- */
+        let str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[i].value + '"';
+        str += ' data-type="' + usingField[i].type + '"';
+        str += '>\n';
+        str += '<!--{#__ key="entity.' + source + '.' + alias + '"/}-->&nbsp;-&nbsp;<!--{#__ key="entity.' + target + '.' + targetField + '"/}-->\n';
+        str += '</th>\n';
+        toAddInList.headers = str;
 
-                                updateListFile(fileBase, "list_fields", toAddInList.headers, toAddInList.body, function () {
-                                    writeDatalist(++cpt);
-                                });
-                            }
-                            writeDatalist(0);
-                        });
-                    });
-                });
-            });
-        });
-    });
+        /* ------------- Add new FIELD in body (for associations include in tabs) ----- */
+        str = '<td data-field="' + alias + '"';
+        str += ' data-type="' + usingField[i].type + '"';
+        str += ' >{' + alias + '.' + usingField[i].value + '}</td>';
+        toAddInList.body = str;
+
+        await updateListFile(fileBase, "list_fields", toAddInList.headers);
+    }
+
+    await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
+    return;
 }
 
-exports.setupRelatedToMultipleField = function (attr, callback) {
-    var target = attr.options.target.toLowerCase();
-    var showTarget = attr.options.showTarget.toLowerCase();
-    var urlTarget = attr.options.urlTarget.toLowerCase();
-    var source = attr.options.source.toLowerCase();
-    var showSource = attr.options.showSource.toLowerCase();
-    var urlSource = attr.options.urlSource.toLowerCase();
-    var foreignKey = attr.options.foreignKey.toLowerCase();
-    var alias = attr.options.as.toLowerCase();
-    var showAlias = attr.options.showAs;
-    var urlAs = attr.options.urlAs.toLowerCase();
+exports.setupRelatedToMultipleField = async (data) => {
+
+    let urlTarget = data.options.urlTarget;
+    let source = data.source_entity.name;
+    let alias = data.options.as;
+    let showAlias = data.options.showAs;
+    let urlAs = data.options.urlAs;
+    let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 
     // Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-    var usingField = [{value: "id", type: "string"}];
-    var showUsingField = ["ID"];
+    let usingField = [{value: "id", type: "string"}];
+    let showUsingField = ["ID"];
 
-    if (typeof attr.options.usingField !== "undefined")
-        usingField = attr.options.usingField;
-    if (typeof attr.options.showUsingField !== "undefined")
-        showUsingField = attr.options.showUsingField;
+    if (typeof data.options.usingField !== "undefined")
+        usingField = data.options.usingField;
+    if (typeof data.options.showUsingField !== "undefined")
+        showUsingField = data.options.showUsingField;
 
-    var usingList = [], usingOption = [];
-    for (var i = 0; i < usingField.length; i++) {
+    let usingList = [], usingOption = [];
+    for (let i = 0; i < usingField.length; i++) {
         usingList.push(usingField[i].value);
         usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
     }
-    // Setup association field for create_fields
+
+    // CREATE_FIELD
     let head = '\
-    <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12" '+ (attr.options.isCheckbox ? 'style="margin-bottom: 25px;"' : "") +'>\n\
+    <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12" '+ (data.options.isCheckbox ? 'style="margin-bottom: 25px;"' : "") +'>\n\
         <div class="form-group">\n\
             <label for="f_' + urlAs + '">\n\
                 <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
@@ -1414,7 +1351,7 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
             </label>\n';
 
     let select;
-    if (attr.options.isCheckbox) {
+    if (data.options.isCheckbox) {
         select = '\
         <br>\n\
         <div class="relatedtomany-checkbox">\n\
@@ -1431,146 +1368,101 @@ exports.setupRelatedToMultipleField = function (attr, callback) {
         <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
         </select>\n';
     }
+    await updateFile(fileBase, 'create_fields', head + select);
 
-    // Update create_fields file
-    let fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-    let file = 'create_fields';
-    updateFile(fileBase, file, head + select).then(_ => {
+    // UPDATE_FIELD
+    if (data.options.isCheckbox) {
+        select = '\
+        <div class="relatedtomany-checkbox">\n\
+            <!--{#' + alias + '_all}-->\n\
+                <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
+                    <wrap><input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                <!--{:else}-->\n\
+                    <wrap><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                <!--{/existInContextById}-->\n\
+            <!--{/' + alias + '_all}-->\n\
+        </div>';
+    } else {
+        select = '\
+        <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+            <option value="">{#__ key="select.default" /}</option>\n\
+            <!--{#' + alias + '}-->\n\
+                <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
+            <!--{/' + alias + '}-->\n\
+        </select>\n';
+    }
+    await updateFile(fileBase, 'update_fields', head + select);
 
-        if (attr.options.isCheckbox) {
-            select = '\
-            <div class="relatedtomany-checkbox">\n\
-                <!--{#' + alias + '_all}-->\n\
-                    <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
-                        <wrap><input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-                    <!--{:else}-->\n\
-                        <wrap><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-                    <!--{/existInContextById}-->\n\
-                <!--{/' + alias + '_all}-->\n\
-            </div>';
-        } else {
-            select = '\
-            <select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-                <option value="">{#__ key="select.default" /}</option>\n\
-                <!--{#' + alias + '}-->\n\
-                    <option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
-                <!--{/' + alias + '}-->\n\
-            </select>\n';
-        }
+    // SHOW_FIELD
+    select = '';
+    if (data.options.isCheckbox) {
+        select = '\
+        <div class="relatedtomany-checkbox">\n\
+            <!--{#' + alias + '_all}-->\n\
+                <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
+                    <wrap><input type="checkbox" disabled="" checked="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                <!--{:else}-->\n\
+                    <wrap><input type="checkbox" disabled="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
+                <!--{/existInContextById}-->\n\
+            <!--{/' + alias + '_all}-->\n\
+        </div>';
+    } else {
+        select = '\
+        <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+            <!--{#' + alias + '}-->\n\
+                <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n\
+            <!--{/' + alias + '}-->\n\
+        </select>\n';
+    }
+    select += '</div>\n';
 
-        file = 'update_fields';
-        // Update update_fields file
-        updateFile(fileBase, file, head + select).then(_ => {
-            select = '';
-            if (attr.options.isCheckbox) {
-                select = '\
-                <div class="relatedtomany-checkbox">\n\
-                    <!--{#' + alias + '_all}-->\n\
-                        <!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
-                            <wrap><input type="checkbox" disabled="" checked="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-                        <!--{:else}-->\n\
-                            <wrap><input type="checkbox" disabled="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-                        <!--{/existInContextById}-->\n\
-                    <!--{/' + alias + '_all}-->\n\
-                </div>';
+    file = fileBase + '/show_fields.dust';
+    let $ = await domHelper.read(file);
+    $("#fields").append(head + select);
+    await domHelper.write(file, $);
 
-            } else {
-                select = '\
-                <select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-                    <!--{#' + alias + '}-->\n\
-                        <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n\
-                    <!--{/' + alias + '}-->\n\
-                </select>\n';
-            }
-            select += '</div>\n';
-
-            // Setup association tab for show_fields.dust
-            file = fileBase + '/show_fields.dust';
-            domHelper.read(file).then(function ($) {
-                $("#fields").append(head + select);
-                domHelper.write(file, $).then(function () {
-                    // Add the related to many field in the entity print template
-                    file = fileBase + '/print_fields.dust';
-                    domHelper.read(file).then(function ($) {
-
-                        select = '\
-                        <div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
-                            <div class="form-group">\n\
-                                <label for="f_' + urlAs + '"><!--{#__ key="entity.' + source + '.' + alias + '" /}--></label>\n\
-                                <select multiple disabled readonly class="regular-select form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-                                    <!--{#' + alias + '}-->\n\
-                                        <option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n\
-                                    <!--{/' + alias + '}-->\n\
-                                </select>\n\
-                            </div>\n\
-                        </div>\n';
-
-                        $("#fields").append(select);
-                        domHelper.write(file, $).then(function () {
-                            translateHelper.writeLocales(attr.id_application, "aliasfield", source, [alias, showAlias], attr.googleTranslate, function () {
-                                callback(null, "Related to many fields successfully created !");
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
+    await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, showAlias], data.googleTranslate);
+    return;
 }
 
-exports.setupHasOneTab = function (attr, callback) {
-    var target = attr.options.target.toLowerCase();
-    var showTarget = attr.options.showTarget.toLowerCase();
-    var urlTarget = attr.options.urlTarget.toLowerCase();
-    var source = attr.options.source.toLowerCase();
-    var showSource = attr.options.showSource.toLowerCase();
-    var urlSource = attr.options.urlSource.toLowerCase();
-    var foreignKey = attr.options.foreignKey.toLowerCase();
-    var alias = attr.options.as.toLowerCase();
-    var showAlias = attr.options.showAs;
-    var urlAs = attr.options.urlAs.toLowerCase();
+exports.setupHasOneTab = async (data) => {
+    let target = data.options.target;
+    let source = data.options.source;
+    let urlSource = data.options.urlSource;
+    let foreignKey = data.options.foreignKey;
+    let alias = data.options.as;
+    let showAlias = data.options.showAs;
 
     /* Add Alias in Translation file for tabs */
-    var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-    var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-    var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
-    var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
+    let fileTranslationFR = __dirname + '/../workspace/' + data.application.name + '/locales/fr-FR.json';
+    let fileTranslationEN = __dirname + '/../workspace/' + data.application.name + '/locales/en-EN.json';
+    let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+    let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
     dataFR.entity[source][alias] = showAlias;
     dataEN.entity[source][alias] = showAlias;
 
-    var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
-    var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
+    let stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
+    let stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 2));
-    stream_fileTranslationFR.end();
-    stream_fileTranslationFR.on('finish', function () {
-        //console.log('File => Translation FR ------------------ UPDATED');
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 2));
-        stream_fileTranslationEN.end();
-        stream_fileTranslationEN.on('finish', function () {
-            //console.log('File => Translation EN ------------------ UPDATED');
+    fs.writeFileSync(fileTranslationFR, JSON.stringify(dataFR, null, 2))
+    fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 2))
 
-            // Setup association tab for show_fields.dust
-            var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
-            var file = fileBase + '/show_fields.dust';
+    // Setup association tab for show_fields.dust
+    let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
+    let file = fileBase + '/show_fields.dust';
 
-            // Create new tab button
-            var newLi = '\
-            <li>\n\
-                <a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">\n\
-                    <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
-                </a>\n\
-            </li>';
+    // Create new tab button
+    let newLi = '\
+    <li>\n\
+        <a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">\n\
+            <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
+        </a>\n\
+    </li>';
 
-            // Create new tab content
-            var newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content"></div></div>';
-
-            printHelper.addHasOne(fileBase, target, alias).then(function () {
-                addTab(attr, file, newLi, newTab, target).then(callback);
-            });
-        });
-    });
+    // Create new tab content
+    let newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content"></div></div>';
+    return await addTab(data, file, newLi, newTab, target);
 }
 
 exports.deleteDataField = function (attr, callback) {
@@ -1765,20 +1657,21 @@ exports.deleteDataField = function (attr, callback) {
     });
 }
 
-exports.deleteTab = function (attr, callback) {
-    let tabNameWithoutPrefix = attr.options.urlValue.toLowerCase();
-    let name_data_entity = attr.name_data_entity.toLowerCase();
-    let idApp = attr.id_application;
+exports.deleteTab = async (data) => {
+
+    let tabNameWithoutPrefix = data.options.urlValue;
     let target;
 
-    let jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
+    let workspacePath =  __dirname + '/../workspace/' + data.application.name;
+    let jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
+
     let options = JSON.parse(fs.readFileSync(jsonPath));
     let found = false;
     let option;
     let deletedOptionsTarget = [];
 
-    for (var i = 0; i < options.length; i++) {
-        if (options[i].as.toLowerCase() !== "r_" + tabNameWithoutPrefix)
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].as !== "r_" + tabNameWithoutPrefix)
             continue;
 
         option = options[i];
@@ -1789,7 +1682,7 @@ exports.deleteTab = function (attr, callback) {
         if (option.relation == 'hasMany')
             target = option.target;
         else
-            target = name_data_entity;
+            target = data.entity.name;
 
         options.splice(i, 1);
         found = true;
@@ -1797,19 +1690,18 @@ exports.deleteTab = function (attr, callback) {
     }
 
     if (!found) {
-        var err = new Error();
-        err.message = "structure.association.error.unableTab";
+        let err = new Error('structure.association.error.unableTab');
         err.messageParams = [attr.options.showValue];
-        return callback(err, null);
+        throw err;
     }
 
     // Look in option file for all concerned target to destroy auto_generate key no longer needed
     let targetOption, autoGenerateFound, targetJsonPath;
-    for (var i = 0; i < deletedOptionsTarget.length; i++) {
+    for (let i = 0; i < deletedOptionsTarget.length; i++) {
         autoGenerateFound = false;
-        targetJsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + deletedOptionsTarget[i] + '.json'
+        targetJsonPath = workspacePath + '/models/options/' + deletedOptionsTarget[i] + '.json'
         targetOption = JSON.parse(fs.readFileSync(targetJsonPath));
-        for (var j = 0; j < targetOption.length; j++) {
+        for (let j = 0; j < targetOption.length; j++) {
             if(targetOption[j].structureType == "auto_generate" && targetOption[j].foreignKey == option.foreignKey){
                 targetOption.splice(j, 1);
                 autoGenerateFound = true;
@@ -1820,49 +1712,37 @@ exports.deleteTab = function (attr, callback) {
     }
     fs.writeFileSync(jsonPath, JSON.stringify(options, null, 4), "utf8");
 
-    var showFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/show_fields.dust';
-    domHelper.read(showFile).then(function ($) {
-        // Get tab type before destroying it
-        var tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
-        // Remove tab (<li>)
-        $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
-        // Remove tab content
-        $("#r_" + tabNameWithoutPrefix).remove();
+    let showFile = workspacePath + '/views/' + data.entity.name + '/show_fields.dust';
+    let $ = await domHelper.read(showFile)
 
-        // If last tab have been deleted, remove tab structure from view
-        if ($(".tab-content .tab-pane").length == 1)
-            $("#tabs").replaceWith($("#home").html());
+    // Get tab type before destroying it
+    let tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
+    // Remove tab (<li>)
+    $("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
+    // Remove tab content
+    $("#r_" + tabNameWithoutPrefix).remove();
 
-        domHelper.write(showFile, $).then(function () {
-            var printFile = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/print_fields.dust';
-            domHelper.read(printFile).then(function ($) {
-                $("#r_" + tabNameWithoutPrefix + "_print").remove();
-                domHelper.write(printFile, $).then(function () {
-                    callback(null, option.foreignKey, target, tabType);
-                }).catch(function (err) {
-                    callback(err, null);
-                });
-            }).catch(function (err) {
-                callback(err, null);
-            });
-        }).catch(function (err) {
-            callback(err, null);
-        });
-    }).catch(function (err) {
-        callback(err, null);
-    });
+    // If last tab have been deleted, remove tab structure from view
+    if ($(".tab-content .tab-pane").length == 1)
+        $("#tabs").replaceWith($("#home").html());
+
+    await domHelper.write(showFile, $);
+
+    return {
+        fk: option.foreignKey,
+        target: target,
+        tabType: tabType
+    };
 }
 
-exports.selectEntity = function (id_application, moduleCodeName, entityName, callback) {
-    var layout_path = __dirname + '/../workspace/' + id_application + '/views/layout_' + moduleCodeName + '.dust';
-    domHelper.read(layout_path).then(function ($) {
-        if (typeof $('#' + entityName + '_menu_item')[0] !== "undefined" && $('#' + entityName + '_menu_item')[0].style.display === 'block')
-            return callback(null, true);
-        callback(null, false);
-    }).catch(function (err) {
-        console.error(err);
-        callback(err);
-    });
+exports.selectEntity = async (data) => {
+    let layout_path = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module.name + '.dust';
+    let $ = await domHelper.read(layout_path);
+
+    // Check if entity is a subEntity or not to do the redirection if needed
+    if (typeof $('#' + data.entity_name + '_menu_item')[0] !== "undefined")
+        return true;
+    return false;
 };
 
 exports.updateListFile = updateListFile;

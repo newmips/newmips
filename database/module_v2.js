@@ -1,4 +1,3 @@
-const fs = require('fs-extra');
 const Entity = require('./entity_v2');
 
 class Module {
@@ -20,9 +19,19 @@ class Module {
         return this._components;
     }
 
-    getEntity(entity_name) {
+    getEntity(entity_name, required) {
+        if(!entity_name)
+            throw new Error('database.field.error.selectOrCreateBefore');
+
         if(this._entities.filter(x => x.name == entity_name).length > 0)
             return this._entities.filter(x => x.name == entity_name)[0];
+
+        if(required) {
+            let err = new Error('database.entity.notFound.withThisName');
+            err.messageParams = [entity_name];
+            throw err;
+        }
+
         return false;
     }
 

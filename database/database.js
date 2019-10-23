@@ -1,13 +1,13 @@
-var sequelize = require('../models/').sequelize;
-var fs = require('fs-extra');
+const sequelize = require('../models/').sequelize;
+const fs = require('fs-extra');
 
-function pushToSyncQuery(id_application, query) {
+function pushToSyncQuery(app, query) {
     try {
-        var toSync = JSON.parse(fs.readFileSync('workspace/' + id_application + '/models/toSync.json'));
+        let toSync = JSON.parse(fs.readFileSync('workspace/' + app.name + '/models/toSync.json'));
         if (!toSync.queries)
             toSync.queries = [];
         toSync.queries.push(query);
-        fs.writeFileSync('workspace/' + id_application + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
+        fs.writeFileSync('workspace/' + app.name + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
     } catch (e) {
         console.log(e);
         return false;
@@ -59,32 +59,30 @@ exports.dropDataField = function (attr, callback) {
 
     if (!pushToSyncQuery(attr.id_application, query))
         return callback("ERROR: Can't delete in database");
+
     callback();
 }
 
-exports.dropFKDataField = function (attr, callback) {
+exports.dropFKDataField = async (data) => {
 
     // *** 1 - Initialize variables according to options ***
-    var name_data_entity = attr.name_data_entity;
-    var table_name = attr.id_application + "_" + name_data_entity.toLowerCase();
+    let table_name = data.entity.name;
 
-    var query = "";
-    if(sequelize.options.dialect == "mysql")
-        query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + attr.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
+    let query = "";
+    if (sequelize.options.dialect == "mysql")
+        query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + data.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
     else(sequelize.options.dialect == "postgres")
-        query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + attr.fieldToDrop + "' AND table_name = '" + table_name + "';";
+        query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + data.fieldToDrop + "' AND table_name = '" + table_name + "';";
 
-    sequelize.query(query).then(function (constraintName) {
-        if (typeof constraintName[0][0] === "undefined")
-            return callback();
+    let constraintName = await sequelize.query(query);
 
-        query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + attr.fieldToDrop.toLowerCase() +";";
-        if (!pushToSyncQuery(attr.id_application, query))
-            return callback("ERROR: Can't delete in database");
-        callback();
-    }).catch(function (err) {
-        callback(err);
-    });
+    if (typeof constraintName[0][0] === "undefined")
+        return;
+
+    query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop + ";";
+
+    pushToSyncQuery(data.application, query);
+    return;
 }
 
 // Delete field related to multiple
@@ -118,4 +116,43 @@ exports.dropTable = function(table_name, callback) {
         console.error(err);
         callback(err);
     })
+}
+
+// Get real SQL type in DB, not sequelize datatype
+// Params:
+// {
+//     table: yourTableName,
+//     column: yourColumnName
+// }
+exports.getDatabaseSQLType = async (params) => {
+    let request = "SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + params.table + "' AND COLUMN_NAME = '" + params.column + "';"
+    let result = await sequelize.query(request, {
+        type: sequelize.QueryTypes.SELECT
+    })
+
+    if (result.length > 0) {
+        return {
+            sqlDataType: result[0].DATA_TYPE,
+            sqlDataTypeLength: result[0].CHARACTER_MAXIMUM_LENGTH
+        }
+    }
+
+    return {
+        sqlDataType: false,
+        sqlDataTypeLength: false
+    }
+}
+
+exports.retrieveWorkspaceHasManyData = async (appName, entity, foreignKey) => {
+    delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
+    let workspaceModels = require('../workspace/' + appName + '/models/');
+    let where = {};
+    where[foreignKey] = {
+        $ne: null
+    };
+
+    return await workspaceModels[entity.charAt(0).toUpperCase() + entity.toLowerCase().slice(1)].findAll({
+        attributes: ["id", foreignKey],
+        where: where
+    });
 }
