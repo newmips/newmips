@@ -332,33 +332,24 @@ exports.listTheme = function(attr, callback) {
     callback(null, info);
 }
 
-exports.setIcon = function(attr, callback) {
-    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
-    var layout_filename = 'layout_'+attr.module.codeName+'.dust';
+exports.setIcon = async(data) => {
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let layout_filename = 'layout_' + data.module_name + '.dust';
+    let entityWithouPrefix = data.entity_name.substring(2);
 
-    var iconClass = attr.iconValue.split(' ').join('-');
-    domHelper.read(workspacePath+'/views/'+layout_filename).then(function($) {
-        var elementI = $("#"+attr.entity.codeName.substring(2)+'_menu_item').find('a:first').find('i:first');
-        elementI.removeClass();
-        elementI.addClass('fa fa-'+iconClass);
+    let iconClass = data.iconValue.split(' ').join('-');
+    let $ = await domHelper.read(workspacePath + '/views/' + layout_filename)
 
-        domHelper.write(workspacePath+'/views/'+layout_filename, $).then(function() {
+    let elementI = $("#" + entityWithouPrefix + '_menu_item').find('a:first').find('i:first');
+    elementI.removeClass();
+    elementI.addClass('fa fa-' + iconClass);
 
-            var info = {
-                message: "structure.ui.icon.success",
-                messageParams: [attr.entity.name, iconClass]
-            }
+    await domHelper.write(workspacePath + '/views/' + layout_filename, $)
 
-            domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
-                $('i.'+attr.entity.codeName.substring(2)+'-icon').removeClass().addClass('fa fa-'+iconClass+' '+attr.entity.codeName.substring(2)+'-icon');
-                domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {
-                    callback(null, info);
-                });
-            });
-        });
-    }).catch(function(err) {
-        callback(err);
-    });
+    $ = await domHelper.read(workspacePath + '/views/default/' + data.module_name + '.dust');
+    $('i.' + entityWithouPrefix + '-icon').removeClass().addClass('fa fa-' + iconClass + ' ' + entityWithouPrefix + '-icon');
+    await domHelper.write(workspacePath + '/views/default/' + data.module_name + '.dust', $);
+    return;
 }
 
 exports.addTitle = function (attr, callback) {
@@ -402,44 +393,39 @@ exports.addTitle = function (attr, callback) {
     })
 }
 
-exports.createWidget = function(attr, callback) {
-    var workspacePath = __dirname+'/../workspace/'+attr.id_application;
-    var piecesPath = __dirname+'/pieces/';
+exports.createWidget = async (data) => {
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let piecesPath = __dirname + '/pieces/';
+    let layout_filename = 'layout_' + data.np_module.name + '.dust';
 
-    var layout_filename = 'layout_'+attr.module.codeName+'.dust';
     // Get entity's icon
-    domHelper.read(workspacePath+'/views/'+layout_filename).then(function($) {
-        var entityIconClass = $("#"+attr.entity.codeName.substring(2)+'_menu_item').find('a:first').find('i:first').attr('class');
-        var layout_view_filename = workspacePath+'/views/default/'+attr.module.codeName+'.dust';
+    let $ = await domHelper.read(workspacePath + '/views/' + layout_filename);
 
-        // Add widget to module's layout
-        domHelper.read(layout_view_filename).then(function($) {
-            domHelper.read(piecesPath+'/views/widget/'+attr.widgetType+'.dust').then(function($2) {
-                var widgetElemId = attr.widgetType+'_'+attr.entity.codeName+'_widget';
+    let entityIconClass = $("#" + data.entity.name.substring(2) + '_menu_item').find('a:first').find('i:first').data('class');
+    let layout_view_filename = workspacePath + '/views/default/' + data.np_module.name + '.dust';
 
-                // Create widget's html
-                var newHtml = "";
-                newHtml += '<!--{#entityAccess entity="'+attr.entity.codeName.substring(2)+'" }-->';
-                newHtml += "<div id='"+widgetElemId+"' data-entity='"+attr.entity.codeName+"' data-widget-type='"+attr.widgetType+"' class='ajax-widget col-sm-3 col-xs-12'>\n";
-                newHtml +=      $2("body")[0].innerHTML+"\n";
-                newHtml += "</div>";
-                newHtml += '<!--{/entityAccess}-->';
-                newHtml = newHtml.replace(/ENTITY_NAME/g, attr.entity.codeName);
-                newHtml = newHtml.replace(/ENTITY_URL_NAME/g, attr.entity.codeName.substring(2));
-                $("#widgets").append(newHtml);
+    // Add widget to module's layout
+    $ = await domHelper.read(layout_view_filename);
 
-                // Set entity's icon class to widget
-                $('i.'+attr.entity.codeName.substring(2)+'-icon').removeClass().addClass(entityIconClass+' '+attr.entity.codeName.substring(2)+'-icon');
+    $2 = await domHelper.read(piecesPath + '/views/widget/' + data.widgetType + '.dust');
 
-                domHelper.write(layout_view_filename, $).then(function() {
-                    callback(null, {message: "structure.ui.widget.success", messageParams: [attr.widgetInputType, attr.module.name]});
-                }).catch(function(err) {
-                    console.error(err)
-                    callback(err);
-                });
-            });
-        });
-    });
+    let widgetElemId = data.widgetType + '_' + data.entity.name + '_widget';
+
+    // Create widget's html
+    let newHtml = "";
+    newHtml += '<!--{#entityAccess entity="' + data.entity.name.substring(2) + '" }-->';
+    newHtml += "<div id='" + widgetElemId + "' data-entity='" + data.entity.name + "' data-widget-type='" + data.widgetType + "' class='ajax-widget col-sm-3 col-xs-12'>\n";
+    newHtml += $2("body")[0].innerHTML + "\n";
+    newHtml += "</div>";
+    newHtml += '<!--{/entityAccess}-->';
+    newHtml = newHtml.replace(/ENTITY_NAME/g, data.entity.name);
+    newHtml = newHtml.replace(/ENTITY_URL_NAME/g, data.entity.name.substring(2));
+    $("#widgets").append(newHtml);
+
+    // Set entity's icon class to widget
+    $('i.' + data.entity.name.substring(2) + '-icon').removeClass().addClass(entityIconClass + ' ' + data.entity.name.substring(2) + '-icon');
+
+    return await domHelper.write(layout_view_filename, $);
 }
 
 exports.createWidgetPiechart = function(attr, callback) {

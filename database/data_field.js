@@ -249,18 +249,3 @@ exports.deleteDataFieldById = function(id, callback) {
         callback(err, null);
     });
 }
-
-// Get real SQL type in DB, not sequelize datatype
-// Params:
-// {
-//     table: yourTableName,
-//     column: yourColumnName
-// }
-exports.getDatabaseSQLType = function(params, callback) {
-    var request = "SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+params.table+"' AND COLUMN_NAME = '"+params.column+"';"
-    models.sequelize.query(request, {type: models.sequelize.QueryTypes.SELECT}).then(function(result){
-        if(result.length > 0)
-            return callback(result[0].DATA_TYPE, result[0].CHARACTER_MAXIMUM_LENGTH);
-        callback(false, false)
-    })
-}

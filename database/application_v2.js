@@ -10,6 +10,7 @@ class Application {
     constructor(name, gitlabID) {
         this._name = name;
         this._gitlabID = gitlabID;
+        this._associationSeq = 1; // Used for unique generation of workspace assocation table
 
         this._modules = [];
         this._components = [];
@@ -18,8 +19,11 @@ class Application {
     // --- Statics ---
     static load(name) {
         try {
+            console.log('Loading application ' + name + '...');
             const app = new Application(name);
             const metadata = JSON.parse(fs.readFileSync(workspacePath + name + '/config/metadata.json'));
+
+            app.associationSeq = metadata[name].associationSeq;
 
 	        // Modules loading
             let modules = [];
@@ -57,6 +61,7 @@ class Application {
 
             return app;
         } catch (err) {
+            console.error(err);
             return null;
         }
     }
@@ -70,6 +75,10 @@ class Application {
         return this._modules;
     }
 
+    get associationSeq() {
+        return this._associationSeq;
+    }
+
     // --- Setters ---
     set gitlabID(id){
         this._gitlabID = id;
@@ -77,6 +86,10 @@ class Application {
 
     set modules(modules) {
         this._modules = modules;
+    }
+
+    set associationSeq(seq) {
+        this._associationSeq = seq;
     }
 
     // --- Methods ---
@@ -93,10 +106,33 @@ class Application {
         return np_module;
     }
 
-    getModule(module_name) {
+    getModule(module_name, required) {
         if(this._modules.filter(x => x.name == module_name).length > 0)
             return this._modules.filter(x => x.name == module_name)[0];
+
+        if(required) {
+            let err = new Error('database.module.notFound.notFound');
+            err.messageParams = [module_name];
+            throw err;
+        }
+
         return false;
+    }
+
+    findEntity(entity_name, required) {
+        let foundModule = this._modules.filter(x => x.getEntity(entity_name))[0];
+        if(!foundModule) {
+            if(!required)
+                return false;
+            let err = new Error('database.entity.notFound.withThisName');
+            err.messageParams = [entity_name];
+            throw err;
+        }
+
+        return {
+            np_module: foundModule,
+            entity: foundModule.getEntity(entity_name)
+        }
     }
 
     addComponent(component) {
@@ -111,13 +147,14 @@ class Application {
         if(this._gitlabID)
             newMetadata.gitlabID = this._gitlabID;
 
-        const actual_metadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+        const actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
 
         // Getting old application specific properties
         newMetadata[appName] = {};
-        if(actual_metadata[appName])
-            newMetadata[appName] = actual_metadata[appName];
+        if(actualMetadata[appName])
+            newMetadata[appName] = actualMetadata[appName];
 
+        newMetadata[appName].associationSeq = this._associationSeq;
         newMetadata[appName].modules = {};
         newMetadata[appName].components = {};
 
@@ -127,8 +164,8 @@ class Application {
             newMetadata[appName].modules[np_module.name] = {};
 
             // If the module already exist in metadata, then retrieve all potential specific properties
-            if (actual_metadata[appName][np_module.name])
-                newMetadata[appName].modules[np_module.name] = actual_metadata[appName].modules[np_module.name];
+            if (actualMetadata[appName][np_module.name])
+                newMetadata[appName].modules[np_module.name] = actualMetadata[appName].modules[np_module.name];
 
             newMetadata[appName].modules[np_module.name].entities = {};
             newMetadata[appName].modules[np_module.name].components = {};
@@ -139,8 +176,8 @@ class Application {
 
                 newMetadata[appName].modules[np_module.name].entities[entity.name] = {};
 
-                if (actual_metadata[appName].modules[np_module.name].entities[entity.name])
-                    newMetadata[appName].modules[np_module.name].entities[entity.name] = actual_metadata[appName].modules[np_module.name].entities[entity.name];
+                if (actualMetadata[appName].modules[np_module.name].entities[entity.name])
+                    newMetadata[appName].modules[np_module.name].entities[entity.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name];
 
                 newMetadata[appName].modules[np_module.name].entities[entity.name].components = {};
                 newMetadata[appName].modules[np_module.name].entities[entity.name].fields = {};
@@ -152,7 +189,7 @@ class Application {
                     newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = {};
 
                     if (newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name])
-                        newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = actual_metadata[appName].modules[np_module.name].entities[entity.name].fields[field.name];
+                        newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name];
                 }
 
                 // Loop on entity components
@@ -165,7 +202,7 @@ class Application {
                     newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = {};
 
                     if (newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name])
-                        newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = actual_metadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name];
+                        newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name];
                 }
             }
 
@@ -177,7 +214,7 @@ class Application {
                     newMetadata[appName].modules[np_module.name].components[component.type] = {};
 
                 if (newMetadata[appName].modules[np_module.name].components[component.type][component.name])
-                    newMetadata[appName].modules[np_module.name].components[component.type][component.name] = actual_metadata[appName].modules[np_module.name].components[component.type][component.name];
+                    newMetadata[appName].modules[np_module.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].components[component.type][component.name];
                 else
                     newMetadata[appName].modules[np_module.name].components[component.type][component.name] = {};
             }
@@ -191,7 +228,7 @@ class Application {
                 newMetadata[appName].components[component.type] = {};
 
             if (newMetadata[appName].components[component.type][component.name])
-                newMetadata[appName].components[component.type][component.name] = actual_metadata[appName].components[component.type][component.name];
+                newMetadata[appName].components[component.type][component.name] = actualMetadata[appName].components[component.type][component.name];
             else
                 newMetadata[appName].components[component.type][component.name] = {};
         }

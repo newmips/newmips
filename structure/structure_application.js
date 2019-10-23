@@ -92,7 +92,11 @@ exports.setupApplication = async (data) => {
         "CREATE USER IF NOT EXISTS 'np_" + appName + "'@'%' IDENTIFIED BY 'np_" + appName + "';",
         "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO 'np_" + appName + "'@'127.0.0.1';",
         "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO 'np_" + appName + "'@'%';",
-        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO '" + dbConf.user + "'@'127.0.0.1';"
+        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO '" + dbConf.user + "'@'127.0.0.1';",
+        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO '" + dbConf.user + "'@'%';",
+        "ALTER USER 'np_" + appName + "'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
+        "ALTER USER 'np_" + appName + "'@'%' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
+        "FLUSH PRIVILEGES;"
     ];
 
     let conn = await mysql.createConnection({
@@ -113,7 +117,7 @@ exports.setupApplication = async (data) => {
 
     // Update workspace database config file to point on the new separate DB
     let appDatabaseConfig = fs.readFileSync(__dirname + '/../workspace/' + appName + '/config/database.js', 'utf8');
-    appDatabaseConfig = appDatabaseConfig.replace(/newmips/g, 'workspace_' + appName, 'utf8');
+    appDatabaseConfig = appDatabaseConfig.replace(/newmips/g, 'np_' + appName, 'utf8');
     fs.writeFileSync(__dirname + '/../workspace/' + appName + '/config/database.js', appDatabaseConfig);
 
     // Create the application repository on gitlab ?

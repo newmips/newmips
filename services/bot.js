@@ -84,19 +84,6 @@ exports.gitStatus = function (result) {
 };
 
 // ******* SELECT Actions ******* //
-exports.selectProject = function (result) {
-
-    let value = result[1];
-    let options = {
-        "value": value
-    };
-
-    let attr = {
-        function: "selectProject",
-        options: options
-    };
-    return attr;
-};
 
 exports.selectApplication = function (result) {
 
@@ -130,7 +117,8 @@ exports.selectEntity = function (result) {
 
     let value = result[1];
     let options = {
-        value: value.trim()
+        value: value.trim(),
+        processValue: true
     };
 
     let attr = {
@@ -1191,7 +1179,7 @@ exports.createWidgetOnEntity = function (result) {
         function: 'createWidgetOnEntity',
         widgetInputType: originalType,
         widgetType: finalType,
-        entityTarget: result[2]
+        entityTarget: 'e_' + result[2].toLowerCase()
     }
 }
 

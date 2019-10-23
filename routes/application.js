@@ -108,8 +108,6 @@ function execute(req, instruction, __) {
     return new Promise((resolve, reject) => {
         try {
 
-            console.log(instruction);
-
             // Lower the first word for the basic parser json
             instruction = dataHelper.lowerFirstWord(instruction);
 
@@ -138,20 +136,23 @@ function execute(req, instruction, __) {
             if(data.function != 'createNewApplication')
                 data.application = metadata.getApplication(data.app_name);
 
-            designer[data.function](data, (err, info) => {
-                if (err) {
-                    // Error handling
-                    let msgErr = __(err.message, err.messageParams || []);
-                    console.error(err);
-                    return reject(msgErr);
-                }
+            console.log("---------");
+            console.log(instruction);
+            console.log(data.function);
+
+            designer[data.function](data).then(info => {
+
+                session_manager.setSession(data.function, req, info);
 
                 // Save metadata
                 if(data.application)
                     data.application.save();
 
-                session_manager.setSession(data.function, req, info);
                 return resolve();
+            }).catch(err => {
+                console.error(err);
+                let msgErr = __(err.message, err.messageParams || []);
+                return reject(msgErr);
             });
         } catch (err) {
             reject(err);
