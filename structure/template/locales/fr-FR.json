@@ -173,6 +173,7 @@
             "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
         },
         "empty": "Aucune donnée à afficher",
+        "empty_file": "Aucun fichier",
         "unique": "Ce champ doit être unique:",
         "relatedtomanycheckbox_required": "Un champ necessite d'avoir au moins une case cochée."
     },
