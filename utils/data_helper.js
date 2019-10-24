@@ -109,6 +109,7 @@ function addPrefix(string, instructionFunction){
             break;
         case 'createNewModule':
         case 'deleteModule':
+        case 'selectModule':
             return "m_"+string;
             break;
         case 'createNewEntity':
@@ -124,7 +125,7 @@ function addPrefix(string, instructionFunction){
             return "e_"+string;
             break;
         case 'createNewDataField':
-        case 'deleteDataField':
+        case 'deleteField':
         case 'deleteTab':
         case 'using':
         case 'setFieldAttribute':

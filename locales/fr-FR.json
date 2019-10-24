@@ -262,9 +262,7 @@
                 "deleted": "Application %s supprimée !"
             },
             "notFound": {
-                "withThisID": "Désolé, mais il n'y a pas d'application avec cet ID : %s.",
-                "withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s.",
-                "withThisCodeName": "Désolé, mais il n'y a pas d'application avec ce nom de code : %s."
+                "withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s."
             },
             "alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s."
         },

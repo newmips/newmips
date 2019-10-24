@@ -12,7 +12,7 @@ let INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments']
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_media_mail',
+        tableName: 'e_media_mail',
         timestamps: true
     };
 

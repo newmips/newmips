@@ -193,51 +193,50 @@ function entityDocumentation(entity, attributes, options) {
 	return entityDoc;
 }
 
-function build(id_application) {
-	return new Promise(function(resolve, reject) {
-		var workspacePath = __dirname + '/../workspace/'+id_application;
+async function build(application) {
 
-		// Fetch all entities from database
-		models.Module.findAll({
-			where: {id_application: id_application},
-			include: [{model: models.DataEntity}]
-		}).then(function(modules) {
-			var entities = [];
-			var privateEntities = ['api_credentials'];
-			for (var i = 0; i < modules.length; i++)
-				for (var j = 0; j < modules[i].DataEntities.length; j++)
-					if (privateEntities.indexOf(modules[i].DataEntities[j].codeName.substring(2)) == -1)
-						entities.push(modules[i].DataEntities[j]);
+	let workspacePath = __dirname + '/../workspace/'+application.name;
 
-			// Load documentation template, it describes the authentication process
-			var documentation = fs.readFileSync(__dirname+'/../structure/pieces/api/api_doc_template.js');
-			// Generate documentation of each entity
-			for (var i = 0; i < entities.length; i++) {
-				try {
-					var attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].codeName+'.json', 'utf8'));
-					var options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].codeName+'.json', 'utf8'));
-					documentation += entityDocumentation(entities[i], attributes, options);
-				} catch (e) {
-					; // Status history models can't be loaded
-				}
-			}
+	// Fetch all entities from metadata
+	let modules = application.modules;
 
-			// Write file to workspace's api folder
-			fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
-			var isWin = /^win/.test(process.platform), cmd;
-            if (isWin || process.platform == "win32")
-                cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
-            else
-                cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
-            exec(cmd, function(error, stdout, stderr) {
-                if (error)
-                    console.error(error);
-                resolve();
-            });
-		}).catch(function(err) {
-			reject(err);
-		});
+	let entities = [];
+	let privateEntities = ['api_credentials'];
+	for (let i = 0; i < modules.length; i++)
+		for (let j = 0; j < modules[i].entities.length; j++)
+			if (privateEntities.indexOf(modules[i].entities[j].name.substring(2)) == -1)
+				entities.push(modules[i].entities[j]);
+
+	// Load documentation template, it describes the authentication process
+	let documentation = fs.readFileSync(__dirname+'/../structure/pieces/api/api_doc_template.js');
+	// Generate documentation of each entity
+	for (let i = 0; i < entities.length; i++) {
+		try {
+			let attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].name+'.json', 'utf8'));
+			let options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].name+'.json', 'utf8'));
+			documentation += entityDocumentation(entities[i], attributes, options);
+		} catch (e) {
+			; // Status history models can't be loaded
+		}
+	}
+
+	// Write file to workspace's api folder
+	fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
+	let isWin = /^win/.test(process.platform), cmd;
+    if (isWin || process.platform == "win32")
+        cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+    else
+        cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+
+    await new Promise((resolve, reject) => {
+    	exec(cmd, (err, stdout, stderr) => {
+	        if (err)
+	            console.error(err);
+	        resolve();
+	    });
 	});
+
+    return;
 }
 
 exports.build = build;

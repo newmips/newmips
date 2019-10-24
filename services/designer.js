@@ -188,7 +188,7 @@ exports.createNewApplication = async (data) => {
 
     const existingApp = await models.Application.findOne({
         where: {
-            codeName: data.options.value
+            name: data.options.value
         }
     });
 
@@ -200,8 +200,8 @@ exports.createNewApplication = async (data) => {
 
     // Generator DB
     const dbApp = await models.Application.create({
-        displayName: data.options.showValue,
-        codeName: data.options.value
+        name: data.options.value,
+        displayName: data.options.showValue
     });
 
     // Metadata
@@ -236,113 +236,95 @@ exports.listApplication = (attr, callback) => {
 }
 
 // Declare this function not directly within exports to be able to use it from deleteApplicationRecursive()
-function deleteApplication(attr, callback) {
-    function doDelete(id_application) {
-        db_application.checkAccess(attr).then(hasAccess => {
-            if(!hasAccess){
-                let err = new Error("You do not have access to this application, you cannot delete it.")
-                return callback(err, null);
+exports.deleteApplication = async (data) => {
+
+    // Load app before deleting it
+    metadata.getApplication(data.options.value);
+
+    let hasAccess = await models.User.findOne({
+        where: {
+            id: data.currentUser.id
+        },
+        include: [{
+            model: models.Application,
+            required: true,
+            where: {
+                name: data.options.value
             }
-
-            structure_application.deleteApplication(id_application, function (err, infoStructure) {
-                if (err)
-                    return callback(err, null);
-
-                var request = "";
-                if(sequelize.options.dialect == "mysql")
-                    request = "SHOW TABLES LIKE '" + id_application + "_%';";
-                else if(sequelize.options.dialect == "postgres")
-                    request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
-
-                sequelize.query(request).spread(function (results, metada) {
-                    db_application.deleteApplication(id_application, function (err, infoDB) {
-                        if (err)
-                            return callback(err, null);
-                        /* Calculate the length of table to drop */
-                        var resultLength = 0;
-
-                        for (var i = 0; i < results.length; i++) {
-                            for (var prop in results[i]) {
-                                resultLength++;
-                            }
-                        }
-
-                        /* Function when all query are done */
-                        var request = "";
-                        if(sequelize.options.dialect == "mysql")
-                            request += "SET FOREIGN_KEY_CHECKS=0;";
-
-                        for (var i = 0; i < results.length; i++) {
-                            for (var prop in results[i]) {
-                                // Postgres additionnal check
-                                if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
-                                    // For each request disable foreign key checks, drop table. Foreign key check
-                                    // last only for the time of the request
-                                    if(sequelize.options.dialect == "mysql")
-                                        request += "DROP TABLE " + results[i][prop] + ";";
-                                    if(sequelize.options.dialect == "postgres")
-                                        request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
-                                }
-                            }
-                        }
-
-                        if(sequelize.options.dialect == "mysql")
-                            request += "SET FOREIGN_KEY_CHECKS=1;";
-
-                        sequelize.query(request).then(function () {
-                            callback(null, infoDB);
-                        }).catch(function(err){
-                            console.error("ERROR ERR: "+err.message);
-                            console.error("ERROR SQL: "+err.original.sql);
-                            callback(null, infoDB);
-                        })
-                    })
-                })
-            })
-        })
-    }
-    if (isNaN(attr.options.showValue))
-        db_application.getIdApplicationByCodeName(attr.options.value, attr.options.showValue, function (err, id_application) {
-            if (err)
-                return callback(err, null);
-            doDelete(id_application);
-        })
-    else {
-        doDelete(attr.options.showValue);
-    }
-}
-exports.deleteApplication = deleteApplication;
-
-function deleteApplicationRecursive(appIds, currentUser, idx) {
-    return new Promise(function (resolve, reject) {
-        if (!appIds[idx])
-            return resolve();
-
-        var attr = {
-            options: {
-                value: appIds[idx],
-                showValue: appIds[idx]
-            },
-            currentUser: currentUser
-        };
-
-        deleteApplication(attr, function (err, info) {
-            if (err)
-                return reject(err);
-            return (appIds[++idx]) ? resolve(deleteApplicationRecursive(appIds, idx)) : resolve();
-        });
+        }]
     });
+
+    if(!hasAccess)
+        throw new Error("You do not have access to this application, you cannot delete it.");
+
+    await structure_application.deleteApplication(data.options.value);
+
+    let request = "";
+    if(sequelize.options.dialect == "mysql")
+        request = "SHOW TABLES LIKE '" + data.options.value + "_%';";
+    else if(sequelize.options.dialect == "postgres")
+        request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
+
+    let results = await sequelize.query(request)
+
+    /* Calculate the length of table to drop */
+    let resultLength = 0;
+
+    for (let i = 0; i < results.length; i++) {
+        for (let prop in results[i]) {
+            resultLength++;
+        }
+    }
+
+    /* Function when all query are done */
+    request = "";
+    if(sequelize.options.dialect == "mysql")
+        request += "SET FOREIGN_KEY_CHECKS=0;";
+
+    for (let i = 0; i < results.length; i++) {
+        for (let prop in results[i]) {
+            // Postgres additionnal check
+            if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
+                // For each request disable foreign key checks, drop table. Foreign key check
+                // last only for the time of the request
+                if(sequelize.options.dialect == "mysql")
+                    request += "DROP TABLE " + results[i][prop] + ";";
+                if(sequelize.options.dialect == "postgres")
+                    request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
+            }
+        }
+    }
+
+    if(sequelize.options.dialect == "mysql")
+        request += "SET FOREIGN_KEY_CHECKS=1;";
+
+    await sequelize.query(request);
+
+    await models.Application.destroy({
+        where: {
+            name: data.options.value
+        }
+    });
+
+
+    metadata.deleteApplication(data.options.value);
+
+    return {
+        message: 'database.application.delete.deleted',
+        messageParams: [data.options.showValue]
+    };
 }
 
 /* --------------------------------------------------------------- */
 /* ------------------------- Module ------------------------------ */
 /* --------------------------------------------------------------- */
-exports.selectModule = (attr, callback) => {
-    db_module.selectModule(attr, function (err, infoDB) {
-        if (err)
-            return callback(err, null);
-        callback(null, infoDB);
-    });
+exports.selectModule = async (data) => {
+    data.module = data.application.getModule(data.options.value, true);
+    return {
+        module: data.module,
+        message: "database.module.select.selected",
+        messageParams: [data.module.name]
+    };
 }
 
 exports.createNewModule = async (data) => {
@@ -350,7 +332,7 @@ exports.createNewModule = async (data) => {
     if(data.application.getModule(data.options.value)){
         let err = new Error("database.module.create.alreadyExist");
         err.messageParams = [data.options.showValue];
-        return callback(err);
+        throw err;
     }
 
     const np_module = data.application.addModule(data.options.value);
@@ -556,7 +538,7 @@ function deleteDataEntity(attr, callback) {
                             }
                         } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
                             tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                            deleteDataField(tmpAttrIn, function (err) {
+                            deleteField(tmpAttrIn, function (err) {
                                 if (err)
                                     console.error(err);
                                 clbk();
@@ -630,7 +612,7 @@ function deleteDataEntity(attr, callback) {
                                         });
                                     } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheck") {
                                         tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                        deleteDataField(tmpAttrIn, function(err) {
+                                        deleteField(tmpAttrIn, function(err) {
                                             if (err)
                                                 console.error(err);
                                             clbk();
@@ -767,89 +749,37 @@ async function deleteTab(data) {
 exports.deleteTab = deleteTab;
 
 // Delete
-function deleteDataField(attr, callback) {
-    // Get Entity or Type Id
-    db_entity.getDataEntityById(attr.id_data_entity, function (err, dataEntity) {
-        if (err)
-            return callback(err, null);
+async function deleteField(data) {
 
-        // Set name of data entity in attributes
-        attr.name_data_entity = dataEntity.codeName;
-        attr.show_name_data_entity = dataEntity.name;
+    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+    data.field = data.entity.getField(data.options.value, true)
 
-        // Get field name
-        var options = attr.options;
-        var name_data_field = options.value;
+    // Delete field from views and models
+    let infoStructure = await structure_field.deleteField(data);
 
-        try {
-            function checkIfIDGiven(attr, callback2) {
-                // If it was the ID instead of the name given in the instruction
-                if (!isNaN(attr.options.showValue)) {
-                    db_field.getNameDataFieldById(parseInt(attr.options.showValue), function (err, field) {
-                        if (err)
-                            return callback2(err, null);
+    // Alter database
+    data.fieldToDrop = infoStructure.fieldToDrop;
+    let dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
 
-                        attr.options.value = field.codeName;
-                        attr.options.showValue = field.name;
-                        callback2(null, attr);
-                    });
-                } else
-                    callback2(null, attr);
-            }
+    // Related To Multiple
+    if (infoStructure.isMultipleConstraint) {
+        data.target = infoStructure.target;
+        dropFunction = 'dropFKMultipleDataField';
+    }
 
-            checkIfIDGiven(attr, function (err, attr) {
-                if (err)
-                    return callback(err);
-                // Delete field from views and models
-                structure_field.deleteDataField(attr, function (err, infoStructure) {
-                    if (err)
-                        return callback(err, null);
+    await database[dropFunction](data);
 
-                    // Alter database
-                    attr.fieldToDrop = infoStructure.fieldToDrop;
-                    var dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
+    // Missing id_ in data.options.value, so we use fieldToDrop
+    // data.options.value = data.fieldToDrop;
 
-                    // Related To Multiple
-                    if (infoStructure.isMultipleConstraint) {
-                        attr.target = infoStructure.target;
-                        dropFunction = 'dropFKMultipleDataField';
-                    }
+    data.entity.deleteField(data.options.value);
 
-                    var checkFieldParams = {
-                        codeName: attr.fieldToDrop,
-                        showValue: attr.options.showValue,
-                        idEntity: attr.id_data_entity,
-                        showEntity: attr.show_name_data_entity
-                    };
-                    // Check if field exist
-                    db_field.getFieldByCodeName(checkFieldParams, function (err, fieldExist) {
-                        if (err)
-                            return callback(err, null);
-
-                        database[dropFunction](attr, function (err, info) {
-                            if (err)
-                                return callback(err, null);
-
-                            // Missing id_ in attr.options.value, so we use fieldToDrop
-                            attr.options.value = attr.fieldToDrop;
-                            // Delete record from software
-                            db_field.deleteDataField(attr, function (err, infoDB) {
-                                if (err)
-                                    return callback(err, null);
-
-                                callback(null, infoDB);
-                            });
-                        });
-                    });
-
-                });
-            });
-        } catch (err) {
-            callback(err, null);
-        }
-    });
+    return {
+        message: 'database.field.delete.deleted',
+        messageParams: [data.options.showValue]
+    };
 }
-exports.deleteDataField = deleteDataField;
+exports.deleteField = deleteField;
 
 exports.listDataField = (attr, callback) => {
     db_field.listDataField(attr, function (err, info) {
@@ -1225,15 +1155,16 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
             foreignKey: optionObj.foreignKey,
             as: optionObj.as,
             showTarget: data.options.showSource,
-            urlTarget: data.options.urlSource.toLowerCase(),
+            urlTarget: data.options.urlSource,
             showSource: data.options.showTarget,
-            urlSource: data.options.urlTarget.toLowerCase(),
+            urlSource: data.options.urlTarget,
             showAs: optionObj.showAs,
-            urlAs: optionObj.as.substring(2).toLowerCase()
+            urlAs: optionObj.as.substring(2)
         },
         application: data.application,
         module_name: data.module_name,
-        entity_name: data.entity_name
+        entity_name: data.entity_name,
+        source_entity: data.application.getModule(data.module_name, true).getEntity(data.entity_name, true)
     };
 
     if (data.targetType == "hasMany") {
@@ -1646,8 +1577,6 @@ exports.createNewFieldRelatedTo = async (data) => {
         }
     }
 
-    data.source_entity.addField('f_' + data.options.urlAs);
-
     // Créer le lien belongsTo en la source et la target dans models/options/source.json
     let associationOption = {
         application: data.application,
@@ -1683,6 +1612,8 @@ exports.createNewFieldRelatedTo = async (data) => {
     // Generate html code in dust file
     await structure_field.setupRelatedToField(data);
 
+    data.source_entity.addField('f_' + data.options.urlAs);
+
     return {
         entity: data.source_entity,
         message: "structure.association.relatedTo.success",
@@ -1711,7 +1642,7 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
     data.options.foreignKey = "fk_id_" + data.source_entity.name + "_" + alias.substring(2);
 
     // Check if the target entity exist
-    data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+    data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.options.target, true);
 
     // If a using field or fields has been asked, we have to check if those fields exist in the entity
     if (typeof data.options.usingField !== "undefined") {
@@ -1806,13 +1737,13 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
         associationOption.loadOnStart = true;
     }
 
-    data.source_entity.addField('f_' + data.options.urlAs);
-
     // Generate ORM association
     structure_entity.setupAssociation(associationOption);
 
     // Generate HTML code
     await structure_field.setupRelatedToMultipleField(data);
+
+    data.source_entity.addField('f_' + data.options.urlAs);
 
     return {
         message: 'structure.association.relatedToMultiple.success',

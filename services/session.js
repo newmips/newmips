@@ -76,64 +76,21 @@ exports.showSession = function(attr, callback) {
 }
 
 // Get
-exports.getSession = function(attr, req, callback) {
-
-    var id_project = null;
-    var id_application = null;
-    var id_module = null;
-    var id_data_entity = null;
-
-    var name_project = null;
-    var name_application = null;
-    var name_module = null;
-    var name_data_entity = null;
-
-    if(typeof(attr.id_project) != 'undefined') id_project = attr.id_project;
-    if(typeof(attr.id_application) != 'undefined') id_application = attr.id_application;
-    if(typeof(attr.id_module) != 'undefined') id_module = attr.id_module;
-    if(typeof(attr.id_data_entity) != 'undefined') id_data_entity = attr.id_data_entity;
-
-    db_project.getNameProjectById(id_project, function(err, info) {
-        if (!err)
-            name_project = info;
-        db_application.getNameApplicationById(id_application, function(err, info) {
-            if (!err)
-                name_application  = info;
-            db_module.getNameModuleById(id_module, function(err, info) {
-                if(!err)
-                    name_module = info;
-                db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-                    if(!err)
-                        name_data_entity = info;
-
-                    var returnInfo = {
-                        "project": {
-                            "id_project": id_project,
-                            "name_project": name_project,
-                            "noProject": language(req.session.lang_user).__("preview.session.noProject")
-                        },
-                        "application": {
-                            "id_application": id_application,
-                            "name_application": name_application,
-                            "noApplication": language(req.session.lang_user).__("preview.session.noApplication")
-                        },
-                        "module": {
-                            "id_module": id_module,
-                            "name_module": name_module,
-                            "noModule": language(req.session.lang_user).__("preview.session.noModule")
-                        },
-                        "data_entity": {
-                            "id_data_entity": id_data_entity,
-                            "name_data_entity": name_data_entity,
-                            "noEntity": language(req.session.lang_user).__("preview.session.noEntity")
-                        }
-                    };
-                    callback(null, returnInfo);
-                });
-            });
-        });
-
-    });
+exports.getSession = (req) => {
+    return {
+        application: {
+            name: req.session.app_name,
+            noApplication: language(req.session.lang_user).__("preview.session.noApplication")
+        },
+        module: {
+            name: req.session.module_name,
+            noModule: language(req.session.lang_user).__("preview.session.noModule")
+        },
+        entity: {
+            name: req.session.entity_name,
+            noEntity: language(req.session.lang_user).__("preview.session.noEntity")
+        }
+    };
 }
 
 // Set session in POST application
@@ -179,27 +136,17 @@ exports.setSession = function(npFunction, req, info, data) {
         case "createNewFieldRelatedTo":
             req.session.entity_name = info.entity.name;
             break;
-        case "deleteProject":
-            req.session.id_project = null;
-            req.session.id_application = null;
-            req.session.id_module = null;
-            req.session.entity_name = null;
-            break;
         case "deleteApplication":
-            req.session.id_application = null;
-            req.session.id_module = null;
+            req.session.app_name = null;
+            req.session.module_name = null;
             req.session.entity_name = null;
-            req.session.toastr = [{
-                message: 'actions.delete.application',
-                level: "success"
-            }];
             break;
         case "deleteModule":
-            req.session.id_module = info.homeID;
+            req.session.module_name = "m_home";
             req.session.entity_name = null;
             // Redirect iframe to new module
             iframeUrl = data.iframe_url.split("/default/");
-            data.iframe_url = iframeUrl[0]+"/default/home";
+            data.iframe_url = iframeUrl[0] + "/default/home";
             break;
         case "deleteDataEntity":
             // If we were on the deleted entity we has to reset the entity session

@@ -8,6 +8,7 @@ class Entity {
 		this._components = [];
 	}
 
+	// --- GETTERS ---
 	get name(){
 		return this._name;
 	}
@@ -44,6 +45,7 @@ class Entity {
         return false;
     }
 
+    // --- ADD ---
 	addField(field) {
     	if(typeof field === 'string')
     		field = new Field(field);
@@ -69,6 +71,27 @@ class Entity {
 		this._components.push(component);
 		return component;
     }
+
+
+    // --- DELETE ---
+    deleteField(name) {
+
+		if(this._fields.filter(x => x.name == name).length == 0){
+			let err = new Error('database.field.notFound.withThisName')
+			err.messageParams = [name]
+			throw err;
+		}
+
+		for (let i = 0; i < this._fields.length; i++) {
+			if(this._fields[i].name == name) {
+				delete this._fields[i];
+				this._fields.splice(i, 1);
+				break;
+			}
+		}
+
+		return true;
+	}
 }
 
 module.exports = Entity;

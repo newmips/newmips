@@ -42,7 +42,7 @@
 										<label for="application">{#M_ key="application.label"/}</label>
 										<input class="form-control input applicationInput" id="application" name="application" type="text" />
 										<a id="select_existing_application" href="#">
-											<i class="fa fa-plus fa-md">&nbsp;</i>{#__ key="application.selectExisting"/}
+											<i class="fa fa-folder-open fa-md">&nbsp;</i>{#__ key="application.selectExisting"/}
 										</a>
 										<br><br>
 										<button class="generate-button btn btn-primary" id="step2Discover1" type="submit">

@@ -1465,33 +1465,24 @@ exports.setupHasOneTab = async (data) => {
     return await addTab(data, file, newLi, newTab, target);
 }
 
-exports.deleteDataField = function (attr, callback) {
-    var idApp = attr.id_application;
-    var name_data_entity = attr.name_data_entity.toLowerCase();
-    var name_data_field = attr.options.value.toLowerCase();
-    var url_value = attr.options.urlValue.toLowerCase();
+exports.deleteField = async (data) => {
 
-    var options = attr.options;
-
-    var dataToWrite;
-    var isInOptions = false;
-    var info = {};
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let field = data.options.value;
+    let url_value = data.options.urlValue;
+    let isInOptions = false;
+    let info = {};
 
     // Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
-    var jsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + name_data_entity + '.json';
+    let jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
 
     // Clear the require cache
-    var dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-
+    let dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
     let deletedOptionsTarget = [];
-
-    for (var i = 0; i < dataToWrite.length; i++) {
+    for (let i = 0; i < dataToWrite.length; i++) {
         if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
-            if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple" && dataToWrite[i].structureType != "relatedToMultipleCheckbox") {
-                var err = new Error();
-                err.message = name_data_entity + ' isn\'t a regular field. You might want to use `delete tab` instruction.';
-                return callback(err, null);
-            }
+            if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple" && dataToWrite[i].structureType != "relatedToMultipleCheckbox")
+                throw new Error(data.entity.name + " isn't a regular field. You might want to use `delete tab` instruction.");
 
             // Modify the options.json file
             info.fieldToDrop = dataToWrite[i].foreignKey;
@@ -1514,12 +1505,12 @@ exports.deleteDataField = function (attr, callback) {
 
     // Nothing found in options, field is regular, modify the attributes.json file
     if (!isInOptions) {
-        jsonPath = __dirname + '/../workspace/' + idApp + '/models/attributes/' + name_data_entity + '.json';
+        jsonPath = workspacePath + '/models/attributes/' + data.entity.name + '.json';
         dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
-        delete dataToWrite[name_data_field];
+        delete dataToWrite[field];
 
-        info.fieldToDrop = name_data_field;
+        info.fieldToDrop = field;
         info.isConstraint = false;
     }
 
@@ -1527,7 +1518,7 @@ exports.deleteDataField = function (attr, callback) {
     let targetOption, autoGenerateFound, targetJsonPath;
     for (var i = 0; i < deletedOptionsTarget.length; i++) {
         autoGenerateFound = false;
-        targetJsonPath = __dirname + '/../workspace/' + idApp + '/models/options/' + deletedOptionsTarget[i].target + '.json';
+        targetJsonPath = workspacePath + '/models/options/' + deletedOptionsTarget[i].target + '.json';
         targetOption = JSON.parse(fs.readFileSync(targetJsonPath));
         for (var j = 0; j < targetOption.length; j++) {
             if(targetOption[j].structureType == "auto_generate" && targetOption[j].foreignKey == deletedOptionsTarget[i].foreignKey){
@@ -1543,16 +1534,16 @@ exports.deleteDataField = function (attr, callback) {
     fs.writeFileSync(jsonPath, JSON.stringify(dataToWrite, null, 4), "utf8");
 
     // Remove field from create/update/show views files
-    var viewsPath = __dirname + '/../workspace/' + idApp + '/views/' + name_data_entity + '/';
-    var fieldsFiles = ['create_fields', 'update_fields', 'show_fields', 'print_fields'];
+    var viewsPath = workspacePath + '/views/' + data.entity.name + '/';
+    var fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
     var promises = [];
     for (var i = 0; i < fieldsFiles.length; i++)
-        promises.push(new Promise(function (resolve, reject) {
+        promises.push(new Promise((resolve, reject) => {
             (function (file) {
                 domHelper.read(file).then(function ($) {
-                    $('*[data-field="' + name_data_field + '"]').remove();
+                    $('*[data-field="' + field + '"]').remove();
                     // In case of related to
-                    $('*[data-field="r_' + name_data_field.substring(2) + '"]').remove();
+                    $('*[data-field="r_' + field.substring(2) + '"]').remove();
                     domHelper.write(file, $).then(function () {
                         resolve();
                     });
@@ -1561,20 +1552,20 @@ exports.deleteDataField = function (attr, callback) {
         }));
 
     // Remove field from list view file
-    promises.push(new Promise(function (resolve, reject) {
-        domHelper.read(viewsPath + '/list_fields.dust').then(function ($) {
-            $("th[data-field='" + name_data_field + "']").remove();
+    promises.push(new Promise((resolve, reject) => {
+        domHelper.read(viewsPath + '/list_fields.dust').then($ => {
+            $("th[data-field='" + field + "']").remove();
 
             // In case of related to
-            $("th[data-col^='r_" + name_data_field.substring(2) + ".']").remove();
-            domHelper.write(viewsPath + '/list_fields.dust', $).then(function () {
+            $("th[data-col^='r_" + field.substring(2) + ".']").remove();
+            domHelper.write(viewsPath + '/list_fields.dust', $).then(_ => {
                 resolve();
             });
         });
     }));
 
-    let optionsPath = __dirname + '/../workspace/' + idApp + '/models/options/';
-    let otherViewsPath = __dirname + '/../workspace/' + idApp + '/views/';
+    let optionsPath = workspacePath + '/models/options/';
+    let otherViewsPath = workspacePath + '/views/';
     let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
     fieldsFiles.push("list_fields");
     // Looking for association with using of the deleted field
@@ -1587,33 +1578,33 @@ exports.deleteDataField = function (attr, callback) {
         for (var i = 0; i < currentOption.length; i++) {
             // If the option match with our source entity
             if (structureTypeWithUsing.indexOf(currentOption[i].structureType) != -1 &&
-                    currentOption[i].target == name_data_entity &&
+                    currentOption[i].target == data.entity.name &&
                     typeof currentOption[i].usingField !== "undefined") {
                 // Check if our deleted field is in the using fields
                 for (var j = 0; j < currentOption[i].usingField.length; j++) {
-                    if (currentOption[i].usingField[j].value == name_data_field) {
+                    if (currentOption[i].usingField[j].value == field) {
                         for (var k = 0; k < fieldsFiles.length; k++) {
                             // Clean file
                             let content = fs.readFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', "utf8")
-                            content = content.replace(new RegExp(currentOption[i].as + "." + name_data_field, "g"), currentOption[i].as + ".id");
-                            content = content.replace(new RegExp(currentOption[i].target + "." + name_data_field, "g"), currentOption[i].target + ".id_entity");
+                            content = content.replace(new RegExp(currentOption[i].as + "." + field, "g"), currentOption[i].as + ".id");
+                            content = content.replace(new RegExp(currentOption[i].target + "." + field, "g"), currentOption[i].target + ".id_entity");
                             fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
                             // Looking for select in create / update / show
-                            promises.push(new Promise(function (resolve, reject) {
+                            promises.push(new Promise((resolve, reject)=> {
                                 (function (file, option, entity) {
                                     domHelper.read(otherViewsPath + entity + '/' + file + '.dust').then(function ($) {
                                         let el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
                                         if (el.length > 0) {
                                             let using = el.attr("data-using").split(",");
-                                            if (using.indexOf(name_data_field) != -1) {
+                                            if (using.indexOf(field) != -1) {
                                                 // If using is alone, then replace with id, or keep just other using
                                                 if (using.length == 1) {
                                                     el.attr("data-using", "id")
                                                 } else {
-                                                    using.splice(using.indexOf(name_data_field), 1)
+                                                    using.splice(using.indexOf(field), 1)
                                                     el.attr("data-using", using.join())
                                                 }
-                                                el.html(el.html().replace(new RegExp(name_data_field, "g"), "id"))
+                                                el.html(el.html().replace(new RegExp(field, "g"), "id"))
                                             }
                                         }
                                         domHelper.write(otherViewsPath + entity + '/' + file + '.dust', $).then(function () {
@@ -1636,25 +1627,23 @@ exports.deleteDataField = function (attr, callback) {
     });
 
     // Wait for all promises execution
-    Promise.all(promises).then(function () {
+    await Promise.all(promises);
 
-        // Remove translation in enum locales
-        var enumsPath = __dirname + '/../workspace/' + idApp + '/locales/enum_radio.json';
-        var enumJson = JSON.parse(fs.readFileSync(enumsPath));
+    // Remove translation in enum locales
+    var enumsPath = workspacePath + '/locales/enum_radio.json';
+    var enumJson = JSON.parse(fs.readFileSync(enumsPath));
 
-        if (typeof enumJson[name_data_entity] !== "undefined") {
-            if (typeof enumJson[name_data_entity][info.fieldToDrop] !== "undefined") {
-                delete enumJson[name_data_entity][info.fieldToDrop];
-                fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 4));
-            }
+    if (typeof enumJson[data.entity.name] !== "undefined") {
+        if (typeof enumJson[data.entity.name][info.fieldToDrop] !== "undefined") {
+            delete enumJson[data.entity.name][info.fieldToDrop];
+            fs.writeFileSync(enumsPath, JSON.stringify(enumJson, null, 4));
         }
+    }
 
-        // Remove translation in global locales
-        var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
-        translateHelper.removeLocales(idApp, "field", [name_data_entity, fieldToDropInTranslate], function () {
-            callback(null, info);
-        });
-    });
+    // Remove translation in global locales
+    var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
+    translateHelper.removeLocales(data.application.name, "field", [data.entity.name, fieldToDropInTranslate])
+    return info;
 }
 
 exports.deleteTab = async (data) => {

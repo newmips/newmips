@@ -103,7 +103,8 @@ exports.selectModule = function (result) {
 
     let value = result[1];
     let options = {
-        value: value
+        value: value.trim(),
+        processValue: true
     };
 
     let attr = {
@@ -407,7 +408,7 @@ exports.deleteDataEntity = function (result) {
     return attr;
 };
 
-exports.deleteDataField = function (result) {
+exports.deleteField = function (result) {
 
     let value = result[1];
 
@@ -417,7 +418,7 @@ exports.deleteDataField = function (result) {
     };
 
     let attr = {
-        function: "deleteDataField",
+        function: "deleteField",
         options: options
     };
     return attr;
@@ -1520,7 +1521,7 @@ let training = {
         "supprimer entité (.*)",
         "supprimer l'entité (.*)"
     ],
-    "deleteDataField": [
+    "deleteField": [
         "delete field (.*)",
         "drop field (.*)",
         "remove field (.*)",
