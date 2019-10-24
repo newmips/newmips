@@ -29,13 +29,14 @@ exports.isAdmin = function(req, res, next) {
 
 // Check access to specific application
 exports.hasAccessApplication = function(req, res, next) {
-    let idApp = null;
-    if(req.query.id_application)
-        idApp = req.query.id_application
-    else if(req.body.idApp)
-        idApp = req.body.idApp
+    let app_name = null;
+    if(req.params.app_name)
+        app_name = req.params.app_name
     else
-        idApp = req.session.id_application ? req.session.id_application : null;
+        app_name = req.session.app_name ? req.session.app_name : null;
+
+    console.log(app_name);
+
     if (req.isAuthenticated()){
         models.User.findOne({
             where: {
@@ -45,7 +46,7 @@ exports.hasAccessApplication = function(req, res, next) {
                 model: models.Application,
                 required: true,
                 where: {
-                    id: idApp
+                    name: app_name
                 }
             }]
         }).then(user => {

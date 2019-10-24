@@ -10,7 +10,7 @@ var moment = require('moment');
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_media_notification',
+        tableName: 'e_media_notification',
         timestamps: true
     };
 

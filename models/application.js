@@ -8,8 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true
         },
         name: DataTypes.STRING,
-        displayName: DataTypes.STRING,
-        codeName: DataTypes.STRING
+        displayName: DataTypes.STRING
     }, {
         tableName: "application"
     })
@@ -29,22 +28,18 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     Application.addHook('beforeFindAfterOptions', (application) => {
-        if(typeof application.where !== "undefined"){
-            if(typeof application.where.name !== "undefined")
+        if (typeof application.where !== "undefined") {
+            if (typeof application.where.name !== "undefined")
                 application.where.name = application.where.name.toLowerCase();
-            if(typeof application.where.codeName !== "undefined")
-                application.where.codeName = application.where.codeName.toLowerCase();
         }
     })
 
     Application.addHook('beforeCreate', (application) => {
-        application.name = application.name?application.name.toLowerCase():null;
-        application.codeName = application.codeName?application.codeName.toLowerCase():null;
+        application.name = application.name ? application.name.toLowerCase() : null;
     })
 
     Application.addHook('beforeUpdate', (application) => {
-        application.name = application.name?application.name.toLowerCase():null;
-        application.codeName = application.codeName?application.codeName.toLowerCase():null;
+        application.name = application.name ? application.name.toLowerCase() : null;
     })
 
     return Application;

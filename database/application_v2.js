@@ -37,7 +37,7 @@ class Application {
 
 	                // Fields loading
 	                for (let field in metadata[name].modules[np_module].entities[entity].fields)
-	                    currentEntity.addField(new Entity(entity));
+	                    currentEntity.addField(new Field(entity));
 
                     // Entity components loading
                     for (let component_type in metadata[name].modules[np_module].entities[entity].components)

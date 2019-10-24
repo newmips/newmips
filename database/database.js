@@ -48,19 +48,15 @@ exports.addConstraintDeleteUpdate = function (attr, callback) {
 }
 
 // Drop DataField
-exports.dropDataField = function (attr, callback) {
+exports.dropDataField = async (data) => {
 
-    var name_data_entity = attr.name_data_entity;
-    var query = "";
+    let query = "";
     if(sequelize.options.dialect == "mysql")
-        query = "ALTER TABLE " + attr.id_application + "_" + name_data_entity.toLowerCase() + " DROP " + attr.fieldToDrop.toLowerCase() + ";";
+        query = "ALTER TABLE " + data.application.name + "_" + data.entity.name + " DROP " + data.fieldToDrop + ";";
     if(sequelize.options.dialect == "postgres")
-        query = "ALTER TABLE \"" + attr.id_application + "_" + name_data_entity.toLowerCase() + "\" DROP " + attr.fieldToDrop.toLowerCase() + ";";
+        query = "ALTER TABLE \"" + data.application.name + "_" + data.entity.name + "\" DROP " + data.fieldToDrop + ";";
 
-    if (!pushToSyncQuery(attr.id_application, query))
-        return callback("ERROR: Can't delete in database");
-
-    callback();
+    return pushToSyncQuery(attr.application, query);
 }
 
 exports.dropFKDataField = async (data) => {
@@ -81,32 +77,25 @@ exports.dropFKDataField = async (data) => {
 
     query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop + ";";
 
-    pushToSyncQuery(data.application, query);
-    return;
+    return pushToSyncQuery(data.application, query);
 }
 
 // Delete field related to multiple
-exports.dropFKMultipleDataField = function (attr, callback) {
+exports.dropFKMultipleDataField = async (data) => {
+
     // *** 1 - Initialize variables according to options ***
-    var name_data_entity = attr.name_data_entity;
-    var table_name = attr.id_application + "_" + attr.target.toLowerCase();
-
-    var query = "";
+    let table_name = data.entity.name;
+    let query = "";
     if(sequelize.options.dialect == "mysql")
-        query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + attr.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
+        query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + data.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
     else(sequelize.options.dialect == "postgres")
-        query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + attr.fieldToDrop + "' AND table_name = '" + table_name + "';";
+        query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + data.fieldToDrop + "' AND table_name = '" + table_name + "';";
 
-    sequelize.query(query).then(function (constraintName) {
-        if (typeof constraintName[0][0] === "undefined")
-            return callback();
-        query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + attr.fieldToDrop.toLowerCase() +";";
-        if (!pushToSyncQuery(attr.id_application, query))
-            return callback("ERROR: Can't delete in database");
-        callback();
-    }).catch(function (err) {
-        callback(err);
-    });
+    let constraintName = await sequelize.query(query);
+    if (typeof constraintName[0][0] === "undefined")
+        return;
+    query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop +";";
+    return pushToSyncQuery(data.application, query);
 }
 
 exports.dropTable = function(table_name, callback) {

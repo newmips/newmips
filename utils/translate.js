@@ -5,18 +5,18 @@ let translateKey = require("../config/googleAPI").translate;
 const googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
-    writeTree: function(idApplication, object, language, replaceBoolean) {
-        var localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json'));
+    writeTree: function(appName, object, language, replaceBoolean) {
+        let localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json'));
         replaceBoolean = typeof replaceBoolean === 'undefined' ? true : replaceBoolean;
+
         function dive(locales, newLocales) {
-            for (var newLocale in newLocales) {
-                var found = false;
-                for (var locale in locales) {
+            for (let newLocale in newLocales) {
+                let found = false;
+                for (let locale in locales) {
                     if (locale == newLocale && typeof newLocales[newLocale] === 'object') {
                         found = true;
                         dive(locales[locale], newLocales[newLocale])
-                    }
-                    else if (!replaceBoolean && locale == newLocale)
+                    } else if (!replaceBoolean && locale == newLocale)
                         found = true;
                 }
                 if (!found)
@@ -24,11 +24,10 @@ module.exports = {
             }
         }
         dive(localesObj, object);
-        fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json', JSON.stringify(localesObj, null, 4), 'utf8');
+        fs.writeFileSync(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json', JSON.stringify(localesObj, null, 4), 'utf8');
     },
-    writeEnumTrad: function (idApplication, entity, field, value, traduction, lang = 'fr-FR') {
-        const enumTrads = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json'));
-
+    writeEnumTrad: function (app_name, entity, field, value, traduction, lang = 'fr-FR') {
+        const enumTrads = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + app_name + '/locales/enum_radio.json'));
         let success = false;
         mainLoop:for (const enumEntity in enumTrads)
             // Find entity's entry
@@ -45,7 +44,7 @@ module.exports = {
                             }
 
         if (success == true)
-            fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json', JSON.stringify(enumTrads, null, 4), 'utf8');
+            fs.writeFileSync(__dirname+'/../workspace/'+app_name+'/locales/enum_radio.json', JSON.stringify(enumTrads, null, 4), 'utf8');
 
         return success;
     },
@@ -146,7 +145,13 @@ module.exports = {
             promises.push(new Promise((resolve, reject) => {
                 file = localesDir[i];
                 let urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
-                let dataLocales = JSON.parse(fs.readFileSync(urlFile));
+                let dataLocales;
+                try {
+                    dataLocales = JSON.parse(fs.readFileSync(urlFile));
+                } catch(err) {
+                    console.error(err);
+                    console.log("Concerned file => " + urlFile);
+                }
                 let workingLocales = file.slice(0, -5);
                 let workingLocales4Google = workingLocales.slice(0, -3);
 
@@ -174,44 +179,43 @@ module.exports = {
 
         await Promise.all(promises);
     },
-    removeLocales: function(idApplication, type, value, callback){
+    removeLocales: (appName, type, value) => {
         // Get all the differents languages to handle
-        var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
+        let localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => {
             return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
-        localesDir.forEach(function(file){
-            var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
+        localesDir.forEach(file => {
+            let urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
             delete require.cache[require.resolve(urlFile)];
-            var dataLocales = require(urlFile);
+            let dataLocales = require(urlFile);
 
-            if(type == "field"){
+            if (type == "field") {
                 delete dataLocales.entity[value[0]][value[1]];
-            } else if(type == "entity") {
+            } else if (type == "entity") {
                 delete dataLocales.entity[value];
-            } else if(type == "module") {
+            } else if (type == "module") {
                 delete dataLocales.module[value];
             }
 
             fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
         });
 
-        callback();
+        return;
     },
-    updateLocales: function(idApplication, lang, keys, value){
-        var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+lang+".json";
-        delete require.cache[require.resolve(urlFile)]
-        var dataLocales = require(urlFile);
+    updateLocales: function(appName, lang, keys, value) {
+        var urlFile = __dirname + '/../workspace/' + appName + '/locales/' + lang + ".json";
+        let dataLocales = JSON.parse(fs.readFileSync(urlFile))
 
-        var depth = dataLocales;
-        for (var i=0; i<keys.length; i++) {
-            if (typeof depth[keys[i]] !== 'undefined'){
-                if(i+1 == keys.length)
+        let depth = dataLocales;
+        for (let i = 0; i < keys.length; i++) {
+            if (typeof depth[keys[i]] !== 'undefined') {
+                if (i + 1 == keys.length)
                     depth[keys[i]] = value;
                 else
                     depth = depth[keys[i]];
-            } else{
-                if(i+1 == keys.length)
+            } else {
+                if (i + 1 == keys.length)
                     depth[keys[i]] = value;
             }
         }

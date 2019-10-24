@@ -8,6 +8,7 @@ const readline = require('readline');
 const multer = require('multer');
 const upload = multer().single('file');
 const Jimp = require("jimp");
+const math = require('math');
 
 // Config
 const globalConf = require('../config/global.js');
@@ -40,61 +41,49 @@ let pourcent_generation = {};
 let excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 let excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
-function initPreviewData(idApplication, data){
-    return new Promise(function(resolve, reject) {
-        var innerPromises = [];
+async function initPreviewData(appName, data){
+    // Editor
+    let workspacePath = __dirname + "/../workspace/" + appName + "/";
+    let folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
+    /* Sort folder first, file after */
+    data.workspaceFolder = helpers.sortEditorFolder(folder);
 
-        // Editor
-        var workspacePath = __dirname + "/../workspace/" + idApplication + "/";
-        var folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
-        /* Sort folder first, file after */
-        data.workspaceFolder = helpers.sortEditorFolder(folder);
+    let application = metadata.getApplication(appName);
+    let modules = application.modules;
+    // UI designer entity list
 
-        // UI designer entity list
-        innerPromises.push(new Promise(function(innerResolve, innerReject) {
-            models.Module.findAll({where: {id_application: idApplication}, include: [{model: models.DataEntity}]}).then(function(modules) {
-                data.entities = [];
-                for (var i = 0; i < modules.length; i++) {
-                    for (var j = 0; j < modules[i].DataEntities.length; j++)
-                        data.entities.push(modules[i].DataEntities[j]);
-                }
-                function sortEntities(entities, idx) {
-                    if (entities.length == 0 || !entities[idx+1])
-                        return entities;
-                    if (entities[idx].dataValues.name > entities[idx+1].dataValues.name) {
-                        var swap = entities[idx];
-                        entities[idx] = entities[idx+1];
-                        entities[idx+1] = swap;
-                        return sortEntities(entities, idx == 0 ? 0 : idx-1);
-                    }
-                    return sortEntities(entities, idx+1);
-                }
-                data.entities = sortEntities(data.entities, 0);
-                innerResolve();
-            });
-        }));
-
-        Promise.all(innerPromises).then(function() {
-            return resolve(data);
-        }).catch(function(err) {
-            console.error(err);
-            reject(err);
-        });
-    });
+    data.entities = [];
+    for (let i = 0; i < modules.length; i++) {
+        for (let j = 0; j < modules[i].entities.length; j++)
+            data.entities.push(modules[i].entities[j]);
+    }
+    function sortEntities(entities, idx) {
+        if (entities.length == 0 || !entities[idx+1])
+            return entities;
+        if (entities[idx].name > entities[idx+1].name) {
+            let swap = entities[idx];
+            entities[idx] = entities[idx+1];
+            entities[idx+1] = swap;
+            return sortEntities(entities, idx == 0 ? 0 : idx-1);
+        }
+        return sortEntities(entities, idx+1);
+    }
+    data.entities = sortEntities(data.entities, 0);
+    return data;
 }
 
-var chats = {};
-function setChat(req, idApp, idUser, user, content, params, isError){
+let chats = {};
+function setChat(req, app_name, idUser, user, content, params, isError){
 
     // Init if necessary
-    if(!chats[idApp])
-        chats[idApp] = {};
-    if(!chats[idApp][idUser])
-        chats[idApp][idUser] = {items: []};
+    if(!chats[app_name])
+        chats[app_name] = {};
+    if(!chats[app_name][idUser])
+        chats[app_name][idUser] = {items: []};
 
     // Add chat
-    if(content != "chat.welcome" || chats[idApp][idUser].items.length < 1){
-        chats[idApp][idUser].items.push({
+    if(content != "chat.welcome" || chats[app_name][idUser].items.length < 1){
+        chats[app_name][idUser].items.push({
             user: user,
             dateEmission: req.moment().format("DD MMM HH:mm"),
             content: content,
@@ -133,19 +122,15 @@ function execute(req, instruction, __) {
                 && !isNaN(req.session.gitlab.user.id))
                 data.gitlabUser = req.session.gitlab.user;
 
-            if(data.function != 'createNewApplication')
+            if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
                 data.application = metadata.getApplication(data.app_name);
-
-            console.log("---------");
-            console.log(instruction);
-            console.log(data.function);
 
             designer[data.function](data).then(info => {
 
                 session_manager.setSession(data.function, req, info);
 
                 // Save metadata
-                if(data.application)
+                if(data.application && data.function != 'deleteApplication')
                     data.application.save();
 
                 return resolve();
@@ -161,144 +146,126 @@ function execute(req, instruction, __) {
 }
 
 // Preview Get
-router.get('/preview', block_access.hasAccessApplication, function(req, res) {
+router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) => {
 
-    var id_application = req.query.id_application;
-    var timeoutServer = 30000;
+    let app_name = req.params.app_name;
+
+    // Application starting timeout
+    let timeoutServer = 30000;
     if(typeof req.query.timeout !== "undefined")
         timeoutServer = req.query.timeout;
-    var currentUserID = req.session.passport.user.id;
-    req.session.id_application = id_application;
-    req.session.id_data_entity = null;
 
-    var data = {
-        error: 1,
-        profile: req.session.passport.user,
-        menu: "project",
-        sub_menu: "list_project",
-        application: "",
-        answers: "",
-        instruction: "",
-        iframe_url: "",
-        session: ""
+    let currentUserID = req.session.passport.user.id;
+
+    req.session.app_name = app_name;
+    req.session.module_name = 'm_home';
+    req.session.entity_name = null;
+
+    let data = {
+        application: metadata.getApplication(app_name),
+        currentUser: req.session.passport.user,
+        gitlabUser: null
     };
 
-    if (!id_application && typeof process_server_per_app[req.session.id_application] === 'undefined') {
+    if ((!app_name || app_name == '') && typeof process_server_per_app[app_name] === 'undefined') {
         req.session.toastr.push({level: "warning", message: "application.not_started"});
-        return res.redirect('/application/list');
+        return res.redirect('/default/home');
     }
 
-    setChat(req, id_application, currentUserID, "Mipsy", "chat.welcome", []);
+    setChat(req, app_name, currentUserID, "Mipsy", "chat.welcome", []);
 
-    models.Application.findOne({where: {id: id_application}}).then(function(application) {
-        req.session.id_project = application.id_project;
+    models.Application.findOne({where: {name: app_name}}).then(db_app => {
 
-        models.Module.findAll({where: {id_application: application.id}, order: [["id_application", "ASC"]]}).then(function(modules) {
-            let currentModule = modules[0];
-            req.session.id_module = currentModule.id;
-            var math = require('math');
-            var port = math.add(9000, application.id);
-            var env = Object.create(process.env);
-            env.PORT = port;
+        let env = Object.create(process.env);
+        let port = math.add(9000, db_app.id);
+        env.PORT = port;
 
-            var timer = 50;
-            var serverCheckCount = 0;
-            if (process_server_per_app[application.id] == null || typeof process_server_per_app[application.id] === "undefined") {
-                // Launch server for preview
-                process_server_per_app[application.id] = process_manager.launchChildProcess(req, application.id, env);
-                timer = 500;
+        let timer = 50;
+        let serverCheckCount = 0;
+        if (process_server_per_app[app_name] == null || typeof process_server_per_app[app_name] === "undefined") {
+            // Launch server for preview
+            process_server_per_app[app_name] = process_manager.launchChildProcess(req, app_name, env);
+            timer = 500;
+        }
+
+        // var protocol = globalConf.protocol;
+        let protocol_iframe = globalConf.protocol_iframe;
+        let host = globalConf.host;
+
+        if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+            data.gitlabUser = req.session.gitlab.user;
+
+        data.session = session_manager.getSession(req)
+
+        let initialTimestamp = new Date().getTime();
+        let iframe_url;
+
+        function checkServer() {
+            if (new Date().getTime() - initialTimestamp > timeoutServer) {
+
+                // Get last error from app logs
+                let lastError = helpers.getLastLoggedError(app_name);
+                let chatKey = "structure.global.restart.error";
+                let chatParams = [lastError];
+
+                // If missing module error
+                if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                    chatKey = "structure.global.restart.missing_module";
+                    lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                    chatParams = [lastError, lastError];
+                }
+
+                setChat(req, app_name, currentUserID, "Mipsy", chatKey, chatParams, true);
+                data.iframe_url = -1;
+                data.chat = chats[app_name][currentUserID];
+                return res.render('front/preview', data);
             }
 
-            // var protocol = globalConf.protocol;
-            var protocol_iframe = globalConf.protocol_iframe;
-            var host = globalConf.host;
-
-            var attr = new Array();
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-            attr.currentUser = req.session.passport.user;
-
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
+            iframe_url = protocol_iframe + '://';
+            if (globalConf.env == 'cloud')
+                iframe_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
             else
-                attr.gitlabUser = null;
+                iframe_url += host + ":" + port + "/default/status";
 
-            session_manager.getSession(attr, req, function(err, info) {
-                data.session = info;
+            let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
 
-                initPreviewData(req.session.id_application, data).then(function(data) {
-                    let initialTimestamp = new Date().getTime();
-                    let iframe_status_url;
-                    function checkServer() {
-                        if (new Date().getTime() - initialTimestamp > timeoutServer) {
+            request({
+                rejectUnauthorized: rejectUnauthorized,
+                url: iframe_url,
+                method: "GET"
+            }, function(error, response, body) {
+                if (error)
+                    return setTimeout(checkServer, 100);
 
-                            // Get last error from app logs
-                            let lastError = helpers.getLastLoggedError(id_application);
-                            let chatKey = "structure.global.restart.error";
-                            let chatParams = [lastError];
+                //Check for right status code
+                if (response.statusCode !== 200) {
+                    console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                    return setTimeout(checkServer, 100);
+                }
 
-                            // If missing module error
-                            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                                chatKey = "structure.global.restart.missing_module";
-                                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                                chatParams = [lastError, lastError];
-                            }
+                // All is good. Print the body
+                console.log("Server status is OK");
 
-                            setChat(req, id_application, currentUserID, "Mipsy", chatKey, chatParams, true);
-                            data.iframe_url = -1;
-                            data.chat = chats[id_application][currentUserID];
-                            return res.render('front/preview', data);
-                        }
+                data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
 
-                        iframe_status_url = protocol_iframe + '://';
-                        if (globalConf.env == 'cloud')
-                            iframe_status_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
-                        else
-                            iframe_status_url += host + ":" + port + "/default/status";
-
-                        let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
-
-                        request({
-                            rejectUnauthorized: rejectUnauthorized,
-                            url: iframe_status_url,
-                            method: "GET"
-                        }, function(error, response, body) {
-                            if (error)
-                                return setTimeout(checkServer, 100);
-
-                            //Check for right status code
-                            if (response.statusCode !== 200) {
-                                console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                return setTimeout(checkServer, 100);
-                            }
-
-                            //All is good. Print the body
-                            console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
-
-                            data.error = 0;
-                            data.application = currentModule;
-                            data.iframe_url = iframe_status_url.split("/default/status")[0]+"/default/home";
-                            data.idApp = application.id;
-
-                            // Let's do git init or commit depending the env (only on cloud env for now)
-                            gitHelper.doGit(attr, function(err){
-                                if(err)
-                                    setChat(req, id_application, currentUserID, "Mipsy", err.message, [], true);
-                                data.chat = chats[id_application][currentUserID];
-                                res.render('front/preview', data);
-                            });
-                        });
-                    }
-                    // Check server has started every 50 ms
-                    console.log('Waiting for server to start');
-                    checkServer();
+                // Let's do git init or commit depending the env (only on cloud env for now)
+                gitHelper.doGit(data, function(err){
+                    if(err)
+                        setChat(req, app_name, currentUserID, "Mipsy", err.message, [], true);
+                    data.chat = chats[app_name][currentUserID];
+                    res.render('front/preview', data);
                 });
             });
+        }
+
+        initPreviewData(app_name, data).then(data => {
+            // Check server has started every 50 ms
+            console.log('Waiting for server to start');
+            checkServer();
         });
-    }).catch(function(err) {
-        initPreviewData(req.session.id_application, data).then(function(data) {
+
+    }).catch(err => {
+        initPreviewData(app_name, data).then(function(data) {
             data.code = 500;
             console.error(err);
             res.render('common/error', data);
@@ -641,61 +608,50 @@ router.post('/set_logo', block_access.hasAccessApplication, function (req, res) 
 // List all applications
 router.get('/list', block_access.isLoggedIn, function(req, res) {
     (async () => {
-        let projects = await models.Project.findAll({
+        let applications = await models.Application.findAll({
             include: [{
-                model: models.Application,
-                required: true,
-                include: [{
-                    model: models.User,
-                    as: "users",
-                    where: {
-                        id: req.session.passport.user.id
-                    },
-                    required: true
-                }]
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                },
+                required: true
             }],
             order: [
-                [models.Application, 'id', 'DESC']
+                ['id', 'DESC']
             ]
         });
 
-        let iframe_status_url;
+        let app_url, port, appName, data = {};
         let host = globalConf.host;
-        let port;
-        let appName;
-        let data = {};
 
         // Get user project for clone url generation
         let gitlabProjects = [];
         if(gitlabConf.doGit)
             gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
 
-        for (var i = 0; i < projects.length; i++) {
-            for (var j = 0; j < projects[i].Applications.length; j++) {
+        for (var i = 0; i < applications.length; i++) {
 
-                iframe_status_url = globalConf.protocol_iframe + '://';
-                port = 9000 + parseInt(projects[i].Applications[j].id);
-                appName = projects[i].Applications[j].codeName.substring(2);
+            app_url = globalConf.protocol_iframe + '://';
+            port = 9000 + parseInt(applications[i].id);
+            appName = applications[i].name.substring(2);
+            app_url += host + ":" + port + "/";
 
-                if (globalConf.env == 'cloud'){
-                    iframe_status_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
-                } else {
-                    iframe_status_url += host + ":" + port + "/";
+            if (globalConf.env == 'cloud')
+                app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+
+            if(gitlabConf.doGit){
+                let project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
+                if(project) {
+                    // applications[i].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
+                    applications[i].dataValues.repo_url = project.http_url_to_repo;
+                    data.gitlabUser = req.session.gitlab.user;
                 }
-
-                if(gitlabConf.doGit){
-                    let project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
-                    if(project) {
-                        // projects[i].dataValues.Applications[j].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
-                        projects[i].dataValues.Applications[j].dataValues.repo_url = project.http_url_to_repo;
-                        data.gitlabUser = req.session.gitlab.user;
-                    }
-                }
-                projects[i].dataValues.Applications[j].dataValues.url = iframe_status_url;
             }
+            applications[i].dataValues.url = app_url;
         }
 
-        data.projects = projects
+        data.applications = applications
         return data;
     })().then(data => {
         res.render('front/application', data);
@@ -707,8 +663,9 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
 });
 
 router.post('/delete', block_access.isLoggedIn, function(req, res) {
-    execute(req, "delete application " + req.body.appName).then(_ => {
-        res.status(200).send(data);
+    let __ = require("../services/language")(req.session.lang_user).__;
+    execute(req, "delete application " + req.body.appName, __).then(_ => {
+        res.status(200).send(true);
     }).catch(err => {
         console.error(err);
         res.status(500).send(err);
@@ -885,12 +842,12 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
             await execute(req, instructions[i], __);
             pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
         }
-        await structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.app_name)
+        await structure_application.initializeApplication(metadata.getApplication(req.session.app_name))
         return;
     })().then(_ => {
         // Build API documentation
-        docBuilder.build(req.session.id_application);
-        res.redirect('/application/preview/' + req.session.id_application);
+        docBuilder.build(metadata.getApplication(req.session.app_name));
+        res.redirect('/application/preview/' + req.session.app_name);
     }).catch(err => {
         console.error(err);
         req.session.toastr = [{
@@ -901,10 +858,10 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.get('/get_pourcent_generation', block_access.isLoggedIn, function(req, res) {
-    var data = {};
-    data.pourcent = pourcent_generation[req.session.passport.user.id];
-    res.json(data);
+router.get('/get_pourcent_generation', function(req, res) {
+    res.json({
+        pourcent: pourcent_generation[req.session.passport.user.id]
+    });
 });
 
 module.exports = router;
