@@ -193,11 +193,11 @@ exports.setupEntity = async (data) => {
     fs.copySync(piecesPath + '/views/entity', workspacePath + '/views/' + entity_name);
     let fileBase = workspacePath + '/views/' + entity_name;
 
-    let dustFiles = ["create", "create_fields", "show", "print_fields", "show_fields", "update", "update_fields", "list", "list_fields"];
+    let dustFiles = ["create", "create_fields", "show", "show_fields", "update", "update_fields", "list", "list_fields"];
     let dustPromises = [];
 
     for (let i = 0; i < dustFiles.length; i++) {
-        dustPromises.push(async () => {
+        dustPromises.push((async () => {
             let fileToWrite = fileBase + '/' + dustFiles[i] + ".dust";
             let dustContent = fs.readFileSync(fileToWrite, 'utf8');
             dustContent = dustContent.replace(/custom_module/g, module_name);
@@ -216,7 +216,7 @@ exports.setupEntity = async (data) => {
             }
 
             return fs.writeFileSync(fileToWrite, dustContent, "utf8");
-        })
+        })())
     }
 
     await Promise.all(dustPromises);
@@ -293,4 +293,3 @@ exports.deleteDataEntity = function (id_application, name_module, name_data_enti
         });
     });
 };
-

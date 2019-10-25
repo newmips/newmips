@@ -35,8 +35,6 @@ exports.hasAccessApplication = function(req, res, next) {
     else
         app_name = req.session.app_name ? req.session.app_name : null;
 
-    console.log(app_name);
-
     if (req.isAuthenticated()){
         models.User.findOne({
             where: {

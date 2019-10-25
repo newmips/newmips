@@ -121,31 +121,25 @@
 								<h4 class="box-title"><i class="fa fa-gear"></i> Session</h4>
 							</div>
 							<div class="box-body">
-								<div class="callout callout-warning">
+								<div class="callout callout-info">
 									{#session}
-										{?project.id_project}
-											{#__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{project.id_project} - {project.name_project}</b>
-										{:else}
-											{#__ key="project.label"/} :<b class="sessionProjectInfo">&nbsp;{#__ key="preview.session.noProject"/}</b>
-										{/project.id_project}
-										<br>
-										{?application.id_application}
-											{#__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{application.id_application} - {application.name_application}</b>
+										{?application.name}
+											{#__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{application.name}</b>
 										{:else}
 											{#__ key="application.label"/} :<b class="sessionApplicationInfo">&nbsp;{#__ key="preview.session.noApplication"/}</b>
-										{/application.id_application}
+										{/application.name}
 										<br>
-										{?module.id_module}
-											{#__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{module.id_module} - {module.name_module}</b>
+										{?module.name}
+											{#__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{module.name}</b>
 										{:else}
 											{#__ key="module.label"/} :<b class="sessionModuleInfo">&nbsp;{#__ key="preview.session.noModule"/}</b>
-										{/module.id_module}
+										{/module.name}
 										<br>
-										{?data_entity.id_data_entity}
-											{#__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{data_entity.id_data_entity} - {data_entity.name_data_entity}</b>
+										{?entity.name}
+											{#__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{entity.name}</b>
 										{:else}
 											{#__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{#__ key="preview.session.noEntity"/}</b>
-										{/data_entity.id_data_entity}
+										{/entity.name}
 									{/session}
 								</div>
 							</div>
@@ -182,7 +176,7 @@
 						<select id="entitySelect" name="entitySelect">
 							<option default="true" value="">{#__ key="ui_editor.select_entity"/}</option>
 							{#entities}
-								<option value="{codeName}">{name}</option>
+								<option value="{name}">{name}</option>
 							{/entities}
 						</select><br>
 						<ul class="sidebar-menu" id="pages" style="display:none;">

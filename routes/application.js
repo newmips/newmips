@@ -41,7 +41,7 @@ let pourcent_generation = {};
 let excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 let excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
-async function initPreviewData(appName, data){
+function initPreviewData(appName, data){
     // Editor
     let workspacePath = __dirname + "/../workspace/" + appName + "/";
     let folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
@@ -133,7 +133,11 @@ function execute(req, instruction, __) {
                 if(data.application && data.function != 'deleteApplication')
                     data.application.save();
 
-                return resolve();
+                console.log(data.function);
+                data.message = info.message;
+                data.messageParams = info.messageParams
+
+                return resolve(data);
             }).catch(err => {
                 console.error(err);
                 let msgErr = __(err.message, err.messageParams || []);
@@ -198,344 +202,212 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
         data.session = session_manager.getSession(req)
 
         let initialTimestamp = new Date().getTime();
-        let iframe_url;
+        let iframe_url = protocol_iframe + '://';
 
-        function checkServer() {
-            if (new Date().getTime() - initialTimestamp > timeoutServer) {
+        if (globalConf.env == 'cloud')
+            iframe_url += globalConf.sub_domain + '-' + application.name.substring(2) + "." + globalConf.dns + '/default/status';
+        else
+            iframe_url += host + ":" + port + "/default/status";
 
-                // Get last error from app logs
-                let lastError = helpers.getLastLoggedError(app_name);
-                let chatKey = "structure.global.restart.error";
-                let chatParams = [lastError];
+        data = initPreviewData(app_name, data);
 
-                // If missing module error
-                if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                    chatKey = "structure.global.restart.missing_module";
-                    lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                    chatParams = [lastError, lastError];
-                }
-
-                setChat(req, app_name, currentUserID, "Mipsy", chatKey, chatParams, true);
-                data.iframe_url = -1;
-                data.chat = chats[app_name][currentUserID];
-                return res.render('front/preview', data);
-            }
-
-            iframe_url = protocol_iframe + '://';
-            if (globalConf.env == 'cloud')
-                iframe_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
-            else
-                iframe_url += host + ":" + port + "/default/status";
-
-            let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
-
-            request({
-                rejectUnauthorized: rejectUnauthorized,
-                url: iframe_url,
-                method: "GET"
-            }, function(error, response, body) {
-                if (error)
-                    return setTimeout(checkServer, 100);
-
-                //Check for right status code
-                if (response.statusCode !== 200) {
-                    console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                    return setTimeout(checkServer, 100);
-                }
-
-                // All is good. Print the body
-                console.log("Server status is OK");
-
-                data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
-
-                // Let's do git init or commit depending the env (only on cloud env for now)
-                gitHelper.doGit(data, function(err){
-                    if(err)
-                        setChat(req, app_name, currentUserID, "Mipsy", err.message, [], true);
-                    data.chat = chats[app_name][currentUserID];
-                    res.render('front/preview', data);
-                });
-            });
-        }
-
-        initPreviewData(app_name, data).then(data => {
-            // Check server has started every 50 ms
-            console.log('Waiting for server to start');
-            checkServer();
+        // Check server has started every 50 ms
+        console.log('Starting server...');
+        process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
+            data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
+            // Let's do git init or commit depending the env (only on cloud env for now)
+            gitHelper.doGit(data);
+            data.chat = chats[app_name][currentUserID];
+            res.render('front/preview', data);
+        }).catch(err => {
+            data = initPreviewData(app_name, data);
+            data.code = 500;
+            console.error(err);
+            res.render('common/error', data);
         });
-
     }).catch(err => {
-        initPreviewData(app_name, data).then(function(data) {
-            data.code = 500;
-            console.error(err);
-            res.render('common/error', data);
-        }).catch(function(err) {
-            data.code = 500;
-            console.error(err);
-            res.render('common/error', data);
-        });
+        data = initPreviewData(app_name, data);
+        data.code = 500;
+        console.error(err);
+        res.render('common/error', data);
     });
 });
 
 // AJAX Preview Post
-router.post('/fastpreview', block_access.hasAccessApplication, function(req, res) {
+router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
-    var math = require('math');
-    var port = math.add(9000, req.session.id_application);
-    var env = Object.create(process.env);
-    env.PORT = port;
-    var protocol_iframe = globalConf.protocol_iframe;
-    var host = globalConf.host;
-    var timeoutServer = 30000;
+    let appName = req.session.app_name;
+    /* Lower the first word for the basic parser json */
+    let instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
+    let currentUserID = req.session.passport.user.id;
+    let data = {};
 
-    // Parse instruction and set results
-    models.Application.findById(req.session.id_application).then(function(application) {
+    (async () => {
+        let db_app = await models.Application.findOne({where: {name: appName}});
 
-        req.session.name_application = application.codeName.substring(2);
+        let port = math.add(9000, db_app.id);
+        let env = Object.create(process.env);
+        env.PORT = port;
 
-        var instruction = req.body.instruction.trim() || "";
-        var currentUserID = req.session.passport.user.id;
-        var currentAppID = application.id;
+        let protocol_iframe = globalConf.protocol_iframe;
+        let host = globalConf.host;
+        let timeoutServer = 30000;
 
-        var data = {
-            error: 1,
-            profile: req.session.passport.user,
-            instruction: instruction,
-            session: {
-                id_project: req.session.id_project,
-                id_application: req.session.id_application,
-                id_module: req.session.id_module,
-                id_data_entity: req.session.id_data_entity
-            }
-        };
+        // Current application url
+        data.iframe_url = process_manager.childUrl(req, db_app.id);
+        console.log(data.iframe_url);
 
-        try {
-            /* Add instruction in chat */
-            setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
+        /* Add instruction in chat */
+        setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
 
-            /* Lower the first word for the basic parser json */
-            instruction = dataHelper.lowerFirstWord(instruction);
+        let __ = require("../services/language")(req.session.lang_user).__;
 
-            /* Parse the instruction to get an object for the designer */
-            var attr = parser.parse(instruction);
-            /* Rework the attr to get value for the code / url / show */
-            attr = dataHelper.reworkData(attr);
-            data.iframe_url = process_manager.childUrl(req, attr.function);
-            // We simply add session values in attributes array
-            attr.instruction = instruction;
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-            attr.googleTranslate = req.session.toTranslate || false;
-            attr.lang_user = req.session.lang_user;
-            attr.currentUser = req.session.passport.user;
-            attr.gitlabUser = null;
+        // Executing instruction
+        data = await execute(req, instruction, __);
 
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
+        // On entity delete, reset child_url to avoid 404
+        if (data.function == 'deleteDataEntity') {
+            data.iframe_url = protocol_iframe + '://' + host + ":" + port + "/default/home";
+            process_manager.setChildUrl(req.sessionID, appName, "/default/home");
+        }
 
-            if (typeof attr.error !== 'undefined'){
-                var err = new Error();
-                err.message = attr.error;
-                err.messageParams = attr.errorParams;
-                throw err;
-            }
+        /* If restart server then redirect to /application/preview?id_application=? */
+        let toRestart = false;
 
-            if (typeof designer[attr.function] !== 'function')
-                throw new Error("Designer doesn't have function "+attr.function);
+        /* Save an instruction history in the history script in workspace folder */
+        if (data.function != 'restart') {
+            let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+            let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+            historyScript += "\n" + instruction;
+            fs.writeFileSync(historyScriptPath, historyScript);
+        }
 
-            // Function is finally executed as "globalConf()" using the static dialog designer
-            // "Options" and "Session values" are sent using the attr attribute
-            designer[attr.function](attr, function(err, info) {
-                var answer;
-                /* If restart server then redirect to /application/preview?id_application=? */
-                var toRestart = false;
-                if (err) {
-                    // Error handling code goes here
-                    console.error(err);
-
-                    if(typeof err.message === "undefined")
-                        answer = err;
-                    else
-                        answer = err.message;
-
-                    // Winston log file
-                    logger.debug(answer);
-
-                    //Generator answer
-                    setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams, true);
-
-                    /* Save ERROR an instruction history in the history script in workspace folder */
-                    if(attr.function != 'restart'){
-                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-                        historyScript += "\n//ERROR: "+instruction+" ("+answer+")";
-                        fs.writeFileSync(historyScriptPath, historyScript);
-                    }
-
-                    // Load session values
-                    session_manager.getSession(attr, req, function(err, infoSession) {
-                        data.session = infoSession;
-                        data.chat = chats[currentAppID][currentUserID];
-                        initPreviewData(req.session.id_application, data).then(function(data) {
-                            //res.render('front/preview', data);
-                            res.send(data);
-                        });
-                    });
-                } else {
-
-                    /* Save an instruction history in the history script in workspace folder */
-                    if(attr.function != 'restart'){
-                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-                        historyScript += "\n"+instruction;
-                        fs.writeFileSync(historyScriptPath, historyScript);
-                    }
-
-                    // Store key entities in session for futur instruction
-                    session_manager.setSession(attr.function, req, info, data);
-                    if (attr.function == "deleteApplication"){
-                        return res.send({
-                            toRedirect: true,
-                            url: "/default/home"
-                        });
-                    } else if (attr.function == 'restart' || attr.function == 'installNodePackage'){
-                        toRestart = true;
-                    }
-
-                    // Generator answer
-                    setChat(req, currentAppID, currentUserID, "Mipsy", info.message, info.messageParams);
-
-                    var sessionID = req.sessionID;
-                    var timer = 50;
-                    var serverCheckCount = 0;
-
-                    // Relaunch server
-                    var env = Object.create(process.env);
-                    env.PORT = port;
-
-                    // If we stop the server manually we loose some stored data, so we just need to redirect.
-                    if(typeof process_server_per_app[req.session.id_application] === "undefined"){
-                        return res.send({
-                            toRedirect: true,
-                            url: "/application/preview?id_application="+req.session.id_application
-                        });
-                    }
-                    // Kill server first
-                    process_manager.killChildProcess(process_server_per_app[req.session.id_application].pid, function() {
-
-                        // Launch a new server instance to reload resources
-                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req, req.session.id_application, env);
-
-                        // Load session values
-                        var newAttr = {};
-                        newAttr.id_project = req.session.id_project;
-                        newAttr.id_application = req.session.id_application;
-                        newAttr.id_module = req.session.id_module;
-                        newAttr.id_data_entity = req.session.id_data_entity;
-
-                        session_manager.getSession(newAttr, req, function(err, info) {
-
-                            docBuilder.build(req.session.id_application).catch(function(err){
-                                console.error(err);
-                            });
-                            data.session = info;
-
-                            initPreviewData(req.session.id_application, data).then(function(data) {
-                                let initialTimestamp = new Date().getTime();
-                                let iframe_status_url;
-
-                                function checkServer() {
-                                    // Server Timeout
-                                    if (new Date().getTime() - initialTimestamp > timeoutServer) {
-
-                                        // Get last error from app logs
-                                        let lastError = helpers.getLastLoggedError(currentAppID);
-                                        let chatKey = "structure.global.restart.error";
-                                        let chatParams = [lastError];
-
-                                        // If missing module error
-                                        if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                                            chatKey = "structure.global.restart.missing_module";
-                                            lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                                            chatParams = [lastError, lastError];
-                                        }
-
-                                        setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
-                                        data.iframe_url = -1;
-                                        data.chat = chats[currentAppID][currentUserID];
-                                        return res.send(data);
-                                    }
-
-                                    iframe_status_url = protocol_iframe + '://';
-                                    if (globalConf.env == 'cloud')
-                                        iframe_status_url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + '/default/status';
-                                    else
-                                        iframe_status_url += host + ":" + port + "/default/status";
-
-                                    let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
-
-                                    request({
-                                        rejectUnauthorized: rejectUnauthorized,
-                                        url: iframe_status_url,
-                                        method: "GET"
-                                    }, function(error, response, body) {
-                                        // Check for error
-                                        if (error)
-                                            return setTimeout(checkServer, 100);
-
-                                        // Check for right status code
-                                        if (response.statusCode !== 200) {
-                                            console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                            return setTimeout(checkServer, 100);
-                                        }
-
-                                        // Everything's ok
-                                        console.log("Server status is OK");
-
-                                        if(toRestart) {
-                                            data.chat = chats[currentAppID][currentUserID];
-                                            data.isRestart = true;
-                                            return res.send(data);
-                                        } else {
-                                            // Let's do git init or commit depending the env (only on cloud env for now)
-                                            gitHelper.doGit(attr, function(err){
-                                                if(err)
-                                                    setChat(req, currentAppID, currentUserID, "Mipsy", err.message, [], true);
-                                                // Call preview page
-                                                data.chat = chats[currentAppID][currentUserID];
-                                                res.send(data);
-                                            });
-                                        }
-                                    });
-                                }
-                                // Check if the server has started
-                                console.log('Waiting for server to start');
-                                checkServer();
-                            });
-                        });
-                    });
-                }
+        if (data.function == "deleteApplication"){
+            return res.send({
+                toRedirect: true,
+                url: "/default/home"
             });
-        } catch(error){
-            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams, true);
-            // Load session values
-            var attr = {};
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
+        } else if (data.function == 'restart' || data.function == 'installNodePackage'){
+            toRestart = true;
+        }
 
-            session_manager.getSession(attr, req, function(err, info) {
-                data.chat = chats[currentAppID][currentUserID];
-                data.session = info;
+        // Generator answer
+        setChat(req, appName, currentUserID, "Mipsy", data.message, data.messageParams);
 
-                initPreviewData(req.session.id_application, data).then(function(data) {
-                    res.send(data);
-                });
+        // If we stop the server manually we loose some stored data, so we just need to redirect.
+        if(typeof process_server_per_app[appName] === "undefined"){
+            return res.send({
+                toRedirect: true,
+                url: "/application/preview/" + appName
             });
         }
+
+        // Kill server first
+        await process_manager.killChildProcess(process_server_per_app[appName].pid)
+
+        // Launch a new server instance to reload resources
+        process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+
+        data.session = session_manager.getSession(req);
+        data = initPreviewData(appName, data);
+
+        let initialTimestamp = new Date().getTime();
+        let iframe_url = protocol_iframe + '://';
+
+        if (globalConf.env == 'cloud')
+            iframe_url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + '/default/status';
+        else
+            iframe_url += host + ":" + port + "/default/status";
+
+        console.log('Starting server...');
+        await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
+        data.chat = chats[appName][currentUserID];
+
+        if(toRestart) {
+            data.isRestart = true;
+        } else {
+            // Let's do git init or commit depending the situation
+            gitHelper.doGit(data);
+        }
+        return data;
+
+    })().then(data => {
+        docBuilder.build(data.application).catch(err => {
+            console.error(err);
+        });
+        res.send(data);
+    }).catch(err => {
+
+        // Error handling code goes here
+        console.log("FAST PREVIEW ERROR");
+        console.error(err);
+        console.log(data);
+
+        if (typeof err.message === "undefined")
+            answer = err;
+        else
+            answer = err.message;
+
+        //Generator answer
+        setChat(req, appName, currentUserID, "Mipsy", answer, err.messageParams, true);
+
+        /* Save ERROR an instruction history in the history script in workspace folder */
+        if (data.function != 'restart') {
+            let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+            let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+            historyScript += "\n//ERROR: " + instruction + " (" + answer + ")";
+            fs.writeFileSync(historyScriptPath, historyScript);
+        }
+
+        // Load session values
+        data.session = session_manager.getSession(req);
+        data.chat = chats[appName][currentUserID];
+        data = initPreviewData(appName, data);
+        res.send(data);
+
+
+
+
+
+        // Server time out
+        // Get last error from app logs
+        // let lastError = helpers.getLastLoggedError(currentAppID);
+        // let chatKey = "structure.global.restart.error";
+        // let chatParams = [lastError];
+
+        // // If missing module error
+        // if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+        //     chatKey = "structure.global.restart.missing_module";
+        //     lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+        //     chatParams = [lastError, lastError];
+        // }
+
+        // setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
+        // data.iframe_url = -1;
+        // data.chat = chats[currentAppID][currentUserID];
+        // return res.send(data);
+
+
+
+
+
+
+        // setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams, true);
+        // // Load session values
+        // var data = {};
+        // data.id_project = req.session.id_project;
+        // data.id_application = req.session.id_application;
+        // data.id_module = req.session.id_module;
+        // data.id_data_entity = req.session.id_data_entity;
+
+        // session_manager.getSession(data, req, function(err, info) {
+        //     data.chat = chats[currentAppID][currentUserID];
+        //     data.session = info;
+
+        //     initPreviewData(req.session.id_application, data).then(function(data) {
+        //         res.send(data);
+        //     });
+        // });
     });
 });
 

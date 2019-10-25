@@ -401,14 +401,12 @@ exports.createWidget = async (data) => {
     // Get entity's icon
     let $ = await domHelper.read(workspacePath + '/views/' + layout_filename);
 
-    let entityIconClass = $("#" + data.entity.name.substring(2) + '_menu_item').find('a:first').find('i:first').data('class');
+    let entityIconClass = $("#" + data.entity.name.substring(2) + '_menu_item').find('a:first').find('i:first').attr('class');
     let layout_view_filename = workspacePath + '/views/default/' + data.np_module.name + '.dust';
 
     // Add widget to module's layout
     $ = await domHelper.read(layout_view_filename);
-
     $2 = await domHelper.read(piecesPath + '/views/widget/' + data.widgetType + '.dust');
-
     let widgetElemId = data.widgetType + '_' + data.entity.name + '_widget';
 
     // Create widget's html

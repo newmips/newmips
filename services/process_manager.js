@@ -3,6 +3,7 @@ const spawn = require('cross-spawn');
 const psTree = require('ps-tree');
 const fs = require("fs-extra");
 const path = require('path');
+const request = require('request');
 
 const AnsiToHTML = require('ansi-to-html');
 const ansiToHtml = new AnsiToHTML();
@@ -17,8 +18,14 @@ function setDefaultChildUrl(sessionID, appName){
         childsUrlsStorage[sessionID] = {};
 
     if(typeof childsUrlsStorage[sessionID][appName] === "undefined")
-        childsUrlsStorage[sessionID][appName] = "";
+        url = "";
 }
+
+function setChildUrl(sessionID, appName, url){
+    setDefaultChildUrl(sessionID, appName);
+    childsUrlsStorage[sessionID][appName] = url;
+}
+exports.setChildUrl = setChildUrl;
 
 exports.process_server_per_app = process_server_per_app;
 exports.launchChildProcess = function(req, appName, env) {
@@ -60,19 +67,47 @@ exports.launchChildProcess = function(req, appName, env) {
     return process_server;
 }
 
-exports.childUrl = function(req, instruction) {
+async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 
-    setDefaultChildUrl(req.sessionID, req.session.id_application);
+    // Server Timeout
+    if (new Date().getTime() - initialTimestamp > timeoutServer)
+        throw new Error('Application server timed out.');
 
-    // On entity delete, reset child_url to avoid 404
-    if (instruction == 'deleteDataEntity')
-        childsUrlsStorage[req.sessionID][req.session.id_application] = "/default/home";
+    let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
+
+    await new Promise((resolve, reject) => {
+        request({
+            rejectUnauthorized: rejectUnauthorized,
+            url: iframe_url,
+            method: "GET"
+        }, (err, response, body) => {
+            // Check for error
+            if (err && err.code == 'ECONNREFUSED')
+                return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
+
+            // Check for right status code
+            if (response.statusCode !== 200) {
+                console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
+                return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
+            }
+
+            // Everything's ok
+            console.log("Server status is OK");
+            resolve();
+        });
+    })
+}
+exports.checkServer = checkServer;
+
+exports.childUrl = function(req, appID) {
+
+    setDefaultChildUrl(req.sessionID, req.session.app_name);
 
     let url =  globalConf.protocol_iframe + '://';
     if (globalConf.env == 'cloud')
-        url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.id_application];
+        url += globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.app_name];
     else
-        url += globalConf.host + ':' + (9000 + parseInt(req.session.id_application)) + childsUrlsStorage[req.sessionID][req.session.id_application];
+        url += globalConf.host + ':' + (9000 + parseInt(appID)) + childsUrlsStorage[req.sessionID][req.session.app_name];
 
     return url;
 }
@@ -93,9 +128,6 @@ exports.killChildProcess = (pid) => {
                 resolve();
             });
         } else {
-            // **** Commands that works fine on UNIX ***
-            let signal = 'SIGKILL';
-
             /* Kill all the differents child process */
             let killTree = true;
             if (killTree) {
@@ -105,14 +137,22 @@ exports.killChildProcess = (pid) => {
                     }));
 
                     for (let i = 0; i < pidArray.length; i++) {
-                        console.log("TPID : " + pidArray[i]);
-                        process.kill(pidArray[i], signal);
+                        try {
+                            console.log("TPID : " + pidArray[i]);
+                            process.kill(pidArray[i], 'SIGKILL');
+                        } catch(err) {
+                            console.error("Cannot kill process with pid " + pidArray[i]);
+                        }
                     }
                     resolve();
                 });
             } else {
-                /* Kill just one child */
-                process.kill(pid, signal);
+                try {
+                    /* Kill just one child */
+                    process.kill(pid, 'SIGKILL');
+                } catch(err) {
+                    console.error("Cannot kill process with pid " + pid);
+                }
                 resolve();
             }
         }

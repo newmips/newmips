@@ -286,10 +286,10 @@
 		        	$("#step2Discover2, #step2Discover1").prop('disabled', false);
 
 		        	/* If online environment */
-		        	if(env_dns != ""){
+		        	if(env_dns != "") {
 		        		string = env_protocol + "://" + env_sub_domain + "-" + string + "." + env_dns;
+		        		$(this).after("<p><span class='applicationSpanUrl' style='margin-bottom:10px'><i style='color: orange;' class='fa fa-info-circle'></i> L'url de votre application sera: <b>"+string.toLowerCase()+"</b></span></p>");
 		        	}
-		        	$(this).after("<p><span class='applicationSpanUrl' style='color:#3c8dbc;margin-bottom:10px'><i class='fa fa-info-circle'></i> L'url de votre application sera: "+string.toLowerCase()+"</span></p>");
 		        }
 			});
 
