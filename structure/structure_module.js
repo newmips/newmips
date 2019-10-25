@@ -54,24 +54,23 @@ exports.setupModule = async (data) => {
     // Loop over module list to add new module's <option> tag in all modules <select> tags
     let promises = [];
     let modules = data.modules;
-    let option;
 
     for (let i = 0; i < modules.length; i++) {
-        promises.push(async () => {
+        promises.push((async () => {
             let fileName = __dirname + '/../workspace/' + appName + '/views/layout_' + modules[i].name + '.dust';
             let $ = await domHelper.read(fileName);
             $("#dynamic_select").empty();
-            option = "\n";
+            let option = "\n";
             for (let j = 0; j < modules.length; j++) {
-                option += '<!--{#moduleAccess module="' + dataHelper.removePrefix(modules[j].codeName, "module") + '"}-->\n';
-                option += '     <option data-module="' + modules[j].codeName.toLowerCase() + '" value="/default/' + dataHelper.removePrefix(modules[j].codeName, "module") + '" ' + (modules[i].name.toLowerCase() == modules[j].name.toLowerCase() ? 'selected' : '') + '>\n';
-                option += '         <!--{#__ key="module.' + modules[j].codeName.toLowerCase() + '" /}-->\n';
+                option += '<!--{#moduleAccess module="' + modules[j].name.substring(2) + '"}-->\n';
+                option += '     <option data-module="' + modules[j].name + '" value="/default/' + dataHelper.removePrefix(modules[j].name, "module") + '" ' + (modules[i].name == modules[j].name ? 'selected' : '') + '>\n';
+                option += '         <!--{#__ key="module.' + modules[j].name + '" /}-->\n';
                 option += '     </option>\n';
                 option += '<!--{/moduleAccess}-->\n';
             }
             $("#dynamic_select").append(option);
             await domHelper.write(fileName, $);
-        });
+        })());
     }
 
     // Wait for all the layouts to be modified before calling `callback()`

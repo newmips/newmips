@@ -51,7 +51,7 @@ class Entity {
     		field = new Field(field);
 
 		if(this._fields.filter(x => x.name == field.name).length != 0) {
-			console.warn("addField => Field already loaded in the entity instance.")
+			console.warn("addField => Field already loaded in the entity instance: " + field.name);
 			return this._fields.filter(x => x.name == field.name)[0];
 		}
 

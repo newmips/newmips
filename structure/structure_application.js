@@ -529,7 +529,7 @@ exports.deleteApplication = async(app_name) => {
         try {
             fs.unlinkSync(__dirname + "/../workspace/rules/" + globalConf.sub_domain + "-" + nameAppWithoutPrefix + ".toml");
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     }
 

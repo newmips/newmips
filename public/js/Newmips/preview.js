@@ -276,6 +276,8 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(data) {
 
+                console.log(data);
+
                 if(data.iframe_url == -1){
                     $("#loadingIframe").hide();
                     $("#errorIframe").show();
@@ -290,22 +292,18 @@ $(document).ready(function() {
                 iframe.src = data.iframe_url;
 
                 // Update session screen
-                if (typeof data.session.project.id_project !== "undefined" && data.session.project.id_project != null)
-                    $(".sessionProjectInfo").text(" " + data.session.project.id_project + " - " + data.session.project.name_project);
-                else
-                    $(".sessionProjectInfo").text(" " + data.session.project.noProject);
-                if (typeof data.session.application.id_application !== "undefined" && data.session.application.id_application != null)
-                    $(".sessionApplicationInfo").text(" " + data.session.application.id_application + " - " + data.session.application.name_application);
+                if (typeof data.session.application.name !== "undefined" && data.session.application.name != null)
+                    $(".sessionApplicationInfo").text(" " + data.session.application.name);
                 else
                     $(".sessionApplicationInfo").text(" " + data.session.application.noApplication);
-                if (typeof data.session.module.id_module !== "undefined" && data.session.module.id_module != null)
-                    $(".sessionModuleInfo").text(" " + data.session.module.id_module + " - " + data.session.module.name_module);
+                if (typeof data.session.module.name !== "undefined" && data.session.module.name != null)
+                    $(".sessionModuleInfo").text(" " + data.session.module.name);
                 else
                     $(".sessionModuleInfo").text(" " + data.session.module.noModule);
-                if (typeof data.session.data_entity.id_data_entity !== "undefined" && data.session.data_entity.id_data_entity != null)
-                    $(".sessionEntityInfo").text(" " + data.session.data_entity.id_data_entity + " - " + data.session.data_entity.name_data_entity);
+                if (typeof data.session.entity.name !== "undefined" && data.session.entity.name != null)
+                    $(".sessionEntityInfo").text(" " + data.session.entity.name);
                 else
-                    $(".sessionEntityInfo").text(" " + data.session.data_entity.noEntity);
+                    $(".sessionEntityInfo").text(" " + data.session.entity.noEntity);
 
                 // Keep instructionHistory up to date
                 instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));

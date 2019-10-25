@@ -49,7 +49,7 @@ module.exports = {
             });
         });
     },
-    doGit: (data, callback) => {
+    doGit: (data) => {
         // We push code on gitlab only in our cloud env
         if(gitlabConf.doGit){
             let idApplication = attr.id_application;
@@ -103,9 +103,8 @@ module.exports = {
                             console.log(answer);
                             writeAllLogs("Git first commit / push", answer, err);
                         });
-                    } else{
-                        err = new Error();
-                        err.message = "structure.global.error.alreadyInProcess";
+                    } else {
+                        throw new Error("structure.global.error.alreadyInProcess");
                     }
                 } else if(typeof attr.function !== "undefined" && attr.function != "gitPull" && attr.function != "restart"){
                     // We are just after a new instruction
@@ -121,14 +120,10 @@ module.exports = {
                         writeAllLogs("Git commit", answer, err);
                     });
                 }
-                callback(err);
+                throw err;
             } else{
-                let err = new Error();
-                err.message = "Missing gitlab user in server session.";
-                return callback(err, null);
+                throw new Error("Missing gitlab user in server session.");
             }
-        } else{
-            callback();
         }
     },
     gitPush: function(attr, callback){

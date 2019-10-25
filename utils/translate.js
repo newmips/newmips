@@ -50,15 +50,13 @@ module.exports = {
     },
     writeLocales: async (appName, type, keyValue, value, toTranslate) => {
 
-        if(keyValue)
-            keyValue = keyValue.toLowerCase();
-
         // If field value is an array
+        let keyValueField, alias;
         if (type == "field") {
-            var keyValueField = value[0];
+            keyValueField = value[0];
             value = value[1];
         } else if (type == "aliasfield") {
-            var alias = value[0];
+            alias = value[0];
             value = value[1];
         }
 
@@ -80,7 +78,7 @@ module.exports = {
             return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
         });
 
-        function addLocal(type, data, lang, value){
+        function addLocal(type, data, lang, value) {
             switch(type) {
                 case 'application':
                     data.app.name = value;
@@ -91,7 +89,7 @@ module.exports = {
                     data.module[keyValue] = value;
                     break;
                 case 'entity':
-                    switch(value) {
+                    switch(value.toLowerCase()) {
                         case 'user':
                             value = lang == 'fr-FR' ? 'Utilisateur' : 'User';
                             break;
@@ -117,7 +115,7 @@ module.exports = {
                     }
                     break;
                 case 'field':
-                    switch(value) {
+                    switch(value.toLowerCase()) {
                         case 'login':
                             value = lang == "fr-FR" ? "Identifiant" : "Login";
                             break;
@@ -135,6 +133,26 @@ module.exports = {
                             break;
                     };
                     data.entity[keyValue][keyValueField] = value;
+                    break;
+                case 'aliasfield':
+                    switch(value.toLowerCase()) {
+                        case 'login':
+                            value = lang == "fr-FR" ? "Identifiant" : "Login";
+                            break;
+                        case 'role':
+                            value = lang == "fr-FR" ? "Rôle" : "Role";
+                            break;
+                        case 'email':
+                            value = "Email";
+                            break;
+                        case 'group':
+                            value = lang == "fr-FR" ? "Groupe" : "Group";
+                            break;
+                        case 'label':
+                            value = lang == "fr-FR" ? "Libellé" : "Label";
+                            break;
+                    };
+                    data.entity[keyValue][alias] = value;
                     break;
             }
             return data;
@@ -168,7 +186,7 @@ module.exports = {
                             fs.writeFileSync(fileURL, JSON.stringify(data, null, 4));
                             resolve();
                         });
-                    })(urlFile, dataLocales, workingLocales)
+                    })(urlFile, dataLocales, workingLocales);
                 } else {
                     dataLocales = addLocal(type, dataLocales, workingLocales, value);
                     fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
@@ -178,6 +196,7 @@ module.exports = {
         }
 
         await Promise.all(promises);
+        return;
     },
     removeLocales: (appName, type, value) => {
         // Get all the differents languages to handle

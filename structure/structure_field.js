@@ -1320,7 +1320,6 @@ exports.setupRelatedToMultipleField = async (data) => {
     let urlTarget = data.options.urlTarget;
     let source = data.source_entity.name;
     let alias = data.options.as;
-    let showAlias = data.options.showAs;
     let urlAs = data.options.urlAs;
     let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 
@@ -1420,8 +1419,7 @@ exports.setupRelatedToMultipleField = async (data) => {
     let $ = await domHelper.read(file);
     $("#fields").append(head + select);
     await domHelper.write(file, $);
-
-    await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, showAlias], data.googleTranslate);
+    await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
     return;
 }
 
