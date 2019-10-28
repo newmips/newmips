@@ -52,67 +52,100 @@ module.exports = {
         }
         return loadTree(entity, alias);
     },
-    // Build entity tree with fields and ALL associations
-    fullEntityFieldTree: function (entity, alias = entity) {
-        let genealogy = [];
-        // Create inner function to use genealogy globaly
-        function loadTree(entity, alias, depth = 0) {
-            let fieldTree = {
-                entity: entity,
-                alias: alias,
-                fields: [],
-                email_fields: [],
-                phone_fields: [],
-                file_fields: [],
-                children: []
-            }
-            let entityFields, entityAssociations;
-            try {
-                entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-                entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
-            } catch (e) {
-                console.error(e);
-                return fieldTree;
-            }
+    // Build array of fields for media sms/notification/email insertion <select>
+    entityFieldForSelect: function(entityTree, lang) {
+        var __ = language(lang).__;
+        var separator = ' > ';
+        var options = [];
+        function dive(obj, codename, parent, parentTraduction = "") {
+            var traduction;
+            // Top level. Entity traduction Ex: 'Ticket'
+            if (!parent)
+                traduction = __('entity.'+obj.entity+'.label_entity');
+            // Child level. Parent traduction with child entity alias Ex: 'Ticket > Participants' OR 'Ticket > Participants > Adresse'
+            else
+                traduction = parentTraduction + separator + __('entity.'+parent.entity+'.'+obj.alias);
 
-            // Building field array
-            for (let field in entityFields) {
-                if (entityFields[field].newmipsType == "email")
-                    fieldTree.email_fields.push(field);
-                if (entityFields[field].newmipsType == "phone")
-                    fieldTree.phone_fields.push(field);
-                if (entityFields[field].newmipsType == "file" || entityFields[field].newmipsType == "picture")
-                    fieldTree.file_fields.push(field);
-                fieldTree.fields.push(field);
+            for (var j = 0; j < obj.fields.length; j++) {
+                if (obj.fields[j].indexOf('f_') != 0)
+                    continue;
+                options.push({
+                    codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
+                    traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
+                    target: obj.entity,
+                    isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
+                    isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false,
+                    isFile: obj.file_fields.indexOf(obj.fields[j]) != -1 ? true : false
+                });
             }
 
-
-            // Check if current entity has already been built in this branch of the tree to avoid infinite loop
-            for (const [idx, genealogyBranch] of genealogy.entries())
-                if (genealogyBranch.entity == entity) {
-                    // Keep smallest depth
-                    if (genealogyBranch.depth > depth)
-                        genealogy.splice(idx, 1);
-                    else
-                        return fieldTree;
-                }
-
-            genealogy.push({
-                entity: entity,
-                depth: depth
-            });
-
-            // Building children array
-            for (let i = 0; i < entityAssociations.length; i++){
-                // Do not include history & status table in field list
-                if(entityAssociations[i].target.indexOf("e_history_e_") == -1 && entityAssociations[i].target.indexOf("e_status") == -1 && entityAssociations[i].structureType !== 'auto_generate')
-                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as, depth+1));
-            }
-
-            return fieldTree;
+            for (var i = 0; i < obj.children.length; i++)
+                dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj, traduction);
         }
-        return loadTree(entity, alias)
-    },    // Build sequelize formated include object from tree
+
+        // Build options array
+        dive(entityTree);
+
+        // Sort options array
+        // loopCount is used to avoid "Maximum call stack exedeed" error with large arrays.
+        // Using setTimeout (even with 0 milliseconds) will end the current call stack and create a new one.
+        // Even with 0 milliseconds timeout execution can be realy slower, so we reset call stack once every 1000 lap
+        function stackProtectedRecursion(sortFunc, ...args) {
+            if (!this.loopCount)
+                this.loopCount = 0;
+            this.loopCount++;
+            if (this.loopCount % 1000 === 0) {
+                this.loopCount = 0;
+                return setTimeout(() => {sortFunc(...args);}, 0);
+            }
+            return sortFunc(...args);
+        }
+        function swap(arr, i, j) {
+            const tmp = arr[j];
+            arr[j] = arr[i];
+            arr[i] = tmp;
+        }
+        function sort(array, idx = 0) {
+            if (idx < 0) idx = 0;
+            if (!array || !array[idx+1])
+                return;
+
+            const first = array[idx].traduction.split(separator);
+            const second = array[idx+1].traduction.split(separator);
+
+            // Swap because of depth difference
+            if (first.length > second.length) {
+                swap(array, idx, idx+1);
+                idx--;
+            }
+            else if (first.length == second.length) {
+                // Dive depth until mismatch
+                const initialIdx = idx;
+                for (let i = 0; i < first.length; i++) {
+                    if (first[i] > second[i]) {
+                        swap(array, idx, idx+1);
+                        idx--;
+                        break;
+                    }
+                    else if (first[i] < second[i]) {
+                        idx++;
+                        break;
+                    }
+                }
+                // Avoid infinite loop if both traduction are equal
+                if (initialIdx == idx)
+                    idx++;
+            }
+            else
+                idx++;
+
+            stackProtectedRecursion(sort, array, idx);
+        }
+        sort(options);
+
+        return options;
+    },
+    // Build sequelize formated include object from tree
     buildIncludeFromTree: function(entityTree) {
         var includes = [];
         for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
