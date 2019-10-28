@@ -86,6 +86,7 @@ module.exports = {
                 fieldTree.fields.push(field);
             }
 
+
             // Check if current entity has already been built in this branch of the tree to avoid infinite loop
             for (const [idx, genealogyBranch] of genealogy.entries())
                 if (genealogyBranch.entity == entity) {
@@ -104,17 +105,14 @@ module.exports = {
             // Building children array
             for (let i = 0; i < entityAssociations.length; i++){
                 // Do not include history & status table in field list
-                if(entityAssociations[i].target.indexOf("e_history_e_") == -1
-                    && entityAssociations[i].target.indexOf("e_status") == -1){
+                if(entityAssociations[i].target.indexOf("e_history_e_") == -1 && entityAssociations[i].target.indexOf("e_status") == -1 && entityAssociations[i].structureType !== 'auto_generate')
                     fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as, depth+1));
-                }
             }
 
             return fieldTree;
         }
-        return loadTree(entity, alias);
-    },
-    // Build sequelize formated include object from tree
+        return loadTree(entity, alias)
+    },    // Build sequelize formated include object from tree
     buildIncludeFromTree: function(entityTree) {
         var includes = [];
         for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
@@ -148,14 +146,12 @@ module.exports = {
         dive(entityTree);
         return userList;
     },
-    // Build array of fields for media sms/notification/email insertion <select>
     entityFieldForSelect: function(entityTree, lang) {
         var __ = language(lang).__;
         var separator = ' > ';
         var options = [];
         function dive(obj, codename, parent, parentTraduction = "") {
             var traduction;
-            // Component address have a different traduction naming policy. If obj is a address component, adapt traductions fetched
             // Top level. Entity traduction Ex: 'Ticket'
             if (!parent)
                 traduction = __('entity.'+obj.entity+'.label_entity');
@@ -193,36 +189,45 @@ module.exports = {
             this.loopCount++;
             if (this.loopCount % 1000 === 0) {
                 this.loopCount = 0;
-                return setTimeout(() => {
-                    console.log(...args);
-                    sortFunc(...args);
-                }, 0);
+                return setTimeout(() => {sortFunc(...args);}, 0);
             }
             return sortFunc(...args);
         }
-        function sort(optsArray, i = 0) {
-            if (i < 0) i = 0;
-            if (!optsArray[i+1])
+        function swap(arr, i, j) {
+            const tmp = arr[j];
+            arr[j] = arr[i];
+            arr[i] = tmp;
+        }
+        function sort(array, idx = 0) {
+            if (idx < 0) idx = 0;
+            if (!array || !array[idx+1])
                 return;
-            var firstParts = optsArray[i].traduction.split(separator);
-            var secondParts = optsArray[i+1].traduction.split(separator);
-            if (firstParts[0].toLowerCase() > secondParts[0].toLowerCase()) {
-                var swap = optsArray[i+1];
-                optsArray[i+1] = optsArray[i];
-                optsArray[i] = swap;
-                i--;
-            }
-            else if (firstParts[0].toLowerCase() == secondParts[0].toLowerCase()
-                && firstParts[1].toLowerCase() > secondParts[1].toLowerCase()) {
-                var swap = optsArray[i+1];
-                optsArray[i+1] = optsArray[i];
-                optsArray[i] = swap;
-                i--;
-            }
-            else
-                i++;
 
-            return stackProtectedRecursion(sort, optsArray, i);
+            const first = array[idx].traduction.split(separator);
+            const second = array[idx+1].traduction.split(separator);
+
+            // Swap because of depth difference
+            if (first.length > second.length) {
+                swap(array, idx, idx+1);
+                idx--;
+            }
+            else if (first.length == second.length)
+                // Dive depth until mismatch
+                for (let i = 0; i < first.length; i++) {
+                    if (first[i] > second[i]) {
+                        swap(array, idx, idx+1);
+                        idx--;
+                        break;
+                    }
+                    else if (first[i] < second[i]) {
+                        idx++;
+                        break;
+                    }
+                }
+            else
+                idx++;
+
+            stackProtectedRecursion(sort, array, idx);
         }
         sort(options);
 

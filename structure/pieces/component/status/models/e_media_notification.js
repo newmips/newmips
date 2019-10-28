@@ -147,7 +147,7 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         getGroupAndUserID().then(function(targetIds) {
-            var entityUrl;
+            var entityUrl, notificationObj;
             try {
                 try {
                     // Build show url of targeted entity
@@ -161,7 +161,7 @@ module.exports = (sequelize, DataTypes) => {
                     // Will redirect to current page
                     entityUrl = '#';
                 }
-                var notificationObj = {
+                notificationObj = {
                     f_color: self.f_color,
                     f_icon: insertVariablesValue('f_icon'),
                     f_title: insertVariablesValue('f_title'),
