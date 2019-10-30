@@ -106,7 +106,7 @@ module.exports = {
             // Building children array
             for (let i = 0; i < entityAssociations.length; i++){
                 // Do not include history & status table in field list
-                if(entityAssociations[i].target.indexOf("e_history_e_") == -1
+                if(entityAssociations[i].target.indexOf("_history_") == -1
                     && entityAssociations[i].target.indexOf("e_status") == -1){
                     depth++;
                     fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));

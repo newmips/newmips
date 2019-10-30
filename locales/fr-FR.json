@@ -295,7 +295,8 @@
             },
             "notFound": {
                 "notFoundInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s.",
-                "notFoundOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité %s."
+                "notFoundOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité %s.",
+                "notFound": "Désolé, impossible de retrouver le composant avec le nom %s"
             },
             "delete": {
                 "success": "Le composant a bien été supprimé !",

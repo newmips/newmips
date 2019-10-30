@@ -427,7 +427,7 @@ exports.selectEntity = async (data) => {
         module: np_module,
         doRedirect: data.doRedirect,
         message: "database.entity.select.selected",
-        messageParams: [entity.name]
+        messageParams: [entity.displayName]
     }
 }
 
@@ -481,14 +481,15 @@ async function deleteDataEntity(data) {
                     urlValue: entityOptions[i].as.substring(2)
                 },
                 application: data.application,
-                module_name: data.module_name,
-                entity_name: data.entity_name,
+                module_name: data.np_module.name,
+                entity_name:  data.entity.name,
                 structureType: entityOptions[i].structureType
             };
 
             if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
                 if(tmpData.options && tmpData.options.value != '' && tmpData.options.value.indexOf('r_history_') != -1){
                     let statusName = tmpData.options.value.split('r_history_')[1];
+                    console.log("1. deleteComponentStatus")
                     await deleteComponentStatus({
                         application: tmpData.application,
                         entity_name: tmpData.entity_name,
@@ -499,6 +500,7 @@ async function deleteDataEntity(data) {
                         }
                     })
                 } else {
+                    console.log("2. deleteTab")
                     await deleteTab(tmpData);
                 }
             } else {
@@ -506,6 +508,7 @@ async function deleteDataEntity(data) {
                 console.warn(entityOptions[i]);
             }
         } else if (entityOptions[i].relation == 'belongsToMany') {
+            console.log("3. dropTable")
             await database.dropTable(entityOptions[i].through);
         }
     }
@@ -551,15 +554,18 @@ async function deleteDataEntity(data) {
 
                 tmpAttr.entity_name = source;
                 if (tmpAttr.structureType == "hasMany" || tmpAttr.structureType == "hasManyPreset") {
+                    console.log("4. deleteTab")
                     await deleteTab(tmpAttr);
                 } else if (tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
                     tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+                    console.log("5. deleteField")
                     await deleteField(tmpAttr);
                 } else {
                     console.warn("WARNING - Unknown option to delete !");
                     console.warn(tmpAttr);
                 }
             } else if (options[i].relation == 'belongsTo') {
+                console.log("6. belongsTo")
                 let tmpAttr = {
                     options: {
                         value: options[i].as,
@@ -573,8 +579,10 @@ async function deleteDataEntity(data) {
                 tmpAttr.entity_name = source;
                 if (tmpAttr.structureType == "relatedTo") {
                     tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+                    console.log("7. deleteDataField")
                     await deleteDataField(tmpAttr);
                 } else if (tmpAttr.structureType == "hasOne") {
+                    console.log("8. deleteTab")
                     await deleteTab(tmpAttr);
                 } else {
                     console.warn("WARNING - Unknown option to delete !");
@@ -1676,7 +1684,7 @@ exports.createNewComponentStatus = async (data) => {
 
     return {
         message: 'database.component.create.successOnEntity',
-        messageParams: ['status', data.options.showValue, data.showSource]
+        messageParams: ['status', data.entity.displayName]
     };
 }
 
@@ -1694,19 +1702,19 @@ async function deleteComponentStatus(data) {
     }
 
     let foundEntity = data.application.findEntity(data.entity_name, true);
-    data.np_module = data.np_module;
-    data.entity = data.entity;
-    data.field = data.entity.getField(data.options.value, true);
+    data.np_module = foundEntity.np_module;
+    data.entity = foundEntity.entity;
+    data.component = data.entity.getComponent(data.options.value, 'status', true);
 
     // Looking for status & history status information in options.json
     let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
     let historyInfo, statusFieldInfo;
 
     for (let option of entityOptions) {
-        if (option.as == 'r_' + attr.options.urlValue)
+        if (option.as == 'r_' + data.options.urlValue)
             statusFieldInfo = option;
 
-        if (option.as == 'r_history_' + attr.options.urlValue)
+        if (option.as == 'r_history_' + data.options.urlValue)
             historyInfo = option;
     }
 
@@ -1715,19 +1723,18 @@ async function deleteComponentStatus(data) {
         delete require.cache[require.resolve(modelsPath)];
         workspacesModels[data.application.name] = require(modelsPath);
     }
-    let historyTableName = workspacesModels[attr.id_application]['E_' + historyInfo.target.substring(2)].getTableName();
+    let historyTableName = workspacesModels[data.application.name]['E_' + historyInfo.target.substring(2)].getTableName();
 
     await structure_component.deleteStatus({
         application: data.application,
-        status_field: 's_' + attr.options.urlValue,
+        status_field: 's_' + data.options.urlValue,
         fk_status: statusFieldInfo.foreignKey,
-        entity: entity.codeName,
+        entity: data.entity.name,
         historyName: historyInfo.target,
         historyTableName: historyTableName
     });
 
-    entity.deleteField('s_' + attr.options.urlValue);
-    entity.deleteField(statusFieldInfo.foreignKey);
+    data.entity.deleteComponent(data.options.value, 'status');
 
     return {
         message: 'database.component.delete.success'
