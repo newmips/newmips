@@ -206,13 +206,13 @@ module.exports = {
         }
         return structureDatalist;
     },
-    getLastLoggedError: function (appID) {
-        let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_"+appID+".log", "utf8");
+    getLastLoggedError: function(appName) {
+        let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
         // First line of last error in app logs
-        if(logContent.indexOf("Error:") == -1)
+        if (logContent.indexOf("Error:") == -1)
             return "No error detected.";
         else
-            return logContent.split("Error:")[logContent.split("Error:").length-1].split("\n")[0];
+            return logContent.split("Error:")[logContent.split("Error:").length - 1].split("\n")[0];
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,

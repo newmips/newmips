@@ -7,7 +7,8 @@ function fetchText(key, params, lang) {
 
 	if(typeof key !== "string"){
 		try{
-			console.log(key);
+			console.warn("Logging translate key that is not a string");
+			console.warn(key);
 			return key.toString();
 		} catch(err) {
 			console.error(err)

@@ -2,8 +2,9 @@ const Field = require('./field_v2');
 const Component = require('./component_v2');
 
 class Entity {
-	constructor(name) {
+	constructor(name, displayName) {
 		this._name = name;
+		this._displayName = displayName;
 		this._fields = [];
 		this._components = [];
 	}
@@ -12,6 +13,10 @@ class Entity {
 	get name(){
 		return this._name;
 	}
+
+	get displayName() {
+        return this._displayName;
+    }
 
 	get fields(){
 		return this._fields;
@@ -46,9 +51,8 @@ class Entity {
     }
 
     // --- ADD ---
-	addField(field) {
-    	if(typeof field === 'string')
-    		field = new Field(field);
+	addField(name, displayName) {
+    	let field = new Field(name, displayName);
 
 		if(this._fields.filter(x => x.name == field.name).length != 0) {
 			console.warn("addField => Field already loaded in the entity instance: " + field.name);
@@ -59,9 +63,8 @@ class Entity {
 		return field;
 	}
 
-	addComponent(component, type) {
-		if(typeof component === 'string')
-    		component = new Component(component, type);
+	addComponent(name, displayName, type) {
+		let component = new Component(name, displayName, type);
 
 		if(this._components.filter(x => x.name == component.name && x.type == component.type).length != 0) {
 			console.warn("addField => Field already loaded in the entity instance.")

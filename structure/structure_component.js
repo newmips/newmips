@@ -906,7 +906,7 @@ exports.newStatus = async (data) => {
 
 exports.deleteStatus = async (data) => {
 
-    let workspacePath = __dirname + '/../workspace/' + data.appID;
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
     // Delete history views
     helpers.rmdirSyncRecursive(workspacePath + '/views/' + data.historyName);

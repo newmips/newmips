@@ -49,9 +49,9 @@
 														<tr>
 															<td>{id}</td>
 															<td>{displayName}</td>
-															<td><a href='{dataValues.url}' target='_blank'>{dataValues.url}</a></td>
+															<td><a href='{url}' target='_blank'>{url}</a></td>
 															<td class="text-center">
-																<a class="btn btn-info" href="/application/preview?id_application={id}">
+																<a class="btn btn-info" href="/application/preview/{name}">
 																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
 																	<span>{#__ key="button.preview"/}</span>
 																</a>

@@ -189,6 +189,7 @@
         "issue-button": "Report an issue",
         "help-button": "Need help ?",
         "help-disabled": "Support chat is disabled. Activate it in config/global.js and provide mattermost information in config/slack.js",
+        "server_timeout": "Server timed out, please check the application logs.",
         "session": {
             "noProject": "No project selected",
             "noApplication": "No application selected",
@@ -307,8 +308,8 @@
         },
         "component":{
             "create": {
-                "success" : "New component %s (%s) created.",
-                "successOnEntity": "New component %s (%s) created on entity %s."
+                "success" : "New component %s created.",
+                "successOnEntity": "New component %s created on entity %s."
             },
             "notFound": {
                 "notFoundInModule": "Sorry, no component with the name %s exist in the module with id %s.",
@@ -321,8 +322,8 @@
         },
         "entity": {
             "select": {
-                "selected": "Entity %s (%s) selected.",
-                "valid": "Please, indicate a valid name/ID."
+                "selected": "Entity %s selected.",
+                "valid": "Please, indicate a valid name."
             },
             "create": {
                 "success": "You have just added a new entity %s (%s) in the module %s. To delete it, type the instruction:<br>- <b class='click-instruction'>delete entity %s</b>.",

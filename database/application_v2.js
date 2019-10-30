@@ -7,8 +7,9 @@ const Field = require('./field_v2');
 const Component = require('./component_v2');
 
 class Application {
-    constructor(name, gitlabID) {
+    constructor(name, displayName, gitlabID) {
         this._name = name;
+        this._displayName = displayName;
         this._gitlabID = gitlabID;
         this._associationSeq = 1; // Used for unique generation of workspace assocation table
 
@@ -24,31 +25,32 @@ class Application {
             const metadata = JSON.parse(fs.readFileSync(workspacePath + name + '/config/metadata.json'));
 
             app.associationSeq = metadata[name].associationSeq;
+            app.displayName = metadata[name].displayName;
 
 	        // Modules loading
             let modules = [];
 	        for (let np_module in metadata[name].modules) {
-	            const currentModule = new Module(np_module);
+	            const currentModule = new Module(np_module, metadata[name].modules[np_module].displayName);
 
 	            // Entities loading
 	            for (let entity in metadata[name].modules[np_module].entities) {
-                    const currentEntity = new Entity(entity);
-	                currentModule.addEntity(currentEntity);
+                    const currentEntity = new Entity(entity, metadata[name].modules[np_module].entities[entity].displayName);
+	                currentModule.addEntity(entity, metadata[name].modules[np_module].entities[entity].displayName);
 
 	                // Fields loading
 	                for (let field in metadata[name].modules[np_module].entities[entity].fields)
-	                    currentEntity.addField(new Field(field));
+	                    currentEntity.addField(field, metadata[name].modules[np_module].entities[entity].fields[field].displayName);
 
                     // Entity components loading
                     for (let component_type in metadata[name].modules[np_module].entities[entity].components)
                         for(let component in metadata[name].modules[np_module].entities[entity].components[component_type])
-                            currentEntity.addComponent(new Component(component, component_type));
+                            currentEntity.addComponent(component, metadata[name].modules[np_module].entities[entity].components[component_type][component].displayName, component_type);
 	            }
 
                 // Module components loading
                 for (let component_type in metadata[name].modules[np_module].components)
                     for(let component in metadata[name].modules[np_module].components[component_type])
-                        currentModule.addComponent(new Component(component, component_type));
+                        currentModule.addComponent(component, metadata[name].modules[np_module].components[component_type][component].displayName, component_type);
 
                 modules.push(currentModule);
 	        }
@@ -57,7 +59,7 @@ class Application {
             // Application components loading
             for (let component_type in metadata[name].components)
                 for(let component in metadata[name].components[component_type])
-                    app.addComponent(new Component(component, component_type));
+                    app.addComponent(component, metadata[name].components[component_type][component].displayName, component_type);
 
             return app;
         } catch (err) {
@@ -71,6 +73,10 @@ class Application {
         return this._name;
     }
 
+    get displayName() {
+        return this._displayName;
+    }
+
     get modules() {
         return this._modules;
     }
@@ -80,6 +86,10 @@ class Application {
     }
 
     // --- Setters ---
+    set displayName(displayName){
+        this._displayName = displayName;
+    }
+
     set gitlabID(id){
         this._gitlabID = id;
     }
@@ -93,10 +103,8 @@ class Application {
     }
 
     // --- Methods ---
-    addModule(np_module) {
-        if (typeof np_module === 'string')
-            np_module = new Module(np_module);
-
+    addModule(name, displayName) {
+        let np_module = new Module(name, displayName);
         if (this._modules.filter(x => x.name == np_module.name).length != 0) {
             console.warn("addModule => Module already loaded in the application instance.")
             return this._modules.filter(x => x.name == np_module.name)[0];
@@ -155,6 +163,7 @@ class Application {
             newMetadata[appName] = actualMetadata[appName];
 
         newMetadata[appName].associationSeq = this._associationSeq;
+        newMetadata[appName].displayName = this._displayName;
         newMetadata[appName].modules = {};
         newMetadata[appName].components = {};
 
@@ -167,6 +176,7 @@ class Application {
             if (actualMetadata[appName][np_module.name])
                 newMetadata[appName].modules[np_module.name] = actualMetadata[appName].modules[np_module.name];
 
+            newMetadata[appName].modules[np_module.name].displayName = np_module.displayName;
             newMetadata[appName].modules[np_module.name].entities = {};
             newMetadata[appName].modules[np_module.name].components = {};
 
@@ -179,6 +189,7 @@ class Application {
                 if (actualMetadata[appName].modules[np_module.name].entities[entity.name])
                     newMetadata[appName].modules[np_module.name].entities[entity.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name];
 
+                newMetadata[appName].modules[np_module.name].entities[entity.name].displayName = entity.displayName;
                 newMetadata[appName].modules[np_module.name].entities[entity.name].components = {};
                 newMetadata[appName].modules[np_module.name].entities[entity.name].fields = {};
 
@@ -190,6 +201,8 @@ class Application {
 
                     if (newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name])
                         newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name];
+
+                    newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name].displayName = field.displayName;
                 }
 
                 // Loop on entity components
@@ -203,6 +216,8 @@ class Application {
 
                     if (newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name])
                         newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name];
+
+                    newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name].displayName = component.displayName;
                 }
             }
 
@@ -213,10 +228,12 @@ class Application {
                 if(!newMetadata[appName].modules[np_module.name].components[component.type])
                     newMetadata[appName].modules[np_module.name].components[component.type] = {};
 
+                newMetadata[appName].modules[np_module.name].components[component.type][component.name] = {};
+
                 if (newMetadata[appName].modules[np_module.name].components[component.type][component.name])
                     newMetadata[appName].modules[np_module.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].components[component.type][component.name];
-                else
-                    newMetadata[appName].modules[np_module.name].components[component.type][component.name] = {};
+
+                newMetadata[appName].modules[np_module.name].components[component.type][component.name].displayName = component.displayName;
             }
         }
 
@@ -227,10 +244,12 @@ class Application {
             if(!newMetadata[appName].components[component.type])
                 newMetadata[appName].components[component.type] = {};
 
+            newMetadata[appName].components[component.type][component.name] = {};
+
             if (newMetadata[appName].components[component.type][component.name])
                 newMetadata[appName].components[component.type][component.name] = actualMetadata[appName].components[component.type][component.name];
-            else
-                newMetadata[appName].components[component.type][component.name] = {};
+
+            newMetadata[appName].components[component.type][component.name].displayName = component.displayName;
         }
 
         fs.writeFileSync(workspacePath + appName + '/config/metadata.json', JSON.stringify(newMetadata, null, 4))

@@ -1,93 +1,27 @@
-const db_project = require("../database/project");
-const db_application = require("../database/application");
-const db_module = require("../database/module");
-const db_entity = require("../database/data_entity");
+const fs = require('fs-extra');
 const globalConf = require("../config/global.js");
 const gitHelper = require("../utils/git_helper");
-const fs = require('fs-extra');
 const language = require("../services/language");
-
-//Sequelize
-const models = require('../models/');
-
-// Help
-exports.help = function(attr, callback) {
-
-    var id_project = null;
-    var id_application = null;
-    var id_module = null;
-    var id_data_entity = null;
-
-    if(typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
-    if(typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
-    if(typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
-    if(typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
-
-    var info = new Array();
-
-    info.message = "botresponse.help";
-
-    callback(null, info);
-}
-
-// Show
-exports.showSession = function(attr, callback) {
-
-    var id_project = null;
-    var id_application = null;
-    var id_module = null;
-    var id_data_entity = null;
-
-    var name_project = "None";
-    var name_application = "None";
-    var name_module = "None";
-    var name_data_entity = "None";
-
-    if (typeof(attr['id_project']) != 'undefined') id_project = attr['id_project'];
-    if (typeof(attr['id_application']) != 'undefined') id_application = attr['id_application'];
-    if (typeof(attr['id_module']) != 'undefined') id_module = attr['id_module'];
-    if (typeof(attr['id_data_entity']) != 'undefined') id_data_entity = attr['id_data_entity'];
-
-    db_project.getNameProjectById(id_project, function(err, info) {
-        if (!err)
-            name_project = info;
-        db_application.getNameApplicationById(id_application, function(err, info) {
-            if (!err)
-                name_application = info;
-            db_module.getNameModuleById(id_module, function(err, info) {
-                if (!err)
-                    name_module = info;
-                db_entity.getNameDataEntityById(id_data_entity, function(err, info) {
-                    if (!err)
-                        name_data_entity = info;
-
-                    var info = new Array();
-                    info.message = "Session :<br><ul>";
-                    info.message += "<li>Project : " + id_project + " | " + name_project + "</li>";
-                    info.message += "<li>Application : " + id_application + " | " + name_application + "</li>";
-                    info.message += "<li>Module : " + id_module + " | " + name_module + "</li>";
-                    info.message += "<li>Data entity : " + id_data_entity + " | " + name_data_entity + "</li></ul>";
-
-                    callback(null, info);
-                });
-            });
-        });
-    });
-}
+const metadata = require('../database/metadata')();
 
 // Get
 exports.getSession = (req) => {
+    let application, np_module, entity;
+    application = metadata.getApplication(req.session.app_name);
+    np_module = application.getModule(req.session.module_name);
+    if(req.session.entity_name)
+        entity = np_module.getEntity(req.session.entity_name);
     return {
         application: {
-            name: req.session.app_name,
+            name: application ? application.displayName : null,
             noApplication: language(req.session.lang_user).__("preview.session.noApplication")
         },
         module: {
-            name: req.session.module_name,
+            name: np_module ? np_module.displayName : null,
             noModule: language(req.session.lang_user).__("preview.session.noModule")
         },
         entity: {
-            name: req.session.entity_name,
+            name: entity ? entity.displayName : null,
             noEntity: language(req.session.lang_user).__("preview.session.noEntity")
         }
     };
@@ -150,10 +84,11 @@ exports.setSession = function(npFunction, req, info, data) {
             break;
         case "deleteDataEntity":
             // If we were on the deleted entity we has to reset the entity session
-            if(data.session.entity_name == info.deletedEntityId)
+            if(req.session.entity_name == info.entity.name)
                 req.session.entity_name = null;
             break;
     }
+    return data;
 }
 
 // Set session for the instruction script

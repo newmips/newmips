@@ -71,7 +71,7 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 
     // Server Timeout
     if (new Date().getTime() - initialTimestamp > timeoutServer)
-        throw new Error('Application server timed out.');
+        throw new Error('preview.server_timeout');
 
     let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
 

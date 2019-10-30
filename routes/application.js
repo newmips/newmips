@@ -73,17 +73,17 @@ function initPreviewData(appName, data){
 }
 
 let chats = {};
-function setChat(req, app_name, idUser, user, content, params, isError){
+function setChat(req, app_name, userID, user, content, params, isError){
 
     // Init if necessary
     if(!chats[app_name])
         chats[app_name] = {};
-    if(!chats[app_name][idUser])
-        chats[app_name][idUser] = {items: []};
+    if(!chats[app_name][userID])
+        chats[app_name][userID] = {items: []};
 
     // Add chat
-    if(content != "chat.welcome" || chats[app_name][idUser].items.length < 1){
-        chats[app_name][idUser].items.push({
+    if(content != "chat.welcome" || chats[app_name][userID].items.length < 1){
+        chats[app_name][userID].items.push({
             user: user,
             dateEmission: req.moment().format("DD MMM HH:mm"),
             content: content,
@@ -93,7 +93,7 @@ function setChat(req, app_name, idUser, user, content, params, isError){
     }
 }
 
-function execute(req, instruction, __) {
+function execute(req, instruction, __, data = {}) {
     return new Promise((resolve, reject) => {
         try {
 
@@ -101,7 +101,10 @@ function execute(req, instruction, __) {
             instruction = dataHelper.lowerFirstWord(instruction);
 
             // Instruction to be executed
-            let data = parser.parse(instruction);
+            data = {
+                ...data,
+                ...parser.parse(instruction)
+            };
 
             // Rework the data to get value for the code / url / show
             data = dataHelper.reworkData(data);
@@ -127,20 +130,19 @@ function execute(req, instruction, __) {
 
             designer[data.function](data).then(info => {
 
-                session_manager.setSession(data.function, req, info);
+                data = session_manager.setSession(data.function, req, info, data);
 
                 // Save metadata
                 if(data.application && data.function != 'deleteApplication')
                     data.application.save();
 
-                console.log(data.function);
                 data.message = info.message;
                 data.messageParams = info.messageParams
 
                 return resolve(data);
             }).catch(err => {
                 console.error(err);
-                let msgErr = __(err.message, err.messageParams || []);
+                let msgErr = __(err.message ? err.message : err, err.messageParams || []);
                 return reject(msgErr);
             });
         } catch (err) {
@@ -152,7 +154,7 @@ function execute(req, instruction, __) {
 // Preview Get
 router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) => {
 
-    let app_name = req.params.app_name;
+    let appName = req.params.app_name;
 
     // Application starting timeout
     let timeoutServer = 30000;
@@ -161,24 +163,24 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 
     let currentUserID = req.session.passport.user.id;
 
-    req.session.app_name = app_name;
+    req.session.app_name = appName;
     req.session.module_name = 'm_home';
     req.session.entity_name = null;
 
     let data = {
-        application: metadata.getApplication(app_name),
+        application: metadata.getApplication(appName),
         currentUser: req.session.passport.user,
         gitlabUser: null
     };
 
-    if ((!app_name || app_name == '') && typeof process_server_per_app[app_name] === 'undefined') {
+    if ((!appName || appName == '') && typeof process_server_per_app[appName] === 'undefined') {
         req.session.toastr.push({level: "warning", message: "application.not_started"});
         return res.redirect('/default/home');
     }
 
-    setChat(req, app_name, currentUserID, "Mipsy", "chat.welcome", []);
+    setChat(req, appName, currentUserID, "Mipsy", "chat.welcome", []);
 
-    models.Application.findOne({where: {name: app_name}}).then(db_app => {
+    models.Application.findOne({where: {name: appName}}).then(db_app => {
 
         let env = Object.create(process.env);
         let port = math.add(9000, db_app.id);
@@ -186,9 +188,9 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 
         let timer = 50;
         let serverCheckCount = 0;
-        if (process_server_per_app[app_name] == null || typeof process_server_per_app[app_name] === "undefined") {
+        if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined") {
             // Launch server for preview
-            process_server_per_app[app_name] = process_manager.launchChildProcess(req, app_name, env);
+            process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
             timer = 500;
         }
 
@@ -209,7 +211,8 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
         else
             iframe_url += host + ":" + port + "/default/status";
 
-        data = initPreviewData(app_name, data);
+        data = initPreviewData(appName, data);
+        data.chat = chats[appName][currentUserID];
 
         // Check server has started every 50 ms
         console.log('Starting server...');
@@ -217,16 +220,26 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
             data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
             // Let's do git init or commit depending the env (only on cloud env for now)
             gitHelper.doGit(data);
-            data.chat = chats[app_name][currentUserID];
             res.render('front/preview', data);
         }).catch(err => {
-            data = initPreviewData(app_name, data);
-            data.code = 500;
             console.error(err);
-            res.render('common/error', data);
+            let chatKey = err.message;
+            let chatParams = err.messageParams;
+            let lastError = helpers.getLastLoggedError(appName);
+            // If missing module error
+            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                chatKey = "structure.global.restart.missing_module";
+                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                chatParams = [lastError, lastError];
+            }
+
+            setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
+            data.iframe_url = -1;
+            res.render('front/preview', data);
+
         });
     }).catch(err => {
-        data = initPreviewData(app_name, data);
+        data = initPreviewData(appName, data);
         data.code = 500;
         console.error(err);
         res.render('common/error', data);
@@ -255,7 +268,6 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
         // Current application url
         data.iframe_url = process_manager.childUrl(req, db_app.id);
-        console.log(data.iframe_url);
 
         /* Add instruction in chat */
         setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
@@ -263,7 +275,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
         let __ = require("../services/language")(req.session.lang_user).__;
 
         // Executing instruction
-        data = await execute(req, instruction, __);
+        data = await execute(req, instruction, __, data);
 
         // On entity delete, reset child_url to avoid 404
         if (data.function == 'deleteDataEntity') {
@@ -283,10 +295,9 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
         }
 
         if (data.function == "deleteApplication"){
-            return res.send({
-                toRedirect: true,
-                url: "/default/home"
-            });
+            data.toRedirect = true;
+            data.url = "/default/home";
+            return data;
         } else if (data.function == 'restart' || data.function == 'installNodePackage'){
             toRestart = true;
         }
@@ -296,10 +307,9 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
         // If we stop the server manually we loose some stored data, so we just need to redirect.
         if(typeof process_server_per_app[appName] === "undefined"){
-            return res.send({
-                toRedirect: true,
-                url: "/application/preview/" + appName
-            });
+            data.toRedirect = true;
+            data.url = "/application/preview/" + appName;
+            return data;
         }
 
         // Kill server first
@@ -332,82 +342,49 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
         return data;
 
     })().then(data => {
-        docBuilder.build(data.application).catch(err => {
-            console.error(err);
-        });
+        if(data.application)
+            docBuilder.build(data.application).catch(err => {
+                console.error(err);
+            });
         res.send(data);
     }).catch(err => {
 
         // Error handling code goes here
-        console.log("FAST PREVIEW ERROR");
         console.error(err);
-        console.log(data);
 
-        if (typeof err.message === "undefined")
-            answer = err;
-        else
-            answer = err.message;
+        // Server timed out handling
+        if(err.message == 'preview.server_timeout') {
 
-        //Generator answer
-        setChat(req, appName, currentUserID, "Mipsy", answer, err.messageParams, true);
+            // Get last error from app logs
+            let lastError = helpers.getLastLoggedError(appName);
+            let chatKey = "structure.global.restart.error";
+            let chatParams = [lastError];
+
+            // If missing module error
+            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                chatKey = "structure.global.restart.missing_module";
+                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                chatParams = [lastError, lastError];
+            }
+            data.iframe_url = -1;
+            setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
+        } else {
+            setChat(req, appName, currentUserID, "Mipsy", err.message ? err.message : err, err.messageParams, true);
+        }
 
         /* Save ERROR an instruction history in the history script in workspace folder */
         if (data.function != 'restart') {
             let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
             let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "\n//ERROR: " + instruction + " (" + answer + ")";
+            historyScript += "\n//ERROR: " + instruction + " (" + err.message + ")";
             fs.writeFileSync(historyScriptPath, historyScript);
         }
 
         // Load session values
+        data = initPreviewData(appName, data);
         data.session = session_manager.getSession(req);
         data.chat = chats[appName][currentUserID];
-        data = initPreviewData(appName, data);
         res.send(data);
-
-
-
-
-
-        // Server time out
-        // Get last error from app logs
-        // let lastError = helpers.getLastLoggedError(currentAppID);
-        // let chatKey = "structure.global.restart.error";
-        // let chatParams = [lastError];
-
-        // // If missing module error
-        // if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-        //     chatKey = "structure.global.restart.missing_module";
-        //     lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-        //     chatParams = [lastError, lastError];
-        // }
-
-        // setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
-        // data.iframe_url = -1;
-        // data.chat = chats[currentAppID][currentUserID];
-        // return res.send(data);
-
-
-
-
-
-
-        // setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams, true);
-        // // Load session values
-        // var data = {};
-        // data.id_project = req.session.id_project;
-        // data.id_application = req.session.id_application;
-        // data.id_module = req.session.id_module;
-        // data.id_data_entity = req.session.id_data_entity;
-
-        // session_manager.getSession(data, req, function(err, info) {
-        //     data.chat = chats[currentAppID][currentUserID];
-        //     data.session = info;
-
-        //     initPreviewData(req.session.id_application, data).then(function(data) {
-        //         res.send(data);
-        //     });
-        // });
     });
 });
 

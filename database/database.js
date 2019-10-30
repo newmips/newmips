@@ -16,15 +16,15 @@ function pushToSyncQuery(app, query) {
 }
 
 // DataEntity
-exports.dropDataEntity = function (id_application, name_data_entity, callback) {
-    var query = "";
+exports.dropDataEntity = (app, entity) => {
+    let query = "";
+
     if(sequelize.options.dialect == "mysql")
-        query = "SET FOREIGN_KEY_CHECKS=0;DROP TABLE IF EXISTS " + id_application + "_" + name_data_entity.toLowerCase() + ";SET FOREIGN_KEY_CHECKS=1;";
+        query = "SET FOREIGN_KEY_CHECKS=0;DROP TABLE IF EXISTS " + entity + ";SET FOREIGN_KEY_CHECKS=1;";
     else if(sequelize.options.dialect == "postgres")
-        query = "DROP TABLE IF EXISTS \"" + id_application + "_" + name_data_entity.toLowerCase() + "\" CASCADE;";
-    if (!pushToSyncQuery(id_application, query))
-        return callback("ERROR: Can't delete in database");
-    callback();
+        query = "DROP TABLE IF EXISTS \"" + entity + "\" CASCADE;";
+
+    return pushToSyncQuery(app, query);
 }
 
 exports.addConstraintDeleteUpdate = function (attr, callback) {
@@ -98,13 +98,8 @@ exports.dropFKMultipleDataField = async (data) => {
     return pushToSyncQuery(data.application, query);
 }
 
-exports.dropTable = function(table_name, callback) {
-    sequelize.query(`DROP TABLE ${table_name};`).then(_ =>{
-        callback();
-    }).catch(err => {
-        console.error(err);
-        callback(err);
-    })
+exports.dropTable = async (table_name) => {
+    return await sequelize.query(`DROP TABLE ${table_name};`);
 }
 
 // Get real SQL type in DB, not sequelize datatype

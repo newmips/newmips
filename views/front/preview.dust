@@ -99,7 +99,11 @@
 												{/eq}
 											</a>
 											{@eq key=content value="chat.welcome"}
-												<span class="dynamic-writing">{#__ key=content filters="|s"/}</span>
+												{@gt key=chat.items.length value=1}
+													<span class="standard-writing">{#__ key=content filters="|s"/}</span>
+												{:else}
+													<span class="dynamic-writing">{#__ key=content filters="|s"/}</span>
+												{/gt}
 											{:else}
 												{@ifTrue key=isError}
 													<span class="standard-writing" style="color:#e33939;">

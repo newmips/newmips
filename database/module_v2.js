@@ -1,14 +1,19 @@
 const Entity = require('./entity_v2');
 
 class Module {
-    constructor(name) {
+    constructor(name, displayName) {
         this._name = name;
+        this._displayName = displayName;
         this._entities = [];
         this._components = [];
     }
 
     get name() {
         return this._name;
+    }
+
+    get displayName() {
+        return this._displayName;
     }
 
     get entities() {
@@ -35,10 +40,9 @@ class Module {
         return false;
     }
 
-    addEntity(entity) {
+    addEntity(name, displayName) {
 
-    	if(typeof entity === 'string')
-    		entity = new Entity(entity);
+    	let entity = new Entity(name, displayName);
 
         if (this._entities.filter(x => x.name == entity.name).length != 0){
         	console.warn("addEntity => Entity already loaded in the module instance.")
@@ -51,6 +55,26 @@ class Module {
 
     addComponent(component) {
         this._components.push(component);
+        return true;
+    }
+
+    // --- DELETE ---
+    deleteEntity(name) {
+
+        if(this._entities.filter(x => x.name == name).length == 0){
+            let err = new Error('database.entity.notFound.withThisName')
+            err.messageParams = [name]
+            throw err;
+        }
+
+        for (let i = 0; i < this._entities.length; i++) {
+            if(this._entities[i].name == name) {
+                delete this._entities[i];
+                this._entities.splice(i, 1);
+                break;
+            }
+        }
+
         return true;
     }
 }
