@@ -322,7 +322,7 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
                 include: []
             };
 
-            if (optionsSecondLevel[j].target.indexOf('e_history_e_') != 0) {
+            if (optionsSecondLevel[j].target.indexOf('_history_') != 0) {
                 try {
                     // Check if second level entity has a status component
                     // If so, add thrid include level to fetch status's children and be able to display next buttons

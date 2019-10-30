@@ -337,7 +337,7 @@ app.use(function(req, res) {
 // Launch ======================================================================
 
 models.sequelize.sync({logging: false, hooks: false}).then(() => {
-    models.sequelize.customAfterSync().then(() => {
+    models.sequelize.customAfterSync().then(_ => {
         models.E_user.findAll().then(users => {
             let hasAdmin = false;
 
@@ -397,7 +397,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
             } catch(e) {console.error("Couldn't require 'cordova-bridge'");}
         }
 		console.log("Started " + globalConf.protocol + " on " + globalConf.port + " !");
-    }).catch(function(err) {
+    }).catch(err => {
         console.error(err);
         logger.silly(err);
     })

@@ -768,15 +768,14 @@ exports.newStatus = async (data) => {
 
     // Remove useless options in toSync
     let toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
+
     for (let prop in toSync) {
-        if (prop.indexOf('_e_status') > 0) {
-            for (let i = 0; i < toSync[prop].options.length; i++) {
-                if (toSync[prop].options[i].target.indexOf("e_history_") != -1) {
+        if (prop.indexOf('e_status') != -1)
+            for (let i = 0; i < toSync[prop].options.length; i++)
+                if (toSync[prop].options[i].target.indexOf("_history_") != -1)
                     toSync[prop].options.splice(i, 1);
-                }
-            }
-        }
-        if (prop.indexOf('_e_history_') > 0)
+
+        if (prop.indexOf('_history_') > 0)
             toSync[prop].options = undefined;
     }
 
@@ -967,21 +966,15 @@ exports.deleteStatus = async (data) => {
     $("div#r_history_" + statusName).remove();
     await domHelper.write(workspacePath + '/views/' + data.entity + '/show_fields.dust', $);
 
-    $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/print_fields.dust');
-    $("div[data-field='f_" + statusName + "']").remove();
-    $("a#r_history_" + statusName + "-click").parent().remove();
-    $("div#r_history_" + statusName + "_print").remove();
-    await domHelper.write(workspacePath + '/views/' + data.entity + '/print_fields.dust', $);
-
     $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/list_fields.dust');
     $("th[data-field='r_" + statusName + "']").remove();
     await domHelper.write(workspacePath + '/views/' + data.entity + '/list_fields.dust', $);
 
     // Clean locales
-    translateHelper.removeLocales(data.appID, 'entity', data.historyName, _ => {});
-    translateHelper.removeLocales(data.appID, 'field', [data.entity, "r_history_" + statusName], _ => {});
-    translateHelper.removeLocales(data.appID, 'field', [data.entity, "r_" + statusName], _ => {});
-    translateHelper.removeLocales(data.appID, 'field', [data.entity, "s_" + statusName], _ => {});
+    translateHelper.removeLocales(data.application.name, 'entity', data.historyName, _ => {});
+    translateHelper.removeLocales(data.application.name, 'field', [data.entity, "r_history_" + statusName], _ => {});
+    translateHelper.removeLocales(data.application.name, 'field', [data.entity, "r_" + statusName], _ => {});
+    translateHelper.removeLocales(data.application.name, 'field', [data.entity, "s_" + statusName], _ => {});
 
     // Clean access
     let access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.lock.json', 'utf8'));
@@ -995,7 +988,6 @@ exports.deleteStatus = async (data) => {
         if(idToRemove)
             access[npsModule].entities = access[npsModule].entities.filter((x, idx) => idx != idToRemove);
     }
-
     fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
     return true;

@@ -313,7 +313,8 @@
             },
             "notFound": {
                 "notFoundInModule": "Sorry, no component with the name %s exist in the module with id %s.",
-                "notFoundOnEntity": "Sorry, no component with the name %s exist on the entity with id %s."
+                "notFoundOnEntity": "Sorry, no component with the name %s exist on the entity with id %s.",
+                "notFound": "Sorry, cannot find the component with the name %s"
             },
             "delete": {
                 "success": "The component has been successfully deleted!",
