@@ -276,20 +276,8 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(data) {
 
-                console.log(data);
-
-                if(data.iframe_url == -1){
-                    $("#loadingIframe").hide();
-                    $("#errorIframe").show();
-                    return;
-                }
-
                 if (data.toRedirect)
                     return window.location.href = data.url;
-
-                // Reload iframe
-                var iframe = document.getElementById("iframe");
-                iframe.src = data.iframe_url;
 
                 // Update session screen
                 if (typeof data.session.application.name !== "undefined" && data.session.application.name != null)
@@ -329,6 +317,18 @@ $(document).ready(function() {
                     $('#chat-box').slimScroll({
                         scrollTo: bottomCoord
                     });
+
+                    // Error
+                    if(data.iframe_url == -1){
+                        $("#loadingIframe").hide();
+                        $("#errorIframe").show();
+                        return;
+                    }
+
+                    // Reload iframe
+                    var iframe = document.getElementById("iframe");
+                    iframe.src = data.iframe_url;
+                    $("#errorIframe").hide();
 
                     // Update UI Editor selector with new entities
                     var defaultUISelectorText = $("#entitySelect option")[0].text;

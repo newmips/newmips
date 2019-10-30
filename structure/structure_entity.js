@@ -244,52 +244,50 @@ exports.setupEntity = async (data) => {
     return;
 }
 
-exports.deleteDataEntity = function (id_application, name_module, name_data_entity, url_name_data_entity, callback) {
-    var baseFolder = __dirname + '/../workspace/' + id_application;
+exports.deleteDataEntity = async (data) => {
+    let baseFolder = __dirname + '/../workspace/' + data.application.name;
 
     // Delete views folder
-    helpers.rmdirSyncRecursive(baseFolder + '/views/' + name_data_entity);
+    helpers.rmdirSyncRecursive(baseFolder + '/views/' + data.entity.name);
     // Delete route file
-    fs.unlinkSync(baseFolder + '/routes/' + name_data_entity + '.js');
+    fs.unlinkSync(baseFolder + '/routes/' + data.entity.name + '.js');
     // Delete API file
-    fs.unlinkSync(baseFolder + '/api/' + name_data_entity + '.js');
+    fs.unlinkSync(baseFolder + '/api/' + data.entity.name + '.js');
     // Delete model file
-    fs.unlinkSync(baseFolder + '/models/' + name_data_entity + '.js');
+    fs.unlinkSync(baseFolder + '/models/' + data.entity.name + '.js');
     // Delete options
-    fs.unlinkSync(baseFolder + '/models/options/' + name_data_entity + '.json');
+    fs.unlinkSync(baseFolder + '/models/options/' + data.entity.name + '.json');
     // Delete attributes
-    fs.unlinkSync(baseFolder + '/models/attributes/' + name_data_entity + '.json');
+    fs.unlinkSync(baseFolder + '/models/attributes/' + data.entity.name + '.json');
 
     // Remove relationships in options.json files
-    var optionFiles = fs.readdirSync(baseFolder + '/models/options/').filter(x => x.indexOf('.json') != -1);
-    for (var file in optionFiles) {
-        var options = JSON.parse(fs.readFileSync(baseFolder + '/models/options/' + optionFiles[file]));
-        var optionsCpy = [];
-        for (var i = 0; i < options.length; i++)
-            if (options[i].target != name_data_entity)
+    let optionFiles = fs.readdirSync(baseFolder + '/models/options/').filter(x => x.indexOf('.json') != -1);
+    for (let file in optionFiles) {
+        let options = JSON.parse(fs.readFileSync(baseFolder + '/models/options/' + optionFiles[file]));
+        let optionsCpy = [];
+        for (let i = 0; i < options.length; i++)
+            if (options[i].target != data.entity.name)
                 optionsCpy.push(options[i]);
         if (optionsCpy.length != options.length)
             fs.writeFileSync(baseFolder + '/models/options/' + optionFiles[file], JSON.stringify(optionsCpy, null, 4));
     }
 
-    name_module = name_module.toLowerCase();
-
     // Clean up access config
-    var access = JSON.parse(fs.readFileSync(baseFolder + '/config/access.json', 'utf8'));
-    for (var i = 0; i < access[name_module.substring(2)].entities.length; i++)
-        if (access[name_module.substring(2)].entities[i].name == url_name_data_entity)
-            access[name_module.substring(2)].entities.splice(i, 1);
+    let access = JSON.parse(fs.readFileSync(baseFolder + '/config/access.json', 'utf8'));
+    for (let i = 0; i < access[data.np_module.name.substring(2)].entities.length; i++)
+        if (access[data.np_module.name.substring(2)].entities[i].name == data.entity.name.substring(2))
+            access[data.np_module.name.substring(2)].entities.splice(i, 1);
     fs.writeFileSync(baseFolder + '/config/access.json', JSON.stringify(access, null, 4));
     fs.writeFileSync(baseFolder + '/config/access.lock.json', JSON.stringify(access, null, 4));
 
     // Remove entity entry from layout select
-    var filePath = __dirname + '/../workspace/' + id_application + '/views/layout_' + name_module + '.dust';
-    domHelper.read(filePath).then(function ($) {
-        $("#" + url_name_data_entity + '_menu_item').remove();
-        domHelper.write(filePath, $).then(function () {
-            translateHelper.removeLocales(id_application, "entity", name_data_entity, function () {
-                callback();
-            });
-        });
-    });
+    let filePath = baseFolder + '/views/layout_' + data.np_module.name + '.dust';
+    let $ = await domHelper.read(filePath);
+
+    $("#" + data.entity.name.substring(2) + '_menu_item').remove();
+
+    await domHelper.write(filePath, $);
+
+    translateHelper.removeLocales(data.application.name, "entity", data.entity.name)
+    return true;
 };

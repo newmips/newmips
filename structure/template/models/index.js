@@ -191,11 +191,11 @@ sequelize.customAfterSync = function() {
                     if(toSyncObject[entity].options[j].relation != "belongsToMany"){
                         (function(sourceEntity, option) {
                             promises.push(new Promise(function(resolve0, reject0) {
-                                var tableName = sourceEntity.substring(sourceEntity.indexOf('_')+1);
                                 try {
-                                    var sourceName = db[tableName.charAt(0).toUpperCase() + tableName.slice(1)].getTableName();
+                                    var sourceName = db[sourceEntity.charAt(0).toUpperCase() + sourceEntity.slice(1)].getTableName();
                                 } catch(err) {
-                                    console.error("Unable to find model "+tableName+", skipping toSync query.")
+                                    console.error("Unable to find model "+sourceEntity+", skipping toSync query.");
+                                    console.log(toSyncObject[entity].options[j]);
                                     return resolve0();
                                 }
                                 var targetName;

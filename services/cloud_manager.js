@@ -8,28 +8,24 @@ const math = require('math');
 const gitHelper = require("../utils/git_helper");
 let token = "";
 
-exports.deploy = (attr, callback) => {
+exports.deploy = async (data) => {
 
 	console.log("STARTING DEPLOY");
 
-	if (typeof attr.id_application === 'undefined' || !attr.id_application)
-		throw new Error("Missing application ID.");
-
-	let appID = attr.id_application
+	let appName = data.application.name;
 
 	// If local/develop environnement, then just give the generated application url
     if (globalConfig.env != 'cloud') {
-        let port = math.add(9000, appID);
+        let port = math.add(9000, data.appID);
         let url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
-        let info = {
+        return {
         	message: "botresponse.applicationavailable",
         	messageParams: [url, url]
         };
-        return callback(null, info);
     }
 
     // Get and increment application's version
-    let applicationPath = 'workspace/'+appID;
+    let applicationPath = 'workspace/' + appName;
     let applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
     applicationConf.version++;
     fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
@@ -37,70 +33,50 @@ exports.deploy = (attr, callback) => {
     // Create toSyncProd.lock file
     if (fs.existsSync(applicationPath +'/models/toSyncProd.lock.json'))
         fs.unlinkSync(applicationPath +'/models/toSyncProd.lock.json');
-    fs.copySync(applicationPath +'/models/toSyncProd.json', applicationPath +'/models/toSyncProd.lock.json');
+    fs.copySync(applicationPath + '/models/toSyncProd.json', applicationPath + '/models/toSyncProd.lock.json');
 
     // Clear toSyncProd (not locked) file
     fs.writeFileSync(applicationPath+'/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
 
     // Create deploy.txt file to trigger cloud deploy actions
-    fs.writeFileSync(applicationPath+'/deploy.txt', applicationConf.version, 'utf8');
+    fs.writeFileSync(applicationPath + '/deploy.txt', applicationConf.version, 'utf8');
 
     // Push on git before deploy
-    gitHelper.gitCommit(attr, err => {
-        if (err)
-        	return callback(err);
+    await gitHelper.gitCommit(data);
+    await gitHelper.gitTag(appName, applicationConf.version, applicationPath);
+    await gitHelper.gitPush(data);
 
-        gitHelper.gitTag(appID, applicationConf.version, applicationPath).then(_ => {
-            gitHelper.gitPush(attr, (err, infoGit) => {
-                if(err)
-                	return callback(err, null);
+    let appNameWithoutPrefix = data.application.name.substring(2);
+    let nameRepo = globalConfig.host + '-' + appNameWithoutPrefix;
+    let subdomain = globalConfig.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConfig.dns_cloud.replace('.', '-');
 
-                let appName = attr.appCodeName.split("_").slice(1).join("_");
-                let nameRepo = globalConfig.host + '-' + appName;
-                let subdomain = globalConfig.sub_domain + '-' + appName + '-' + globalConfig.dns_cloud.replace('.', '-');
+    let remotes = await gitHelper.gitRemotes(data);
 
-                gitHelper.gitRemotes(attr, (err, remotes) => {
+    // Gitlab url handling
+    let gitlabUrl = "";
+    if(remotes.length > 0 && remotes[0].refs && remotes[0].refs.fetch)
+        gitlabUrl = remotes[0].refs.fetch; // Getting actuel .git fetch remote
+    else
+        gitlabUrl = gitlabConfig.sshUrl + ":" + data.gitlabUser.username + "/" + repoName + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
 
-                    // Gitlab url handling
-                    let gitlabUrl = "";
-                    if(remotes.length > 0 && remotes[0].refs && remotes[0].refs.fetch)
-                        gitlabUrl = remotes[0].refs.fetch; // Getting actuel .git fetch remote
-                    else
-                        gitlabUrl = gitlabConfig.sshUrl + ":" + attr.gitlabUser.username + "/" + repoName + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
-
-                    console.log('Cloning in cloud: ' + gitlabUrl);
-                    portainerDeploy(nameRepo, subdomain, appID, appName, gitlabUrl).then(data => {
-                        return callback(null, {
-                            message: "botresponse.deployment",
-                            messageParams: [data.url, data.url]
-                        });
-                    }).catch(err => {
-                        if(typeof err.message !== "undefined")
-                            console.error(err.message);
-                        else
-                            console.error(err);
-
-                        return callback(err);
-                    });
-                })
-            });
-        }).catch(function(e) {
-            console.log(e);
-            return callback(e);
-        });
-    });
+    console.log('Cloning in cloud: ' + gitlabUrl);
+    data = await portainerDeploy(nameRepo, subdomain, appNameWithoutPrefix, gitlabUrl);
+    return {
+        message: "botresponse.deployment",
+        messageParams: [data.url, data.url]
+    };
 }
 
-async function portainerDeploy(repoName, subdomain, appID, appName, gitlabUrl){
+async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 	// Preparing all needed values
     let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
     let cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
 
     // Cloud db conf
     let cloudDbConf = {
-    	dbName: "workspace_" + appID,
-		dbUser: "workspace_" + appID,
-		dbPwd: "workspace_" + appID,
+    	dbName: "np_" + appName,
+		dbUser: "np_" + appName,
+		dbPwd: "np_" + appName,
 		dbRootPwd: "p@ssw0rd"
     };
 

@@ -529,29 +529,26 @@ exports.createWidgetLastRecords = function(attr, callback) {
     });
 }
 
-exports.deleteWidget = function(attr, callback) {
-    const workspacePath = __dirname+'/../workspace/'+attr.id_application;
+exports.deleteWidget = async (data) => {
+    const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
     // Delete from view
-    domHelper.read(workspacePath+'/views/default/'+attr.module.codeName+'.dust').then(function($) {
-        let widgetElements = [];
-        // For each widgetType, find corresponding divs using a regex on attr id
-        for (const widgetType of attr.widgetTypes) {
-            widgetElements = $("#widgets > div[data-widget-type="+widgetType+"]").filter(function() {
-                // We don't know piechart's field, use regex to match rest of id
-                const reg = widgetType == 'piechart' ? new RegExp('piechart_'+attr.entity.codeName+'_.*_widget') : new RegExp(widgetType+'_'+attr.entity.codeName+'_widget');
-                return this.id.match(reg);
-            });
+    let $ = await domHelper.read(workspacePath + '/views/default/' + data.np_module.name + '.dust');
+    let widgetElements = [];
 
-            // Delete matched widget divs
-            for (const elem of widgetElements)
-                $(elem).remove();
-        }
-
-        domHelper.write(workspacePath+'/views/default/'+attr.module.codeName+'.dust', $).then(function() {
-            callback(null, {message: "structure.ui.widget.delete", messageParams: [attr.widgetInputType]});
+    // For each widgetType, find corresponding divs using a regex on data id
+    for (const widgetType of data.widgetTypes) {
+        widgetElements = $("#widgets > div[data-widget-type=" + widgetType + "]").filter(_ => {
+            // We don't know piechart's field, use regex to match rest of id
+            const reg = widgetType == 'piechart' ? new RegExp('piechart_' + data.entity.name + '_.*_widget') : new RegExp(widgetType + '_' + data.entity.name + '_widget');
+            return this.id.match(reg);
         });
-    }).catch(function(e) {
-        callback(e);
-    });
+
+        // Delete matched widget divs
+        for (const elem of widgetElements)
+            $(elem).remove();
+    }
+
+    await domHelper.write(workspacePath + '/views/default/' + data.np_module.name + '.dust', $);
+    return true;
 }

@@ -1202,8 +1202,7 @@ exports.deleteWidget = function (result) {
     return {
         function: 'deleteWidget',
         widgetTypes: [result[1] == 'piechart' ? 'piechart' : getRightWidgetType(result[1])],
-        widgetInputType: result[1],
-        entityTarget: result[2]
+        widgetInputType: result[1]
     }
 }
 
@@ -1238,13 +1237,6 @@ exports.apero = function (result) {
 let training = {
     "apero": [
         "Apéro !"
-    ],
-    "showSession": [
-        "show session",
-        "show the session",
-        "show session values",
-        "afficher la session",
-        "afficher session"
     ],
     "help": [
         "how could you assist me",
@@ -1534,20 +1526,6 @@ let training = {
         "remove tab (.*)",
         "supprimer onglet (.*)",
         "supprimer l'onglet (.*)"
-    ],
-    "listProject": [
-        "list project",
-        "list projects",
-        "lister projet",
-        "lister projets",
-        "lister les projets"
-    ],
-    "listApplication": [
-        "list application",
-        "list applications",
-        "lister application",
-        "lister applications",
-        "lister les applications"
     ],
     "listModule": [
         "list module",
@@ -2686,13 +2664,13 @@ let training = {
         "créer un widget (.*)"
     ],
     "deleteWidget": [
-        "delete widget (.*) of entity (.*)",
-        "delete widget (.*) for entity (.*)",
-        "delete widget (.*) of (.*)",
-        "delete widget (.*) for (.*)",
-        "supprimer widget (.*) de (.*)",
-        "supprimer le widget (.*) de (.*)",
-        "supprimer le widget (.*) de l'entité (.*)"
+        "delete widget (.*)",
+        "delete widget (.*)",
+        "delete widget (.*)",
+        "delete widget (.*)",
+        "supprimer widget (.*)",
+        "supprimer le widget (.*)",
+        "supprimer le widget (.*)"
     ],
     "deleteEntityWidgets": [
         "delete widgets of (.*)",
@@ -2766,15 +2744,15 @@ exports.parse = function (instruction) {
             }
         }
     }
-    let attr = {};
+    let data = {};
     if (typeof instructionResult.action !== "undefined") {
-        attr = this[instructionResult.action](instructionResult.result);
-        attr.instruction = instruction;
+        data = this[instructionResult.action](instructionResult.result);
+        data.instruction = instruction;
     } else {
-        attr.error = "error.cannotFindInstruction";
+        data.error = "error.cannotFindInstruction";
     }
 
-    return attr;
+    return data;
 }
 
 // ******* Completion *******

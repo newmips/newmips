@@ -67,121 +67,80 @@ exports.recursiveInstructionExecute = async (recursiveData, instructions, idx) =
     return await exportsContext.recursiveInstructionExecute(data, instructions, idx);
 }
 
-exports.help = (attr, callback) => {
-    session.help(attr, function (err, info) {
-        if (err)
-            return callback(err, null);
-        callback(null, info);
-    });
+exports.help = async (data) => {
+    return {
+        message: "botresponse.help"
+    }
 }
 
-exports.showSession = (attr, callback) => {
-    session.showSession(attr, function (err, info) {
-        if (err)
-            return callback(err, null);
-        callback(null, info);
+exports.deploy = async (data) => {
+
+    // Generator DB
+    const dbApp = await models.Application.findOne({
+        name: data.application.name
     });
+
+    data.appID = dbApp.id;
+
+    return await cloud_manager.deploy(data);
 }
 
-exports.deploy = (attr, callback) => {
-    db_application.getCodeNameApplicationById(attr.id_application, (err, codeName) => {
-        if (err)
-            return callback(err, null);
-
-        attr.appCodeName = codeName;
-        cloud_manager.deploy(attr, (err, info) => {
-            if (err)
-                return callback(err, null);
-            callback(null, info);
-        });
-    });
-}
-
-exports.restart = (attr, callback) => {
-    var info = {
+exports.restart = async (data) => {
+    return {
         message: "structure.global.restart.success"
     };
-    callback(null, info);
 }
 
-exports.installNodePackage = (attr, callback) => {
-    structure_application.installAppModules(attr).then(function () {
-        var info = {
-            message: "structure.global.npmInstall.success"
-        };
-        callback(null, info);
-    });
+exports.installNodePackage = async (data) => {
+    await structure_application.installAppModules(attr);
+    return {
+        message: "structure.global.npmInstall.success"
+    };
 }
 
 /* --------------------------------------------------------------- */
 /* --------------------------- Git ------------------------------- */
 /* --------------------------------------------------------------- */
 
-exports.gitPush = (attr, callback) => {
-    gitHelper.gitPush(attr, function (err, infoGit) {
-        if (err)
-            return callback(err, null);
-        var info = {};
-        info.message = "structure.global.gitPush.success";
-        callback(null, info);
-    });
+exports.gitPush = async (data) => {
+    await gitHelper.gitPush(data);
+    return {
+        message: "structure.global.gitPush.success"
+    }
 }
 
-exports.gitPull = (attr, callback) => {
-    gitHelper.gitPull(attr, function (err, infoGit) {
-        if (err)
-            return callback(err, null);
-        var info = {};
-        info.message = "structure.global.gitPull.success";
-        callback(null, info);
-    });
+exports.gitPull = async (data) => {
+    await gitHelper.gitPull(data);
+    return {
+        message: "structure.global.gitPull.success"
+    }
 }
 
-exports.gitCommit = (attr, callback) => {
-    gitHelper.gitCommit(attr, function (err, infoGit) {
-        if (err)
-            return callback(err, null);
-        var info = {};
-        info.message = "structure.global.gitCommit.success";
-        callback(null, info);
-    });
+exports.gitCommit = async (data) => {
+    await gitHelper.gitCommit(attr);
+    return {
+        message: "structure.global.gitCommit.success"
+    }
 }
 
-exports.gitStatus = (attr, callback) => {
-    gitHelper.gitStatus(attr, function (err, infoGit) {
-        if (err)
-            return callback(err, null);
-        var info = {};
-        info.message = JSON.stringify(infoGit);
-        info.message = info.message.replace(/,/g, ",<br>");
-        callback(null, info);
-    });
+exports.gitStatus = async (data) => {
+    await gitHelper.gitStatus(data);
+    return {
+        message: JSON.stringify(infoGit).replace(/,/g, ",<br>")
+    };
 }
 
 /* --------------------------------------------------------------- */
 /* ----------------------- Application --------------------------- */
 /* --------------------------------------------------------------- */
-exports.selectApplication = (attr, callback) => {
+exports.selectApplication = async (data) => {
     let exportsContext = this;
-    db_application.selectApplication(attr, function (err, info) {
-        if (err) {
-            callback(err, null);
-        } else {
-            var instructions = [
-                "select module home"
-            ];
 
-            attr.id_application = info.insertId;
+    data.application = metadata.getApplication(data.options.value);
 
-            // Select the module home automatically after selecting an application
-            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function (err) {
-                if (err)
-                    return callback(err, null);
-                info.name_application = attr.options.value;
-                callback(null, info);
-            });
-        }
-    });
+    // Select the module home automatically after selecting an application
+    await exportsContext.recursiveInstructionExecute(data, ["select module home"], 0);
+    return data;
 }
 
 exports.createNewApplication = async (data) => {
@@ -205,7 +164,7 @@ exports.createNewApplication = async (data) => {
     });
 
     // Metadata
-    const newApp = new Application(data.options.value);
+    const newApp = new Application(data.options.value, data.options.showValue);
 
     // If connected user is admin, then add only him. If not, add admin and current user
     let userToAdd = data.currentUser.id == 1 ? 1 : [1, data.currentUser.id];
@@ -225,14 +184,6 @@ exports.createNewApplication = async (data) => {
         message: "database.application.create.success",
         messageParams: [newApp.name]
     };
-}
-
-exports.listApplication = (attr, callback) => {
-    db_application.listApplication(attr, function (err, info) {
-        if (err)
-            return callback(err, null);
-        callback(null, info);
-    });
 }
 
 // Declare this function not directly within exports to be able to use it from deleteApplicationRecursive()
@@ -335,7 +286,7 @@ exports.createNewModule = async (data) => {
         throw err;
     }
 
-    const np_module = data.application.addModule(data.options.value);
+    const np_module = data.application.addModule(data.options.value, data.options.showValue);
 
     // Assign list of existing application modules
     // Needed to recreate the dropdown list of modules in the interface
@@ -351,15 +302,63 @@ exports.createNewModule = async (data) => {
     };
 }
 
-exports.listModule = (attr, callback) => {
-    db_module.listModule(attr, function (err, info) {
-        if (err)
-            return callback(err, null);
-        callback(null, info);
-    });
+exports.listModule = async (data) => {
+
+    let info = {};
+    let listing = "<br><ul>";
+    for (var i = 0; i < data.application.modules.length; i++) {
+        listing += "<li>" + modules[i].displayName + "(" + modules[i].name + ")</li>";
+    }
+    listing += "</ul>";
+    return {
+        message: listing
+    }
 }
 
-exports.deleteModule = (attr, callback) => {
+exports.deleteModule = async (data) => {
+
+    // if (data.options.value== 'm_home')
+    //     throw new Error("structure.module.error.notHome");
+
+
+    // data.np_module = data.application.getModule(data.module_name, true);
+    // data.module_entities = np_module.entities;
+
+    // let promises = [];
+    // for (let i = 0; i < entities.length; i++) {
+    //     let tmpAttr = {
+    //         id_application: attr.id_application,
+    //         id_module: attr.id_module,
+    //         id_project: attr.id_project,
+    //         options: {
+    //             value: entities[i].codeName,
+    //             showValue: entities[i].name
+    //         }
+    //     }
+
+    //     promises.push(new Promise(function (resolve, reject) {
+    //         (function (tmpAttrIn) {
+    //             deleteDataEntity(tmpAttrIn, function (err) {
+    //                 if (err) {
+    //                     return reject(err);
+    //                 }
+    //                 resolve();
+    //             })
+    //         })(tmpAttr);
+    //     }));
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
     var moduleName = attr.options.showValue;
     if (moduleName.toLowerCase() == 'home') {
         var err = new Error("structure.module.error.notHome");
@@ -442,14 +441,14 @@ exports.createNewEntity = async (data) => {
         throw err;
     }
 
-    let entity = data.np_module.addEntity(data.options.value);
+    let entity = data.np_module.addEntity(data.options.value, data.options.showValue);
 
     await structure_entity.setupEntity(data);
 
     return {
         entity: entity,
         message: "database.entity.create.success",
-        messageParams: [entity.name, data.module_name, entity.name]
+        messageParams: [entity.displayName, data.np_module.displayName, entity.displayName]
     };
 }
 
@@ -461,250 +460,140 @@ exports.listDataEntity = (attr, callback) => {
     });
 }
 
-function deleteDataEntity(attr, callback) {
+async function deleteDataEntity(data) {
 
-    function checkIfIDGiven(attr, callback) {
-        // If it was the ID instead of the name given in the instruction
-        if (!isNaN(attr.options.showValue)) {
-            db_entity.getDataEntityById(attr.options.showValue, function (err, entity) {
-                if (err)
-                    return callback(err, null);
+    console.log('deleteDataEntity');
 
-                attr.options.value = entity.codeName;
-                attr.options.showValue = entity.name;
-                attr.options.urlValue = entity.codeName.substring(2);
-                callback(null, attr);
-            });
-        } else {
-            callback(null, attr);
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let foundEntity = data.application.findEntity(data.options.value, true);
+    data.np_module = foundEntity.np_module;
+    data.entity = foundEntity.entity;
+
+    // Delete entity relations
+    let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
+    console.log("First");
+
+    for (let i = 0; i < entityOptions.length; i++) {
+        if (entityOptions[i].relation == 'hasMany') {
+            let tmpData = {
+                options: {
+                    value: entityOptions[i].as,
+                    urlValue: entityOptions[i].as.substring(2)
+                },
+                application: data.application,
+                module_name: data.module_name,
+                entity_name: data.entity_name,
+                structureType: entityOptions[i].structureType
+            };
+
+            if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
+                if(tmpData.options && tmpData.options.value != '' && tmpData.options.value.indexOf('r_history_') != -1){
+                    let statusName = tmpData.options.value.split('r_history_')[1];
+                    await deleteComponentStatus({
+                        application: tmpData.application,
+                        entity_name: tmpData.entity_name,
+                        options: {
+                            value : "s_"+statusName,
+                            urlValue: statusName,
+                            showValue: statusName
+                        }
+                    })
+                } else {
+                    await deleteTab(tmpData);
+                }
+            } else {
+                console.warn("WARNING - Unknown option to delete !");
+                console.warn(entityOptions[i]);
+            }
+        } else if (entityOptions[i].relation == 'belongsToMany') {
+            await database.dropTable(entityOptions[i].through);
         }
     }
 
-    checkIfIDGiven(attr, function (err, attr) {
-        if (err)
-            return callback(err, null);
+    console.log("Second");
+    // Delete relation comming from other entities
+    let files = fs.readdirSync(workspacePath + '/models/options/').filter(file => {
+        return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != data.entity.name;
+    });
 
-        var id_application = attr.id_application;
-        var name_data_entity = attr.options.value.toLowerCase();
-        var show_name_data_entity = attr.options.showValue.toLowerCase();
+    for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        let source = file.slice(0, -5);
+        let options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
 
-        var name_module = "";
+        // Look for auto_generate key targeting deleted entity and remove them
+        let idxToRemove = [];
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].target != data.entity.name)
+                continue;
+            if (options[i].structureType == 'auto_generate')
+                idxToRemove.push(i);
+        }
+        options = options.filter((val, idx, arr) => {
+            return idxToRemove.indexOf(idx) == -1
+        })
+        fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
 
-        var promises = [];
-        var workspacePath = __dirname + '/../workspace/' + id_application;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].target != data.entity.name)
+                continue;
 
-        db_entity.getIdDataEntityByCodeName(attr.id_module, name_data_entity, function (err, entityId) {
-            if (err)
-                return callback(err, null);
+            if (options[i].relation == 'hasMany') {
+                let tmpAttr = {
+                    options: {
+                        value: options[i].as,
+                        urlValue: options[i].as.substring(2)
+                    },
+                    application: data.application,
+                    module_name: data.module_name,
+                    structureType: options[i].structureType
+                };
 
-            // Delete entity relations
-            var entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + name_data_entity + '.json'));
-            for (var i = 0; i < entityOptions.length; i++) {
-                if (entityOptions[i].relation == 'hasMany') {
-                    var tmpAttr = {
-                        options: {
-                            value: entityOptions[i].as,
-                            urlValue: entityOptions[i].as.substring(2)
-                        },
-                        id_project: attr.id_project,
-                        id_application: attr.id_application,
-                        id_module: attr.id_module,
-                        id_data_entity: entityId,
-                        structureType: entityOptions[i].structureType
-                    };
-                    promises.push({func: function (tmpAttrIn, clbk) {
-                        if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                            if(tmpAttrIn.options && tmpAttrIn.options.value != '' && tmpAttrIn.options.value.indexOf('r_history_') != -1){
-                                let statusName = tmpAttrIn.options.value.split('r_history_')[1];
-                                deleteComponentStatus({
-                                    id_application: tmpAttrIn.id_application,
-                                    id_data_entity: tmpAttrIn.id_data_entity,
-                                    options: {
-                                        value : "s_"+statusName,
-                                        urlValue: statusName,
-                                        showValue: statusName
-                                    }
-                                }, err => {
-                                    if (err)
-                                        console.error(err);
-                                    clbk();
-                                });
-                            } else {
-                                deleteTab(tmpAttrIn, err => {
-                                    if (err)
-                                        console.error(err);
-                                    clbk();
-                                });
-                            }
-                        } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheckbox") {
-                            tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                            deleteField(tmpAttrIn, function (err) {
-                                if (err)
-                                    console.error(err);
-                                clbk();
-                            });
-                        } else {
-                            console.warn("WARNING - Unknown option to delete !");
-                            console.warn(tmpAttrIn);
-                            clbk();
-                        }
-                    }, arg: tmpAttr});
+                tmpAttr.entity_name = source;
+                if (tmpAttr.structureType == "hasMany" || tmpAttr.structureType == "hasManyPreset") {
+                    await deleteTab(tmpAttr);
+                } else if (tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
+                    tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+                    await deleteField(tmpAttr);
+                } else {
+                    console.warn("WARNING - Unknown option to delete !");
+                    console.warn(tmpAttr);
                 }
-                else if (entityOptions[i].relation == 'belongsToMany') {
-                    promises.push({
-                        func: function(tableName, clbk) {
-                            database.dropTable(tableName, function(err) {
-                                if (err)
-                                    console.error("Unable to delete junction table "+tableName);
-                                clbk();
-                            })
-                        },
-                        arg: entityOptions[i].through
-                    })
+            } else if (options[i].relation == 'belongsTo') {
+                let tmpAttr = {
+                    options: {
+                        value: options[i].as,
+                        urlValue: options[i].as.substring(2)
+                    },
+                    application: data.application,
+                    module_name: attr.module_name,
+                    structureType: options[i].structureType
+                };
+
+                tmpAttr.entity_name = source;
+                if (tmpAttr.structureType == "relatedTo") {
+                    tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+                    await deleteDataField(tmpAttr);
+                } else if (tmpAttr.structureType == "hasOne") {
+                    await deleteTab(tmpAttr);
+                } else {
+                    console.warn("WARNING - Unknown option to delete !");
+                    console.warn(tmpAttr);
                 }
             }
+        }
+    }
 
-            // Delete relation comming from other entities
-            fs.readdirSync(workspacePath + '/models/options/').filter(function (file) {
-                return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != name_data_entity;
-            }).forEach(function (file) {
-                let source = file.slice(0, -5);
-                let options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
+    await deleteEntityWidgets(data);
+    database.dropDataEntity(data.application, data.entity.name);
+    data.np_module.deleteEntity(data.entity.name);
+    await structure_entity.deleteDataEntity(data);
 
-                // Look for auto_generate key targeting deleted entity and remove them
-                let idxToRemove = [];
-                for (let i = 0; i < options.length; i++) {
-                    if (options[i].target != name_data_entity)
-                        continue;
-                    if (options[i].structureType == 'auto_generate')
-                        idxToRemove.push(i);
-                }
-                options = options.filter((val, idx, arr) => {
-                    return idxToRemove.indexOf(idx) == -1
-                })
-                fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
-
-                for (let i = 0; i < options.length; i++) {
-                    if (options[i].target != name_data_entity)
-                        continue;
-
-                    if (options[i].relation == 'hasMany') {
-                        let tmpAttr = {
-                            options: {
-                                value: options[i].as,
-                                urlValue: options[i].as.substring(2)
-                            },
-                            id_project: attr.id_project,
-                            id_application: attr.id_application,
-                            id_module: attr.id_module,
-                            structureType: options[i].structureType
-                        };
-
-                        promises.push({
-                            func: function(tmpAttrIn, clbk) {
-                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
-                                    tmpAttrIn.id_data_entity = sourceID;
-                                    if (tmpAttrIn.structureType == "hasMany" || tmpAttrIn.structureType == "hasManyPreset") {
-                                        deleteTab(tmpAttrIn, function(err) {
-                                            if (err)
-                                                console.error(err);
-                                            clbk();
-                                        });
-                                    } else if (tmpAttrIn.structureType == "relatedToMultiple" || tmpAttrIn.structureType == "relatedToMultipleCheck") {
-                                        tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                        deleteField(tmpAttrIn, function(err) {
-                                            if (err)
-                                                console.error(err);
-                                            clbk();
-                                        });
-                                    } else {
-                                        console.warn("WARNING - Unknown option to delete !");
-                                        console.warn(tmpAttrIn);
-                                        clbk();
-                                    }
-                                });
-                            },
-                            arg: tmpAttr
-                        });
-                    }
-                    else if (options[i].relation == 'belongsTo') {
-                        let tmpAttr = {
-                            options: {
-                                value: options[i].as,
-                                urlValue: options[i].as.substring(2)
-                            },
-                            id_project: attr.id_project,
-                            id_application: attr.id_application,
-                            id_module: attr.id_module,
-                            structureType: options[i].structureType
-                        };
-
-                        promises.push({
-                            func: function(tmpAttrIn, clbk) {
-                                db_entity.getIdDataEntityByCodeName(attr.id_module, source, function(err, sourceID) {
-                                    tmpAttrIn.id_data_entity = sourceID;
-                                    if (tmpAttrIn.structureType == "relatedTo") {
-                                        tmpAttrIn.options.value = "f_" + tmpAttrIn.options.value.substring(2);
-                                        deleteDataField(tmpAttrIn, function(err) {
-                                            if (err)
-                                                console.error(err);
-                                            clbk();
-                                        });
-                                    } else if (tmpAttrIn.structureType == "hasOne") {
-                                        deleteTab(tmpAttrIn, function(err) {
-                                            if (err)
-                                                console.error(err);
-                                            clbk();
-                                        });
-                                    } else {
-                                        console.warn("WARNING - Unknown option to delete !");
-                                        console.warn(tmpAttrIn);
-                                        clbk();
-                                    }
-                                });
-                            },
-                            arg: tmpAttr
-                        });
-                    }
-                }
-            });
-
-            attr.entityTarget = attr.options.showValue;
-            deleteEntityWidgets(attr, function (err) {
-                if (err)
-                    return callback(err);
-
-                function orderedTasks(tasks, idx, overClbk) {
-                    if (!tasks[idx])
-                        return overClbk();
-                    tasks[idx].func(tasks[idx].arg, function () {
-                        orderedTasks(tasks, idx + 1, overClbk);
-                    });
-                }
-                orderedTasks(promises, 0, function () {
-                    db_entity.getModuleCodeNameByEntityCodeName(name_data_entity, attr.id_module, function (err, name_module) {
-                        if (err)
-                            return callback(err, null);
-                        database.dropDataEntity(id_application, name_data_entity, function (err) {
-                            if (err)
-                                return callback(err);
-                            attr.name_data_entity = name_data_entity;
-                            attr.show_name_data_entity = show_name_data_entity;
-                            db_entity.deleteDataEntity(attr, function (err, infoDB) {
-                                if (err)
-                                    return callback(err);
-                                var url_name_data_entity = attr.options.urlValue;
-                                structure_entity.deleteDataEntity(id_application, name_module, name_data_entity, url_name_data_entity, function () {
-                                    infoDB.deletedEntityId = entityId;
-                                    callback(null, infoDB);
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
+    return {
+        message: "database.entity.delete.deleted",
+        messageParams: [data.entity.displayName],
+        entity: data.entity
+    };
 }
 exports.deleteDataEntity = deleteDataEntity;
 
@@ -721,7 +610,7 @@ exports.createNewDataField = async (data) => {
         throw err;
     }
 
-    data.entity.addField(data.options.value);
+    data.entity.addField(data.options.value, data.options.showValue);
     await structure_field.setupField(data);
 
     return {
@@ -968,7 +857,7 @@ exports.createNewHasOne = async (data) => {
 
     // Target entity does not exist -> Subentity generation
     if(!target_entity) {
-        target_entity = data.np_module.addEntity(data.options.target);
+        target_entity = data.np_module.addEntity(data.options.target, data.options.showTarget);
 
         answer.message = "structure.association.hasMany.successSubEntity";
         answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
@@ -1232,7 +1121,7 @@ exports.createNewHasMany = async (data) => {
 
     // Target entity does not exist -> Subentity generation
     if(!target_entity) {
-        target_entity = data.np_module.addEntity(data.options.target);
+        target_entity = data.np_module.addEntity(data.options.target, data.options.showTarget);
 
         answer.message = "structure.association.hasMany.successSubEntity";
         answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
@@ -1612,7 +1501,7 @@ exports.createNewFieldRelatedTo = async (data) => {
     // Generate html code in dust file
     await structure_field.setupRelatedToField(data);
 
-    data.source_entity.addField('f_' + data.options.urlAs);
+    data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
 
     return {
         entity: data.source_entity,
@@ -1743,7 +1632,7 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
     // Generate HTML code
     await structure_field.setupRelatedToMultipleField(data);
 
-    data.source_entity.addField('f_' + data.options.urlAs);
+    data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
 
     return {
         message: 'structure.association.relatedToMultiple.success',
@@ -1783,7 +1672,7 @@ exports.createNewComponentStatus = async (data) => {
     await self.recursiveInstructionExecute(data, instructions, 0);
     await structure_component.newStatus(data);
 
-    data.entity.addComponent(data.options.value, 'status');
+    data.entity.addComponent(data.options.value, data.options.showValue, 'status');
 
     return {
         message: 'database.component.create.successOnEntity',
@@ -1792,82 +1681,57 @@ exports.createNewComponentStatus = async (data) => {
 }
 
 let workspacesModels = {};
-function deleteComponentStatus(attr, callback) {
+async function deleteComponentStatus(data) {
 
     let self = this;
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+
     /* If there is no defined name for the module, set the default */
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "s_status";
-        attr.options.urlValue = "status";
-        attr.options.showValue = "Status";
+    if (typeof data.options.value === 'undefined') {
+        data.options.value = "s_status";
+        data.options.urlValue = "status";
+        data.options.showValue = "Status";
     }
 
-    db_entity.getDataEntityById(attr.id_data_entity, (err, entity) => {
-        if(err)
-            return callback(err);
+    let foundEntity = data.application.findEntity(data.entity_name, true);
+    data.np_module = data.np_module;
+    data.entity = data.entity;
+    data.field = data.entity.getField(data.options.value, true);
 
-        db_field.getFieldByCodeName({
-            codeName: attr.options.value,
-            idEntity: attr.id_data_entity,
-            showValue: attr.options.showValue,
-            showEntity: entity.name,
-        }, (err, field) => {
-            if(err)
-                return callback(err);
+    // Looking for status & history status information in options.json
+    let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
+    let historyInfo, statusFieldInfo;
 
-            // Looking for status & history status information in options.json
-            let entityOptions = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + entity.codeName + '.json'));
-            let historyInfo, statusFieldInfo;
+    for (let option of entityOptions) {
+        if (option.as == 'r_' + attr.options.urlValue)
+            statusFieldInfo = option;
 
-            for(let option of entityOptions){
-                if(option.as == 'r_'+attr.options.urlValue)
-                    statusFieldInfo = option;
+        if (option.as == 'r_history_' + attr.options.urlValue)
+            historyInfo = option;
+    }
 
-                if(option.as == 'r_history_'+attr.options.urlValue)
-                    historyInfo = option;
-            }
+    let modelsPath = workspacePath + '/models/';
+    if(typeof workspacesModels[data.application.name] === 'undefined'){
+        delete require.cache[require.resolve(modelsPath)];
+        workspacesModels[data.application.name] = require(modelsPath);
+    }
+    let historyTableName = workspacesModels[attr.id_application]['E_' + historyInfo.target.substring(2)].getTableName();
 
-            let modelsPath = __dirname + '/../workspace/' + attr.id_application + '/models/';
-            if(typeof workspacesModels[attr.id_application] === 'undefined'){
-                delete require.cache[require.resolve(modelsPath)];
-                workspacesModels[attr.id_application] = require(modelsPath);
-            }
-            let historyTableName = workspacesModels[attr.id_application]['E_' + historyInfo.target.substring(2)].getTableName();
+    await structure_component.deleteStatus({
+        application: data.application,
+        status_field: 's_' + attr.options.urlValue,
+        fk_status: statusFieldInfo.foreignKey,
+        entity: entity.codeName,
+        historyName: historyInfo.target,
+        historyTableName: historyTableName
+    });
 
-            structure_component.deleteStatus({
-                appID: attr.id_application,
-                status_field: 's_'+attr.options.urlValue,
-                fk_status: statusFieldInfo.foreignKey,
-                entity: entity.codeName,
-                historyName: historyInfo.target,
-                historyTableName: historyTableName
-            }).then(_ => {
+    entity.deleteField('s_' + attr.options.urlValue);
+    entity.deleteField(statusFieldInfo.foreignKey);
 
-                // Delete metadata in generator DB
-                db_field.deleteDataField({
-                    id_data_entity: attr.id_data_entity,
-                    options: {
-                        value: 's_'+attr.options.urlValue,
-                        showValue: attr.options.urlValue
-                    }
-                }, err => {if(err) console.error(err);});
-
-                db_field.deleteDataField({
-                    id_data_entity: attr.id_data_entity,
-                    options: {
-                        value: statusFieldInfo.foreignKey,
-                        showValue: statusFieldInfo.foreignKey
-                    }
-                }, err => {if(err) console.error(err);});
-
-                callback(null, {
-                    message: 'database.component.delete.success'
-                })
-            }).catch(err => {
-                callback(err);
-            })
-        })
-    })
+    return {
+        message: 'database.component.delete.success'
+    };
 }
 exports.deleteComponentStatus = deleteComponentStatus;
 
@@ -1894,7 +1758,7 @@ exports.createNewComponentLocalFileStorage = async (data) => {
     if(data.application.findEntity(data.options.value))
         throw new Error("structure.component.error.alreadyExistInApp");
 
-    data.entity.addComponent(data.options.value, 'file_storage');
+    data.entity.addComponent(data.options.value, data.options.showValue,'file_storage');
 
     let associationOption = {
         application: data.application,
@@ -1911,6 +1775,11 @@ exports.createNewComponentLocalFileStorage = async (data) => {
 
     structure_entity.setupAssociation(associationOption);
     await structure_component.newLocalFileStorage(data);
+
+    return {
+        message: "database.component.create.successOnEntity",
+        messageParams: [data.options.showValue, data.entity.name]
+    }
 }
 
 // Componant to create a contact form in a module
@@ -2908,38 +2777,39 @@ async function createWidget(data) {
     data.np_module = entity.np_module;
     data.entity = entity.entity;
     await structure_ui.createWidget(data);
+    return {
+        message: "structure.ui.widget.success",
+        messageParams: [data.widgetInputType, entity.np_module.name]
+    };
 }
 exports.createWidget = createWidget;
 
-function deleteWidget(attr, callback) {
-    if (attr.widgetType == -1)
-        return callback(null, {message: "structure.ui.widget.unkown", messageParams: [attr.widgetInputType]});
-    db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
-        if (err)
-            return callback(err);
-        db_module.getModuleById(entity.id_module, function (err, dbModule) {
-            if (err)
-                return callback(err);
+async function deleteWidget(data) {
+    if (data.widgetType == -1) {
+        let err = new Error('structure.ui.widget.unkown');
+        err.messageParams = [data.widgetInputType];
+        throw err;
+    }
 
-            attr.module = dbModule;
-            attr.entity = entity;
+    data.np_module = data.application.getModule(data.module_name, true);
+    data.entity = data.np_module.getEntity(data.entity_name, true);
 
-            structure_ui.deleteWidget(attr, function (err, info) {
-                if (err)
-                    return callback(err);
-                callback(null, info);
-            });
-        });
-    });
+    await structure_ui.deleteWidget(data);
+
+    return {
+        message: "structure.ui.widget.delete",
+        messageParams: [data.widgetInputType]
+    }
 }
 exports.deleteWidget = deleteWidget;
 
-function deleteEntityWidgets(attr, callback) {
-    attr.widgetTypes = ['info', 'stats', 'lastrecords', 'piechart'];
-    deleteWidget(attr, function (err) {
-        if (err)
-            return callback(err);
-        callback(null, {message: "structure.ui.widget.all_deleted", messageParams: [attr.entityTarget]});
-    });
+async function deleteEntityWidgets(data) {
+    data.widgetTypes = ['info', 'stats', 'lastrecords', 'piechart'];
+    await deleteWidget(data);
+
+    return {
+        message: "structure.ui.widget.all_deleted",
+        messageParams: [data.entityTarget]
+    };
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;
