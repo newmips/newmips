@@ -98,8 +98,11 @@ exports.dropFKMultipleDataField = async (data) => {
     return pushToSyncQuery(data.application, query);
 }
 
-exports.dropTable = async (table_name) => {
-    return await sequelize.query(`DROP TABLE ${table_name};`);
+exports.dropTable = async (appName, table_name) => {
+    delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
+    let workspaceModels = require('../workspace/' + appName + '/models/').sequelize;
+
+    return await workspaceModels.query(`DROP TABLE ${table_name};`);
 }
 
 // Get real SQL type in DB, not sequelize datatype

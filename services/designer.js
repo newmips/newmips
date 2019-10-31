@@ -303,7 +303,6 @@ exports.createNewModule = async (data) => {
 }
 
 exports.listModule = async (data) => {
-
     let info = {};
     let listing = "<br><ul>";
     for (var i = 0; i < data.application.modules.length; i++) {
@@ -452,17 +451,23 @@ exports.createNewEntity = async (data) => {
     };
 }
 
-exports.listDataEntity = (attr, callback) => {
-    db_entity.listDataEntity(attr, function (err, info) {
-        if (err)
-            return callback(err, null);
-        callback(null, info);
-    });
+exports.listEntity = async (data) => {
+    let info = {};
+    let listing = "<br><ul>";
+    for (var i = 0; i < data.application.modules.length; i++) {
+        listing += "<li>" + data.application.modules[i].displayName + "</li>";
+        for (var j = 0; j < data.application.modules[i].entities.length; j++) {
+            listing += "- " + data.application.modules[i].entities[j].displayName + " (" + data.application.modules[i].entities[j].name + ")<br>";
+        }
+    }
+    listing += "</ul>";
+    return {
+        message: listing
+    };
 }
 
 async function deleteDataEntity(data) {
 
-    console.log('deleteDataEntity');
 
     let workspacePath = __dirname + '/../workspace/' + data.application.name;
     let foundEntity = data.application.findEntity(data.options.value, true);
@@ -471,7 +476,6 @@ async function deleteDataEntity(data) {
 
     // Delete entity relations
     let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
-    console.log("First");
 
     for (let i = 0; i < entityOptions.length; i++) {
         if (entityOptions[i].relation == 'hasMany') {
@@ -489,7 +493,6 @@ async function deleteDataEntity(data) {
             if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
                 if(tmpData.options && tmpData.options.value != '' && tmpData.options.value.indexOf('r_history_') != -1){
                     let statusName = tmpData.options.value.split('r_history_')[1];
-                    console.log("1. deleteComponentStatus")
                     await deleteComponentStatus({
                         application: tmpData.application,
                         entity_name: tmpData.entity_name,
@@ -500,7 +503,6 @@ async function deleteDataEntity(data) {
                         }
                     })
                 } else {
-                    console.log("2. deleteTab")
                     await deleteTab(tmpData);
                 }
             } else {
@@ -508,12 +510,10 @@ async function deleteDataEntity(data) {
                 console.warn(entityOptions[i]);
             }
         } else if (entityOptions[i].relation == 'belongsToMany') {
-            console.log("3. dropTable")
-            await database.dropTable(entityOptions[i].through);
+            await database.dropTable(data.application.name, entityOptions[i].through);
         }
     }
 
-    console.log("Second");
     // Delete relation comming from other entities
     let files = fs.readdirSync(workspacePath + '/models/options/').filter(file => {
         return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != data.entity.name;
@@ -532,67 +532,57 @@ async function deleteDataEntity(data) {
             if (options[i].structureType == 'auto_generate')
                 idxToRemove.push(i);
         }
+
         options = options.filter((val, idx, arr) => {
             return idxToRemove.indexOf(idx) == -1
-        })
+        });
         fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
 
+        // Loop on entity options
         for (let i = 0; i < options.length; i++) {
             if (options[i].target != data.entity.name)
                 continue;
 
-            if (options[i].relation == 'hasMany') {
-                let tmpAttr = {
-                    options: {
-                        value: options[i].as,
-                        urlValue: options[i].as.substring(2)
-                    },
-                    application: data.application,
-                    module_name: data.module_name,
-                    structureType: options[i].structureType
-                };
 
-                tmpAttr.entity_name = source;
+            let tmpAttr = {
+                options: {
+                    value: options[i].as,
+                    urlValue: options[i].as.substring(2)
+                },
+                application: data.application,
+                module_name: data.module_name,
+                structureType: options[i].structureType
+            };
+
+            tmpAttr.entity_name = source;
+            if (options[i].relation == 'hasMany') {
                 if (tmpAttr.structureType == "hasMany" || tmpAttr.structureType == "hasManyPreset") {
-                    console.log("4. deleteTab")
                     await deleteTab(tmpAttr);
-                } else if (tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
-                    tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-                    console.log("5. deleteField")
-                    await deleteField(tmpAttr);
                 } else {
                     console.warn("WARNING - Unknown option to delete !");
                     console.warn(tmpAttr);
                 }
             } else if (options[i].relation == 'belongsTo') {
-                console.log("6. belongsTo")
-                let tmpAttr = {
-                    options: {
-                        value: options[i].as,
-                        urlValue: options[i].as.substring(2)
-                    },
-                    application: data.application,
-                    module_name: attr.module_name,
-                    structureType: options[i].structureType
-                };
-
-                tmpAttr.entity_name = source;
                 if (tmpAttr.structureType == "relatedTo") {
                     tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-                    console.log("7. deleteDataField")
                     await deleteDataField(tmpAttr);
                 } else if (tmpAttr.structureType == "hasOne") {
-                    console.log("8. deleteTab")
                     await deleteTab(tmpAttr);
                 } else {
                     console.warn("WARNING - Unknown option to delete !");
                     console.warn(tmpAttr);
                 }
+            } else if(options[i].relation == 'belongsToMany' && tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
+                tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+                await deleteField(tmpAttr);
             }
         }
     }
 
+    // Fake session for delete widget
+    data.entity_name = data.entity.name;
     await deleteEntityWidgets(data);
+
     database.dropDataEntity(data.application, data.entity.name);
     data.np_module.deleteEntity(data.entity.name);
     await structure_entity.deleteDataEntity(data);
@@ -678,12 +668,23 @@ async function deleteField(data) {
 }
 exports.deleteField = deleteField;
 
-exports.listDataField = (attr, callback) => {
-    db_field.listDataField(attr, function (err, info) {
-        if (err)
-            return callback(err, null);
-        callback(null, info);
-    });
+exports.listField = async (data) => {
+    let info = {};
+    let listing = "<br><ul>";
+    for (let i = 0; i < data.application.modules.length; i++) {
+        listing += "<li>" + data.application.modules[i].displayName + "<ul>";
+        for (let j = 0; j < data.application.modules[i].entities.length; j++) {
+            listing += "<li><b>" + data.application.modules[i].entities[j].displayName + "</b></li>";
+            for (let k = 0; k < data.application.modules[i].entities[j].fields.length; k++) {
+                listing += "- " + data.application.modules[i].entities[j].fields[k].displayName + " (" + data.application.modules[i].entities[j].fields[k].name + ")<br>";
+            }
+        }
+        listing += "</ul></li>";
+    }
+    listing += "</ul>";
+    return {
+        message: listing
+    };
 }
 
 /* --------------------------------------------------------------- */
@@ -2052,167 +2053,6 @@ exports.deleteAgenda = (attr, callback) => {
                 });
             });
         });
-    });
-}
-
-// Component to create a C.R.A module
-exports.createNewComponentCra = (attr, callback) => {
-
-    var exportsContext = this;
-
-    // Check if component with this name is already created on this module
-    db_module.getModuleById(attr.id_module, function (err, module) {
-        if (err)
-            return callback(err, null);
-
-        attr.module = module;
-        var instructions = [
-            "add entity CRA Team",
-            "add field Name",
-            "set field Name required",
-            "entity CRA Team has many preset user using login",
-            "entity CRA Team has one CRA Calendar Settings",
-            "select entity CRA Calendar Settings",
-            "add field Monday with type boolean",
-            "add field Tuesday with type boolean",
-            "add field Wednesday with type boolean",
-            "add field Thursday with type boolean",
-            "add field Friday with type boolean",
-            "add field Saturday with type boolean",
-            "add field Sunday with type boolean",
-            "entity CRA Team has many CRA Calendar Exception",
-            "select entity CRA Calendar Exception",
-            "add field Date with type date",
-            "add field Label",
-            "add entity CRA Activity",
-            "add field Name",
-            "set field Name required",
-            "add field Description with type text",
-            "add field Client",
-            "add field Active with type boolean and default value true",
-            "add entity CRA",
-            "add field Month with type number",
-            "add field Year with type number",
-            "add field Open days in month with type number",
-            "add field User validated with type boolean",
-            "add field Admin validated with type boolean",
-            "add field Notification admin with type text",
-            "set icon calendar check o",
-            "entity user has many CRA",
-            "entity CRA has many CRA Task",
-            "select entity CRA Task",
-            "add field Date with type date",
-            "add field Duration with type float",
-            "entity CRA Task has one CRA Activity",
-            "entity CRA has one user"
-        ];
-
-        // Start doing necessary instruction for component creation
-        exportsContext.recursiveInstructionExecute(attr, instructions, 0, function (err) {
-            if (err)
-                return callback(err, null);
-
-            // Add fieldset ID in user entity that already exist so toSync doesn't work
-            //var request = "ALTER TABLE `"+attr.id_application+"_e_user` ADD `id_e_cra_team_users` INT DEFAULT NULL;";
-            //sequelize.query(request).then(function(){
-            structure_component.newCra(attr, function (err, infoStructure) {
-                if (err)
-                    return callback(err, null);
-                callback(null, infoStructure);
-            });
-            //});
-        });
-    });
-}
-
-// Componant that we can add on an entity to store local documents
-exports.createNewComponentPrint = (attr, callback) => {
-
-    /* If there is no defined name for the module */
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "c_print_" + attr.id_data_entity;
-        attr.options.urlValue = "print_" + attr.id_data_entity;
-        attr.options.showValue = "Print";
-    } else {
-        attr.options.value = attr.options.value + "_" + attr.id_data_entity;
-        attr.options.urlValue = attr.options.urlValue + "_" + attr.id_data_entity;
-    }
-
-    // Check if component with this name is already created on this entity
-    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function (err, alreadyExist) {
-        if (err)
-            return callback(err, null);
-        if (alreadyExist) {
-            var err = new Error("structure.component.error.alreadyExistOnEntity");
-            return callback(err, null);
-        } else {
-            // Get Data Entity Name needed for structure
-            db_entity.getDataEntityById(attr.id_data_entity, function (err, sourceEntity) {
-                attr.options.source = sourceEntity.codeName;
-                attr.options.showSource = sourceEntity.name;
-                attr.options.urlSource = dataHelper.removePrefix(sourceEntity.codeName, "entity");
-                // Create the component in newmips database
-                db_component.createNewComponentOnEntity(attr, function (err, info) {
-                    if (err)
-                        return callback(err, null);
-                    try {
-                        // Get module info needed for structure
-                        db_module.getModuleById(attr.id_module, function (err, module) {
-                            if (err)
-                                return callback(err, null);
-                            attr.options.moduleName = module.codeName;
-                            structure_component.newPrint(attr, function (err) {
-                                if (err)
-                                    return callback(err, null);
-
-                                callback(null, info);
-                            });
-                        });
-                    } catch (err) {
-                        return callback(err, null);
-                    }
-                });
-            });
-        }
-    });
-}
-
-exports.deleteComponentPrint = (attr, callback) => {
-
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "c_print_" + attr.id_data_entity;
-        attr.options.urlValue = "print_" + attr.id_data_entity;
-        attr.options.showValue = "Print";
-    } else {
-        attr.options.value = attr.options.value + "_" + attr.id_data_entity;
-        attr.options.urlValue = attr.options.urlValue + "_" + attr.id_data_entity;
-    }
-
-    // Check if component with this name is already created on this entity
-    db_component.checkIfComponentCodeNameExistOnEntity(attr.options.value, attr.id_module, attr.id_data_entity, function (err, exist) {
-        if (err)
-            return callback(err, null);
-        if (exist) {
-            // Get Data Entity Name needed for structure
-            db_entity.getDataEntityById(attr.id_data_entity, function (err, sourceEntity) {
-                attr.options.source = sourceEntity.codeName;
-                attr.options.showSource = sourceEntity.name;
-                attr.options.urlSource = dataHelper.removePrefix(sourceEntity.codeName, "entity");
-                structure_component.deletePrint(attr, function (err) {
-                    if (err)
-                        return callback(err, null);
-                    db_component.deleteComponentOnEntity(attr.options.value, attr.id_module, sourceEntity.id, function (err, infoDB) {
-                        if (err) {
-                            return callback(err, null);
-                        }
-                        callback(null, infoDB);
-                    });
-                });
-            });
-        } else {
-            var err = new Error("structure.component.error.notExisting");
-            return callback(err, null);
-        }
     });
 }
 
