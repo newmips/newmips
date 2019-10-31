@@ -1,64 +1,55 @@
 var fs = require("fs-extra");
 var domHelper = require('../utils/jsDomHelper');
 
-exports.setColumnVisibility = function (attr, callback) {
-    var pathToViews = __dirname + '/../workspace/' + attr.id_application + '/views/' + attr.name_data_entity;
+exports.setColumnVisibility = async (data) => {
+    let pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity.name;
 
-    var possibilityShow = ["show", "visible"];
-    var possibilityHide = ["hide", "hidden", "non visible", "caché"];
+    let possibilityShow = ["show", "visible"];
+    let possibilityHide = ["hide", "hidden", "non visible", "caché"];
 
-    var attributes = attr.options.word.toLowerCase();
-    var hide;
+    let attributes = data.options.word.toLowerCase();
+    let hide;
 
     if (possibilityHide.indexOf(attributes) != -1)
         hide = true;
     else if (possibilityShow.indexOf(attributes) != -1)
         hide = false;
-    else {
-        var err = new Error();
-        err.message = "structure.field.attributes.notUnderstand";
-        return callback(err);
-    }
+    else
+        throw new Error('structure.field.attributes.notUnderstand');
 
-    domHelper.read(pathToViews + '/list_fields.dust').then(function ($) {
-        if(attr.options.value == "f_id")
-            attr.options.value = "id";
-        if($("*[data-field='" + attr.options.value + "']").length > 0){
-            //$("*[data-field='" + attr.options.value  + "']")[hide ? 'hide' : 'show']();
-            $("*[data-field='" + attr.options.value + "']").attr("data-hidden", hide ? '1' : '0');
-            domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
-                var info = {};
-                info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";
-                info.messageParams = [attr.options.showValue];
-                callback(null, info);
-            });
+    let $ = await domHelper.read(pathToViews + '/list_fields.dust');
+
+    if(data.options.value == "f_id")
+        data.options.value = "id";
+
+    if($("*[data-field='" + data.options.value + "']").length > 0){
+        $("*[data-field='" + data.options.value + "']").attr("data-hidden", hide ? '1' : '0');
+        await domHelper.write(pathToViews + '/list_fields.dust', $);
+        return {
+            message: hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show",
+            messageParams: [data.options.showValue]
+        };
+    } else {
+
+        // Check if it's a related to field
+        var fieldCodeName = "r_" + data.options.value.substring(2);
+
+        if($("*[data-field='" + fieldCodeName + "']").length > 0){
+            //$("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
+            $("*[data-field='" + fieldCodeName + "']").attr("data-hidden", hide ? '1' : '0');
+            await domHelper.write(pathToViews + '/list_fields.dust', $);
+            return {
+                message: hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show",
+                messageParams: [data.options.showValue]
+            }
         }
         else {
-
-            // Check if it's a related to field
-            var fieldCodeName = "r_" + attr.options.value.substring(2);
-
-            if($("*[data-field='" + fieldCodeName + "']").length > 0){
-                //$("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
-                $("*[data-field='" + fieldCodeName + "']").attr("data-hidden", hide ? '1' : '0');
-                domHelper.write(pathToViews + '/list_fields.dust', $).then(function () {
-                    var info = {};
-                    info.message = hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show";
-                    info.messageParams = [attr.options.showValue];
-                    callback(null, info);
-                });
-            }
-            else {
-                // No column found
-                var err = new Error();
-                err.message = "structure.ui.columnVisibility.noColumn";
-                err.messageParams = [attr.options.showValue];
-                return callback(err);
-            }
+            // No column found
+            let err = new Error('structure.ui.columnVisibility.noColumn');
+            err.messageParams = [data.options.showValue]
+            throw err;
         }
-    }).catch(function (err) {
-        callback(err, null);
-    });
+    }
 }
 
 exports.setLogo = function(attr, callback) {

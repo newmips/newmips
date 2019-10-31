@@ -1014,49 +1014,35 @@ exports.setUniqueField = (data) => {
     return;
 }
 
-exports.setFieldAttribute = function (attr, callback) {
+exports.setFieldAttribute = async (data) => {
 
-    var idApp = attr.id_application;
-    var targetField = attr.options.value;
-    var targetEntity = attr.name_data_entity.toLowerCase();
-    var attribute = attr.options.word.toLowerCase();
-    var attributeValue = attr.options.attributeValue.toLowerCase();
-    var pathToViews = __dirname + '/../workspace/' + idApp + '/views/' + targetEntity;
+    let targetField = data.options.value;
+    let word = data.options.word.toLowerCase();
+    let attributeValue = data.options.attributeValue.toLowerCase();
+    let pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity.name;
 
     // Update create_fields.dust file
-    domHelper.read(pathToViews + '/create_fields.dust').then(function ($) {
-        if ($("*[data-field='" + targetField + "']").length > 0) {
+    let $ = await domHelper.read(pathToViews + '/create_fields.dust');
+    if ($("*[data-field='" + targetField + "']").length > 0) {
 
-            $("*[data-field='" + targetField + "']").find('input').attr(attribute, attributeValue);
-            $("*[data-field='" + targetField + "']").find('select').attr(attribute, attributeValue);
+        $("*[data-field='" + targetField + "']").find('input').attr(word, attributeValue);
+        $("*[data-field='" + targetField + "']").find('select').attr(word, attributeValue);
 
-            domHelper.write(pathToViews + '/create_fields.dust', $).then(function () {
+        await domHelper.write(pathToViews + '/create_fields.dust', $);
 
-                // Update update_fields.dust file
-                domHelper.read(pathToViews + '/update_fields.dust').then(function ($) {
+        // Update update_fields.dust file
+        $ = await domHelper.read(pathToViews + '/update_fields.dust');
 
-                    $("*[data-field='" + targetField + "']").find('input').attr(attribute, attributeValue);
-                    $("*[data-field='" + targetField + "']").find('select').attr(attribute, attributeValue);
+        $("*[data-field='" + targetField + "']").find('input').attr(word, attributeValue);
+        $("*[data-field='" + targetField + "']").find('select').attr(word, attributeValue);
 
-                    domHelper.write(pathToViews + '/update_fields.dust', $).then(function () {
-                        callback();
-                    });
-                });
-            }).catch(function (e) {
-                var err = new Error();
-                err.message = "structure.field.attributes.fieldNoFound";
-                err.messageParams = [attr.options.showValue];
-                callback(err, null);
-            });
-        } else {
-            var err = new Error();
-            err.message = "structure.field.attributes.fieldNoFound";
-            err.messageParams = [attr.options.showValue];
-            callback(err, null);
-        }
-    }).catch(function (err) {
-        callback(err, null);
-    });
+        await domHelper.write(pathToViews + '/update_fields.dust', $);
+    } else {
+        let err = new Error('structure.field.attributes.fieldNoFound');
+        err.messageParams = [data.options.showValue];
+        throw err;
+    }
+    return true;
 }
 
 function addTab(attr, file, newLi, newTabContent, target) {
@@ -1141,29 +1127,31 @@ exports.setupHasManyTab = async (data) => {
     return await addTab(data, file, newLi, newTab, target);
 }
 
-exports.setupHasManyPresetTab = function (attr, callback) {
-    var target = attr.options.target.toLowerCase();
-    var showTarget = attr.options.showTarget.toLowerCase();
-    var urlTarget = attr.options.urlTarget.toLowerCase();
-    var source = attr.options.source.toLowerCase();
-    var showSource = attr.options.showSource.toLowerCase();
-    var urlSource = attr.options.urlSource.toLowerCase();
-    var foreignKey = attr.options.foreignKey.toLowerCase();
-    var alias = attr.options.as.toLowerCase();
-    var showAlias = attr.options.showAs;
-    var urlAs = attr.options.urlAs.toLowerCase();
+exports.setupHasManyPresetTab = async (data) => {
+    let target = attr.options.target;
+    let showTarget = attr.options.showTarget;
+    let urlTarget = attr.options.urlTarget;
+    let source = attr.options.source;
+    let showSource = attr.options.showSource;
+    let urlSource = attr.options.urlSource;
+    let foreignKey = attr.options.foreignKey;
+    let alias = attr.options.as;
+    let showAlias = attr.options.showAs;
+    let urlAs = attr.options.urlAs;
+
+    let workspacePath = __dirname + '/../workspace/' + data.application;
 
     /* Add Alias in Translation file for tabs */
-    var fileTranslationFR = __dirname + '/../workspace/' + attr.id_application + '/locales/fr-FR.json';
-    var fileTranslationEN = __dirname + '/../workspace/' + attr.id_application + '/locales/en-EN.json';
-    var dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
-    var dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
+    let fileTranslationFR = workspacePath + '/locales/fr-FR.json';
+    let fileTranslationEN = workspacePath + '/locales/en-EN.json';
+    let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+    let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
     dataFR.entity[source][alias] = showAlias;
     dataEN.entity[source][alias] = showAlias;
 
-    var stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
-    var stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
+    let stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
+    let stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
     stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
     stream_fileTranslationFR.end();
@@ -1173,7 +1161,7 @@ exports.setupHasManyPresetTab = function (attr, callback) {
         stream_fileTranslationEN.on('finish', function () {
 
             // Setup association tab for show_fields.dust
-            var fileBase = __dirname + '/../workspace/' + attr.id_application + '/views/' + source;
+            var fileBase = workspacePath + '/views/' + source;
             var file = fileBase + '/show_fields.dust';
 
             var newLi = '\
