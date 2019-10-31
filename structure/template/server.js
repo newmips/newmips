@@ -350,24 +350,21 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 
             if (!users || users.length == 0 || !hasAdmin) {
                 models.E_group.create({
-                	id: 1,
                     version: 0,
                     f_label: 'admin'
-                }).then(function() {
+                }).then(group => {
                     models.E_role.create({
-                    	id: 1,
                         version: 0,
                         f_label: 'admin'
-                    }).then(function() {
+                    }).then(role => {
                         models.E_user.create({
-                        	id: 1,
                             f_login: 'admin',
                             f_password: null,
                             f_enabled: 0,
                             version: 0
-                        }).then(function(user) {
-                            user.setR_role(1);
-                            user.setR_group(1);
+                        }).then(user => {
+                            user.setR_role(role.id);
+                            user.setR_group(group.id);
                         });
                     });
                 });
