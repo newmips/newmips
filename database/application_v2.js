@@ -34,8 +34,7 @@ class Application {
 
 	            // Entities loading
 	            for (let entity in metadata[name].modules[np_module].entities) {
-                    const currentEntity = new Entity(entity, metadata[name].modules[np_module].entities[entity].displayName);
-	                currentModule.addEntity(entity, metadata[name].modules[np_module].entities[entity].displayName);
+	                const currentEntity = currentModule.addEntity(entity, metadata[name].modules[np_module].entities[entity].displayName);
 
 	                // Fields loading
 	                for (let field in metadata[name].modules[np_module].entities[entity].fields)

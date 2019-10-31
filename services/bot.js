@@ -441,14 +441,6 @@ exports.deleteTab = function (result) {
 };
 
 // ******* LIST Actions ******* //
-exports.listProject = function (result) {
-
-    let attr = {
-        function: "listProject"
-    };
-    return attr;
-};
-
 exports.listApplication = function (result) {
 
     let attr = {
@@ -465,18 +457,18 @@ exports.listModule = function (result) {
     return attr;
 };
 
-exports.listDataEntity = function (result) {
+exports.listEntity = function (result) {
 
     let attr = {
-        function: "listDataEntity"
+        function: "listEntity"
     };
     return attr;
 };
 
-exports.listDataField = function (result) {
+exports.listField = function (result) {
 
     let attr = {
-        function: "listDataField"
+        function: "listField"
     };
     return attr;
 };
@@ -1534,7 +1526,7 @@ let training = {
         "lister modules",
         "lister les modules"
     ],
-    "listDataEntity": [
+    "listEntity": [
         "list data entity",
         "list data entities",
         "list entity",
@@ -1543,7 +1535,7 @@ let training = {
         "lister entités",
         "lister les entités"
     ],
-    "listDataField": [
+    "listField": [
         "list field",
         "list fields",
         "lister champ",

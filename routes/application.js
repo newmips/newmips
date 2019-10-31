@@ -207,7 +207,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
         let iframe_url = protocol_iframe + '://';
 
         if (globalConf.env == 'cloud')
-            iframe_url += globalConf.sub_domain + '-' + application.name.substring(2) + "." + globalConf.dns + '/default/status';
+            iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
         else
             iframe_url += host + ":" + port + "/default/status";
 
