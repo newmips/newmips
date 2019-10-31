@@ -3,7 +3,7 @@
             "status": {
                   "error": {
                         "illegal_status": "Ce statut n'est pas valide.",
-                        "action_error": "Une ou plusieurs actions n'ont pas pu être éxecutée. Verifiez que les notifications sont activées et verifiez votre configuration mail."
+                        "action_error": "Une ou plusieurs actions n'ont pas pu être executée. Verifiez que les notifications sont activées et verifiez votre configuration mail."
                   },
                   "next_status": "Statut suivant",
                   "available_status": "Statuts disponibles",
