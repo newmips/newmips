@@ -1,16 +1,13 @@
-'use strict';
-
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require('sequelize');
-var basename = path.basename(module.filename);
-var dbConfig = require('../config/database');
-var globalConf = require('../config/global');
-var moment = require('moment');
-var db = {};
+let fs = require('fs-extra');
+let path = require('path');
+let Sequelize = require('sequelize');
+let basename = path.basename(module.filename);
+let dbConfig = require('../config/database');
+let globalConf = require('../config/global');
+let moment = require('moment');
 
 const Op = Sequelize.Op;
-const operatorsAliases = {
+let db = {
     $eq: Op.eq,
     $ne: Op.ne,
     $gte: Op.gte,
@@ -52,8 +49,7 @@ if (dbConfig.dialect == 'sqlite'){
     sequelizeOptions = {
         dialect: dbConfig.dialect,
         storage: dbConfig.storage,
-        logging: false,
-        operatorsAliases
+        logging: false
     }
 } else {
     sequelizeOptions = {
@@ -68,8 +64,7 @@ if (dbConfig.dialect == 'sqlite'){
             timestamps: false
         },
         charset: 'utf8',
-        collate: 'utf8_general_ci',
-        operatorsAliases
+        collate: 'utf8_general_ci'
     }
 }
 

@@ -112,45 +112,42 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VAL
     });
 });
 
-router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
+router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function(req, res) {
     var id_CODE_VALUE_CONTACT = req.query.id;
     var tab = req.query.tab;
     var data = {
-        menu: "CODE_VALUE_CONTACT",
-        sub_menu: "list_CODE_VALUE_CONTACT",
         tab: tab,
         enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
-    if (typeof req.query.hideButton !== 'undefined') {
+    if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
-    }
 
-    /* Looking for two level of include to get all associated data in show tab list */
-    var include = model_builder.getTwoLevelIncludeAll(models, options);
-
-    models.MODEL_VALUE_CONTACT.findOne({where: {id: id_CODE_VALUE_CONTACT}, include: include}).then(function (CODE_VALUE_CONTACT) {
+    entity_helper.optimizedFindOne('MODEL_NAME', id_CODE_VALUE_CONTACT, options).then(function(CODE_VALUE_CONTACT) {
         if (!CODE_VALUE_CONTACT) {
             data.error = 404;
             logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
-        /* Modify CODE_VALUE_CONTACT value with the translated enum value in show result */
-        for (var item in data.enum)
-            for (var field in CODE_VALUE_CONTACT.dataValues)
-                if (item == field)
-                    for (var value in data.enum[item])
-                        if (data.enum[item][value].value == CODE_VALUE_CONTACT[field])
-                            CODE_VALUE_CONTACT[field] = data.enum[item][value].translation;
-
         /* Update local CODE_VALUE_CONTACT data before show */
         data.CODE_VALUE_CONTACT = CODE_VALUE_CONTACT;
-        res.render('CODE_VALUE_CONTACT/show', data);
-
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(CODE_VALUE_CONTACT, "CODE_VALUE_CONTACT").then(function() {
+            status_helper.translate(CODE_VALUE_CONTACT, attributes, req.session.lang_user);
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("CODE_VALUE_CONTACT");
+            // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
+            entity_helper.getLoadOnStartData(data, options).then(function(data) {
+                res.render('CODE_VALUE_CONTACT/show', data);
+            }).catch(function(err) {
+                entity_helper.error(err, req, res, "/", "CODE_VALUE_CONTACT");
+            })
+        }).catch(function(err) {
+            entity_helper.error(err, req, res, "/", "CODE_VALUE_CONTACT");
+        });
+    }).catch(function(err) {
+        entity_helper.error(err, req, res, "/", "CODE_VALUE_CONTACT");
     });
 });
 

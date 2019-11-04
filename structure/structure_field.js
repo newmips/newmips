@@ -1045,48 +1045,45 @@ exports.setFieldAttribute = async (data) => {
     return true;
 }
 
-function addTab(attr, file, newLi, newTabContent, target) {
-    return new Promise(function (resolve, reject) {
-        var source = attr.options.source.toLowerCase();
-        domHelper.read(file).then(function ($) {
-            // Tabs structure doesn't exist, create it
-            let context, tabs;
-            if ($("#tabs").length == 0) {
-                tabs = '\
-                <div class="nav-tabs-custom" id="tabs">\n\
-                    <!--{^hideTab}-->\n\
-                    <ul class="nav nav-tabs">\n\
-                        <li class="active">\n\
-                            <a data-toggle="tab" href="#home"><!--{#__ key="entity.' + source + '.label_entity" /}--></a>\n\
-                        </li>\n\
-                    </ul>\n\
-                    <!--{/hideTab}-->\n\
-                    <div class="tab-content" style="min-height:275px;">\n\
-                        <div id="home" class="tab-pane fade in active"></div>\n\
-                    </div>\n\
-                </div>\n';
-                context = $(tabs);
-                $("#home", context).append($("#fields"));
-                $("#home", context).append($(".actions"));
-            } else
-                context = $("#tabs");
+async function addTab(data, file, newLi, newTabContent, target) {
 
-            // Append created elements to `context` to handle presence of tab or not
-            newLi = '<!--{#entityAccess entity="' + target.substring(2) + '"}-->\n' + newLi + '\n<!--{/entityAccess}-->';
-            $(".nav-tabs", context).append(newLi);
-            $(".tab-content", context).append('\
-                <!--{^hideTab}-->\n\
-                    <!--{#entityAccess entity="' + target.substring(2) + '"}-->\n\
-                        '+newTabContent+'\n\
-                    <!--{/entityAccess}-->\n\
-                <!--{/hideTab}-->\n');
+    let $ = await domHelper.read(file);
 
-            $('body').empty().append(context);
-            domHelper.write(file, $).then(function () {
-                resolve();
-            });
-        });
-    });
+    // Tabs structure doesn't exist, create it
+    let context, tabs;
+    if ($("#tabs").length == 0) {
+        tabs = '\
+        <div class="nav-tabs-custom" id="tabs">\n\
+            <!--{^hideTab}-->\n\
+            <ul class="nav nav-tabs">\n\
+                <li class="active">\n\
+                    <a data-toggle="tab" href="#home"><!--{#__ key="entity.' + data.options.source + '.label_entity" /}--></a>\n\
+                </li>\n\
+            </ul>\n\
+            <!--{/hideTab}-->\n\
+            <div class="tab-content" style="min-height:275px;">\n\
+                <div id="home" class="tab-pane fade in active"></div>\n\
+            </div>\n\
+        </div>\n';
+        context = $(tabs);
+        $("#home", context).append($("#fields"));
+        $("#home", context).append($(".actions"));
+    } else
+        context = $("#tabs");
+
+    // Append created elements to `context` to handle presence of tab or not
+    newLi = '<!--{#entityAccess entity="' + target.substring(2) + '"}-->\n' + newLi + '\n<!--{/entityAccess}-->';
+    $(".nav-tabs", context).append(newLi);
+    $(".tab-content", context).append('\
+        <!--{^hideTab}-->\n\
+            <!--{#entityAccess entity="' + target.substring(2) + '"}-->\n\
+                ' + newTabContent + '\n\
+            <!--{/entityAccess}-->\n\
+        <!--{/hideTab}-->\n');
+
+    $('body').empty().append(context);
+
+    return await domHelper.write(file, $);
 }
 
 exports.setupHasManyTab = async (data) => {
@@ -1128,18 +1125,15 @@ exports.setupHasManyTab = async (data) => {
 }
 
 exports.setupHasManyPresetTab = async (data) => {
-    let target = attr.options.target;
-    let showTarget = attr.options.showTarget;
-    let urlTarget = attr.options.urlTarget;
-    let source = attr.options.source;
-    let showSource = attr.options.showSource;
-    let urlSource = attr.options.urlSource;
-    let foreignKey = attr.options.foreignKey;
-    let alias = attr.options.as;
-    let showAlias = attr.options.showAs;
-    let urlAs = attr.options.urlAs;
 
-    let workspacePath = __dirname + '/../workspace/' + data.application;
+    let target = data.options.target;
+    let source = data.options.source;
+    let urlSource = data.options.urlSource;
+    let foreignKey = data.options.foreignKey;
+    let alias = data.options.as;
+    let showAlias = data.options.showAs;
+
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
     /* Add Alias in Translation file for tabs */
     let fileTranslationFR = workspacePath + '/locales/fr-FR.json';
@@ -1153,31 +1147,24 @@ exports.setupHasManyPresetTab = async (data) => {
     let stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
     let stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
-    stream_fileTranslationFR.write(JSON.stringify(dataFR, null, 4));
-    stream_fileTranslationFR.end();
-    stream_fileTranslationFR.on('finish', function () {
-        stream_fileTranslationEN.write(JSON.stringify(dataEN, null, 4));
-        stream_fileTranslationEN.end();
-        stream_fileTranslationEN.on('finish', function () {
+    fs.writeFileSync(fileTranslationFR, JSON.stringify(dataFR, null, 4));
+    fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 4));
 
-            // Setup association tab for show_fields.dust
-            var fileBase = workspacePath + '/views/' + source;
-            var file = fileBase + '/show_fields.dust';
+    // Setup association tab for show_fields.dust
+    let fileBase = workspacePath + '/views/' + source;
+    let file = fileBase + '/show_fields.dust';
 
-            var newLi = '\
-            <li>\n\
-                <a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">\n\
-                    <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
-                </a>\n\
-            </li>';
+    let newLi = '\
+    <li>\n\
+        <a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">\n\
+            <!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
+        </a>\n\
+    </li>';
 
-            var newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
+    let newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
-            printHelper.addHasMany(fileBase, target, alias).then(function () {
-                addTab(attr, file, newLi, newTabContent, target).then(callback);
-            });
-        });
-    });
+    await addTab(data, file, newLi, newTabContent, data.options.target);
+    return true;
 }
 
 exports.saveHasManyData = (data, workspaceData, foreignKey) => {
@@ -1666,7 +1653,7 @@ exports.deleteTab = async (data) => {
 
     if (!found) {
         let err = new Error('structure.association.error.unableTab');
-        err.messageParams = [attr.options.showValue];
+        err.messageParams = [data.options.showValue];
         throw err;
     }
 

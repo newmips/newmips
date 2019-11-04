@@ -93,7 +93,7 @@ function setChat(req, app_name, userID, user, content, params, isError){
     }
 }
 
-function execute(req, instruction, __, data = {}) {
+function execute(req, instruction, __, data = {}, appInit = false) {
     return new Promise((resolve, reject) => {
         try {
 
@@ -133,7 +133,7 @@ function execute(req, instruction, __, data = {}) {
                 data = session_manager.setSession(data.function, req, info, data);
 
                 // Save metadata
-                if(data.application && data.function != 'deleteApplication')
+                if(data.application && data.function != 'deleteApplication' && !appInit)
                     data.application.save();
 
                 data.message = info.message;
@@ -688,10 +688,11 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     (async () => {
         for (let i = 0; i < instructions.length; i++) {
-            await execute(req, instructions[i], __);
+            await execute(req, instructions[i], __, {}, true);
             pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
         }
-        await structure_application.initializeApplication(metadata.getApplication(req.session.app_name))
+        metadata.getApplication(req.session.app_name).save();
+        await structure_application.initializeApplication(metadata.getApplication(req.session.app_name));
         return;
     })().then(_ => {
         // Build API documentation

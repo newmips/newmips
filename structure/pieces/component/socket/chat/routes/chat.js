@@ -9,7 +9,7 @@ var logger = require('../utils/logger');
 
 router.post('/user_search', block_access.isLoggedIn, function(req, res) {
     models.E_user.findAll({
-        where: {f_login: {$like: '%'+req.body.search+'%'}}
+        where: {f_login: {[models.$like]: '%'+req.body.search+'%'}}
     }).then(function(results) {
         var data = [];
         for (var i = 0; i < results.length; i++)
@@ -25,7 +25,7 @@ router.post('/channel_search', block_access.isLoggedIn, function(req, res) {
     models.E_channel.findAll({
         where: {
             f_type: 'public',
-            f_name: {$like: '%'+req.body.search+'%'}
+            f_name: {[models.$like]: '%'+req.body.search+'%'}
         }
     }).then(function(results) {
         var data = [];

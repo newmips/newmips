@@ -135,7 +135,7 @@ exports.retrieveWorkspaceHasManyData = async (appName, entity, foreignKey) => {
     let workspaceModels = require('../workspace/' + appName + '/models/');
     let where = {};
     where[foreignKey] = {
-        $ne: null
+        [workspaceModels.$ne]: null
     };
 
     return await workspaceModels[entity.charAt(0).toUpperCase() + entity.toLowerCase().slice(1)].findAll({
