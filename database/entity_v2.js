@@ -68,7 +68,7 @@ class Entity {
 		let component = new Component(name, displayName, type);
 
 		if(this._components.filter(x => x.name == component.name && x.type == component.type).length != 0) {
-			console.warn("addField => Field already loaded in the entity instance.")
+			console.warn("addComponent => Component already loaded in the entity instance.")
 			return this._components.filter(x => x.name == component.name && x.type == component.type)[0];
 		}
 

@@ -143,7 +143,7 @@ exports.createNewEntity = function(attr, callback) {
             id_module: id_module,
             version: 1
         }).then(function(newEntity) {
-            models.Module.findById(id_module).then(function(module) {
+            models.Module.findByPk(id_module).then(function(module) {
                 var info = {
                     insertId: newEntity.id,
                     urlEntity: newEntity.codeName.substring(2),
@@ -195,7 +195,7 @@ exports.createNewEntityTarget = function(attr, callback) {
             info.name = createdEntity.name;
             info.codeName = createdEntity.codeName;
             info.message = "database.entity.create.success";
-            models.Module.findById(attr.id_module).then(function(module) {
+            models.Module.findByPk(attr.id_module).then(function(module) {
                 info.messageParams = [createdEntity.name, createdEntity.id, module.name, createdEntity.name];
                 callback(null, info);
             });

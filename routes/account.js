@@ -7,7 +7,7 @@ const models = require('../models/');
 router.get('/', block_access.isLoggedIn, (req, res) => {
     let data = {};
     data.user = req.session.passport.user;
-    models.Role.findById(data.user.id_role).then(userRole => {
+    models.Role.findByPk(data.user.id_role).then(userRole => {
         data.user.role = userRole;
 
         if(gitlabConf.doGit){

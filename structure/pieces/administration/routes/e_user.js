@@ -730,7 +730,7 @@ router.post('/settings', block_access.isLoggedIn, function(req, res) {
     if(req.body.f_email && req.body.f_email != '')
         updateObject.f_email = req.body.f_email
 
-    models.E_user.findById(req.session.passport.user.id).then(user => {
+    models.E_user.findByPk(req.session.passport.user.id).then(user => {
         let newPassword = new Promise((resolve, reject) => {
             if(!req.body.old_password || req.body.old_password == "")
                 return resolve(updateObject);

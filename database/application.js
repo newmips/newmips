@@ -160,7 +160,7 @@ exports.listApplication = (attr, callback) => {
 // GetById
 exports.getNameApplicationById = function(idApp, callback) {
 
-    models.Application.findById(idApp).then(function(application){
+    models.Application.findByPk(idApp).then(function(application){
         if(!application){
             var err = new Error();
             err.message = "database.application.notFound.withThisID";

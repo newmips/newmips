@@ -148,7 +148,7 @@ class Application {
     }
 
     save() {
-        console.log('Saving application...');
+        console.log('Saving application ' + this._name + '...');
         let newMetadata = {};
         let appName = this._name;
 

@@ -110,7 +110,7 @@ exports.deleteProject = (value, callback) => {
 // GetById
 exports.getNameProjectById = (idProject, callback) => {
 
-    models.Project.findById(idProject).then(project => {
+    models.Project.findByPk(idProject).then(project => {
         if (!project) {
             let err = new Error();
             err.message = "database.project.notFound.withThisID";
