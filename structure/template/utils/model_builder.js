@@ -80,18 +80,19 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 }
 
 // Used by filter_datatable and `/subdatalist` to build search query object
-exports.formatSearch = function (column, searchValue, type) {
-    var formatedSearch = {};
+exports.formatSearch = (column, searchValue, type) => {
+    let formatedSearch = {};
+    const models = require('../models');
 
     switch(type){
         case 'datetime':
             if (searchValue.indexOf(' ') != -1)
-                formatedSearch['$between'] = [searchValue, searchValue];
+                formatedSearch[models.$between] = [searchValue, searchValue];
             else
-                formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
+                formatedSearch[models.$between] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
             break;
         case 'date':
-            formatedSearch['$between'] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
+            formatedSearch[models.$between] = [searchValue + ' 00:00:00', searchValue + ' 23:59:59'];
             break;
         case 'boolean':
             switch(searchValue){
@@ -107,13 +108,13 @@ exports.formatSearch = function (column, searchValue, type) {
             }
             break;
         case 'currency':
-            formatedSearch = require('../models').Sequelize.where(require('../models').Sequelize.col(column), {
-                $like: searchValue + '%'
+            formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
+                [models.$like]: searchValue + '%'
             });
             break;
         default:
             formatedSearch = {
-                $like: '%' + searchValue + '%'
+                [models.$like]: '%' + searchValue + '%'
             };
             break;
     }

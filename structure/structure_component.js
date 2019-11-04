@@ -98,7 +98,6 @@ exports.newLocalFileStorage = async (data) => {
     let urlComponent = data.options.urlValue;
     let showComponentName = data.options.showValue;
     let source = data.entity.name;
-    let urlSource = data.options.urlSource;
     let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
     // CREATE MODEL FILE
@@ -123,7 +122,7 @@ exports.newLocalFileStorage = async (data) => {
     routeTemplate = routeTemplate.replace(/COMPONENT_NAME_URL/g, componentName.substring(2));
     routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, componentName.charAt(0).toUpperCase() + componentName.slice(1));
     routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
-    routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, urlSource);
+    routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, source.substring(2));
 
     fs.writeFileSync(workspacePath + '/routes/' + componentName + '.js', routeTemplate);
 
@@ -150,33 +149,30 @@ exports.newLocalFileStorage = async (data) => {
     await addTab(data.entity.name, file, newLi, newTab);
 }
 
-exports.newContactForm = function (attr, callback) {
-    var idApp = attr.id_application;
+exports.newContactForm = async (data) => {
 
     // Contact Form entity
-    var codeName = attr.options.value;
-    var showName = attr.options.showValue;
-    var urlName = attr.options.urlValue.toLowerCase();
+    let codeName = data.options.value;
+    let urlName = data.options.urlValue.toLowerCase();
 
     // Contact Form Settings entity
-    var codeNameSettings = attr.options.valueSettings;
-    var showNameSettings = attr.options.showValueSettings;
-    var urlNameSettings = attr.options.urlValueSettings;
+    let codeNameSettings = data.options.valueSettings;
+    let urlNameSettings = data.options.urlValueSettings;
 
-    var workspacePath = __dirname + '/../workspace/' + idApp;
-    var piecesPath = __dirname + '/../structure/pieces/component/contact_form';
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let piecesPath = __dirname + '/../structure/pieces/component/contact_form';
 
-    var toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+    let toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
     if (typeof toSyncObject.queries !== "object")
         toSyncObject.queries = [];
-    toSyncObject[idApp + "_" + codeNameSettings] = {};
+    toSyncObject[codeNameSettings] = {};
 
-    var mailConfigPath = workspacePath + "/config/mail.js";
+    let mailConfigPath = workspacePath + "/config/mail.js";
     delete require.cache[require.resolve(mailConfigPath)];
-    var mailConfig = require(mailConfigPath);
+    let mailConfig = require(mailConfigPath);
 
     let isSecure = mailConfig.transport.secure ? 1 : 0;
-    var insertSettings = "INSERT INTO `" + idApp + "_" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
+    let insertSettings = "INSERT INTO `" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
             " VALUES(1,'" + mailConfig.transport.host + "'," +
             "'" + mailConfig.transport.port + "'," +
             isSecure + "," +
@@ -199,8 +195,8 @@ exports.newContactForm = function (attr, callback) {
     fs.unlinkSync(workspacePath + '/routes/' + codeName + '.js');
     fs.copySync(piecesPath + '/routes/route_contact_form.js', workspacePath + '/routes/' + codeName + '.js');
 
-    var workspaceRoutePath = workspacePath + '/routes/' + codeName + '.js';
-    var workspaceViewPath = workspacePath + '/views/' + codeName;
+    let workspaceRoutePath = workspacePath + '/routes/' + codeName + '.js';
+    let workspaceViewPath = workspacePath + '/views/' + codeName;
 
     replaceValuesInFile(workspaceRoutePath, "URL_VALUE_CONTACT", urlName);
     replaceValuesInFile(workspaceRoutePath, "URL_VALUE_SETTINGS", urlNameSettings);
@@ -211,7 +207,7 @@ exports.newContactForm = function (attr, callback) {
 
     replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_CONTACT", codeName);
     replaceValuesInFile(workspaceViewPath + '/create.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/create.dust', "CODE_VALUE_MODULE", data.module_name);
 
     replaceValuesInFile(workspaceViewPath + '/create_fields.dust', "CODE_VALUE_CONTACT", codeName);
 
@@ -220,14 +216,14 @@ exports.newContactForm = function (attr, callback) {
 
     replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_CONTACT", codeName);
     replaceValuesInFile(workspaceViewPath + '/list.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/list.dust', "CODE_VALUE_MODULE", data.module_name);
 
     replaceValuesInFile(workspaceViewPath + '/list_fields.dust', "CODE_VALUE_CONTACT", codeName);
     replaceValuesInFile(workspaceViewPath + '/list_fields.dust', "URL_VALUE_CONTACT", urlName);
 
     replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_CONTACT", codeName);
     replaceValuesInFile(workspaceViewPath + '/settings.dust', "URL_VALUE_CONTACT", urlName);
-    replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_MODULE", attr.options.moduleName);
+    replaceValuesInFile(workspaceViewPath + '/settings.dust', "CODE_VALUE_MODULE", data.module_name);
 
     replaceValuesInFile(workspaceViewPath + '/settings_fields.dust', "CODE_VALUE_SETTINGS", codeNameSettings);
 
@@ -236,108 +232,99 @@ exports.newContactForm = function (attr, callback) {
     helpers.rmdirSyncRecursive(workspacePath + '/views/' + codeNameSettings + '/');
 
     // Locales FR
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_name"], "Nom");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_sender"], "Expediteur");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_recipient"], "Destinataire");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "r_user"], "Utilisateur");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_title"], "Titre");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "f_content"], "Contenu");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "f_name"], "Nom");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "f_sender"], "Expediteur");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "f_recipient"], "Destinataire");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "r_user"], "Utilisateur");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "f_title"], "Titre");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "f_content"], "Contenu");
 
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "inbox"], "Sent box");
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "settings"], "Settings");
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeName, "sendMail"], "Send a mail");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeName, "inbox"], "Sent box");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeName, "settings"], "Settings");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeName, "successSendMail"], "The email has been sent!");
 
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "inbox"], "Boîte de réception");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "sendMail"], "Envoyer un mail");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "inbox"], "Boîte de réception");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "settings"], "Paramètres");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
 
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
-    translateHelper.updateLocales(idApp, "en-EN", ["entity", codeNameSettings, "plural_entity"], "Settings");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
+    translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeNameSettings, "plural_entity"], "Settings");
 
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "label_entity"], "Paramètres");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "name_entity"], "Paramètres");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "plural_entity"], "Paramètres");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "label_entity"], "Paramètres");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "name_entity"], "Paramètres");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "plural_entity"], "Paramètres");
 
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_transport_host"], "Hôte");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_port"], "Port");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_secure"], "Sécurisé");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_user"], "Utilisateur");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_pass"], "Mot de passe");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeNameSettings, "f_form_recipient"], "Destinataire du formulaire");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_transport_host"], "Hôte");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_port"], "Port");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_secure"], "Sécurisé");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_user"], "Utilisateur");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_pass"], "Mot de passe");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_form_recipient"], "Destinataire du formulaire");
 
     // If default name
     if (codeName == "e_contact_form")
-        translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "label_entity"], "Formulaire de contact");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
-    translateHelper.updateLocales(idApp, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
+        translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "label_entity"], "Formulaire de contact");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
 
-    var layoutFileName = __dirname + '/../workspace/' + idApp + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
-    domHelper.read(layoutFileName).then(function ($) {
+    let layoutFileName = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module_name + '.dust';
+    let $ = await domHelper.read(layoutFileName);
 
-        $("#" + urlName + "_menu_item").remove();
-        $("#" + urlNameSettings + "_menu_item").remove();
+    $("#" + urlName + "_menu_item").remove();
+    $("#" + urlNameSettings + "_menu_item").remove();
 
-        var li = '';
-        li += "<!--{#entityAccess entity=\"" + urlName + "\"}-->\n";
-        li += "		<li id=\"" + urlName + "_menu_item\" style=\"display:block;\" class=\"treeview\">\n";
-        li += "			<a href=\"#\">\n";
-        li += "    			<i class=\"fa fa-envelope\"></i>\n";
-        li += "    			<span><!--{#__ key=\"entity." + codeName + ".label_entity\" /}--></span>\n";
-        li += "    			<i class=\"fa fa-angle-left pull-right\"></i>\n";
-        li += "			</a>\n";
-        li += "			<ul class=\"treeview-menu\">\n";
-        li += "    			<!--{#actionAccess entity=\"" + urlName + "\" action=\"create\"}-->\n";
-        li += "    			<li>\n";
-        li += "        			<a href=\"/" + urlName + "/create_form\">\n";
-        li += "            			<i class=\"fa fa-paper-plane\"></i>\n";
-        li += "            			<!--{#__ key=\"entity." + codeName + ".sendMail\" /}-->\n";
-        li += "        			</a>\n";
-        li += "    			</li>\n";
-        li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{#actionAccess entity=\"" + urlName + "\" action=\"read\"}-->\n";
-        li += "    			<li>\n";
-        li += "        			<a href=\"/" + urlName + "/list\">\n";
-        li += "            			<i class=\"fa fa-inbox\"></i>\n";
-        li += "            			<!--{#__ key=\"entity." + codeName + ".inbox\" /}-->\n";
-        li += "        			</a>\n";
-        li += "    			</li>\n";
-        li += "    			<!--{/actionAccess}-->\n";
-        li += "    			<!--{#actionAccess entity=\"" + urlNameSettings + "\" action=\"create\"}-->\n";
-        li += "    			<li>\n";
-        li += "        			<a href=\"/" + urlName + "/settings\">\n";
-        li += "            			<i class=\"fa fa-cog\"></i>\n";
-        li += "            			<!--{#__ key=\"entity." + codeName + ".settings\" /}-->\n";
-        li += "        			</a>\n";
-        li += "    			</li>\n";
-        li += "    			<!--{/actionAccess}-->\n";
-        li += "			</ul>\n";
-        li += "		</li>\n\n";
-        li += "<!--{/entityAccess}-->\n";
+    let li = '\
+    <!--{#entityAccess entity=\"' + urlName + '\"}-->\n\
+		<li id=\"' + urlName + '_menu_item\" style=\"display:block;\" class=\"treeview\">\n\
+			<a href=\"#\">\n\
+    			<i class=\"fa fa-envelope\"></i>\n\
+    			<span><!--{#__ key=\"entity.' + codeName + '.label_entity\" /}--></span>\n\
+    			<i class=\"fa fa-angle-left pull-right\"></i>\n\
+			</a>\n\
+			<ul class=\"treeview-menu\">\n\
+    			<!--{#actionAccess entity=\"' + urlName + '\" action=\"create\"}-->\n\
+    			<li>\n\
+        			<a href=\"/' + urlName + '/create_form\">\n\
+            			<i class=\"fa fa-paper-plane\"></i>\n\
+            			<!--{#__ key=\"entity.' + codeName + '.sendMail\" /}-->\n\
+        			</a>\n\
+    			</li>\n\
+    			<!--{/actionAccess}-->\n\
+    			<!--{#actionAccess entity=\"' + urlName + '\" action=\"read\"}-->\n\
+    			<li>\n\
+        			<a href=\"/' + urlName + '/list\">\n\
+            			<i class=\"fa fa-inbox\"></i>\n\
+            			<!--{#__ key=\"entity.' + codeName + '.inbox\" /}-->\n\
+        			</a>\n\
+    			</li>\n\
+    			<!--{/actionAccess}-->\n\
+    			<!--{#actionAccess entity=\"' + urlNameSettings + '\" action=\"create\"}-->\n\
+    			<li>\n\
+        			<a href=\"/' + urlName + '/settings\">\n\
+            			<i class=\"fa fa-cog\"></i>\n\
+            			<!--{#__ key=\"entity.' + codeName + '.settings\" /}-->\n\
+        			</a>\n\
+    			</li>\n\
+    			<!--{/actionAccess}-->\n\
+			</ul>\n\
+		</li>\n\n\
+    <!--{/entityAccess}-->\n';
 
-        // Add new html to document
-        $('#sortable').append(li);
+    // Add new html to document
+    $('#sortable').append(li);
 
-        // Write back to file
-        domHelper.write(layoutFileName, $).then(function () {
-            // Clean empty and useless dust helper created by removing <li>
-            var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+    // Write back to file
+    await domHelper.write(layoutFileName, $);
+    // Clean empty and useless dust helper created by removing <li>
+    let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
-            // Remove empty dust helper
-            layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+    // Remove empty dust helper
+    layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
-            var writeStream = fs.createWriteStream(layoutFileName);
-            writeStream.write(layoutContent);
-            writeStream.end();
-            writeStream.on('finish', function () {
-                callback();
-            });
-        });
-    }).catch(function (err) {
-        callback(err, null);
-    });
+    fs.writeFileSync(layoutFileName, layoutContent);
 }
 
 exports.newAgenda = function (attr, callback) {

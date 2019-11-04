@@ -148,6 +148,7 @@ class Application {
     }
 
     save() {
+        console.log('Saving application...');
         let newMetadata = {};
         let appName = this._name;
 
@@ -180,8 +181,7 @@ class Application {
             newMetadata[appName].modules[np_module.name].components = {};
 
             // Loop on module entities
-            for (let entity in np_module.entities) {
-                entity = np_module.entities[entity];
+            for (let entity of np_module.entities) {
 
                 newMetadata[appName].modules[np_module.name].entities[entity.name] = {};
 
@@ -193,8 +193,7 @@ class Application {
                 newMetadata[appName].modules[np_module.name].entities[entity.name].fields = {};
 
                 // Loop on entity fields
-                for (let field in entity.fields) {
-                    field = entity.fields[field];
+                for (let field of entity.fields) {
 
                     newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = {};
 
@@ -205,8 +204,7 @@ class Application {
                 }
 
                 // Loop on entity components
-                for (let component in entity.components) {
-                    component = entity.components[component];
+                for (let component of entity.components) {
 
                     if(!newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type])
                         newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type] = {};
@@ -221,8 +219,7 @@ class Application {
             }
 
             // Loop on module components
-            for (let component in np_module.components) {
-                component = np_module.components[component];
+            for (let component of np_module.components) {
 
                 if(!newMetadata[appName].modules[np_module.name].components[component.type])
                     newMetadata[appName].modules[np_module.name].components[component.type] = {};
@@ -237,8 +234,7 @@ class Application {
         }
 
         // Loop on application components
-        for (let component in this._components) {
-            component = this._components[component];
+        for (let component of this._components) {
 
             if(!newMetadata[appName].components[component.type])
                 newMetadata[appName].components[component.type] = {};

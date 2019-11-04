@@ -1706,7 +1706,7 @@ exports.createNewComponentLocalFileStorage = async (data) => {
     if(data.application.findEntity(data.options.value))
         throw new Error("structure.component.error.alreadyExistInApp");
 
-    data.entity.addComponent(data.options.value, data.options.showValue,'file_storage');
+    data.entity.addComponent(data.options.value, data.options.showValue, 'file_storage');
 
     let associationOption = {
         application: data.application,
@@ -1726,139 +1726,96 @@ exports.createNewComponentLocalFileStorage = async (data) => {
 
     return {
         message: "database.component.create.successOnEntity",
-        messageParams: [data.options.showValue, data.entity.name]
-    }
+        messageParams: [data.options.showValue, data.entity.displayName]
+    };
 }
 
 // Componant to create a contact form in a module
-exports.createNewComponentContactForm = (attr, callback) => {
+exports.createNewComponentContactForm = async (data) => {
 
-    var exportsContext = this;
+    let exportsContext = this;
 
     /* If there is no defined name for the module */
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "e_contact_form";
-        attr.options.urlValue = "contact_form";
-        attr.options.showValue = "Contact Form";
+    if (typeof data.options.value === "undefined") {
+        data.options.value = "e_contact_form";
+        data.options.urlValue = "contact_form";
+        data.options.showValue = "Contact Form";
     }
 
-    // Check if component with this name is already created in this module
-    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function (err, component) {
-        if (component) {
-            var err = new Error("structure.component.error.alreadyExistOnModule");
-            return callback(err, null);
-        } else {
-            // Check if a table as already the composant name
-            db_entity.getDataEntityByCodeName(attr.id_application, attr.options.value, function (err, dataEntity) {
-                if (dataEntity) {
-                    err = new Error("structure.component.error.alreadyExistInApp");
-                    return callback(err, null);
-                } else {
+    data.np_module = data.application.getModule(data.module_name, true);
 
-                    attr.options.valueSettings = attr.options.value + "_settings";
-                    attr.options.urlValueSettings = attr.options.urlValue + "_settings";
-                    attr.options.showValueSettings = attr.options.showValue + " Settings";
+    data.options.valueSettings = data.options.value + "_settings";
+    data.options.urlValueSettings = data.options.urlValue + "_settings";
+    data.options.showValueSettings = data.options.showValue + " Settings";
 
-                    var instructions = [
-                        "add entity " + attr.options.showValue,
-                        "add field Name",
-                        "set field Name required",
-                        "add field Sender with type email",
-                        "set field Sender required",
-                        "add field Recipient with type email",
-                        "add field User related to user using login",
-                        "add field Title",
-                        "set field Title required",
-                        "add field Content with type text",
-                        "set field Content required",
-                        "add entity " + attr.options.showValueSettings,
-                        "add field Transport Host",
-                        "add field Port with type number",
-                        "add field Secure with type boolean and default value true",
-                        "add field User",
-                        "add field Pass",
-                        "add field Form Recipient",
-                        "set field Transport Host required",
-                        "set field Port required",
-                        "set field User required",
-                        "set field Pass required",
-                        "set field Form Recipient required"
-                    ];
+    let instructions = [
+        "add entity " + data.options.showValue,
+        "add field Name",
+        "set field Name required",
+        "add field Sender with type email",
+        "set field Sender required",
+        "add field Recipient with type email",
+        "add field User related to user using login",
+        "add field Title",
+        "set field Title required",
+        "add field Content with type text",
+        "set field Content required",
+        "add entity " + data.options.showValueSettings,
+        "add field Transport Host",
+        "add field Port with type number",
+        "add field Secure with type boolean and default value true",
+        "add field User",
+        "add field Pass",
+        "add field Form Recipient",
+        "set field Transport Host required",
+        "set field Port required",
+        "set field User required",
+        "set field Pass required",
+        "set field Form Recipient required"
+    ];
 
-
-                    // Start doing necessary instruction for component creation
-                    exportsContext.recursiveInstructionExecute(attr, instructions, 0, function (err) {
-                        if (err)
-                            return callback(err, null);
-
-                        // Create the component in newmips database
-                        db_component.createNewComponentOnModule(attr, function (err, info) {
-                            if (err)
-                                return callback(err, null);
-                            // Get Module Name needed for structure
-                            db_module.getModuleById(attr.id_module, function (err, module) {
-                                if (err)
-                                    return callback(err, null);
-
-                                attr.options.moduleName = module.codeName;
-                                structure_component.newContactForm(attr, function (err) {
-                                    if (err)
-                                        return callback(err, null);
-
-                                    callback(null, info);
-                                });
-                            });
-                        });
-                    });
-                }
-            });
-        }
-    });
+    // Start doing necessary instruction for component creation
+    await exportsContext.recursiveInstructionExecute(data, instructions, 0);
+    data.np_module.addComponent(data.options.value, data.options.showValue, 'contact_form');
+    await structure_component.newContactForm(data);
+    return {
+        message: "database.component.create.success",
+        messageParams: [data.options.showValue]
+    };
 }
 
-exports.deleteComponentContactForm = (attr, callback) => {
+exports.deleteComponentContactForm = async (data) => {
 
-    var exportsContext = this;
+    let exportsContext = this;
 
     /* If there is no defined name for the module */
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "e_contact_form";
-        attr.options.urlValue = "contact_form";
-        attr.options.showValue = "Contact Form";
-    }
+    if (typeof data.options.value === "undefined") {
+        data.options.value = "e_contact_form";
+        data.options.urlValue = "contact_form";
+        data.options.showValue = "Contact Form";
+    };
 
-    // Check if component with this name is already created in this module
-    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function (err, component) {
-        if (err) {
-            return callback(err, null);
-        } else {
-            attr.options.valueSettings = attr.options.value + "_settings";
-            attr.options.urlValueSettings = attr.options.urlValue + "_settings";
-            attr.options.showValueSettings = attr.options.showValue + " Settings";
+    data.np_module = data.application.getModule(data.module_name, true);
 
-            var instructions = [
-                "delete entity " + attr.options.showValue,
-                "delete entity " + attr.options.showValueSettings
-            ];
+    data.options.valueSettings = data.options.value + "_settings";
+    data.options.urlValueSettings = data.options.urlValue + "_settings";
+    data.options.showValueSettings = data.options.showValue + " Settings";
 
-            // Create a tmp route file to avoid error during the delete entity, this file was removed at the component generation
-            fs.writeFileSync(__dirname + "/../workspace/" + attr.id_application + "/routes/" + attr.options.valueSettings + ".js", "", "utf-8");
+    let instructions = [
+        "delete entity " + data.options.showValue,
+        "delete entity " + data.options.showValueSettings
+    ];
 
-            // Start doing necessary instructions for component deletion
-            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function (err) {
-                if (err)
-                    return callback(err, null);
+    // Create a tmp route file to avoid error during the delete entity, this file was removed at the component generation
+    fs.writeFileSync(__dirname + "/../workspace/" + data.application.name + "/routes/" + data.options.valueSettings + ".js", "", "utf-8");
 
-                // Remove the component in newmips database
-                db_component.deleteComponentOnModule(attr.options.value, attr.id_module, function (err, info) {
-                    if (err)
-                        return callback(err, null);
+    // Start doing necessary instructions for component deletion
+    await exportsContext.recursiveInstructionExecute(data, instructions, 0);
+    data.np_module.deleteComponent(data.options.value, 'contact_form');
 
-                    callback(null, {message: "database.component.delete.success"});
-                });
-            });
-        }
-    });
+    return {
+        message: "database.component.delete.success"
+    };
 }
 
 // Componant to create an agenda in a module

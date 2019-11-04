@@ -50,10 +50,10 @@ module.exports = {
     doGit: (data) => {
         // We push code on gitlab only in our cloud env
         if(gitlabConf.doGit){
-            let idApplication = attr.id_application;
+            let appName = data.application.name;
 
             // Workspace path
-            let workspacePath = __dirname + '/../workspace/' + idApplication;
+            let workspacePath = __dirname + '/../workspace/' + appName;
 
             // Init simple-git in the workspace path
             let simpleGit = require('simple-git')(workspacePath);
@@ -67,8 +67,8 @@ module.exports = {
             let originName = "origin-" + cleanHost + "-" + nameApp;
             let repoUrl = "";
 
-            if(attr.gitlabUser != null){
-                let usernameGitlab = attr.gitlabUser.username;
+            if(data.gitlabUser != null){
+                let usernameGitlab = data.gitlabUser.username;
 
                 if (!gitlabConf.useSSH) {
                     repoUrl = gitlab.protocol + "://" + gitlabConf.url + "/" + usernameGitlab + "/" + nameRepo + ".git";
@@ -82,7 +82,7 @@ module.exports = {
                 let err = null;
 
                 // Is the workspace already git init ?
-                if(!checkAlreadyInit(idApplication)){
+                if(!checkAlreadyInit(appName)){
                     console.log("GIT: Git init in new workspace directory.");
                     console.log(repoUrl);
 
@@ -104,12 +104,12 @@ module.exports = {
                     } else {
                         throw new Error("structure.global.error.alreadyInProcess");
                     }
-                } else if(typeof attr.function !== "undefined" && attr.function != "gitPull" && attr.function != "restart"){
+                } else if(typeof data.function !== "undefined" && data.function != "gitPull" && data.function != "restart"){
                     // We are just after a new instruction
                     console.log("GIT: Git commit after new instruction.");
                     console.log(repoUrl);
 
-                    let commitMsg = attr.function+" -> App:"+idApplication+" Module:"+attr.id_module+" Entity:"+attr.id_data_entity;
+                    let commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
                     simpleGit.add('.')
                     .commit(commitMsg, function(err, answer){
                         if(err)
@@ -129,7 +129,7 @@ module.exports = {
             if(!gitlabConf.doGit)
                 return reject(new Error('structure.global.error.notDoGit'));
 
-            let appName = attr.id_application;
+            let appName = data.application.name;
 
             // Workspace path
             let workspacePath = __dirname+'/../workspace/'+appName;
@@ -148,10 +148,10 @@ module.exports = {
                 let originName = "origin-" + cleanHost + "-" + nameApp;
                 let repoUrl = "";
 
-                if(!attr.gitlabUser || attr.gitlabUser == null)
+                if(!data.gitlabUser || data.gitlabUser == null)
                     return reject(new Error('Missing gitlab user in server session.'));
 
-                let usernameGitlab = attr.gitlabUser.username;
+                let usernameGitlab = data.gitlabUser.username;
 
                 if(!gitlabConf.useSSH){
                     repoUrl = gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
@@ -185,7 +185,7 @@ module.exports = {
                             return reject(err);
                         resolve(answer);
                     });
-                } else if(typeof attr.function !== "undefined"){
+                } else if(typeof data.function !== "undefined"){
                     // We are just after a new instruction
                     console.log("GIT: Doing Git push...");
                     console.log(repoUrl);

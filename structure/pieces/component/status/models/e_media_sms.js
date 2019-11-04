@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
 
                 // Fetch all groups found and their users
                 var groups = await sequelize.models.E_group.findAll({
-                    where: {id: {$in: groupIds}},
+                    where: {id: {[models.$in]: groupIds}},
                     include: {model: sequelize.models.E_user, as: 'r_user'}
                 });
 
@@ -114,7 +114,7 @@ module.exports = (sequelize, DataTypes) => {
             });
             // FETCH USERS
             // Push their contact phone field. This is defined in conf/application.json
-            var users = await sequelize.models.E_user.findAll({where: {id: {$in: userIds}}});
+            var users = await sequelize.models.E_user.findAll({where: {id: {[models.$in]: userIds}}});
             for (var i = 0; i < users.length; i++)
             	phoneNumbers.push(users[i][globalConf.contact_field_for_sms]);
 

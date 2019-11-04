@@ -77,6 +77,25 @@ class Module {
 
         return true;
     }
+
+    deleteComponent(name, type) {
+
+        if(this._components.filter(x => x.name == name && x.type == type).length == 0){
+            let err = new Error("database.component.notFound.notFound");
+            err.messageParams = [name]
+            throw err;
+        }
+
+        for (let i = 0; i < this._components.length; i++) {
+            if(this._components[i].name == name && this._components[i].type == type) {
+                delete this._components[i];
+                this._components.splice(i, 1);
+                break;
+            }
+        }
+
+        return true;
+    }
 }
 
 module.exports = Module;

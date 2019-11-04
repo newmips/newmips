@@ -88,7 +88,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
     models.E_user.findOne({
         where: {
             f_login: login_user,
-            $or: [{f_password: ""}, {f_password: null}],
+            [models.$or]: [{f_password: ""}, {f_password: null}],
             f_enabled: 0
         }
     }).then(function(user){

@@ -132,7 +132,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
             var updateObj = {};
             updateObj['fk_id_status_'+status.f_field.substring(2)] = status.id;
             models[entityModel].update(updateObj, {
-                where: {id: {$in: toUpdateIds}}
+                where: {id: {[models.$in]: toUpdateIds}}
             }).then(function() {
                 // Bulk create history for updated entities
                 models[historyModel].bulkCreate(historyCreateObj).then(function() {
@@ -184,7 +184,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
 
     // Build array of fields for include and search object
     var isGlobalSearch = req.body.search.value == "" ? false : true;
-    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    var search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
     search[searchTerm] = [];
     var toInclude = [];
     // Loop over columns array
@@ -299,7 +299,7 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
             f_entity: e_status.f_entity
         };
         if (childrenIds.length)
-            where.id = {$notIn: childrenIds};
+            where.id = {[models.$notIn]: childrenIds};
         models.E_status.findAll({
             where: where,
             include: [{
@@ -404,7 +404,7 @@ router.post('/create', block_access.actionAccessMiddleware("status", "create"), 
                 if (createObject.f_default && createObject.f_default == 'true')
                     models.E_status.update(
                         {f_default: false},
-                        {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {$not: e_status.id}}}
+                        {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {[models.$not]: e_status.id}}}
                     ).then(function() {
                         res.redirect(redirect);
                     });
@@ -497,7 +497,7 @@ router.post('/update', block_access.actionAccessMiddleware("status", "update"), 
                 if (updateObject.f_default && updateObject.f_default == 'true')
                     models.E_status.update(
                         {f_default: false},
-                        {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {$not: e_status.id}}}
+                        {where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {[models.$not]: e_status.id}}}
                     ).then(function() {
                         res.redirect(redirect);
                     });
@@ -742,14 +742,14 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
     var where = {raw: true, attributes: req.body.searchField, where: {}};
     if (search != '%%') {
         if (req.body.searchField.length == 1) {
-            where.where[req.body.searchField[0]] = {$like: search};
+            where.where[req.body.searchField[0]] = {[models.$like]: search};
         } else {
-            where.where.$or = [];
+            where.where[models.$or] = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
-                    currentOrObj[req.body.searchField[i]] = {$like: search}
-                    where.where.$or.push(currentOrObj);
+                    currentOrObj[req.body.searchField[i]] = {[models.$like]: search}
+                    where.where[models.$or].push(currentOrObj);
                 }
             }
         }
@@ -764,7 +764,6 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
         for (var param in customwhere)
             where.where[param] = customwhere[param];
     }
-
 
     where.offset = offset;
     where.limit = limit;
