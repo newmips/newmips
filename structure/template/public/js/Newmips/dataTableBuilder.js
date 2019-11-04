@@ -416,7 +416,7 @@ function init_datatable(tableID, doPagination, context) {
                                 valueFromArray = getValue(parts, row);
                             }
                         } else {
-                            // Has one sur une sous entité
+                            // Has one relation field
                             let parts = columns[meta.col].data.split('.');
                             valueFromArray = getValue(parts, row);
                         }
@@ -440,7 +440,7 @@ function init_datatable(tableID, doPagination, context) {
                 if (typeof columns[meta.col].type != 'undefined') {
                     // date / datetime
                     if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
+                        if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
                             var tmpDate = moment(new Date(cellValue));
                             if (!tmpDate.isValid())
                                 cellValue = '-';
@@ -612,7 +612,6 @@ function init_datatable(tableID, doPagination, context) {
             }
         ]
     }
-    // Global search
     table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
@@ -653,7 +652,6 @@ function init_datatable(tableID, doPagination, context) {
         var mainTh = $(this);
         var title = $(this).text();
 
-        // Custom
         var currentField = mainTh.data('field');
         var val = getFilter(tableID.substring(1), currentField);
         var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
