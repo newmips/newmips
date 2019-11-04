@@ -297,7 +297,7 @@ app.use(function(req, res, next) {
 	    		for (var i = 0; i < options.length; i++)
 	    			entityList.push(options[i].target);
 
-	    		models.E_inline_help.findAll({where: {f_entity: {$in: entityList}}}).then(function(helps) {
+	    		models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
 	    			dust.helpers.inline_help = function(ch, con, bod, params){
 	    				for (var i = 0; i < helps.length; i++) {
 	    					if (params.field == helps[i].f_field)

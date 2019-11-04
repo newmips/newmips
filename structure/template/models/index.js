@@ -73,7 +73,7 @@ var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.passwor
 sequelize.customAfterSync = async () => {
 
     if (globalConf.env == "tablet")
-        return resolve();
+        return;
 
     let toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
 
@@ -240,6 +240,10 @@ sequelize.customAfterSync = async () => {
             }
         }
     }
+
+    if (toSyncObject.queries)
+        for (var i = 0; i < toSyncObject.queries.length; i++)
+            await sequelize.query(toSyncObject.queries[i])
 
     fs.writeFileSync(__dirname + '/toSyncProd.json', JSON.stringify(toSyncProdObject, null, 4));
     fs.writeFileSync(__dirname+'/toSync.json', '{}', 'utf8');

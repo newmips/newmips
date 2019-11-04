@@ -1797,6 +1797,9 @@ exports.deleteComponentContactForm = async (data) => {
 
     data.np_module = data.application.getModule(data.module_name, true);
 
+    // Checking that component exist
+    data.np_module.getComponent(data.options.value, 'contact_form', true);
+
     data.options.valueSettings = data.options.value + "_settings";
     data.options.urlValueSettings = data.options.urlValue + "_settings";
     data.options.showValueSettings = data.options.showValue + " Settings";

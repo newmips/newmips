@@ -1,4 +1,5 @@
 const Entity = require('./entity_v2');
+const Component = require('./component_v2');
 
 class Module {
     constructor(name, displayName) {
@@ -40,6 +41,19 @@ class Module {
         return false;
     }
 
+    getComponent(component_name, type, required) {
+
+        if(this._components.filter(x => x.name == component_name && x.type == type).length > 0)
+            return this._components.filter(x => x.name == component_name && x.type == type)[0];
+
+        if(required) {
+            let err = new Error("database.component.notFound.notFound");
+            err.messageParams = [component_name];
+            throw err;
+        }
+        return false;
+    }
+
     addEntity(name, displayName) {
 
     	let entity = new Entity(name, displayName);
@@ -53,9 +67,16 @@ class Module {
         return entity;
     }
 
-    addComponent(component) {
+    addComponent(name, displayName, type) {
+        let component = new Component(name, displayName, type);
+
+        if(this._components.filter(x => x.name == component.name && x.type == component.type).length != 0) {
+            console.warn("addComponent => Component already loaded in the module instance.")
+            return this._components.filter(x => x.name == component.name && x.type == component.type)[0];
+        }
+
         this._components.push(component);
-        return true;
+        return component;
     }
 
     // --- DELETE ---
