@@ -280,7 +280,8 @@ router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAc
     status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect('/media/show?id=' + req.params.id_media);
     }).catch((err)=> {
-        entity_helper.error(err, req, res, '/media/show?id=' + req.params.id_media);
+        req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
+        res.redirect(req.headers.referer);
     });
 });
 
