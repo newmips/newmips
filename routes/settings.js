@@ -30,12 +30,18 @@ router.post('/change_language', block_access.isLoggedIn, function(req, res) {
         res.json({
             success: true
         });
-    }
-    else{
+    } else {
         res.json({
             success: false
         });
     }
+});
+
+router.post('/change_theme', block_access.isLoggedIn, function(req, res) {
+    req.session.dark_theme = req.body.choice;
+    res.json({
+        success: true
+    });
 });
 
 router.post('/activate_translation', block_access.isLoggedIn, function(req, res) {
@@ -126,6 +132,5 @@ router.post('/reset_password', block_access.isLoggedIn, function(req, res) {
         res.status(500).send(false);
     });
 });
-
 
 module.exports = router;

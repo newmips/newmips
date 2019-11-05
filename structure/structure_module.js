@@ -87,53 +87,43 @@ exports.setupModule = async (data) => {
     return true;
 }
 
-exports.deleteModule = function (attr, callback) {
-    var moduleFilename = 'layout_' + attr.module_name.toLowerCase() + '.dust';
-    var layoutsPath = __dirname + '/../workspace/' + attr.id_application + '/views/';
+exports.deleteModule = async (data) => {
+    let moduleFilename = 'layout_' + data.module_name + '.dust';
+    let layoutsPath = __dirname + '/../workspace/' + data.application.name + '/views/';
 
     // Remove layout
     fs.unlinkSync(layoutsPath + moduleFilename);
-    fs.unlinkSync(layoutsPath + "/default/" + attr.module_name.toLowerCase() + ".dust");
+    fs.unlinkSync(layoutsPath + "/default/" + data.module_name + ".dust");
 
     // Clean default.js route GET
-    var defaultRouteContent = fs.readFileSync(__dirname + '/../workspace/' + attr.id_application + '/routes/default.js', "utf8");
-    var regex = new RegExp("router\\.get\\('\\/"+attr.module_name.toLowerCase().substring(2)+"'([\\s\\S]*?)(?=router)");
+    let defaultRouteContent = fs.readFileSync(__dirname + '/../workspace/' + data.application.name + '/routes/default.js', 'utf8');
+    let regex = new RegExp("router\\.get\\('\\/" + data.module_name.substring(2) + "'([\\s\\S]*?)(?=router)");
     defaultRouteContent = defaultRouteContent.replace(regex, "");
-    fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/routes/default.js', defaultRouteContent);
+    fs.writeFileSync(__dirname + '/../workspace/' + data.application.name + '/routes/default.js', defaultRouteContent);
 
     // Clean up access config
-    var access = JSON.parse(fs.readFileSync(__dirname + '/../workspace/' + attr.id_application + '/config/access.json', 'utf8'));
-    for (var module in access) {
-        if (module == attr.module_name.toLowerCase().substring(2))
-            delete access[module];
-    }
-    fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/config/access.json', JSON.stringify(access, null, 4));
-    fs.writeFileSync(__dirname + '/../workspace/' + attr.id_application + '/config/access.lock.json', JSON.stringify(access, null, 4));
-
-    function done(cpt, lenght) {
-        if (cpt == lenght) {
-            translateHelper.removeLocales(attr.id_application, "module", attr.module_name.toLowerCase(), function () {
-                callback();
-            });
-        }
+    let access = JSON.parse(fs.readFileSync(__dirname + '/../workspace/' + data.application.name + '/config/access.json', 'utf8'));
+    for (let np_module in access) {
+        if (np_module == data.module_name.substring(2))
+            delete access[np_module];
     }
 
-    var cpt = 0;
+    fs.writeFileSync(__dirname + '/../workspace/' + data.application.name + '/config/access.json', JSON.stringify(access, null, 4));
+    fs.writeFileSync(__dirname + '/../workspace/' + data.application.name + '/config/access.lock.json', JSON.stringify(access, null, 4));
 
-    var layoutFiles = fs.readdirSync(layoutsPath).filter(function (file) {
+    let cpt = 0;
+    let layoutFiles = fs.readdirSync(layoutsPath).filter(file => {
         return file.indexOf('.') !== 0 && file.indexOf('layout_') === 0;
     });
 
-    layoutFiles.forEach(function (file) {
-        domHelper.read(layoutsPath + file).then(function ($) {
-            $("option[data-module='" + attr.module_name.toLowerCase() + "']").remove();
-            domHelper.write(layoutsPath + file, $).then(function () {
-                done(++cpt, layoutFiles.length);
-            });
-        }).catch(function (err) {
-            return callback(err, null);
-        });
-    });
+    for (var i = 0; i < layoutFiles.length; i++) {
+        let $ = await domHelper.read(layoutsPath + layoutFiles[i]);
+        $("option[data-module='" + data.module_name + "']").remove();
+        await domHelper.write(layoutsPath + layoutFiles[i], $);
+    }
+
+    translateHelper.removeLocales(data.application.name, "module", data.module_name);
+    return true;
 }
 
 exports.addNewMenuEntry = function (idApplication, nameDataEntity, urlDataEntity, nameModule, faIcon, callback) {
@@ -175,22 +165,6 @@ exports.addNewMenuEntry = function (idApplication, nameDataEntity, urlDataEntity
         // Write back to file
         domHelper.write(fileName, $).then(function () {
             callback(null);
-        });
-    }).catch(function (err) {
-        callback(err, null);
-    });
-}
-
-exports.removeMenuEntry = function (attr, moduleName, entityName, callback) {
-    var fileName = __dirname + '/../workspace/' + attr.id_application + '/views/layout_m_' + moduleName.toLowerCase() + '.dust';
-    // Read file and get jQuery instance
-    domHelper.read(fileName).then(function ($) {
-        $('#' + entityName + '_menu_item').remove();
-        // Write back to file
-        domHelper.write(fileName, $).then(function () {
-            callback(null);
-        }).catch(function (e) {
-            callback(e);
         });
     }).catch(function (err) {
         callback(err, null);

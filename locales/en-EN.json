@@ -165,6 +165,7 @@
     "settings": {
         "legend": "Settings",
         "display_language": "Displaying language",
+        "dark_theme": "Dark theme",
         "display_infos": "Your information",
         "infos": {
             "login": "Login",

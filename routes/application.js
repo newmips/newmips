@@ -128,6 +128,8 @@ function execute(req, instruction, __, data = {}, appInit = false) {
             if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
                 data.application = metadata.getApplication(data.app_name);
 
+            console.log(instruction);
+
             designer[data.function](data).then(info => {
 
                 data = session_manager.setSession(data.function, req, info, data);

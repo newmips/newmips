@@ -126,6 +126,19 @@ class Application {
         return false;
     }
 
+    getComponent(component_name, type, required) {
+
+        if(this._components.filter(x => x.name == component_name && x.type == type).length > 0)
+            return this._components.filter(x => x.name == component_name && x.type == type)[0];
+
+        if(required) {
+            let err = new Error("database.component.notFound.notFound");
+            err.messageParams = [component_name];
+            throw err;
+        }
+        return false;
+    }
+
     findEntity(entity_name, required) {
         let foundModule = this._modules.filter(x => x.getEntity(entity_name))[0];
         if(!foundModule) {
@@ -142,8 +155,34 @@ class Application {
         }
     }
 
-    addComponent(component) {
+    addComponent(name, displayName, type) {
+        let component = new Component(name, displayName, type);
+
+        if(this._components.filter(x => x.name == component.name && x.type == component.type).length != 0) {
+            console.warn("addComponent => Component already loaded in the module instance.")
+            return this._components.filter(x => x.name == component.name && x.type == component.type)[0];
+        }
+
         this._components.push(component);
+        return component;
+    }
+
+    deleteModule(name) {
+
+        if(this._modules.filter(x => x.name == name).length == 0){
+            let err = new Error('database.module.notFound.notFound');
+            err.messageParams = [name]
+            throw err;
+        }
+
+        for (let i = 0; i < this._modules.length; i++) {
+            if(this._modules[i].name == name) {
+                delete this._modules[i];
+                this._modules.splice(i, 1);
+                break;
+            }
+        }
+
         return true;
     }
 

@@ -45,7 +45,7 @@ exports.setSession = function(npFunction, req, info, data) {
             if (data && data.iframe_url) {
                 // Redirect iframe to new module
                 iframeUrl = data.iframe_url.split("/");
-                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/" + info.module.name;
+                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/" + info.module.name.substring(2);
             }
             break;
         case "selectEntity":
@@ -78,9 +78,11 @@ exports.setSession = function(npFunction, req, info, data) {
         case "deleteModule":
             req.session.module_name = "m_home";
             req.session.entity_name = null;
-            // Redirect iframe to new module
-            iframeUrl = data.iframe_url.split("/default/");
-            data.iframe_url = iframeUrl[0] + "/default/home";
+            if (data && data.iframe_url) {
+                // Redirect iframe to home module
+                iframeUrl = data.iframe_url.split("/");
+                data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/home";
+            }
             break;
         case "deleteDataEntity":
             // If we were on the deleted entity we has to reset the entity session
