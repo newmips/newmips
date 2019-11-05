@@ -5,7 +5,11 @@
 {<content}
 	<div class="row">
 		<div class="col-xs-12">
-			<img class="animated fadeIn" id="newmipsMainLogo" src="/img/newLogo.png" alt="Newmips Logo" />
+			{@ifTrue key=dark_theme}
+				<img src="/img/LOGO-BLANC-01-ROGNER.png" alt="Newmips Logo" class="newmipsLogo" style='width:200px;display:block;margin:auto;margin-bottom: 25px;margin-top: 25px;' />
+			{:else}
+				<img class="animated fadeIn" id="newmipsMainLogo" src="/img/newLogo.png" alt="Newmips Logo" />
+			{/ifTrue}
 		</div>
 	</div>
 	<div class="row">

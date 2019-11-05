@@ -62,15 +62,15 @@ function addAccessManagment(appName, urlComponent, urlModule) {
     fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
 }
 
-function deleteAccessManagment(idApplication, urlComponent, urlModule, callback) {
+function deleteAccessManagment(appName, urlComponent, urlModule) {
     // Write new data entity to access.json file, within module's context
-    var accessPath = __dirname + '/../workspace/' + idApplication + '/config/access.json';
-    var accessLockPath = __dirname + '/../workspace/' + idApplication + '/config/access.lock.json';
-    var accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
-    if (accessObject[urlModule.toLowerCase()] && accessObject[urlModule.toLowerCase()].entities) {
-        var entities = accessObject[urlModule.toLowerCase()].entities;
-        var dataIndexToRemove = -1;
-        for (var i = 0; i < entities.length; i++) {
+    let accessPath = __dirname + '/../workspace/' + appName + '/config/access.json';
+    let accessLockPath = __dirname + '/../workspace/' + appName + '/config/access.lock.json';
+    let accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+    if (accessObject[urlModule] && accessObject[urlModule].entities) {
+        let entities = accessObject[urlModule].entities;
+        let dataIndexToRemove = -1;
+        for (let i = 0; i < entities.length; i++) {
             if (entities[i].name === urlComponent) {
                 dataIndexToRemove = i;
                 break;
@@ -80,9 +80,7 @@ function deleteAccessManagment(idApplication, urlComponent, urlModule, callback)
             entities.splice(dataIndexToRemove, 1);
         fs.writeFileSync(accessPath, JSON.stringify(accessObject, null, 4), "utf8");
         fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
-        callback();
-    } else
-        callback();
+    }
 }
 
 function replaceValuesInFile(filePath, valueToFind, replaceWith) {
@@ -327,20 +325,33 @@ exports.newContactForm = async (data) => {
     fs.writeFileSync(layoutFileName, layoutContent);
 }
 
-exports.newAgenda = function (attr, callback) {
+exports.newAgenda = async (data) => {
 
-    function setupComponentRouteForAgenda(idApplication, valueAgenda, valueEvent, valueCategory, callback) {
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let piecesPath = __dirname + '/pieces/component/agenda';
 
-        var valueAgendaModel = valueAgenda.charAt(0).toUpperCase() + valueAgenda.toLowerCase().slice(1);
-        var valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.toLowerCase().slice(1);
-        var valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.toLowerCase().slice(1);
+    let valueComponent = data.options.value;
+    let showComponentName = data.options.showValue;
+    let urlComponent = data.options.urlValue;
 
-        var urlRouteAgenda = valueAgenda.substring(2).toLowerCase();
+    let valueEvent = "e_" + urlComponent + "_event";
+    let valueCategory = "e_" + urlComponent + "_category";
+
+    let urlEvent = valueEvent.substring(2);
+    let urlCategory = valueCategory.substring(2);
+
+    // Agenda Route
+    {
+        let valueAgendaModel = valueComponent.charAt(0).toUpperCase() + valueComponent.slice(1);
+        let valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.slice(1);
+        let valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.slice(1);
+
+        let urlRouteAgenda = valueComponent.substring(2);
 
         // CREATE ROUTE FILE
-        var routeTemplate = fs.readFileSync('./structure/pieces/component/agenda/routes/route_agenda.js', 'utf8');
+        let routeTemplate = fs.readFileSync(piecesPath + '/routes/route_agenda.js', 'utf8');
 
-        routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, valueAgenda);
+        routeTemplate = routeTemplate.replace(/CODE_NAME_LOWER/g, valueComponent);
         routeTemplate = routeTemplate.replace(/URL_ROUTE/g, urlRouteAgenda);
 
         routeTemplate = routeTemplate.replace(/CODE_NAME_EVENT_MODEL/g, valueEventModel);
@@ -349,347 +360,173 @@ exports.newAgenda = function (attr, callback) {
         routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_MODEL/g, valueCategoryModel);
         routeTemplate = routeTemplate.replace(/CODE_NAME_CATEGORY_URL/g, valueCategory.substring(2));
 
-        var writeStream = fs.createWriteStream('./workspace/' + idApplication + '/routes/' + valueAgenda + '.js');
-        writeStream.write(routeTemplate);
-        writeStream.end();
-        writeStream.on('finish', function () {
-            callback();
-        });
+        fs.writeFileSync(workspacePath + '/routes/' + valueComponent + '.js', routeTemplate);
     }
 
-    function setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, moduleName, callback) {
-
+    // Agenda view
+    {
         // Calendar View
-        var codeName = valueComponent.toLowerCase();
-
-        var componentViewFolder = __dirname + '/pieces/component/agenda/views';
-        var viewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + codeName;
+        let componentViewFolder = piecesPath + '/views';
+        let viewsFolder = workspacePath + '/views/' + valueComponent;
         fs.copySync(componentViewFolder, viewsFolder);
 
-        var viewPiece = __dirname + '/../workspace/' + idApplication + '/views/agenda/view_agenda.dust';
-        var viewFile = __dirname + '/../workspace/' + idApplication + '/views/' + codeName + '/view_agenda.dust';
-        var urlEvent = valueEvent.toLowerCase().substring(2);
+        let viewFile = workspacePath + '/views/' + valueComponent + '/view_agenda.dust';
+        let urlEvent = valueEvent.substring(2);
 
-        var viewTemplate = fs.readFileSync(viewFile, 'utf8');
-        viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, codeName);
+        let viewTemplate = fs.readFileSync(viewFile, 'utf8');
+        viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, valueComponent);
         viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-        viewTemplate = viewTemplate.replace(/MODULE_NAME/g, moduleName);
-        viewTemplate = viewTemplate.replace(/URL_ROUTE/g, codeName.substring(2));
+        viewTemplate = viewTemplate.replace(/MODULE_NAME/g, data.np_module.name);
+        viewTemplate = viewTemplate.replace(/URL_ROUTE/g, valueComponent.substring(2));
         viewTemplate = viewTemplate.replace(/URL_EVENT/g, urlEvent);
 
-        var writeStream = fs.createWriteStream(viewFile);
-        writeStream.write(viewTemplate);
-        writeStream.end();
-        writeStream.on('finish', function () {
+        fs.writeFileSync(viewFile, viewTemplate);
 
-            // Copy the event view folder
-            var componentEventViewFolder = __dirname + '/pieces/component/agenda/views_event';
-            var eventViewsFolder = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent;
+        // Copy the event view folder
+        fs.copySync(piecesPath + '/views_event', workspacePath + '/views/' + valueEvent);
 
-            fs.copySync(componentEventViewFolder, eventViewsFolder);
+        // Replace variable in each files
+        let fileToReplace = ["show_fields", "create_fields", "update_fields", "create", "update"];
 
-            // Replace variable in each files
-            var fileToReplace = ["show_fields", "create_fields", "update_fields", "create", "update"];
+        for (let i = 0; i < fileToReplace.length; i++) {
+            let eventFile = workspacePath + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
+            var eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
-            for (var i = 0; i < fileToReplace.length; i++) {
-                var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
-                var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+            eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+            eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
+            eventTemplate = eventTemplate.replace(/MODULE_NAME/g, data.np_module.name);
 
-                eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
-                eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
-                eventTemplate = eventTemplate.replace(/MODULE_NAME/g, moduleName);
-
-                fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-            }
-
-            // Inject custom_js
-            // var fileToInject = ["create", "update"];
-
-            // for (var i = 0; i < fileToInject.length; i++) {
-            //     var eventFile = __dirname + '/../workspace/' + idApplication + '/views/' + valueEvent + '/' + fileToInject[i] + '.dust';
-            //     var eventTemplate = fs.readFileSync(eventFile, 'utf8');
-
-            //     eventTemplate += "\n\n" +
-            //             "{<custom_js}\n" +
-            //             "    <script type='text/javascript'>\n" +
-            //             "        var format;\n" +
-            //             "        if (lang_user == 'fr-FR')\n" +
-            //             "            format = 'DD/MM/YYYY HH:mm';\n" +
-            //             "        else\n" +
-            //             "            format = 'YYYY-MM-DD HH:mm';\n" +
-            //             "        $(document).on('click', 'button[type=\"submit\"]', function(){\n" +
-            //             "            if($('input[name=\"f_start_date\"]').val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-            //             "                if(end.diff(start) < 0){\n" +
-            //             "                    toastr.error(\"Error: Start date is after end date.\");\n" +
-            //             "                    return false;\n" +
-            //             "                }\n" +
-            //             "            }\n" +
-            //             "            if($('input[name=\"f_end_date\"]').val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-            //             "                if(end.diff(start) < 0){\n" +
-            //             "                    toastr.error(\"Error: End date is before start date.\");\n" +
-            //             "                    return false;\n" +
-            //             "                }\n" +
-            //             "            }\n" +
-            //             "            return true;" +
-            //             "        });\n" +
-            //             "        $(document).on('dp.change', 'input[name=\"f_start_date\"]', function(){\n" +
-            //             "            if($(this).val() != '' && $('input[name=\"f_end_date\"]').val() != ''){\n" +
-            //             "                var start = moment($(this).val(), format);\n" +
-            //             "                var end = moment($('input[name=\"f_end_date\"]').val(), format);\n" +
-            //             "                if(end.diff(start) < 0){\n" +
-            //             "                    $(this).val('');\n" +
-            //             "                }\n" +
-            //             "            }\n" +
-            //             "        });\n" +
-            //             "        $(document).on('dp.change', 'input[name=\"f_end_date\"]', function(){\n" +
-            //             "            if($(this).val() != '' && $('input[name=\"f_start_date\"]').val() != ''){\n" +
-            //             "                var start = moment($('input[name=\"f_start_date\"]').val(), format);\n" +
-            //             "                var end = moment($(this).val(), format);\n" +
-            //             "                if(end.diff(start) < 0){\n" +
-            //             "                    $(this).val('');\n" +
-            //             "                }\n" +
-            //             "            }\n" +
-            //             "        });\n" +
-            //             "    </script>\n" +
-            //             "{/custom_js}\n";
-
-            //     fs.writeFileSync(eventFile, eventTemplate, 'utf8');
-            // }
-            callback();
-        });
+            fs.writeFileSync(eventFile, eventTemplate, 'utf8');
+        }
     }
 
-    var idApplication = attr.id_application;
+    // Add access managment to Agenda
+    addAccessManagment(data.application.name, urlComponent, data.np_module.name.substring(2))
+    // Add Event translation
+    await translateHelper.writeLocales(data.application.name, "component", valueComponent, showComponentName, data.googleTranslate);
 
-    var valueComponent = attr.options.value;
-    var valueComponentLower = valueComponent.toLowerCase();
+    // FR translation of the component
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "plural_entity"], "Événement");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_title"], "Titre");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_place"], "Lieu");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_start_date"], "Date de début");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_end_date"], "Date de fin");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_all_day"], "Toute la journée");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
 
-    var showComponentName = attr.options.showValue;
-    var showComponentNameLower = showComponentName.toLowerCase();
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie");
+    translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "f_color"], "Couleur");
 
-    var urlComponent = attr.options.urlValue.toLowerCase();
+    let layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
 
-    var valueEvent = "e_" + urlComponent + "_event";
-    var valueCategory = "e_" + urlComponent + "_category";
+    let $ = await domHelper.read(layoutFileName);
 
-    var urlEvent = valueEvent.substring(2);
-    var urlCategory = valueCategory.substring(2);
+    $("#" + urlEvent + "_menu_item").remove();
+    $("#" + urlCategory + "_menu_item").remove();
 
-    // Update the event options.json to add an belongsToMany relation between event and user
-    // var eventOptionsPath = './workspace/' + idApplication + '/models/options/' + valueEvent.toLowerCase() + '.json';
-    // var eventOptionFile = fs.readFileSync(eventOptionsPath);
-    // var eventOptionObj = JSON.parse(eventOptionFile);
+    let li = "\
+    <li id='" + urlComponent + "_menu_item' style='display:block;' class='treeview'>\n\
+        <a href='#'>\n\
+            <i class='fa fa-calendar-o'></i>\n\
+            <span><!--{#__ key=\"component." + valueComponent + ".label_component\" /}--></span>\n\
+            <i class='fa fa-angle-left pull-right'></i>\n\
+        </a>\n\
+        <ul class='treeview-menu'>\n\
+            <li>\n\
+                <a href='/" + urlComponent + "'>\n\
+                    <i class='fa fa-calendar'></i>\n\
+                    <!--{#__ key=\"global_component.agenda.menu\" /}-->\n\
+                </a>\n\
+            </li>\n\
+            <li id='" + urlEvent + "_menu_item' style='display:block;' class='treeview'>\n\
+                <a href='#'>\n\
+                    <i class='fa fa-calendar-plus-o'></i>\n\
+                    <!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n\
+                    <i class='fa fa-angle-left pull-right'></i>\n\
+                </a>\n\
+                <ul class='treeview-menu'>\n\
+                    <li>\n\
+                        <a href='/" + urlEvent + "/create_form'>\n\
+                            <i class='fa fa-plus'></i>\n\
+                            <!--{#__ key=\"operation.create\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n\
+                        </a>\n\
+                    </li>\n\
+                    <li>\n\
+                        <a href='/" + urlEvent + "/list'>\n\
+                            <i class='fa fa-list'></i>\n\
+                            <!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".plural_entity\" /}-->\n\
+                        </a>\n\
+                    </li>\n\
+                </ul>\n\
+            </li>\n\
+            <li id='" + urlCategory + "_menu_item' style='display:block;' class='treeview'>\n\
+                <a href='#'>\n\
+                    <i class='fa fa-bookmark'></i> <!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n\
+                    <i class='fa fa-angle-left pull-right'></i>\n\
+                </a>\n\
+                <ul class='treeview-menu'>\n\
+                    <li>\n\
+                        <a href='/" + urlCategory + "/create_form'>\n\
+                            <i class='fa fa-plus'></i>\n\
+                            <!--{#__ key=\"operation.create\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n\
+                        </a>\n\
+                    </li>\n\
+                    <li>\n\
+                        <a href='/" + urlCategory + "/list'>\n\
+                            <i class='fa fa-list'></i>\n\
+                            <!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".plural_entity\" /}-->\n\
+                        </a>\n\
+                    </li>\n\
+                </ul>\n\
+            </li>\n\
+        </ul>\n\
+    </li>\n";
 
-    // eventOptionObj.push({
-    //     "target": "e_user",
-    //     "relation": "belongsToMany",
-    //     "through": idApplication + "_" + urlComponent + "_event_user",
-    //     "as": "r_users",
-    //     "foreignKey": "event_id",
-    //     "otherKey": "user_id"
-    // });
+    // Add new html to document
+    $('#sortable').append(li);
 
-    // fs.writeFileSync(eventOptionsPath, JSON.stringify(eventOptionObj, null, 4));
+    // Write back to file
+    await domHelper.write(layoutFileName, $);
 
-    // Agenda Route
-    setupComponentRouteForAgenda(idApplication, valueComponent, valueEvent, valueCategory, function () {
-        // Agenda view
-        setupComponentViewForAgenda(idApplication, valueComponent, valueEvent, attr.options.moduleName, function () {
-            // Add access managment to Agenda
-            addAccessManagment(idApplication, urlComponent, attr.options.moduleName.substring(2), function () {
-                // Add Event translation
-                translateHelper.writeLocales(idApplication, "component", valueComponentLower, showComponentName, attr.googleTranslate, function () {
+    // Clean empty and useless dust helper created by removing <li>
+    var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
-                    // FR translation of the component
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "plural_entity"], "Événement");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_title"], "Titre");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_place"], "Lieu");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_start_date"], "Date de début");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_end_date"], "Date de fin");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "f_all_day"], "Toute la journée");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
+    // Remove empty dust helper
+    layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
 
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie");
-                    translateHelper.updateLocales(idApplication, "fr-FR", ["entity", valueCategory, "f_color"], "Couleur");
-
-                    var layoutFileName = __dirname + '/../workspace/' + idApplication + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
-                    domHelper.read(layoutFileName).then(function ($) {
-
-                        $("#" + urlEvent + "_menu_item").remove();
-                        $("#" + urlCategory + "_menu_item").remove();
-
-                        var li = '';
-                        li += "<li id='" + urlComponent + "_menu_item' style='display:block;' class='treeview'>\n";
-                        li += "    <a href='#'>\n";
-                        li += "        <i class='fa fa-calendar-o'></i> <span><!--{#__ key=\"component." + valueComponentLower + ".label_component\" /}--></span>\n";
-                        li += "            <i class='fa fa-angle-left pull-right'></i>\n";
-                        li += "    </a>\n";
-                        li += "    <ul class='treeview-menu'>\n";
-                        li += "        <li><a href='/" + urlComponent + "'><i class='fa fa-calendar'></i> <!--{#__ key=\"global_component.agenda.menu\" /}--></a></li>\n";
-                        li += "        <li id='" + urlEvent + "_menu_item' style='display:block;' class='treeview'>\n";
-                        li += "            <a href='#'><i class='fa fa-calendar-plus-o'></i> <!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n";
-                        li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-                        li += "            </a>\n";
-                        li += "            <ul class='treeview-menu'>\n";
-                        li += "                <li><a href='/" + urlEvent + "/create_form'><i class='fa fa-plus'></i><!--{#__ key=\"operation.create\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}--></a></li>\n";
-                        li += "                <li><a href='/" + urlEvent + "/list'><i class='fa fa-list'></i><!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".plural_entity\" /}--></a></li>\n";
-                        li += "            </ul>\n";
-                        li += "        </li>\n";
-                        li += "        <li id='" + urlCategory + "_menu_item' style='display:block;' class='treeview'>\n";
-                        li += "            <a href='#'><i class='fa fa-bookmark'></i> <!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n";
-                        li += "                    <i class='fa fa-angle-left pull-right'></i>\n";
-                        li += "            </a>\n";
-                        li += "            <ul class='treeview-menu'>\n";
-                        li += "                <li><a href='/" + urlCategory + "/create_form'><i class='fa fa-plus'></i><!--{#__ key=\"operation.create\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}--></a></li>\n";
-                        li += "                <li><a href='/" + urlCategory + "/list'><i class='fa fa-list'></i><!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".plural_entity\" /}--></a></li>\n";
-                        li += "            </ul>\n";
-                        li += "        </li>\n";
-                        li += "    </ul>\n";
-                        li += "</li>\n";
-
-                        // Add new html to document
-                        $('#sortable').append(li);
-
-                        // Write back to file
-                        domHelper.write(layoutFileName, $).then(function () {
-
-                            // Clean empty and useless dust helper created by removing <li>
-                            var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
-
-                            // Remove empty dust helper
-                            layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
-
-                            var writeStream = fs.createWriteStream(layoutFileName);
-                            writeStream.write(layoutContent);
-                            writeStream.end();
-                            writeStream.on('finish', function () {
-                                callback();
-                            });
-                        });
-                    }).catch(function (err) {
-                        callback(err, null);
-                    });
-                });
-            });
-        });
-    });
+    fs.writeFileSync(layoutFileName, layoutContent);
+    return true;
 }
 
-exports.deleteAgenda = (attr, callback) => {
+exports.deleteAgenda = async (data) => {
 
-    let appID = attr.id_application;
-    let urlComponent = attr.options.urlValue.toLowerCase();
-
-    let baseFolder = __dirname + '/../workspace/' + appID;
-    let layoutFileName = baseFolder + '/views/layout_' + attr.options.moduleName.toLowerCase() + '.dust';
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
 
     // Remove agenda controller
-    fs.unlinkSync(baseFolder + '/routes/' + attr.options.value + '.js');
+    fs.unlinkSync(workspacePath + '/routes/' + data.options.value + '.js');
 
     // Delete views folder
-    helpers.rmdirSyncRecursive(baseFolder + '/views/' + attr.options.value);
+    helpers.rmdirSyncRecursive(workspacePath + '/views/' + data.options.value);
 
-    domHelper.read(layoutFileName).then($ => {
-        $("#" + urlComponent + "_menu_item").remove();
-        // Write back to file
-        domHelper.write(layoutFileName, $).then(_ => {
+    let $ = await domHelper.read(layoutFileName);
+    $("#" + data.options.urlValue + "_menu_item").remove();
+    // Write back to file
+    await domHelper.write(layoutFileName, $)
 
-            // Clean empty and useless dust helper created by removing <li>
-            let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
-            // Remove empty dust helper
-            layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+    // Clean empty and useless dust helper created by removing <li>
+    let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
-            let writeStream = fs.createWriteStream(layoutFileName);
-            writeStream.write(layoutContent);
-            writeStream.end();
-            writeStream.on('finish', _ => {
-                callback();
-            });
-        });
-    }).catch(err => {
-        callback(err, null);
-    });
+    // Remove empty dust helper
+    layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
+
+    fs.writeFileSync(layoutFileName, layoutContent);
+    return true;
 }
-
-exports.newCra = function (attr, callback) {
-    try {
-        var workspacePath = __dirname + '/../workspace/' + attr.id_application;
-        var piecesPath = __dirname + '/../structure/pieces/component/cra';
-
-        // Copy pieces
-        fs.copySync(piecesPath + '/routes/e_cra.js', workspacePath + '/routes/e_cra.js');
-        fs.copySync(piecesPath + '/routes/e_cra_team.js', workspacePath + '/routes/e_cra_team.js');
-        fs.copySync(piecesPath + '/views/e_cra/', workspacePath + '/views/e_cra/');
-        fs.copySync(piecesPath + '/js/', workspacePath + '/public/js/Newmips/component/');
-
-        // Replace layout to point to current module
-        var files = ['admin_declare.dust', 'declare.dust', 'list.dust'];
-        for (var i = 0; i < files.length; i++) {
-            var view = fs.readFileSync(piecesPath + '/views/e_cra/' + files[i], 'utf8');
-            view = view.replace(/MODULE_NAME/g, attr.module.codeName);
-            fs.writeFileSync(workspacePath + '/views/e_cra/' + files[i], view, 'utf8');
-        }
-
-        // Create belongsToMany relation between team and activity for default activities
-        var teamOptionsPath = workspacePath + '/models/options/e_cra_team.json';
-        var teamOptionObj = require(teamOptionsPath);
-        teamOptionObj.push({
-            "target": "e_cra_activity",
-            "relation": "belongsToMany",
-            "through": attr.id_application + "_cra_activity_team",
-            "as": "r_default_cra_activity",
-            "foreignKey": "team_id",
-            "otherKey": "activity_id"
-        });
-        fs.writeFileSync(teamOptionsPath, JSON.stringify(teamOptionObj, null, 4));
-
-        var teamAttributesPath = workspacePath + '/models/attributes/e_cra_team.json';
-        var teamAttributesObj = require(teamAttributesPath);
-        teamAttributesObj.fk_id_admin_user = {type: "INTEGER", newmipsType: "integer"};
-        fs.writeFileSync(teamAttributesPath, JSON.stringify(teamAttributesObj, null, 4));
-
-        // Update user translations
-        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_users"], "Utilisateurs");
-        translateHelper.updateLocales(attr.id_application, "fr-FR", ["entity", "e_user", "as_r_user"], "Utilisateur");
-
-        // Add all cra locales EN/FR
-        translateHelper.writeTree(attr.id_application, require(piecesPath + '/locales/en-EN'), 'en-EN');
-        translateHelper.writeTree(attr.id_application, require(piecesPath + '/locales/fr-FR'), 'fr-FR');
-
-        // Change CRA sidebar entry in current layout
-        domHelper.read(workspacePath + '/views/layout_' + attr.module.codeName + '.dust').then(function ($) {
-            var newLayoutLI = '';
-            newLayoutLI += '<li>\n';
-            newLayoutLI += '    <a href="/cra/declare">\n';
-            newLayoutLI += '        <i class="fa fa-angle-double-right"></i>\n';
-            newLayoutLI += '        <!--{#__ key="entity.e_cra.custom_button_declare" /}-->\n';
-            newLayoutLI += '    </a>\n';
-            newLayoutLI += '</li>\n';
-            $("#cra_menu_item").find('li:first').replaceWith(newLayoutLI);
-            domHelper.write(workspacePath + '/views/layout_' + attr.module.codeName + '.dust', $).then(function () {
-
-                // Remove unwanted tab from user
-                domHelper.read(workspacePath + '/views/e_user/show_fields.dust').then(function ($) {
-                    $("#r_cra-click").parents('li').remove();
-                    $("#r_cra").remove();
-                    domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $).then(function () {
-                        callback(null, {message: 'Module C.R.A created'});
-                    }).catch(callback);
-                }).catch(callback);
-            }).catch(callback);
-        }).catch(callback);
-    } catch (err) {
-        callback(err);
-    }
-};
 
 exports.newStatus = async (data) => {
     let workspacePath = __dirname + '/../workspace/' + data.application.name;
@@ -980,388 +817,344 @@ exports.deleteStatus = async (data) => {
     return true;
 }
 
-exports.setupChat = function (attr, callback) {
-    try {
-        let workspacePath = __dirname + '/../workspace/' + attr.id_application;
-        var piecesPath = __dirname + '/../structure/pieces/component/socket';
+exports.setupChat = async (data) => {
+    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+    let piecesPath = __dirname + '/../structure/pieces/component/socket';
 
-        // Copy chat files
-        fs.copySync(piecesPath + '/chat/js/chat.js', workspacePath + '/public/js/Newmips/component/chat.js');
-        fs.copySync(piecesPath + '/chat/chat_utils.js', workspacePath + '/utils/chat.js');
-        fs.copySync(piecesPath + '/chat/routes/chat.js', workspacePath + '/routes/chat.js');
+    // Copy chat files
+    fs.copySync(piecesPath + '/chat/js/chat.js', workspacePath + '/public/js/Newmips/component/chat.js');
+    fs.copySync(piecesPath + '/chat/chat_utils.js', workspacePath + '/utils/chat.js');
+    fs.copySync(piecesPath + '/chat/routes/chat.js', workspacePath + '/routes/chat.js');
 
-        // Copy chat models
-        var chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
-        for (var i = 0; i < chatModels.length; i++) {
-            fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
-            var model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
-            model = model.replace(/ID_APPLICATION/g, attr.id_application);
-            fs.writeFileSync(workspacePath + '/models/' + chatModels[i] + '.js', model, 'utf8');
-        }
-        // Copy attributes
-        fs.copySync(piecesPath + '/chat/models/attributes/', workspacePath + '/models/attributes/');
-        // Copy options
-        fs.copySync(piecesPath + '/chat/models/options/', workspacePath + '/models/options/');
-
-        // Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
-        var userOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
-        userOptions.push({
-            target: 'e_chat',
-            relation: 'belongsToMany',
-            foreignKey: 'id_user',
-            otherKey: 'id_chat',
-            through: attr.id_application + '_chat_user_chat',
-            as: 'r_chat'
-        });
-        userOptions.push({
-            target: "e_channel",
-            relation: "belongsToMany",
-            foreignKey: "id_user",
-            otherKey: "id_channel",
-            through: attr.id_application + "_chat_user_channel",
-            as: "r_user_channel"
-        });
-        fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
-
-        // Replace ID_APPLICATION in channel.json and chat.json
-        var option = fs.readFileSync(workspacePath + '/models/options/e_channel.json', 'utf8');
-        option = option.replace(/ID_APPLICATION/g, attr.id_application);
-        fs.writeFileSync(workspacePath + '/models/options/e_channel.json', option, 'utf8');
-        var option = fs.readFileSync(workspacePath + '/models/options/e_chat.json', 'utf8');
-        option = option.replace(/ID_APPLICATION/g, attr.id_application);
-        fs.writeFileSync(workspacePath + '/models/options/e_chat.json', option, 'utf8');
-
-        // Set socket and chat config to enabled/true
-        var appConf = JSON.parse(fs.readFileSync(workspacePath + '/config/application.json'));
-        appConf.socket.enabled = true;
-        appConf.socket.chat = true;
-        fs.writeFileSync(workspacePath + '/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
-
-        // Add custom user_channel/user_chat columns to toSync file
-        // Id will not be used but is required by sequelize to be able to query on the junction table
-        var toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
-        toSync[attr.id_application + '_chat_user_channel'] = {
-            attributes: {
-                id_last_seen_message: {type: 'INTEGER', default: 0},
-                id: {
-                    type: "INTEGER",
-                    autoIncrement: true,
-                    primaryKey: true
-                }
-            },
-            force: true
-        };
-        toSync[attr.id_application + '_chat_user_chat'] = {
-            attributes: {
-                id_last_seen_message: {type: 'INTEGER', default: 0},
-                id: {
-                    type: "INTEGER",
-                    autoIncrement: true,
-                    primaryKey: true
-                }
-            },
-            force: true
-        };
-        fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
-
-        // Add chat locales
-        var newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/en-EN.json'));
-        translateHelper.writeTree(attr.id_application, newLocalesEN, 'en-EN');
-        var newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/fr-FR.json'));
-        translateHelper.writeTree(attr.id_application, newLocalesFR, 'fr-FR');
-
-        // Add chat dust template to main_layout
-        domHelper.read(workspacePath + '/views/main_layout.dust').then(function ($layout) {
-            domHelper.read(piecesPath + '/chat/views/chat.dust').then(function ($chat) {
-                $layout("#chat-placeholder").html($chat("body")[0].innerHTML);
-
-                domHelper.writeMainLayout(workspacePath + '/views/main_layout.dust', $layout).then(function () {
-                    callback(null);
-                });
-            });
-        }).catch(function (e) {
-            console.log(e);
-            callback(e);
-        });
-
-    } catch (e) {
-        console.log(e);
-        callback(e);
+    // Copy chat models
+    let chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
+    for (let i = 0; i < chatModels.length; i++) {
+        fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
+        // let model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
+        // model = model.replace(/ID_APPLICATION/g, attr.id_application);
+        // fs.writeFileSync(workspacePath + '/models/' + chatModels[i] + '.js', model, 'utf8');
     }
-};
+    // Copy attributes
+    fs.copySync(piecesPath + '/chat/models/attributes/', workspacePath + '/models/attributes/');
+    // Copy options
+    fs.copySync(piecesPath + '/chat/models/options/', workspacePath + '/models/options/');
 
-exports.addNewComponentAddress = function (attr, callback) {
-    try {
-        var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        var address_path = __dirname + '/pieces/component/address/';
-        var address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
-        var componentCodeName = attr.componentCodeName;
-        var componentName = attr.componentName;
-        var source = attr.entityCodeName;
-        var componentUrl = 'e_address_' + attr.id_data_entity;
-        var address_settings = "e_address_settings";
-        //models
-        var modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8'));
+    // Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
+    let userOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
+    userOptions.push({
+        target: 'e_chat',
+        relation: 'belongsToMany',
+        foreignKey: 'id_user',
+        otherKey: 'id_chat',
+        through: 'chat_user_chat',
+        as: 'r_chat'
+    });
+    userOptions.push({
+        target: "e_channel",
+        relation: "belongsToMany",
+        foreignKey: "id_user",
+        otherKey: "id_channel",
+        through: "chat_user_channel",
+        as: "r_user_channel"
+    });
+    fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
 
-        //generate views data
-        var fields = address_utils.generateFields(componentName, componentCodeName);
-        //Update model attributes
-        for (var attribute in fields.db_fields) {
-            modelAttributes[attribute] = fields.db_fields[attribute];
-        }
-        //save new model component attributes file
-        fs.writeFileSync(application_path + 'models/attributes/' + componentCodeName + '.json', JSON.stringify(modelAttributes, null, 4), 'utf8');
-        fs.copySync(address_path + 'models/options/e_address.json', application_path + 'models/options/' + componentCodeName + '.json');
+    // Set socket and chat config to enabled/true
+    let appConf = JSON.parse(fs.readFileSync(workspacePath + '/config/application.json'));
+    appConf.socket.enabled = true;
+    appConf.socket.chat = true;
+    fs.writeFileSync(workspacePath + '/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
 
-        var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
-        var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
-        var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
-        var printFieldsFile = application_path + 'views/' + source + '/' + 'print_fields.dust';
-
-        var showHtml = fs.readFileSync(address_path + 'views/show.dust', 'utf8');
-        showHtml = showHtml.replace(/COMPONENT_NAME/g, componentCodeName);
-
-        var appendTo = '#fields';
-        var mapsHtml = '<div id="' + componentCodeName + '" class="address_maps ' + componentCodeName + '" mapsid="' + componentCodeName + '" style="margin-top: 25px !important"></div>';
-        fs.mkdirpSync(application_path + 'views/' + componentCodeName);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/maps.dust', mapsHtml);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/create_fields.dust', fields.createHtml);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/update_fields.dust', fields.updateHtml);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/fields.dust', fields.showFieldsHtml);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/show.dust', showHtml);
-        fs.writeFileSync(application_path + 'views/' + componentCodeName + '/list_fields.dust', fields.headers);
-
-        domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
-            domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
-                domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
-                    domHelper.read(printFieldsFile).then(function ($printFieldsFile) {
-                        $createFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/create_fields"/}</div>');
-                        $updateFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/update_fields"/}</div>');
-                        $showFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
-                        $printFieldsFile(appendTo).append('<div data-field="' + componentCodeName + '" class="' + componentCodeName + ' fieldLineHeight col-xs-12">{>"' + componentCodeName + '/show"/}</div>');
-                        domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
-                            domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
-                                domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
-                                    domHelper.write(printFieldsFile, $printFieldsFile).then(function () {
-                                        var parentBaseFile = application_path + 'views/' + attr.entityCodeName;
-                                        require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body, function () {
-                                            //update locales
-                                            var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-                                            var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                            langFR.entity[componentCodeName] = fields.locales.fr;
-                                            langFR.entity[source].r_address = 'Adresse';
-                                            langEN.entity[componentCodeName] = fields.locales.en;
-                                            langEN.entity[source].r_address = 'Address';
-
-                                            // CREATE MODEL FILE
-                                            let modelTemplate = fs.readFileSync(__dirname + '/../structure/pieces/component/address/models/model_address.js', 'utf8');
-                                            modelTemplate = modelTemplate.replace(/COMPONENT_NAME_LOWER/g, componentCodeName);
-                                            modelTemplate = modelTemplate.replace(/COMPONENT_NAME/g, componentCodeName.charAt(0).toUpperCase() + componentCodeName.toLowerCase().slice(1));
-                                            modelTemplate = modelTemplate.replace(/TABLE_NAME/g, componentCodeName);
-                                            fs.writeFileSync(application_path + 'models/' + componentCodeName + '.js', modelTemplate);
-
-                                            //Check if component config exist, if not we create it
-                                            var address_settings_config;
-                                            var p = new Promise(function (resolve, reject) {
-                                                fs.readFile(application_path + 'config/' + address_settings.substring(2) + '.json', function (err, config) {
-                                                    if (err) {
-                                                        //files doesn't exist
-                                                        address_settings_config = {entities: {}};
-                                                        //add settings locales
-                                                        langFR.component[address_settings.substring(2)] = {
-                                                            "label_component": "Configuration adresse",
-                                                            "position": "Position de la carte",
-                                                            "top": "Au dessus",
-                                                            "right": "A droite",
-                                                            "bottom": "En dessous",
-                                                            "left": "A gauche",
-                                                            "distance": "Afficher la distance",
-                                                            "settings": "Configurer",
-                                                            "enableMaps": "Activer la carte",
-                                                            "entity": "Entité",
-                                                            "zoomBar": "Afficher panneau de zoom",
-                                                            "navigation": "Activer la navigation",
-                                                            "mousePosition": "Afficher les coordonnées de la souris",
-                                                            "addressNotValid": "Adresse non valide",
-                                                            "info_address_maps": "Pour avoir une carte valide, veuillez utiliser le champ ci-dessous pour saisir l'adresse"
-                                                        };
-                                                        langEN.component[address_settings.substring(2)] = {
-                                                            "label_component": "Addresses settings",
-                                                            "position": "Map position",
-                                                            "top": "Top",
-                                                            "right": "Right",
-                                                            "bottom": "Bottom",
-                                                            "left": "Left",
-                                                            "distance": "Display distance",
-                                                            "settings": "Settings",
-                                                            "enableMaps": "Enable Map",
-                                                            "entity": "Entity",
-                                                            "zoomBar": "Display zoom bar",
-                                                            "navigation": "Enable navigation",
-                                                            "mousePosition": "Display mouse coordinate",
-                                                            "addressNotValid": "Not valid address",
-                                                            "info_address_maps": "To have a valid map, please use the field below to enter the address"
-                                                        };
-                                                        //add component address files
-                                                        fs.mkdirpSync(application_path + 'views/' + address_settings);
-                                                        fs.copySync(address_path + 'views/config.dust', application_path + 'views/' + address_settings + '/config.dust');
-                                                        fs.copySync(address_path + 'views/config_fields.dust', application_path + 'views/' + address_settings + '/config_fields.dust');
-                                                        fs.copySync(address_path + 'route/' + address_settings.substring(2) + '.js', application_path + 'routes/' + address_settings + '.js');
-                                                        addAccessManagment(attr.id_application, "address_settings", 'administration', function (err) {
-                                                            if (err)
-                                                                return reject(err);
-                                                            //add new menu in administration for address settings
-                                                            addMenuComponentAddressSettings(attr, address_settings, function (err) {
-                                                                if (err)
-                                                                    return reject(err);
-                                                                resolve();
-                                                            });
-                                                        });
-                                                    } else {
-                                                        address_settings_config = JSON.parse(config);
-                                                        resolve();
-                                                    }
-                                                });
-                                            });
-                                            p.then(function () {
-                                                address_settings_config.entities[attr.entityCodeName] = {
-                                                    "enableMaps": false,
-                                                    "mapsPosition": {
-                                                        "top": false,
-                                                        "right": true,
-                                                        "bottom": false,
-                                                        "left": false
-                                                    },
-                                                    "estimateDistance": false,
-                                                    "zoomBar": false,
-                                                    "navigation": true,
-                                                    "mousePosition": false
-                                                };
-                                                //set locales
-                                                fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                                fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                                                //update or create address settings
-                                                fs.writeFileSync(application_path + 'config/' + address_settings.substring(2) + '.json', JSON.stringify(address_settings_config, null, 4));
-                                                callback(null);
-                                            }).catch(function (e) {
-                                                return callback(e);
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    } catch (e) {
-        callback(e);
-    }
-};
-
-exports.deleteComponentAddress = function (attr, callback) {
-    try {
-        var componentName = 'address_' + attr.id_data_entity;
-        let e_componentName='e_'+componentName;
-        var source = attr.entityName;
-        var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
-        fs.remove(application_path + 'views/' + e_componentName);
-        fs.remove(application_path + 'models/' + e_componentName + '.js');
-        fs.remove(application_path + 'models/attributes/' + e_componentName + '.json');
-        fs.remove(application_path + 'models/options/' + e_componentName + '.json');
-        var address_settings = "address_settings";
-        //remove association
-        var relations = JSON.parse(fs.readFileSync(application_path + 'models/options/' + source + '.json', 'utf8'));
-        for (var i = 0; i < relations.length; i++) {
-            var relation = relations[i];
-            if (relation.as == 'r_address') {
-                relations.splice(i, 1);
-                break;
+    // Add custom user_channel/user_chat columns to toSync file
+    // Id will not be used but is required by sequelize to be able to query on the junction table
+    let toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+    toSync['chat_user_channel'] = {
+        attributes: {
+            id_last_seen_message: {type: 'INTEGER', default: 0},
+            id: {
+                type: "INTEGER",
+                autoIncrement: true,
+                primaryKey: true
             }
-        }
-        //update relation file
-        fs.writeFileSync(application_path + 'models/options/' + attr.entityName + '.json', JSON.stringify(relations, null, 4), 'utf8');
-        var removeDiv = '.' + 'e_'+componentName;
-        var createFieldsFile = application_path + 'views/' + source + '/' + 'create_fields.dust';
-        var updateFieldsFile = application_path + 'views/' + source + '/' + 'update_fields.dust';
-        var showFieldsFile = application_path + 'views/' + source + '/' + 'show_fields.dust';
-        domHelper.read(createFieldsFile).then(function ($createFieldsFile) {
-            domHelper.read(updateFieldsFile).then(function ($updateFieldsFile) {
-                domHelper.read(showFieldsFile).then(function ($showFieldsFile) {
-                    $createFieldsFile(removeDiv).remove();
-                    $updateFieldsFile(removeDiv).remove();
-                    $showFieldsFile(removeDiv).remove();
-                    domHelper.write(createFieldsFile, $createFieldsFile).then(function () {
-                        domHelper.write(updateFieldsFile, $updateFieldsFile).then(function () {
-                            domHelper.write(showFieldsFile, $showFieldsFile).then(function () {
-                                removeFieldInParentListField(application_path + 'views/' + attr.entityName + '/list_fields.dust', 'r_address', function () {
-                                    //update locales
-                                    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-                                    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
-                                    delete langFR.entity[e_componentName];
-                                    delete langEN.entity[e_componentName];
-                                    //update address settings file
-                                    var address_settingsJson = JSON.parse(fs.readFileSync(application_path + 'config/address_settings.json'));
-                                    for (var item in address_settingsJson.entities) {
-                                        if (item === attr.entityName)
-                                            delete address_settingsJson.entities[item];
-                                    }
-                                    var p = new Promise(function (resolve, reject) {
-                                        if (Object.keys(address_settingsJson.entities).length === 0) {
-                                            fs.remove(application_path + 'views/e_' + address_settings);
-                                            fs.remove(application_path + 'routes/e_' + address_settings + '.js');
-                                            fs.remove(application_path + 'config/' + address_settings + '.json');
-                                            delete langFR.component[address_settings];
-                                            delete langEN.component[address_settings];
-                                            deleteAccessManagment(attr.id_application, "address_settings", "administration", function () {
-                                                require('./structure_module').removeMenuEntry(attr, "administration", 'e_'+address_settings, function (err) {
-                                                    if (err)
-                                                        reject(err);
-                                                    else
-                                                        resolve();
-                                                });
-                                            });
-                                        } else {
-                                            fs.writeFileSync(application_path + 'config/address_settings.json', JSON.stringify(address_settingsJson, null, 4), 'utf8');
-                                            resolve();
-                                        }
-                                    });
-                                    p.then(function () {
-                                        fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                                        fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                                        callback(null);
-                                    }).catch(function (e) {
-                                        callback(e);
-                                    });
-                                });
+        },
+        force: true
+    };
+    toSync['chat_user_chat'] = {
+        attributes: {
+            id_last_seen_message: {type: 'INTEGER', default: 0},
+            id: {
+                type: "INTEGER",
+                autoIncrement: true,
+                primaryKey: true
+            }
+        },
+        force: true
+    };
+    fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
+    // Add chat locales
+    let newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/en-EN.json'));
+    translateHelper.writeTree(data.application.name, newLocalesEN, 'en-EN');
+    let newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/fr-FR.json'));
+    translateHelper.writeTree(data.application.name, newLocalesFR, 'fr-FR');
 
-                                function removeFieldInParentListField(viewsPath, name_data_field, callback) {
-                                    domHelper.read(viewsPath).then(function ($) {
-                                        $("th[data-field='" + name_data_field + "']").remove();
-                                        $("td[data-field='" + name_data_field + "']").remove();
-                                        domHelper.write(viewsPath, $).then(function () {
-                                            callback();
-                                        });
-                                    });
-                                }
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    } catch (e) {
-        return callback(e);
+    // Add chat dust template to main_layout
+    let $layout = await domHelper.read(workspacePath + '/views/main_layout.dust');
+    let $chat = await domHelper.read(piecesPath + '/chat/views/chat.dust');
+
+    $layout("#chat-placeholder").html($chat("body")[0].innerHTML);
+
+    await domHelper.writeMainLayout(workspacePath + '/views/main_layout.dust', $layout);
+
+    return true;
+};
+
+exports.addNewComponentAddress = async (data) => {
+
+    let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+    let address_path = __dirname + '/pieces/component/address/';
+    let address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
+
+    // Models
+    let modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8'));
+
+    // Generate views data
+    let fields = address_utils.generateFields(data.options.showValue, data.options.value);
+
+    // Update model attributes
+    for (let attribute in fields.db_fields)
+        modelAttributes[attribute] = fields.db_fields[attribute];
+
+    //save new model component attributes file
+    fs.writeFileSync(workspacePath + 'models/attributes/' + data.options.value + '.json', JSON.stringify(modelAttributes, null, 4), 'utf8');
+    fs.copySync(address_path + 'models/options/e_address.json', workspacePath + 'models/options/' + data.options.value + '.json');
+
+    let createFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'create_fields.dust';
+    let updateFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'update_fields.dust';
+    let showFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'show_fields.dust';
+
+    let showHtml = fs.readFileSync(address_path + 'views/show.dust', 'utf8');
+    showHtml = showHtml.replace(/COMPONENT_NAME/g, data.options.value);
+
+    let appendTo = '#fields';
+    let mapsHtml = '<div id="' + data.options.value + '" class="address_maps ' + data.options.value + '" mapsid="' + data.options.value + '" style="margin-top: 25px !important"></div>';
+    fs.mkdirpSync(workspacePath + 'views/' + data.options.value);
+    fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/maps.dust', mapsHtml);
+    fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/create_fields.dust', fields.createHtml);
+    fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/update_fields.dust', fields.updateHtml);
+    fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/fields.dust', fields.showFieldsHtml);
+    fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/show.dust', showHtml);
+    fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/list_fields.dust', fields.headers);
+
+    let $createFieldsFile = await domHelper.read(createFieldsFile);
+    let $updateFieldsFile = await domHelper.read(updateFieldsFile);
+    let $showFieldsFile = await domHelper.read(showFieldsFile);
+
+    $createFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/create_fields"/}</div>');
+    $updateFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/update_fields"/}</div>');
+    $showFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/show"/}</div>');
+
+    await domHelper.write(createFieldsFile, $createFieldsFile);
+    await domHelper.write(updateFieldsFile, $updateFieldsFile);
+    await domHelper.write(showFieldsFile, $showFieldsFile);
+
+    let parentBaseFile = workspacePath + 'views/' + data.entity.name;
+
+    await require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body);
+
+    // Update locales
+    var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+    var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
+    langFR.entity[data.options.value] = fields.locales.fr;
+    langFR.entity[data.entity.name].r_address = 'Adresse';
+    langEN.entity[data.options.value] = fields.locales.en;
+    langEN.entity[data.entity.name].r_address = 'Address';
+
+    // CREATE MODEL FILE
+    let modelTemplate = fs.readFileSync(__dirname + '/../structure/pieces/component/address/models/model_address.js', 'utf8');
+    modelTemplate = modelTemplate.replace(/COMPONENT_NAME_LOWER/g, data.options.value);
+    modelTemplate = modelTemplate.replace(/COMPONENT_NAME/g, data.options.value.charAt(0).toUpperCase() + data.options.value.toLowerCase().slice(1));
+    modelTemplate = modelTemplate.replace(/TABLE_NAME/g, data.options.value);
+    fs.writeFileSync(workspacePath + 'models/' + data.options.value + '.js', modelTemplate);
+
+    // Check if component config exist, if not we create it
+    let address_settings_config;
+
+    let configPath = workspacePath + 'config/address_settings.json';
+    if (!fs.existsSync(configPath)) {
+
+        // Files doesn't exist
+        address_settings_config = {entities: {}};
+
+        // Add settings locales
+        langFR.component.address_settings = {
+            "label_component": "Configuration adresse",
+            "position": "Position de la carte",
+            "top": "Au dessus",
+            "right": "A droite",
+            "bottom": "En dessous",
+            "left": "A gauche",
+            "distance": "Afficher la distance",
+            "settings": "Configurer",
+            "enableMaps": "Activer la carte",
+            "entity": "Entité",
+            "zoomBar": "Afficher panneau de zoom",
+            "navigation": "Activer la navigation",
+            "mousePosition": "Afficher les coordonnées de la souris",
+            "addressNotValid": "Adresse non valide",
+            "info_address_maps": "Pour avoir une carte valide, veuillez utiliser le champ ci-dessous pour saisir l'adresse"
+        };
+        langEN.component.address_settings = {
+            "label_component": "Addresses settings",
+            "position": "Map position",
+            "top": "Top",
+            "right": "Right",
+            "bottom": "Bottom",
+            "left": "Left",
+            "distance": "Display distance",
+            "settings": "Settings",
+            "enableMaps": "Enable Map",
+            "entity": "Entity",
+            "zoomBar": "Display zoom bar",
+            "navigation": "Enable navigation",
+            "mousePosition": "Display mouse coordinate",
+            "addressNotValid": "Not valid address",
+            "info_address_maps": "To have a valid map, please use the field below to enter the address"
+        };
+
+        // Add component address files
+        fs.mkdirpSync(workspacePath + 'views/e_address_settings');
+        fs.copySync(address_path + 'views/config.dust', workspacePath + 'views/e_address_settings/config.dust');
+        fs.copySync(address_path + 'views/config_fields.dust', workspacePath + 'views/e_address_settings/config_fields.dust');
+        fs.copySync(address_path + 'route/address_settings.js', workspacePath + 'routes/e_address_settings.js');
+
+        addAccessManagment(data.application.name, "address_settings", 'administration');
+
+        // Add new menu in administration for address settings
+        let fileName = workspacePath + 'views/layout_m_administration.dust';
+
+        // Read file and get jQuery instance
+        let $ = await domHelper.read(fileName);
+        let li = '\
+        <!--{#entityAccess entity="address_settings"}-->\n\
+             <!--{#actionAccess entity="address_settings" action="create"}-->\
+                 <li id="e_address_settings_menu_item" style="display:block;">\n\
+                     <a href="/address_settings/config">\n\
+                         <i class="fa fa-map-marker"></i>\n\
+                         <span><!--{#__ key="component.address_settings.label_component" /}--></span>\n\
+                         <i class="fa fa-angle-right pull-right"></i>\n\
+                     </a>\n\
+                 </li>\n\
+             <!--{/actionAccess}-->\n\
+        <!--{/entityAccess}-->\n';
+
+        // Add new html to document
+        $('#sortable').append(li);
+
+        // Write back to file
+        await domHelper.write(fileName, $)
+    } else {
+        address_settings_config = JSON.parse(fs.readFileSync(configPath));
     }
+
+    address_settings_config.entities[data.entity.name] = {
+        "enableMaps": false,
+        "mapsPosition": {
+            "top": false,
+            "right": true,
+            "bottom": false,
+            "left": false
+        },
+        "estimateDistance": false,
+        "zoomBar": false,
+        "navigation": true,
+        "mousePosition": false
+    };
+
+    // Set locales
+    fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+
+    // Update or create address settings
+    fs.writeFileSync(workspacePath + 'config/address_settings.json', JSON.stringify(address_settings_config, null, 4));
+    return true;
+};
+
+exports.deleteComponentAddress = async (data) => {
+
+    let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+
+    fs.remove(workspacePath + 'views/' + data.options.value);
+    fs.remove(workspacePath + 'models/' + data.options.value + '.js');
+    fs.remove(workspacePath + 'models/attributes/' + data.options.value + '.json');
+    fs.remove(workspacePath + 'models/options/' + data.options.value + '.json');
+
+    // Remove association
+    let relations = JSON.parse(fs.readFileSync(workspacePath + 'models/options/' + data.entity.name + '.json', 'utf8'));
+    for (let i = 0; i < relations.length; i++) {
+        let relation = relations[i];
+        if (relation.as == 'r_address') {
+            relations.splice(i, 1);
+            break;
+        }
+    }
+    // Update relation file
+    fs.writeFileSync(workspacePath + 'models/options/' + data.entity.name + '.json', JSON.stringify(relations, null, 4), 'utf8');
+
+    let toDoFile = ['create_fields', 'update_fields', 'show_fields'];
+    for (var i = 0; i < toDoFile.length; i++) {
+        let $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust');
+        $('.' + data.options.value).remove();
+        await domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $);
+    }
+
+    // Remove Field In Parent List Field
+    let $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/list_fields.dust');
+    $("th[data-field='" + data.entity.name + "']").remove();
+    $("td[data-field='" + data.entity.name + "']").remove();
+    await domHelper.write(workspacePath + 'views/' + data.entity.name + '/list_fields.dust', $)
+
+    // Update locales
+    let langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+    let langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
+    delete langFR.entity[data.options.value];
+    delete langEN.entity[data.options.value];
+
+    // Update address settings file
+    let addressSettingsObj = JSON.parse(fs.readFileSync(workspacePath + 'config/address_settings.json'));
+
+    for (let item in addressSettingsObj.entities)
+        if (item === data.entity.name)
+            delete addressSettingsObj.entities[item];
+
+    if (Object.keys(addressSettingsObj.entities).length === 0) {
+        fs.remove(workspacePath + 'views/e_address_settings');
+        fs.remove(workspacePath + 'routes/e_address_settings.js');
+        fs.remove(workspacePath + 'config/address_settings.json');
+        delete langFR.component.address_settings;
+        delete langEN.component.address_settings;
+        deleteAccessManagment(data.application.name, "address_settings", "administration");
+
+        // Read file and get jQuery instance
+        let $ = await domHelper.read(workspacePath + 'views/layout_m_administration.dust');
+        $('#e_address_settings_menu_item').remove();
+        // Write back to file
+        await domHelper.write(workspacePath + 'views/layout_m_administration.dust', $);
+
+    } else {
+        fs.writeFileSync(workspacePath + 'config/address_settings.json', JSON.stringify(addressSettingsObj, null, 4), 'utf8');
+    }
+
+    fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+    return true;
 };
 
 exports.createComponentDocumentTemplate = function (attr, callback) {
     try {
         var entity_name = 'document_template';
         var entity_code_name = "e_document_template";
-        var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+        var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
         if (attr.is_new_component_entity) {
             //Add structure files(models,route,views etc.
             var entity_path = __dirname + '/pieces/component/document_template/';
@@ -1373,27 +1166,27 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             modelContent = modelContent.replace(/TABLE_NAME/g, table_name);
             modelContent = modelContent.replace(/MODEL_CODE_NAME/g, entity_code_name);
             //Now copy model files
-            fs.copySync(entity_path + 'models/attributes/e_document_template.json', application_path + 'models/attributes/e_document_template.json');
-            fs.copySync(entity_path + 'models/options/e_document_template.json', application_path + 'models/options/e_document_template.json');
-            fs.writeFileSync(application_path + 'models/e_document_template.js', modelContent, 'utf8');
+            fs.copySync(entity_path + 'models/attributes/e_document_template.json', workspacePath + 'models/attributes/e_document_template.json');
+            fs.copySync(entity_path + 'models/options/e_document_template.json', workspacePath + 'models/options/e_document_template.json');
+            fs.writeFileSync(workspacePath + 'models/e_document_template.js', modelContent, 'utf8');
             //copy views files. To do after=> move directory
-            fs.copySync(entity_path + 'views/create.dust', application_path + 'views/' + entity_code_name + '/create.dust');
-            fs.copySync(entity_path + 'views/create_fields.dust', application_path + 'views/' + entity_code_name + '/create_fields.dust');
-            fs.copySync(entity_path + 'views/list.dust', application_path + 'views/' + entity_code_name + '/list.dust');
-            fs.copySync(entity_path + 'views/list_fields.dust', application_path + 'views/' + entity_code_name + '/list_fields.dust');
-            fs.copySync(entity_path + 'views/show.dust', application_path + 'views/' + entity_code_name + '/show.dust');
-            fs.copySync(entity_path + 'views/show_fields.dust', application_path + 'views/' + entity_code_name + '/show_fields.dust');
-            fs.copySync(entity_path + 'views/update.dust', application_path + 'views/' + entity_code_name + '/update.dust');
-            fs.copySync(entity_path + 'views/update_fields.dust', application_path + 'views/' + entity_code_name + '/update_fields.dust');
-            fs.copySync(entity_path + 'views/readme.dust', application_path + 'views/' + entity_code_name + '/readme.dust');
-            fs.copySync(entity_path + 'views/entity_helper_template.dust', application_path + 'views/' + entity_code_name + '/entity_helper_template.dust');
-            fs.copySync(entity_path + 'views/global_variable_template.dust', application_path + 'views/' + entity_code_name + '/global_variable_template.dust');
-            fs.copySync(entity_path + 'views/layout_document_template.dust', application_path + 'views/layout_document_template.dust');
+            fs.copySync(entity_path + 'views/create.dust', workspacePath + 'views/' + entity_code_name + '/create.dust');
+            fs.copySync(entity_path + 'views/create_fields.dust', workspacePath + 'views/' + entity_code_name + '/create_fields.dust');
+            fs.copySync(entity_path + 'views/list.dust', workspacePath + 'views/' + entity_code_name + '/list.dust');
+            fs.copySync(entity_path + 'views/list_fields.dust', workspacePath + 'views/' + entity_code_name + '/list_fields.dust');
+            fs.copySync(entity_path + 'views/show.dust', workspacePath + 'views/' + entity_code_name + '/show.dust');
+            fs.copySync(entity_path + 'views/show_fields.dust', workspacePath + 'views/' + entity_code_name + '/show_fields.dust');
+            fs.copySync(entity_path + 'views/update.dust', workspacePath + 'views/' + entity_code_name + '/update.dust');
+            fs.copySync(entity_path + 'views/update_fields.dust', workspacePath + 'views/' + entity_code_name + '/update_fields.dust');
+            fs.copySync(entity_path + 'views/readme.dust', workspacePath + 'views/' + entity_code_name + '/readme.dust');
+            fs.copySync(entity_path + 'views/entity_helper_template.dust', workspacePath + 'views/' + entity_code_name + '/entity_helper_template.dust');
+            fs.copySync(entity_path + 'views/global_variable_template.dust', workspacePath + 'views/' + entity_code_name + '/global_variable_template.dust');
+            fs.copySync(entity_path + 'views/layout_document_template.dust', workspacePath + 'views/layout_document_template.dust');
             //copy helper
-            fs.copySync(entity_path + 'utils/document_template_helper.js', application_path + 'utils/document_template_helper.js');
-            fs.copySync(entity_path + 'locales/document_template_locales.js', application_path + 'locales/document_template_locales.js');
+            fs.copySync(entity_path + 'utils/document_template_helper.js', workspacePath + 'utils/document_template_helper.js');
+            fs.copySync(entity_path + 'locales/document_template_locales.js', workspacePath + 'locales/document_template_locales.js');
             //copy route file
-            fs.copySync(entity_path + 'routes/e_document_template.js', application_path + 'routes/e_document_template.js');
+            fs.copySync(entity_path + 'routes/e_document_template.js', workspacePath + 'routes/e_document_template.js');
 
             //add new entry for access
             addAccessManagment(attr.id_application, entity_url, module_name, function () {
@@ -1423,12 +1216,12 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
                     };
                     lang_en[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
                     //update locales
-                    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-                    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+                    var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+                    var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
                     langFR.entity[entity_code_name] = lang_fr;
                     langEN.entity[entity_code_name] = lang_en;
-                    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+                    fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+                    fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
                     //Now new Menu For Entity DocumentTemplate
                     require('./structure_module').addNewMenuEntry(attr.id_application, entity_code_name, entity_url, 'm_' + module_name, 'file-text', function () {
                         return callback(null);
@@ -1437,12 +1230,12 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
             });
         } else {
             //Update locales
-            var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-            var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+            var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+            var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
             langFR.entity[entity_code_name][ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
             langEN.entity[entity_code_name][ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
-            fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-            fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+            fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+            fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
             addNewTabComponentDocumentTemplate(attr, entity_name, function (e) {
                 return callback(e);
             });
@@ -1453,12 +1246,12 @@ exports.createComponentDocumentTemplate = function (attr, callback) {
 };
 
 exports.deleteComponentDocumentTemplateOnEntity = function (attr, callback) {
-    var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+    var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
     var componentName = 'document_template';
-    domHelper.read(application_path + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
+    domHelper.read(workspacePath + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
         $showFieldsView('#r_' + componentName + '-click').parent().remove(); //remove li tab
         $showFieldsView('#r_' + componentName).remove(); //remove tab content div
-        domHelper.write(application_path + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
+        domHelper.write(workspacePath + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
             return callback(null);
         }).catch(function (e) {
             return callback(e);
@@ -1469,22 +1262,22 @@ exports.deleteComponentDocumentTemplateOnEntity = function (attr, callback) {
 }
 
 exports.deleteComponentDocumentTemplate = function (attr, callback) {
-    var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+    var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
     var componentName = 'document_template';
-    fs.remove(application_path + 'views/e_' + componentName);
-    fs.remove(application_path + 'views/layout_document_template.dust');
-    fs.remove(application_path + 'routes/e_' + componentName + '.js');
-    fs.remove(application_path + 'models/e_' + componentName + '.js');
-    fs.remove(application_path + 'models/attributes/e_' + componentName + '.json');
-    fs.remove(application_path + 'models/options/e_' + componentName + '.json');
+    fs.remove(workspacePath + 'views/e_' + componentName);
+    fs.remove(workspacePath + 'views/layout_document_template.dust');
+    fs.remove(workspacePath + 'routes/e_' + componentName + '.js');
+    fs.remove(workspacePath + 'models/e_' + componentName + '.js');
+    fs.remove(workspacePath + 'models/attributes/e_' + componentName + '.json');
+    fs.remove(workspacePath + 'models/options/e_' + componentName + '.json');
 
     //update locales
-    var langFR = JSON.parse(fs.readFileSync(application_path + 'locales/fr-FR.json', 'utf8'));
-    var langEN = JSON.parse(fs.readFileSync(application_path + 'locales/en-EN.json', 'utf8'));
+    var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+    var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
     delete langFR.entity['e_' + componentName];
     delete langEN.entity['e_' + componentName];
-    fs.writeFileSync(application_path + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-    fs.writeFileSync(application_path + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
+    fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
     //delete access json
     deleteAccessManagment(attr.id_application, componentName, "administration", function () {
         require('./structure_module').removeMenuEntry(attr, "administration", componentName, function (err) {
@@ -1495,9 +1288,9 @@ exports.deleteComponentDocumentTemplate = function (attr, callback) {
 
 function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
     var source = attr.options.source;
-    var application_path = __dirname + '/../workspace/' + attr.id_application + '/';
+    var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
     var entity_path = __dirname + '/pieces/component/document_template/';
-    var relationEntityShowFieldsFile = application_path + 'views' + '/' + source + '/show_fields.dust';
+    var relationEntityShowFieldsFile = workspacePath + 'views' + '/' + source + '/show_fields.dust';
 
     // New entry for source relation view
     var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '"><!--{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}--></a></li>';
@@ -1510,32 +1303,5 @@ function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
         callback(null);
     }).catch(function (e) {
         callback(e);
-    });
-}
-
-function addMenuComponentAddressSettings(attr, urlDataEntity, callback) {
-    var fileName = __dirname + '/../workspace/' + attr.id_application + '/views/layout_m_administration.dust';
-    // Read file and get jQuery instance
-    domHelper.read(fileName).then(function ($) {
-        var li = '';
-        // Create new html
-        li += '<!--{#entityAccess entity="address_settings"}-->\n';
-        li += '     <!--{#actionAccess entity="address_settings" action="create"}-->';
-        li += "         <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;'>\n";
-        li += '             <a href="/address_settings/config">\n';
-        li += '                 <i class="fa fa-map-marker"></i>\n';
-        li += '                 <span><!--{#__ key="component.' + urlDataEntity.substring(2).toLowerCase() + '.label_component" /}--></span>\n';
-        li += '                 <i class="fa fa-angle-right pull-right"></i>\n';
-        li += '             </a>\n';
-        li += '         </li>\n';
-        li += '     <!--{/actionAccess}-->';
-        li += '<!--{/entityAccess}-->\n';
-
-        // Add new html to document
-        $('#sortable').append(li);
-        // Write back to file
-        domHelper.write(fileName, $).then(function () {
-            callback(null);
-        });
     });
 }

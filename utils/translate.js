@@ -70,9 +70,6 @@ module.exports = {
         // Google won't fr-FR, it just want fr
         let appLang4Google = appLang.slice(0, -3);
 
-        // All available languages to write
-        let languagePromises = [];
-
         // Get all the differents languages to handle
         let localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(function(file) {
             return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");

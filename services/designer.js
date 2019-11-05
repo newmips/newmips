@@ -257,7 +257,6 @@ exports.deleteApplication = async (data) => {
         }
     });
 
-
     metadata.deleteApplication(data.options.value);
 
     return {
@@ -293,7 +292,7 @@ exports.createNewModule = async (data) => {
     data.modules = data.application.modules;
 
     // Structure
-    await structure_module.setupModule(data)
+    await structure_module.setupModule(data);
 
     return {
         module: np_module,
@@ -316,100 +315,33 @@ exports.listModule = async (data) => {
 
 exports.deleteModule = async (data) => {
 
-    // if (data.options.value== 'm_home')
-    //     throw new Error("structure.module.error.notHome");
+    if (data.options.value == 'm_home')
+        throw new Error("structure.module.error.notHome");
 
+    data.np_module = data.application.getModule(data.options.value, true);
+    let entities = data.np_module.entities;
 
-    // data.np_module = data.application.getModule(data.module_name, true);
-    // data.module_entities = np_module.entities;
-
-    // let promises = [];
-    // for (let i = 0; i < entities.length; i++) {
-    //     let tmpAttr = {
-    //         id_application: attr.id_application,
-    //         id_module: attr.id_module,
-    //         id_project: attr.id_project,
-    //         options: {
-    //             value: entities[i].codeName,
-    //             showValue: entities[i].name
-    //         }
-    //     }
-
-    //     promises.push(new Promise(function (resolve, reject) {
-    //         (function (tmpAttrIn) {
-    //             deleteDataEntity(tmpAttrIn, function (err) {
-    //                 if (err) {
-    //                     return reject(err);
-    //                 }
-    //                 resolve();
-    //             })
-    //         })(tmpAttr);
-    //     }));
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
-    var moduleName = attr.options.showValue;
-    if (moduleName.toLowerCase() == 'home') {
-        var err = new Error("structure.module.error.notHome");
-        return callback(err, null);
-    }
-
-    db_module.getEntityListByModuleName(attr.id_application, moduleName, function (err, entities) {
-        if (err)
-            return callback(err, null);
-        var promises = [];
-        for (var i = 0; i < entities.length; i++) {
-            var tmpAttr = {
-                id_application: attr.id_application,
-                id_module: attr.id_module,
-                id_project: attr.id_project,
-                options: {
-                    value: entities[i].codeName,
-                    showValue: entities[i].name
-                }
+    let promises = [];
+    for (let i = 0; i < entities.length; i++) {
+        let tmpAttr = {
+            application: data.application,
+            module_name: data.np_module.name,
+            options: {
+                value: entities[i].name,
+                showValue: entities[i].displayName
             }
-
-            promises.push(new Promise(function (resolve, reject) {
-                (function (tmpAttrIn) {
-                    deleteDataEntity(tmpAttrIn, function (err) {
-                        if (err) {
-                            return reject(err);
-                        }
-                        resolve();
-                    })
-                })(tmpAttr);
-            }));
         }
 
-        Promise.all(promises).then(function () {
-            attr.module_name = attr.options.value;
-            structure_module.deleteModule(attr, function (err) {
-                if (err)
-                    return callback(err, null);
-                db_module.deleteModule(attr.id_application, attr.module_name, moduleName, function (err, info) {
-                    if (err)
-                        return callback(err, null);
+        promises.push(deleteDataEntity(tmpAttr));
+    }
 
-                    db_module.getHomeModuleId(attr.id_application, function (err, homeID) {
-                        info.homeID = homeID;
-                        callback(null, info);
-                    });
-                });
-            });
-        }).catch(function (err) {
-            callback(err, null);
-        });
-    });
+    await Promise.all(promises);
+    await structure_module.deleteModule(data);
+    data.application.deleteModule(data.np_module.name);
+    return {
+        message: "database.module.delete.deleted",
+        messageParams: [data.np_module.displayName]
+    };
 }
 
 /* --------------------------------------------------------------- */
@@ -467,7 +399,6 @@ exports.listEntity = async (data) => {
 }
 
 async function deleteDataEntity(data) {
-
 
     let workspacePath = __dirname + '/../workspace/' + data.application.name;
     let foundEntity = data.application.findEntity(data.options.value, true);
@@ -565,7 +496,7 @@ async function deleteDataEntity(data) {
             } else if (options[i].relation == 'belongsTo') {
                 if (tmpAttr.structureType == "relatedTo") {
                     tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-                    await deleteDataField(tmpAttr);
+                    await deleteField(tmpAttr);
                 } else if (tmpAttr.structureType == "hasOne") {
                     await deleteTab(tmpAttr);
                 } else {
@@ -1480,7 +1411,7 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
     data.options.foreignKey = "fk_id_" + data.source_entity.name + "_" + alias.substring(2);
 
     // Check if the target entity exist
-    data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.options.target, true);
+    data.target_entity = data.application.findEntity(data.options.target, true).entity;
 
     // If a using field or fields has been asked, we have to check if those fields exist in the entity
     if (typeof data.options.usingField !== "undefined") {
@@ -1822,250 +1753,159 @@ exports.deleteComponentContactForm = async (data) => {
 }
 
 // Componant to create an agenda in a module
-exports.createNewComponentAgenda = (attr, callback) => {
-
-    var exportsContext = this;
+exports.createNewComponentAgenda = async (data) => {
 
     /* If there is no defined name for the module */
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "c_agenda";
-        attr.options.urlValue = "agenda";
-        attr.options.showValue = "Agenda";
+    if (typeof data.options.value === "undefined") {
+        data.options.value = "c_agenda";
+        data.options.urlValue = "agenda";
+        data.options.showValue = "Agenda";
     }
 
-    // Check if component with this name is already created on this module
-    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, function (err, component) {
-        if (component) {
-            var err = new Error("structure.component.error.alreadyExistOnModule");
-            return callback(err, null);
-        } else {
+    data.np_module = data.application.getModule(data.module_name, true);
 
-            var valueEvent = "e_" + attr.options.urlValue + "_event";
-            var valueCategory = "e_" + attr.options.urlValue + "_category";
+    if(data.np_module.getComponent(data.options.value, 'agenda'))
+        throw new Error("structure.component.error.alreadyExistOnModule");
 
-            var showValueEvent = attr.options.showValue + " Event";
-            var showValueCategory = attr.options.showValue + " Category";
+    let valueEvent = "e_" + data.options.urlValue + "_event";
+    let valueCategory = "e_" + data.options.urlValue + "_category";
 
-            var instructions = [
-                "add entity " + showValueCategory,
-                "add field Label",
-                "add field Color with type color",
-                "set field Label required",
-                "set field Color required",
-                "add entity " + showValueEvent,
-                "add field Title",
-                "add field Description with type text",
-                "add field Place",
-                "add field Start date with type datetime",
-                "add field End date with type datetime",
-                "add field All day with type boolean",
-                "add field Category related to " + showValueCategory + " using Label",
-                "add field Users related to many user using login, email",
-                "set field Title required",
-                "set field Start date required"
-            ];
+    let showValueEvent = data.options.showValue + " Event";
+    let showValueCategory = data.options.showValue + " Category";
 
-            // Start doing necessary instruction for component creation
-            exportsContext.recursiveInstructionExecute(attr, instructions, 0, function (err) {
-                if (err)
-                    return callback(err, null);
+    let instructions = [
+        "add entity " + showValueCategory,
+        "add field Label",
+        "add field Color with type color",
+        "set field Label required",
+        "set field Color required",
+        "add entity " + showValueEvent,
+        "add field Title",
+        "add field Description with type text",
+        "add field Place",
+        "add field Start date with type datetime",
+        "add field End date with type datetime",
+        "add field All day with type boolean",
+        "add field Category related to " + showValueCategory + " using Label",
+        "add field Users related to many user using login, email",
+        "set field Title required",
+        "set field Start date required"
+    ];
 
-                // Create the component in newmips database
-                db_component.createNewComponentOnModule(attr, function (err, info) {
-                    if (err)
-                        return callback(err, null);
+    // Start doing necessary instruction for component creation
+    await this.recursiveInstructionExecute(data, instructions, 0);
+    data.np_module.addComponent(data.options.value, data.options.showValue, 'agenda');
+    await structure_component.newAgenda(data);
 
-                    // Link new event entity to component
-                    db_entity.addComponentOnEntityByCodeName(valueEvent, info.insertId, attr.id_module, function (err) {
-                        // Link new category entity to component
-                        db_entity.addComponentOnEntityByCodeName(valueCategory, info.insertId, attr.id_module, function (err) {
-                            // Get Data Entity Name needed for structure
-                            db_module.getModuleById(attr.id_module, function (err, module) {
-                                if (err)
-                                    return callback(err, null);
-                                attr.options.moduleName = module.codeName;
-
-                                structure_component.newAgenda(attr, function (err) {
-                                    if (err)
-                                        return callback(err, null);
-
-                                    callback(null, info);
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        }
-    });
+    return {
+        message: "database.component.create.success",
+        messageParams: [data.options.showValue]
+    };
 }
 
-exports.deleteAgenda = (attr, callback) => {
-
-    let exportsContext = this;
+exports.deleteAgenda = async (data) => {
 
     /* If there is no defined name for the module */
-    if (typeof attr.options.value === "undefined") {
-        attr.options.value = "c_agenda";
-        attr.options.urlValue = "agenda";
-        attr.options.showValue = "Agenda";
+    if (typeof data.options.value === "undefined") {
+        data.options.value = "c_agenda";
+        data.options.urlValue = "agenda";
+        data.options.showValue = "Agenda";
     }
 
-    // Check if component with this name is in this module
-    db_component.getComponentByCodeNameInModule(attr.id_module, attr.options.value, attr.options.showValue, (err, component) => {
-        if (!component) {
-            let err = new Error("database.component.notFound.notFoundInModule");
-            err.messageParams = [attr.options.showValue, attr.id_module];
-            return callback(err, null);
-        }
+    data.np_module = data.application.getModule(data.module_name, true);
 
-        let showValueEvent = attr.options.showValue + " Event";
-        let showValueCategory = attr.options.showValue + " Category";
+    if(!data.np_module.getComponent(data.options.value, 'agenda')) {
+        let err = new Error("database.component.notFound.notFoundInModule");
+        err.messageParams = [data.options.showValue];
+        throw err;
+    }
 
-        let instructions = [
-            "delete entity " + showValueCategory,
-            "delete entity " + showValueEvent,
-        ];
+    let showValueEvent = data.options.showValue + " Event";
+    let showValueCategory = data.options.showValue + " Category";
 
-        // Start doing necessary instruction for component creation
-        exportsContext.recursiveInstructionExecute(attr, instructions, 0, err => {
-            if (err)
-                return callback(err, null);
+    let instructions = [
+        "delete entity " + showValueCategory,
+        "delete entity " + showValueEvent,
+    ];
 
-            // Create the component in newmips database
-            db_component.deleteComponentOnModule(attr.options.value, attr.id_module, (err, info) => {
-                if (err)
-                    return callback(err, null);
+    // Start doing necessary instruction for component creation
+    await this.recursiveInstructionExecute(data, instructions, 0);
+    await structure_component.deleteAgenda(data);
+    data.np_module.deleteComponent(data.options.value, 'agenda');
 
-                db_module.getModuleById(attr.id_module, (err, module) => {
-                    if (err)
-                        return callback(err, null);
-
-                    attr.options.moduleName = module.codeName;
-                    structure_component.deleteAgenda(attr, err => {
-                        if (err)
-                            return callback(err, null);
-
-                        callback(null, {
-                            message: "database.component.delete.success"
-                        });
-                    });
-                });
-            });
-        });
-    });
+    return {
+        message: "database.component.delete.success"
+    };
 }
 
-exports.createComponentChat = (attr, callback) => {
-    structure_component.setupChat(attr, function (err) {
-        if (err)
-            return callback(err);
-        callback(null, {message: 'structure.component.chat.success'});
-    });
+exports.createComponentChat = async (data) => {
+
+    if(data.application.getComponent('chat', 'chat'))
+        throw new Error("structure.component.error.alreadyExistInApp");
+
+    await structure_component.setupChat(data);
+    data.application.addComponent('chat', 'Chat', 'chat');
+
+    return {
+        message: 'structure.component.chat.success'
+    }
 }
 
 //Create new component address
-exports.createNewComponentAddress = function(attr, callback) {
-    var componentCodeName = 'e_address_' + attr.id_data_entity;
+exports.createNewComponentAddress = async (data) => {
 
-    if (attr.id_data_entity) {
-        db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, attr.id_module, attr.id_data_entity, function(err, alreadyExist) {
-            if (!err) {
-                if (!alreadyExist) {
-                    db_entity.getDataEntityById(attr.id_data_entity, function(err, entity) {
-                        if (!err) {
-                            attr.componentCodeName = componentCodeName;
-                            attr.options.name = attr.options.componentName;
-                            attr.entityCodeName = entity.codeName;
-                            attr.componentName = attr.options.componentName;
-                            attr.moduleName = module.codeName;
-                            attr.options.showValue = attr.options.componentName;
-                            attr.options.value = componentCodeName;
-                            var associationOption = {
-                                idApp: attr.id_application,
-                                source: entity.codeName,
-                                target: componentCodeName,
-                                foreignKey: 'fk_id_address',
-                                as: 'r_address',
-                                showAs: "",
-                                type: "relatedTo",
-                                relation: "belongsTo",
-                                targetType: "component",
-                                toSync: true
-                            };
-                            structure_entity.setupAssociation(associationOption, function() {
-                                attr.sourceEntity = entity.codeName;
-                                attr.foreignKey = associationOption.foreignKey;
-                                attr.targetEntity = componentCodeName;
-                                attr.targetKey = 'id';
-                                attr.constraintDelete = 'CASCADE';
-                                attr.constraintUpdate = 'CASCADE';
-                                attr.dropForeignKey = true;
-                                db_component.createNewComponentOnEntity(attr, function(err, info) {
-                                    if (!err) {
-                                        structure_component.addNewComponentAddress(attr, function(err) {
-                                            if (err)
-                                                return callback(err);
-                                            callback(null, {
-                                                message: 'database.component.create.success',
-                                                messageParams: ["Adresse", attr.options.componentName || '']
-                                            });
-                                        });
-                                    } else
-                                        return callback(err);
-                                });
-                            });
-                        } else
-                            return callback(err);
-                    });
-                } else {
-                    var err = new Error("structure.component.error.alreadyExistOnEntity");
-                    return callback(err, null);
-                }
-            } else
-                return callback(err);
-        });
-    } else {
-        var err = new Error("database.field.error.selectOrCreateBefore");
-        return callback(err, null);
-    }
+    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
+    data.options.value = 'e_address_' + data.entity_name;
+    data.options.showValue = 'Address ' + data.entity.displayName;
+    data.options.urlValue = 'address_' + data.entity_name;
+
+    if(data.entity.getComponent(data.options.value, 'address'))
+        throw new Error("structure.component.error.alreadyExistOnEntity");
+
+    let associationOption = {
+        application: data.application,
+        source: data.entity.name,
+        target: data.options.value,
+        foreignKey: 'fk_id_address',
+        as: 'r_address',
+        type: "relatedTo",
+        relation: "belongsTo",
+        targetType: "component",
+        toSync: true
+    };
+
+    structure_entity.setupAssociation(associationOption);
+
+    data.entity.addComponent(data.options.value, 'Address', 'address');
+    await structure_component.addNewComponentAddress(data);
+
+    return {
+        message: 'database.component.create.success',
+        messageParams: [data.options.showValue]
+    };
 }
 
-exports.deleteComponentAddress = (attr, callback) => {
-    var componentName = 'e_address_' + attr.id_data_entity;
-    if (!attr.id_data_entity){
-        var err = new Error("database.field.error.selectOrCreateBefore");
-        return callback(err, null);
+exports.deleteComponentAddress = async (data) => {
+
+    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
+    data.options.value = 'e_address_' + data.entity_name;
+    data.options.showValue = 'Address ' + data.entity.displayName;
+    data.options.urlValue = 'address_' + data.entity_name;
+
+    if(!data.entity.getComponent(data.options.value, 'address'))
+        throw new Error("structure.component.error.alreadyExistOnEntity");
+
+    await structure_component.deleteComponentAddress(data);
+    data.fieldToDrop = 'fk_id_address';
+    database.dropFKDataField(data);
+
+    data.entity.deleteComponent(data.options.value, 'address');
+
+    return {
+        message: 'database.component.delete.success'
     }
-    db_component.checkIfComponentCodeNameExistOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, componentExist) {
-        if (err)
-            return callback(err);
-        if (!componentExist) {
-            var err = new Error("database.component.notFound.notFoundInModule");
-            return callback(err, null)
-        }
-        db_component.deleteComponentOnEntity(componentName, attr.id_module, attr.id_data_entity, function (err, info) {
-            if (err)
-                return callback(err);
-            database.dropDataEntity(attr.id_application, componentName, function (err) {
-                db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                    if (err)
-                        return callback(err);
-                    attr.entityName = entity.codeName;
-                    attr.moduleName = module.codeName;
-                    structure_component.deleteComponentAddress(attr, function (err) {
-                        if (err)
-                            return callback(err);
-                        attr.name_data_entity = attr.entityName;
-                        attr.fieldToDrop = 'fk_id_address';
-                        database.dropFKDataField(attr, function (err) {
-                            callback(err, {message: 'database.component.delete.success'});
-                        });
-                    });
-                });
-            });
-        });
-    });
 }
 
 exports.createComponentDocumentTemplate = (attr, callback) => {

@@ -165,6 +165,7 @@
     "settings": {
         "legend": "Paramètres",
         "display_language": "Langue du générateur",
+        "dark_theme": "Mode nuit",
         "display_infos": "Vos informations",
         "infos": {
             "login": "Login",
