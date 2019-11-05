@@ -52,6 +52,66 @@ module.exports = {
         }
         return loadTree(entity, alias);
     },
+    // Build entity tree with fields and ALL associations
+    fullEntityFieldTree: function (entity, alias = entity) {
+        let genealogy = [];
+        // Create inner function to use genealogy globaly
+        function loadTree(entity, alias, depth = 0) {
+            let fieldTree = {
+                entity: entity,
+                alias: alias,
+                fields: [],
+                email_fields: [],
+                phone_fields: [],
+                file_fields: [],
+                children: []
+            }
+            let entityFields, entityAssociations;
+            try {
+                entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+            } catch (e) {
+                console.error(e);
+                return fieldTree;
+            }
+
+            // Building field array
+            for (let field in entityFields) {
+                if (entityFields[field].newmipsType == "email")
+                    fieldTree.email_fields.push(field);
+                if (entityFields[field].newmipsType == "phone")
+                    fieldTree.phone_fields.push(field);
+                if (entityFields[field].newmipsType == "file" || entityFields[field].newmipsType == "picture")
+                    fieldTree.file_fields.push(field);
+                fieldTree.fields.push(field);
+            }
+
+            // Check if current entity has already been built in this branch of the tree to avoid infinite loop
+            for (const [idx, genealogyBranch] of genealogy.entries())
+                if (genealogyBranch.entity == entity) {
+                    // Keep smallest depth
+                    if (genealogyBranch.depth > depth)
+                        genealogy.splice(idx, 1);
+                    else
+                        return fieldTree;
+                }
+
+            genealogy.push({
+                entity: entity,
+                depth: depth
+            });
+
+            // Building children array
+            for (let i = 0; i < entityAssociations.length; i++) {
+                // Do not include history & status table in field list
+                if(entityAssociations[i].target.indexOf("e_history_e_") == -1 && entityAssociations[i].target.indexOf("e_status") == -1 && entityAssociations[i].structureType !== 'auto_generate')
+                    fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as, depth+1));
+            }
+
+            return fieldTree;
+        }
+        return loadTree(entity, alias);
+    },
     // Build array of fields for media sms/notification/email insertion <select>
     entityFieldForSelect: function(entityTree, lang) {
         var __ = language(lang).__;
