@@ -85,7 +85,7 @@ exports.setupModule = async (data) => {
     fs.writeFileSync(accessLockPath, JSON.stringify(accessObject, null, 4), "utf8");
 
     return true;
-}
+};
 
 exports.deleteModule = async (data) => {
     let moduleFilename = 'layout_' + data.module_name + '.dust';
@@ -124,49 +124,4 @@ exports.deleteModule = async (data) => {
 
     translateHelper.removeLocales(data.application.name, "module", data.module_name);
     return true;
-}
-
-exports.addNewMenuEntry = function (idApplication, nameDataEntity, urlDataEntity, nameModule, faIcon, callback) {
-    var fileName = __dirname + '/../workspace/' + idApplication + '/views/layout_' + nameModule.toLowerCase() + '.dust';
-    // Read file and get jQuery instance
-    domHelper.read(fileName).then(function ($) {
-        var li = '';
-        // Create new html
-        li += '<!--{#entityAccess entity="' + urlDataEntity.toLowerCase() + '"}-->\n';
-        li += "     <li id='" + urlDataEntity.toLowerCase() + "_menu_item' style='display:block;' class='treeview'>\n";
-        li += '         <a href="#">\n';
-        li += '             <i class="fa fa-' + faIcon + '"></i>\n';
-        li += '             <span><!--{#__ key="entity.' + nameDataEntity.toLowerCase() + '.label_entity" /}--></span>\n';
-        li += '             <i class="fa fa-angle-left pull-right"></i>\n';
-        li += '         </a>\n';
-        li += '         <ul class="treeview-menu">\n';
-        li += '             <!--{#actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="create"}-->';
-        li += '                 <li>\n';
-        li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/create_form'>\n";
-        li += '                         <i class="fa fa-angle-double-right"></i>\n';
-        li += '                         <!--{#__ key="operation.create" /}--> \n';
-        li += '                     </a>\n';
-        li += '                 </li>';
-        li += '             <!--{/actionAccess}-->';
-        li += '             <!--{#actionAccess entity="' + urlDataEntity.toLowerCase() + '" action="read"}-->';
-        li += '                 <li>\n';
-        li += "                     <a href='/" + urlDataEntity.toLowerCase() + "/list'>\n";
-        li += '                         <i class="fa fa-angle-double-right"></i>\n';
-        li += '                         <!--{#__ key="operation.list" /}--> \n';
-        li += '                     </a>\n';
-        li += '                 </li>\n';
-        li += '             <!--{/actionAccess}-->';
-        li += '         </ul>\n';
-        li += '     </li>\n';
-        li += '<!--{/entityAccess}-->\n';
-
-        // Add new html to document
-        $('#sortable').append(li);
-        // Write back to file
-        domHelper.write(fileName, $).then(function () {
-            callback(null);
-        });
-    }).catch(function (err) {
-        callback(err, null);
-    });
 };

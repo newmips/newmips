@@ -12,6 +12,7 @@ class Application {
         this._displayName = displayName;
         this._gitlabID = gitlabID;
         this._associationSeq = 1; // Used for unique generation of workspace assocation table
+        this._hasDocumentTemplate = 0;
 
         this._modules = [];
         this._components = [];
@@ -84,6 +85,10 @@ class Application {
         return this._associationSeq;
     }
 
+    get hasDocumentTemplate() {
+        return this._hasDocumentTemplate;
+    }
+
     // --- Setters ---
     set displayName(displayName){
         this._displayName = displayName;
@@ -99,6 +104,10 @@ class Application {
 
     set associationSeq(seq) {
         this._associationSeq = seq;
+    }
+
+    set hasDocumentTemplate(value) {
+        this._hasDocumentTemplate = value;
     }
 
     // --- Methods ---
@@ -202,6 +211,7 @@ class Application {
             newMetadata[appName] = actualMetadata[appName];
 
         newMetadata[appName].associationSeq = this._associationSeq;
+        newMetadata[appName].hasDocumentTemplate = this._hasDocumentTemplate;
         newMetadata[appName].displayName = this._displayName;
         newMetadata[appName].modules = {};
         newMetadata[appName].components = {};

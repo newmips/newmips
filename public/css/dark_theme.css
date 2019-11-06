@@ -83,3 +83,17 @@ legend {
 hr {
 	border-top: 1px solid #242424;
 }
+
+.ui-autocomplete {
+	background-color: #242424;
+}
+
+.modal-content {
+	background-color: #242424;
+	color: #E5E5E5;
+}
+
+.dropzone {
+	background-color: #242424 !important;
+	color: #E5E5E5 !important;
+}

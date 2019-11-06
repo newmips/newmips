@@ -201,7 +201,7 @@ $(document).ready(function() {
     // Input instruction
     /////////
     var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
+    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
     var indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
     $("input#instruction").css("transition", "color 0.2s");
 
@@ -264,7 +264,7 @@ $(document).ready(function() {
             if (instructionHistory == null)
                 instructionHistory = [];
             instructionHistory.push($("#instruction").val());
-            localStorage.setItem("newmips_given_instruction_history_" + idApp, JSON.stringify(instructionHistory));
+            localStorage.setItem("newmips_given_instruction_history_" + appName, JSON.stringify(instructionHistory));
         }
 
         $("#execute_instruction").html("Loading...");
@@ -294,7 +294,7 @@ $(document).ready(function() {
                     $(".sessionEntityInfo").text(" " + data.session.entity.noEntity);
 
                 // Keep instructionHistory up to date
-                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
+                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
                 indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
                 // User instruction
                 var userItem = data.chat.items[data.chat.items.length - 2];
@@ -361,7 +361,7 @@ $(document).ready(function() {
                     $("ul#sortable.sidebar-menu").append(content);
                     $(".sidebar .treeview").tree();
                     // Reset Code Editor
-                    if (typeof myEditor !== "undefined" && !data.isRestart) {
+                    if (typeof myEditor !== "undefined") {
                         $("#codemirror-editor li.load-file").each(function() {
                             $(this).remove();
                         });
@@ -373,20 +373,18 @@ $(document).ready(function() {
                     }
 
                     // Reset UI Editor
-                    if (!data.isRestart) {
-                        $("#pages").slideUp();
-                        entity = null;
-                        page = null;
-                        $("#ui_editor").html("");
-                        // Enable gridEditor
-                        $("#ui_editor").gridEditor();
-                        // Remove mainControls who are not removed by modifying html
-                        $(".ge-mainControls").remove();
-                        $("#ui_editor_save").hide();
-                        $("#ui_editor_tips").hide();
-                        $("#ui_editor_apply_all").hide();
-                        $("#ui_editor_apply_all_span").hide();
-                    }
+                    $("#pages").slideUp();
+                    entity = null;
+                    page = null;
+                    $("#ui_editor").html("");
+                    // Enable gridEditor
+                    $("#ui_editor").gridEditor();
+                    // Remove mainControls who are not removed by modifying html
+                    $(".ge-mainControls").remove();
+                    $("#ui_editor_save").hide();
+                    $("#ui_editor_tips").hide();
+                    $("#ui_editor_apply_all").hide();
+                    $("#ui_editor_apply_all_span").hide();
 
                     // Wait a little for Iframe to refresh
                     setTimeout(function() {
@@ -481,7 +479,7 @@ $(document).ready(function() {
                 url: '/default/update_logs',
                 method: "POST",
                 data: {
-                    idApp: idApp
+                    appName: appName
                 },
                 success: function(data) {
                     $("#logs-content").html(data);

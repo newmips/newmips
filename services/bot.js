@@ -1,105 +1,105 @@
 function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 
-    let attr = {
+    let data = {
         function: instructionsFunction,
         options: options
     };
 
     if (!isNaN(valueToCheck)) {
-        attr.error = "error.oneLetter";
+        data.error = "error.oneLetter";
     }
 
     if (valueToCheck.length > 30) {
         console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
-        attr.error = "error.valueTooLong";
-        attr.errorParams = [valueToCheck];
+        data.error = "error.valueTooLong";
+        data.errorParams = [valueToCheck];
     }
 
-    return attr;
+    return data;
 }
 
 // ******* BASIC Actions ******* //
-exports.showSession = function (result) {
+exports.showSession = result => {
 
-    let attr = {};
-    attr.function = "showSession";
-    return attr;
+    let data = {};
+    data.function = "showSession";
+    return data;
 };
 
-exports.help = function (result) {
+exports.help = result => {
 
-    let attr = {};
-    attr.function = "help";
-    return attr;
+    let data = {};
+    data.function = "help";
+    return data;
 };
 
-exports.deploy = function (result) {
+exports.deploy = result => {
 
-    let attr = {};
-    attr.function = "deploy";
-    return attr;
+    let data = {};
+    data.function = "deploy";
+    return data;
 };
 
-exports.restart = function (result) {
-    let attr = {};
-    attr.function = "restart";
-    return attr;
+exports.restart = result => {
+    let data = {};
+    data.function = "restart";
+    return data;
 };
 
-exports.installNodePackage = function (result) {
-    let attr = {
+exports.installNodePackage = result => {
+    let data = {
         specificModule: null
     };
 
     // Specific module
     if(typeof result[1] !== "undefined")
-        attr.specificModule = result[1].trim();
+        data.specificModule = result[1].trim();
 
-    attr.function = "installNodePackage";
-    return attr;
+    data.function = "installNodePackage";
+    return data;
 };
 
-exports.gitPush = function (result) {
-    let attr = {};
-    attr.function = "gitPush";
-    return attr;
+exports.gitPush = result => {
+    let data = {};
+    data.function = "gitPush";
+    return data;
 };
 
-exports.gitPull = function (result) {
-    let attr = {};
-    attr.function = "gitPull";
-    return attr;
+exports.gitPull = result => {
+    let data = {};
+    data.function = "gitPull";
+    return data;
 };
 
-exports.gitCommit = function (result) {
-    let attr = {};
-    attr.function = "gitCommit";
-    return attr;
+exports.gitCommit = result => {
+    let data = {};
+    data.function = "gitCommit";
+    return data;
 };
 
-exports.gitStatus = function (result) {
-    let attr = {};
-    attr.function = "gitStatus";
-    return attr;
+exports.gitStatus = result => {
+    let data = {};
+    data.function = "gitStatus";
+    return data;
 };
 
 // ******* SELECT Actions ******* //
 
-exports.selectApplication = function (result) {
+exports.selectApplication = result => {
 
     let value = result[1];
     let options = {
         value: value
     };
 
-    let attr = {
+    let data = {
         function: "selectApplication",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.selectModule = function (result) {
+exports.selectModule = result => {
 
     let value = result[1];
     let options = {
@@ -107,14 +107,14 @@ exports.selectModule = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "selectModule",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.selectEntity = function (result) {
+exports.selectEntity = result => {
 
     let value = result[1];
     let options = {
@@ -122,15 +122,15 @@ exports.selectEntity = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "selectEntity",
         options: options
     };
-    return attr;
+    return data;
 };
 
 // ******* FIELD ATTRIBUTES Actions ******* //
-exports.setFieldAttribute = function (result) {
+exports.setFieldAttribute = result => {
 
     // Set entity name as the first option in options array
     let options = {
@@ -140,14 +140,14 @@ exports.setFieldAttribute = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "setFieldAttribute",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.setFieldKnownAttribute = function (result) {
+exports.setFieldKnownAttribute = result => {
 
     // Set entity name as the first option in options array
     let options = {
@@ -156,15 +156,15 @@ exports.setFieldKnownAttribute = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "setFieldKnownAttribute",
         options: options
     };
-    return attr;
+    return data;
 };
 
 // ******* DATALIST Actions ******* //
-exports.setColumnVisibility = function (result) {
+exports.setColumnVisibility = result => {
 
     // Set entity name as the first option in options array
     let options = {
@@ -173,14 +173,14 @@ exports.setColumnVisibility = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "setColumnVisibility",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.setColumnHidden = function (result) {
+exports.setColumnHidden = result => {
 
     // Set entity name as the first option in options array
     let options = {
@@ -189,14 +189,14 @@ exports.setColumnHidden = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "setColumnVisibility",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.setColumnVisible = function (result) {
+exports.setColumnVisible = result => {
 
     // Set entity name as the first option in options array
     let options = {
@@ -205,15 +205,15 @@ exports.setColumnVisible = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "setColumnVisibility",
         options: options
     };
-    return attr;
+    return data;
 };
 
 // ******* CREATE Actions ******* //
-exports.createNewProject = function (result) {
+exports.createNewProject = result => {
 
     let value = result[1];
     let options = {
@@ -224,7 +224,7 @@ exports.createNewProject = function (result) {
     return checkAndCreateAttr("createNewProject", options, value);
 };
 
-exports.createNewApplication = function (result) {
+exports.createNewApplication = result => {
 
     let value = result[1];
     let options = {
@@ -235,7 +235,7 @@ exports.createNewApplication = function (result) {
     return checkAndCreateAttr("createNewApplication", options, value);
 };
 
-exports.createNewModule = function (result) {
+exports.createNewModule = result => {
 
     let value = result[1];
     let options = {
@@ -246,7 +246,7 @@ exports.createNewModule = function (result) {
     return checkAndCreateAttr("createNewModule", options, value);
 };
 
-exports.createNewEntity = function (result) {
+exports.createNewEntity = result => {
 
     let value = result[1];
     let options = {
@@ -257,7 +257,7 @@ exports.createNewEntity = function (result) {
     return checkAndCreateAttr("createNewEntity", options, value);
 };
 
-exports.createNewDataField = function (result) {
+exports.createNewDataField = result => {
 
     // Field name has not been defined
     let value = result[1];
@@ -276,7 +276,7 @@ exports.createNewDataField = function (result) {
     return checkAndCreateAttr("createNewDataField", options, value);
 };
 
-exports.createNewDataFieldWithType = function (result) {
+exports.createNewDataFieldWithType = result => {
 
     let value = result[1];
     let type = result[2].toLowerCase().trim();
@@ -301,7 +301,7 @@ exports.createNewDataFieldWithType = function (result) {
     return checkAndCreateAttr("createNewDataField", options, value);
 };
 
-exports.createNewDataFieldWithTypeEnum = function (result) {
+exports.createNewDataFieldWithTypeEnum = result => {
 
     let value = result[1];
     let allValues = result[2];
@@ -322,7 +322,7 @@ exports.createNewDataFieldWithTypeEnum = function (result) {
     return checkAndCreateAttr("createNewDataField", options, value);
 };
 
-exports.createNewDataFieldWithTypeRadio = function (result) {
+exports.createNewDataFieldWithTypeRadio = result => {
 
     let value = result[1];
     let allValues = result[2];
@@ -344,7 +344,7 @@ exports.createNewDataFieldWithTypeRadio = function (result) {
 };
 
 // ******* DELETE Actions ******* //
-exports.deleteProject = function (result) {
+exports.deleteProject = result => {
 
     let value = result[1];
 
@@ -353,14 +353,14 @@ exports.deleteProject = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteProject",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteApplication = function (result) {
+exports.deleteApplication = result => {
 
     let value = result[1];
 
@@ -369,14 +369,14 @@ exports.deleteApplication = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteApplication",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteModule = function (result) {
+exports.deleteModule = result => {
 
     let value = result[1];
 
@@ -385,14 +385,14 @@ exports.deleteModule = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteModule",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteDataEntity = function (result) {
+exports.deleteDataEntity = result => {
 
     let value = result[1];
 
@@ -401,14 +401,14 @@ exports.deleteDataEntity = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteDataEntity",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteField = function (result) {
+exports.deleteField = result => {
 
     let value = result[1];
 
@@ -417,14 +417,14 @@ exports.deleteField = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteField",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteTab = function (result) {
+exports.deleteTab = result => {
 
     let value = result[1];
 
@@ -433,51 +433,51 @@ exports.deleteTab = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteTab",
         options: options
     };
-    return attr;
+    return data;
 };
 
 // ******* LIST Actions ******* //
-exports.listApplication = function (result) {
+exports.listApplication = result => {
 
-    let attr = {
+    let data = {
         function: "listApplication"
     };
-    return attr;
+    return data;
 };
 
-exports.listModule = function (result) {
+exports.listModule = result => {
 
-    let attr = {
+    let data = {
         function: "listModule"
     };
-    return attr;
+    return data;
 };
 
-exports.listEntity = function (result) {
+exports.listEntity = result => {
 
-    let attr = {
+    let data = {
         function: "listEntity"
     };
-    return attr;
+    return data;
 };
 
-exports.listField = function (result) {
+exports.listField = result => {
 
-    let attr = {
+    let data = {
         function: "listField"
     };
-    return attr;
+    return data;
 };
 
 // ******* ASSOCIATION Actions ******* //
 
 // --------- One to One ---------
 // Tabs in show
-exports.relationshipHasOne = function (result) {
+exports.relationshipHasOne = result => {
 
     let source = result[1];
     let target = result[2];
@@ -493,7 +493,7 @@ exports.relationshipHasOne = function (result) {
     return checkAndCreateAttr("createNewHasOne", options, target);
 };
 
-exports.relationshipHasOneWithName = function (result) {
+exports.relationshipHasOneWithName = result => {
 
     let source = result[1];
     let target = result[2];
@@ -512,7 +512,7 @@ exports.relationshipHasOneWithName = function (result) {
 
 
 // --------- Field in create / update / show ---------
-exports.createFieldRelatedTo = function (result) {
+exports.createFieldRelatedTo = result => {
 
     let as = result[1];
     let target = result[2];
@@ -527,7 +527,7 @@ exports.createFieldRelatedTo = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
-exports.createFieldRelatedToUsing = function (result) {
+exports.createFieldRelatedToUsing = result => {
 
     let as = result[1];
     let target = result[2];
@@ -544,7 +544,7 @@ exports.createFieldRelatedToUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedTo", options, as);
 };
 
-exports.createFieldRelatedToMultiple = function (result) {
+exports.createFieldRelatedToMultiple = result => {
 
     let as = result[1];
     let target = result[2];
@@ -559,7 +559,7 @@ exports.createFieldRelatedToMultiple = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
-exports.createFieldRelatedToMultipleUsing = function (result) {
+exports.createFieldRelatedToMultipleUsing = result => {
 
     let as = result[1];
     let target = result[2];
@@ -575,7 +575,7 @@ exports.createFieldRelatedToMultipleUsing = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
-exports.createFieldRelatedToMultipleCheckbox = function (result) {
+exports.createFieldRelatedToMultipleCheckbox = result => {
 
     let as = result[1];
     let target = result[2];
@@ -591,7 +591,7 @@ exports.createFieldRelatedToMultipleCheckbox = function (result) {
     return checkAndCreateAttr("createNewFieldRelatedToMultiple", options, as);
 };
 
-exports.createFieldRelatedToMultipleCheckboxUsing = function (result) {
+exports.createFieldRelatedToMultipleCheckboxUsing = result => {
 
     let as = result[1];
     let target = result[2];
@@ -610,7 +610,7 @@ exports.createFieldRelatedToMultipleCheckboxUsing = function (result) {
 
 // --------- One to Many ---------
 // Tabs in show
-exports.relationshipHasMany = function (result) {
+exports.relationshipHasMany = result => {
 
     let source = result[1];
     let target = result[2];
@@ -626,7 +626,7 @@ exports.relationshipHasMany = function (result) {
     return checkAndCreateAttr("createNewHasMany", options, target);
 };
 
-exports.relationshipHasManyWithName = function (result) {
+exports.relationshipHasManyWithName = result => {
 
     let source = result[1];
     let target = result[2];
@@ -643,7 +643,7 @@ exports.relationshipHasManyWithName = function (result) {
     return checkAndCreateAttr("createNewHasMany", options, as);
 };
 
-exports.relationshipHasManyPreset = function (result) {
+exports.relationshipHasManyPreset = result => {
     let source = result[1];
     let target = result[2];
     let as = target;
@@ -664,7 +664,7 @@ exports.relationshipHasManyPreset = function (result) {
     return checkAndCreateAttr("createNewHasManyPreset", options, target);
 };
 
-exports.relationshipHasManyPresetUsing = function (result) {
+exports.relationshipHasManyPresetUsing = result => {
     let source = result[1];
     let target = result[2];
     let usingField = result[3];
@@ -690,7 +690,7 @@ exports.relationshipHasManyPresetUsing = function (result) {
 // ******* COMPONENT Actions ******* //
 
 /* STATUS */
-exports.createNewComponentStatus = function (result) {
+exports.createNewComponentStatus = result => {
     let defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
     return {
         function: "createNewComponentStatus",
@@ -698,7 +698,7 @@ exports.createNewComponentStatus = function (result) {
     };
 }
 
-exports.createNewComponentStatusWithName = function (result) {
+exports.createNewComponentStatusWithName = result => {
     let value = result[1];
     let options = {
         value: value,
@@ -708,18 +708,18 @@ exports.createNewComponentStatusWithName = function (result) {
     return checkAndCreateAttr("createNewComponentStatus", options, value);
 }
 
-exports.deleteComponentStatus = function (result) {
+exports.deleteComponentStatus = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "deleteComponentStatus",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteComponentStatusWithName = function (result) {
+exports.deleteComponentStatusWithName = result => {
     let value = result[1];
     let options = {
         value: value,
@@ -730,18 +730,18 @@ exports.deleteComponentStatusWithName = function (result) {
 };
 
 /* LOCAL FILE STORAGE */
-exports.createNewComponentLocalFileStorage = function (result) {
+exports.createNewComponentLocalFileStorage = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "createNewComponentLocalFileStorage",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.createNewComponentLocalFileStorageWithName = function (result) {
+exports.createNewComponentLocalFileStorageWithName = result => {
 
     let value = result[1];
     let options = {
@@ -753,18 +753,18 @@ exports.createNewComponentLocalFileStorageWithName = function (result) {
 };
 
 /* CONTACT FORM */
-exports.createNewComponentContactForm = function (result) {
+exports.createNewComponentContactForm = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "createNewComponentContactForm",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.createNewComponentContactFormWithName = function (result) {
+exports.createNewComponentContactFormWithName = result => {
 
     let value = result[1];
     let options = {
@@ -775,18 +775,18 @@ exports.createNewComponentContactFormWithName = function (result) {
     return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
-exports.deleteComponentContactForm = function (result) {
+exports.deleteComponentContactForm = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "deleteComponentContactForm",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteComponentContactFormWithName = function (result) {
+exports.deleteComponentContactFormWithName = result => {
     let value = result[1];
     let options = {
         value: value,
@@ -797,18 +797,18 @@ exports.deleteComponentContactFormWithName = function (result) {
 };
 
 /* AGENDA */
-exports.createNewComponentAgenda = function (result) {
+exports.createNewComponentAgenda = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "createNewComponentAgenda",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.createNewComponentAgendaWithName = function (result) {
+exports.createNewComponentAgendaWithName = result => {
 
     let value = result[1];
     let options = {
@@ -819,18 +819,18 @@ exports.createNewComponentAgendaWithName = function (result) {
     return checkAndCreateAttr("createNewComponentAgenda", options, value);
 };
 
-exports.deleteAgenda = function (result) {
+exports.deleteAgenda = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "deleteAgenda",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteAgendaWithName = function (result) {
+exports.deleteAgendaWithName = result => {
 
     let value = result[1];
     let options = {
@@ -842,7 +842,7 @@ exports.deleteAgendaWithName = function (result) {
 };
 
 /* CRA */
-exports.createNewComponentCra = function (result) {
+exports.createNewComponentCra = result => {
     return {
         function: "createNewComponentCra"
     };
@@ -853,7 +853,7 @@ exports.createNewComponentCra = function (result) {
  * @param {type} result of bot analyzer (this.parse)
  * @returns {function name and user instruction}
  */
-exports.createNewComponentAddress = function (result) {
+exports.createNewComponentAddress = result => {
     let options = {
         componentName: "Address",
         instruction: result[0]
@@ -866,7 +866,7 @@ exports.createNewComponentAddress = function (result) {
  * @param {type} result of bot analyzer (this.parse)
  * @returns {function name and user instruction}
  */
-exports.createNewComponentAddressWithName = function (result) {
+exports.createNewComponentAddressWithName = result => {
     let options = {
         componentName: result[1],
         instruction: result[0]
@@ -877,7 +877,7 @@ exports.createNewComponentAddressWithName = function (result) {
 /**
  * Delete component address
  */
-exports.deleteComponentAddress = function (result) {
+exports.deleteComponentAddress = result => {
     return {
         function: "deleteComponentAddress",
         options: result
@@ -886,18 +886,18 @@ exports.deleteComponentAddress = function (result) {
 
 
 /* PRINT */
-exports.createNewComponentPrint = function (result) {
+exports.createNewComponentPrint = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "createNewComponentPrint",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.createNewComponentPrintWithName = function (result) {
+exports.createNewComponentPrintWithName = result => {
 
     let value = result[1];
 
@@ -906,25 +906,25 @@ exports.createNewComponentPrintWithName = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "createNewComponentPrint",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteComponentPrint = function (result) {
+exports.deleteComponentPrint = result => {
 
     let options = {};
 
-    let attr = {
+    let data = {
         function: "deleteComponentPrint",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.deleteComponentPrintWithName = function (result) {
+exports.deleteComponentPrintWithName = result => {
 
     let value = result[1];
 
@@ -933,34 +933,34 @@ exports.deleteComponentPrintWithName = function (result) {
         processValue: true
     };
 
-    let attr = {
+    let data = {
         function: "deleteComponentPrint",
         options: options
     };
-    return attr;
+    return data;
 };
 
 /**
  * create component DocumentTemplate
  */
-exports.createComponentDocumentTemplate = function (result) {
+exports.createComponentDocumentTemplate = result => {
     return {
         function: "createComponentDocumentTemplate",
         options: result
     };
 };
 
-exports.createComponentDocumentTemplateWithName = function (result) {
-    let options={
-        instruction:result[0],
-        componentName:result[1]
+exports.createComponentDocumentTemplateWithName = result => {
+    let options = {
+        instruction: result[0],
+        componentName: result[1]
     };
-    return checkAndCreateAttr("createComponentDocumentTemplate",options,result[1]);
+    return checkAndCreateAttr("createComponentDocumentTemplate", options, result[1]);
 };
 /**
  * Delete component DocumentTemplate
  */
-exports.deleteComponentDocumentTemplate = function (result) {
+exports.deleteComponentDocumentTemplate = result => {
     return {
         function: "deleteComponentDocumentTemplate",
         options: result
@@ -968,96 +968,90 @@ exports.deleteComponentDocumentTemplate = function (result) {
 };
 
 /* CHAT */
-exports.createComponentChat = function (result) {
+exports.createComponentChat = result => {
     return {
         function: "createComponentChat"
     }
 }
 
 // ******* INTERFACE Actions ******* //
-exports.setLogo = function (result) {
+exports.setLogo = result => {
     let value = result[1];
     let options = {
         value: value
     };
 
-    let attr = {
+    let data = {
         function: "setLogo",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.removeLogo = function (result) {
-    let attr = {};
-    attr.function = "removeLogo";
-    return attr;
+exports.removeLogo = result => {
+    let data = {};
+    data.function = "removeLogo";
+    return data;
 };
 
-exports.setLayout = function (result) {
+exports.setLayout = result => {
 
     let value = result[1];
     let options = {
         value: value
     };
 
-    let attr = {
+    let data = {
         function: "setLayout",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.listLayout = function (result) {
+exports.listLayout = result => {
 
-    let attr = {
+    let data = {
         function: "listLayout"
     };
-    return attr;
+    return data;
 };
 
-exports.setTheme = function (result) {
+exports.setTheme = result => {
 
     let value = result[1];
     let options = {
         value: value
     };
 
-    let attr = {
+    let data = {
         function: "setTheme",
         options: options
     };
-    return attr;
+    return data;
 };
 
-exports.listTheme = function (result) {
+exports.listTheme = result => {
 
-    let attr = {
+    let data = {
         function: "listTheme"
     };
-    return attr;
+    return data;
 };
 
-exports.listIcon = function (result) {
+exports.listIcon = result => {
     return {function: 'listIcon'};
 }
 
-exports.setIcon = function (result) {
-    let attr = {
+exports.setIcon = result => {
+    let data = {
         function: "setIcon",
-        iconValue: result[1]
-    };
-    return attr;
-}
-
-exports.setIconToEntity = function (result) {
-    let attr = {
-        function: "setIconToEntity",
         iconValue: result[1],
-        entityTarget: result[2]
+        options: {
+            value: result[2],
+            processValue: true
+        }
     };
-
-    return attr;
+    return data;
 }
 
 function getRightWidgetType(originalType) {
@@ -1080,65 +1074,65 @@ function getRightWidgetType(originalType) {
     }
 }
 
-function buildAttrForPiechart(result) {
-    let attr = {
+function buildDataForPiechart(result) {
+    let data = {
         function: 'createWidgetPiechart',
         widgetType: 'piechart',
         widgetInputType: 'Piechart'
     }
     // Current entity as target
     if (result.length == 2)
-        attr.field = result[1];
+        data.givenField = result[1];
     // Defined target entity
     else if (result.length == 3) {
-        attr.entityTarget = result[1].trim();
-        attr.field = result[2].trim();
+        data.entityTarget = result[1].trim();
+        data.givenField = result[2].trim();
     }
 
-    return attr;
+    return data;
 }
 
-exports.createWidgetPiechart = function (result) {
-    let attr = buildAttrForPiechart(result);
-    attr.legend = true;
+exports.createWidgetPiechart = result => {
+    let data = buildDataForPiechart(result);
+    data.legend = true;
 
-    return attr;
+    return data;
 }
 
-exports.createWidgetPiechartWithoutLegend = function (result) {
-    let attr = buildAttrForPiechart(result);
-    attr.legend = false;
+exports.createWidgetPiechartWithoutLegend = result => {
+    let data = buildDataForPiechart(result);
+    data.legend = false;
 
-    return attr;
+    return data;
 }
 
-exports.createWidgetLastRecordsWithLimit = function (result) {
-    let attr = {
+exports.createWidgetLastRecordsWithLimit = result => {
+    let data = {
         function: 'createWidgetLastRecords',
         widgetType: 'lastrecords',
         widgetInputType: 'last records'
     }
     // Current entity as target
     if (result.length == 3) {
-        attr.limit = result[1];
-        attr.columns = result[2].split(',');
+        data.limit = result[1];
+        data.columns = result[2].split(',');
     }
     // Defined target entity
     else if (result.length == 4) {
-        attr.entityTarget = result[1];
-        attr.limit = result[2];
-        attr.columns = result[3].split(',');
+        data.entityTarget = result[1];
+        data.limit = result[2];
+        data.columns = result[3].split(',');
     }
 
     // Remove unwanted spaces from columns
-    for (let i = 0; i < attr.columns.length; i++)
-        attr.columns[i] = attr.columns[i].trim();
+    for (let i = 0; i < data.columns.length; i++)
+        data.columns[i] = data.columns[i].trim();
 
-    return attr;
+    return data;
 }
 
-exports.createWidgetLastRecords = function (result) {
-    let attr = {
+exports.createWidgetLastRecords = result => {
+    let data = {
         function: 'createWidgetLastRecords',
         widgetType: 'lastrecords',
         widgetInputType: 'last records',
@@ -1147,21 +1141,21 @@ exports.createWidgetLastRecords = function (result) {
 
     // Current entity as target
     if (result.length == 2)
-        attr.columns = result[1].split(',');
+        data.columns = result[1].split(',');
     // Defined target entity
     else if (result.length == 3) {
-        attr.entityTarget = result[1];
-        attr.columns = result[2].split(',');
+        data.entityTarget = result[1];
+        data.columns = result[2].split(',');
     }
 
     // Remove unwanted spaces from columns
-    for (let i = 0; i < attr.columns.length; i++)
-        attr.columns[i] = attr.columns[i].trim();
+    for (let i = 0; i < data.columns.length; i++)
+        data.columns[i] = data.columns[i].trim();
 
-    return attr;
+    return data;
 }
 
-exports.createWidgetOnEntity = function (result) {
+exports.createWidgetOnEntity = result => {
     let originalType = result[1];
     let finalType = getRightWidgetType(originalType);
 
@@ -1176,7 +1170,7 @@ exports.createWidgetOnEntity = function (result) {
     }
 }
 
-exports.createWidget = function (result) {
+exports.createWidget = result => {
     let originalType = result[1];
     let finalType = getRightWidgetType(originalType);
 
@@ -1190,7 +1184,7 @@ exports.createWidget = function (result) {
     }
 }
 
-exports.deleteWidget = function (result) {
+exports.deleteWidget = result => {
     return {
         function: 'deleteWidget',
         widgetTypes: [result[1] == 'piechart' ? 'piechart' : getRightWidgetType(result[1])],
@@ -1198,14 +1192,14 @@ exports.deleteWidget = function (result) {
     }
 }
 
-exports.deleteEntityWidgets = function (result) {
+exports.deleteEntityWidgets = result => {
     return {
         function: 'deleteEntityWidgets',
         entityTarget: result[1]
     }
 }
 
-exports.addTitle = function (result) {
+exports.addTitle = result => {
     let value = result[1];
     let afterField = null;
     if (typeof result[2] !== "undefined")
@@ -1220,7 +1214,7 @@ exports.addTitle = function (result) {
 }
 
 // --- FUN --- //
-exports.apero = function (result) {
+exports.apero = result => {
     return {
         function: "apero"
     }
@@ -2551,7 +2545,14 @@ let training = {
         "lister icônes",
         "lister icône"
     ],
-    "setIconToEntity": [
+    "setIcon": [
+        "set icon (.*)",
+        "mettre l'icône (.*)",
+        "mettre l'icone (.*)",
+        "mettre icône (.*)",
+        "mettre icone (.*)",
+        "mettre une icône (.*)",
+        "mettre une icone (.*)",
         "set icon (.*) to entity (.*)",
         "set icon (.*) on entity (.*)",
         "set icon (.*) on (.*)",
@@ -2570,15 +2571,6 @@ let training = {
         "mettre l'icône (.*) sur (.*)",
         "mettre l'icone (.*) à (.*)",
         "mettre l'icone (.*) sur (.*)"
-    ],
-    "setIcon": [
-        "set icon (.*)",
-        "mettre l'icône (.*)",
-        "mettre l'icone (.*)",
-        "mettre icône (.*)",
-        "mettre icone (.*)",
-        "mettre une icône (.*)",
-        "mettre une icone (.*)"
     ],
     "createWidgetPiechart": [
         "create widget piechart on entity (.*) for field (.*)",

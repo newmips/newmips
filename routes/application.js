@@ -139,7 +139,8 @@ function execute(req, instruction, __, data = {}, appInit = false) {
                     data.application.save();
 
                 data.message = info.message;
-                data.messageParams = info.messageParams
+                data.messageParams = info.messageParams;
+                data.restartServer = typeof info.restartServer === 'undefined' ? true : false;
 
                 return resolve(data);
             }).catch(err => {
@@ -285,9 +286,6 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
             process_manager.setChildUrl(req.sessionID, appName, "/default/home");
         }
 
-        /* If restart server then redirect to /application/preview?id_application=? */
-        let toRestart = false;
-
         /* Save an instruction history in the history script in workspace folder */
         if (data.function != 'restart') {
             let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
@@ -300,8 +298,6 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
             data.toRedirect = true;
             data.url = "/default/home";
             return data;
-        } else if (data.function == 'restart' || data.function == 'installNodePackage'){
-            toRestart = true;
         }
 
         // Generator answer
@@ -314,33 +310,33 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
             return data;
         }
 
-        // Kill server first
-        await process_manager.killChildProcess(process_server_per_app[appName].pid)
+        if(data.restartServer) {
+            // Kill server first
+            await process_manager.killChildProcess(process_server_per_app[appName].pid)
 
-        // Launch a new server instance to reload resources
-        process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+            // Launch a new server instance to reload resources
+            process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+
+            let initialTimestamp = new Date().getTime();
+            let iframe_url = protocol_iframe + '://';
+
+            if (globalConf.env == 'cloud')
+                iframe_url += globalConf.sub_domain + '-' + req.session.app_name + "." + globalConf.dns + '/default/status';
+            else
+                iframe_url += host + ":" + port + "/default/status";
+
+            console.log('Starting server...');
+            await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
+        }
 
         data.session = session_manager.getSession(req);
         data = initPreviewData(appName, data);
-
-        let initialTimestamp = new Date().getTime();
-        let iframe_url = protocol_iframe + '://';
-
-        if (globalConf.env == 'cloud')
-            iframe_url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + '/default/status';
-        else
-            iframe_url += host + ":" + port + "/default/status";
-
-        console.log('Starting server...');
-        await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
         data.chat = chats[appName][currentUserID];
 
-        if(toRestart) {
-            data.isRestart = true;
-        } else {
-            // Let's do git init or commit depending the situation
+        // Let's do git init or commit depending the situation
+        if (data.function != 'restart' && data.function != 'installNodePackage')
             gitHelper.doGit(data);
-        }
+
         return data;
 
     })().then(data => {
@@ -391,68 +387,56 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 });
 
 // Dropzone FIELD ajax upload file
-router.post('/set_logo', block_access.hasAccessApplication, function (req, res) {
-    upload(req, res, function (err) {
-        if (!err) {
-            if (req.body.storageType == 'local') {
-                var configLogo = {
-                    folder: 'thumbnail/',
-                    height: 30,
-                    width: 30,
-                    quality: 60
-                };
-                var dataEntity = req.body.dataEntity;
-                if (!!dataEntity) {
-                    var basePath = __dirname + "/../workspace/" + req.body.idApp + "/public/img/" + dataEntity + '/';
-                    fs.mkdirs(basePath, function (err) {
-                        if (!err) {
-                            var uploadPath = basePath + req.file.originalname;
-                            var outStream = fs.createWriteStream(uploadPath);
-                            outStream.write(req.file.buffer);
-                            outStream.end();
-                            outStream.on('finish', function (err) {
-                                res.json({
-                                    success: true
-                                });
-                            });
-                            if (req.body.dataType == 'picture') {
-                                //We make thumbnail and reuse it in datalist
-                                basePath = __dirname + "/../workspace/"+req.body.idApp+"/public/img/"+ dataEntity + '/' +  configLogo.folder ;
-                                fs.mkdirs(basePath, function (err) {
-                                    if (!err) {
-                                        Jimp.read(uploadPath, function (err, imgThumb) {
-                                            if (!err) {
-                                                imgThumb.resize(configLogo.height, configLogo.width)
-                                                        .quality(configLogo.quality)  // set JPEG quality
-                                                        .write(basePath + req.file.originalname);
-                                            } else {
-                                                console.error(err);
-                                            }
-                                        });
-                                    } else {
-                                        console.error(err);
-                                    }
-                                });
-                            }
-                        } else{
-                            console.error(err);
-                            res.status(500).end(err);
-                        }
-                    });
-                } else{
-                    var err = new Error();
-                    err.message = 'Internal error, entity not found.';
-                    res.status(500).end(err);
-                }
-            } else{
-                var err = new Error();
-                err.message = 'Storage type not found.';
-                res.status(500).end(err);
-            }
-        } else{
+router.post('/set_logo', block_access.hasAccessApplication, function(req, res) {
+    upload(req, res, function(err) {
+        if (err) {
             console.error(err);
-            res.status(500).end(err);
+            return res.status(500).end(err);
         }
+
+        let configLogo = {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        };
+
+        let entity = req.body.entity;
+
+        if (!entity)
+            return res.status(500).end(new Error('Internal error, entity not found.'));
+
+        let basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/';
+        fs.mkdirs(basePath, err => {
+            if (err) {
+                console.error(err);
+                return res.status(500).end(err);
+            }
+
+            let uploadPath = basePath + req.file.originalname;
+            fs.writeFileSync(uploadPath, req.file.buffer);
+
+            // Thumbnail creation
+            basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/' + configLogo.folder;
+            fs.mkdirs(basePath, err => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end(err);
+                }
+
+                Jimp.read(uploadPath, (err, imgThumb) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).end(err);
+                    }
+
+                    imgThumb.resize(configLogo.height, configLogo.width).quality(configLogo.quality).write(basePath + req.file.originalname);
+                    res.json({
+                        success: true
+                    });
+                });
+            });
+        });
     });
 });
 

@@ -84,8 +84,8 @@ function deleteAccessManagment(appName, urlComponent, urlModule) {
 }
 
 function replaceValuesInFile(filePath, valueToFind, replaceWith) {
-    var fileContent = fs.readFileSync(filePath, 'utf8');
-    var reg = new RegExp(valueToFind, "g");
+    let fileContent = fs.readFileSync(filePath, 'utf8');
+    let reg = new RegExp(valueToFind, "g");
     fileContent = fileContent.replace(reg, replaceWith);
     fs.writeFileSync(filePath, fileContent);
 }
@@ -1150,158 +1150,147 @@ exports.deleteComponentAddress = async (data) => {
     return true;
 };
 
-exports.createComponentDocumentTemplate = function (attr, callback) {
-    try {
-        var entity_name = 'document_template';
-        var entity_code_name = "e_document_template";
-        var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
-        if (attr.is_new_component_entity) {
-            //Add structure files(models,route,views etc.
-            var entity_path = __dirname + '/pieces/component/document_template/';
-            var module_name = 'administration';
-            var entity_url = 'document_template';
-            var table_name = attr.id_application + '_' + entity_code_name;
-            //models
-            var modelContent = fs.readFileSync(entity_path + 'models/e_document_template.js', 'utf8');
-            modelContent = modelContent.replace(/TABLE_NAME/g, table_name);
-            modelContent = modelContent.replace(/MODEL_CODE_NAME/g, entity_code_name);
-            //Now copy model files
-            fs.copySync(entity_path + 'models/attributes/e_document_template.json', workspacePath + 'models/attributes/e_document_template.json');
-            fs.copySync(entity_path + 'models/options/e_document_template.json', workspacePath + 'models/options/e_document_template.json');
-            fs.writeFileSync(workspacePath + 'models/e_document_template.js', modelContent, 'utf8');
-            //copy views files. To do after=> move directory
-            fs.copySync(entity_path + 'views/create.dust', workspacePath + 'views/' + entity_code_name + '/create.dust');
-            fs.copySync(entity_path + 'views/create_fields.dust', workspacePath + 'views/' + entity_code_name + '/create_fields.dust');
-            fs.copySync(entity_path + 'views/list.dust', workspacePath + 'views/' + entity_code_name + '/list.dust');
-            fs.copySync(entity_path + 'views/list_fields.dust', workspacePath + 'views/' + entity_code_name + '/list_fields.dust');
-            fs.copySync(entity_path + 'views/show.dust', workspacePath + 'views/' + entity_code_name + '/show.dust');
-            fs.copySync(entity_path + 'views/show_fields.dust', workspacePath + 'views/' + entity_code_name + '/show_fields.dust');
-            fs.copySync(entity_path + 'views/update.dust', workspacePath + 'views/' + entity_code_name + '/update.dust');
-            fs.copySync(entity_path + 'views/update_fields.dust', workspacePath + 'views/' + entity_code_name + '/update_fields.dust');
-            fs.copySync(entity_path + 'views/readme.dust', workspacePath + 'views/' + entity_code_name + '/readme.dust');
-            fs.copySync(entity_path + 'views/entity_helper_template.dust', workspacePath + 'views/' + entity_code_name + '/entity_helper_template.dust');
-            fs.copySync(entity_path + 'views/global_variable_template.dust', workspacePath + 'views/' + entity_code_name + '/global_variable_template.dust');
-            fs.copySync(entity_path + 'views/layout_document_template.dust', workspacePath + 'views/layout_document_template.dust');
-            //copy helper
-            fs.copySync(entity_path + 'utils/document_template_helper.js', workspacePath + 'utils/document_template_helper.js');
-            fs.copySync(entity_path + 'locales/document_template_locales.js', workspacePath + 'locales/document_template_locales.js');
-            //copy route file
-            fs.copySync(entity_path + 'routes/e_document_template.js', workspacePath + 'routes/e_document_template.js');
+exports.createComponentDocumentTemplate = async (data) => {
 
-            //add new entry for access
-            addAccessManagment(attr.id_application, entity_url, module_name, function () {
-                //now add tab for doc generation
-                addNewTabComponentDocumentTemplate(attr, entity_name, function () {
-                    //Set traduction
-                    var lang_fr = {
-                        label_entity: "Modèle de document",
-                        name_entity: "Modèle de document",
-                        plural_entity: "Modèle de documents",
-                        id_entity: "ID",
-                        f_name: "Nom du fichier",
-                        f_file: "Fichier",
-                        f_entity: "Entité",
-                        f_exclude_relations: "Sous entités"
-                    };
-                    lang_fr[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
-                    var lang_en = {
-                        label_entity: "Document template",
-                        name_entity: "Document template",
-                        plural_entity: "Document templates",
-                        id_entity: "ID",
-                        f_name: "Filename",
-                        f_file: "File",
-                        f_entity: "Entity",
-                        f_exclude_relations: "Sub entities"
-                    };
-                    lang_en[ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
-                    //update locales
-                    var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
-                    var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
-                    langFR.entity[entity_code_name] = lang_fr;
-                    langEN.entity[entity_code_name] = lang_en;
-                    fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-                    fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-                    //Now new Menu For Entity DocumentTemplate
-                    require('./structure_module').addNewMenuEntry(attr.id_application, entity_code_name, entity_url, 'm_' + module_name, 'file-text', function () {
-                        return callback(null);
-                    });
-                });
-            });
-        } else {
-            //Update locales
-            var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
-            var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
-            langFR.entity[entity_code_name][ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Modèle de document";
-            langEN.entity[entity_code_name][ "tab_name_e_" + attr.id_data_entity] = typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template";
-            fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
-            fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-            addNewTabComponentDocumentTemplate(attr, entity_name, function (e) {
-                return callback(e);
-            });
-        }
-    } catch (e) {
-        return callback(e);
+    let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+    let piecesPath = __dirname + '/pieces/component/document_template/';
+
+    // Update locales
+    let langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+    let langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
+
+    // Add administration configuration files
+    if (!data.application.hasDocumentTemplate) {
+
+        // Models
+        let modelContent = fs.readFileSync(piecesPath + 'models/e_document_template.js', 'utf8');
+        modelContent = modelContent.replace(/TABLE_NAME/g, 'e_document_template');
+        modelContent = modelContent.replace(/MODEL_CODE_NAME/g, 'e_document_template');
+
+        // Now copy model files
+        fs.copySync(piecesPath + 'models/attributes/e_document_template.json', workspacePath + 'models/attributes/e_document_template.json');
+        fs.copySync(piecesPath + 'models/options/e_document_template.json', workspacePath + 'models/options/e_document_template.json');
+        fs.writeFileSync(workspacePath + 'models/e_document_template.js', modelContent, 'utf8');
+
+        // Copy views files. Todo => move directory
+        fs.copySync(piecesPath + 'views/create.dust', workspacePath + 'views/e_document_template/create.dust');
+        fs.copySync(piecesPath + 'views/create_fields.dust', workspacePath + 'views/e_document_template/create_fields.dust');
+        fs.copySync(piecesPath + 'views/list.dust', workspacePath + 'views/e_document_template/list.dust');
+        fs.copySync(piecesPath + 'views/list_fields.dust', workspacePath + 'views/e_document_template/list_fields.dust');
+        fs.copySync(piecesPath + 'views/show.dust', workspacePath + 'views/e_document_template/show.dust');
+        fs.copySync(piecesPath + 'views/show_fields.dust', workspacePath + 'views/e_document_template/show_fields.dust');
+        fs.copySync(piecesPath + 'views/update.dust', workspacePath + 'views/e_document_template/update.dust');
+        fs.copySync(piecesPath + 'views/update_fields.dust', workspacePath + 'views/e_document_template/update_fields.dust');
+        fs.copySync(piecesPath + 'views/readme.dust', workspacePath + 'views/e_document_template/readme.dust');
+        fs.copySync(piecesPath + 'views/entity_helper_template.dust', workspacePath + 'views/e_document_template/entity_helper_template.dust');
+        fs.copySync(piecesPath + 'views/global_variable_template.dust', workspacePath + 'views/e_document_template/global_variable_template.dust');
+        fs.copySync(piecesPath + 'views/layout_document_template.dust', workspacePath + 'views/layout_document_template.dust');
+
+        // Copy helper
+        fs.copySync(piecesPath + 'utils/document_template_helper.js', workspacePath + 'utils/document_template_helper.js');
+        fs.copySync(piecesPath + 'locales/document_template_locales.js', workspacePath + 'locales/document_template_locales.js');
+
+        // Copy route file
+        fs.copySync(piecesPath + 'routes/e_document_template.js', workspacePath + 'routes/e_document_template.js');
+
+        // Add new entry for access
+        addAccessManagment(data.application.name, data.options.urlValue, 'administration');
+
+        // Set traduction
+        langFR.entity.e_document_template = {
+            label_entity: "Modèle de document",
+            name_entity: "Modèle de document",
+            plural_entity: "Modèle de documents",
+            id_entity: "ID",
+            f_name: "Nom du fichier",
+            f_file: "Fichier",
+            f_entity: "Entité",
+            f_exclude_relations: "Sous entités"
+        };
+
+        langEN.entity.e_document_template = {
+            label_entity: "Document template",
+            name_entity: "Document template",
+            plural_entity: "Document templates",
+            id_entity: "ID",
+            f_name: "Filename",
+            f_file: "File",
+            f_entity: "Entity",
+            f_exclude_relations: "Sub entities"
+        };
+
+        // Now new Menu For Entity DocumentTemplate
+        let fileName = workspacePath + '/views/layout_m_administration.dust';
+        let $ = await domHelper.read(fileName);
+
+        let li = "\
+        <!--{#entityAccess entity=\"document_template\"}-->\n\
+            <li id='document_template_menu_item' style='display:block;' class='treeview'>\n\
+                <a href='#'>\n\
+                    <i class='fa fa-file-text'></i>\n\
+                    <span><!--{#__ key=\"entity.e_document_template.label_entity\" /}--></span>\n\
+                    <i class='fa fa-angle-left pull-right'></i>\n\
+                </a>\n\
+                <ul class='treeview-menu'>\n\
+                    <!--{#actionAccess entity=\"document_template\" action=\"create\"}-->\
+                        <li>\n\
+                            <a href='/document_template/create_form'>\n\
+                                <i class='fa fa-angle-double-right'></i>\n\
+                                <!--{#__ key=\"operation.create\" /}--> \n\
+                            </a>\n\
+                        </li>\
+                    <!--{/actionAccess}-->\
+                    <!--{#actionAccess entity=\"document_template\" action=\"read\"}-->\
+                        <li>\n\
+                            <a href='/document_template/list'>\n\
+                                <i class='fa fa-angle-double-right'></i>\n\
+                                <!--{#__ key=\"operation.list\" /}--> \n\
+                            </a>\n\
+                        </li>\n\
+                    <!--{/actionAccess}-->\
+                </ul>\n\
+            </li>\n\
+        <!--{/entityAccess}-->\n";
+
+        // Add new html to document
+        $('#sortable').append(li);
+
+        // Write back to file
+        await domHelper.write(fileName, $);
     }
-};
 
-exports.deleteComponentDocumentTemplateOnEntity = function (attr, callback) {
-    var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
-    var componentName = 'document_template';
-    domHelper.read(workspacePath + 'views/' + attr.entityName + '/show_fields.dust').then(function ($showFieldsView) {
-        $showFieldsView('#r_' + componentName + '-click').parent().remove(); //remove li tab
-        $showFieldsView('#r_' + componentName).remove(); //remove tab content div
-        domHelper.write(workspacePath + 'views/' + attr.entityName + '/show_fields.dust', $showFieldsView).then(function () {
-            return callback(null);
-        }).catch(function (e) {
-            return callback(e);
-        });
-    }).catch(function (e) {
-        return callback(e);
-    });
-}
-
-exports.deleteComponentDocumentTemplate = function (attr, callback) {
-    var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
-    var componentName = 'document_template';
-    fs.remove(workspacePath + 'views/e_' + componentName);
-    fs.remove(workspacePath + 'views/layout_document_template.dust');
-    fs.remove(workspacePath + 'routes/e_' + componentName + '.js');
-    fs.remove(workspacePath + 'models/e_' + componentName + '.js');
-    fs.remove(workspacePath + 'models/attributes/e_' + componentName + '.json');
-    fs.remove(workspacePath + 'models/options/e_' + componentName + '.json');
-
-    //update locales
-    var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
-    var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
-    delete langFR.entity['e_' + componentName];
-    delete langEN.entity['e_' + componentName];
+    langFR.entity.e_document_template["tab_name_" + data.entity.name] = data.options.showValue == 'Document template' ? 'Modèle de document' : data.options.showValue;
+    langEN.entity.e_document_template["tab_name_" + data.entity.name] = data.options.showValue;
     fs.writeFileSync(workspacePath + 'locales/fr-FR.json', JSON.stringify(langFR, null, 4), 'utf8');
     fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
-    //delete access json
-    deleteAccessManagment(attr.id_application, componentName, "administration", function () {
-        require('./structure_module').removeMenuEntry(attr, "administration", componentName, function (err) {
-            callback(err);
-        });
-    });
-}
-
-function addNewTabComponentDocumentTemplate(attr, entity_name, callback) {
-    var source = attr.options.source;
-    var workspacePath = __dirname + '/../workspace/' + attr.id_application + '/';
-    var entity_path = __dirname + '/pieces/component/document_template/';
-    var relationEntityShowFieldsFile = workspacePath + 'views' + '/' + source + '/show_fields.dust';
 
     // New entry for source relation view
-    var newLi = '<li><a id="r_' + entity_name + '-click" data-toggle="tab" href="#r_' + entity_name + '"><!--{#__ key="entity.e_document_template.tab_name_e_' + attr.id_data_entity + '" /}--></a></li>';
-    var newTabContent = fs.readFileSync(entity_path + 'views/generate_doc.dust', 'utf8');
-    var sourceDoc = source.substring(2);
-    sourceDoc = sourceDoc.charAt(0).toUpperCase() + sourceDoc.slice(1);
-    newTabContent = newTabContent.replace(/ENTITY_DOC/g, sourceDoc);
-    newTabContent = newTabContent.replace(/ENTITY/g, source);
-    addTab(attr.options.source, relationEntityShowFieldsFile, newLi, newTabContent).then(function () {
-        callback(null);
-    }).catch(function (e) {
-        callback(e);
-    });
+    let newLi = '\
+    <li>\n\
+        <a id="r_document_template-click" data-toggle="tab" href="#r_document_template">\n\
+            <!--{#__ key="entity.e_document_template.tab_name_' + data.entity.name + '" /}-->\n\
+        </a>\n\
+    </li>';
+    let newTabContent = fs.readFileSync(piecesPath + 'views/generate_doc.dust', 'utf8');
+    newTabContent = newTabContent.replace(/ENTITY_DOC/g, data.entity.name.substring(2).charAt(0).toUpperCase() + data.entity.name.substring(2).slice(1));
+    newTabContent = newTabContent.replace(/ENTITY/g, data.entity.name);
+    await addTab(data.entity.name, workspacePath + 'views' + '/' + data.entity.name + '/show_fields.dust', newLi, newTabContent);
+
+    return true;
+};
+
+exports.deleteComponentDocumentTemplate = async (data) => {
+
+    let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+    let $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/show_fields.dust');
+
+    $('#r_' + data.options.urlValue + '-click').parent().remove(); //remove li tab
+    $('#r_' + data.options.urlValue).remove(); //remove tab content div
+
+    // If last tab have been deleted, remove tab structure from view
+    if ($(".tab-content .tab-pane").length == 1)
+        $("#tabs").replaceWith($("#home").html());
+
+    await domHelper.write(workspacePath + 'views/' + data.entity.name + '/show_fields.dust', $);
+    return true;
 }
