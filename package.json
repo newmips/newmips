@@ -57,7 +57,7 @@
         "request": "^2.87.0",
         "request-promise": "^4.2.4",
         "save": "^2.3.3",
-        "sequelize": "^4.37.10",
+        "sequelize": "^5.21.2",
         "simple-git": "^1.95.0",
         "slack": "^11.0.0",
         "split": "^1.0.0",
