@@ -69,7 +69,8 @@ exports.recursiveInstructionExecute = async (recursiveData, instructions, idx) =
 
 exports.help = async (data) => {
     return {
-        message: "botresponse.help"
+        message: "botresponse.help",
+        restartServer: false
     }
 }
 
@@ -105,28 +106,32 @@ exports.installNodePackage = async (data) => {
 exports.gitPush = async (data) => {
     await gitHelper.gitPush(data);
     return {
-        message: "structure.global.gitPush.success"
+        message: "structure.global.gitPush.success",
+        restartServer: false
     }
 }
 
 exports.gitPull = async (data) => {
     await gitHelper.gitPull(data);
     return {
-        message: "structure.global.gitPull.success"
+        message: "structure.global.gitPull.success",
+        restartServer: false
     }
 }
 
 exports.gitCommit = async (data) => {
     await gitHelper.gitCommit(attr);
     return {
-        message: "structure.global.gitCommit.success"
+        message: "structure.global.gitCommit.success",
+        restartServer: false
     }
 }
 
 exports.gitStatus = async (data) => {
     await gitHelper.gitStatus(data);
     return {
-        message: JSON.stringify(infoGit).replace(/,/g, ",<br>")
+        message: JSON.stringify(infoGit).replace(/,/g, ",<br>"),
+        restartServer: false
     };
 }
 
@@ -273,7 +278,8 @@ exports.selectModule = async (data) => {
     return {
         module: data.module,
         message: "database.module.select.selected",
-        messageParams: [data.module.name]
+        messageParams: [data.module.name],
+        restartServer: false
     };
 }
 
@@ -309,7 +315,8 @@ exports.listModule = async (data) => {
     }
     listing += "</ul>";
     return {
-        message: listing
+        message: listing,
+        restartServer: false
     }
 }
 
@@ -351,14 +358,15 @@ exports.selectEntity = async (data) => {
 
     let {np_module, entity} = data.application.findEntity(data.options.value, true);
     data.module = np_module;
-    data.doRedirect = await structure_field.selectEntity(data);
+    data.doRedirect = await structure_entity.selectEntity(data);
 
     return {
         entity: entity,
         module: np_module,
         doRedirect: data.doRedirect,
         message: "database.entity.select.selected",
-        messageParams: [entity.displayName]
+        messageParams: [entity.displayName],
+        restartServer: false
     }
 }
 
@@ -394,7 +402,8 @@ exports.listEntity = async (data) => {
     }
     listing += "</ul>";
     return {
-        message: listing
+        message: listing,
+        restartServer: false
     };
 }
 
@@ -551,7 +560,7 @@ exports.createNewDataField = async (data) => {
 async function deleteTab(data) {
     data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    let {fk, target, tabType} = await structure_field.deleteTab(data);
+    let {fk, target, tabType} = await structure_entity.deleteTab(data);
 
     data.fieldToDrop = fk;
     data.name_data_entity = target;
@@ -614,7 +623,8 @@ exports.listField = async (data) => {
     }
     listing += "</ul>";
     return {
-        message: listing
+        message: listing,
+        restartServer: false
     };
 }
 
@@ -871,7 +881,7 @@ exports.createNewHasOne = async (data) => {
     structure_entity.setupAssociation(reversedOption);
 
     // Generator tabulation in display
-    await structure_field.setupHasOneTab(data);
+    await structure_entity.setupHasOneTab(data);
 
     return {
         ...answer,
@@ -887,7 +897,7 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
     try {
         /* First we have to save the already existing data to put them in the new relation */
         let workspaceData = await database.retrieveWorkspaceHasManyData(data.application.name, dataHelper.capitalizeFirstLetter(data.options.source), optionObj.foreignKey);
-        structure_field.saveHasManyData(data, workspaceData, optionObj.foreignKey);
+        structure_entity.saveHasManyData(data, workspaceData, optionObj.foreignKey);
     } catch (err) {
         if(err.original && err.original.code == 'ER_NO_SUCH_TABLE')
             console.warn('BelongsToMany generation => Cannot retrieve already existing data, the table do no exist.');
@@ -955,7 +965,7 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 
     structure_entity.setupAssociation(associationOptionTwo);
 
-    await structure_field[setupFunction](data);
+    await structure_entity[setupFunction](data);
     let reversedAttr = {
         options: {
             target: data.options.source,
@@ -976,9 +986,9 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
     };
 
     if (data.targetType == "hasMany") {
-        await structure_field.setupHasManyTab(reversedAttr);
+        await structure_entity.setupHasManyTab(reversedAttr);
     } else if (data.targetType == "hasManyPreset") {
-        await structure_field.setupHasManyPresetTab(reversedAttr);
+        await structure_entity.setupHasManyPresetTab(reversedAttr);
     } else if (data.targetType == "relatedToMultiple" || data.targetType == "relatedToMultipleCheckbox") {
 
         if (typeof optionObj.usingField !== "undefined")
@@ -1122,7 +1132,7 @@ exports.createNewHasMany = async (data) => {
     structure_entity.setupAssociation(reversedOptions);
 
     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-    structure_field.setupHasManyTab(data);
+    structure_entity.setupHasManyTab(data);
 
     return {
         ...answer,
@@ -1258,7 +1268,7 @@ exports.createNewHasManyPreset = async (data) => {
     structure_entity.setupAssociation(associationOption);
 
     // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-    await structure_field.setupHasManyPresetTab(data);
+    await structure_entity.setupHasManyPresetTab(data);
 
     return {
         message: "structure.association.hasManyExisting.success",
@@ -1816,7 +1826,7 @@ exports.deleteAgenda = async (data) => {
 
     if(!data.np_module.getComponent(data.options.value, 'agenda')) {
         let err = new Error("database.component.notFound.notFoundInModule");
-        err.messageParams = [data.options.showValue];
+        err.messageParams = [data.options.showValue, data.np_module.displayName];
         throw err;
     }
 
@@ -1851,7 +1861,7 @@ exports.createComponentChat = async (data) => {
     }
 }
 
-//Create new component address
+// Create new component address
 exports.createNewComponentAddress = async (data) => {
 
     data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
@@ -1894,8 +1904,11 @@ exports.deleteComponentAddress = async (data) => {
     data.options.showValue = 'Address ' + data.entity.displayName;
     data.options.urlValue = 'address_' + data.entity_name;
 
-    if(!data.entity.getComponent(data.options.value, 'address'))
-        throw new Error("structure.component.error.alreadyExistOnEntity");
+    if(!data.entity.getComponent(data.options.value, 'address')){
+        let err = new Error("database.component.notFound.notFoundOnEntity");
+        err.messageParams = [data.options.showValue, data.entity.displayName];
+        throw err;
+    }
 
     await structure_component.deleteComponentAddress(data);
     data.fieldToDrop = 'fk_id_address';
@@ -1908,444 +1921,202 @@ exports.deleteComponentAddress = async (data) => {
     }
 }
 
-exports.createComponentDocumentTemplate = (attr, callback) => {
-    var componentCodeName = 'c_document_template';
-    var entity_code_name = 'e_document_template';
-    var component_show_value = "Document template";
-    //get Module Administration
-    db_module.getModuleByCodename(attr.id_application, 'm_administration', function (err, module) {
-        if (!err) {
-            if (module) {
-                attr.id_module = module.id;
-                //check if entity is selected
-                if (attr.id_data_entity) {
-                    //get entity on which we will add component
-                    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-                        if (!err) {
-                            /**
-                             * Check if component exist On entity,
-                             */
-                            db_component.checkIfComponentCodeNameExistOnEntity(componentCodeName, entity.id_module, attr.id_data_entity, function (err, alreadyExist) {
-                                if (!alreadyExist) {
-                                    attr.options.value = componentCodeName;
-                                    attr.options.showValue = component_show_value;
-                                    db_component.getComponentByCodeNameInModule(attr.id_module, componentCodeName, component_show_value, function (err, component) {
-                                        var p = new Promise(function (resolve, reject) {
-                                            if (!component) {
-                                                //component doesn't exist, so we create it
-                                                db_component.createNewComponentOnModule(attr, function (err, info) {
-                                                    //now we get It
-                                                    db_component.getComponentByCodeNameInModule(attr.id_module, componentCodeName, component_show_value, function (err, component) {
-                                                        resolve(component);
-                                                    });
-                                                });
-                                            } else {
-                                                //component exists
-                                                resolve(component);
-                                            }
-                                        });
-                                        p.then(function (component) {
-                                            //add component on entity
-                                            component.addDataEntity(attr.id_data_entity).then(function () {
-                                                attr.moduleName = module.codeName;
-                                                attr.entityName = entity.name;
-                                                attr.options.target = componentCodeName;
-                                                attr.options.source = entity.codeName;
-                                                //check if entity document template exist
-                                                db_entity.getIdDataEntityByCodeName(module.id, entity_code_name, function (err, id_entity) {
-                                                    var p = new Promise(function (resolve, reject) {
-                                                        if (err && err.message === "database.entity.notFound.withThisCodeNameAndModule") {
-                                                            //entity Template document not found, we create it
-                                                            attr.options.value = entity_code_name;
-                                                            attr.options.showValue = component_show_value;
-                                                            db_entity.createNewEntity(attr, function (err, info) {
-                                                                if (err)
-                                                                    reject(err);
-                                                                else {
-                                                                    //If new, we add structure files(models,route,views etc.)
-                                                                    attr.is_new_component_entity = true;
-                                                                    resolve(info.insertId);
-                                                                }
-                                                            });
-                                                        } else if (!err) {
-                                                            resolve(id_entity);
-                                                        } else {
-                                                            reject(err);
-                                                        }
-                                                    });
-                                                    p.then(function (id_entity) {
-                                                        attr.id_entity = id_entity;
-                                                        /**
-                                                         * Now add entity e_document_template files(models,views,routes)
-                                                         */
-                                                        structure_component.createComponentDocumentTemplate(attr, function (err) {
-                                                            if (err)
-                                                                return callback(err);
-                                                            else
-                                                                return callback(null, {message: 'database.component.create.success',
-                                                                    messageParams: ["Document template", typeof attr.options.componentName !== "undefined" ? attr.options.componentName : "Document template"]});
-                                                        });
-                                                    }).catch(function (e) {
-                                                        return callback(e);
-                                                    });
-                                                });
-                                            }).catch(function (e) {
-                                                return callback(e);
-                                            });
-                                        }).catch(function (e) {
-                                            return callback(err);
-                                        });
-                                    });
-                                } else {
-                                    var err = new Error("structure.component.error.alreadyExistOnEntity");
-                                    return callback(err, null);
-                                }
-                            });
-                        } else
-                            return callback(err);
-                    });
-                } else {
-                    var err = new Error("database.field.error.selectOrCreateBefore");
-                    return callback(err, null);
-                }
-            } else {
-                /**Reject. We need module Administration to continue**/
-                var err = new Error("database.module.notFound");
-                return callback(err);
-            }
-        } else
-            return callback(err);
-    });
+exports.createComponentDocumentTemplate = async (data) => {
+
+    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
+    data.options.value = 'c_document_template';
+    data.options.showValue = 'Document template';
+    data.options.urlValue = 'document_template';
+
+    if(data.entity.getComponent(data.options.value, 'document_template'))
+        throw new Error("structure.component.error.alreadyExistOnEntity");
+
+    await structure_component.createComponentDocumentTemplate(data);
+
+    data.entity.addComponent(data.options.value, "Document template", 'document_template');
+
+    if(!data.application.hasDocumentTemplate)
+        data.application.hasDocumentTemplate = 1;
+
+    return {
+        message: 'database.component.create.success',
+        messageParams: ["Document template"]
+    };
 };
 
-exports.deleteComponentDocumentTemplate = (attr, callback) => {
-    var componentName = "c_document_template";
-    if (attr.id_data_entity) {
-        db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-            if (!err) {
-                attr.entityName = entity.codeName;
-                db_component.checkIfComponentCodeNameExistOnEntity(componentName, entity.id_module, attr.id_data_entity, function (err, componentExist) {
-                    if (!err) {
-                        if (componentExist) {
-                            //Get module administration where is component entity
-                            db_module.getModuleByCodename(attr.id_application, 'm_administration', function (err, module) {
-                                if (!err) {
-                                    //Delete juste association
-                                    db_component.deleteComponentAndEntityAssociation(componentName, module.id, attr.id_data_entity, function (err, info) {
-                                        if (!err) {
-                                            //Delete tab on entity
-                                            structure_component.deleteComponentDocumentTemplateOnEntity(attr, function (err) {
-                                                if (err)
-                                                    return callback(err);
-                                                else {
-                                                    //delete the component files if no entity doesn't contain it, so we check it before
-                                                    db_component.checkIfComponentCodeNameExistOnAnEntity(componentName, module.id, function (err, exist) {
-                                                        if (!err) {
-                                                            if (exist) {
-                                                                //If another entity have this component whe don't delete files
-                                                                return callback(null, {message: 'database.component.delete.success'});
-                                                            } else {
-                                                                //If not, we delete component files:model,route,views,...
-                                                                db_entity.deleteDataEntity({id_module: module.id, show_name_data_entity: "document template", name_data_entity: 'e_document_template'}, function () {
-                                                                    // We drop component entity table
-                                                                    database.dropDataEntity(attr.id_application, 'e_document_template', function (err) {
-                                                                        if (err)
-                                                                            return callback(err);
-                                                                        else {
-                                                                            db_component.deleteComponentByCodeNameInModule("c_document_template", module.id, function () {
-                                                                                if (!err) {
-                                                                                    structure_component.deleteComponentDocumentTemplate(attr, function (err) {
-                                                                                        //delete upload files ?
-                                                                                        callback(err, {message: 'database.component.delete.success'});
-                                                                                    });
-                                                                                } else {
-                                                                                    return callback(err);
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                });
-                                                            }
-                                                        } else
-                                                            return callback(err);
-                                                    });
-                                                }
-                                            });
-                                        } else
-                                            return callback(err);
-                                    });
-                                } else
-                                    return callback(err);
-                            });
-                        } else {
-                            var err = new Error("database.component.notFound.notFoundOnEntity");
-                            err.messageParams = ["document template", attr.id_data_entity];
-                            return callback(err, null);
-                        }
-                    } else
-                        return callback(err);
-                });
-            } else
-                return callback(err);
-        });
-    } else {
-        var err = new Error("database.field.error.selectOrCreateBefore");
-        return callback(err, null);
+exports.deleteComponentDocumentTemplate = async (data) => {
+
+    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
+    data.options.value = 'c_document_template';
+    data.options.showValue = 'Document template';
+    data.options.urlValue = 'document_template';
+
+    if(!data.entity.getComponent(data.options.value, 'document_template')){
+        let err = new Error("database.component.notFound.notFoundOnEntity");
+        err.messageParams = [data.options.showValue, data.entity.displayName];
+        throw err;
     }
+
+    // Remove component template from entity
+    await structure_component.deleteComponentDocumentTemplate(data)
+    data.entity.deleteComponent(data.options.value, 'document_template');
+
+    return {
+        message: 'database.component.create.success',
+        messageParams: ["Document template"]
+    };
 };
 
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
-exports.setLogo = (attr, callback) => {
-    structure_ui.setLogo(attr, function (err, infoStructure) {
-        if (err)
-            return callback(err, null);
-        callback(null, infoStructure);
-    });
+exports.setLogo = async (data) => {
+    await structure_ui.setLogo(data);
+    return {
+        message: 'preview.logo.add',
+        restartServer: false
+    };
 }
 
-exports.removeLogo = (attr, callback) => {
-    structure_ui.removeLogo(attr, function (err, infoStructure) {
-        if (err)
-            return callback(err, null);
-        callback(null, infoStructure);
-    });
+exports.removeLogo = async (data) => {
+    let message = await structure_ui.removeLogo(data);
+    return {
+        message: message,
+        restartServer: false
+    };
 }
 
-exports.setLayout = (attr, callback) => {
-    db_module.getModuleById(attr.id_module, function (err, currentModule) {
-        if (err)
-            return callback(err, null);
-        attr.currentModule = currentModule;
-        structure_ui.setLayout(attr, function (err, infoStructure) {
-            if (err)
-                return callback(err, null);
-            callback(null, infoStructure);
-        });
-    });
+exports.setLayout = async (data) => {
+    data.np_module = data.application.getModule(data.module_name, true);
+    return await structure_ui.setLayout(data);
 }
 
-exports.listLayout = (attr, callback) => {
-    structure_ui.listLayout(attr, function (err, infoStructure) {
-        if (err)
-            return callback(err, null);
-
-        callback(null, infoStructure);
-    });
+exports.listLayout = async (data) => {
+    return await structure_ui.listLayout(data);
 }
 
-exports.setTheme = (attr, callback) => {
-    structure_ui.setTheme(attr, function (err, infoStructure) {
-        if (err)
-            return callback(err, null);
-
-        callback(null, infoStructure);
-    });
+exports.setTheme = async (data) => {
+    await structure_ui.setTheme(data);
+    return {
+        message: "structure.ui.theme.successInstall",
+        messageParams: [data.options.value],
+        restartServer: false
+    }
 }
 
-exports.listTheme = (attr, callback) => {
-    structure_ui.listTheme(attr, function (err, infoStructure) {
-        if (err)
-            return callback(err, null);
-
-        callback(null, infoStructure);
-    });
+exports.listTheme = async (data) => {
+    return await structure_ui.listTheme(data);
 }
 
-exports.listIcon = (attr, callback) => {
-    callback(null, {
+exports.listIcon = async (data) => {
+    return {
         message: "structure.ui.icon.list",
-        messageParams: ['http://fontawesome.io/icons']
-    });
+        messageParams: ['https://fontawesome.com/v4.7.0/icons/'],
+        restartServer: false
+    }
 }
 
 exports.setIcon = async (data) => {
+
+    if(typeof data.options.value !== 'undefined')
+        data.entity_name = data.options.value;
+
     data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
     await structure_ui.setIcon(data);
     return {
         message: "structure.ui.icon.success",
-        messageParams: [data.entity_name, data.iconValue]
+        messageParams: [data.entity.displayName, data.iconValue],
+        restartServer: false
     }
 }
 
-exports.setIconToEntity = (attr, callback) => {
-    db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
-        if (err)
-            return callback(err);
-        db_module.getModuleById(entity.id_module, function (err, module) {
-            if (err)
-                return callback(err);
+exports.addTitle = async (data) => {
 
-            attr.module = module;
-            attr.entity = entity;
-            structure_ui.setIcon(attr, function (err, info) {
-                if (err)
-                    return callback(err);
-                callback(null, info);
-            });
-        });
-    });
+    if(data.options.afterField) {
+        let field = "f_" + dataHelper.clearString(attr.options.afterField);
+        data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(field, true);
+    }
+
+    await structure_ui.addTitle(attr);
+    return {
+        message: 'structure.ui.title.success'
+    }
 }
 
-exports.addTitle = (attr, callback) => {
-    // Get selected entity
-    db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-        if (err)
-            return callback(err, null);
+exports.createWidgetPiechart = async (data) => {
 
-        attr.entityCodeName = entity.codeName;
+    if(data.entityTarget) {
+        let entity = "e_" + dataHelper.clearString(data.entityTarget);
+        data.entity_name = entity;
+    }
 
-        let checkField = new Promise((resolve, reject) => {
-            if(!attr.options.afterField)
-                return resolve();
+    data.np_module = data.application.getModule(data.module_name, true);
+    data.entity = data.np_module.getEntity(data.entity_name, true);
+    data.field = data.entity.getField("f_" + dataHelper.clearString(data.givenField));
 
-            attr.fieldCodeName = "f_"+dataHelper.clearString(attr.options.afterField);
+    await structure_ui.createWidgetPiechart(data);
 
-            var checkFieldParams = {
-                codeName: attr.fieldCodeName,
-                showValue: attr.options.afterField,
-                idEntity: attr.id_data_entity,
-                showEntity: entity.name
+    return {
+        message: 'structure.ui.widget.success',
+        messageParams: [data.widgetInputType, data.np_module.displayName]
+    }
+}
+
+exports.createWidgetLastRecords = async (data) => {
+
+    if(data.entityTarget) {
+        let entity = "e_" + dataHelper.clearString(data.entityTarget);
+        data.entity_name = entity;
+    }
+
+    data.np_module = data.application.getModule(data.module_name, true);
+    data.entity = data.np_module.getEntity(data.entity_name, true);
+
+    console.log(data);
+
+    // Check for not found fields and build error message
+    for (let k = 0; k < data.columns.length; k++) {
+
+        let kFound = false;
+        if (data.columns[k].toLowerCase() == 'id') {
+            data.columns[k] = {
+                name: 'id',
+                displayName: 'id',
+                found: true
             };
+            kFound = true;
+            continue;
+        }
 
-            db_field.getFieldByCodeName(checkFieldParams, function (err, fieldExist) {
-                if (err) {
-                    // Not found as a simple field, look for related to field
-                    var optionsArray = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/' + attr.id_application + '/models/options/' + entity.codeName + '.json'));
-                    var found = false;
-                    for (var i = 0; i < optionsArray.length; i++) {
-                        if (optionsArray[i].showAs == attr.options.afterField) {
-                            if (optionsArray[i].structureType == "relatedTo" || optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
-                                found = true;
-                                return resolve();
-                            }
-                            break;
-                        }
-                    }
-                    if (!found){
-                        let err = new Error();
-                        err.message = "structure.ui.title.missingField";
-                        err.messageParams = [attr.options.afterField];
-                        return reject(err);
-                    }
-                } else {
-                    resolve();
-                }
-            })
-        })
-
-        checkField.then(() => {
-            structure_ui.addTitle(attr, function (err, answer) {
-                if (err)
-                    return callback(err, null);
-
-                callback(null, answer);
-            })
-        }).catch(err => {
-            return callback(err, null);
-        })
-    })
-}
-
-exports.createWidgetPiechart = (attr, callback) => {
-    var entityDbFunction = '', param = '';
-    if (attr.entityTarget) {
-        db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
-            if (err)
-                return callback(err);
-            withDataEntity(entity);
-        });
-    } else {
-        db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-            if (err)
-                return callback(err);
-            withDataEntity(entity);
-        });
+        for (let i = 0; i < data.entity.fields.length; i++) {
+            if (data.entity.fields[i].name.indexOf('s_') == 0)
+                data.entity.fields[i].name = 'r_' + data.entity.fields[i].name.substring(2);
+            if (data.columns[k].toLowerCase() == data.entity.fields[i].displayName.toLowerCase()) {
+                data.columns[k] = {
+                    name: data.entity.fields[i].name,
+                    displayName: data.entity.fields[i].displayName,
+                    found: true
+                };
+                kFound = true;
+                break;
+            }
+        }
+        if (!kFound)
+            data.columns[k] = {
+                name: data.columns[k],
+                found: false
+            };
     }
 
-    function withDataEntity(entity) {
-        db_module.getModuleById(entity.id_module, function (err, module) {
-            if (err)
-                return callback(err);
-            attr.entity = entity;
-            attr.module = module;
+    await structure_ui.createWidgetLastRecords(data);
 
-            db_field.getCodeNameByNameArray([attr.field], entity.id, function (err, field) {
-                if (err)
-                    return callback(err);
-
-                if (field.length == 1) {
-                    attr.found = true;
-                    attr.field = field[0];
-                }
-                // Field not found on entity, set found to false to notify structure_ui to search in entities targeted in options.json
-                else
-                    attr.found = false;
-
-                structure_ui.createWidgetPiechart(attr, function (err, info) {
-                    if (err)
-                        return callback(err);
-                    callback(null, info);
-                });
-            });
-        });
-    }
-}
-
-exports.createWidgetLastRecords = (attr, callback) => {
-    if (attr.entityTarget) {
-        db_entity.getEntityByName(attr.entityTarget, attr.id_module, function (err, entity) {
-            if (err)
-                return callback(err);
-            withDataEntity(entity);
-        });
-    } else {
-        db_entity.getDataEntityById(attr.id_data_entity, function (err, entity) {
-            if (err)
-                return callback(err);
-            withDataEntity(entity);
-        });
-    }
-
-    function withDataEntity(entity) {
-        db_module.getModuleById(entity.id_module, function (err, module) {
-            if (err)
-                return callback(err);
-            attr.entity = entity;
-            attr.module = module;
-
-            db_field.getCodeNameByNameArray(attr.columns, entity.id, function (err, columns) {
-                if (err)
-                    return callback(err);
-                // Check for not found fields and build error message
-                for (var k = 0; k < attr.columns.length; k++) {
-                    var kFound = false;
-                    if (attr.columns[k].toLowerCase() == 'id') {
-                        attr.columns[k] = {codeName: 'id', name: 'id', found:true};
-                        kFound = true;
-                    }
-                    for (var i = 0; i < columns.length; i++) {
-                        if (columns[i].codeName.indexOf('s_') == 0)
-                            columns[i].codeName = 'r_'+columns[i].codeName.substring(2);
-                        if (attr.columns[k].toLowerCase() == columns[i].name.toLowerCase()) {
-                            attr.columns[k] = {codeName: columns[i].codeName, name: columns[i].name, found: true};
-                            kFound = true;
-                            break;
-                        }
-                    }
-                    if (!kFound)
-                        attr.columns[k] = {name: attr.columns[k], found: false};
-                }
-                structure_ui.createWidgetLastRecords(attr, function (err, info) {
-                    if (err)
-                        return callback(err);
-                    callback(null, info);
-                });
-            });
-
-        });
-    }
+    return {
+        message: 'structure.ui.widget.success',
+        messageParams: [data.widgetInputType, data.np_module.displayName]
+    };
 }
 
 exports.createWidgetOnEntity = async (data) => {

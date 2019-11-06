@@ -122,6 +122,7 @@ function addPrefix(string, instructionFunction){
         case 'createNewFieldRelatedTo':
         case 'createNewComponentContactForm':
         case 'deleteComponentContactForm':
+        case 'setIcon':
             return "e_"+string;
             break;
         case 'createNewDataField':

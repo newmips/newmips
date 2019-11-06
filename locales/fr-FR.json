@@ -295,7 +295,7 @@
                 "successOnEntity": "Nouveau composant %s créé sur l'entité %s."
             },
             "notFound": {
-                "notFoundInModule": "Désolé, aucun composant avec le nom %s existe dans le module avec l'ID : %s.",
+                "notFoundInModule": "Désolé, aucun composant avec le nom %s existe dans le module %s",
                 "notFoundOnEntity": "Désolé, aucun composant avec le nom %s existe sur l'entité %s.",
                 "notFound": "Désolé, impossible de retrouver le composant avec le nom %s"
             },

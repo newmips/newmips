@@ -186,6 +186,13 @@ module.exports = {
                     })(urlFile, dataLocales, workingLocales);
                 } else {
                     dataLocales = addLocal(type, dataLocales, workingLocales, value);
+                    if(!dataLocales || typeof dataLocales === 'undefined') {
+                        console.log("WAZA");
+                        console.log(type);
+                        console.log(dataLocales);
+                        console.log(workingLocales);
+                        console.log(value);
+                    }
                     fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
                     resolve();
                 }
