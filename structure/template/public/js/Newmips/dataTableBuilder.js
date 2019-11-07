@@ -432,7 +432,7 @@ function init_datatable(tableID, doPagination, context) {
                 if (typeof columns[meta.col].type != 'undefined') {
                     // date / datetime
                     if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
+                        if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
                             var tmpDate = moment(new Date(cellValue));
                             if (!tmpDate.isValid())
                                 cellValue = '-';
@@ -474,6 +474,9 @@ function init_datatable(tableID, doPagination, context) {
                             // Get current entity by splitting current table id
                             var currentEntity = tableID.split("#table_")[1];
                             var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
+                            // Remove uuid
+                            if(justFilename[32] == '_')
+                                justFilename = justFilename.substring(33);
                             cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
                         } else
                             cellValue = '';
@@ -616,7 +619,6 @@ function init_datatable(tableID, doPagination, context) {
             }
         ]
     }
-    // Global search
     table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
@@ -657,7 +659,6 @@ function init_datatable(tableID, doPagination, context) {
         var mainTh = $(this);
         var title = $(this).text();
 
-        // Custom
         var currentField = mainTh.data('field');
         var val = getFilter(tableID.substring(1), currentField);
         var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';

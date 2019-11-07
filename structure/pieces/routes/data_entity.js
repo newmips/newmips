@@ -524,7 +524,8 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
     status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
     }).catch(err => {
-        entity_helper.error(err, req, res, '/ENTITY_URL_NAME/show?id=' + req.params.id_ENTITY_URL_NAME, "ENTITY_NAME");
+        req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
+        res.redirect(req.headers.referer);
     });
 });
 

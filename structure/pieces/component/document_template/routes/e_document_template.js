@@ -227,7 +227,8 @@ router.get('/set_status/:id_document_template/:status/:id_new_status', block_acc
     status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(() => {
         res.redirect('/document_template/show?id=' + req.params.id_document_template);
     }).catch((err) => {
-        entity_helper.error(err, req, res, '/document_template/show?id=' + req.params.id_document_template);
+        req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
+        res.redirect(req.headers.referer);
     });
 });
 

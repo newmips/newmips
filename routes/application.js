@@ -700,7 +700,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
 
         // Get user project for clone url generation
         let gitlabProjects = [];
-        if(gitlabConf.doGit)
+        if(gitlabConf.doGit && req.session.gitlab && req.session.gitlab.user)
             gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
 
         for (var i = 0; i < projects.length; i++) {

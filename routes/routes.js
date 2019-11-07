@@ -352,9 +352,10 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
             }
         });
 
+        let gitlabUser = null;
         // Update Gitlab password
         if(gitlabConf.doGit){
-            let gitlabUser = await gitlab.getUser(email_user);
+            gitlabUser = await gitlab.getUser(email_user);
 
             if(!gitlabUser)
                 console.warn('Cannot update gitlab user password, user not found.');
@@ -373,10 +374,11 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
             }
         });
 
-        return connectedUser;
+        return {connectedUser, gitlabUser};
 
-    })().then(connectedUser => {
-        req.login(connectedUser, err => {
+    })().then(infos => {
+
+        req.login(infos.connectedUser, err => {
             if (err) {
                 console.error(err);
                 req.session.toastr = [{
@@ -385,6 +387,9 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
                 }];
                 res.redirect('/login');
             } else {
+                req.session.gitlab = {
+                    user: infos.gitlabUser
+                };
                 req.session.toastr = [{
                     message: "login.passwordReset",
                     level: "success"

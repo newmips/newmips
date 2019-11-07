@@ -144,8 +144,13 @@ module.exports = {
 
         dust.filters.filename = function(value) {
             // Remove datetime part from filename display
-            if (moment(value.substring(0,16), 'YYYYMMDD-HHmmss_').isValid() && value != "" && value.length > 16)
-                return value.substring(16);
+            if (moment(value.substring(0, 16), 'YYYYMMDD-HHmmss_').isValid() && value != "" && value.length > 16)
+                value = value.substring(16);
+
+            // Remove uuid
+            if(value[32] == '_')
+                value = value.substring(33);
+
             return value;
         };
 
