@@ -3336,6 +3336,7 @@ exports.createWidgetLastRecords = function (attr, callback) {
                     if (attr.columns[k].toLowerCase() == 'id') {
                         attr.columns[k] = {codeName: 'id', name: 'id', found:true};
                         kFound = true;
+                        continue;
                     }
                     for (var i = 0; i < columns.length; i++) {
                         if (columns[i].codeName.indexOf('s_') == 0)
