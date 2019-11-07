@@ -173,6 +173,7 @@
             "question": "Are you sure you want to delete this entity ?"
         },
         "empty": "No data to display",
+        "empty_file": "No file",
         "unique": "This field must be unique:",
         "relatedtomanycheckbox_required": "A field requires you to check at least one checkbox."
     },

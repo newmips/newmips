@@ -2814,29 +2814,29 @@ exports.complete = function (instruction) {
 
             let answer = " ";
             let valid = true;
-            let letiable = false;
+            let variable = false;
             while ((m < l) && (k < n) && (valid)) {
                 // Check if words are the same, goto next word
                 if (template[k] == "(.*)" || template[k] == instr[m]) {
-                    letiable = false;
+                    variable = false;
                     k++;
                 } else {
                     // Check if beginning of word are the same
                     let sublen = instr[m].length;
                     if (template[k].substring(0, sublen) == instr[m]) {
                         // Do not increment k, we are still on keyword
-                        letiable = false;
+                        variable = false;
                     } else {
-                        // If we parse the letiable value
+                        // If we parse the variable value
                         if (template[k] == "(.*)") {
                             // Check next word
                             if (template[k + 1]) {
                                 k++;
-                                letiable = true;
+                                variable = true;
                             }
                         } else {
-                            // If we are not parsing a letiable, it means template is not appropriate => Exit
-                            if (!letiable)
+                            // If we are not parsing a variable, it means template is not appropriate => Exit
+                            if (!variable)
                                 valid = false;
                         }
                     }
@@ -2857,12 +2857,12 @@ exports.complete = function (instruction) {
                     else {
                         if (template[k - 1] == "type")
                             answer = answer + "[type] ";
-                        // Return [letiable] to explain this is something dynamic
+                        // Return [variable] to explain this is something dynamic
                         else
-                            answer = answer + "[letiable] ";
+                            answer = answer + "[variable] ";
 
-                        // If first loop on letiable, we need to display possible end of instruction
-                        // Else, it means we have keyword at the beginning of suggestion, so we cut on letiable step
+                        // If first loop on variable, we need to display possible end of instruction
+                        // Else, it means we have keyword at the beginning of suggestion, so we cut on variable step
                         if (!firstLoop)
                             found = true;
                     }

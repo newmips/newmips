@@ -522,7 +522,8 @@ router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAcc
     status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
         res.redirect(req.headers.referer);
     }).catch((err)=> {
-        entity_helper.error(err, req, res, '/user/show?id=' + req.params.id_user, "e_user");
+        req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
+        res.redirect(req.headers.referer);
     });
 });
 
