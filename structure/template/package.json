@@ -12,7 +12,7 @@
         "bcrypt-nodejs": "0.0.3",
         "body-parser": "^1.18.3",
         "connect-flash": "~0.1.1",
-        "connect-pg-simple": "^4.2.1",
+        "connect-pg-simple": "^6.0.1",
         "console-stamp": "^0.2.7",
         "consolidate": "^0.15.1",
         "cookie-parser": "~1.4.3",
