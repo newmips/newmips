@@ -1046,7 +1046,7 @@ exports.setFieldKnownAttribute = function (attr, callback) {
                 }).catch(function (err) {
                     if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
                         let err = new Error("structure.field.attributes.duplicateUnique");
-                    } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01")){
+                    } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01" || err.parent.code == "3F000")){
                         // Handle case by Newmips, no worry about this one
                         if(['e_group', 'e_role', 'e_user'].indexOf(attr.name_data_entity) == -1 && attr.options.showValue == 'label'){
                             // Table do not exist - In case of script it's totally normal, just generate a warning
@@ -3336,6 +3336,7 @@ exports.createWidgetLastRecords = function (attr, callback) {
                     if (attr.columns[k].toLowerCase() == 'id') {
                         attr.columns[k] = {codeName: 'id', name: 'id', found:true};
                         kFound = true;
+                        continue;
                     }
                     for (var i = 0; i < columns.length; i++) {
                         if (columns[i].codeName.indexOf('s_') == 0)

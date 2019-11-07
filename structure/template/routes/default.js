@@ -294,6 +294,11 @@ router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
         let entity = req.query.entity;
         let filename = req.query.src;
         let cleanFilename = filename.substring(16);
+
+        // Remove uuid
+        if(cleanFilename[32] == '_')
+            cleanFilename = cleanFilename.substring(33);
+
         let folderName = filename.split("-")[0];
         let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
@@ -322,6 +327,11 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
         let entity = req.query.entity;
         let filename = req.query.f;
         let cleanFilename = filename.substring(16);
+
+        // Remove uuid
+        if(cleanFilename[32] == '_')
+            cleanFilename = cleanFilename.substring(33);
+
         let folderName = filename.split("-")[0];
         let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
@@ -347,11 +357,17 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
 
 router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
     try {
+
         let entity = req.body.entity;
         let filename = req.body.filename;
         let cleanFilename = filename.substring(16);
+
+        // Remove uuid
+        if(cleanFilename[32] == '_')
+            cleanFilename = cleanFilename.substring(33);
+
         let folderName = filename.split("-")[0];
-        let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+        let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
         if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
             throw new Error("403 - Access forbidden");
@@ -360,13 +376,17 @@ router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
             throw new Error("404 - File not found: " + filePath);
 
         fs.unlinkSync(filePath);
+
+        res.status(200).send(true);
+
     } catch (err) {
         console.error(err);
         req.session.toastr.push({
             level: 'error',
             message: "error.500.file"
         });
-        res.redirect(req.headers.referer);
+
+        res.status(500).send(err);
     }
 });
 
