@@ -425,7 +425,7 @@ function initForm(context) {
                         if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?'))
                             return false;
                         $.ajax({
-                            url: '/default/delete-file-ajax',
+                            url: '/default/delete_file',
                             type: 'post',
                             data: {
                                 dataEntity: that.attr("data-entity"),
