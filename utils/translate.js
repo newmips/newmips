@@ -155,10 +155,10 @@ module.exports = {
             return data;
         }
 
-        let file, promises = [];
+        let promises = [];
         for (let i = 0; i < localesDir.length; i++) {
             promises.push(new Promise((resolve, reject) => {
-                file = localesDir[i];
+                let file = localesDir[i];
                 let urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
                 let dataLocales;
                 try {

@@ -93,65 +93,58 @@ function setChat(req, app_name, userID, user, content, params, isError){
     }
 }
 
-function execute(req, instruction, __, data = {}, appInit = false) {
-    return new Promise((resolve, reject) => {
-        try {
+async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 
-            // Lower the first word for the basic parser json
-            instruction = dataHelper.lowerFirstWord(instruction);
+    // Lower the first word for the basic parser json
+    instruction = dataHelper.lowerFirstWord(instruction);
 
-            // Instruction to be executed
-            data = {
-                ...data,
-                ...parser.parse(instruction)
-            };
+    // Instruction to be executed
+    data = {
+        ...data,
+        ...parser.parse(instruction)
+    };
 
-            // Rework the data to get value for the code / url / show
-            data = dataHelper.reworkData(data);
+    // Rework the data to get value for the code / url / show
+    data = dataHelper.reworkData(data);
 
-            if (typeof data.error !== 'undefined')
-                throw data.error;
+    if (typeof data.error !== 'undefined')
+        throw data.error;
 
-            data.app_name = req.session.app_name;
-            data.module_name = req.session.module_name;
-            data.entity_name = req.session.entity_name;
-            data.googleTranslate = req.session.toTranslate || false;
-            data.lang_user = req.session.lang_user;
-            data.currentUser = req.session.passport.user;
-            data.gitlabUser = null;
+    data.app_name = req.session.app_name;
+    data.module_name = req.session.module_name;
+    data.entity_name = req.session.entity_name;
+    data.googleTranslate = req.session.toTranslate || false;
+    data.lang_user = req.session.lang_user;
+    data.currentUser = req.session.passport.user;
+    data.gitlabUser = null;
 
-            if(typeof req.session.gitlab !== 'undefined'
-                && typeof req.session.gitlab.user !== 'undefined'
-                && !isNaN(req.session.gitlab.user.id))
-                data.gitlabUser = req.session.gitlab.user;
+    if(typeof req.session.gitlab !== 'undefined'
+        && typeof req.session.gitlab.user !== 'undefined'
+        && !isNaN(req.session.gitlab.user.id))
+        data.gitlabUser = req.session.gitlab.user;
 
-            if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
-                data.application = metadata.getApplication(data.app_name);
+    if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
+        data.application = metadata.getApplication(data.app_name);
 
-            console.log(instruction);
+    let info;
+    try {
+        info = await designer[data.function](data);
+    } catch (err) {
+        console.error(err);
+        throw __(err.message ? err.message : err, err.messageParams || []);
+    }
 
-            designer[data.function](data).then(info => {
+    data = session_manager.setSession(data.function, req, info, data);
 
-                data = session_manager.setSession(data.function, req, info, data);
+    // Save metadata
+    if(data.application && data.function != 'deleteApplication' && saveMetadata)
+        data.application.save();
 
-                // Save metadata
-                if(data.application && data.function != 'deleteApplication' && !appInit)
-                    data.application.save();
+    data.message = info.message;
+    data.messageParams = info.messageParams;
+    data.restartServer = typeof info.restartServer === 'undefined' ? true : false;
 
-                data.message = info.message;
-                data.messageParams = info.messageParams;
-                data.restartServer = typeof info.restartServer === 'undefined' ? true : false;
-
-                return resolve(data);
-            }).catch(err => {
-                console.error(err);
-                let msgErr = __(err.message ? err.message : err, err.messageParams || []);
-                return reject(msgErr);
-            });
-        } catch (err) {
-            reject(err);
-        }
-    });
+    return data;
 }
 
 // Preview Get
@@ -189,17 +182,8 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
         let port = math.add(9000, db_app.id);
         env.PORT = port;
 
-        let timer = 50;
-        let serverCheckCount = 0;
-        if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined") {
-            // Launch server for preview
+        if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
             process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
-            timer = 500;
-        }
-
-        // var protocol = globalConf.protocol;
-        let protocol_iframe = globalConf.protocol_iframe;
-        let host = globalConf.host;
 
         if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
             data.gitlabUser = req.session.gitlab.user;
@@ -207,12 +191,12 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
         data.session = session_manager.getSession(req)
 
         let initialTimestamp = new Date().getTime();
-        let iframe_url = protocol_iframe + '://';
+        let iframe_url = globalConf.protocol_iframe + '://';
 
         if (globalConf.env == 'cloud')
             iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
         else
-            iframe_url += host + ":" + port + "/default/status";
+            iframe_url += globalConf.host + ":" + port + "/default/status";
 
         data = initPreviewData(appName, data);
         data.chat = chats[appName][currentUserID];
@@ -674,7 +658,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
 
     (async () => {
         for (let i = 0; i < instructions.length; i++) {
-            await execute(req, instructions[i], __, {}, true);
+            await execute(req, instructions[i], __, {}, false);
             pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
         }
         metadata.getApplication(req.session.app_name).save();

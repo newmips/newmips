@@ -2075,8 +2075,6 @@ exports.createWidgetLastRecords = async (data) => {
     data.np_module = data.application.getModule(data.module_name, true);
     data.entity = data.np_module.getEntity(data.entity_name, true);
 
-    console.log(data);
-
     // Check for not found fields and build error message
     for (let k = 0; k < data.columns.length; k++) {
 

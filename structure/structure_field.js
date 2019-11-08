@@ -702,7 +702,7 @@ exports.setupField = async (data) => {
         }
     }
 
-    let cleanEnumValues = [];
+    let cleanEnumValues = [], cleanRadioValues = [];
     if (field_type == "enum") {
         // Remove all special caractere for all enum values
         if (typeof field_values === "undefined")
@@ -725,7 +725,6 @@ exports.setupField = async (data) => {
         };
     } else if (field_type == "radio") {
         // Remove all special caractere for all enum values
-        let cleanRadioValues = [];
         if (typeof field_values === "undefined")
             throw new Error('structure.field.attributes.missingValues');
 
@@ -814,7 +813,7 @@ exports.setupField = async (data) => {
         radioData[entity_name] = json;
 
         // Write Enum file
-        fs.writeFileSync(fileRadio, JSON.stringify(enumData, null, 4));
+        fs.writeFileSync(fileRadio, JSON.stringify(radioData, null, 4));
     }
 
     /* ----------------- 4 - Add the fields in all the views  ----------------- */

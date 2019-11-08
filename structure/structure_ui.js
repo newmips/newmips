@@ -473,7 +473,7 @@ exports.createWidgetLastRecords = async (data) => {
     thead += '</tr></thead>';
 
     $("#" + data.entity.name.substring(2) + '_lastrecords').html(thead);
-    $("#" + data.entity.name.substring(2) + '_lastrecords').data('data-limit', data.limit);
+    $("#" + data.entity.name.substring(2) + '_lastrecords').attr('data-limit', data.limit);
     await domHelper.write(layoutFile, $);
     return;
 }

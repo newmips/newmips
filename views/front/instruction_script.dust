@@ -55,7 +55,6 @@
 						</div>
 					</div>
 				</div>
-				<input id="lang" type="hidden" value="app.lang" />
 			</div>
 		</div>
 	</div>
