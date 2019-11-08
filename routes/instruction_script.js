@@ -5,86 +5,22 @@ const readline = require('readline');
 const fs = require('fs-extra');
 const path = require('path');
 const moment = require('moment');
-
 const dataHelper = require('../utils/data_helper');
 const block_access = require('../utils/block_access');
 const docBuilder = require('../utils/api_doc_builder');
-
 const designer = require('../services/designer.js');
 const session_manager = require('../services/session.js');
 const parser = require('../services/bot.js');
-
 const structure_application = require('../structure/structure_application');
+const jschardet = require('jschardet');
+const process_manager = require('../services/process_manager.js');
+const metadata = require('../database/metadata')();
 
 let scriptProcessing = {
     timeout: moment(),
     state: false
 };
 let scriptData = {};
-let message = "";
-
-const metadata = require('../database/metadata')();
-
-function execute(req, instruction) {
-    return new Promise(function(resolve, reject) {
-        var userId = req.session.passport.user.id;
-        var __ = require("../services/language")(req.session.lang_user).__;
-        try {
-
-            /* Lower the first word for the basic parser jison */
-            instruction = dataHelper.lowerFirstWord(instruction);
-
-            var attr = parser.parse(instruction);
-
-            /* Rework the attr to get value for the code / url / show */
-            attr = dataHelper.reworkData(attr);
-
-            attr.id_project = scriptData[userId].ids.id_project;
-            attr.id_application = scriptData[userId].ids.id_application;
-            attr.id_module = scriptData[userId].ids.id_module;
-            attr.id_data_entity = scriptData[userId].ids.id_data_entity;
-            attr.googleTranslate = req.session.toTranslate || false;
-            attr.lang_user = req.session.lang_user;
-            attr.currentUser = req.session.passport.user;
-
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
-            else
-                attr.gitlabUser = null;
-
-            if (typeof attr.error !== 'undefined')
-                throw new Error(attr.error);
-
-            return designer[attr.function](attr, function(err, info) {
-                if (err) {
-                    // Error handling code goes here
-                    scriptData[userId].answers.unshift({
-                        instruction: instruction,
-                        message: __(err.message, err.messageParams || [])
-                    });
-                    reject(err);
-                } else {
-
-                    // Store key entities in session for futur instruction
-                    session_manager.setSessionForInstructionScript(attr.function, scriptData[userId], info);
-
-                    scriptData[userId].answers.unshift({
-                        instruction: instruction,
-                        message: __(info.message, info.messageParams || [])
-                    });
-                    resolve();
-                }
-
-            });
-        } catch (err) {
-            scriptData[userId].answers.unshift({
-                instruction: instruction,
-                message: __(err.message, err.messageParams || [])
-            });
-            reject(err);
-        }
-    });
-}
 
 let mandatoryInstructions = [
     "create module home",
@@ -222,94 +158,383 @@ let mandatoryInstructions = [
     "entity notification has many user",
     "select module home"
 ];
-let idxAtMandatoryInstructionStart = -1;
-function recursiveExecute(req, instructions, idx) {
-    return new Promise(function(resolve, reject) {
-        // All instructions executed, mandatory instruction included
-        if (scriptData[req.session.passport.user.id].totalInstruction == idx){
-            function done(){
-                var idApplication = scriptData[req.session.passport.user.id].ids.id_application;
-                if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
-                    structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
-                        // Api documentation
-                        docBuilder.build(idApplication);
-                        resolve(idApplication);
-                    });
-                } else {
-                    // Api documentation
-                    docBuilder.build(idApplication);
-                    resolve(idApplication);
+
+// When a script handling is over
+function processEnd(path, userID) {
+    // Delete instructions file
+    fs.unlinkSync(path);
+    // Tell client that the script is over
+    scriptData[userID].over = true;
+    // Tell the server that script processing is done
+    scriptProcessing.state = false;
+    // Save application metadata if exist
+    if(scriptData[userID].data && scriptData[userID].data.application)
+        scriptData[userID].data.application.save();
+}
+
+// Check if a script is already running
+function isProcessing(userID, __) {
+    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
+        scriptData[userID].answers = [{
+            message: __('instructionScript.alreadyProcessing')
+        }];
+        scriptData[userID].overDueToProcessing = true;
+        return true;
+    }
+    return false;
+}
+
+// Executing one instruction
+async function execute(req, instruction, __, data = {}, saveMetadata = true) {
+
+    // Lower the first word for the basic parser json
+    instruction = dataHelper.lowerFirstWord(instruction);
+
+    // Instruction to be executed
+    data = {
+        ...data,
+        ...parser.parse(instruction)
+    };
+
+    // Rework the data to get value for the code / url / show
+    data = dataHelper.reworkData(data);
+
+    data.app_name = req.session.app_name;
+    data.module_name = req.session.module_name;
+    data.entity_name = req.session.entity_name;
+    data.googleTranslate = req.session.toTranslate || false;
+    data.lang_user = req.session.lang_user;
+    data.currentUser = req.session.passport.user;
+    data.gitlabUser = null;
+
+    if(typeof req.session.gitlab !== 'undefined'
+        && typeof req.session.gitlab.user !== 'undefined'
+        && !isNaN(req.session.gitlab.user.id))
+        data.gitlabUser = req.session.gitlab.user;
+
+    if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
+        data.application = metadata.getApplication(data.app_name);
+
+    let info;
+    try {
+        info = await designer[data.function](data);
+    } catch (err) {
+        throw err;
+    }
+
+    data = session_manager.setSession(data.function, req, info, data);
+
+    // Save metadata
+    if(data.application && data.function != 'deleteApplication' && saveMetadata)
+        data.application.save();
+
+    data.message = info.message;
+    data.messageParams = info.messageParams;
+
+    return data;
+}
+
+// Execution all the script
+function executeFile(req, userID, __) {
+
+    // Open file descriptor
+    let rl = readline.createInterface({
+        input: fs.createReadStream(req.file.path)
+    });
+
+    // Read file line by line, check for empty line, line comment, scope comment
+    let fileLines = [], commenting = false;
+
+    /* If one of theses value is to 2 after readings all lines then there is an error,
+    line to 1 are set because they are mandatory lines added by the generator */
+    let exceptions = {
+        createNewApplication : {
+            error: 0,
+            errorMessage: "You can't create or select more than one application in the same script."
+        },
+        createModuleHome: {
+            error: 1,
+            errorMessage: "You can't create a module home, because it's a default module in the application."
+        },
+        createModuleAuthentication: {
+            error: 1,
+            errorMessage: "You can't create a module authentication, because it's a default module in the application."
+        },
+        createEntityUser: {
+            error: 1,
+            errorMessage: "You can't create a entity user, because it's a default entity in the application."
+        },
+        createEntityRole: {
+            error: 1,
+            errorMessage: "You can't create a entity role, because it's a default entity in the application."
+        },
+        createEntityGroup: {
+            error: 1,
+            errorMessage: "You can't create a entity group, because it's a default entity in the application."
+        },
+        setFieldUnique: {
+            error: 1,
+            errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
+        },
+        delete: {
+            error: 1,
+            errorMessage: "Please do not use delete instruction in script mode."
+        }
+    };
+
+    // Checking file
+    rl.on('line', line => {
+
+        // Empty line || One line comment scope
+        if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
+            return;
+
+        // Comment scope start
+        if (line.indexOf('/*') != -1 && !commenting)
+            commenting = true;
+
+        // Comment scope end
+        else if (line.indexOf('*/') != -1 && commenting)
+            commenting = false;
+
+        else if (!commenting) {
+            let positionComment = line.indexOf('//');
+            // Line start with comment
+            if (positionComment == 0)
+                return;
+            // Line comment is after or in the instruction
+            if (positionComment != -1)
+                line = line.substring(0, line.indexOf('//'));
+
+            // Get the wanted function given by the bot to do some checks
+            let parserResult;
+            try {
+                parserResult = parser.parse(line);
+            } catch (err) {
+                 // Update script logs
+                scriptData[userID].answers.unshift({
+                    instruction: line,
+                    message: __(err.message, err.messageParams || [])
+                });
+                return processEnd(req.file.path, userID);
+            }
+
+            let designerFunction = parserResult.function;
+
+            let designerValue = '';
+            if (typeof parserResult.options !== "undefined")
+                designerValue = parserResult.options.value ? parserResult.options.value.toLowerCase() : '';
+
+            if (designerFunction == "createNewApplication")
+                scriptData[userID].isNewApp = true;
+
+            if (designerFunction == "createNewApplication" || designerFunction == "selectApplication")
+                exceptions.createNewApplication.nbAuthorized++;
+
+            if(designerFunction == "createNewModule" && designerValue == "home")
+                exceptions.createModuleHome.nbAuthorized++;
+
+            if(designerFunction == "createNewModule" && designerValue == "authentication")
+                exceptions.createModuleAuthentication.nbAuthorized++;
+
+            if(designerFunction == "createNewEntity" && designerValue == "user")
+                exceptions.createEntityUser.nbAuthorized++;
+
+            if(designerFunction == "createNewEntity" && designerValue == "role")
+                exceptions.createEntityRole.nbAuthorized++;
+
+            if(designerFunction == "createNewEntity" && designerValue == "group")
+                exceptions.createEntityGroup.nbAuthorized++;
+
+            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
+                exceptions.delete.nbAuthorized++;
+
+            fileLines.push(line);
+        }
+    });
+
+    // All lines read, execute instructions
+    rl.on('close', async () => {
+
+        if(scriptData[userID].over)
+            return;
+
+        let errorMsg = '';
+        for(let item in exceptions){
+            if(item == "createNewApplication" && exceptions[item].value == 0)
+                errorMsg += 'You have to create or select an application in your script.<br><br>';
+            if(exceptions[item].value > 1)
+                errorMsg += exceptions[item].errorMessage + '<br><br>';
+        }
+
+        // File content not valid
+        if(errorMsg.length > 0){
+            scriptData[userID].answers = [];
+            scriptData[userID].answers.push({
+                message: errorMsg
+            });
+            return processEnd(req.file.path, userID);
+        }
+
+        scriptData[userID].totalInstruction = fileLines.length;
+
+        // If new app created, then add mandatory instructions
+        if(scriptData[userID].isNewApp) {
+            scriptData[userID].totalInstruction += mandatoryInstructions.length;
+            fileLines.splice.apply(fileLines, [1, 0].concat(mandatoryInstructions));
+        }
+
+        // Set default theme if different than blue-light
+        if (typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+            fileLines.push("set theme " + req.session.defaultTheme);
+
+        let data = {};
+
+        // Executing all instructions !
+        for (let i = 0; i < fileLines.length; i++) {
+
+            // Mandatory instructions are done, then init application before continuing
+            if(i == mandatoryInstructions.length + 1) {
+                await structure_application.initializeApplication(data.application);
+                // Write source script in generated workspace
+                let historyPath = __dirname + '/../workspace/' + data.application.name + "/history_script.nps";
+                let instructionsToWrite = fileLines.slice().splice(mandatoryInstructions.length + 2).join("\n");
+                instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
+                fs.writeFileSync(historyPath, instructionsToWrite);
+            }
+
+            try {
+                data = await execute(req, fileLines[i], __, data, false);
+            } catch(err) {
+                // Update script logs
+                scriptData[userID].answers.unshift({
+                    instruction: fileLines[i],
+                    message: __(err.message, err.messageParams || [])
+                });
+                return processEnd(req.file.path, userID);
+            }
+
+            scriptData[userID].data = data;
+            scriptData[userID].doneInstruction++;
+
+            // Update script logs
+            scriptData[userID].answers.unshift({
+                instruction: fileLines[i],
+                message: __(data.message, data.messageParams || [])
+            });
+        }
+
+        // Workspace sequelize instance
+        delete require.cache[require.resolve(__dirname + '/../workspace/' + data.application.name + '/models/')];
+        const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/');
+
+        // We need to clear toSync.json
+        let toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+        let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+
+        let tableName = "TABLE_NAME"; // MySQL
+        if(workspaceSequelize.sequelize.options.dialect == "postgres")
+            tableName = "table_name";
+
+        // Looking for already exisiting table in workspace BDD
+        let result = await workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT});
+        let workspaceTables = [];
+        for (let i = 0; i < result.length; i++)
+            workspaceTables.push(result[i][tableName]);
+
+        for(let entity in toSyncObject){
+            if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
+                toSyncObject[entity].attributes = {};
+                // We have to remove options from toSync.json that will be generate with sequelize sync
+                // But we have to keep relation toSync on already existing entities
+                if(typeof toSyncObject[entity].options !== "undefined"){
+                    let cleanOptions = [];
+                    for(let i=0; i<toSyncObject[entity].options.length; i++){
+                        if(workspaceTables.indexOf(toSyncObject[entity].options[i].target) != -1 &&
+                            toSyncObject[entity].options[i].relation != "belongsTo"){
+                            cleanOptions.push(toSyncObject[entity].options[i]);
+                        }
+                    }
+                    toSyncObject[entity].options = cleanOptions;
                 }
             }
-            // Set default theme if different than blue-light
-            if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light"){
-                execute(req, "set theme "+req.session.defaultTheme).then(function() {
-                    done();
-                });
-            } else {
-                done();
-            }
-
-        } else {
-            // If project and application are created and we're at the instruction that
-            // follows create application, insert mandatory instructions to instruction array
-            if (scriptData[req.session.passport.user.id].ids.id_project > 0 && scriptData[req.session.passport.user.id].ids.id_application > 0 && parser.parse(instructions[idx-1].toLowerCase())["function"] == "createNewApplication") {
-                instructions.splice.apply(instructions, [idx, 0].concat(mandatoryInstructions));
-                idxAtMandatoryInstructionStart = idx;
-            }
-            // When all mandatory instructions are executed, initializeApplication then continue recursiveExecute
-            if (idxAtMandatoryInstructionStart != -1 && idx - idxAtMandatoryInstructionStart == mandatoryInstructions.length) {
-                structure_application.initializeApplication(scriptData[req.session.passport.user.id].ids.id_application, req.session.passport.user.id, scriptData[req.session.passport.user.id].name_application).then(function(){
-                    // Write source script in generated workspace
-                    var historyPath = __dirname+'/../workspace/'+scriptData[req.session.passport.user.id].ids.id_application+"/history_script.nps";
-                    var instructionsToWrite = instructions.slice().splice(mandatoryInstructions.length + 2).join("\n");
-                    instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
-                    fs.writeFileSync(historyPath, instructionsToWrite);
-
-                    execute(req, instructions[idx]).then(function() {
-                        scriptData[req.session.passport.user.id].doneInstruction++;
-                        resolve(recursiveExecute(req, instructions, idx + 1));
-                    }).catch(function(err) {
-                        reject(err);
-                    });
-                });
-            }
-            // Nothing specific to do, execute instruction
-            else {
-                execute(req, instructions[idx]).then(function() {
-                    scriptData[req.session.passport.user.id].doneInstruction++;
-                    resolve(recursiveExecute(req, instructions, idx + 1));
-                }).catch(function(err) {
-                    reject(err);
-                });
-            }
         }
+        fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
+
+        // Kill the application server if it's running, it will be restarted when accessing it
+        let process_server_per_app = process_manager.process_server_per_app;
+        if (process_server_per_app[data.application.name] != null && typeof process_server_per_app[data.application.name] !== "undefined")
+            await process_manager.killChildProcess(process_server_per_app[data.application.name].pid)
+
+        // Delete instructions file
+        return processEnd(req.file.path, userID);
     });
 }
 
-// Index
-router.get('/index', block_access.isLoggedIn, function(req, res) {
-
-    var data = {
-        error: 1,
-        profile: req.session.passport.user,
-        menu: "script",
-        msg: message,
-        answers: "",
-        instruction: ""
-    };
-
-    res.render('front/instruction_script', data);
+router.get('/index', block_access.isLoggedIn, (req, res) => {
+    res.render('front/instruction_script');
 });
 
 // Execute script file
 router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
-}).single('instructions'), function(req, res) {
+}).single('instructions'), (req, res) => {
 
-    var userId = req.session.passport.user.id;
+    let userID = req.session.passport.user.id;
+    let __ = require("../services/language")(req.session.lang_user).__;
+
     // Init scriptData object for user. (session simulation)
-    scriptData[userId] = {
+    scriptData[userID] = {
+        over: false,
+        answers: [],
+        doneInstruction: 0,
+        totalInstruction: 0,
+        isNewApp: false
+    };
+
+    // Script already processing
+    if(isProcessing(userID, __)) {
+        processEnd(req.file.path, userID);
+        return res.end();
+    }
+
+    scriptProcessing.state = true;
+    scriptProcessing.timeout = moment();
+
+    // Get file extension
+    let extensionFile = req.file.originalname.split(".");
+    extensionFile = extensionFile[extensionFile.length -1];
+    // Read file to determine encoding
+    let encoding = jschardet.detect(fs.readFileSync(req.file.path));
+    let acceptedEncoding = ['utf-8', 'windows-1252', 'ascii'];
+    // If extension or encoding is not supported, send error
+    if ((extensionFile != 'txt' && extensionFile != 'nps') || acceptedEncoding.indexOf(encoding.encoding.toLowerCase()) == -1) {
+        scriptData[userID].answers.push({
+            message: "File need to have .nps or .txt extension and utf8 or ascii encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
+        });
+        processEnd(req.file.path, userID);
+        return res.end();
+    }
+
+    // Answer to client, next steps will be handle in ajax
+    res.end();
+
+    try {
+        executeFile(req, userID, __);
+    } catch (err) {
+        console.error(err);
+        return processEnd(req.file.path, userID);
+    }
+});
+
+/* Execute when it's not a file upload but a file written in textarea */
+router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
+
+    let userID = req.session.passport.user.id;
+    let __ = require("../services/language")(req.session.lang_user).__;
+
+    // Init scriptData object for user. (session simulation)
+    scriptData[userID] = {
         over: false,
         answers: [],
         doneInstruction: 0,
@@ -323,13 +548,13 @@ router.post('/execute', block_access.isLoggedIn, multer({
         }
     };
 
+    // Processing already occured less than the last 100 seconds
     if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
-        let __ = require("../services/language")(req.session.lang_user).__;
-        scriptData[userId].answers = [{
+        scriptData[userID].answers = [{
             message: __('instructionScript.alreadyProcessing')
         }];
-        scriptData[userId].over = true;
-        scriptData[userId].overDueToProcessing = true;
+        scriptData[userID].over = true;
+        scriptData[userID].overDueToProcessing = true;
         return res.end();
     }
 
@@ -339,26 +564,60 @@ router.post('/execute', block_access.isLoggedIn, multer({
     scriptProcessing.state = true;
     scriptProcessing.timeout = moment();
 
-    // Get file extension
-    let extensionFile = req.file.originalname.split(".");
-    extensionFile = extensionFile[extensionFile.length -1];
-    // Read file to determine encoding
-    let fileContent = fs.readFileSync(req.file.path);
-    let encoding = require('jschardet').detect(fileContent);
-    // If extension or encoding is not supported, send error
-    if ((extensionFile != 'txt' && extensionFile != 'nps') || (encoding.encoding.toLowerCase() != 'utf-8' && encoding.encoding.toLowerCase() != 'windows-1252' && encoding.encoding.toLowerCase() != 'ascii')) {
-        scriptData[userId].answers.push({
-            message: "File need to have .nps or .txt extension and utf8 or ascii encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
-        });
-        scriptData[userId].over = true;
-        // Delete instructions file
-        fs.unlinkSync(req.file.path);
-        return res.end();
+    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
+    let tmpPath = __dirname+'/../upload/'+tmpFilename;
+
+    // Load template script and unzip master file if application is created using template
+    let templateEntry = req.body.template_entry;
+    let template = {};
+
+    fs.openSync(tmpPath, 'w');
+
+    if(templateEntry){
+        let templateLang;
+        switch(req.session.lang_user.toLowerCase()) {
+            case "fr-fr":
+                templateLang = "fr";
+                break;
+            case "en-en":
+                templateLang = "en";
+                break;
+            default:
+                templateLang = "fr";
+                break;
+        }
+
+        let files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
+        let filename = false;
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].indexOf(".nps") != -1) {
+                if(!filename)
+                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+                else if(files[i].indexOf("_"+templateLang+"_") != -1)
+                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+            }
+        }
+
+        if(!filename){
+            scriptData[userID].answers = [{
+                message: __('template.no_script')
+            }];
+            scriptData[userID].over = true;
+            scriptProcessing.state = false;
+            return res.end();
+        }
+
+        // Write template script in the tmpPath
+        fs.writeFileSync(tmpPath, fs.readFileSync(filename));
+
+    } else {
+        fs.writeFileSync(tmpPath, req.body.text);
     }
 
     // Open file descriptor
     let rl = readline.createInterface({
-        input: fs.createReadStream(req.file.path)
+        input: fs.createReadStream(tmpPath)
     });
 
     // Read file line by line, check for empty line, line comment, scope comment
@@ -420,7 +679,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
         else if (line.indexOf('*/') != -1 && commenting)
             commenting = false;
         else if (!commenting) {
-            var positionComment = line.indexOf('//');
+            let positionComment = line.indexOf('//');
             // Line start with comment
             if (positionComment == 0)
                 return;
@@ -428,19 +687,17 @@ router.post('/execute', block_access.isLoggedIn, multer({
             if (positionComment != -1){
                 line = line.substring(0, line.indexOf('//'));
             }
-            var parserResult = parser.parse(line);
+            let parserResult = parser.parse(line);
             // Get the wanted function given by the bot to do some checks
-            var designerFunction = parserResult.function;
-            var designerValue = null;
+            let designerFunction = parserResult.function;
+            let designerValue = null;
             if(typeof parserResult.options !== "undefined")
                 designerValue = parserResult.options.value?parserResult.options.value:null;
-
             if (designerFunction == "createNewProject" || designerFunction == "selectProject")
                 exception.createNewProject.value += 1;
-
             if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
                 if (designerFunction == "createNewApplication")
-                    scriptData[userId].authInstructions = true;
+                    scriptData[userID].authInstructions = true;
                 exception.createNewApplication.value += 1;
             }
             if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home")
@@ -470,9 +727,9 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
     // All lines read, execute instructions
     rl.on('close', function() {
-        var isError = false;
-        var stringError = "";
-        for(var item in exception){
+        let isError = false;
+        let stringError = "";
+        for(let item in exception){
             if(exception[item].value > 1){
                 stringError += exception[item].errorMessage + '<br><br>';
                 isError = true;
@@ -486,343 +743,43 @@ router.post('/execute', block_access.isLoggedIn, multer({
         }
 
         if(isError){
-            scriptData[userId].answers = [];
-            scriptData[userId].answers.push({
+            scriptData[userID].answers = [];
+            scriptData[userID].answers.push({
                 message: stringError
             });
-            scriptData[userId].over = true;
-        } else {
-            scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
-            recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-                // Workspace sequelize instance
-                delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
-                var workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
-
-                // We need to clear toSync.json
-                var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
-                var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
-
-                var tableName = "TABLE_NAME";
-                if(workspaceSequelize.sequelize.options.dialect == "postgres")
-                    tableName = "table_name";
-                // Looking for already exisiting table in workspace BDD
-                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
-                    var workspaceTables = [];
-                    for(var i=0; i<result.length; i++){
-                        if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
-                            workspaceTables.push(result[i][tableName]);
-                        }
-                    }
-
-                    for(var entity in toSyncObject){
-                        if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
-                            toSyncObject[entity].attributes = {};
-                            // We have to remove options from toSync.json that will be generate with sequelize sync
-                            // But we have to keep relation toSync on already existing entities
-                            if(typeof toSyncObject[entity].options !== "undefined"){
-                                var cleanOptions = [];
-                                for(var i=0; i<toSyncObject[entity].options.length; i++){
-                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
-                                        cleanOptions.push(toSyncObject[entity].options[i]);
-                                }
-                                toSyncObject[entity].options = cleanOptions;
-                            }
-                        }
-                    }
-
-                    fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
-
-                    // Restart the application server is already running
-                    var process_manager = require('../services/process_manager.js');
-                    //var process_server = process_manager.process_server;
-                    var process_server_per_app = process_manager.process_server_per_app;
-
-                    if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
-                        process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
-                            if(err)
-                                console.error(err);
-
-                            // Preparation to start a new child server
-                            var math = require('math');
-                            var port = math.add(9000, idApplication);
-                            var env = Object.create(process.env);
-                            env.PORT = port;
-
-                            // Launch server for preview
-                            process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
-
-                            // Finish and redirect to the application
-                            scriptData[userId].over = true;
-                        });
-                    } else {
-                        scriptData[userId].over = true;
-                    }
-                });
-            }).catch(function(err) {
-                console.error(err);
-                scriptData[userId].over = true;
-            });
-        }
-
-        // Delete instructions file
-        fs.unlinkSync(req.file.path);
-    });
-
-    res.end();
-});
-
-/* Execute when it's not a file upload but a file written in textarea */
-router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
-
-    let userId = req.session.passport.user.id;
-    let __ = require("../services/language")(req.session.lang_user).__;
-
-    // Init scriptData object for user. (session simulation)
-    scriptData[userId] = {
-        over: false,
-        answers: [],
-        doneInstruction: 0,
-        totalInstruction: 0,
-        authInstructions: false,
-        ids: {
-            id_project: -1,
-            id_application: -1,
-            id_module: -1,
-            id_data_entity: -1
-        }
-    };
-
-    // Processing already occured less than the last 100 seconds
-    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
-        scriptData[userId].answers = [{
-            message: __('instructionScript.alreadyProcessing')
-        }];
-        scriptData[userId].over = true;
-        scriptData[userId].overDueToProcessing = true;
-        return res.end();
-    }
-
-    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
-    idxAtMandatoryInstructionStart = -1;
-
-    scriptProcessing.state = true;
-    scriptProcessing.timeout = moment();
-
-    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
-    let tmpPath = __dirname+'/../upload/'+tmpFilename;
-
-    // Load template script and unzip master file if application is created using template
-    let templateEntry = req.body.template_entry;
-    let template = {};
-
-    fs.openSync(tmpPath, 'w');
-
-    if(templateEntry){
-        let templateLang;
-        switch(req.session.lang_user.toLowerCase()) {
-            case "fr-fr":
-                templateLang = "fr";
-                break;
-            case "en-en":
-                templateLang = "en";
-                break;
-            default:
-                templateLang = "fr";
-                break;
-        }
-
-        let files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
-        let filename = false;
-
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].indexOf(".nps") != -1) {
-                if(!filename)
-                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
-                else if(files[i].indexOf("_"+templateLang+"_") != -1)
-                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
-            }
-        }
-
-        if(!filename){
-            scriptData[userId].answers = [{
-                message: __('template.no_script')
-            }];
-            scriptData[userId].over = true;
+            scriptData[userID].over = true;
             scriptProcessing.state = false;
-            return res.end();
-        }
-
-        // Write template script in the tmpPath
-        fs.writeFileSync(tmpPath, fs.readFileSync(filename));
-
-    } else {
-        fs.writeFileSync(tmpPath, req.body.text);
-    }
-
-    // Open file descriptor
-    var rl = readline.createInterface({
-        input: fs.createReadStream(tmpPath)
-    });
-
-    // Read file line by line, check for empty line, line comment, scope comment
-    var fileLines = [],
-        commenting = false,
-        invalidScript = false;
-
-    /* If one of theses value is to 2 after readings all lines then there is an error,
-    line to 1 are set because they are mandatory lines added by the generator */
-    var exception = {
-        createNewProject : {
-            value: 0,
-            errorMessage: "You can't create or select more than one project in the same script."
-        },
-        createNewApplication : {
-            value: 0,
-            errorMessage: "You can't create or select more than one application in the same script."
-        },
-        createModuleHome: {
-            value: 1,
-            errorMessage: "You can't create a module home, because it's a default module in the application."
-        },
-        createModuleAuthentication: {
-            value: 1,
-            errorMessage: "You can't create a module authentication, because it's a default module in the application."
-        },
-        createEntityUser: {
-            value: 1,
-            errorMessage: "You can't create a entity user, because it's a default entity in the application."
-        },
-        createEntityRole: {
-            value: 1,
-            errorMessage: "You can't create a entity role, because it's a default entity in the application."
-        },
-        createEntityGroup: {
-            value: 1,
-            errorMessage: "You can't create a entity group, because it's a default entity in the application."
-        },
-        setFieldUnique: {
-            value: 1,
-            errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
-        },
-        delete: {
-            value: 1,
-            errorMessage: "Please do not use delete instruction in script mode."
-        }
-    };
-
-    rl.on('line', function(sourceLine) {
-        var line = sourceLine;
-
-        // Empty line || One line comment scope
-        if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
-            return;
-        // Comment scope start
-        if (line.indexOf('/*') != -1 && !commenting)
-            commenting = true;
-        // Comment scope end
-        else if (line.indexOf('*/') != -1 && commenting)
-            commenting = false;
-        else if (!commenting) {
-            var positionComment = line.indexOf('//');
-            // Line start with comment
-            if (positionComment == 0)
-                return;
-            // Line comment is after or in the instruction
-            if (positionComment != -1){
-                line = line.substring(0, line.indexOf('//'));
-            }
-            var parserResult = parser.parse(line);
-            // Get the wanted function given by the bot to do some checks
-            var designerFunction = parserResult.function;
-            var designerValue = null;
-            if(typeof parserResult.options !== "undefined")
-                designerValue = parserResult.options.value?parserResult.options.value:null;
-            if (designerFunction == "createNewProject" || designerFunction == "selectProject")
-                exception.createNewProject.value += 1;
-            if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
-                if (designerFunction == "createNewApplication")
-                    scriptData[userId].authInstructions = true;
-                exception.createNewApplication.value += 1;
-            }
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home")
-                exception.createModuleHome.value += 1;
-
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication")
-                exception.createModuleAuthentication.value += 1;
-
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user")
-                exception.createEntityUser.value += 1;
-
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role")
-                exception.createEntityRole.value += 1;
-
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
-                exception.createEntityGroup.value += 1;
-
-            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
-                exception.delete.value += 1;
-
-            // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
-            //     exception.setFieldUnique.value += 1;
-
-            fileLines.push(line);
-        }
-    });
-
-    // All lines read, execute instructions
-    rl.on('close', function() {
-        var isError = false;
-        var stringError = "";
-        for(var item in exception){
-            if(exception[item].value > 1){
-                stringError += exception[item].errorMessage + '<br><br>';
-                isError = true;
-            } else if(item == "createNewProject" && exception[item].value == 0){
-                stringError += 'You have to create or select a project in your script.<br><br>';
-                isError = true;
-            } else if(item == "createNewApplication" && exception[item].value == 0){
-                stringError += 'You have to create or select an application in your script.<br><br>';
-                isError = true;
-            }
-        }
-
-        if(isError){
-            scriptData[userId].answers = [];
-            scriptData[userId].answers.push({
-                message: stringError
-            });
-            scriptData[userId].over = true;
         } else{
-            scriptData[userId].totalInstruction = scriptData[userId].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
+            scriptData[userID].totalInstruction = scriptData[userID].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
             recursiveExecute(req, fileLines, 0).then(function(idApplication) {
                 // Workspace sequelize instance
                 delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
-                var workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
+                let workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
 
                 // We need to clear toSync.json
-                var toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
-                var toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+                let toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
+                let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
-                var tableName = "TABLE_NAME";
+                let tableName = "TABLE_NAME";
                 if(workspaceSequelize.sequelize.options.dialect == "postgres")
                     tableName = "table_name";
                 // Looking for already exisiting table in workspace BDD
                 workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
-                    var workspaceTables = [];
-                    for(var i=0; i<result.length; i++){
+                    let workspaceTables = [];
+                    for(let i=0; i<result.length; i++){
                         if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
                             workspaceTables.push(result[i][tableName]);
                         }
                     }
 
-                    for(var entity in toSyncObject){
+                    for(let entity in toSyncObject){
                         if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                             toSyncObject[entity].attributes = {};
                             // We have to remove options from toSync.json that will be generate with sequelize sync
                             // But we have to keep relation toSync on already existing entities
                             if(typeof toSyncObject[entity].options !== "undefined"){
-                                var cleanOptions = [];
-                                for(var i=0; i<toSyncObject[entity].options.length; i++){
+                                let cleanOptions = [];
+                                for(let i=0; i<toSyncObject[entity].options.length; i++){
                                     if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
                                         cleanOptions.push(toSyncObject[entity].options[i]);
                                 }
@@ -851,9 +808,9 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                     }
 
                     // Restart the application server is already running
-                    var process_manager = require('../services/process_manager.js');
-                    //var process_server = process_manager.process_server;
-                    var process_server_per_app = process_manager.process_server_per_app;
+                    let process_manager = require('../services/process_manager.js');
+                    //let process_server = process_manager.process_server;
+                    let process_server_per_app = process_manager.process_server_per_app;
 
 
                     if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
@@ -862,26 +819,28 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                                 console.error(err);
 
                             // Preparation to start a new child server
-                            var math = require('math');
-                            var port = math.add(9000, idApplication);
-                            var env = Object.create(process.env);
+                            let math = require('math');
+                            let port = math.add(9000, idApplication);
+                            let env = Object.create(process.env);
                             env.PORT = port;
 
                             // Launch server for preview
                             process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
 
                             // Finish and redirect to the application
-                            scriptData[userId].over = true;
+                            scriptData[userID].over = true;
+                            scriptProcessing.state = false;
                         });
                     } else {
-                        scriptData[userId].over = true;
+                        scriptData[userID].over = true;
+                        scriptProcessing.state = false;
                     }
                 }).catch(function(err) {
                     console.error(err);
                 });
             }).catch(function(err) {
                 console.error(err);
-                scriptData[userId].over = true;
+                scriptData[userID].over = true;
             });
         }
 
@@ -895,29 +854,14 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 // Script execution status
 router.get('/status', (req, res) => {
     try {
-        let userId = req.session.passport.user.id;
-        let stats = {
-            totalInstruction: scriptData[userId].totalInstruction,
-            doneInstruction: scriptData[userId].doneInstruction,
-            over: scriptData[userId].over,
-            text: scriptData[userId].answers
-        };
-        scriptData[userId].answers = [];
-
-        // Script over, remove data from array
-        if (stats.over) {
-            stats.id_application = scriptData[userId].ids.id_application;
-            req.session.id_application = scriptData[userId].ids.id_application;
-            req.session.id_project = scriptData[userId].ids.id_project;
-            req.session.id_data_entity = scriptData[userId].ids.id_data_entity;
-            req.session.id_module = scriptData[userId].ids.id_module;
-            if(typeof scriptData[userId].overDueToProcessing === 'undefined')
-                scriptProcessing.state = false;
-            delete scriptData[userId];
-        }
-
-        res.send(stats).end();
+        let userID = req.session.passport.user.id;
+        res.send(scriptData[userID]).end();
+        // Clean answers that will be shown in the client
+        scriptData[userID].answers = [];
+        if(scriptData[userID].over)
+            delete scriptData[userID];
     } catch(err) {
+        console.error(err);
         res.send({
             skip: true
         }).end();

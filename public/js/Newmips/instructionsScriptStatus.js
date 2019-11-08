@@ -12,7 +12,7 @@ function fetchStatus() {
 
                 // Skip current update status due to internal serveur error
                 if(data.skip){
-                    setTimeout(fetchStatus, 50);
+                    setTimeout(fetchStatus, 500);
                     return;
                 }
 
@@ -22,29 +22,28 @@ function fetchStatus() {
                 var str = percent + "%";
                 $("#progressbar").width(str);
 
-                if (typeof data.text[0] !== "undefined") {
-                    if (data.text[0].instruction)
-                        $("#answers").html("<i>" + data.text[0].instruction + "</i>:<br><b>" + data.text[0].message + "</b><br><br>" + $("#answers").html());
+                if (typeof data.answers[0] !== "undefined") {
+                    if (data.answers[0].instruction)
+                        $("#answers").html("<i>" + data.answers[0].instruction + "</i>:<br><b>" + data.answers[0].message + "</b><br><br>" + $("#answers").html());
                     else
-                        $("#answers").html("<b>" + data.text[0].message + "</b><br><br>" + $("#answers").html());
+                        $("#answers").html("<b>" + data.answers[0].message + "</b><br><br>" + $("#answers").html());
                 }
 
                 if (!data.over)
-                    setTimeout(fetchStatus, 50);
-                else {
-                    if (percent >= 100) {
-                        window.location.href = "/application/preview?id_application="+data.id_application+"&timeout=50000";
-                        $("#goTo").show();
+                    setTimeout(fetchStatus, 500);
+                else if (percent >= 100) {
+                    window.location.href = "/application/preview/" + data.data.app_name + "?timeout=50000";
+                    $("#goTo").show();
+                    $("#scriptSubmit").prop('disabled', false);
+                    $("#goTo").prop('disabled', false);
+                    $("#progressbarcontent").hide();
+                } else {
+                    // Wait 2 sec before let user click again on button
+                    setTimeout(function() {
                         $("#scriptSubmit").prop('disabled', false);
-                        $("#goTo").prop('disabled', false);
-                        $("#progressbarcontent").hide();
-                    } else {
-                        // Wait 2 sec before let user click again on button
-                        setTimeout(function(){
-                            $("#scriptSubmit").prop('disabled', false);
-                        }, 2000);
-                        $("#progressbarcontent").hide();
-                    }
+                        $("#scriptSubmit").fadeIn();
+                    }, 2000);
+                    $("#progressbarcontent").hide();
                 }
             } catch (err) {
                 console.error(err);
@@ -59,7 +58,6 @@ function fetchStatus() {
 }
 
 $(function() {
-    var lang = $("#lang").val();
     $("#instructionsScript").submit(function() {
         $("#goTo").hide();
 
@@ -75,10 +73,11 @@ $(function() {
                 data: formData,
                 success: function() {
                     $("#scriptSubmit").prop('disabled', true);
+                    $("#scriptSubmit").hide();
                     $("#progressbarcontent").show();
-                    if (lang == 'en')
+                    if (user_lang == 'en-EN')
                         $("#filename").text('Executing instructions from file "' + filename + '".');
-                    else if (lang == 'fr')
+                    else if (user_lang == 'fr-FR')
                         $("#filename").text('Executions des instructions du fichier "' + filename + '".');
                     setTimeout(fetchStatus, 50);
                 },
@@ -101,9 +100,9 @@ $(function() {
                 success: function() {
                     $("#scriptSubmit").prop('disabled', true);
                     $("#progressbarcontent").show();
-                    if (lang == 'en')
+                    if (user_lang == 'en-EN')
                         $("#filename").text('Executing instructions from written script.');
-                    else if (lang == 'fr')
+                    else if (user_lang == 'fr-FR')
                         $("#filename").text('Executions des instructions du script écrit.');
                     setTimeout(fetchStatus, 50);
                 },

@@ -884,62 +884,6 @@ exports.deleteComponentAddress = result => {
     };
 };
 
-
-/* PRINT */
-exports.createNewComponentPrint = result => {
-
-    let options = {};
-
-    let data = {
-        function: "createNewComponentPrint",
-        options: options
-    };
-    return data;
-};
-
-exports.createNewComponentPrintWithName = result => {
-
-    let value = result[1];
-
-    let options = {
-        value: value,
-        processValue: true
-    };
-
-    let data = {
-        function: "createNewComponentPrint",
-        options: options
-    };
-    return data;
-};
-
-exports.deleteComponentPrint = result => {
-
-    let options = {};
-
-    let data = {
-        function: "deleteComponentPrint",
-        options: options
-    };
-    return data;
-};
-
-exports.deleteComponentPrintWithName = result => {
-
-    let value = result[1];
-
-    let options = {
-        value: value,
-        processValue: true
-    };
-
-    let data = {
-        function: "deleteComponentPrint",
-        options: options
-    };
-    return data;
-};
-
 /**
  * create component DocumentTemplate
  */
@@ -2402,62 +2346,6 @@ let training = {
         "créer composant compte-rendu d'activités",
         "ajouter composant compte-rendu d'activités"
     ],
-    "createNewComponentPrint": [
-        "create component print",
-        "add component print",
-        "créer un composant impression",
-        "ajouter un composant impression",
-        "créer composant impression",
-        "ajouter composant impression"
-    ],
-    "createNewComponentPrintWithName": [
-        "create component print with name (.*)",
-        "add component print with name (.*)",
-        "add print with name (.*)",
-        "create component print called (.*)",
-        "add component print called (.*)",
-        "add print called (.*)",
-        "créer un composant impression appelé (.*)",
-        "ajouter un composant impression appelé (.*)",
-        "créer le composant impression appelé (.*)",
-        "ajouter le composant impression appelé (.*)",
-        "créer composant impression appelé (.*)",
-        "ajouter composant impression appelé (.*)",
-        "créer un impression appelé (.*)",
-        "ajouter un impression appelé (.*)",
-        "créer impression appelé (.*)",
-        "ajouter impression appelé (.*)",
-        "créer impression appelé (.*)",
-        "ajouter impression appelé (.*)",
-        "créer un composant impression nommé (.*)",
-        "ajouter un composant impression nommé (.*)",
-        "créer le composant impression nommé (.*)",
-        "ajouter le composant impression nommé (.*)",
-        "créer composant impression nommé (.*)",
-        "ajouter composant impression nommé (.*)",
-        "créer un impression nommé (.*)",
-        "ajouter un impression nommé (.*)",
-        "créer impression nommé (.*)",
-        "ajouter impression nommé (.*)",
-        "créer impression nommé (.*)",
-        "ajouter impression nommé (.*)"
-    ],
-    "deleteComponentPrint": [
-        "delete component print",
-        "delete print component",
-        "supprimer composant impression",
-        "supprimer le composant impression"
-    ],
-    "deleteComponentPrintWithName": [
-        "delete component print with name (.*)",
-        "delete print component with name (.*)",
-        "delete component print called (.*)",
-        "delete print component called (.*)",
-        "supprimer composant impression nommé (.*)",
-        "supprimer composant impression appelé (.*)",
-        "supprimer le composant impression nommé (.*)",
-        "supprimer le composant impression appelé (.*)"
-    ],
     "createNewComponentAddress": [
         "add component address",
         "create component address",
@@ -2704,7 +2592,7 @@ let training = {
 };
 
 // ******* Parse *******
-exports.parse = function (instruction) {
+exports.parse = (instruction) => {
 
     let instructionResult = {
         instructionLength: 0
@@ -2728,12 +2616,13 @@ exports.parse = function (instruction) {
             }
         }
     }
+
     let data = {};
     if (typeof instructionResult.action !== "undefined") {
         data = this[instructionResult.action](instructionResult.result);
         data.instruction = instruction;
     } else {
-        data.error = "error.cannotFindInstruction";
+        throw new Error('error.cannotFindInstruction');
     }
 
     return data;
