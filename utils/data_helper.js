@@ -1,6 +1,6 @@
 
 function validateString(string) {
-    return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9-]{1,25}$/g.test(string);
+    return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9- ]{1,25}$/g.test(string);
 }
 
 function clearString(string){
@@ -218,21 +218,19 @@ module.exports = {
                 /* Clean the name of the value */
                 data.options.value = clearString(data.options.value);
 
-                if (data.function == 'createNewApplication') {
+                if (data.function == 'createNewApplication' || data.function == 'deleteApplication') {
                     data.options.value = data.options.value.replace(/_/g, "-");
                     if (!validateString(data.options.value)){
-                        var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
-                        errorText += "<ul>";
-                        errorText += "<li>- Caractères alphanumériques uniquement.</li>";
-                        errorText += "<li>- Au moins une lettre.</li>";
-                        errorText += "<li>- Un espace maximum entre chaque mot.</li>";
-                        errorText += "<li>- Aucun espace en début ou fin.</li>";
-                        errorText += "<li>- 25 caractères maximum.</li>";
-                        errorText += "<li>- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).</li>";
-                        errorText += "</ul>";
+                        let errorText = "Le nom d'application doit respecter les règles suivantes :\n\n";
+                        errorText += "\n- Caractères alphanumériques uniquement.";
+                        errorText += "\n- Au moins une lettre.";
+                        errorText += "\n- Un espace maximum entre chaque mot.";
+                        errorText += "\n- Aucun espace en début ou fin.";
+                        errorText += "\n- 25 caractères maximum.";
+                        errorText += "\n- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).";
 
                         // Generate an error to throw in controller.
-                        data.error = errorText;
+                        throw new Error(errorText);
                     }
                 }
 

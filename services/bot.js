@@ -5,14 +5,14 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
         options: options
     };
 
-    if (!isNaN(valueToCheck)) {
-        data.error = "error.oneLetter";
-    }
+    if (!isNaN(valueToCheck))
+        throw new Error('error.oneLetter');
 
     if (valueToCheck.length > 30) {
         console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
-        data.error = "error.valueTooLong";
-        data.errorParams = [valueToCheck];
+        let err = new Error('valueTooLong');
+        err.msgParams = [valueToCheck];
+        throw err;
     }
 
     return data;
@@ -213,16 +213,6 @@ exports.setColumnVisible = result => {
 };
 
 // ******* CREATE Actions ******* //
-exports.createNewProject = result => {
-
-    let value = result[1];
-    let options = {
-        value: value,
-        processValue: true
-    };
-
-    return checkAndCreateAttr("createNewProject", options, value);
-};
 
 exports.createNewApplication = result => {
 
@@ -344,21 +334,6 @@ exports.createNewDataFieldWithTypeRadio = result => {
 };
 
 // ******* DELETE Actions ******* //
-exports.deleteProject = result => {
-
-    let value = result[1];
-
-    let options = {
-        value: value,
-        processValue: true
-    };
-
-    let data = {
-        function: "deleteProject",
-        options: options
-    };
-    return data;
-};
 
 exports.deleteApplication = result => {
 
@@ -1221,12 +1196,6 @@ let training = {
     "gitStatus": [
         "git status"
     ],
-    "selectProject": [
-        "select project (.*)",
-        "select the project (.*)",
-        "sélectionner le projet (.*)",
-        "sélectionner projet (.*)"
-    ],
     "selectApplication": [
         "select application (.*)",
         "select the application (.*)",
@@ -1287,15 +1256,6 @@ let training = {
         "show the column (.*)",
         "afficher la colonne (.*)",
         "afficher colonne (.*)"
-    ],
-    "createNewProject": [
-        "create project (.*)",
-        "add project (.*)",
-        "créer projet (.*)",
-        "créer un projet (.*)",
-        "ajouter projet (.*)",
-        "ajouter un projet (.*)",
-        "ajouter le projet (.*)"
     ],
     "createNewApplication": [
         "create application (.*)",
@@ -1411,13 +1371,6 @@ let training = {
         "ajouter champ (.*) avec la valeur par défaut (.*)",
         "ajouter un champ (.*) avec la valeur par défaut (.*)",
         "ajouter le champ (.*) avec la valeur par défaut (.*)"
-    ],
-    "deleteProject": [
-        "delete project (.*)",
-        "drop project (.*)",
-        "remove project (.*)",
-        "supprimer projet (.*)",
-        "supprimer le projet (.*)"
     ],
     "deleteApplication": [
         "delete application (.*)",
