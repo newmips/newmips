@@ -87,13 +87,13 @@ exports.setupApplication = async (data) => {
 
     // Create database instance for application
     let db_requests = [
-        "CREATE DATABASE IF NOT EXISTS np_" + appName + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
+        "CREATE DATABASE IF NOT EXISTS `np_" + appName + "` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
         "CREATE USER IF NOT EXISTS 'np_" + appName + "'@'127.0.0.1' IDENTIFIED BY 'np_" + appName + "';",
         "CREATE USER IF NOT EXISTS 'np_" + appName + "'@'%' IDENTIFIED BY 'np_" + appName + "';",
-        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO 'np_" + appName + "'@'127.0.0.1';",
-        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO 'np_" + appName + "'@'%';",
-        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO '" + dbConf.user + "'@'127.0.0.1';",
-        "GRANT ALL PRIVILEGES ON np_" + appName + ".* TO '" + dbConf.user + "'@'%';",
+        "GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'127.0.0.1';",
+        "GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'%';",
+        "GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'127.0.0.1';",
+        "GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'%';",
         "ALTER USER 'np_" + appName + "'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
         "ALTER USER 'np_" + appName + "'@'%' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
         "FLUSH PRIVILEGES;"
@@ -197,9 +197,12 @@ async function initializeWorkflow(application) {
 
     fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
-    // Copy e_status pieces
-    fs.copySync(piecesPath + '/views/e_status/', workspacePath + '/views/e_status/');
+    // Status models pieces
+    fs.copySync(piecesPath + '/models/e_status.js', workspacePath + '/models/e_status.js');
+
     // Copy views pieces
+    // status
+    fs.copySync(piecesPath + '/views/e_status/', workspacePath + '/views/e_status/');
     // media
     fs.copySync(piecesPath + '/views/e_media/', workspacePath + '/views/e_media/');
     // media mail
@@ -549,7 +552,7 @@ exports.deleteApplication = async(app_name) => {
         user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
         password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
     });
-    await conn.query("DROP DATABASE IF EXISTS np_" + app_name + ";");
+    await conn.query("DROP DATABASE IF EXISTS `np_" + app_name + "`;");
     conn.end();
 
     if (process_server != null)
