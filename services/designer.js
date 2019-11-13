@@ -1,40 +1,31 @@
-// Newmips Database
-const db_project = require("../database/project");
-const db_application = require("../database/application");
-const db_module = require("../database/module");
-const db_entity = require("../database/data_entity");
-const db_field = require("../database/data_field");
-const db_component = require("../database/component");
-const database = require("../database/database");
-
-// Session
-const session = require("./session");
-
-// Bot grammar
-let bot = require('../services/bot.js');
+// Mipsy
+const bot = require('../services/bot.js');
 
 // Structure files
-let structure_application = require("../structure/structure_application");
-let structure_module = require("../structure/structure_module");
-let structure_entity = require("../structure/structure_entity");
-let structure_field = require("../structure/structure_field");
-let structure_component = require("../structure/structure_component");
-let structure_ui = require("../structure/structure_ui");
+const structure_application = require("../structure/structure_application");
+const structure_module = require("../structure/structure_module");
+const structure_entity = require("../structure/structure_entity");
+const structure_field = require("../structure/structure_field");
+const structure_component = require("../structure/structure_component");
+const structure_ui = require("../structure/structure_ui");
 
 // Utils
-let helpers = require("../utils/helpers");
-let dataHelper = require("../utils/data_helper");
-let gitHelper = require("../utils/git_helper");
-let translateHelper = require("../utils/translate");
+const helpers = require("../utils/helpers");
+const dataHelper = require("../utils/data_helper");
+const gitHelper = require("../utils/git_helper");
+const translateHelper = require("../utils/translate");
+
 
 // Others
 const fs = require('fs-extra');
 const models = require('../models/');
 const sequelize = models.sequelize;
 const cloud_manager = require('../services/cloud_manager');
+const session = require("./session");
 
 // Metadata
 const metadata = require('../database/metadata')();
+const database = require('../database/database');
 const Application = require('../database/application_v2');
 
 /* --------------------------------------------------------------- */

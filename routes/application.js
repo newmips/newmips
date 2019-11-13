@@ -371,7 +371,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 });
 
 // Dropzone FIELD ajax upload file
-router.post('/set_logo', block_access.hasAccessApplication, function(req, res) {
+router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
     upload(req, res, function(err) {
         if (err) {
             console.error(err);
@@ -425,7 +425,7 @@ router.post('/set_logo', block_access.hasAccessApplication, function(req, res) {
 });
 
 // List all applications
-router.get('/list', block_access.isLoggedIn, function(req, res) {
+router.get('/list', block_access.isLoggedIn, (req, res) => {
     (async () => {
         let applications = await models.Application.findAll({
             include: [{
@@ -481,7 +481,7 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     })
 });
 
-router.post('/delete', block_access.isLoggedIn, function(req, res) {
+router.post('/delete', block_access.isLoggedIn, (req, res) => {
     let __ = require("../services/language")(req.session.lang_user).__;
     execute(req, "delete application " + req.body.appName, __).then(_ => {
         res.status(200).send(true);
@@ -491,12 +491,12 @@ router.post('/delete', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.post('/initiate', block_access.isLoggedIn, function(req, res) {
+router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 
     pourcent_generation[req.session.passport.user.id] = 1;
     if (req.body.application == "") {
         req.session.toastr = [{
-            message: "Merci de renseigner un nom d'application.",
+            message: "Missing application name.",
             level: "error"
         }];
         return res.redirect('/default/home');
@@ -678,7 +678,7 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     });
 });
 
-router.get('/get_pourcent_generation', function(req, res) {
+router.get('/get_pourcent_generation', (req, res) => {
     res.json({
         pourcent: pourcent_generation[req.session.passport.user.id]
     });
