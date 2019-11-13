@@ -539,33 +539,20 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
         answers: [],
         doneInstruction: 0,
         totalInstruction: 0,
-        authInstructions: false,
-        ids: {
-            id_project: -1,
-            id_application: -1,
-            id_module: -1,
-            id_data_entity: -1
-        }
+        isNewApp: false
     };
 
-    // Processing already occured less than the last 100 seconds
-    if(scriptProcessing.state && moment().diff(scriptProcessing.timeout, 'seconds') < 100){
-        scriptData[userID].answers = [{
-            message: __('instructionScript.alreadyProcessing')
-        }];
-        scriptData[userID].over = true;
-        scriptData[userID].overDueToProcessing = true;
+    // Script already processing
+    if(isProcessing(userID, __)) {
+        processEnd(null, userID);
         return res.end();
     }
-
-    // Reset idxAtMandatoryInstructionStart to handle multiple scripts execution
-    idxAtMandatoryInstructionStart = -1;
 
     scriptProcessing.state = true;
     scriptProcessing.timeout = moment();
 
-    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_custom_script.txt";
-    let tmpPath = __dirname+'/../upload/'+tmpFilename;
+    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss') + "_custom_script.nps";
+    let tmpPath = __dirname + '/../upload/' + tmpFilename;
 
     // Load template script and unzip master file if application is created using template
     let templateEntry = req.body.template_entry;
@@ -587,15 +574,15 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 break;
         }
 
-        let files = fs.readdirSync(__dirname + "/../templates/"+templateEntry);
+        let files = fs.readdirSync(__dirname + "/../templates/" + templateEntry);
         let filename = false;
 
         for (let i = 0; i < files.length; i++) {
             if (files[i].indexOf(".nps") != -1) {
-                if(!filename)
-                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
-                else if(files[i].indexOf("_"+templateLang+"_") != -1)
-                    filename = path.join(__dirname + "/../templates/"+templateEntry, files[i]);
+                if (!filename)
+                    filename = path.join(__dirname + "/../templates/" + templateEntry, files[i]);
+                else if (files[i].indexOf("_" + templateLang + "_") != -1)
+                    filename = path.join(__dirname + "/../templates/" + templateEntry, files[i]);
             }
         }
 
@@ -603,252 +590,28 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
             scriptData[userID].answers = [{
                 message: __('template.no_script')
             }];
-            scriptData[userID].over = true;
-            scriptProcessing.state = false;
+            processEnd(null, userID);
             return res.end();
         }
 
         // Write template script in the tmpPath
         fs.writeFileSync(tmpPath, fs.readFileSync(filename));
-
     } else {
         fs.writeFileSync(tmpPath, req.body.text);
     }
 
-    // Open file descriptor
-    let rl = readline.createInterface({
-        input: fs.createReadStream(tmpPath)
-    });
-
-    // Read file line by line, check for empty line, line comment, scope comment
-    let fileLines = [],
-        commenting = false,
-        invalidScript = false;
-
-    /* If one of theses value is to 2 after readings all lines then there is an error,
-    line to 1 are set because they are mandatory lines added by the generator */
-    let exception = {
-        createNewProject : {
-            value: 0,
-            errorMessage: "You can't create or select more than one project in the same script."
-        },
-        createNewApplication : {
-            value: 0,
-            errorMessage: "You can't create or select more than one application in the same script."
-        },
-        createModuleHome: {
-            value: 1,
-            errorMessage: "You can't create a module home, because it's a default module in the application."
-        },
-        createModuleAuthentication: {
-            value: 1,
-            errorMessage: "You can't create a module authentication, because it's a default module in the application."
-        },
-        createEntityUser: {
-            value: 1,
-            errorMessage: "You can't create a entity user, because it's a default entity in the application."
-        },
-        createEntityRole: {
-            value: 1,
-            errorMessage: "You can't create a entity role, because it's a default entity in the application."
-        },
-        createEntityGroup: {
-            value: 1,
-            errorMessage: "You can't create a entity group, because it's a default entity in the application."
-        },
-        setFieldUnique: {
-            value: 1,
-            errorMessage: "You can't set a field unique in a script, please execute the instruction in preview."
-        },
-        delete: {
-            value: 1,
-            errorMessage: "Please do not use delete instruction in script mode."
-        }
-    };
-
-    rl.on('line', function(sourceLine) {
-        let line = sourceLine;
-
-        // Empty line || One line comment scope
-        if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
-            return;
-        // Comment scope start
-        if (line.indexOf('/*') != -1 && !commenting)
-            commenting = true;
-        // Comment scope end
-        else if (line.indexOf('*/') != -1 && commenting)
-            commenting = false;
-        else if (!commenting) {
-            let positionComment = line.indexOf('//');
-            // Line start with comment
-            if (positionComment == 0)
-                return;
-            // Line comment is after or in the instruction
-            if (positionComment != -1){
-                line = line.substring(0, line.indexOf('//'));
-            }
-            let parserResult = parser.parse(line);
-            // Get the wanted function given by the bot to do some checks
-            let designerFunction = parserResult.function;
-            let designerValue = null;
-            if(typeof parserResult.options !== "undefined")
-                designerValue = parserResult.options.value?parserResult.options.value:null;
-            if (designerFunction == "createNewProject" || designerFunction == "selectProject")
-                exception.createNewProject.value += 1;
-            if (designerFunction == "createNewApplication" || designerFunction == "selectApplication"){
-                if (designerFunction == "createNewApplication")
-                    scriptData[userID].authInstructions = true;
-                exception.createNewApplication.value += 1;
-            }
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "home")
-                exception.createModuleHome.value += 1;
-
-            if(designerFunction == "createNewModule" && designerValue.toLowerCase() == "authentication")
-                exception.createModuleAuthentication.value += 1;
-
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "user")
-                exception.createEntityUser.value += 1;
-
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "role")
-                exception.createEntityRole.value += 1;
-
-            if(designerFunction == "createNewEntity" && designerValue.toLowerCase() == "group")
-                exception.createEntityGroup.value += 1;
-
-            if(typeof designerFunction !== 'undefined' && designerFunction.indexOf('delete') != -1)
-                exception.delete.value += 1;
-
-            // if(designerFunction == "setFieldKnownAttribute" && parserResult.options.word.toLowerCase() == "unique")
-            //     exception.setFieldUnique.value += 1;
-
-            fileLines.push(line);
-        }
-    });
-
-    // All lines read, execute instructions
-    rl.on('close', function() {
-        let isError = false;
-        let stringError = "";
-        for(let item in exception){
-            if(exception[item].value > 1){
-                stringError += exception[item].errorMessage + '<br><br>';
-                isError = true;
-            } else if(item == "createNewProject" && exception[item].value == 0){
-                stringError += 'You have to create or select a project in your script.<br><br>';
-                isError = true;
-            } else if(item == "createNewApplication" && exception[item].value == 0){
-                stringError += 'You have to create or select an application in your script.<br><br>';
-                isError = true;
-            }
-        }
-
-        if(isError){
-            scriptData[userID].answers = [];
-            scriptData[userID].answers.push({
-                message: stringError
-            });
-            scriptData[userID].over = true;
-            scriptProcessing.state = false;
-        } else{
-            scriptData[userID].totalInstruction = scriptData[userID].authInstructions ? fileLines.length + mandatoryInstructions.length : fileLines.length;
-            recursiveExecute(req, fileLines, 0).then(function(idApplication) {
-                // Workspace sequelize instance
-                delete require.cache[require.resolve(__dirname+ '/../workspace/'+idApplication+'/models/')];
-                let workspaceSequelize = require(__dirname +'/../workspace/'+idApplication+'/models/');
-
-                // We need to clear toSync.json
-                let toSyncFileName = __dirname + '/../workspace/'+idApplication+'/models/toSync.json';
-                let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
-
-                let tableName = "TABLE_NAME";
-                if(workspaceSequelize.sequelize.options.dialect == "postgres")
-                    tableName = "table_name";
-                // Looking for already exisiting table in workspace BDD
-                workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT}).then(function(result){
-                    let workspaceTables = [];
-                    for(let i=0; i<result.length; i++){
-                        if(result[i][tableName].substring(0, result[i][tableName].indexOf("_")+1) == idApplication+"_"){
-                            workspaceTables.push(result[i][tableName]);
-                        }
-                    }
-
-                    for(let entity in toSyncObject){
-                        if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
-                            toSyncObject[entity].attributes = {};
-                            // We have to remove options from toSync.json that will be generate with sequelize sync
-                            // But we have to keep relation toSync on already existing entities
-                            if(typeof toSyncObject[entity].options !== "undefined"){
-                                let cleanOptions = [];
-                                for(let i=0; i<toSyncObject[entity].options.length; i++){
-                                    if(workspaceTables.indexOf(idApplication+"_"+toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
-                                        cleanOptions.push(toSyncObject[entity].options[i]);
-                                }
-                                toSyncObject[entity].options = cleanOptions;
-                            }
-                        }
-                    }
-
-                    // If there is data to add in template
-                    if (templateEntry && fs.existsSync(__dirname + '/../templates/' + templateEntry + "/data.json")){
-                        let dataSqlContent = JSON.parse(fs.readFileSync(__dirname + '/../templates/' + templateEntry + "/data.json", "utf8"), null, 4);
-                        if(dataSqlContent.length != 0 && !toSyncObject.queries)
-                            toSyncObject.queries = [];
-                        for (let i = 0; i < dataSqlContent.length; i++) {
-                            for (let j = 0; j < dataSqlContent[i].queries.length; j++) {
-                                toSyncObject.queries.push(dataSqlContent[i].queries[j].replace(dataSqlContent[i].table, idApplication+"_"+dataSqlContent[i].table))
-                            }
-                        }
-                    }
-
-                    fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
-
-                    // Copy choosen template in generated workspace
-                    if (templateEntry) {
-                        fs.copySync(__dirname + '/../templates/' + templateEntry, __dirname + '/../workspace/' + idApplication);
-                    }
-
-                    // Restart the application server is already running
-                    let process_manager = require('../services/process_manager.js');
-                    //let process_server = process_manager.process_server;
-                    let process_server_per_app = process_manager.process_server_per_app;
-
-
-                    if (process_server_per_app[idApplication] != null && typeof process_server_per_app[idApplication] !== "undefined") {
-                        process_manager.killChildProcess(process_server_per_app[idApplication].pid, function(err) {
-                            if(err)
-                                console.error(err);
-
-                            // Preparation to start a new child server
-                            let math = require('math');
-                            let port = math.add(9000, idApplication);
-                            let env = Object.create(process.env);
-                            env.PORT = port;
-
-                            // Launch server for preview
-                            process_server_per_app[idApplication] = process_manager.launchChildProcess(req, idApplication, env);
-
-                            // Finish and redirect to the application
-                            scriptData[userID].over = true;
-                            scriptProcessing.state = false;
-                        });
-                    } else {
-                        scriptData[userID].over = true;
-                        scriptProcessing.state = false;
-                    }
-                }).catch(function(err) {
-                    console.error(err);
-                });
-            }).catch(function(err) {
-                console.error(err);
-                scriptData[userID].over = true;
-            });
-        }
-
-        // Delete instructions file
-        fs.unlinkSync(tmpPath);
-    });
-
+    // Answer to client, next steps will be handle in ajax
     res.end();
+
+    try {
+        req.file = {
+            path: tmpPath
+        };
+        executeFile(req, userID, __);
+    } catch (err) {
+        console.error(err);
+        return processEnd(null, userID);
+    }
 });
 
 // Script execution status
