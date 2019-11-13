@@ -233,7 +233,7 @@
     },
     "error": {
         "oneLetter": "Il doit y avoir au moins une lettre dans le nom.",
-        "oops": "Oups! Une erreur s'est produite :(",
+        "oops": "Oups! Une erreur s'est produite",
         "textone": "Vous devriez contacter votre administrateur, et vous pouvez",
         "texttwo": "retourner à l'accueil",
         "or": "ou",
@@ -241,7 +241,7 @@
         "404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
         "valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (<30) après génération (%s).",
         "cannotFindInstruction": "Désolé, je ne comprends pas ce que vous me demandez.",
-        "missingParametersInstruction": "Ils manque des paramètres à votre instruction. Consultez la documentation"
+        "missingParametersInstruction": "Il manque des paramètres à votre instruction. Consultez la documentation"
     },
     "back":{
         "list": "Lister les",
