@@ -225,12 +225,17 @@ module.exports = {
         return structureDatalist;
     },
     getLastLoggedError: function(appName) {
-        let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
-        // First line of last error in app logs
-        if (logContent.indexOf("Error:") == -1)
-            return "No error detected.";
-        else
-            return logContent.split("Error:")[logContent.split("Error:").length - 1].split("\n")[0];
+        try {
+            let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
+            // First line of last error in app logs
+            if (logContent.indexOf("Error:") == -1)
+                return "No error detected.";
+            else
+                return logContent.split("Error:")[logContent.split("Error:").length - 1].split("\n")[0];
+        } catch (err) {
+            console.error(err);
+            return err;
+        }
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,

@@ -715,12 +715,23 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
             let promises = [],
                 oldAppName = false,
                 appRegex;
+
+            // Looping first time to find metadata.json to get old app name
             for (let item in zip.files) {
-                // Getting old application name
-                if (!oldAppName && item.substring(0, 2) == 'a_') {
-                    oldAppName = item;
-                    appRegex = new RegExp(item.slice(0, -1), 'g') // Slice to remove / (ex: appName/ => appName)
+                if(item.indexOf('metadata.json') != -1) {
+                    let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer');
+                    metadataContent = JSON.parse(metadataContent);
+                    oldAppName = Object.keys(metadataContent)[0];
+                    appRegex = new RegExp(oldAppName, 'g');
                 }
+            }
+
+            if(!oldAppName) {
+                infoText += '- Unable to find metadata.json in .zip.<br>';
+                return null;
+            }
+
+            for (let item in zip.files) {
                 item = zip.files[item];
 
                 promises.push(new Promise((resolve, reject) => {
@@ -731,7 +742,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
                         try {
                             fs.mkdirsSync(currentPath);
                         } catch (err) {
-                            console.error(err)
+                            console.error(err);
                         }
                         return resolve();
                     }
