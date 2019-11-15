@@ -5,9 +5,8 @@ let translateKey = require("../config/googleAPI").translate;
 const googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
-    writeTree: function(appName, object, language, replaceBoolean) {
+    writeTree: function(appName, object, language, replaceBoolean = true) {
         let localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json'));
-        replaceBoolean = typeof replaceBoolean === 'undefined' ? true : replaceBoolean;
 
         function dive(locales, newLocales) {
             for (let newLocale in newLocales) {
@@ -213,13 +212,12 @@ module.exports = {
             delete require.cache[require.resolve(urlFile)];
             let dataLocales = require(urlFile);
 
-            if (type == "field") {
+            if (type == "field")
                 delete dataLocales.entity[value[0]][value[1]];
-            } else if (type == "entity") {
+            else if (type == "entity")
                 delete dataLocales.entity[value];
-            } else if (type == "module") {
+            else if (type == "module")
                 delete dataLocales.module[value];
-            }
 
             fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
         });
