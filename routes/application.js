@@ -668,7 +668,7 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
     }).catch(err => {
         console.error(err);
         req.session.toastr = [{
-            message: err.message,
+            message: err,
             level: "error"
         }];
         return res.redirect('/default/home');
