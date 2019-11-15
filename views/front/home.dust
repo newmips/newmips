@@ -85,7 +85,7 @@
 						<a class="btn btn-app" href="/themes">
 							<i class="fa fa-window-maximize"></i>{#__ key="home.directlinks.theme"/}
 						</a>
-						<a class="btn btn-app" href="/import">
+						<a class="btn btn-app" href="/application/import">
 							<i class="fa fa-hdd-o"></i>{#__ key="home.directlinks.import"/}
 						</a>
 						{#isAdmin}
@@ -123,7 +123,7 @@
 											<tr>
 												<td>{displayName}</td>
 												<td class="text-right">
-													<a class="btn btn-info" href="/application/preview?id_application={id}">
+													<a class="btn btn-info" href="/application/preview/{name}">
 														<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
 														<span>{#__ key="button.preview"/}</span>
 													</a>
