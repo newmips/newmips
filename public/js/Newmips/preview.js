@@ -201,7 +201,7 @@ $(document).ready(function() {
     // Input instruction
     /////////
     var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
+    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
     var indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
     $("input#instruction").css("transition", "color 0.2s");
 
@@ -264,7 +264,7 @@ $(document).ready(function() {
             if (instructionHistory == null)
                 instructionHistory = [];
             instructionHistory.push($("#instruction").val());
-            localStorage.setItem("newmips_given_instruction_history_" + idApp, JSON.stringify(instructionHistory));
+            localStorage.setItem("newmips_given_instruction_history_" + appName, JSON.stringify(instructionHistory));
         }
 
         $("#execute_instruction").html("Loading...");
@@ -276,39 +276,25 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(data) {
 
-                if(data.iframe_url == -1){
-                    $("#loadingIframe").hide();
-                    $("#errorIframe").show();
-                    return;
-                }
-
                 if (data.toRedirect)
                     return window.location.href = data.url;
 
-                // Reload iframe
-                var iframe = document.getElementById("iframe");
-                iframe.src = data.iframe_url;
-
                 // Update session screen
-                if (typeof data.session.project.id_project !== "undefined" && data.session.project.id_project != null)
-                    $(".sessionProjectInfo").text(" " + data.session.project.id_project + " - " + data.session.project.name_project);
-                else
-                    $(".sessionProjectInfo").text(" " + data.session.project.noProject);
-                if (typeof data.session.application.id_application !== "undefined" && data.session.application.id_application != null)
-                    $(".sessionApplicationInfo").text(" " + data.session.application.id_application + " - " + data.session.application.name_application);
+                if (typeof data.session.application.name !== "undefined" && data.session.application.name != null)
+                    $(".sessionApplicationInfo").text(" " + data.session.application.name);
                 else
                     $(".sessionApplicationInfo").text(" " + data.session.application.noApplication);
-                if (typeof data.session.module.id_module !== "undefined" && data.session.module.id_module != null)
-                    $(".sessionModuleInfo").text(" " + data.session.module.id_module + " - " + data.session.module.name_module);
+                if (typeof data.session.module.name !== "undefined" && data.session.module.name != null)
+                    $(".sessionModuleInfo").text(" " + data.session.module.name);
                 else
                     $(".sessionModuleInfo").text(" " + data.session.module.noModule);
-                if (typeof data.session.data_entity.id_data_entity !== "undefined" && data.session.data_entity.id_data_entity != null)
-                    $(".sessionEntityInfo").text(" " + data.session.data_entity.id_data_entity + " - " + data.session.data_entity.name_data_entity);
+                if (typeof data.session.entity.name !== "undefined" && data.session.entity.name != null)
+                    $(".sessionEntityInfo").text(" " + data.session.entity.name);
                 else
-                    $(".sessionEntityInfo").text(" " + data.session.data_entity.noEntity);
+                    $(".sessionEntityInfo").text(" " + data.session.entity.noEntity);
 
                 // Keep instructionHistory up to date
-                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
+                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
                 indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
                 // User instruction
                 var userItem = data.chat.items[data.chat.items.length - 2];
@@ -331,6 +317,18 @@ $(document).ready(function() {
                     $('#chat-box').slimScroll({
                         scrollTo: bottomCoord
                     });
+
+                    // Error
+                    if(data.iframe_url == -1){
+                        $("#loadingIframe").hide();
+                        $("#errorIframe").show();
+                        return;
+                    }
+
+                    // Reload iframe
+                    var iframe = document.getElementById("iframe");
+                    iframe.src = data.iframe_url;
+                    $("#errorIframe").hide();
 
                     // Update UI Editor selector with new entities
                     var defaultUISelectorText = $("#entitySelect option")[0].text;
@@ -363,7 +361,7 @@ $(document).ready(function() {
                     $("ul#sortable.sidebar-menu").append(content);
                     $(".sidebar .treeview").tree();
                     // Reset Code Editor
-                    if (typeof myEditor !== "undefined" && !data.isRestart) {
+                    if (typeof myEditor !== "undefined") {
                         $("#codemirror-editor li.load-file").each(function() {
                             $(this).remove();
                         });
@@ -375,20 +373,18 @@ $(document).ready(function() {
                     }
 
                     // Reset UI Editor
-                    if (!data.isRestart) {
-                        $("#pages").slideUp();
-                        entity = null;
-                        page = null;
-                        $("#ui_editor").html("");
-                        // Enable gridEditor
-                        $("#ui_editor").gridEditor();
-                        // Remove mainControls who are not removed by modifying html
-                        $(".ge-mainControls").remove();
-                        $("#ui_editor_save").hide();
-                        $("#ui_editor_tips").hide();
-                        $("#ui_editor_apply_all").hide();
-                        $("#ui_editor_apply_all_span").hide();
-                    }
+                    $("#pages").slideUp();
+                    entity = null;
+                    page = null;
+                    $("#ui_editor").html("");
+                    // Enable gridEditor
+                    $("#ui_editor").gridEditor();
+                    // Remove mainControls who are not removed by modifying html
+                    $(".ge-mainControls").remove();
+                    $("#ui_editor_save").hide();
+                    $("#ui_editor_tips").hide();
+                    $("#ui_editor_apply_all").hide();
+                    $("#ui_editor_apply_all_span").hide();
 
                     // Wait a little for Iframe to refresh
                     setTimeout(function() {
@@ -483,7 +479,7 @@ $(document).ready(function() {
                 url: '/default/update_logs',
                 method: "POST",
                 data: {
-                    idApp: idApp
+                    appName: appName
                 },
                 success: function(data) {
                     $("#logs-content").html(data);

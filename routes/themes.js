@@ -1,14 +1,14 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var fs = require("fs-extra");
-var helpers = require("../utils/helpers");
-var unzip = require("unzip");
-var through = require('through2');
-var multer = require('multer');
-var moment = require("moment");
-var attrHelper = require('../utils/attr_helper');
-var helper = require('../utils/helpers');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const fs = require("fs-extra");
+const helpers = require("../utils/helpers");
+const unzip = require("unzip");
+const through = require('through2');
+const multer = require('multer');
+const moment = require("moment");
+const dataHelper = require('../utils/data_helper');
+const helper = require('../utils/helpers');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
     var data = {};
@@ -111,7 +111,7 @@ router.post('/upload_theme', multer({
                                     var infoData = JSON.parse(contents);
                                     // Create new theme folder
                                     //var themeCodeName = req.file.originalname.split(".zip")[0].replace(/ /g, "-") + Date.now();
-                                    var themeCodeName = attrHelper.clearString(infoData.name);
+                                    var themeCodeName = dataHelper.clearString(infoData.name);
 
                                     if (!fs.existsSync(__dirname + "/../structure/template/public/themes/"+themeCodeName)) {
                                         fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName);

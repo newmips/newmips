@@ -542,17 +542,17 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
     if (search != '%%') {
         if (req.body.searchField.length == 1) {
             where.where[req.body.searchField[0]] = {
-                $like: search
+                [models.$like]: search
             };
         } else {
-            where.where.$or = [];
+            where.where[models.$or] = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
                     currentOrObj[req.body.searchField[i]] = {
-                        $like: search
+                        [models.$like]: search
                     }
-                    where.where.$or.push(currentOrObj);
+                    where.where[models.$or].push(currentOrObj);
                 }
             }
         }

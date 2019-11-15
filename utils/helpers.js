@@ -1,9 +1,10 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const crypto = require("crypto");
 const models = require('../models/');
 const admzip = require('adm-zip');
 const moment = require('moment');
 const exec = require('child_process').exec;
+const path = require('path');
 
 function rmdirSyncRecursive(path) {
     if (fs.existsSync(path)) {
@@ -118,6 +119,23 @@ function unzipSync(url, folder, entry) {
     });
 }
 
+// Returns a flat array of absolute paths of all files recursively contained in the dir
+// Using JSZIP module
+function buildZipFromDirectory(dir, zip, root) {
+    const list = fs.readdirSync(dir);
+
+    for (let file of list) {
+        file = path.resolve(dir, file)
+        let stat = fs.statSync(file)
+        if (stat && stat.isDirectory()) {
+            this.buildZipFromDirectory(file, zip, root)
+        } else {
+            const filedata = fs.readFileSync(file);
+            zip.file(path.relative(root, file), filedata);
+        }
+    }
+}
+
 module.exports = {
     queuedPromises: function queuedAll(headPromises) {
         return new Promise(function(headResolve, headReject) {
@@ -206,16 +224,22 @@ module.exports = {
         }
         return structureDatalist;
     },
-    getLastLoggedError: function (appID) {
-        let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_"+appID+".log", "utf8");
-        // First line of last error in app logs
-        if(logContent.indexOf("Error:") == -1)
-            return "No error detected.";
-        else
-            return logContent.split("Error:")[logContent.split("Error:").length-1].split("\n")[0];
+    getLastLoggedError: function(appName) {
+        try {
+            let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
+            // First line of last error in app logs
+            if (logContent.indexOf("Error:") == -1)
+                return "No error detected.";
+            else
+                return logContent.split("Error:")[logContent.split("Error:").length - 1].split("\n")[0];
+        } catch (err) {
+            console.error(err);
+            return err;
+        }
     },
     rmdirSyncRecursive: rmdirSyncRecursive,
     readdirSyncRecursive: readdirSyncRecursive,
     sortEditorFolder: sortEditorFolder,
-    unzipSync: unzipSync
+    unzipSync: unzipSync,
+    buildZipFromDirectory: buildZipFromDirectory
 }

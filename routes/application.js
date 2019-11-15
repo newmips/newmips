@@ -1,93 +1,86 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var multer = require('multer');
-var moment = require('moment');
-var request = require('request');
-var docBuilder = require('../utils/api_doc_builder');
-var upload = multer().single('file');
-var Jimp = require("jimp");
-var logger = require('../utils/logger');
-var process_manager = require('../services/process_manager.js');
-var process_server_per_app = process_manager.process_server_per_app;
-var session_manager = require('../services/session.js');
-var designer = require('../services/designer.js');
-var fs = require('fs-extra');
-var parser = require('../services/bot.js');
-var globalConf = require('../config/global.js');
-var gitlabConf = require('../config/gitlab.js');
+const router = require('express').Router();
+const fs = require('fs-extra');
+const moment = require('moment');
+const request = require('request');
+const models = require('../models/');
+const readline = require('readline');
+const multer = require('multer');
+const Jimp = require('jimp');
+const math = require('math');
+const JSZip = require('jszip');
 
-// Gitlab API
+// Config
+const globalConf = require('../config/global.js');
+const gitlabConf = require('../config/gitlab.js');
+
+// Services
+const process_manager = require('../services/process_manager.js');
+const process_server_per_app = process_manager.process_server_per_app;
+const exec = require('child_process');
+const session_manager = require('../services/session.js');
+const designer = require('../services/designer.js');
+const parser = require('../services/bot.js');
 const gitlab = require('../services/gitlab_api');
 
-var helpers = require('../utils/helpers');
-var attrHelper = require('../utils/attr_helper');
-var gitHelper = require('../utils/git_helper');
-var models = require('../models/');
-var readline = require('readline');
-var structure_application = require('../structure/structure_application');
+// Utils
+const block_access = require('../utils/block_access');
+const docBuilder = require('../utils/api_doc_builder');
+const logger = require('../utils/logger');
+const helpers = require('../utils/helpers');
+const dataHelper = require('../utils/data_helper');
+const gitHelper = require('../utils/git_helper');
 
-var pourcent_generation = {};
+const metadata = require('../database/metadata')();
+const structure_application = require('../structure/structure_application');
+let pourcent_generation = {};
 
 // Exclude from Editor
-var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
+let excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
+let excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
-function initPreviewData(idApplication, data){
-    return new Promise(function(resolve, reject) {
-        var innerPromises = [];
+function initPreviewData(appName, data){
+    // Editor
+    let workspacePath = __dirname + "/../workspace/" + appName + "/";
+    let folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
+    /* Sort folder first, file after */
+    data.workspaceFolder = helpers.sortEditorFolder(folder);
 
-        // Editor
-        var workspacePath = __dirname + "/../workspace/" + idApplication + "/";
-        var folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
-        /* Sort folder first, file after */
-        data.workspaceFolder = helpers.sortEditorFolder(folder);
+    let application = metadata.getApplication(appName);
+    let modules = application.modules;
+    // UI designer entity list
 
-        // UI designer entity list
-        innerPromises.push(new Promise(function(innerResolve, innerReject) {
-            models.Module.findAll({where: {id_application: idApplication}, include: [{model: models.DataEntity}]}).then(function(modules) {
-                data.entities = [];
-                for (var i = 0; i < modules.length; i++) {
-                    for (var j = 0; j < modules[i].DataEntities.length; j++)
-                        data.entities.push(modules[i].DataEntities[j]);
-                }
-                function sortEntities(entities, idx) {
-                    if (entities.length == 0 || !entities[idx+1])
-                        return entities;
-                    if (entities[idx].dataValues.name > entities[idx+1].dataValues.name) {
-                        var swap = entities[idx];
-                        entities[idx] = entities[idx+1];
-                        entities[idx+1] = swap;
-                        return sortEntities(entities, idx == 0 ? 0 : idx-1);
-                    }
-                    return sortEntities(entities, idx+1);
-                }
-                data.entities = sortEntities(data.entities, 0);
-                innerResolve();
-            });
-        }));
-
-        Promise.all(innerPromises).then(function() {
-            return resolve(data);
-        }).catch(function(err) {
-            console.error(err);
-            reject(err);
-        });
-    });
+    data.entities = [];
+    for (let i = 0; i < modules.length; i++) {
+        for (let j = 0; j < modules[i].entities.length; j++)
+            data.entities.push(modules[i].entities[j]);
+    }
+    function sortEntities(entities, idx) {
+        if (entities.length == 0 || !entities[idx+1])
+            return entities;
+        if (entities[idx].name > entities[idx+1].name) {
+            let swap = entities[idx];
+            entities[idx] = entities[idx+1];
+            entities[idx+1] = swap;
+            return sortEntities(entities, idx == 0 ? 0 : idx-1);
+        }
+        return sortEntities(entities, idx+1);
+    }
+    data.entities = sortEntities(data.entities, 0);
+    return data;
 }
 
-var chats = {};
-function setChat(req, idApp, idUser, user, content, params, isError){
+let chats = {};
+function setChat(req, app_name, userID, user, content, params, isError){
 
     // Init if necessary
-    if(!chats[idApp])
-        chats[idApp] = {};
-    if(!chats[idApp][idUser])
-        chats[idApp][idUser] = {items: []};
+    if(!chats[app_name])
+        chats[app_name] = {};
+    if(!chats[app_name][userID])
+        chats[app_name][userID] = {items: []};
 
     // Add chat
-    if(content != "chat.welcome" || chats[idApp][idUser].items.length < 1){
-        chats[idApp][idUser].items.push({
+    if(content != "chat.welcome" || chats[app_name][userID].items.length < 1){
+        chats[app_name][userID].items.push({
             user: user,
             dateEmission: req.moment().format("DD MMM HH:mm"),
             content: content,
@@ -97,638 +90,384 @@ function setChat(req, idApp, idUser, user, content, params, isError){
     }
 }
 
-function execute(req, instruction) {
-    return new Promise(function(resolve, reject) {
-        try {
+async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 
-            /* Lower the first word for the basic parser jison */
-            instruction = attrHelper.lowerFirstWord(instruction);
+    // Lower the first word for the basic parser json
+    instruction = dataHelper.lowerFirstWord(instruction);
 
-            // Instruction to be executed
-            var attr = parser.parse(instruction);
+    // Instruction to be executed
+    data = {
+        ...data,
+        ...parser.parse(instruction)
+    };
 
-            /* Rework the attr to get value for the code / url / show */
-            attr = attrHelper.reworkAttr(attr);
+    // Rework the data to get value for the code / url / show
+    data = dataHelper.reworkData(data);
 
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-            attr.googleTranslate = req.session.toTranslate || false;
-            attr.lang_user = req.session.lang_user;
-            attr.currentUser = req.session.passport.user;
+    if (typeof data.error !== 'undefined')
+        throw data.error;
 
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
-            else
-                attr.gitlabUser = null;
+    data.app_name = req.session.app_name;
+    data.module_name = req.session.module_name;
+    data.entity_name = req.session.entity_name;
+    data.googleTranslate = req.session.toTranslate || false;
+    data.lang_user = req.session.lang_user;
+    data.currentUser = req.session.passport.user;
+    data.gitlabUser = null;
 
-            var __ = require("../services/language")(req.session.lang_user).__;
+    if(typeof req.session.gitlab !== 'undefined'
+        && typeof req.session.gitlab.user !== 'undefined'
+        && !isNaN(req.session.gitlab.user.id))
+        data.gitlabUser = req.session.gitlab.user;
 
-            if (typeof attr.error !== 'undefined')
-                throw attr.error;
+    if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
+        data.application = metadata.getApplication(data.app_name);
 
-            // Function is finally executed as "global()" using the static dialog designer
-            // "Options" and "Session values" are sent using the attr attribute
-            return designer[attr.function](attr, function(err, info) {
-                if (err) {
-                    var msgErr = __(err.message, err.messageParams || []);
-                    // Error handling code goes here
-                    console.error(err);
-                    return reject(msgErr);
-                }
+    let info;
+    try {
+        info = await designer[data.function](data);
+    } catch (err) {
+        console.error(err);
+        throw __(err.message ? err.message : err, err.messageParams || []);
+    }
 
-                switch(attr.function){
-                    case "selectProject":
-                    case "createNewProject":
-                        req.session.id_project = info.insertId;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "selectApplication":
-                    case "createNewApplication":
-                        req.session.id_application = info.insertId;
-                        req.session.name_application = info.name_application;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "selectModule":
-                    case "createNewModule":
-                        req.session.id_module = info.insertId;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "createNewEntity":
-                    case "selectEntity":
-                    case "createNewEntityWithBelongsTo":
-                    case "createNewEntityWithHasMany":
-                    case "createNewBelongsTo":
-                    case "createNewHasMany":
-                    case "createNewFieldRelatedTo":
-                        req.session.id_data_entity = info.insertId;
-                        break;
-                    case "deleteProject":
-                        req.session.id_project = null;
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "deleteApplication":
-                        req.session.id_application = null;
-                        req.session.id_module = null;
-                        req.session.id_data_entity = null;
-                        break;
-                    case "deleteModule":
-                        req.session.id_module = info.homeID;
-                        req.session.id_data_entity = null;
-                        break;
-                }
+    data = session_manager.setSession(data.function, req, info, data);
 
-                var msgInfo = __(info.message, info.messageParams || []);
-                resolve();
-            });
-        } catch (e) {
-            reject(e);
-        }
-    });
+    // Save metadata
+    if(data.application && data.function != 'deleteApplication' && saveMetadata)
+        data.application.save();
+
+    data.message = info.message;
+    data.messageParams = info.messageParams;
+    data.restartServer = typeof info.restartServer === 'undefined' ? true : false;
+
+    return data;
 }
 
 // Preview Get
-router.get('/preview', block_access.hasAccessApplication, function(req, res) {
+router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) => {
 
-    var id_application = req.query.id_application;
-    var timeoutServer = 30000;
+    let appName = req.params.app_name;
+
+    // Application starting timeout
+    let timeoutServer = 30000;
     if(typeof req.query.timeout !== "undefined")
         timeoutServer = req.query.timeout;
-    var currentUserID = req.session.passport.user.id;
-    req.session.id_application = id_application;
-    req.session.id_data_entity = null;
 
-    var data = {
-        error: 1,
-        profile: req.session.passport.user,
-        menu: "project",
-        sub_menu: "list_project",
-        application: "",
-        answers: "",
-        instruction: "",
-        iframe_url: "",
-        session: ""
+    let currentUserID = req.session.passport.user.id;
+
+    req.session.app_name = appName;
+    req.session.module_name = 'm_home';
+    req.session.entity_name = null;
+
+    let data = {
+        application: metadata.getApplication(appName),
+        currentUser: req.session.passport.user,
+        gitlabUser: null
     };
 
-    if (!id_application && typeof process_server_per_app[req.session.id_application] === 'undefined') {
+    if ((!appName || appName == '') && typeof process_server_per_app[appName] === 'undefined') {
         req.session.toastr.push({level: "warning", message: "application.not_started"});
-        return res.redirect('/application/list');
+        return res.redirect('/default/home');
     }
 
-    setChat(req, id_application, currentUserID, "Mipsy", "chat.welcome", []);
+    setChat(req, appName, currentUserID, "Mipsy", "chat.welcome", []);
 
-    models.Application.findOne({where: {id: id_application}}).then(function(application) {
-        req.session.id_project = application.id_project;
+    models.Application.findOne({where: {name: appName}}).then(db_app => {
 
-        models.Module.findAll({where: {id_application: application.id}, order: [["id_application", "ASC"]]}).then(function(modules) {
-            let currentModule = modules[0];
-            req.session.id_module = currentModule.id;
-            var math = require('math');
-            var port = math.add(9000, application.id);
-            var env = Object.create(process.env);
-            env.PORT = port;
+        let env = Object.create(process.env);
+        let port = math.add(9000, db_app.id);
+        env.PORT = port;
 
-            var timer = 50;
-            var serverCheckCount = 0;
-            if (process_server_per_app[application.id] == null || typeof process_server_per_app[application.id] === "undefined") {
-                // Launch server for preview
-                process_server_per_app[application.id] = process_manager.launchChildProcess(req, application.id, env);
-                timer = 500;
+        if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
+            process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+
+        if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+            data.gitlabUser = req.session.gitlab.user;
+
+        data.session = session_manager.getSession(req)
+
+        let initialTimestamp = new Date().getTime();
+        let iframe_url = globalConf.protocol_iframe + '://';
+
+        if (globalConf.env == 'cloud')
+            iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
+        else
+            iframe_url += globalConf.host + ":" + port + "/default/status";
+
+        data = initPreviewData(appName, data);
+        data.chat = chats[appName][currentUserID];
+
+        // Check server has started every 50 ms
+        console.log('Starting server...');
+        process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
+            data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
+            // Let's do git init or commit depending the env (only on cloud env for now)
+            gitHelper.doGit(data);
+            res.render('front/preview', data);
+        }).catch(err => {
+            console.error(err);
+            let chatKey = err.message;
+            let chatParams = err.messageParams;
+            let lastError = helpers.getLastLoggedError(appName);
+            // If missing module error
+            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                chatKey = "structure.global.restart.missing_module";
+                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                chatParams = [lastError, lastError];
             }
 
-            // var protocol = globalConf.protocol;
-            var protocol_iframe = globalConf.protocol_iframe;
-            var host = globalConf.host;
+            setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
+            data.iframe_url = -1;
+            res.render('front/preview', data);
 
-            var attr = new Array();
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-            attr.currentUser = req.session.passport.user;
-
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
-            else
-                attr.gitlabUser = null;
-
-            session_manager.getSession(attr, req, function(err, info) {
-                data.session = info;
-
-                initPreviewData(req.session.id_application, data).then(function(data) {
-                    let initialTimestamp = new Date().getTime();
-                    let iframe_status_url;
-                    function checkServer() {
-                        if (new Date().getTime() - initialTimestamp > timeoutServer) {
-
-                            // Get last error from app logs
-                            let lastError = helpers.getLastLoggedError(id_application);
-                            let chatKey = "structure.global.restart.error";
-                            let chatParams = [lastError];
-
-                            // If missing module error
-                            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                                chatKey = "structure.global.restart.missing_module";
-                                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                                chatParams = [lastError, lastError];
-                            }
-
-                            setChat(req, id_application, currentUserID, "Mipsy", chatKey, chatParams, true);
-                            data.iframe_url = -1;
-                            data.chat = chats[id_application][currentUserID];
-                            return res.render('front/preview', data);
-                        }
-
-                        iframe_status_url = protocol_iframe + '://';
-                        if (globalConf.env == 'cloud')
-                            iframe_status_url += globalConf.sub_domain + '-' + application.codeName.substring(2) + "." + globalConf.dns + '/default/status';
-                        else
-                            iframe_status_url += host + ":" + port + "/default/status";
-
-                        let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
-
-                        request({
-                            rejectUnauthorized: rejectUnauthorized,
-                            url: iframe_status_url,
-                            method: "GET"
-                        }, function(error, response, body) {
-                            if (error)
-                                return setTimeout(checkServer, 100);
-
-                            //Check for right status code
-                            if (response.statusCode !== 200) {
-                                console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                return setTimeout(checkServer, 100);
-                            }
-
-                            //All is good. Print the body
-                            console.log("Server status is OK"); // Show the HTML for the Modulus homepage.
-
-                            data.error = 0;
-                            data.application = currentModule;
-                            data.iframe_url = iframe_status_url.split("/default/status")[0]+"/default/home";
-                            data.idApp = application.id;
-
-                            // Let's do git init or commit depending the env (only on cloud env for now)
-                            gitHelper.doGit(attr, function(err){
-                                if(err)
-                                    setChat(req, id_application, currentUserID, "Mipsy", err.message, [], true);
-                                data.chat = chats[id_application][currentUserID];
-                                res.render('front/preview', data);
-                            });
-                        });
-                    }
-                    // Check server has started every 50 ms
-                    console.log('Waiting for server to start');
-                    checkServer();
-                });
-            });
         });
-    }).catch(function(err) {
-        initPreviewData(req.session.id_application, data).then(function(data) {
-            data.code = 500;
-            console.error(err);
-            res.render('common/error', data);
-        }).catch(function(err) {
-            data.code = 500;
-            console.error(err);
-            res.render('common/error', data);
-        });
+    }).catch(err => {
+        data = initPreviewData(appName, data);
+        data.code = 500;
+        console.error(err);
+        res.render('common/error', data);
     });
 });
 
 // AJAX Preview Post
-router.post('/fastpreview', block_access.hasAccessApplication, function(req, res) {
+router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
-    var math = require('math');
-    var port = math.add(9000, req.session.id_application);
-    var env = Object.create(process.env);
-    env.PORT = port;
-    var protocol_iframe = globalConf.protocol_iframe;
-    var host = globalConf.host;
-    var timeoutServer = 30000;
+    let appName = req.session.app_name;
+    /* Lower the first word for the basic parser json */
+    let instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
+    let currentUserID = req.session.passport.user.id;
+    let data = {};
 
-    // Parse instruction and set results
-    models.Application.findById(req.session.id_application).then(function(application) {
+    (async () => {
+        let db_app = await models.Application.findOne({where: {name: appName}});
 
-        req.session.name_application = application.codeName.substring(2);
+        let port = math.add(9000, db_app.id);
+        let env = Object.create(process.env);
+        env.PORT = port;
 
-        var instruction = req.body.instruction.trim() || "";
-        var currentUserID = req.session.passport.user.id;
-        var currentAppID = application.id;
+        let protocol_iframe = globalConf.protocol_iframe;
+        let host = globalConf.host;
+        let timeoutServer = 30000;
 
-        var data = {
-            error: 1,
-            profile: req.session.passport.user,
-            instruction: instruction,
-            session: {
-                id_project: req.session.id_project,
-                id_application: req.session.id_application,
-                id_module: req.session.id_module,
-                id_data_entity: req.session.id_data_entity
-            }
-        };
+        // Current application url
+        data.iframe_url = process_manager.childUrl(req, db_app.id);
 
-        try {
-            /* Add instruction in chat */
-            setChat(req, currentAppID, currentUserID, req.session.passport.user.login, instruction, []);
+        /* Add instruction in chat */
+        setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
 
-            /* Lower the first word for the basic parser json */
-            instruction = attrHelper.lowerFirstWord(instruction);
+        let __ = require("../services/language")(req.session.lang_user).__;
 
-            /* Parse the instruction to get an object for the designer */
-            var attr = parser.parse(instruction);
-            /* Rework the attr to get value for the code / url / show */
-            attr = attrHelper.reworkAttr(attr);
-            data.iframe_url = process_manager.childUrl(req, attr.function);
-            // We simply add session values in attributes array
-            attr.instruction = instruction;
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-            attr.googleTranslate = req.session.toTranslate || false;
-            attr.lang_user = req.session.lang_user;
-            attr.currentUser = req.session.passport.user;
-            attr.gitlabUser = null;
+        // Executing instruction
+        data = await execute(req, instruction, __, data);
 
-            if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-                attr.gitlabUser = req.session.gitlab.user;
-
-            if (typeof attr.error !== 'undefined'){
-                var err = new Error();
-                err.message = attr.error;
-                err.messageParams = attr.errorParams;
-                throw err;
-            }
-
-            if (typeof designer[attr.function] !== 'function')
-                throw new Error("Designer doesn't have function "+attr.function);
-
-            // Function is finally executed as "globalConf()" using the static dialog designer
-            // "Options" and "Session values" are sent using the attr attribute
-            designer[attr.function](attr, function(err, info) {
-                var answer;
-                /* If restart server then redirect to /application/preview?id_application=? */
-                var toRestart = false;
-                if (err) {
-                    // Error handling code goes here
-                    console.error(err);
-
-                    if(typeof err.message === "undefined")
-                        answer = err;
-                    else
-                        answer = err.message;
-
-                    // Winston log file
-                    logger.debug(answer);
-
-                    //Generator answer
-                    setChat(req, currentAppID, currentUserID, "Mipsy", answer, err.messageParams, true);
-
-                    /* Save ERROR an instruction history in the history script in workspace folder */
-                    if(attr.function != 'restart'){
-                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-                        historyScript += "\n//ERROR: "+instruction+" ("+answer+")";
-                        fs.writeFileSync(historyScriptPath, historyScript);
-                    }
-
-                    // Load session values
-                    session_manager.getSession(attr, req, function(err, infoSession) {
-                        data.session = infoSession;
-                        data.chat = chats[currentAppID][currentUserID];
-                        initPreviewData(req.session.id_application, data).then(function(data) {
-                            //res.render('front/preview', data);
-                            res.send(data);
-                        });
-                    });
-                } else {
-
-                    /* Save an instruction history in the history script in workspace folder */
-                    if(attr.function != 'restart'){
-                        var historyScriptPath = __dirname+'/../workspace/'+req.session.id_application+'/history_script.nps';
-                        var historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-                        historyScript += "\n"+instruction;
-                        fs.writeFileSync(historyScriptPath, historyScript);
-                    }
-
-                    // Store key entities in session for futur instruction
-                    session_manager.setSession(attr.function, req, info, data);
-                    if (attr.function == "deleteApplication"){
-                        return res.send({
-                            toRedirect: true,
-                            url: "/default/home"
-                        });
-                    } else if (attr.function == 'restart' || attr.function == 'installNodePackage'){
-                        toRestart = true;
-                    }
-
-                    // Generator answer
-                    setChat(req, currentAppID, currentUserID, "Mipsy", info.message, info.messageParams);
-
-                    var sessionID = req.sessionID;
-                    var timer = 50;
-                    var serverCheckCount = 0;
-
-                    // Relaunch server
-                    var env = Object.create(process.env);
-                    env.PORT = port;
-
-                    // If we stop the server manually we loose some stored data, so we just need to redirect.
-                    if(typeof process_server_per_app[req.session.id_application] === "undefined"){
-                        return res.send({
-                            toRedirect: true,
-                            url: "/application/preview?id_application="+req.session.id_application
-                        });
-                    }
-                    // Kill server first
-                    process_manager.killChildProcess(process_server_per_app[req.session.id_application].pid, function() {
-
-                        // Launch a new server instance to reload resources
-                        process_server_per_app[req.session.id_application] = process_manager.launchChildProcess(req, req.session.id_application, env);
-
-                        // Load session values
-                        var newAttr = {};
-                        newAttr.id_project = req.session.id_project;
-                        newAttr.id_application = req.session.id_application;
-                        newAttr.id_module = req.session.id_module;
-                        newAttr.id_data_entity = req.session.id_data_entity;
-
-                        session_manager.getSession(newAttr, req, function(err, info) {
-
-                            docBuilder.build(req.session.id_application).catch(function(err){
-                                console.error(err);
-                            });
-                            data.session = info;
-
-                            initPreviewData(req.session.id_application, data).then(function(data) {
-                                let initialTimestamp = new Date().getTime();
-                                let iframe_status_url;
-
-                                function checkServer() {
-                                    // Server Timeout
-                                    if (new Date().getTime() - initialTimestamp > timeoutServer) {
-
-                                        // Get last error from app logs
-                                        let lastError = helpers.getLastLoggedError(currentAppID);
-                                        let chatKey = "structure.global.restart.error";
-                                        let chatParams = [lastError];
-
-                                        // If missing module error
-                                        if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                                            chatKey = "structure.global.restart.missing_module";
-                                            lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                                            chatParams = [lastError, lastError];
-                                        }
-
-                                        setChat(req, currentAppID, currentUserID, "Mipsy", chatKey, chatParams, true);
-                                        data.iframe_url = -1;
-                                        data.chat = chats[currentAppID][currentUserID];
-                                        return res.send(data);
-                                    }
-
-                                    iframe_status_url = protocol_iframe + '://';
-                                    if (globalConf.env == 'cloud')
-                                        iframe_status_url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + '/default/status';
-                                    else
-                                        iframe_status_url += host + ":" + port + "/default/status";
-
-                                    let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
-
-                                    request({
-                                        rejectUnauthorized: rejectUnauthorized,
-                                        url: iframe_status_url,
-                                        method: "GET"
-                                    }, function(error, response, body) {
-                                        // Check for error
-                                        if (error)
-                                            return setTimeout(checkServer, 100);
-
-                                        // Check for right status code
-                                        if (response.statusCode !== 200) {
-                                            console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
-                                            return setTimeout(checkServer, 100);
-                                        }
-
-                                        // Everything's ok
-                                        console.log("Server status is OK");
-
-                                        if(toRestart) {
-                                            data.chat = chats[currentAppID][currentUserID];
-                                            data.isRestart = true;
-                                            return res.send(data);
-                                        } else {
-                                            // Let's do git init or commit depending the env (only on cloud env for now)
-                                            gitHelper.doGit(attr, function(err){
-                                                if(err)
-                                                    setChat(req, currentAppID, currentUserID, "Mipsy", err.message, [], true);
-                                                // Call preview page
-                                                data.chat = chats[currentAppID][currentUserID];
-                                                res.send(data);
-                                            });
-                                        }
-                                    });
-                                }
-                                // Check if the server has started
-                                console.log('Waiting for server to start');
-                                checkServer();
-                            });
-                        });
-                    });
-                }
-            });
-        } catch(error){
-            setChat(req, currentAppID, currentUserID, "Mipsy", error.message, error.messageParams, true);
-            // Load session values
-            var attr = {};
-            attr.id_project = req.session.id_project;
-            attr.id_application = req.session.id_application;
-            attr.id_module = req.session.id_module;
-            attr.id_data_entity = req.session.id_data_entity;
-
-            session_manager.getSession(attr, req, function(err, info) {
-                data.chat = chats[currentAppID][currentUserID];
-                data.session = info;
-
-                initPreviewData(req.session.id_application, data).then(function(data) {
-                    res.send(data);
-                });
-            });
+        // On entity delete, reset child_url to avoid 404
+        if (data.function == 'deleteDataEntity') {
+            data.iframe_url = protocol_iframe + '://' + host + ":" + port + "/default/home";
+            process_manager.setChildUrl(req.sessionID, appName, "/default/home");
         }
+
+        /* Save an instruction history in the history script in workspace folder */
+        if (data.function != 'restart') {
+            let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+            let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+            historyScript += "\n" + instruction;
+            fs.writeFileSync(historyScriptPath, historyScript);
+        }
+
+        if (data.function == "deleteApplication"){
+            data.toRedirect = true;
+            data.url = "/default/home";
+            return data;
+        }
+
+        // Generator answer
+        setChat(req, appName, currentUserID, "Mipsy", data.message, data.messageParams);
+
+        // If we stop the server manually we loose some stored data, so we just need to redirect.
+        if(typeof process_server_per_app[appName] === "undefined"){
+            data.toRedirect = true;
+            data.url = "/application/preview/" + appName;
+            return data;
+        }
+
+        if(data.restartServer) {
+            // Kill server first
+            await process_manager.killChildProcess(process_server_per_app[appName].pid)
+
+            // Launch a new server instance to reload resources
+            process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+
+            let initialTimestamp = new Date().getTime();
+            let iframe_url = protocol_iframe + '://';
+
+            if (globalConf.env == 'cloud')
+                iframe_url += globalConf.sub_domain + '-' + req.session.app_name + "." + globalConf.dns + '/default/status';
+            else
+                iframe_url += host + ":" + port + "/default/status";
+
+            console.log('Starting server...');
+            await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
+        }
+
+        data.session = session_manager.getSession(req);
+        data = initPreviewData(appName, data);
+        data.chat = chats[appName][currentUserID];
+
+        // Let's do git init or commit depending the situation
+        if (data.function != 'restart' && data.function != 'installNodePackage')
+            gitHelper.doGit(data);
+
+        return data;
+
+    })().then(data => {
+        if(data.application)
+            docBuilder.build(data.application).catch(err => {
+                console.error(err);
+            });
+        res.send(data);
+    }).catch(err => {
+
+        // Error handling code goes here
+        console.error(err);
+
+        // Server timed out handling
+        if(err.message == 'preview.server_timeout') {
+
+            // Get last error from app logs
+            let lastError = helpers.getLastLoggedError(appName);
+            let chatKey = "structure.global.restart.error";
+            let chatParams = [lastError];
+
+            // If missing module error
+            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+                chatKey = "structure.global.restart.missing_module";
+                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+                chatParams = [lastError, lastError];
+            }
+            data.iframe_url = -1;
+            setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
+        } else {
+            setChat(req, appName, currentUserID, "Mipsy", err.message ? err.message : err, err.messageParams, true);
+        }
+
+        /* Save ERROR an instruction history in the history script in workspace folder */
+        if (data.function != 'restart') {
+            let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+            let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+            historyScript += "\n//ERROR: " + instruction + " (" + err.message + ")";
+            fs.writeFileSync(historyScriptPath, historyScript);
+        }
+
+        // Load session values
+        data = initPreviewData(appName, data);
+        data.session = session_manager.getSession(req);
+        data.chat = chats[appName][currentUserID];
+        res.send(data);
     });
 });
 
 // Dropzone FIELD ajax upload file
-router.post('/set_logo', block_access.hasAccessApplication, function (req, res) {
-    upload(req, res, function (err) {
-        if (!err) {
-            if (req.body.storageType == 'local') {
-                var configLogo = {
-                    folder: 'thumbnail/',
-                    height: 30,
-                    width: 30,
-                    quality: 60
-                };
-                var dataEntity = req.body.dataEntity;
-                if (!!dataEntity) {
-                    var basePath = __dirname + "/../workspace/" + req.body.idApp + "/public/img/" + dataEntity + '/';
-                    fs.mkdirs(basePath, function (err) {
-                        if (!err) {
-                            var uploadPath = basePath + req.file.originalname;
-                            var outStream = fs.createWriteStream(uploadPath);
-                            outStream.write(req.file.buffer);
-                            outStream.end();
-                            outStream.on('finish', function (err) {
-                                res.json({
-                                    success: true
-                                });
-                            });
-                            if (req.body.dataType == 'picture') {
-                                //We make thumbnail and reuse it in datalist
-                                basePath = __dirname + "/../workspace/"+req.body.idApp+"/public/img/"+ dataEntity + '/' +  configLogo.folder ;
-                                fs.mkdirs(basePath, function (err) {
-                                    if (!err) {
-                                        Jimp.read(uploadPath, function (err, imgThumb) {
-                                            if (!err) {
-                                                imgThumb.resize(configLogo.height, configLogo.width)
-                                                        .quality(configLogo.quality)  // set JPEG quality
-                                                        .write(basePath + req.file.originalname);
-                                            } else {
-                                                console.error(err);
-                                            }
-                                        });
-                                    } else {
-                                        console.error(err);
-                                    }
-                                });
-                            }
-                        } else{
-                            console.error(err);
-                            res.status(500).end(err);
-                        }
-                    });
-                } else{
-                    var err = new Error();
-                    err.message = 'Internal error, entity not found.';
-                    res.status(500).end(err);
-                }
-            } else{
-                var err = new Error();
-                err.message = 'Storage type not found.';
-                res.status(500).end(err);
-            }
-        } else{
+router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
+    multer().single('file')(req, res, err => {
+        if (err) {
             console.error(err);
-            res.status(500).end(err);
+            return res.status(500).end(err);
         }
+
+        let configLogo = {
+            folder: 'thumbnail/',
+            height: 30,
+            width: 30,
+            quality: 60
+        };
+
+        let entity = req.body.entity;
+
+        if (!entity)
+            return res.status(500).end(new Error('Internal error, entity not found.'));
+
+        let basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/';
+        fs.mkdirs(basePath, err => {
+            if (err) {
+                console.error(err);
+                return res.status(500).end(err);
+            }
+
+            let uploadPath = basePath + req.file.originalname;
+            fs.writeFileSync(uploadPath, req.file.buffer);
+
+            // Thumbnail creation
+            basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/' + configLogo.folder;
+            fs.mkdirs(basePath, err => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).end(err);
+                }
+
+                Jimp.read(uploadPath, (err, imgThumb) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).end(err);
+                    }
+
+                    imgThumb.resize(configLogo.height, configLogo.width).quality(configLogo.quality).write(basePath + req.file.originalname);
+                    res.json({
+                        success: true
+                    });
+                });
+            });
+        });
     });
 });
 
 // List all applications
-router.get('/list', block_access.isLoggedIn, function(req, res) {
+router.get('/list', block_access.isLoggedIn, (req, res) => {
     (async () => {
-        let projects = await models.Project.findAll({
+        let applications = await models.Application.findAll({
             include: [{
-                model: models.Application,
-                required: true,
-                include: [{
-                    model: models.User,
-                    as: "users",
-                    where: {
-                        id: req.session.passport.user.id
-                    },
-                    required: true
-                }]
+                model: models.User,
+                as: "users",
+                where: {
+                    id: req.session.passport.user.id
+                },
+                required: true
             }],
             order: [
-                [models.Application, 'id', 'DESC']
+                ['id', 'DESC']
             ]
         });
 
-        let iframe_status_url;
+        let app_url, port, appName, data = {};
         let host = globalConf.host;
-        let port;
-        let appName;
-        let data = {};
 
         // Get user project for clone url generation
         let gitlabProjects = [];
         if(gitlabConf.doGit && req.session.gitlab && req.session.gitlab.user)
             gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
 
-        for (var i = 0; i < projects.length; i++) {
-            for (var j = 0; j < projects[i].Applications.length; j++) {
+        for (let i = 0; i < applications.length; i++) {
 
-                iframe_status_url = globalConf.protocol_iframe + '://';
-                port = 9000 + parseInt(projects[i].Applications[j].id);
-                appName = projects[i].Applications[j].codeName.substring(2);
+            app_url = globalConf.protocol_iframe + '://';
+            port = 9000 + parseInt(applications[i].id);
+            appName = applications[i].name.substring(2);
+            app_url += host + ":" + port + "/";
 
-                if (globalConf.env == 'cloud'){
-                    iframe_status_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
-                } else {
-                    iframe_status_url += host + ":" + port + "/";
+            if (globalConf.env == 'cloud')
+                app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+
+            if(gitlabConf.doGit){
+                let project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
+                if(project) {
+                    // applications[i].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
+                    applications[i].dataValues.repo_url = project.http_url_to_repo;
+                    data.gitlabUser = req.session.gitlab.user;
                 }
-
-                if(gitlabConf.doGit){
-                    let project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
-                    if(project) {
-                        // projects[i].dataValues.Applications[j].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
-                        projects[i].dataValues.Applications[j].dataValues.repo_url = project.http_url_to_repo;
-                        data.gitlabUser = req.session.gitlab.user;
-                    }
-                }
-                projects[i].dataValues.Applications[j].dataValues.url = iframe_status_url;
             }
+            applications[i].dataValues.url = app_url;
         }
 
-        data.projects = projects
+        data.applications = applications
         return data;
     })().then(data => {
         res.render('front/application', data);
@@ -739,73 +478,29 @@ router.get('/list', block_access.isLoggedIn, function(req, res) {
     })
 });
 
-router.post('/execute', block_access.isLoggedIn, function(req, res) {
-
-    var instruction = req.body.instruction || '';
-
-    var data = {
-        instruction: instruction
-    };
-
-    instruction = instruction.split(';');
-
-    var done = 0;
-    for (var i = 0; i < instruction.length; i++) {
-        execute(req, instruction[i]).then(function() {
-            if (++done == instruction.length) {
-                data.id_application = req.session.id_application;
-                res.send(data);
-            }
-        }).catch(function(err) {
-            console.error(err);
-            if (++done == instruction.length) {
-                data.id_application = req.session.id_application;
-                res.status(500).send(err);
-            }
-        });
-    }
+router.post('/delete', block_access.isLoggedIn, (req, res) => {
+    let __ = require("../services/language")(req.session.lang_user).__;
+    execute(req, "delete application " + req.body.appName, __).then(_ => {
+        res.status(200).send(true);
+    }).catch(err => {
+        console.error(err);
+        res.status(500).send(err);
+    });
 });
 
-router.post('/initiate', block_access.isLoggedIn, function(req, res) {
+router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 
     pourcent_generation[req.session.passport.user.id] = 1;
-
-    var name_project = req.body.project || '';
-    var name_application = req.body.application || '';
-    var select_project = req.body.selectProject || '';
-
-    if(select_project == "" && (name_project == "" || name_application == "")){
-        console.error("Une erreur est survenue. Projet et/ou application non renseigné.");
+    if (req.body.application == "") {
         req.session.toastr = [{
-            message: "Une erreur est survenue. Projet et/ou application non renseigné.",
+            message: "Missing application name.",
             level: "error"
         }];
         return res.redirect('/default/home');
     }
-    else if(name_application == ""){
-        console.error("Une erreur est survenue. Nom d'application non renseigné.");
-        req.session.toastr = [{
-            message: "Une erreur est survenue. Nom d'application non renseigné.",
-            level: "error"
-        }];
-        return res.redirect('/default/home');
-    }
-    var data = {
-        "error": 1,
-        "menu": "live",
-        "answers": "",
-        "instruction": instructions
-    };
 
-    var done = 0;
-
-    var instructions = [];
-    if(select_project != "")
-        instructions.push("select project " + select_project);
-    else
-        instructions.push("create project " + name_project);
-
-    instructions.push("create application " + name_application);
+    let instructions = [];
+    instructions.push("create application " + req.body.application);
     instructions.push("create module home");
 
     // Authentication module
@@ -955,33 +650,242 @@ router.post('/initiate', block_access.isLoggedIn, function(req, res) {
     // Set home module selected
     instructions.push("select module home");
 
-    function recursiveExecute(recurInstructions, idx) {
-        // All instructions executed
-        if (recurInstructions.length == idx) {
-            structure_application.initializeApplication(req.session.id_application, req.session.passport.user.id, req.session.name_application).then(function() {
-                docBuilder.build(req.session.id_application);
-                res.redirect('/application/preview?id_application=' + req.session.id_application);
-            })
-            return;
+    // Needed for translation purpose
+    let __ = require("../services/language")(req.session.lang_user).__;
+
+    (async () => {
+        for (let i = 0; i < instructions.length; i++) {
+            await execute(req, instructions[i], __, {}, false);
+            pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
         }
-        execute(req, recurInstructions[idx]).then(function(){
-            pourcent_generation[req.session.passport.user.id] = idx == 0 ? 1 : Math.floor(idx * 100 / recurInstructions.length);
-            recursiveExecute(recurInstructions, ++idx);
-        }).catch(function(err){
-            req.session.toastr = [{
-                message: err,
-                level: "error"
-            }];
-            return res.redirect('/default/home');
-        });
-    }
-    recursiveExecute(instructions, 0);
+        metadata.getApplication(req.session.app_name).save();
+        await structure_application.initializeApplication(metadata.getApplication(req.session.app_name));
+        return;
+    })().then(_ => {
+        // Build API documentation
+        docBuilder.build(metadata.getApplication(req.session.app_name));
+        res.redirect('/application/preview/' + req.session.app_name);
+    }).catch(err => {
+        console.error(err);
+        req.session.toastr = [{
+            message: err.message,
+            level: "error"
+        }];
+        return res.redirect('/default/home');
+    });
 });
 
-router.get('/get_pourcent_generation', block_access.isLoggedIn, function(req, res) {
-    var data = {};
-    data.pourcent = pourcent_generation[req.session.passport.user.id];
-    res.json(data);
+router.get('/get_pourcent_generation', (req, res) => {
+    res.json({
+        pourcent: pourcent_generation[req.session.passport.user.id]
+    });
+});
+
+// Application import
+router.get('/import', block_access.isLoggedIn, (req, res) => {
+    res.render('front/import');
+});
+
+router.post('/import', block_access.isLoggedIn, (req, res) => {
+    multer().fields([{
+        name: 'zipfile',
+        maxCount: 1
+    }, {
+        name: 'sqlfile',
+        maxCount: 1
+    }])(req, res, err => {
+        if (err)
+            console.error(err);
+
+        let infoText = '';
+
+        (async() => {
+            let __ = require("../services/language")(req.session.lang_user).__;
+
+            // Generate standard app
+            let data = await execute(req, "add application " + req.body.appName, __);
+            let workspacePath = __dirname + '/../workspace/' + data.options.value;
+
+            // Delete generated workspace folder
+            helpers.rmdirSyncRecursive(workspacePath);
+            fs.mkdirsSync(workspacePath);
+
+            let zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
+
+            let promises = [],
+                oldAppName = false,
+                appRegex;
+
+            // Looping first time to find metadata.json to get old app name
+            for (let item in zip.files) {
+                if(item.indexOf('metadata.json') != -1) {
+                    let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer');
+                    metadataContent = JSON.parse(metadataContent);
+                    oldAppName = Object.keys(metadataContent)[0];
+                    appRegex = new RegExp(oldAppName, 'g');
+                }
+            }
+
+            if(!oldAppName) {
+                infoText += '- Unable to find metadata.json in .zip.<br>';
+                return null;
+            }
+
+            for (let item in zip.files) {
+                item = zip.files[item];
+
+                promises.push(new Promise((resolve, reject) => {
+                    let currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
+
+                    // Directory
+                    if (item.dir) {
+                        try {
+                            fs.mkdirsSync(currentPath);
+                        } catch (err) {
+                            console.error(err);
+                        }
+                        return resolve();
+                    }
+
+                    // File
+                    zip.file(item.name).async('nodebuffer').then(content => {
+                        fs.writeFileSync(currentPath, content);
+                        resolve();
+                    }).catch(err => {
+                        console.error(err);
+                        resolve();
+                    });
+                }));
+            }
+
+            await Promise.all(promises);
+
+            // Need to modify so file content to change appName in it
+            let fileToReplace = ['/config/metadata.json', '/config/database.js'];
+            for (let i = 0; i < fileToReplace.length; i++) {
+                let content = fs.readFileSync(workspacePath + fileToReplace[i], 'utf8');
+                content = content.replace(appRegex, data.options.value);
+                fs.writeFileSync(workspacePath + fileToReplace[i], content);
+            }
+
+            infoText += '- The application is ready to be launched.<br>';
+
+            // Executing SQL file if exist
+            if(typeof req.files['sqlfile'] === 'undefined')
+                return data.options.value;
+
+            // Saving tmp sql file
+            let sqlFilePath = __dirname + '/../sql/' + req.files['sqlfile'][0].originalname;
+            fs.writeFileSync(sqlFilePath, req.files['sqlfile'][0].buffer);
+
+            // Getting workspace DB conf
+            let dbConfig = require(workspacePath + '/config/database');
+
+            let cmd = "mysql";
+            let cmdArgs = [
+                "-u",
+                dbConfig.user,
+                "-p" + dbConfig.password,
+                dbConfig.database,
+                "-h" + dbConfig.host,
+                "--default-character-set=utf8",
+                "<",
+                sqlFilePath
+            ];
+
+            function handleExecStdout(cmd, args) {
+                return new Promise((resolve, reject) => {
+
+                    // Exec instruction
+                    let childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
+                    childProcess.stdout.setEncoding('utf8');
+                    childProcess.stderr.setEncoding('utf8');
+
+                    // Child Success output
+                    childProcess.stdout.on('data', stdout => {
+                        console.log(stdout)
+                    })
+
+                    // Child Error output
+                    childProcess.stderr.on('data', stderr => {
+                        // Avoid reject if only warning
+                        if (stderr.toLowerCase().indexOf("warning") != -1) {
+                            console.log("!! mysql ignored warning !!: " + stderr)
+                            return;
+                        }
+                        childProcess.kill();
+                        reject(stderr);
+                    })
+
+                    // Child error
+                    childProcess.on('error', error => {
+                        childProcess.kill();
+                        reject(error);
+                    })
+
+                    // Child close
+                    childProcess.on('close', code => {
+                        resolve();
+                    })
+                })
+            }
+
+            try {
+                await handleExecStdout(cmd, cmdArgs);
+                infoText += '- The SQL file has been successfully executed.<br>';
+            } catch(err) {
+                console.error('Error while executing SQL file in the application.');
+                console.error(err);
+                infoText += '- An error while executing SQL file in the application:<br>';
+                infoText += err;
+            }
+
+            // Delete tmp sql file
+            fs.unlinkSync(sqlFilePath);
+
+            return data.options.value;
+        })().then(appName => {
+            res.render('front/import', {
+                infoText: infoText,
+                appName: appName
+            });
+        }).catch(err => {
+            console.error(err);
+            infoText += '- An error occured during the process:<br>';
+            infoText += err;
+            res.render('front/import', {
+                infoText: infoText
+            });
+        });
+    });
+});
+
+router.get('/export/:app_name', block_access.hasAccessApplication, (req, res) => {
+
+     // We know what directory we want
+    const workspacePath = __dirname + '/../workspace/' + req.params.app_name;
+
+    let zip = new JSZip();
+    helpers.buildZipFromDirectory(workspacePath, zip, workspacePath);
+
+    // Generate zip file content
+    zip.generateAsync({
+        type: 'nodebuffer',
+        comment: 'ser-web-manangement',
+        compression: "DEFLATE",
+        compressionOptions: {
+            level: 9
+        }
+    }).then(zipContent => {
+
+        // Create zip file
+        fs.writeFileSync(workspacePath + '.zip', zipContent);
+        res.download(workspacePath + '.zip', req.params.app_name + '.zip', err => {
+            if(err)
+                console.error(err);
+            fs.unlinkSync(workspacePath + '.zip')
+        });
+    });
 });
 
 module.exports = router;

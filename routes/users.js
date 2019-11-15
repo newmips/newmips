@@ -15,7 +15,7 @@ router.get('/', block_access.isAdmin, (req, res) => {
     models.User.findAll({
         where: {
             id: {
-                $ne: 1
+                [models.$ne]: 1
             }
         },
         include: [{all: true}]
@@ -39,7 +39,7 @@ router.get('/show/:id', block_access.isAdmin, (req, res) => {
         models.Application.findAll({
             where: {
                 id: {
-                    $notIn: idAppUser
+                    [models.$notIn]: idAppUser
                 }
             }
         }).then(applications => {

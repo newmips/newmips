@@ -12,7 +12,7 @@ let INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments']
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_media_mail',
+        tableName: 'e_media_mail',
         timestamps: true
     };
 
@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
 
                     // Fetch all groups found and their users
                     var groups = await sequelize.models.E_group.findAll({
-                        where: {id: {$in: groupIds}},
+                        where: {id: {[models.$in]: groupIds}},
                         include: {model: sequelize.models.E_user, as: 'r_user'}
                     });
 
@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
 
                     // Fetch all users found
                     var users = await sequelize.models.E_user.findAll({
-                        where: {id: {$in: userIds}}
+                        where: {id: {[models.$in]: userIds}}
                     });
 
                     // Exctract email and build intermediateData object used to replace placeholders

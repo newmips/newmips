@@ -323,7 +323,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translati
             case 'hasManyPreset':
                 dustFile = option.target+'/list_fields';
                 // Status history specific behavior. Replace history_model by history_table to open view
-                if (option.target.indexOf('e_history_e_') == 0) {
+                if (option.target.indexOf('_history_') == 0) {
                     option.noCreateBtn = true;
                     for (var attr in attributes)
                         if (attributes[attr].history_table && attributes[attr].history_model == option.target)

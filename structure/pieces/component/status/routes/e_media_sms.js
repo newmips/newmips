@@ -262,7 +262,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
             case 'hasMany':
                 dustFile = option.target + '/list_fields';
                 // Status history specific behavior. Replace history_model by history_table to open view
-                if (option.target.indexOf('e_history_e_') == 0)
+                if (option.target.indexOf('_history_') == 0)
                     option.noCreateBtn = true;
                 dustData = {
                     for: 'hasMany'
@@ -453,17 +453,17 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
     if (search != '%%') {
         if (req.body.searchField.length == 1) {
             where.where[req.body.searchField[0]] = {
-                $like: search
+                [models.$like]: search
             };
         } else {
-            where.where.$or = [];
+            where.where[models.$or] = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
                     currentOrObj[req.body.searchField[i]] = {
-                        $like: search
+                        [models.$like]: search
                     }
-                    where.where.$or.push(currentOrObj);
+                    where.where[models.$or].push(currentOrObj);
                 }
             }
         }

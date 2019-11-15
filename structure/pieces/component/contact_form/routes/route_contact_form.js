@@ -1,163 +1,82 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-// Datalist
-var filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/CODE_VALUE_CONTACT');
-var options = require('../models/options/CODE_VALUE_CONTACT');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var component_helper = require('../utils/component_helper');
-var globalConfig = require('../config/global');
-var fs = require('fs-extra');
-var dust = require('dustjs-linkedin');
-var SELECT_PAGE_SIZE = 10;
-
-// Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
-var logger = require('../utils/logger');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const filterDataTable = require('../utils/filter_datatable');
+const models = require('../models/');
+const attributes = require('../models/attributes/CODE_VALUE_CONTACT');
+const options = require('../models/options/CODE_VALUE_CONTACT');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const component_helper = require('../utils/component_helper');
+const globalConfig = require('../config/global');
+const fs = require('fs-extra');
+const dust = require('dustjs-linkedin');
+let SELECT_PAGE_SIZE = 10;
+const enums_radios = require('../utils/enum_radio.js');
 
 // Custom component
-var mailer_helper = require('../utils/mailer');
-var attributesSettings = require('../models/attributes/CODE_VALUE_SETTINGS');
-var optionsSettings = require('../models/options/CODE_VALUE_SETTINGS');
+const mailer_helper = require('../utils/mailer');
+const attributesSettings = require('../models/attributes/CODE_VALUE_SETTINGS');
+const optionsSettings = require('../models/options/CODE_VALUE_SETTINGS');
 
-router.get('/list', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
-    var data = {
-        "menu": "CODE_VALUE_CONTACT",
-        "sub_menu": "list_CODE_VALUE_CONTACT"
-    };
-
-    data.toastr = req.session.toastr;
-    req.session.toastr = [];
-
-    res.render('CODE_VALUE_CONTACT/list', data);
+router.get('/list', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), (req, res) => {
+    res.render('CODE_VALUE_CONTACT/list');
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
-    filterDataTable("MODEL_VALUE_CONTACT", req.body).then(function (rawData) {
-        entity_helper.prepareDatalistResult('CODE_VALUE_CONTACT', rawData, req.session.lang_user).then(function (preparedData) {
+router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), (req, res) => {
+    filterDataTable("MODEL_VALUE_CONTACT", req.body).then((rawData) => {
+        entity_helper.prepareDatalistResult('CODE_VALUE_CONTACT', rawData, req.session.lang_user).then((preparedData) => {
             res.send(preparedData).end();
-        }).catch(function (err) {
+        }).catch((err) => {
             console.error(err);
-            logger.debug(err);
             res.end();
         });
-    }).catch(function (err) {
+    }).catch((err) => {
         console.error(err);
-        logger.debug(err);
         res.end();
     });
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "delete"), function (req, res) {
-    var alias = req.params.alias;
-    var idToRemove = req.body.idRemove;
-    var idEntity = req.body.idEntity;
-    models.MODEL_VALUE_CONTACT.findOne({where: {id: idEntity}}).then(function (CODE_VALUE_CONTACT) {
-        if (!CODE_VALUE_CONTACT) {
-            var data = {error: 404};
-            return res.render('common/error', data);
-        }
-
-        // Get all associations
-        CODE_VALUE_CONTACT['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
-            // Remove entity from association array
-            for (var i = 0; i < aliasEntities.length; i++)
-                if (aliasEntities[i].id == idToRemove) {
-                    aliasEntities.splice(i, 1);
-                    break;
-                }
-
-            // Set back associations without removed entity
-            CODE_VALUE_CONTACT['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
-                res.sendStatus(200).end();
-            });
-        });
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
-    });
-});
-
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
-    var alias = req.params.alias;
-    var idEntity = req.body.idEntity;
-    models.MODEL_VALUE_CONTACT.findOne({where: {id: idEntity}}).then(function (CODE_VALUE_CONTACT) {
-        if (!CODE_VALUE_CONTACT) {
-            var data = {error: 404};
-            logger.debug("No data entity found.");
-            return res.render('common/error', data);
-        }
-
-        var toAdd;
-        if (typeof (toAdd = req.body.ids) === 'undefined') {
-            req.session.toastr.push({
-                message: 'message.create.failure',
-                level: "error"
-            });
-            return res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
-        }
-
-        CODE_VALUE_CONTACT['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
-            res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
-        });
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
-    });
-});
-
-router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), function (req, res) {
+router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), (req, res) => {
     var id_CODE_VALUE_CONTACT = req.query.id;
     var tab = req.query.tab;
     var data = {
-        menu: "CODE_VALUE_CONTACT",
-        sub_menu: "list_CODE_VALUE_CONTACT",
         tab: tab,
         enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
     };
 
     /* If we arrive from an associated tab, hide the create and the list button */
-    if (typeof req.query.hideButton !== 'undefined') {
+    if (typeof req.query.hideButton !== 'undefined')
         data.hideButton = req.query.hideButton;
-    }
 
-    /* Looking for two level of include to get all associated data in show tab list */
-    var include = model_builder.getTwoLevelIncludeAll(models, options);
-
-    models.MODEL_VALUE_CONTACT.findOne({where: {id: id_CODE_VALUE_CONTACT}, include: include}).then(function (CODE_VALUE_CONTACT) {
+    entity_helper.optimizedFindOne('MODEL_VALUE_CONTACT', id_CODE_VALUE_CONTACT, options).then(function(CODE_VALUE_CONTACT) {
         if (!CODE_VALUE_CONTACT) {
             data.error = 404;
-            logger.debug("No data entity found.");
             return res.render('common/error', data);
         }
 
-        /* Modify CODE_VALUE_CONTACT value with the translated enum value in show result */
-        for (var item in data.enum)
-            for (var field in CODE_VALUE_CONTACT.dataValues)
-                if (item == field)
-                    for (var value in data.enum[item])
-                        if (data.enum[item][value].value == CODE_VALUE_CONTACT[field])
-                            CODE_VALUE_CONTACT[field] = data.enum[item][value].translation;
-
         /* Update local CODE_VALUE_CONTACT data before show */
         data.CODE_VALUE_CONTACT = CODE_VALUE_CONTACT;
-        res.render('CODE_VALUE_CONTACT/show', data);
-
-    }).catch(function (err) {
-        entity_helper.error(err, req, res, "/");
+        // Update some data before show, e.g get picture binary
+        entity_helper.getPicturesBuffers(CODE_VALUE_CONTACT, "CODE_VALUE_CONTACT").then(function() {
+            status_helper.translate(CODE_VALUE_CONTACT, attributes, req.session.lang_user);
+            data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("CODE_VALUE_CONTACT");
+            // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
+            entity_helper.getLoadOnStartData(data, options).then(function(data) {
+                res.render('CODE_VALUE_CONTACT/show', data);
+            }).catch(function(err) {
+                entity_helper.error(err, req, res, "/", "CODE_VALUE_CONTACT");
+            })
+        }).catch(function(err) {
+            entity_helper.error(err, req, res, "/", "CODE_VALUE_CONTACT");
+        });
+    }).catch(function(err) {
+        entity_helper.error(err, req, res, "/", "CODE_VALUE_CONTACT");
     });
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), (req, res) => {
     var data = {
-        menu: "CODE_VALUE_CONTACT",
-        sub_menu: "create_CODE_VALUE_CONTACT",
         enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
     };
 
@@ -169,13 +88,19 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
         data.associationUrl = req.query.associationUrl;
     }
 
-    res.render('CODE_VALUE_CONTACT/create', data);
+    // Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
+    entity_helper.getLoadOnStartData(data, options).then(data => {
+        var view = req.query.ajax ? 'CODE_VALUE_CONTACT/create_fields' : 'CODE_VALUE_CONTACT/create';
+        res.render(view, data);
+    }).catch(err => {
+        entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/create_form', "CODE_VALUE_CONTACT");
+    })
 });
 
-router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), (req, res) => {
 
-    models.MODEL_VALUE_SETTINGS.findById(1).then(function(settings){
-        var from = req.body.f_name+" <"+req.body.f_sender+">";
+    models.MODEL_VALUE_SETTINGS.findByPk(1).then(function(settings) {
+        var from = req.body.f_name + " <" + req.body.f_sender + ">";
         var mailOptions = {
             from: from,
             to: settings.f_form_recipient,
@@ -200,7 +125,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
             //createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
             createObject.fk_id_user_user = req.session.passport.user.id;
             createObject.f_recipient = settings.f_form_recipient;
-            models.MODEL_VALUE_CONTACT.create(createObject).then(function (CODE_VALUE_CONTACT) {
+            models.MODEL_VALUE_CONTACT.create(createObject).then((CODE_VALUE_CONTACT) => {
                 var redirect = '/URL_VALUE_CONTACT/create_form';
                 req.session.toastr = [{
                     message: "entity.CODE_VALUE_CONTACT.successSendMail",
@@ -209,7 +134,11 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 
                 if (typeof req.body.associationFlag !== 'undefined') {
                     redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-                    models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
+                    models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({
+                        where: {
+                            id: req.body.associationFlag
+                        }
+                    }).then((association) => {
                         if (!association) {
                             CODE_VALUE_CONTACT.destroy();
                             var err = new Error();
@@ -232,7 +161,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
                 // because those values are not updated for now
                 model_builder.setAssocationManyValues(CODE_VALUE_CONTACT, req.body, createObject, options);
                 res.redirect(redirect);
-            }).catch(function (err) {
+            }).catch((err) => {
                 entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/create_form');
             });
         }).catch(function(err) {
@@ -241,36 +170,107 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
     });
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "delete"), function (req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "delete"), (req, res) => {
     var id_CODE_VALUE_CONTACT = req.body.id;
 
-    models.MODEL_VALUE_CONTACT.findOne({where: {id: id_CODE_VALUE_CONTACT}}).then(function (deleteObject) {
+    models.MODEL_VALUE_CONTACT.findOne({
+        where: {
+            id: id_CODE_VALUE_CONTACT
+        }
+    }).then((deleteObject) => {
         models.MODEL_VALUE_CONTACT.destroy({
             where: {
                 id: id_CODE_VALUE_CONTACT
             }
-        }).then(function () {
+        }).then(_ => {
             req.session.toastr = [{
-                    message: 'message.delete.success',
-                    level: "success"
-                }];
+                message: 'message.delete.success',
+                level: "success"
+            }];
 
             var redirect = '/URL_VALUE_CONTACT/list';
             if (typeof req.body.associationFlag !== 'undefined')
                 redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
             res.redirect(redirect);
-            entity_helper.removeFiles("CODE_VALUE_CONTACT",deleteObject,attributes);
-        }).catch(function (err) {
+            entity_helper.removeFiles("CODE_VALUE_CONTACT", deleteObject, attributes);
+        }).catch((err) => {
             entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/list');
         });
-    }).catch(function (err) {
+    }).catch((err) => {
         entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/list');
     });
 });
 
-router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), function (req, res) {
-    id_CODE_VALUE_SETTINGS = 1;
-    var data = {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), (req, res) => {
+    var alias = req.params.alias;
+    var idEntity = req.body.idEntity;
+    models.MODEL_VALUE_CONTACT.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then((CODE_VALUE_CONTACT) => {
+        if (!CODE_VALUE_CONTACT) {
+            var data = {
+                error: 404
+            };
+            return res.render('common/error', data);
+        }
+
+        var toAdd;
+        if (typeof(toAdd = req.body.ids) === 'undefined') {
+            req.session.toastr.push({
+                message: 'message.create.failure',
+                level: "error"
+            });
+            return res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
+        }
+
+        CODE_VALUE_CONTACT['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(_ => {
+            res.redirect('/URL_VALUE_CONTACT/show?id=' + idEntity + "#" + alias);
+        });
+    }).catch((err) => {
+        entity_helper.error(err, req, res, "/");
+    });
+});
+
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "delete"), (req, res) => {
+    var alias = req.params.alias;
+    var idToRemove = req.body.idRemove;
+    var idEntity = req.body.idEntity;
+    models.MODEL_VALUE_CONTACT.findOne({
+        where: {
+            id: idEntity
+        }
+    }).then((CODE_VALUE_CONTACT) => {
+        if (!CODE_VALUE_CONTACT) {
+            var data = {
+                error: 404
+            };
+            return res.render('common/error', data);
+        }
+
+        // Get all associations
+        CODE_VALUE_CONTACT['get' + entity_helper.capitalizeFirstLetter(alias)]().then((aliasEntities) => {
+            // Remove entity from association array
+            for (var i = 0; i < aliasEntities.length; i++)
+                if (aliasEntities[i].id == idToRemove) {
+                    aliasEntities.splice(i, 1);
+                    break;
+                }
+
+                // Set back associations without removed entity
+            CODE_VALUE_CONTACT['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(_ => {
+                res.sendStatus(200).end();
+            });
+        });
+    }).catch((err) => {
+        entity_helper.error(err, req, res, "/");
+    });
+});
+
+router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), (req, res) => {
+    let id_CODE_VALUE_SETTINGS = 1;
+    let data = {
         menu: "CODE_VALUE_SETTINGS",
         sub_menu: "list_CODE_VALUE_SETTINGS",
         enum_radio: enums_radios.translated("CODE_VALUE_SETTINGS", req.session.lang_user, options)
@@ -284,55 +284,75 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
         data.associationUrl = req.query.associationUrl;
     }
 
-    models.MODEL_VALUE_SETTINGS.findOne({where: {id: id_CODE_VALUE_SETTINGS}, include: [{all: true}]}).then(function (CODE_VALUE_SETTINGS) {
+    models.MODEL_VALUE_SETTINGS.findOne({
+        where: {
+            id: id_CODE_VALUE_SETTINGS
+        },
+        include: [{
+            all: true
+        }]
+    }).then(CODE_VALUE_SETTINGS => {
         if (!CODE_VALUE_SETTINGS) {
-            data.error = 404;
-            return res.render('common/error', data);
+            models.MODEL_VALUE_SETTINGS.create({
+                id: 1,
+                f_transport_host: "",
+                f_port: "",
+                f_user: "",
+                f_pass: "",
+                f_form_recipient: ""
+            }).then(createdSettings => {
+                data.CODE_VALUE_SETTINGS = createdSettings;
+                res.render('CODE_VALUE_CONTACT/settings', data);
+            });
+        } else {
+            data.CODE_VALUE_SETTINGS = CODE_VALUE_SETTINGS;
+            res.render('CODE_VALUE_CONTACT/settings', data);
         }
-
-        data.CODE_VALUE_SETTINGS = CODE_VALUE_SETTINGS;
-        res.render('CODE_VALUE_CONTACT/settings', data);
-    }).catch(function (err) {
+    }).catch((err) => {
         entity_helper.error(err, req, res, "/");
     });
 });
 
-router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), function (req, res) {
-    var id_CODE_VALUE_SETTINGS = parseInt(req.body.id);
+router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), (req, res) => {
+    let id_CODE_VALUE_SETTINGS = parseInt(req.body.id);
 
     if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
         req.body.version = parseInt(req.body.version) + 1;
     else
         req.body.version = 0;
 
-    var updateObject = model_builder.buildForRoute(attributesSettings, optionsSettings, req.body);
-    //updateObject = enums.values("CODE_VALUE_SETTINGS", updateObject, req.body);
+    let updateObject = model_builder.buildForRoute(attributesSettings, optionsSettings, req.body);
 
-    models.MODEL_VALUE_SETTINGS.findOne({where: {id: id_CODE_VALUE_SETTINGS}}).then(function (CODE_VALUE_SETTINGS) {
+    models.MODEL_VALUE_SETTINGS.findOne({
+        where: {
+            id: id_CODE_VALUE_SETTINGS
+        }
+    }).then(CODE_VALUE_SETTINGS => {
         if (!CODE_VALUE_SETTINGS) {
             data.error = 404;
-            logger.debug("Not found - Update");
             return res.render('common/error', data);
         }
 
-        CODE_VALUE_SETTINGS.update(updateObject, {where: {id: id_CODE_VALUE_SETTINGS}}).then(function () {
+        CODE_VALUE_SETTINGS.update(updateObject, {
+            where: {
+                id: id_CODE_VALUE_SETTINGS
+            }
+        }).then(_ => {
 
             // We have to find value in req.body that are linked to an hasMany or belongsToMany association
             // because those values are not updated for now
             model_builder.setAssocationManyValues(CODE_VALUE_SETTINGS, req.body, updateObject, optionsSettings);
-
-            var redirect = '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS;
 
             req.session.toastr = [{
                 message: 'message.update.success',
                 level: "success"
             }];
 
-            res.redirect(redirect);
-        }).catch(function (err) {
+            res.redirect('/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
+        }).catch((err) => {
             entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
         });
-    }).catch(function (err) {
+    }).catch((err) => {
         entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/settings?id=' + id_CODE_VALUE_SETTINGS);
     });
 });

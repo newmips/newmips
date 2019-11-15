@@ -31,13 +31,9 @@ dropzoneSetLogo = new Dropzone("#" + el.attr("id"), {
         });
 
         this.on("sending", function(file, xhr, formData) {
-            var storageType = that.attr("data-storage");
-            var dataEntity = that.attr("data-entity");
             var dataType = that.attr("data-type") || '';
-            formData.append("storageType", storageType);
-            formData.append("dataEntity", dataEntity);
-            formData.append("dataType", dataType);
-            formData.append("idApp", idApp);
+            formData.append("entity", that.attr("data-entity"));
+            formData.append("appName", appName);
         });
         this.on("maxfilesexceeded", function() {
             this.removeFile(this.files[1]);

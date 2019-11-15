@@ -7,9 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        name: DataTypes.STRING,
-        codeName: DataTypes.STRING,
-        version: DataTypes.INTEGER
+        name: DataTypes.STRING
     }, {
         tableName: "component"
     })
@@ -32,19 +30,15 @@ module.exports = (sequelize, DataTypes) => {
         if (typeof component.where !== "undefined") {
             if (typeof component.where.name !== "undefined")
                 component.where.name = component.where.name.toLowerCase();
-            if (typeof component.where.codeName !== "undefined")
-                component.where.codeName = component.where.codeName.toLowerCase();
         }
     })
 
     Component.addHook('beforeCreate', (component) => {
         component.name = component.name ? component.name.toLowerCase() : null;
-        component.codeName = component.codeName ? component.codeName.toLowerCase() : null;
     })
 
     Component.addHook('beforeUpdate', (component) => {
         component.name = component.name ? component.name.toLowerCase() : null;
-        component.codeName = component.codeName ? component.codeName.toLowerCase() : null;
     })
 
     return Component;

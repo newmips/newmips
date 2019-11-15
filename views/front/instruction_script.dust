@@ -15,7 +15,6 @@
 									<div class="col-xs-12">
 										<input id="addScriptInput" type="file" required="required" name="instructions" style="float:left;" />
 										<textarea id="createScriptTextarea" name="instructionsText" cols="150" rows="10">
-											add project My Project&#13;&#10;
 											add application My Application&#13;&#10;&#13;&#10;
 										</textarea>
 									</div>
@@ -55,7 +54,6 @@
 						</div>
 					</div>
 				</div>
-				<input id="lang" type="hidden" value="app.lang" />
 			</div>
 		</div>
 	</div>

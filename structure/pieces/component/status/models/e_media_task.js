@@ -10,7 +10,7 @@ var models;
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_media_task',
+        tableName: 'e_media_task',
         timestamps: true
     };
 
