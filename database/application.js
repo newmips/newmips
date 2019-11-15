@@ -1,10 +1,10 @@
 const fs = require('fs-extra');
 const workspacePath = __dirname + '/../workspace/';
 
-const Module = require('./module_v2');
-const Entity = require('./entity_v2');
-const Field = require('./field_v2');
-const Component = require('./component_v2');
+const Module = require('./module');
+const Entity = require('./entity');
+const Field = require('./field');
+const Component = require('./component');
 
 class Application {
     constructor(name, displayName, gitlabID) {
