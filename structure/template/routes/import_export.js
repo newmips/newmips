@@ -1,33 +1,14 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-// Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const router = require('express').Router();
+const block_access = require('../utils/block_access');
+const models = require('../models/');
+const dbConfig = require('../config/database');
+const fs = require('fs-extra');
+const globalConf = require('../config/global');
+const moment = require("moment");
+const exec = require('child_process');
 
-// Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_action');
-var options = require('../models/options/e_action');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var globalConfig = require('../config/global');
-var dbConfig = require('../config/database');
-var fs = require('fs-extra');
-var dust = require('dustjs-linkedin');
-var globalConf = require('../config/global');
-
-// Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
-var moment = require("moment");
-
-// Winston logger
-var logger = require('../utils/logger');
-
-var exec = require('child_process');
-
-router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "read"), function(req, res) {
-    if(dbConfig.dialect != "mysql"){
+router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "read"), (req, res) => {
+    if (dbConfig.dialect != "mysql") {
         req.session.toastr = [{
             message: 'settings.db_tool.wrong_dialect',
             level: "error"
@@ -35,28 +16,34 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
         return res.redirect("/default/administration")
     }
 
-    var data = {};
-    var entities = [];
-    var through = [];
+    let data = {};
+    let entities = [];
+    let through = [];
 
-    fs.readdirSync(__dirname+'/../models/options/').filter(function(file) {
-        return file.indexOf('.') !== 0
-            && file.slice(-5) === '.json'
-            && file.substring(0, 2) == 'e_';
+    fs.readdirSync(__dirname + '/../models/options/').filter(function(file) {
+        return file.indexOf('.') !== 0 &&
+            file.slice(-5) === '.json' &&
+            file.substring(0, 2) == 'e_';
     }).forEach(function(file) {
         // Get primary tables
-        var entityName = file.substring(0, file.length-5);
-        var modelName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
-        var tableName = models[modelName].getTableName();
-        var entityObject = {tradKey: 'entity.'+entityName+'.label_entity', tableName: tableName};
+        let entityName = file.substring(0, file.length - 5);
+        let modelName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
+        let tableName = models[modelName].getTableName();
+        let entityObject = {
+            tradKey: 'entity.' + entityName + '.label_entity',
+            tableName: tableName
+        };
         entities.push(entityObject);
 
-        let currentFile = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+file))
-        // Get through tables
-        for (var i=0; i < currentFile.length; i++) {
-            if(typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1){
+        let currentFile = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + file))
+            // Get through tables
+        for (let i = 0; i < currentFile.length; i++) {
+            if (typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1) {
                 through.push(currentFile[i].through);
-                entities.push({tradKey: currentFile[i].through.substring(3), tableName: currentFile[i].through});
+                entities.push({
+                    tradKey: currentFile[i].through.substring(3),
+                    tableName: currentFile[i].through
+                });
             }
         }
     })
@@ -65,8 +52,8 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
     res.render('import_export/db_show', data);
 })
 
-router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), function(req, res) {
-    if(dbConfig.password != req.body.db_password){
+router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), (req, res) => {
+    if (dbConfig.password != req.body.db_password) {
         req.session.toastr = [{
             message: 'settings.db_tool.wrong_db_pwd',
             level: "error"
@@ -74,12 +61,12 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
         return res.redirect("/import_export/db_show")
     }
 
-    var tables = [];
-    for(var prop in req.body)
-        if(prop != "all_db" && req.body[prop] == "true")
+    let tables = [];
+    for (let prop in req.body)
+        if (prop != "all_db" && req.body[prop] == "true")
             tables.push(prop);
 
-    if(tables.length == 0 && req.body.all_db == "false"){
+    if (tables.length == 0 && req.body.all_db == "false") {
         req.session.toastr = [{
             message: 'settings.db_tool.no_choice',
             level: "error"
@@ -87,8 +74,8 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
         return res.redirect("/import_export/db_show")
     }
 
-    var cmd = "mysqldump";
-    var cmdArgs = [
+    let cmd = "mysqldump";
+    let cmdArgs = [
         "--default-character-set=utf8",
         "--add-drop-table",
         "-u",
@@ -107,23 +94,23 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
     function fullStdoutToFile(cmd, args, filePath) {
         return new Promise((resolve, reject) => {
             // Create and open file writeStream
-            var fileStream = fs.createWriteStream(filePath);
+            let fileStream = fs.createWriteStream(filePath);
             fileStream.on('open', function(fd) {
 
                 // Exec instruction
-                var childProcess = exec.spawn(cmd, args);
+                let childProcess = exec.spawn(cmd, args);
                 childProcess.stdout.setEncoding('utf8');
                 childProcess.stderr.setEncoding('utf8');
 
                 // Child Success output
                 childProcess.stdout.on('data', function(stdout) {
-                    fileStream.write(stdout);
-                })
-                // Child Error output
+                        fileStream.write(stdout);
+                    })
+                    // Child Error output
                 childProcess.stderr.on('data', function(stderr) {
                     // Avoid reject if only warning
-                    if (stderr.toLowerCase().indexOf("warning") != -1){
-                        console.log("!! mysqldump ignored warning !!: "+stderr)
+                    if (stderr.toLowerCase().indexOf("warning") != -1) {
+                        console.log("!! mysqldump ignored warning !!: " + stderr)
                         return;
                     }
                     fileStream.end();
@@ -133,12 +120,12 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 
                 // Child error
                 childProcess.on('error', function(error) {
-                    console.error(error);
-                    fileStream.end();
-                    childProcess.kill();
-                    reject(error);
-                })
-                // Child close
+                        console.error(error);
+                        fileStream.end();
+                        childProcess.kill();
+                        reject(error);
+                    })
+                    // Child close
                 childProcess.on('close', function(code) {
                     fileStream.end();
                     resolve();
@@ -147,24 +134,24 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
         })
     }
 
-    var dumpName = 'dump_db_data_'+moment().format("YYYYMMDD-HHmmss")+'.sql';
-    var dumpPath = __dirname + '/../' + dumpName;
+    let dumpName = 'dump_db_data_' + moment().format("YYYYMMDD-HHmmss") + '.sql';
+    let dumpPath = __dirname + '/../' + dumpName;
 
-    fullStdoutToFile(cmd, cmdArgs, dumpPath).then(function(){
-        res.download(dumpPath, dumpName, function (err) {
+    fullStdoutToFile(cmd, cmdArgs, dumpPath).then(function() {
+        res.download(dumpPath, dumpName, function(err) {
             if (err)
                 console.error(err);
             fs.unlinkSync(dumpPath);
         })
-    }).catch(function(err){
+    }).catch(function(err) {
         console.error(err);
     })
 })
 
-router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), function(req, res) {
+router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), (req, res) => {
 
-    var filename = req.body.import_file;
-    if(filename == ""){
+    let filename = req.body.import_file;
+    if (filename == "") {
         req.session.toastr = [{
             message: 'settings.db_tool.file_needed',
             level: "error"
@@ -172,10 +159,10 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         return res.redirect("/import_export/db_show")
     }
 
-    var baseFile = filename.split('-')[0];
-    var completeFilePath = globalConfig.localstorage + '/db_import/' + baseFile + '/' + filename;
+    let baseFile = filename.split('-')[0];
+    let completeFilePath = globalConf.localstorage + '/db_import/' + baseFile + '/' + filename;
 
-    if(dbConfig.password != req.body.db_password){
+    if (dbConfig.password != req.body.db_password) {
         req.session.toastr = [{
             message: 'settings.db_tool.wrong_db_pwd',
             level: "error"
@@ -184,8 +171,8 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         return res.redirect("/import_export/db_show")
     }
 
-    var cmd = "mysql";
-    var cmdArgs = [
+    let cmd = "mysql";
+    let cmdArgs = [
         "-u",
         dbConfig.user,
         "-p" + dbConfig.password,
@@ -200,7 +187,10 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         return new Promise((resolve, reject) => {
 
             // Exec instruction
-            var childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
+            let childProcess = exec.spawn(cmd, args, {
+                shell: true,
+                detached: true
+            });
             childProcess.stdout.setEncoding('utf8');
             childProcess.stderr.setEncoding('utf8');
 
@@ -233,14 +223,14 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
         })
     }
 
-    handleExecStdout(cmd, cmdArgs).then(function(){
+    handleExecStdout(cmd, cmdArgs).then(function() {
         fs.unlinkSync(completeFilePath);
         req.session.toastr = [{
             message: 'settings.db_tool.import_success',
             level: "success"
         }];
         res.redirect("/import_export/db_show")
-    }).catch(function(err){
+    }).catch(function(err) {
         console.error(err);
         req.session.toastr = [{
             message: "settings.db_tool.import_error",
@@ -250,14 +240,14 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
     })
 })
 
-router.get('/access_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "read"), function(req, res) {
+router.get('/access_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "read"), (req, res) => {
     res.render('import_export/access_show');
-});
+})
 
-router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), function(req, res) {
-    var dumpPath = __dirname + '/../config/access.json';
-    res.download(dumpPath, "access_conf_"+moment().format("YYYYMMDD-HHmmss")+".json", function (err) {
-        if (err){
+router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
+    let dumpPath = __dirname + '/../config/access.json';
+    res.download(dumpPath, "access_conf_" + moment().format("YYYYMMDD-HHmmss") + ".json", function(err) {
+        if (err) {
             console.error(err);
             req.session.toastr.push({
                 message: err,
@@ -268,13 +258,13 @@ router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessM
     })
 })
 
-router.post('/access_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), function(req, res) {
-    var src = req.body.import_file;
-    var partOfFilepath = src.split('-');
+router.post('/access_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
+    let src = req.body.import_file;
+    let partOfFilepath = src.split('-');
     if (partOfFilepath.length > 1) {
-        var base = partOfFilepath[0];
-        var completeFilePath = globalConf.localstorage + 'access_import/' + base + '/' + src;
-        var newAccessJson = fs.readFileSync(completeFilePath);
+        let base = partOfFilepath[0];
+        let completeFilePath = globalConf.localstorage + 'access_import/' + base + '/' + src;
+        let newAccessJson = fs.readFileSync(completeFilePath);
         fs.writeFileSync(__dirname + "/../config/access.json", newAccessJson);
         req.session.toastr.push({
             message: "settings.tool_success",
