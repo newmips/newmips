@@ -7,10 +7,10 @@ const env = require('../config/global');
 const dbConfig = require('../config/database');
 
 let basename = path.basename(module.filename);
-let db = {};
+
 
 const Op = Sequelize.Op;
-const operatorsAliases = {
+let db = {
     $eq: Op.eq,
     $ne: Op.ne,
     $gte: Op.gte,
@@ -59,8 +59,7 @@ const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.passw
         timestamps: false
     },
     charset: 'utf8',
-    collate: 'utf8_general_ci',
-    operatorsAliases
+    collate: 'utf8_general_ci'
 })
 
 fs.readdirSync(__dirname).filter(function(file) {

@@ -7,7 +7,7 @@ var associations = require("./options/e_media.json");
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_media',
+        tableName: 'e_media',
         timestamps: true
     };
 

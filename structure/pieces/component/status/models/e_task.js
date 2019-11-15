@@ -9,7 +9,7 @@ var models;
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_task',
+        tableName: 'e_task',
         timestamps: true
     };
 
@@ -27,15 +27,15 @@ module.exports = (sequelize, DataTypes) => {
 					`E_robot`.`id` as `robot`,\
 					count(`E_task`.`id`) as `nb_pending_task`\
 				FROM\
-					`ID_APPLICATION_e_robot` as `E_robot`\
+					`e_robot` as `E_robot`\
 				LEFT JOIN\
-					`ID_APPLICATION_e_task` as `E_task`\
+					`e_task` as `E_task`\
 					ON\
 					`E_task`.`fk_id_robot_robot` = `E_robot`.`id`\
 					AND\
 					`f_type`='automatic'\
 				LEFT JOIN\
-					`ID_APPLICATION_e_status` as `r_state`\
+					`e_status` as `r_state`\
 					ON\
 					`E_task`.`fk_id_status_state` = `r_state`.`id`\
 					AND\

@@ -5,7 +5,7 @@ var models = require('../models');
 
 module.exports = {
     // Build entity tree with fields and ONLY belongsTo associations
-    entityFieldTree: function (entity, alias) {
+    entityFieldTree:  (entity, alias) => {
         var genealogy = [];
         // Create inner function to use genealogy globaly
         function loadTree(entity, alias) {
@@ -53,7 +53,7 @@ module.exports = {
         return loadTree(entity, alias);
     },
     // Build entity tree with fields and ALL associations
-    fullEntityFieldTree: function (entity, alias = entity) {
+    fullEntityFieldTree:  (entity, alias = entity) => {
         let genealogy = [];
         // Create inner function to use genealogy globaly
         function loadTree(entity, alias, depth = 0) {
@@ -206,7 +206,7 @@ module.exports = {
         return options;
     },
     // Build sequelize formated include object from tree
-    buildIncludeFromTree: function(entityTree) {
+    buildIncludeFromTree: function (entityTree) {
         var includes = [];
         for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
             var include = {};
@@ -221,7 +221,7 @@ module.exports = {
         return includes;
     },
     // Build array of user target for media_notification insertion <select>
-    getUserTargetList: (entityTree, lang)=> {
+    getUserTargetList: (entityTree, lang) => {
         var __ = language(lang).__;
         entityTree.topLevel = true;
         var userList = [];
@@ -239,6 +239,7 @@ module.exports = {
         dive(entityTree);
         return userList;
     },
+    // Build array of fields for media sms/notification/email insertion <select>
     entityFieldForSelect: function(entityTree, lang) {
         var __ = language(lang).__;
         var separator = ' > ';
@@ -352,14 +353,14 @@ module.exports = {
         // }];
         return entities;
     },
-    statusFieldList: function(attributes) {
+    statusFieldList: (attributes) => {
         var list = [];
         for (var prop in attributes)
             if (prop.indexOf('s_') == 0)
                 list.push(prop);
         return list;
     },
-    translate: function (entity, attributes, lang) {
+    translate:  function (entity, attributes, lang) {
         var self = this;
         var statusList = self.statusFieldList(attributes);
 
@@ -375,112 +376,100 @@ module.exports = {
             }
         }
     },
-    setStatus: function(entityName, entityId, statusName, statusId, userId = null, comment = "") {
-        var self = this;
-        return new Promise((resolve, reject)=> {
-            var historyModel = 'E_history_'+entityName+'_' + statusName;
-            var historyAlias = 'r_history_' + statusName.substring(2);
-            var statusAlias = 'r_' + statusName.substring(2);
+    setStatus: async function (entityName, entityID, statusName, statusId, userID = null, comment = "") {
+        let self = this;
+        let historyModel = 'E_history_' + entityName.substring(2) + '_' + statusName.substring(2);
+        let historyAlias = 'r_history_' + statusName.substring(2);
+        let statusAlias = 'r_' + statusName.substring(2);
 
-            // Fetch entity to get its current status's children and their media
-            models['E_'+entityName.substring(2)].findOne({
-                where: {id: entityId},
-                include: {
+        // Fetch entity to get its current status's children and their media
+        let entity = await models['E_' + entityName.substring(2)].findOne({
+            where: {
+                id: entityID
+            },
+            include: {
+                model: models.E_status,
+                as: statusAlias,
+                include: [{
                     model: models.E_status,
-                    as: statusAlias,
+                    as: 'r_children',
                     include: [{
-                        model: models.E_status,
-                        as: 'r_children',
+                        model: models.E_action,
+                        as: 'r_actions',
+                        order: ["f_position", "ASC"],
                         include: [{
-                            model: models.E_action,
-                            as: 'r_actions',
-                            order: ["f_position", "ASC"],
+                            model: models.E_media,
+                            as: 'r_media',
                             include: [{
-                                model: models.E_media,
-                                as: 'r_media',
-                                include: [{
-                                    model: models.E_media_mail,
-                                    as: 'r_media_mail'
-                                }, {
-                                    model: models.E_media_notification,
-                                    as: 'r_media_notification'
-                                }, {
-                                    model: models.E_media_sms,
-                                    as: 'r_media_sms'
-                                }, {
-                                    model: models.E_media_task,
-                                    as: 'r_media_task'
-                                }]
+                                model: models.E_media_mail,
+                                as: 'r_media_mail'
+                            }, {
+                                model: models.E_media_notification,
+                                as: 'r_media_notification'
+                            }, {
+                                model: models.E_media_sms,
+                                as: 'r_media_sms'
+                            }, {
+                                model: models.E_media_task,
+                                as: 'r_media_task'
                             }]
                         }]
                     }]
-                }
-            }).then(entity => {
-                var current_status = entity[statusAlias];
-                if (!current_status || !current_status.r_children) {
-                    return reject("Not found - Set status");
-                }
+                }]
+            }
+        })
 
-                // Check if new status is actualy the current status's children
-                var nextStatus = false;
-                for (var i = 0; i < current_status.r_children.length; i++) {
-                    if (current_status.r_children[i].id == statusId) {
-                        nextStatus = current_status.r_children[i];
-                        break;
-                    }
-                }
-                // Unauthorized
-                if (nextStatus === false) {
-                    return reject({
-                        level: 'error',
-                        message: 'component.status.error.illegal_status'
-                    });
-                }
+        let current_status = entity[statusAlias];
+        if (!current_status || !current_status.r_children) {
+            return reject("Not found - Set status");
+        }
 
-                // For each action, get the fields we need to execute the media. r_media.getFieldsToInclude() -> ['r_user.r_address.f_email', 'r_help.f_field']
-                var fieldsToInclude = [];
-                for (var i = 0; i < nextStatus.r_actions.length; i++)
-                    fieldsToInclude = fieldsToInclude.concat(nextStatus.r_actions[i].r_media.getFieldsToInclude());
-                // Generate include depending on required fields of all action's media
-                var include = model_builder.getIncludeFromFields(models, entityName, fieldsToInclude);
-
-                // Get entity with elements used in media included
-                models['E_'+entityName.substring(2)].findOne({
-                    where: {id: entityId},
-                    include: include
-                }).then(entity => {
-
-                    entity.entity_name = entityName;
-                    // Execute newStatus actions
-                    nextStatus.executeActions(entity).then(_ => {
-                        // Create history record for this status field
-                        var createObject = {};
-                        createObject.f_comment = comment;
-                        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                        createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
-                        models[historyModel].create(createObject).then(history=> {
-                            entity['setR'+statusAlias.substring(1)](nextStatus.id).then(_ => {
-                                if (userId)
-                                    history['setR_modified_by'](userId);
-                                resolve();
-                            })
-                        });
-                    }).catch(err => {
-                        console.error(err);
-                        var createObject = {};
-                        createObject.f_comment = comment;
-                        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
-                        createObject["fk_id_"+entityName.substring(2)+"_history_" + statusName.substring(2)] = entityId;
-                        models[historyModel].create(createObject).then(history => {
-                            entity['setR'+statusAlias.substring(1)](nextStatus.id).then(_ => {
-                                if (userId)
-                                    history['setR_modified_by'](userId);
-                                reject(err);
-                            });
-                        });
-                    });
-                });
+        // Check if new status is actualy the current status's children
+        let nextStatus = false;
+        for (let i = 0; i < current_status.r_children.length; i++) {
+            if (current_status.r_children[i].id == statusId) {
+                nextStatus = current_status.r_children[i];
+                break;
+            }
+        }
+        // Unauthorized
+        if (nextStatus === false) {
+            return reject({
+                level: 'error',
+                message: 'component.status.error.illegal_status'
             });
-        });
+        }
+
+        // For each action, get the fields we need to execute the media. r_media.getFieldsToInclude() -> ['r_user.r_address.f_email', 'r_help.f_field']
+        let fieldsToInclude = [];
+        for (let i = 0; i < nextStatus.r_actions.length; i++)
+            fieldsToInclude = fieldsToInclude.concat(nextStatus.r_actions[i].r_media.getFieldsToInclude());
+
+        // Generate include depending on required fields of all action's media
+        let include = model_builder.getIncludeFromFields(models, entityName, fieldsToInclude);
+
+        // Get entity with elements used in media included
+        entity = await models['E_' + entityName.substring(2)].findOne({
+            where: {
+                id: entityID
+            },
+            include: include
+        })
+
+        entity.entity_name = entityName;
+        // Create history record for this status field
+        let createObject = {
+            f_comment: comment
+        };
+        createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+        createObject["fk_id_" + entityName.substring(2) + "_history_" + statusName.substring(2)] = entityID;
+
+        // Execute newStatus actions
+        let history = await models[historyModel].create(createObject);
+        await entity['setR' + statusAlias.substring(1)](nextStatus.id);
+        if (userID)
+            history['setR_modified_by'](userID);
+
+        return await nextStatus.executeActions(entity);
     }
 }

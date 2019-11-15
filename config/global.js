@@ -10,8 +10,7 @@ let config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		authStrategy: 'local',
-		support_chat_enabled: false,
-		separate_workspace_db: false // DATABASE CREATION PRIVILEGE NEEDED (App DB will look like workspace_APPID)
+		support_chat_enabled: false
 	},
 	recette: {
 		env: 'recette',
@@ -25,8 +24,7 @@ let config = {
 			passphrase : ''
 		},
 		authStrategy: 'local',
-		support_chat_enabled: false,
-		separate_workspace_db: false
+		support_chat_enabled: false
 	},
 	production: {
 		env: 'production',
@@ -40,8 +38,7 @@ let config = {
 			passphrase : ''
 		},
 		authStrategy: 'local',
-		support_chat_enabled: false,
-		separate_workspace_db: false
+		support_chat_enabled: false
 	},
     docker: {
         env: 'docker',

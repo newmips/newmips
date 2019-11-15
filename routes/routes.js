@@ -131,7 +131,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
         let user = await models.User.findOne({
             where: {
                 login: login_user,
-                $or: [{password: ""}, {password: null}],
+                [models.$or]: [{password: ""}, {password: null}],
                 enabled: false
             }
         })
@@ -316,7 +316,7 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
             where: {
                 login: login_user,
                 email: email_user,
-                $or: [{password: ""}, {password: null}]
+                [models.$or]: [{password: ""}, {password: null}]
             }
         });
 

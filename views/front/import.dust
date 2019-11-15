@@ -3,118 +3,145 @@
 	{#__ key="menu.import"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<content}
-<div class="row">
-	<div class="col-xs-12">
-		<section class="col-xs-12 col-lg-offset-2 col-lg-8">
-			<div class="box box-solid box-default">
-				<div class="box-header bg-primary">
-					<h3 class="box-title" style="color: #fff;">{#__ key="import.legend"/}</h3>
-				</div>
-				<div class="box-body">
-					<div class="row">
-						<div class="col-xs-12">
-							<form id="importForm" method="post" enctype="multipart/form-data">
-								<div class="form-group">
-									<label for="AppID">{#__ key="application.selectExisting"/}</label>
-									<select class="form-control select" name="appID" style="width: 100%;" required="required">
-										{#applications}
-											<option value="{id}">{id} - {name}</option>
-										{/applications}
-									</select>
+	<div class="row">
+		<div class="col-xs-12">
+			<section class="col-xs-12 col-lg-offset-2 col-lg-8">
+				<div class="box box-solid box-default">
+					<div class="box-header bg-primary">
+						<h3 class="box-title" style="color: #fff;">{#__ key="import.legend"/}</h3>
+					</div>
+					<div class="box-body">
+						{^infoText}
+							<div class="row">
+								<div class="col-xs-12">
+									<form id='importForm' method="post" enctype="multipart/form-data">
+										<div class="form-group">
+											<label for="appName" class='required'>{#__ key="import.appname"/}</label>
+											<input class='form-control input' type="text" name="appName" required>
+											<br>
+											<label for="zipfile" class='required'>{#__ key="import.zipfile"/}</label>
+											<input type="file" name="zipfile" required>
+											<br>
+											<label for="sqlfile">{#__ key="import.sqlfile"/}</label>
+											<input type="file" name="sqlfile">
+											<br><br>
+											<button class="btn btn-primary" id="importSubmit">{#__ key="import.action"/}</button>
+										</div>
+									</form>
 								</div>
-								<div class="form-group">
-									<label for="configFile">{#__ key="import.confFile"/}</label>
-									<input id="configFile" name="configFile" type="file" required="required" />
-								</div>
-								<div class="form-group">
-									<label for="contentFile">{#__ key="import.fileType"/}</label>
-									<input id="contentFile" name="contentFile" type="file" required="required" />
-								</div><br>
-								<div class="form-group">
-									<button class="btn btn-primary" id="importSubmit">{#__ key="import.action"/}</button>
-								</div>
-							</form>
-							<div class="progress sm progress-striped active" id="progressImportOne" style="display:none;">
-								<div class="progress-bar progress-bar-success" id="progressImportTwo" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>
 							</div>
-							<div class="form-group">
-								<a class="btn btn-info" id="downloadSQLFile" style="display:none;">
-									{#__ key="import.downloadsqlfile"/}
-								</a>
+						{:else}
+							<div class="row">
+								{?appName}
+									<div class="col-xs-12">
+										<b>{#__ key="import.success"/}</b>:<br><br>
+										<a class="btn btn-info" href="/application/preview/{appName}">
+											<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+											<span>{#__ key="button.preview"/}</span>
+										</a>
+										<br><hr>
+									</div>
+								{:else}
+									<div class="col-xs-12">
+										<b>{#__ key="import.error"/}</b>:<br><br>
+										<a class="btn btn-warning" href="/application/import">
+											<i class="fa fa-hdd-o">&nbsp;&nbsp;</i>
+											<span>{#__ key="home.directlinks.import"/}</span>
+										</a>
+										<br><hr>
+									</div>
+								{/appName}
+								<div class="col-xs-12">
+									<div id="infoImport">
+										<b>{#__ key="import.logs"/}</b>:<br>
+										{infoText|s}
+									</div>
+								</div>
 							</div>
-						</div>
-					</div><br>
-					<div class="row">
-						<div class="col-xs-12">
-							<div id="infoImport"></div>
-						</div>
+						{/infoText}
+						<br>
 					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		</div>
 	</div>
-</div>
 {/content}
+
 {<custom_js}
 	<script type="text/javascript">
-		$(document).ready(function(){
-			$("form#importForm").submit(function(){
 
-				var formData = new FormData($(this)[0]);
-				var doCheck = true;
-				$("#importSubmit").hide();
-				$("#progressImportOne").show();
+		var loadingText = '{#__ key="button.loading"/}';
+		$(document).on('submit', '#importForm', function(){
+			$(this).find('#importSubmit').text(loadingText).prop('disabled', true);
+			return true;
+		});
 
-				function checkImport(doCheck){
-					if(doCheck){
-						$.ajax({
-							url: '/import/get_import_status',
-							method: 'GET',
-							success: function(answer) {
-								console.log(answer.percentProgress);
-								$("#progressImportTwo").attr("aria-valuenow", answer.percentProgress);
-								$("#progressImportTwo").css("width", answer.percentProgress+"%");
+		$(document).on("keyup", "input[name='appname']", function() {
 
-								for(var i=0; i<answer.errors.length; i++){
-									$("#infoImport").append("<p><b>ERROR:</b><br><u>REQUEST:</u>&nbsp;&nbsp;"+answer.errors[i].request+"<br><u>ERROR:</u>&nbsp;&nbsp;"+answer.errors[i].error+"</p><br>");
-								}
-							}
-						});
-					}
-				};
+			var string = $(this).val();
+	        string = string.replace(/é/g, "e");
+	        string = string.replace(/\./g, "");
+	        string = string.replace(/\ /g, "-");
+	        string = string.replace(/è/g, "e");
+	        string = string.replace(/ê/g, "e");
+	        string = string.replace(/ë/g, "e");
+	        string = string.replace(/\ê/g, "e");
+	        string = string.replace(/à/g, "a");
+	        string = string.replace(/â/g, "a");
+	        string = string.replace(/ä/g, "a");
+	        string = string.replace(/ô/g, "o");
+	        string = string.replace(/ö/g, "o");
+	        string = string.replace(/û/g, "u");
+	        string = string.replace(/ù/g, "u");
+	        string = string.replace(/ü/g, "u");
+	        string = string.replace(/î/g, "i");
+	        string = string.replace(/ï/g, "i");
+	        string = string.replace(/ç/g, "c");
+	        string = string.replace(/\Ù/g, "u");
+	        string = string.replace(/\Û/g, "u");
+	        string = string.replace(/\Ü/g, "u");
+	        string = string.replace(/\À/g, "a");
+	        string = string.replace(/\Â/g, "a");
+	        string = string.replace(/\Ä/g, "a");
+	        string = string.replace(/\Ç/g, "c");
+	        string = string.replace(/\È/g, "e");
+	        string = string.replace(/\É/g, "e");
+	        string = string.replace(/\Ê/g, "e");
+	        string = string.replace(/\Ë/g, "e");
 
-				$.ajax({
-					url: '/import/execute',
-					method: 'POST',
-					contentType: false,
-					processData: false,
-					data: formData,
-					timeout: 600000,
-					success: function(answer){
-						checkImport(doCheck);
-						doCheck = false;
-						$("#downloadSQLFile").attr("href", "/import/download_file/"+answer.sqlFilename);
-						$("#downloadSQLFile").show();
-						$("#progressImportOne").hide();
-						if(answer.success){
-							toastr.success(answer.message);
-						} else {
-							toastr.error(answer.message);
-						}
-					},
-					error: function(err){
-						console.log(err.responseText);
-						toastr.error(err.responseText);
-					}
-				});
+	        if (!/^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9- ]{1,25}$/g.test(string)) {
 
-				/* Check status */
-				setInterval(function(){
-					checkImport(doCheck);
-				}, 500);
+	        	if(string == ""){
+	        		$("span.applicationSpanUrl").remove();
+	        		return;
+	        	}
 
-				return false;
-			});
+	            var errorText = "Le nom d'application doit respecter les règles suivantes :<br>";
+	            errorText += "<ul>";
+	            errorText += "<li>- Caractères alphanumériques uniquement.</li>";
+	            errorText += "<li>- Au moins une lettre.</li>";
+	            errorText += "<li>- Un espace maximum entre chaque mot.</li>";
+	            errorText += "<li>- Aucun espace en début ou fin.</li>";
+	            errorText += "<li>- 25 caractères maximum.</li>";
+	            errorText += "<li>- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).</li>";
+	            errorText += "</ul>";
+
+	            $("span.applicationSpanUrl").remove();
+	            if ($("span.applicationSpan").length == 0){
+	        		$(this).after("<span class='applicationSpan' style='color:red;'><i class='fa fa-exclamation-circle'></i> "+errorText+"</span>");
+	            }
+	        	$("#step2Discover2, #step2Discover1").prop('disabled', true);
+	        } else {
+	        	$("span.applicationSpan").remove();
+	        	$("span.applicationSpanUrl").remove();
+	        	$("#step2Discover2, #step2Discover1").prop('disabled', false);
+
+	        	/* If online environment */
+	        	if(env_dns != "") {
+	        		string = env_protocol + "://" + env_sub_domain + "-" + string + "." + env_dns;
+	        		$(this).after("<p><span class='applicationSpanUrl' style='margin-bottom:10px'><i style='color: orange;' class='fa fa-info-circle'></i> L'url de votre application sera: <b>"+string.toLowerCase()+"</b></span></p>");
+	        	}
+	        }
 		});
 	</script>
 {/custom_js}

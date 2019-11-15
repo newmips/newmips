@@ -77,11 +77,12 @@
         "loading": "Loading...",
         "help": "Help",
         "clone": "Clone",
-        "understand": "Get it !"
+        "understand": "Get it !",
+        "export": "Export"
     },
     "home": {
         "header": "Welcome to Newmips !",
-        "title": "Create or select a Project and an Application.",
+        "title": "You can select or create an Application",
         "subtitle": "We take care of the rest !",
         "ytmodaltitle": "Welcome to the Newmips Generator",
         "ytmodalcontent": "To get started, follow our tutorials and quickly learn how to use the Newmips generator.",
@@ -93,19 +94,18 @@
             "templates": "Template",
             "theme": "Themes",
             "live": "Live",
-            "import": "Data Import",
+            "import": "Application Import",
             "settings": "Settings"
         }
     },
     "listApplication": {
-        "legend": "Projects and Applications",
+        "legend": "Applications",
         "id": "ID",
         "name": "Name",
         "nbModules": "Modules Count",
         "action": "Actions",
         "sureToDelete": "Are you sure ?",
         "loading": "Loading...",
-        "projectDelete" : "Project successfully deleted!",
         "appDelete" : "Application successfully deleted!",
         "gitlab": {
             "modal_title": "How to clone this application ?",
@@ -157,14 +157,19 @@
     },
     "import":{
         "legend": "Import",
-        "action": "Import now!",
-        "downloadsqlfile": "Download the valid SQL file.",
-        "confFile": "Configuration file",
-        "fileType": "XLSX File"
+        "appname": "Application name",
+        "gitlaburl": "Url du gitlab",
+        "zipfile": "Compressed file (.zip) of the application",
+        "sqlfile": "Execute an SQL file (not mandatory)",
+        "action": "Import application",
+        "success": "The application has been generated! You can access it right here",
+        "error": "An error has occurred, you can try again by clicking on the link below",
+        "logs": "Import logs"
     },
     "settings": {
         "legend": "Settings",
         "display_language": "Displaying language",
+        "dark_theme": "Dark theme",
         "display_infos": "Your information",
         "infos": {
             "login": "Login",
@@ -189,8 +194,8 @@
         "issue-button": "Report an issue",
         "help-button": "Need help ?",
         "help-disabled": "Support chat is disabled. Activate it in config/global.js and provide mattermost information in config/slack.js",
+        "server_timeout": "Server timed out, please check the application logs.",
         "session": {
-            "noProject": "No project selected",
             "noApplication": "No application selected",
             "noModule": "No module selected",
             "noEntity": "No entity selected"
@@ -204,12 +209,6 @@
             "notExist": "Sorry but this logo file does not exist, you can add it with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
 
         }
-    },
-    "project":{
-        "label": "Project",
-        "selectProject": "Please, select a project.",
-        "selectExisting": "Select an existing project",
-        "create": "Create a new project"
     },
     "application":{
         "label": "Application",
@@ -251,21 +250,6 @@
         "welcome": "Hello and welcome ! I'm Mipsy, your personnal creation assistant. At any time, I am here to help you discover the Newmips generator.<br> To get started, here are few instructions that you can run below:<br><br>- <b class='click-instruction'>add entity Person</b><br>- <b class='click-instruction'>add field Name</b><br>- <b class='click-instruction'>add field Birthday with type date</b> <br><br>And follow us on our dedicated YouTube channel, you will find our playlist of video tutorials to learn in details how to use the Newmips generator:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>Newmips tutorials</a>"
     },
     "database": {
-        "project": {
-            "select": {
-                "selected": "Project %s (%s) selected."
-            },
-            "create": {
-                "success" : "New project %s (%s) created."
-            },
-            "delete":{
-                "deleted": "Project %s deleted !"
-            },
-            "notFound": {
-                "withThisID": "Sorry, but there is no project with this ID : %s.",
-                "withThisName": "Sorry, but there is no project with this name : %s."
-            }
-        },
         "application": {
             "select": {
                 "selected": "Application %s (%s) selected."
@@ -307,12 +291,13 @@
         },
         "component":{
             "create": {
-                "success" : "New component %s (%s) created.",
-                "successOnEntity": "New component %s (%s) created on entity %s."
+                "success" : "New component %s created.",
+                "successOnEntity": "New component %s created on entity %s."
             },
             "notFound": {
                 "notFoundInModule": "Sorry, no component with the name %s exist in the module with id %s.",
-                "notFoundOnEntity": "Sorry, no component with the name %s exist on the entity with id %s."
+                "notFoundOnEntity": "Sorry, no component with the name %s exist on the entity with id %s.",
+                "notFound": "Sorry, cannot find the component with the name %s"
             },
             "delete": {
                 "success": "The component has been successfully deleted!",
@@ -321,8 +306,8 @@
         },
         "entity": {
             "select": {
-                "selected": "Entity %s (%s) selected.",
-                "valid": "Please, indicate a valid name/ID."
+                "selected": "Entity %s selected.",
+                "valid": "Please, indicate a valid name."
             },
             "create": {
                 "success": "You have just added a new entity %s (%s) in the module %s. To delete it, type the instruction:<br>- <b class='click-instruction'>delete entity %s</b>.",

@@ -63,7 +63,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 
     // Build array of fields for include and search object
     var isGlobalSearch = req.body.search.value == "" ? false : true;
-    var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+    var search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
     search[searchTerm] = [];
     var toInclude = [];
     // Loop over columns array
@@ -439,7 +439,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
             case 'hasMany':
                 dustFile = option.target + '/list_fields';
                 // Status history specific behavior. Replace history_model by history_table to open view
-                if (option.target.indexOf('e_history_e_') == 0)
+                if (option.target.indexOf('_history_') == 0)
                     option.noCreateBtn = true;
                 dustData = {
                     for: 'hasMany'
@@ -547,20 +547,20 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
                 $like: search
             };
         } else {
-            where.where.$or = [];
+            where.where[models.$or] = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
                     if(req.body.searchField[i].indexOf(".") != -1){
                         currentOrObj["$"+req.body.searchField[i]+"$"] = {
-                            $like: search
+                            [models.$like]: search
                         }
                     } else {
                         currentOrObj[req.body.searchField[i]] = {
-                            $like: search
+                            [models.$like]: search
                         }
                     }
-                    where.where.$or.push(currentOrObj);
+                    where.where[models.$or].push(currentOrObj);
                 }
             }
         }
@@ -731,7 +731,7 @@ router.post('/settings', block_access.isLoggedIn, function(req, res) {
     if(req.body.f_email && req.body.f_email != '')
         updateObject.f_email = req.body.f_email
 
-    models.E_user.findById(req.session.passport.user.id).then(user => {
+    models.E_user.findByPk(req.session.passport.user.id).then(user => {
         let newPassword = new Promise((resolve, reject) => {
             if(!req.body.old_password || req.body.old_password == "")
                 return resolve(updateObject);

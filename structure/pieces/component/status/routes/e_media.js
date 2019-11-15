@@ -327,14 +327,14 @@ router.post('/search', block_access.actionAccessMiddleware('media', 'read'), fun
     var where = {raw: true, attributes: req.body.searchField, where: {}};
     if (search != '%%') {
         if (req.body.searchField.length == 1) {
-            where.where[req.body.searchField[0]] = {$like: search};
+            where.where[req.body.searchField[0]] = {[models.$like]: search};
         } else {
-            where.where.$or = [];
+            where.where[models.$or] = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
-                    currentOrObj[req.body.searchField[i]] = {$like: search}
-                    where.where.$or.push(currentOrObj);
+                    currentOrObj[req.body.searchField[i]] = {[models.$like]: search}
+                    where.where[models.$or].push(currentOrObj);
                 }
             }
         }

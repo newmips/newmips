@@ -7,9 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        name: DataTypes.STRING,
-        codeName: DataTypes.STRING,
-        version: DataTypes.INTEGER
+        name: DataTypes.STRING
     }, {
         tableName: "module"
     })
@@ -35,23 +33,19 @@ module.exports = (sequelize, DataTypes) => {
         })
     }
 
-    Module.addHook('beforeFindAfterOptions', (module) => {
-        if (typeof module.where !== "undefined") {
-            if (typeof module.where.name !== "undefined")
-                module.where.name = module.where.name.toLowerCase();
-            if (typeof module.where.codeName !== "undefined")
-                module.where.codeName = module.where.codeName.toLowerCase();
+    Module.addHook('beforeFindAfterOptions', (np_module) => {
+        if (typeof np_module.where !== "undefined") {
+            if (typeof np_module.where.name !== "undefined")
+                np_module.where.name = np_module.where.name.toLowerCase();
         }
     })
 
-    Module.addHook('beforeCreate', (module) => {
-        module.name = module.name ? module.name.toLowerCase() : null;
-        module.codeName = module.codeName ? module.codeName.toLowerCase() : null;
+    Module.addHook('beforeCreate', (np_module) => {
+        np_module.name = np_module.name ? np_module.name.toLowerCase() : null;
     })
 
-    Module.addHook('beforeUpdate', (module) => {
-        module.name = module.name ? module.name.toLowerCase() : null;
-        module.codeName = module.codeName ? module.codeName.toLowerCase() : null;
+    Module.addHook('beforeUpdate', (np_module) => {
+        np_module.name = np_module.name ? np_module.name.toLowerCase() : null;
     })
 
     return Module;

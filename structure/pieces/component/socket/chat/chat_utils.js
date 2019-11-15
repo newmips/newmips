@@ -31,8 +31,8 @@ function sendChatChannelList(user, socket) {
 						models.E_chatmessage.count({
 							where: {
 								fk_id_chat: userChat.id_chat,
-								id: {$gt: userChat.id_last_seen_message},
-								fk_id_user_sender: {$not: user.id}
+								id: {[models.$gt]: userChat.id_last_seen_message},
+								fk_id_user_sender: {[models.$not]: user.id}
 							}
 						}).then(function(notSeen) {
 							resolve({id_chat: userChat.id_chat, notSeen: notSeen});
@@ -52,8 +52,8 @@ function sendChatChannelList(user, socket) {
 						models.E_channelmessage.count({
 							where: {
 								fk_id_channel: userChannel.id_channel,
-								id: {$gt: userChannel.id_last_seen_message},
-								fk_id_user_sender: {$not: user.id}
+								id: {[models.$gt]: userChannel.id_last_seen_message},
+								fk_id_user_sender: {[models.$not]: user.id}
 							}
 						}).then(function(notSeen) {
 							resolve({id_channel: userChannel.id_channel, notSeen: notSeen});
@@ -145,8 +145,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 						models.E_chatmessage.count({
 							where: {
 								fk_id_chat: userChat[i].id_chat,
-								id: {$gt: userChat[i].id_last_seen_message},
-								fk_id_user_sender: {$not: user.id}
+								id: {[models.$gt]: userChat[i].id_last_seen_message},
+								fk_id_user_sender: {[models.$not]: user.id}
 							}
 						}).then(function(notSeen) {
 							resolve(notSeen);
@@ -165,8 +165,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 							models.E_channelmessage.count({
 								where: {
 									fk_id_channel: userChannels[i].id,
-									fk_id_user_sender: {$not: user.id},
-									id: {$gt: userChannels[i].id_last_seen_message}
+									fk_id_user_sender: {[models.$not]: user.id},
+									id: {[models.$gt]: userChannels[i].id_last_seen_message}
 								}
 							}).then(function(notSeen) {
 								resolve(notSeen);
@@ -195,7 +195,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				f_name: data.name,
 				f_type: data.type
 			}).then(function(channel) {
-				models.E_user.findById(user.id).then(function(userObj) {
+				models.E_user.findByPk(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
@@ -211,7 +211,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)}
 			}).then(function(channel) {
-				models.E_user.findById(user.id).then(function(userObj) {
+				models.E_user.findByPk(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
@@ -227,7 +227,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)}
 			}).then(function(channel) {
-				models.E_user.findById(parseInt(data.id_user)).then(function(userObj) {
+				models.E_user.findByPk(parseInt(data.id_user)).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
@@ -319,7 +319,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channelmessage.max('id', {
 				where: {
 					fk_id_channel: parseInt(data.id_channel),
-					fk_id_user_sender: {$not: user.id}
+					fk_id_user_sender: {[models.$not]: user.id}
 				}
 			}).then(function(newLastSeenId) {
 				if (isNaN(newLastSeenId))
@@ -342,7 +342,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				include: [{
 					model: models.E_user,
 					as: 'r_user',
-					where: {id: {$in: chatUserIds}}
+					where: {id: {[models.$in]: chatUserIds}}
 				}]
 			}).then(function(chat) {
 				if (chat && chat.r_user && chat.r_user.length == 2)
@@ -423,7 +423,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_chatmessage.max('id', {
 				where: {
 					fk_id_chat: data.id_chat,
-					fk_id_user_sender: {$not: user.id}
+					fk_id_user_sender: {[models.$not]: user.id}
 				}
 			}).then(function(newLastSeenId) {
 				if (isNaN(newLastSeenId))

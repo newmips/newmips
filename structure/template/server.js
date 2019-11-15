@@ -297,7 +297,7 @@ app.use(function(req, res, next) {
 	    		for (var i = 0; i < options.length; i++)
 	    			entityList.push(options[i].target);
 
-	    		models.E_inline_help.findAll({where: {f_entity: {$in: entityList}}}).then(function(helps) {
+	    		models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
 	    			dust.helpers.inline_help = function(ch, con, bod, params){
 	    				for (var i = 0; i < helps.length; i++) {
 	    					if (params.field == helps[i].f_field)
@@ -337,7 +337,7 @@ app.use(function(req, res) {
 // Launch ======================================================================
 
 models.sequelize.sync({logging: false, hooks: false}).then(() => {
-    models.sequelize.customAfterSync().then(() => {
+    models.sequelize.customAfterSync().then(_ => {
         models.E_user.findAll().then(users => {
             let hasAdmin = false;
 
@@ -394,7 +394,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
             } catch(e) {console.error("Couldn't require 'cordova-bridge'");}
         }
 		console.log("Started " + globalConf.protocol + " on " + globalConf.port + " !");
-    }).catch(function(err) {
+    }).catch(err => {
         console.error(err);
         logger.silly(err);
     })

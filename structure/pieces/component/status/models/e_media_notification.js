@@ -10,7 +10,7 @@ var moment = require('moment');
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_media_notification',
+        tableName: 'e_media_notification',
         timestamps: true
     };
 
@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
 
                 // Fetch all groups found and their users
                 var groups = await sequelize.models.E_group.findAll({
-                    where: {id: {$in: groupIds}},
+                    where: {id: {[models.$in]: groupIds}},
                     include: {model: sequelize.models.E_user, as: 'r_user'}
                 });
 

@@ -264,10 +264,7 @@ app.use(function(req, res, next) {
             }
             req.session.toastr = [];
         }
-        if (locals.isSupportChatEnabled = globalConf.support_chat_enabled) {
-            // var slackConf = require('./config/slack');
-            // locals.slackApiToken = slackConf.SLACK_API_TOKEN;
-        }
+        locals.dark_theme = req.session.dark_theme ? req.session.dark_theme : false;
         render.call(res, view, locals, cb);
     };
     next();

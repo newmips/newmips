@@ -6,7 +6,7 @@ var associations = require("./options/e_chat.json");
 module.exports = (sequelize, DataTypes) => {
     var attributes = builder.buildForModel(attributes_origin, DataTypes);
     var options = {
-        tableName: 'ID_APPLICATION_e_chat_chat',
+        tableName: 'e_chat_chat',
         timestamps: true
     };
 

@@ -311,7 +311,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
             case 'hasManyPreset':
                 dustFile = option.target+'/list_fields';
                 // Status history specific behavior. Replace history_model by history_table to open view
-                if (option.target.indexOf('e_history_e_') == 0) {
+                if (option.target.indexOf('_history_') == 0) {
                     option.noCreateBtn = true;
                     for (var attr in attributes)
                         if (attributes[attr].history_table && attributes[attr].history_model == option.target)
@@ -390,14 +390,14 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
     var where = {raw: true, attributes: req.body.searchField, where: {}};
     if (search != '%%') {
         if (req.body.searchField.length == 1) {
-            where.where[req.body.searchField[0]] = {$like: search};
+            where.where[req.body.searchField[0]] = {[models.$like]: search};
         } else {
-            where.where.$or = [];
+            where.where[models.$or] = [];
             for (var i = 0; i < req.body.searchField.length; i++) {
                 if (req.body.searchField[i] != "id") {
                     var currentOrObj = {};
-                    currentOrObj[req.body.searchField[i]] = {$like: search}
-                    where.where.$or.push(currentOrObj);
+                    currentOrObj[req.body.searchField[i]] = {[models.$like]: search}
+                    where.where[models.$or].push(currentOrObj);
                 }
             }
         }
