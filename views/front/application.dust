@@ -56,6 +56,12 @@
 																	<span>{#__ key="button.preview"/}</span>
 																</a>
 															</td>
+															<td class="text-center">
+																<a class="btn btn-primary" href="/application/export/{name}">
+																	<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
+																	<span>{#__ key="button.export"/}</span>
+																</a>
+															</td>
 															{?gitlabUser}
 																{?dataValues.repo_url}
 																	<td class="text-center">

@@ -1,14 +1,13 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const fs = require('fs-extra');
 const moment = require('moment');
 const request = require('request');
 const models = require('../models/');
 const readline = require('readline');
 const multer = require('multer');
-const upload = multer().single('file');
-const Jimp = require("jimp");
+const Jimp = require('jimp');
 const math = require('math');
+const JSZip = require('jszip');
 
 // Config
 const globalConf = require('../config/global.js');
@@ -17,6 +16,7 @@ const gitlabConf = require('../config/gitlab.js');
 // Services
 const process_manager = require('../services/process_manager.js');
 const process_server_per_app = process_manager.process_server_per_app;
+const exec = require('child_process');
 const session_manager = require('../services/session.js');
 const designer = require('../services/designer.js');
 const parser = require('../services/bot.js');
@@ -30,11 +30,8 @@ const helpers = require('../utils/helpers');
 const dataHelper = require('../utils/data_helper');
 const gitHelper = require('../utils/git_helper');
 
-// Metadata
 const metadata = require('../database/metadata')();
-
 const structure_application = require('../structure/structure_application');
-
 let pourcent_generation = {};
 
 // Exclude from Editor
@@ -372,7 +369,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 // Dropzone FIELD ajax upload file
 router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
-    upload(req, res, function(err) {
+    multer().single('file')(req, res, err => {
         if (err) {
             console.error(err);
             return res.status(500).end(err);
@@ -449,7 +446,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
         if(gitlabConf.doGit)
             gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
 
-        for (var i = 0; i < applications.length; i++) {
+        for (let i = 0; i < applications.length; i++) {
 
             app_url = globalConf.protocol_iframe + '://';
             port = 9000 + parseInt(applications[i].id);
@@ -681,6 +678,202 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 router.get('/get_pourcent_generation', (req, res) => {
     res.json({
         pourcent: pourcent_generation[req.session.passport.user.id]
+    });
+});
+
+// Application import
+router.get('/import', block_access.isLoggedIn, (req, res) => {
+    res.render('front/import');
+});
+
+router.post('/import', block_access.isLoggedIn, (req, res) => {
+    multer().fields([{
+        name: 'zipfile',
+        maxCount: 1
+    }, {
+        name: 'sqlfile',
+        maxCount: 1
+    }])(req, res, err => {
+        if (err)
+            console.error(err);
+
+        let infoText = '';
+
+        (async() => {
+            let __ = require("../services/language")(req.session.lang_user).__;
+
+            // Generate standard app
+            let data = await execute(req, "add application " + req.body.appName, __);
+            let workspacePath = __dirname + '/../workspace/' + data.options.value;
+
+            // Delete generated workspace folder
+            helpers.rmdirSyncRecursive(workspacePath);
+            fs.mkdirsSync(workspacePath);
+
+            let zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
+
+            let promises = [],
+                oldAppName = false,
+                appRegex;
+            for (let item in zip.files) {
+                // Getting old application name
+                if (!oldAppName && item.substring(0, 2) == 'a_') {
+                    oldAppName = item;
+                    appRegex = new RegExp(item.slice(0, -1), 'g') // Slice to remove / (ex: appName/ => appName)
+                }
+                item = zip.files[item];
+
+                promises.push(new Promise((resolve, reject) => {
+                    let currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
+
+                    // Directory
+                    if (item.dir) {
+                        try {
+                            fs.mkdirsSync(currentPath);
+                        } catch (err) {
+                            console.error(err)
+                        }
+                        return resolve();
+                    }
+
+                    // File
+                    zip.file(item.name).async('nodebuffer').then(content => {
+                        fs.writeFileSync(currentPath, content);
+                        resolve();
+                    }).catch(err => {
+                        console.error(err);
+                        resolve();
+                    });
+                }));
+            }
+
+            await Promise.all(promises);
+
+            // Need to modify so file content to change appName in it
+            let fileToReplace = ['/config/metadata.json', '/config/database.js'];
+            for (let i = 0; i < fileToReplace.length; i++) {
+                let content = fs.readFileSync(workspacePath + fileToReplace[i], 'utf8');
+                content = content.replace(appRegex, data.options.value);
+                fs.writeFileSync(workspacePath + fileToReplace[i], content);
+            }
+
+            infoText += '- The application is ready to be launched.<br>';
+
+            // Executing SQL file if exist
+            if(typeof req.files['sqlfile'] === 'undefined')
+                return data.options.value;
+
+            // Saving tmp sql file
+            let sqlFilePath = __dirname + '/../sql/' + req.files['sqlfile'][0].originalname;
+            fs.writeFileSync(sqlFilePath, req.files['sqlfile'][0].buffer);
+
+            // Getting workspace DB conf
+            let dbConfig = require(workspacePath + '/config/database');
+
+            let cmd = "mysql";
+            let cmdArgs = [
+                "-u",
+                dbConfig.user,
+                "-p" + dbConfig.password,
+                dbConfig.database,
+                "-h" + dbConfig.host,
+                "--default-character-set=utf8",
+                "<",
+                sqlFilePath
+            ];
+
+            function handleExecStdout(cmd, args) {
+                return new Promise((resolve, reject) => {
+
+                    // Exec instruction
+                    let childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
+                    childProcess.stdout.setEncoding('utf8');
+                    childProcess.stderr.setEncoding('utf8');
+
+                    // Child Success output
+                    childProcess.stdout.on('data', stdout => {
+                        console.log(stdout)
+                    })
+
+                    // Child Error output
+                    childProcess.stderr.on('data', stderr => {
+                        // Avoid reject if only warning
+                        if (stderr.toLowerCase().indexOf("warning") != -1) {
+                            console.log("!! mysql ignored warning !!: " + stderr)
+                            return;
+                        }
+                        childProcess.kill();
+                        reject(stderr);
+                    })
+
+                    // Child error
+                    childProcess.on('error', error => {
+                        childProcess.kill();
+                        reject(error);
+                    })
+
+                    // Child close
+                    childProcess.on('close', code => {
+                        resolve();
+                    })
+                })
+            }
+
+            try {
+                await handleExecStdout(cmd, cmdArgs);
+                infoText += '- The SQL file has been successfully executed.<br>';
+            } catch(err) {
+                console.error('Error while executing SQL file in the application.');
+                console.error(err);
+                infoText += '- An error while executing SQL file in the application:<br>';
+                infoText += err;
+            }
+
+            // Delete tmp sql file
+            fs.unlinkSync(sqlFilePath);
+
+            return data.options.value;
+        })().then(appName => {
+            res.render('front/import', {
+                infoText: infoText,
+                appName: appName
+            });
+        }).catch(err => {
+            console.error(err);
+            infoText += '- An error occured during the process:<br>';
+            infoText += err;
+            res.render('front/import', {
+                infoText: infoText
+            });
+        });
+    });
+});
+
+router.get('/export/:app_name', block_access.hasAccessApplication, (req, res) => {
+
+     // We know what directory we want
+    const workspacePath = __dirname + '/../workspace/' + req.params.app_name;
+
+    let zip = new JSZip();
+    helpers.buildZipFromDirectory(workspacePath, zip, workspacePath);
+
+    // Generate zip file content
+    zip.generateAsync({
+        type: 'nodebuffer',
+        comment: 'ser-web-manangement',
+        compression: "DEFLATE",
+        compressionOptions: {
+            level: 9
+        }
+    }).then(zipContent => {
+
+        // Create zip file
+        fs.writeFileSync(workspacePath + '.zip', zipContent);
+        res.download(workspacePath + '.zip', req.params.app_name + '.zip', err => {
+            if(err)
+                console.error(err);
+            fs.unlinkSync(workspacePath + '.zip')
+        });
     });
 });
 
