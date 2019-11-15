@@ -66,9 +66,10 @@ module.exports = {
                 file_fields: [],
                 children: []
             }
+            let entityFields, entityAssociations;
             try {
-                let entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-                let entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+                entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+                entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
             } catch (e) {
                 console.error(e);
                 return fieldTree;
@@ -120,7 +121,7 @@ module.exports = {
         return loadTree(entity, alias);
     },
     // Build sequelize formated include object from tree
-    buildIncludeFromTree: (entityTree) => {
+    buildIncludeFromTree: function (entityTree) {
         var includes = [];
         for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
             var include = {};
@@ -199,7 +200,6 @@ module.exports = {
             if (this.loopCount % 1000 === 0) {
                 this.loopCount = 0;
                 return setTimeout(() => {
-                    console.log(...args);
                     sortFunc(...args);
                 }, 0);
             }
@@ -233,7 +233,7 @@ module.exports = {
 
         return options;
     },
-    entityStatusFieldList: () => {
+    entityStatusFieldList: function() {
         var self = this;
         var entities = [];
         fs.readdirSync(__dirname+'/../models/attributes').filter(function(file){
@@ -266,7 +266,7 @@ module.exports = {
                 list.push(prop);
         return list;
     },
-    translate:  (entity, attributes, lang) => {
+    translate:  function (entity, attributes, lang) {
         var self = this;
         var statusList = self.statusFieldList(attributes);
 
@@ -282,7 +282,7 @@ module.exports = {
             }
         }
     },
-    setStatus: async (entityName, entityID, statusName, statusId, userID = null, comment = "") => {
+    setStatus: async function (entityName, entityID, statusName, statusId, userID = null, comment = "") {
         let self = this;
         let historyModel = 'E_history_' + entityName.substring(2) + '_' + statusName.substring(2);
         let historyAlias = 'r_history_' + statusName.substring(2);

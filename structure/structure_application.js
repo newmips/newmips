@@ -201,22 +201,10 @@ async function initializeWorkflow(application) {
     fs.copySync(piecesPath + '/models/e_status.js', workspacePath + '/models/e_status.js');
 
     // Copy views pieces
-    // status
-    fs.copySync(piecesPath + '/views/e_status/', workspacePath + '/views/e_status/');
-    // media
-    fs.copySync(piecesPath + '/views/e_media/', workspacePath + '/views/e_media/');
-    // media mail
-    fs.copySync(piecesPath + '/views/e_media_mail/', workspacePath + '/views/e_media_mail/');
-    // media notification
-    fs.copySync(piecesPath + '/views/e_media_notification/', workspacePath + '/views/e_media_notification/');
-    // media sms
-    fs.copySync(piecesPath + '/views/e_media_sms/', workspacePath + '/views/e_media_sms/');
-    // media task
-    fs.copySync(piecesPath + '/views/e_media_task/', workspacePath + '/views/e_media_task/');
-    // translation
-    fs.copySync(piecesPath + '/views/e_translation/', workspacePath + '/views/e_translation/');
-    // action
-    fs.copySync(piecesPath + '/views/e_action/', workspacePath + '/views/e_action/');
+    const toCopyViewFolders = ['e_status','e_media','e_media_mail','e_media_notification','e_media_sms','e_media_task','e_translation','e_action'];
+    for (const folder of toCopyViewFolders)
+        fs.copySync(`${piecesPath}/views/${folder}`, `${workspacePath}/views/${folder}`);
+
     // Copy routes
     fs.copySync(piecesPath + '/routes/', workspacePath + '/routes/');
     // Copy API routes
@@ -228,17 +216,6 @@ async function initializeWorkflow(application) {
     // Remove notification from administration sidebar
     let $ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
     $("#notification_menu_item").remove();
-
-    // DIAGRAM MENU
-    // let diagramMenuLink = '<!--{#actionAccess entity="status" action="read"}-->\n';
-    // diagramMenuLink += '<li>\n';
-    // diagramMenuLink += '    <a href="/status/diagram">\n';
-    // diagramMenuLink += '        <i class="fa fa-sitemap"></i>\n';
-    // diagramMenuLink += '        <!--{#__ key="component.status.diagram" /}-->\n';
-    // diagramMenuLink += '    </a>\n';
-    // diagramMenuLink += '</li>\n';
-    // diagramMenuLink += '{/actionAccess}\n';
-    // $("#status_menu_item ul").append(diagramMenuLink);
 
     await domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
@@ -284,7 +261,7 @@ exports.initializeApplication = async(application) => {
     $ = await domHelper.read(workspacePath + '/views/e_user/update_fields.dust');
     $("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
     await domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $)
-        // Copy inline-help route and views
+    // Copy inline-help route and views
     fs.copySync(piecesPath + '/routes/e_inline_help.js', workspacePath + '/routes/e_inline_help.js');
     fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
 

@@ -592,7 +592,6 @@ exports.newStatus = async (data) => {
 
     // Remove useless options in toSync
     let toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
-
     for (let prop in toSync) {
         if (prop.indexOf('e_status') != -1)
             for (let i = 0; i < toSync[prop].options.length; i++)
@@ -602,12 +601,10 @@ exports.newStatus = async (data) => {
         if (prop.indexOf('_history_') > 0)
             toSync[prop].options = undefined;
     }
-
     fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
     // Remove useless history tab from Status views
     let $ = await domHelper.read(workspacePath + "/views/e_status/show_fields.dust")
-
     let historyId = 'r_' + data.history_table;
     $("#" + historyId + "-click").parent().remove();
     $("#" + historyId).remove();
@@ -686,7 +683,6 @@ exports.newStatus = async (data) => {
     // Display status as a badge instead of an input
     // Also add next status buttons after status field
     $ = await domHelper.read(workspacePath + '/views/' + source + '/show_fields.dust');
-
     let statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
     let nextStatusHtml = '';
     nextStatusHtml += '<div class="form-group">\n';
@@ -716,14 +712,13 @@ exports.newStatus = async (data) => {
 
     // Update list field to show status color in datalist
     $ = await domHelper.read(workspacePath + '/views/' + source + '/list_fields.dust');
-
     $("th[data-field='" + statusAlias + "']").each(function () {
         $(this).data("data-type", "status");
     });
     $("td[data-field='" + statusAlias + "']").data("data-type", "status");
     $("td[data-field='" + statusAlias + "']").data("data-color", "{" + statusAlias + ".f_color}");
-
     await domHelper.write(workspacePath + '/views/' + source + '/list_fields.dust', $)
+
     return await translateHelper.writeLocales(data.application.name, 'field', source, [data.options.value, data.options.showValue], false)
 }
 
