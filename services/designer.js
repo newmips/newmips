@@ -13,8 +13,6 @@ const structure_ui = require("../structure/structure_ui");
 const helpers = require("../utils/helpers");
 const dataHelper = require("../utils/data_helper");
 const gitHelper = require("../utils/git_helper");
-const translateHelper = require("../utils/translate");
-
 
 // Others
 const fs = require('fs-extra');
