@@ -77,7 +77,8 @@
         "loading": "Loading...",
         "help": "Help",
         "clone": "Clone",
-        "understand": "Get it !"
+        "understand": "Get it !",
+        "export": "Export"
     },
     "home": {
         "header": "Welcome to Newmips !",
@@ -93,19 +94,18 @@
             "templates": "Template",
             "theme": "Themes",
             "live": "Live",
-            "import": "Data Import",
+            "import": "Application Import",
             "settings": "Settings"
         }
     },
     "listApplication": {
-        "legend": "Projects and Applications",
+        "legend": "Applications",
         "id": "ID",
         "name": "Name",
         "nbModules": "Modules Count",
         "action": "Actions",
         "sureToDelete": "Are you sure ?",
         "loading": "Loading...",
-        "projectDelete" : "Project successfully deleted!",
         "appDelete" : "Application successfully deleted!",
         "gitlab": {
             "modal_title": "How to clone this application ?",
@@ -157,10 +157,14 @@
     },
     "import":{
         "legend": "Import",
-        "action": "Import now!",
-        "downloadsqlfile": "Download the valid SQL file.",
-        "confFile": "Configuration file",
-        "fileType": "XLSX File"
+        "appname": "Application name",
+        "gitlaburl": "Url du gitlab",
+        "zipfile": "Compressed file (.zip) of the application",
+        "sqlfile": "Execute an SQL file (not mandatory)",
+        "action": "Import application",
+        "success": "The application has been generated! You can access it right here",
+        "error": "An error has occurred, you can try again by clicking on the link below",
+        "logs": "Import logs"
     },
     "settings": {
         "legend": "Settings",
@@ -192,7 +196,6 @@
         "help-disabled": "Support chat is disabled. Activate it in config/global.js and provide mattermost information in config/slack.js",
         "server_timeout": "Server timed out, please check the application logs.",
         "session": {
-            "noProject": "No project selected",
             "noApplication": "No application selected",
             "noModule": "No module selected",
             "noEntity": "No entity selected"
@@ -206,12 +209,6 @@
             "notExist": "Sorry but this logo file does not exist, you can add it with the instruction:<br> -<b class='click-instruction'> add a logo</b>"
 
         }
-    },
-    "project":{
-        "label": "Project",
-        "selectProject": "Please, select a project.",
-        "selectExisting": "Select an existing project",
-        "create": "Create a new project"
     },
     "application":{
         "label": "Application",
@@ -253,21 +250,6 @@
         "welcome": "Hello and welcome ! I'm Mipsy, your personnal creation assistant. At any time, I am here to help you discover the Newmips generator.<br> To get started, here are few instructions that you can run below:<br><br>- <b class='click-instruction'>add entity Person</b><br>- <b class='click-instruction'>add field Name</b><br>- <b class='click-instruction'>add field Birthday with type date</b> <br><br>And follow us on our dedicated YouTube channel, you will find our playlist of video tutorials to learn in details how to use the Newmips generator:<br><a href='https://www.youtube.com/channel/UCOF9iI9Wwe8iucSd7ayHlMQ' target=_blank>Newmips tutorials</a>"
     },
     "database": {
-        "project": {
-            "select": {
-                "selected": "Project %s (%s) selected."
-            },
-            "create": {
-                "success" : "New project %s (%s) created."
-            },
-            "delete":{
-                "deleted": "Project %s deleted !"
-            },
-            "notFound": {
-                "withThisID": "Sorry, but there is no project with this ID : %s.",
-                "withThisName": "Sorry, but there is no project with this name : %s."
-            }
-        },
         "application": {
             "select": {
                 "selected": "Application %s (%s) selected."

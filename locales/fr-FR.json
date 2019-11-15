@@ -76,7 +76,8 @@
         "cancel": "Annuler",
         "loading": "Chargement...",
         "clone": "Cloner",
-        "understand": "Compris !"
+        "understand": "Compris !",
+        "export": "Exporter"
     },
     "home": {
         "header": "Bienvenue sur Newmips !",
@@ -92,19 +93,18 @@
             "templates": "Modèles",
             "theme": "Thèmes",
             "live": "Direct",
-            "import": "Import de données",
+            "import": "Import d'application",
             "settings": "Paramètres"
         }
     },
     "listApplication": {
-        "legend": "Projets et Applications",
+        "legend": "Applications",
         "id": "ID",
         "name": "Nom",
         "nbModules": "Nb de modules",
         "action": "Actions",
         "sureToDelete": "Êtes-vous sûr ?",
         "loading": "Chargement...",
-        "projectDelete" : "Projet supprimé !",
         "appDelete" : "Application supprimée !",
         "gitlab": {
             "modal_title": "Comment cloner cette application ?",
@@ -157,10 +157,14 @@
     },
     "import": {
         "legend": "Import",
-        "action": "Importer maintenant!",
-        "downloadsqlfile": "Télécharger le fichier SQL valide.",
-        "confFile": "Fichier de configuration",
-        "fileType": "Fichier XLSX"
+        "appname": "Nom de l'application",
+        "gitlaburl": "Url du gitlab",
+        "zipfile": "Fichier compressé (.zip) de l'application",
+        "sqlfile": "Executer un fichier SQL (non obligatoire)",
+        "action": "Importer l'application",
+        "success": "L'application a bien été générée ! Vous pouvez y acceder juste ici",
+        "error": "Une erreur s'est produite, vous pouvez réessayer en cliquant sur le lien ci-dessous",
+        "logs": "Logs de l'import"
     },
     "settings": {
         "legend": "Paramètres",
@@ -205,12 +209,6 @@
             "notExist": "Désolé mais le fichier demandé n'existe pas, vous pouvez ajouter votre logo avec l'instruction :<br> -<b class='click-instruction'> ajouter un logo</b>"
 
         }
-    },
-    "project": {
-        "label": "Projet",
-        "selectProject": "S'il vous plaît, sélectionnez un projet.",
-        "selectExisting": "Sélectionner un projet existant",
-        "create": "Créer un nouveau projet"
     },
     "application": {
         "label": "Application",
