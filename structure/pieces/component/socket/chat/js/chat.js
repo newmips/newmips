@@ -6,7 +6,7 @@
 	}
 	function formatDate(d) {
 		return ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
-		    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
+			d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
 	}
 
 	function sortMessages(messages, idx) {
@@ -21,64 +21,64 @@
 	}
 
 	function userSelect() {
-	    $("#createChatId, #inviteUserChannel").select2({
-	        ajax: {
-	            url: '/chat/user_search',
-	            dataType: 'json',
-	            method: 'POST',
-	            delay: 250,
-	            contentType: "application/json",
-	            context: this,
-	            data: function (params) {
-	                return JSON.stringify({
-	                    search: params.term,
-	                });
-	            },
-	            processResults: function (data, params) {
-	                return {
-	                    results: data
-	                };
-	            },
-	            cache: true
-	        },
-	        minimumInputLength: 1,
-	        escapeMarkup: function (markup) {
-	            return markup;
-	        },
-	        templateResult: function (data) {
-	            return data.text;
-	        }
-	    });
+		$("#createChatId, #inviteUserChannel").select2({
+			ajax: {
+				url: '/chat/user_search',
+				dataType: 'json',
+				method: 'POST',
+				delay: 250,
+				contentType: "application/json",
+				context: this,
+				data: function (params) {
+					return JSON.stringify({
+						search: params.term,
+					});
+				},
+				processResults: function (data, params) {
+					return {
+						results: data
+					};
+				},
+				cache: true
+			},
+			minimumInputLength: 1,
+			escapeMarkup: function (markup) {
+				return markup;
+			},
+			templateResult: function (data) {
+				return data.text;
+			}
+		});
 	}
 	function channelSelect() {
-	    $("#joinChannel").select2({
-	        ajax: {
-	            url: '/chat/channel_search',
-	            dataType: 'json',
-	            method: 'POST',
-	            delay: 250,
-	            contentType: "application/json",
-	            context: this,
-	            data: function (params) {
-	                return JSON.stringify({
-	                    search: params.term,
-	                });
-	            },
-	            processResults: function (data, params) {
-	                return {
-	                    results: data
-	                };
-	            },
-	            cache: true
-	        },
-	        minimumInputLength: 1,
-	        escapeMarkup: function (markup) {
-	            return markup;
-	        },
-	        templateResult: function (data) {
-	            return data.text;
-	        }
-	    });
+		$("#joinChannel").select2({
+			ajax: {
+				url: '/chat/channel_search',
+				dataType: 'json',
+				method: 'POST',
+				delay: 250,
+				contentType: "application/json",
+				context: this,
+				data: function (params) {
+					return JSON.stringify({
+						search: params.term,
+					});
+				},
+				processResults: function (data, params) {
+					return {
+						results: data
+					};
+				},
+				cache: true
+			},
+			minimumInputLength: 1,
+			escapeMarkup: function (markup) {
+				return markup;
+			},
+			templateResult: function (data) {
+				return data.text;
+			}
+		});
 	}
 }
 
@@ -86,34 +86,34 @@
 {
 	function contactChannel(channelObj) {
 		var channel = '';
-	    channel += '<li data-id-channel="'+channelObj.id+'" data-type="channel">';
-	    channel += '    <a href="#">';
-	    channel += '        <img class="contacts-list-img">';
-	    channel += '        <div class="contacts-list-info">';
-	    channel += '            <span class="contacts-list-name"><i class="fa fa-plus"></i>&nbsp;&nbsp;';
-	    channel += '                '+channelObj.f_name;
+		channel += '<li data-id-channel="'+channelObj.id+'" data-type="channel">';
+		channel += '	<a href="#">';
+		channel += '		<img class="contacts-list-img">';
+		channel += '		<div class="contacts-list-info">';
+		channel += '			<span class="contacts-list-name"><i class="fa fa-plus"></i>&nbsp;&nbsp;';
+		channel += '				'+channelObj.f_name;
 		channel += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((channelObj.notSeen && channelObj.notSeen > 0) ? '' : 'display:none;')+'">'+channelObj.notSeen+'</span>'
-	    channel += '            </span>';
-	    channel += '            <span class="contacts-list-msg"><!-- INSERT LAST MESSAGE --></span>';
-	    channel += '        </div>';
-	    channel += '    </a>';
-	    channel += '</li>';
+		channel += '			</span>';
+		channel += '			<span class="contacts-list-msg"><!-- INSERT LAST MESSAGE --></span>';
+		channel += '		</div>';
+		channel += '	</a>';
+		channel += '</li>';
 
-	    return channel;
+		return channel;
 	}
 	function contactChat(chatObj) {
 		var chat = '';
 		chat += '<li data-id-chat="'+chatObj.id+'" data-id-contact="'+chatObj.contact.id+'" data-type="chat">';
-		chat += '    <a href="#">';
-		chat += '        <img class="contacts-list-img">';
-		chat += '        <div class="contacts-list-info">';
-		chat += '            <span class="contacts-list-name"><i class="fa fa-user"></i>&nbsp;&nbsp;';
-		chat += '                '+chatObj.contact.f_login;
-		chat += '                <small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
+		chat += '	<a href="#">';
+		chat += '		<img class="contacts-list-img">';
+		chat += '		<div class="contacts-list-info">';
+		chat += '			<span class="contacts-list-name"><i class="fa fa-user"></i>&nbsp;&nbsp;';
+		chat += '				'+chatObj.contact.f_login;
+		chat += '				<small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
 		chat += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((chatObj.notSeen && chatObj.notSeen > 0) ? '' : 'display:none;')+'">'+chatObj.notSeen+'</span>'
-		chat += '            </span>';
-		chat += '        </div>';
-		chat += '    </a>';
+		chat += '			</span>';
+		chat += '		</div>';
+		chat += '	</a>';
 		chat += '</li>';
 
 		return chat;
@@ -125,13 +125,13 @@
 		var floatStyle = !owned ? 'float:right;' : 'float: left;';
 		var message = '';
 		message += '<div class="direct-chat-msg '+sideClass+'">';
-		message += '    <div class="direct-chat-info clearfix">';
-		message += '        <span class="direct-chat-name '+nameClass+'">'+messageObj.r_sender.f_login+'</span>';
-		message += '        <span class="direct-chat-timestamp '+dateClass+'">'+formatDate(new Date(messageObj.createdAt))+'</span>';
-		message += '    </div>';
-		message += '    <div class="direct-chat-text" style="word-wrap:break-word;width:50%;'+floatStyle+'">';
-		message += '        '+messageObj.f_message;
-		message += '    </div>';
+		message += '	<div class="direct-chat-info clearfix">';
+		message += '		<span class="direct-chat-name '+nameClass+'">'+messageObj.r_sender.f_login+'</span>';
+		message += '		<span class="direct-chat-timestamp '+dateClass+'">'+formatDate(new Date(messageObj.createdAt))+'</span>';
+		message += '	</div>';
+		message += '	<div class="direct-chat-text" style="word-wrap:break-word;width:50%;'+floatStyle+'">';
+		message += '		'+messageObj.f_message;
+		message += '	</div>';
 		message += '</div>';
 
 		return message;

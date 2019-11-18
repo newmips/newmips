@@ -32,16 +32,16 @@
  *
  * // API request
  * request(
- *     {
- *         url : 'http://127.0.0.1:9034/api/getToken',
- *         headers : {
- *             "Authorization" : auth
- *         }
- *     },
- *     function (error, response, body) {
- *     	body = JSON.parse(body);
- *         console.log(body.token);
- *     }
+ *	 {
+ *		 url : 'http://127.0.0.1:9034/api/getToken',
+ *		 headers : {
+ *			 "Authorization" : auth
+ *		 }
+ *	 },
+ *	 function (error, response, body) {
+ *	 	body = JSON.parse(body);
+ *		 console.log(body.token);
+ *	 }
  * );
 
  * @apiHeader {String} ClientID Generated application's API credentials

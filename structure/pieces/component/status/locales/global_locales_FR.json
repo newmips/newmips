@@ -1,193 +1,193 @@
 {
-      "component": {
-            "status": {
-                  "error": {
-                        "illegal_status": "Ce statut n'est pas valide.",
-                        "action_error": "Une ou plusieurs actions n'ont pas pu être executée. Verifiez que les notifications sont activées et verifiez votre configuration mail."
-                  },
-                  "next_status": "Statut suivant",
-                  "available_status": "Statuts disponibles",
-                  "children": "Statuts suivants",
-                  "insert_variable": "Inserer une variable...",
-                  "choose_from_user": "Sélectionner un utilisateur",
-                  "choose_from_group": "Sélectionner un groupe",
-                  "choose_from_field": "Sélectionner un champ",
-                  "choose_from_phone_field": "Sélectionner un champ de type téléphone",
-                  "choose_from_email_field": "Sélectionner un champ de type email",
-                  "choose_from_file_field": "Sélectionner un champ de type fichier",
-                  "choose_user_target": "Sélectionner un champ lié à un utilisateur",
-                  "notification_targets": "Cibles de la notification",
-                  "no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici.",
-                  "select_status": "Sélectionner un statut",
-                  "diagram_description": "Gissez/Déposez un statut sur un parent dans le diagram pour l'ajouter comme enfant.",
-                  "diagram": "Diagram"
-            },
-            "c_synchro": {
-                  "label_component": "Synchronisation"
-            }
-      },
-      "entity": {
-            "e_status": {
-                  "label_entity": "Statut",
-                  "name_entity": "Statut",
-                  "plural_entity": "Statuts",
-                  "as_r_children": "Statuts suivants",
-                  "f_entity": "Entité",
-                  "f_field": "Champ",
-                  "f_name": "Nom",
-                  "f_color": "Couleur",
-                  "f_comment": "Commentaire",
-                  "modal_title": "Commentaire",
-                  "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
-                  "f_default": "Est le statut par défaut",
-                  "apply_default": "Appliquer ce statut aux entités sans statut",
-                  "f_button_label": "Libellé du bouton"
-            },
-            "e_group": {
-                  "r_user": "Utilisateurs"
-            },
-            "e_role": {
-                  "r_user": "Utilisateurs"
-            },
-            "e_translation": {
-                  "label_entity": "Traduction",
-                  "name_entity": "Traduction",
-                  "plural_entity": "Traductions",
-                  "as_r_translations": "Traductions",
-                  "f_value": "Valeur",
-                  "f_language": "Langage"
-            },
-            "e_api_credentials": {
-                  "f_client_name": "Nom client"
-            },
-            "e_notification": {
-                  "f_title": "Titre",
-                  "f_description": "Description",
-                  "f_url": "URL",
-                  "f_color": "Couleur",
-                  "f_icon": "Icône",
-                  "as_r_notification": "Notification"
-            },
-            "e_synchro_credentials": {
-                  "label_entity": "Identifiants synchronisation",
-                  "name_entity": "Identifiants synchronisation",
-                  "plural_entity": "Identifiants synchronisation",
-                  "id_entity": "ID",
-                  "f_cloud_host": "Cloud host",
-                  "f_client_key": "Client key",
-                  "f_client_secret": "Client secret"
-            },
-            "e_synchronization": {
-                  "label_entity": "Synchronisation",
-                  "name_entity": "Synchronisation",
-                  "plural_entity": "Synchronisation",
-                  "id_entity": "ID",
-                  "r_api_credentials": "Identifiants API",
-                  "f_journal_backup_file": "Fichier de sauvegarde de Journal"
-            },
-            "e_action": {
-                  "f_execution": "Exécution",
-                  "f_order": "Ordre"
-            },
-            "e_media": {
-                  "label_entity": "Média",
-                  "name_entity": "Média",
-                  "plural_entity": "Média",
-                  "id_entity": "ID",
-                  "as_r_media": "Média",
-                  "f_target_entity": "Entité ciblé",
-                  "f_name": "Nom",
-                  "f_title": "Titre",
-                  "f_description": "Description",
-                  "f_icon": "Icône",
-                  "f_color": "Couleur"
-            },
-            "e_media_mail": {
-                  "label_entity": "Média Mail",
-                  "name_entity": "Média Mail",
-                  "plural_entity": "Média Mail",
-                  "f_to": "Destinataire",
-                  "f_from": "Expéditeur",
-                  "f_subject": "Sujet",
-                  "f_content": "Contenu",
-                  "f_attachments": "Pièce(s) jointe(s)"
-            },
-            "e_media_sms": {
-                  "label_entity": "Média SMS",
-                  "name_entity": "Média SMS",
-                  "plural_entity": "Média SMS"
-            },
-            "e_media_notification": {
-                  "label_entity": "Média Notification",
-                  "name_entity": "Média Notification",
-                  "plural_entity": "Média Notification",
-                  "id_entity": "ID",
-                  "as_r_media_notification": "Média Notification",
-                  "f_title": "Titre",
-                  "f_description": "Description",
-                  "f_icon": "Icône",
-                  "f_color": "Couleur",
-                  "r_target_groups": "Groupes ciblés",
-                  "r_target_users": "Utilisateurs ciblés"
-            },
-            "e_media_task": {
-                  "label_entity": "Média Tâche",
-                  "name_entity": "Média Tâche",
-                  "plural_entity": "Média Tâche",
-                  "id_entity": "ID",
-                  "f_task_name": "Nom tâche",
-                  "f_task_type": "Type tâche",
-                  "f_assignment_logic": "Logique d'assignement",
-                  "f_program_file": "Fichier programme",
-                  "f_data_flow": "Flux de données"
-            },
-            "e_inline_help": {
-                  "label_entity": "Aide en ligne",
-                  "name_entity": "Aide en ligne",
-                  "plural_entity": "Aides en ligne",
-                  "f_content": "Contenu",
-                  "f_entity": "Entité",
-                  "f_field": "Champ"
-            },
-            "e_robot": {
-                  "label_entity": "Robot",
-                  "name_entity": "Robot",
-                  "plural_entity": "Robot",
-                  "id_entity": "ID",
-                  "f_current_status": "Etat par défaut",
-                  "f_name": "Nom",
-                  "r_api_credentials": "Identifiants d'API",
-                  "f_comment": "Commentaire"
-            },
-            "e_task": {
-                  "label_entity": "Tâche",
-                  "name_entity": "Tâche",
-                  "plural_entity": "Tâche",
-                  "id_entity": "ID",
-                  "r_history_state": "Historique Etat",
-                  "r_state": "Etat",
-                  "s_state": "Etat",
-                  "f_title": "Titre",
-                  "f_type": "Type",
-                  "f_planned_date": "Date prévue",
-                  "f_execution_start_date": "Date début exécution",
-                  "f_execution_finish_date": "Date fin exécution",
-                  "f_duration": "Durée",
-                  "f_data_flow": "Flux de données",
-                  "r_robot": "Robot",
-                  "f_program_file": "Fichier programme",
-                  "f_procedure": "Procédure"
-            },
-            "e_history_e_task_s_state": {
-                  "label_entity": "Historique etat tâche",
-                  "name_entity": "Historique etat tâche",
-                  "plural_entity": "Historique etat tâche",
-                  "id_entity": "ID",
-                  "r_state": "Etat",
-                  "f_comment": "Commentaire",
-                  "r_modified_by": "Modifié par",
-                  "as_r_history_state": "Historique Etat",
-                  "as_r_history_e_task_s_state": "Historique etat tâche"
-            }
-      }
+	  "component": {
+			"status": {
+				  "error": {
+						"illegal_status": "Ce statut n'est pas valide.",
+						"action_error": "Une ou plusieurs actions n'ont pas pu être executée. Verifiez que les notifications sont activées et verifiez votre configuration mail."
+				  },
+				  "next_status": "Statut suivant",
+				  "available_status": "Statuts disponibles",
+				  "children": "Statuts suivants",
+				  "insert_variable": "Inserer une variable...",
+				  "choose_from_user": "Sélectionner un utilisateur",
+				  "choose_from_group": "Sélectionner un groupe",
+				  "choose_from_field": "Sélectionner un champ",
+				  "choose_from_phone_field": "Sélectionner un champ de type téléphone",
+				  "choose_from_email_field": "Sélectionner un champ de type email",
+				  "choose_from_file_field": "Sélectionner un champ de type fichier",
+				  "choose_user_target": "Sélectionner un champ lié à un utilisateur",
+				  "notification_targets": "Cibles de la notification",
+				  "no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici.",
+				  "select_status": "Sélectionner un statut",
+				  "diagram_description": "Gissez/Déposez un statut sur un parent dans le diagram pour l'ajouter comme enfant.",
+				  "diagram": "Diagram"
+			},
+			"c_synchro": {
+				  "label_component": "Synchronisation"
+			}
+	  },
+	  "entity": {
+			"e_status": {
+				  "label_entity": "Statut",
+				  "name_entity": "Statut",
+				  "plural_entity": "Statuts",
+				  "as_r_children": "Statuts suivants",
+				  "f_entity": "Entité",
+				  "f_field": "Champ",
+				  "f_name": "Nom",
+				  "f_color": "Couleur",
+				  "f_comment": "Commentaire",
+				  "modal_title": "Commentaire",
+				  "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
+				  "f_default": "Est le statut par défaut",
+				  "apply_default": "Appliquer ce statut aux entités sans statut",
+				  "f_button_label": "Libellé du bouton"
+			},
+			"e_group": {
+				  "r_user": "Utilisateurs"
+			},
+			"e_role": {
+				  "r_user": "Utilisateurs"
+			},
+			"e_translation": {
+				  "label_entity": "Traduction",
+				  "name_entity": "Traduction",
+				  "plural_entity": "Traductions",
+				  "as_r_translations": "Traductions",
+				  "f_value": "Valeur",
+				  "f_language": "Langage"
+			},
+			"e_api_credentials": {
+				  "f_client_name": "Nom client"
+			},
+			"e_notification": {
+				  "f_title": "Titre",
+				  "f_description": "Description",
+				  "f_url": "URL",
+				  "f_color": "Couleur",
+				  "f_icon": "Icône",
+				  "as_r_notification": "Notification"
+			},
+			"e_synchro_credentials": {
+				  "label_entity": "Identifiants synchronisation",
+				  "name_entity": "Identifiants synchronisation",
+				  "plural_entity": "Identifiants synchronisation",
+				  "id_entity": "ID",
+				  "f_cloud_host": "Cloud host",
+				  "f_client_key": "Client key",
+				  "f_client_secret": "Client secret"
+			},
+			"e_synchronization": {
+				  "label_entity": "Synchronisation",
+				  "name_entity": "Synchronisation",
+				  "plural_entity": "Synchronisation",
+				  "id_entity": "ID",
+				  "r_api_credentials": "Identifiants API",
+				  "f_journal_backup_file": "Fichier de sauvegarde de Journal"
+			},
+			"e_action": {
+				  "f_execution": "Exécution",
+				  "f_order": "Ordre"
+			},
+			"e_media": {
+				  "label_entity": "Média",
+				  "name_entity": "Média",
+				  "plural_entity": "Média",
+				  "id_entity": "ID",
+				  "as_r_media": "Média",
+				  "f_target_entity": "Entité ciblé",
+				  "f_name": "Nom",
+				  "f_title": "Titre",
+				  "f_description": "Description",
+				  "f_icon": "Icône",
+				  "f_color": "Couleur"
+			},
+			"e_media_mail": {
+				  "label_entity": "Média Mail",
+				  "name_entity": "Média Mail",
+				  "plural_entity": "Média Mail",
+				  "f_to": "Destinataire",
+				  "f_from": "Expéditeur",
+				  "f_subject": "Sujet",
+				  "f_content": "Contenu",
+				  "f_attachments": "Pièce(s) jointe(s)"
+			},
+			"e_media_sms": {
+				  "label_entity": "Média SMS",
+				  "name_entity": "Média SMS",
+				  "plural_entity": "Média SMS"
+			},
+			"e_media_notification": {
+				  "label_entity": "Média Notification",
+				  "name_entity": "Média Notification",
+				  "plural_entity": "Média Notification",
+				  "id_entity": "ID",
+				  "as_r_media_notification": "Média Notification",
+				  "f_title": "Titre",
+				  "f_description": "Description",
+				  "f_icon": "Icône",
+				  "f_color": "Couleur",
+				  "r_target_groups": "Groupes ciblés",
+				  "r_target_users": "Utilisateurs ciblés"
+			},
+			"e_media_task": {
+				  "label_entity": "Média Tâche",
+				  "name_entity": "Média Tâche",
+				  "plural_entity": "Média Tâche",
+				  "id_entity": "ID",
+				  "f_task_name": "Nom tâche",
+				  "f_task_type": "Type tâche",
+				  "f_assignment_logic": "Logique d'assignement",
+				  "f_program_file": "Fichier programme",
+				  "f_data_flow": "Flux de données"
+			},
+			"e_inline_help": {
+				  "label_entity": "Aide en ligne",
+				  "name_entity": "Aide en ligne",
+				  "plural_entity": "Aides en ligne",
+				  "f_content": "Contenu",
+				  "f_entity": "Entité",
+				  "f_field": "Champ"
+			},
+			"e_robot": {
+				  "label_entity": "Robot",
+				  "name_entity": "Robot",
+				  "plural_entity": "Robot",
+				  "id_entity": "ID",
+				  "f_current_status": "Etat par défaut",
+				  "f_name": "Nom",
+				  "r_api_credentials": "Identifiants d'API",
+				  "f_comment": "Commentaire"
+			},
+			"e_task": {
+				  "label_entity": "Tâche",
+				  "name_entity": "Tâche",
+				  "plural_entity": "Tâche",
+				  "id_entity": "ID",
+				  "r_history_state": "Historique Etat",
+				  "r_state": "Etat",
+				  "s_state": "Etat",
+				  "f_title": "Titre",
+				  "f_type": "Type",
+				  "f_planned_date": "Date prévue",
+				  "f_execution_start_date": "Date début exécution",
+				  "f_execution_finish_date": "Date fin exécution",
+				  "f_duration": "Durée",
+				  "f_data_flow": "Flux de données",
+				  "r_robot": "Robot",
+				  "f_program_file": "Fichier programme",
+				  "f_procedure": "Procédure"
+			},
+			"e_history_e_task_s_state": {
+				  "label_entity": "Historique etat tâche",
+				  "name_entity": "Historique etat tâche",
+				  "plural_entity": "Historique etat tâche",
+				  "id_entity": "ID",
+				  "r_state": "Etat",
+				  "f_comment": "Commentaire",
+				  "r_modified_by": "Modifié par",
+				  "as_r_history_state": "Historique Etat",
+				  "as_r_history_e_task_s_state": "Historique etat tâche"
+			}
+	  }
 }

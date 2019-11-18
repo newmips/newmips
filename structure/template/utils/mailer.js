@@ -87,15 +87,15 @@ exports.sendHtml = function(html, options, attachments) {
 
 // Send mail with custom transporteur
 exports.sendMailAsyncCustomTransport = function(mailOptions, config) {
-    return new Promise(function(resolve, reject) {
-        var customTransporter = nodemailer.createTransport(config.transport);
-        customTransporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.error(error);
-                return reject(error);
-            }
-            console.log(info);
-            resolve(info);
-        });
-    });
+	return new Promise(function(resolve, reject) {
+		var customTransporter = nodemailer.createTransport(config.transport);
+		customTransporter.sendMail(mailOptions, function(error, info) {
+			if (error) {
+				console.error(error);
+				return reject(error);
+			}
+			console.log(info);
+			resolve(info);
+		});
+	});
 }

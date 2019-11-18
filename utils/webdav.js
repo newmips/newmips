@@ -9,9 +9,9 @@ exports.webdav_createdir = function(lib,id){
   req3.open('MKCOL', webdav.url + lib + '/' + id , true);
   req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
   req3.onreadystatechange = function() {
-    if (req3.readyState == 4) {
-        console.log('Folder ' + webdav.url + lib + '/' + id +  ' created.');
-    }
+	if (req3.readyState == 4) {
+		console.log('Folder ' + webdav.url + lib + '/' + id +  ' created.');
+	}
   };
   req3.send();
 };
@@ -21,9 +21,9 @@ exports.webdav_rmdir = function(lib,id){
   req3.open('DELETE', webdav.url + lib + '/' + id , true);
   req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
   req3.onreadystatechange = function() {
-    if (req3.readyState == 4) {
-        console.log('Folder ' + webdav.url + lib + '/' + id +  ' removed.');
-    }
+	if (req3.readyState == 4) {
+		console.log('Folder ' + webdav.url + lib + '/' + id +  ' removed.');
+	}
   };
   req3.send();
 };
@@ -39,70 +39,70 @@ exports.webdav_readdir = function(lib, id) {
   req2.open('PROPFIND', webdav.url + lib + '/' + id + '/', false);
   req2.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
   req2.onreadystatechange = function() {
-    if (req2.readyState == 4) {
-        console.log('Directory ' + webdav.url + lib + '/' + id + '/' +  ' listed.');
-    }
+	if (req2.readyState == 4) {
+		console.log('Directory ' + webdav.url + lib + '/' + id + '/' +  ' listed.');
+	}
   };
   req2.send(null);
   // console.log(req2.status);
   if (req2.status == 207) {
-    // console.log(req2.responseText);
-    // var xml = "<book><title>Harry Potter</title></book>"
-    // var doc = new dom().parseFromString(req2.responseText);
-    // console.log(doc);
-    var doc = new dom().parseFromString(req2.responseText);
-    var select = xpath.useNamespaces({"d": "DAV:"});
-    var nodes = select('//d:href', doc);
+	// console.log(req2.responseText);
+	// var xml = "<book><title>Harry Potter</title></book>"
+	// var doc = new dom().parseFromString(req2.responseText);
+	// console.log(doc);
+	var doc = new dom().parseFromString(req2.responseText);
+	var select = xpath.useNamespaces({"d": "DAV:"});
+	var nodes = select('//d:href', doc);
 
-    // DO NOT DELETE THIS COMMENT !!!!
-    // console.log(nodes[0].localName + ": " + nodes[0].firstChild.data);
-    // console.log("node: " + nodes[0].toString());
-    var i = 1;
-    var finished = false;
-    var str_folder = "{";
-    while (finished == false) {
-      if (!nodes[i]) {
-        finished = true;
-      }
-      else {
-        if (i != 1) {
-          str_folder = str_folder + ',';
-        }
-        str_folder = str_folder + '"' + i + '": ';
+	// DO NOT DELETE THIS COMMENT !!!!
+	// console.log(nodes[0].localName + ": " + nodes[0].firstChild.data);
+	// console.log("node: " + nodes[0].toString());
+	var i = 1;
+	var finished = false;
+	var str_folder = "{";
+	while (finished == false) {
+	  if (!nodes[i]) {
+		finished = true;
+	  }
+	  else {
+		if (i != 1) {
+		  str_folder = str_folder + ',';
+		}
+		str_folder = str_folder + '"' + i + '": ';
 
-        // Set nom_fichier
-        // ex : newmips.png
-        j = nodes[i].firstChild.data.lastIndexOf("/") + 1;
-        nom_fichier = nodes[i].firstChild.data.substr(j);
+		// Set nom_fichier
+		// ex : newmips.png
+		j = nodes[i].firstChild.data.lastIndexOf("/") + 1;
+		nom_fichier = nodes[i].firstChild.data.substr(j);
 
-        // Set url_fichier
-        // ex : /owncloud/remote.php/webdav/aper/enlevement/1/newmips.png
-        url_fichier = nodes[i].firstChild.data;
-        str_folder = str_folder + '{ "nom_fichier" : "' + nom_fichier + '" , "url_fichier":"' + url_fichier + '" }';
+		// Set url_fichier
+		// ex : /owncloud/remote.php/webdav/aper/enlevement/1/newmips.png
+		url_fichier = nodes[i].firstChild.data;
+		str_folder = str_folder + '{ "nom_fichier" : "' + nom_fichier + '" , "url_fichier":"' + url_fichier + '" }';
 
-        finished = false;
-      }
-      i++;
-    }
-    str_folder = str_folder + "}";
-    console.log(str_folder)
+		finished = false;
+	  }
+	  i++;
+	}
+	str_folder = str_folder + "}";
+	console.log(str_folder)
 
-    return JSON.parse(str_folder);
+	return JSON.parse(str_folder);
 
   } else {
 
-    // repository to create
-    console.log("profile - create MKCOL");
-    var req3 = new XMLHttpRequest();
-    req3.open('MKCOL', webdav.url + lib + '/' + id , true);
-    req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
-    req3.onreadystatechange = function() {
-      if (req3.readyState == 4) {
-          console.log('Folder ' + webdav.url + lib + '/' + id +  ' created.');
-      }
-    };
-    req3.send();
-    console.log("statut MKCOL = " + req3.status + "--" + req3.statusText);
+	// repository to create
+	console.log("profile - create MKCOL");
+	var req3 = new XMLHttpRequest();
+	req3.open('MKCOL', webdav.url + lib + '/' + id , true);
+	req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
+	req3.onreadystatechange = function() {
+	  if (req3.readyState == 4) {
+		  console.log('Folder ' + webdav.url + lib + '/' + id +  ' created.');
+	  }
+	};
+	req3.send();
+	console.log("statut MKCOL = " + req3.status + "--" + req3.statusText);
   }
 
   return {};

@@ -12,10 +12,10 @@
 			"public": "Publique",
 			"channel_join": "Rejoindre un groupe de discussion",
 			"join": "Rejoindre",
-	        "channel_members": "Membres du groupe de discussion",
-	        "channel_leave": "Quitter le groupe de discussion",
-	        "channel_left": "Vous avez quitté le groupe de discussion",
-	        "chat_create": "Discuter avec un utilisateur"
+			"channel_members": "Membres du groupe de discussion",
+			"channel_leave": "Quitter le groupe de discussion",
+			"channel_left": "Vous avez quitté le groupe de discussion",
+			"chat_create": "Discuter avec un utilisateur"
 		}
 	}
 }
