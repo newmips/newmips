@@ -22,7 +22,7 @@
 		}],
 		"complexity": 0,
 		"constructor-super": "warn",
-		"curly": ["error", "multi"],
+		"curly": 0,
 		"default-case": "error",
 		"no-multiple-empty-lines": ["error", {
 			"max": 2,
