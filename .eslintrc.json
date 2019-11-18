@@ -61,7 +61,7 @@
 		"no-obj-calls": "error",
 		"no-redeclare": "error",
 		"no-sparse-arrays": "error",
-		"indent": ["error", "tab"],
+		"indent": ["error", "tab", {"SwitchCase": 1}],
 		"no-this-before-super": "error",
 		"no-trailing-spaces": "error",
 		"no-undef": "warn",

@@ -281,7 +281,7 @@ function executeFile(req, userID, __) {
 	rl.on('line', line => {
 
 		// Empty line || One line comment scope
-		if (line.trim() == '' || ((line.indexOf('/*') != -1 && line.indexOf('*/') != -1) || line.indexOf('//*') != -1))
+		if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1 || line.indexOf('//*') != -1))
 			return;
 
 		// Comment scope start
@@ -306,7 +306,7 @@ function executeFile(req, userID, __) {
 			try {
 				parserResult = parser.parse(line);
 			} catch (err) {
-				 // Update script logs
+				// Update script logs
 				scriptData[userID].answers.unshift({
 					instruction: line,
 					message: __(err.message, err.messageParams || [])
@@ -437,23 +437,20 @@ function executeFile(req, userID, __) {
 		for (let i = 0; i < result.length; i++)
 			workspaceTables.push(result[i][tableName]);
 
-		for(const entity in toSyncObject){
+		for(const entity in toSyncObject)
 			if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
 				toSyncObject[entity].attributes = {};
 				// We have to remove options from toSync.json that will be generate with sequelize sync
 				// But we have to keep relation toSync on already existing entities
 				if(typeof toSyncObject[entity].options !== "undefined"){
 					const cleanOptions = [];
-					for(let i=0; i<toSyncObject[entity].options.length; i++){
+					for(let i=0; i<toSyncObject[entity].options.length; i++)
 						if(workspaceTables.indexOf(toSyncObject[entity].options[i].target) != -1 &&
-							toSyncObject[entity].options[i].relation != "belongsTo"){
+							toSyncObject[entity].options[i].relation != "belongsTo")
 							cleanOptions.push(toSyncObject[entity].options[i]);
-						}
-					}
 					toSyncObject[entity].options = cleanOptions;
 				}
 			}
-		}
 		fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
 
 		// Kill the application server if it's running, it will be restarted when accessing it
@@ -500,10 +497,10 @@ router.post('/execute', block_access.isLoggedIn, multer({
 	let extensionFile = req.file.originalname.split(".");
 	extensionFile = extensionFile[extensionFile.length -1];
 	// Read file to determine encoding
-	let encoding = jschardet.detect(fs.readFileSync(req.file.path));
+	const encoding = jschardet.detect(fs.readFileSync(req.file.path));
 	const acceptedEncoding = ['utf-8', 'windows-1252', 'ascii'];
 	// If extension or encoding is not supported, send error
-	if ((extensionFile != 'txt' && extensionFile != 'nps') || acceptedEncoding.indexOf(encoding.encoding.toLowerCase()) == -1) {
+	if (extensionFile != 'txt' && extensionFile != 'nps' || acceptedEncoding.indexOf(encoding.encoding.toLowerCase()) == -1) {
 		scriptData[userID].answers.push({
 			message: "File need to have .nps or .txt extension and utf8 or ascii encoding.<br>Your file have '"+extensionFile+"' extension and '"+encoding.encoding+"' encoding"
 		});
@@ -570,14 +567,12 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 		const files = fs.readdirSync(__dirname + "/../templates/" + templateEntry);
 		let filename = false;
 
-		for (let i = 0; i < files.length; i++) {
-			if (files[i].indexOf(".nps") != -1) {
+		for (let i = 0; i < files.length; i++)
+			if (files[i].indexOf(".nps") != -1)
 				if (!filename)
 					filename = path.join(__dirname + "/../templates/" + templateEntry, files[i]);
 				else if (files[i].indexOf("_" + templateLang + "_") != -1)
 					filename = path.join(__dirname + "/../templates/" + templateEntry, files[i]);
-			}
-		}
 
 		if(!filename){
 			scriptData[userID].answers = [{
@@ -589,9 +584,8 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
 		// Write template script in the tmpPath
 		fs.writeFileSync(tmpPath, fs.readFileSync(filename));
-	} else {
+	} else
 		fs.writeFileSync(tmpPath, req.body.text);
-	}
 
 	// Answer to client, next steps will be handle in ajax
 	res.end();

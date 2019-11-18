@@ -1,22 +1,17 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var fs = require("fs-extra");
-var moment = require("moment");
-var helpers = require('../utils/helpers');
-var gitHelper = require('../utils/git_helper');
-var globalConf = require('../config/global.js');
-
-//Sequelize
-var models = require('../models/');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const fs = require("fs-extra");
+const helpers = require('../utils/helpers');
+const globalConf = require('../config/global.js');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
-	let data = {};
+	const data = {};
 	let version;
 
-	if(globalConf.version){
+	if(globalConf.version)
 		version = globalConf.version;
-	} else {
+	else {
 		console.warn("Missing version for templates.");
 		req.session.toastr = [{
 			message: "template.no_version",
