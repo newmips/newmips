@@ -202,9 +202,9 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
 	models.E_api_credentials.create(createObject).then(function (e_api_credentials) {
 		var redirect = '/api_credentials/show?id=' + e_api_credentials.id;
 		req.session.toastr = [{
-				message: 'message.create.success',
-				level: "success"
-			}];
+			message: 'message.create.success',
+			level: "success"
+		}];
 
 		var promises = [];
 
@@ -317,9 +317,9 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
 				req.session.toastr = [{
-						message: 'message.update.success',
-						level: "success"
-					}];
+					message: 'message.update.success',
+					level: "success"
+				}];
 
 				res.redirect(redirect);
 			});
@@ -486,9 +486,9 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 		limit: 1,
 		order: 'createdAt DESC',
 		include: [{
-				model: models.E_status,
-				as: statusAlias
-			}]
+			model: models.E_status,
+			as: statusAlias
+		}]
 	});
 	models.E_api_credentials.findOne({
 		where: {id: req.params.id_api_credentials},
@@ -541,9 +541,9 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 			// Unautorized
 			if (nextStatus === false) {
 				req.session.toastr = [{
-						level: 'error',
-						message: 'component.status.error.illegal_status'
-					}]
+					level: 'error',
+					message: 'component.status.error.illegal_status'
+				}]
 				return res.redirect(errorRedirect);
 			}
 
@@ -561,9 +561,9 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 			}).catch(function (err) {
 				console.error(err);
 				req.session.toastr = [{
-						level: 'warning',
-						message: 'component.status.error.action_error'
-					}]
+					level: 'warning',
+					message: 'component.status.error.action_error'
+				}]
 				var createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_api_credentials_history_" + req.params.status.substring(2)] = req.params.id_api_credentials;

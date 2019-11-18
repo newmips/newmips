@@ -537,7 +537,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
 					break;
 				}
 
-				// Set back associations without removed entity
+			// Set back associations without removed entity
 			e_media_sms['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function() {
 				res.sendStatus(200).end();
 			}).catch(function(err) {

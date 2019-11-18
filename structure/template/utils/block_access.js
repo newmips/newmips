@@ -266,7 +266,7 @@ exports.accessFileManagment = function(){
 			for (let i = 0; i < lockEntities.length; i++){
 				found = false;
 				for (let j = 0; j < accessEntities.length; j++)
-					{if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
+				{if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
 				}
 				if(!found){
 					// Add new entity to access
@@ -293,7 +293,7 @@ exports.accessFileManagment = function(){
 			for (let i = 0; i < accessEntities.length; i++){
 				found = false;
 				for (let j = 0; j < lockEntities.length; j++)
-					{if(accessEntities[i].name == lockEntities[j].name){found=true;break;}
+				{if(accessEntities[i].name == lockEntities[j].name){found=true;break;}
 				}
 				if(!found){
 					// Remove entity from access

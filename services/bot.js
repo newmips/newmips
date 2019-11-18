@@ -2702,8 +2702,8 @@ exports.complete = function (instruction) {
 
 	// Filter array of results (remove double values)
 	let i, j, len = answers.length,
-			out = [],
-			obj = {};
+		out = [],
+		obj = {};
 	for (i = 0; i < len; i++)
 		obj[answers[i]] = 0;
 	for (j in obj)

@@ -258,7 +258,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 	var option;
 	for (var i = 0; i < options.length; i++)
 		if (options[i].as == req.params.alias)
-			{option = options[i]; break;}
+		{option = options[i]; break;}
 	if (!option)
 		return res.status(404).end();
 
@@ -305,7 +305,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 							})(subentityOptions[i].as);
 				}
 				dustFile = option.target+'/show_fields';
-			break;
+				break;
 
 			case 'hasMany':
 			case 'hasManyPreset':
@@ -324,8 +324,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 				for (var i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 				if (typeof req.query.associationFlag !== 'undefined')
-					{dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
-			break;
+				{dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
+				break;
 
 			case 'localfilestorage':
 				dustFile = option.target+'/list_fields';
@@ -333,7 +333,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 				obj[option.target] = dustData;
 				dustData = obj;
 				dustData.sourceId = id;
-			break;
+				break;
 
 			default:
 				return res.status(500).end();

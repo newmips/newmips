@@ -129,9 +129,9 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
 				req.session.toastr = [{
-						message: 'message.update.success',
-						level: "success"
-					}];
+					message: 'message.update.success',
+					level: "success"
+				}];
 
 				res.redirect(redirect);
 			})
@@ -186,7 +186,7 @@ router.get('/set_status/:id_media_task/:status/:id_new_status', block_access.act
 			var validNext = false;
 			for (var i = 0; i < children.length; i++) {
 				if (children[i].id == req.params.id_new_status)
-					{validNext = true; break;}
+				{validNext = true; break;}
 			}
 			// Unautorized
 			if (!validNext){

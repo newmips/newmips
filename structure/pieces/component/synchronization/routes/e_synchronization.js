@@ -96,9 +96,9 @@ router.post('/delete', block_access.actionAccessMiddleware("synchronization", "d
 			}
 		}).then(function () {
 			req.session.toastr = [{
-					message: 'message.delete.success',
-					level: "success"
-				}];
+				message: 'message.delete.success',
+				level: "success"
+			}];
 
 			var redirect = '/synchronization/list_dump';
 			res.redirect(redirect);

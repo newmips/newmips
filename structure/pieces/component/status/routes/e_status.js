@@ -56,9 +56,9 @@ router.post('/remove_children_diagram', block_access.actionAccessMiddleware("sta
 		models.sequelize.query(
 			`DELETE FROM ${tableAppNumber}_status_children WHERE fk_id_parent_status = ? || fk_id_child_status = ?`,
 			{replacements: [status.id, status.id], type: models.sequelize.QueryTypes.DELETE})
-		.then(function(){
-			res.sendStatus(200);
-		})
+			.then(function(){
+				res.sendStatus(200);
+			})
 	})
 });
 
@@ -520,7 +520,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 	var option;
 	for (var i = 0; i < options.length; i++)
 		if (options[i].as == req.params.alias)
-			{option = options[i]; break;}
+		{option = options[i]; break;}
 	if (!option)
 		return res.status(404).end();
 
@@ -567,7 +567,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 							})(subentityOptions[i].as);
 				}
 				dustFile = option.target+'/show_fields';
-			break;
+				break;
 
 			case 'hasMany':
 			case 'hasManyPreset':
@@ -586,8 +586,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 				for (var i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 				if (typeof req.query.associationFlag !== 'undefined')
-					{dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
-			break;
+				{dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
+				break;
 
 			case 'localfilestorage':
 				dustFile = option.target+'/list_fields';
@@ -595,7 +595,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 				obj[option.target] = dustData;
 				dustData = obj;
 				dustData.sourceId = id;
-			break;
+				break;
 
 			default:
 				return res.status(500).end();
@@ -665,7 +665,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 			include: [{
 				model: models.E_status,
 				as: 'r_children',
-					include: [{
+				include: [{
 					model: models.E_action,
 					as: 'r_actions',
 					order: ["f_position", "ASC"],
@@ -687,7 +687,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 			var nextStatus = false;
 			for (var i = 0; i < children.length; i++) {
 				if (children[i].id == req.params.id_new_status)
-					{nextStatus = children[i]; break;}
+				{nextStatus = children[i]; break;}
 			}
 			// Unautorized
 			if (nextStatus === false){

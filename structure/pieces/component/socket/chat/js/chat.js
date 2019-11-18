@@ -245,8 +245,8 @@
 		data.messages = sortMessages(data.messages, 0);
 		for (var i = 0; i < data.messages.length; i++) {
 			var messageSide = (discussion.type == 'chat')
-								? data.messages[i].r_sender.id == discussion.id_contact
-								: data.messages[i].r_sender.id != data.id_self;
+				? data.messages[i].r_sender.id == discussion.id_contact
+				: data.messages[i].r_sender.id != data.id_self;
 			var msgTemplate = discussionMessage(data.messages[i], messageSide);
 			$("#discussion").prepend(msgTemplate);
 		}

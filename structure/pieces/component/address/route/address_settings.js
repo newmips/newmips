@@ -38,9 +38,9 @@ router.post('/save', block_access.actionAccessMiddleware("address_settings", "cr
 	}
 	fs.writeFileSync(__dirname + '/../config/address_settings.json', JSON.stringify(config, null, 4));
 	req.session.toastr = [{
-			message: 'message.update.success',
-			level: "success"
-		}];
+		message: 'message.update.success',
+		level: "success"
+	}];
 	res.redirect('/address_settings/config');
 });
 

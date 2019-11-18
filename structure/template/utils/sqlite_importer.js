@@ -32,7 +32,7 @@ function arraySplit(str) {
 		//let arr = str.split(';');
 		const arr = str.split(';').map(v => {
 			return v.replace(/--.*-+/g, ' ').replace(/CREATE TABLE\s/g, 'CREATE TABLE IF NOT EXISTS ').trim()
-				// return v.replace(/.*DROP\s/g, 'DROP ').replace(/--.*/g, ' ').replace(/\n\r/g,'').trim()
+			// return v.replace(/.*DROP\s/g, 'DROP ').replace(/--.*/g, ' ').replace(/\n\r/g,'').trim()
 		})
 
 		for (var i = 0; i < arr.length; i++) {

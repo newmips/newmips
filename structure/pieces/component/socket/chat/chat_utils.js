@@ -156,7 +156,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 
 				models.E_user_channel.findAll({
 					where: {id_user: user.id},
-				attributes: ['id_channel', 'id_user', 'id_last_seen_message', 'id']
+					attributes: ['id_channel', 'id_user', 'id_last_seen_message', 'id']
 				}).then(function(userChannels) {
 					for (var i = 0; i < userChannels.length; i++)
 						notificationsPromises.push(new Promise(function(resolve, reject) {

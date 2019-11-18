@@ -657,7 +657,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
 				let target = "";
 				for (let i = 0; i < options.length; i++)
 					if (options[i].as == alias)
-						{target = options[i].target; break;}
+					{target = options[i].target; break;}
 				entity_helper.synchro.writeJournal({
 					verb: "associate",
 					id: idEntity,
