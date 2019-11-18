@@ -1,5 +1,5 @@
-const Entity = require('./entity_v2');
-const Component = require('./component_v2');
+const Entity = require('./entity');
+const Component = require('./component');
 
 class Module {
     constructor(name, displayName) {

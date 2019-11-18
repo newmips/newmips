@@ -24,7 +24,7 @@ const session = require("./session");
 // Metadata
 const metadata = require('../database/metadata')();
 const database = require('../database/database');
-const Application = require('../database/application_v2');
+const Application = require('../database/application');
 
 /* --------------------------------------------------------------- */
 /* -------------------------- General ---------------------------- */

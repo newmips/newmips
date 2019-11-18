@@ -1,5 +1,5 @@
-const Field = require('./field_v2');
-const Component = require('./component_v2');
+const Field = require('./field');
+const Component = require('./component');
 
 class Entity {
 	constructor(name, displayName) {
