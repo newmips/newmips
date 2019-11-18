@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const workspacePath = __dirname + '/../workspace/';
 const models = require('../models');
-const Application = require('./application_v2');
+const Application = require('./application');
 
 class Metadata {
 	constructor() {
