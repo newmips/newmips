@@ -262,7 +262,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
         /* Save an instruction history in the history script in workspace folder */
         if (data.function != 'restart') {
-            let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+            const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
             let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
             historyScript += "\n" + instruction;
             fs.writeFileSync(historyScriptPath, historyScript);
@@ -291,7 +291,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
             // Launch a new server instance to reload resources
             process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
 
-            let initialTimestamp = new Date().getTime();
+            const initialTimestamp = new Date().getTime();
             let iframe_url = protocol_iframe + '://';
 
             if (globalConf.env == 'cloud')
@@ -340,13 +340,12 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
             }
             data.iframe_url = -1;
             setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
-        } else {
+        } else
             setChat(req, appName, currentUserID, "Mipsy", err.message ? err.message : err, err.messageParams, true);
-        }
 
         /* Save ERROR an instruction history in the history script in workspace folder */
         if (data.function != 'restart') {
-            let historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+            const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
             let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
             historyScript += "\n//ERROR: " + instruction + " (" + err.message + ")";
             fs.writeFileSync(historyScriptPath, historyScript);
@@ -368,14 +367,14 @@ router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
             return res.status(500).end(err);
         }
 
-        let configLogo = {
+        const configLogo = {
             folder: 'thumbnail/',
             height: 30,
             width: 30,
             quality: 60
         };
 
-        let entity = req.body.entity;
+        const entity = req.body.entity;
 
         if (!entity)
             return res.status(500).end(new Error('Internal error, entity not found.'));
@@ -387,7 +386,7 @@ router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
                 return res.status(500).end(err);
             }
 
-            let uploadPath = basePath + req.file.originalname;
+            const uploadPath = basePath + req.file.originalname;
             fs.writeFileSync(uploadPath, req.file.buffer);
 
             // Thumbnail creation
@@ -417,7 +416,7 @@ router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
 // List all applications
 router.get('/list', block_access.isLoggedIn, (req, res) => {
     (async () => {
-        let applications = await models.Application.findAll({
+        const applications = await models.Application.findAll({
             include: [{
                 model: models.User,
                 as: "users",
@@ -431,8 +430,9 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
             ]
         });
 
-        let app_url, port, appName, data = {};
-        let host = globalConf.host;
+        let app_url, port, appName;
+        const data = {};
+        const {host} = globalConf;
 
         // Get user project for clone url generation
         let gitlabProjects = [];
@@ -450,7 +450,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
                 app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
             if(gitlabConf.doGit){
-                let project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
+                const project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
                 if(project) {
                     // applications[i].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
                     applications[i].dataValues.repo_url = project.http_url_to_repo;
@@ -466,13 +466,14 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
         res.render('front/application', data);
     }).catch(err => {
         console.error(err);
-        data.code = 500;
-        res.render('common/error', data);
+        res.render('common/error', {
+            code: 500
+        });
     })
 });
 
 router.post('/delete', block_access.isLoggedIn, (req, res) => {
-    let __ = require("../services/language")(req.session.lang_user).__;
+    const {__} = require("../services/language")(req.session.lang_user);
     execute(req, "delete application " + req.body.appName, __).then(_ => {
         res.status(200).send(true);
     }).catch(err => {
@@ -492,7 +493,7 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
         return res.redirect('/default/home');
     }
 
-    let instructions = [];
+    const instructions = [];
     instructions.push("create application " + req.body.application);
     instructions.push("create module home");
 
@@ -644,7 +645,7 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
     instructions.push("select module home");
 
     // Needed for translation purpose
-    let __ = require("../services/language")(req.session.lang_user).__;
+    const {__} = require("../services/language")(req.session.lang_user);
 
     (async () => {
         for (let i = 0; i < instructions.length; i++) {
@@ -693,31 +694,30 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
         let infoText = '';
 
         (async() => {
-            let __ = require("../services/language")(req.session.lang_user).__;
+            const {__} = require("../services/language")(req.session.lang_user);
 
             // Generate standard app
-            let data = await execute(req, "add application " + req.body.appName, __);
-            let workspacePath = __dirname + '/../workspace/' + data.options.value;
+            const data = await execute(req, "add application " + req.body.appName, __);
+            const workspacePath = __dirname + '/../workspace/' + data.options.value;
 
             // Delete generated workspace folder
             helpers.rmdirSyncRecursive(workspacePath);
             fs.mkdirsSync(workspacePath);
 
-            let zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
+            const zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
 
-            let promises = [],
-                oldAppName = false,
+            const promises = [];
+            let oldAppName = false,
                 appRegex;
 
             // Looping first time to find metadata.json to get old app name
-            for (let item in zip.files) {
+            for (const item in zip.files)
                 if(item.indexOf('metadata.json') != -1) {
                     let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer');
                     metadataContent = JSON.parse(metadataContent);
                     oldAppName = Object.keys(metadataContent)[0];
                     appRegex = new RegExp(oldAppName, 'g');
                 }
-            }
 
             if(!oldAppName) {
                 infoText += '- Unable to find metadata.json in .zip.<br>';
@@ -728,7 +728,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
                 item = zip.files[item];
 
                 promises.push(new Promise((resolve, reject) => {
-                    let currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
+                    const currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
 
                     // Directory
                     if (item.dir) {
@@ -746,7 +746,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
                         resolve();
                     }).catch(err => {
                         console.error(err);
-                        resolve();
+                        reject(err);
                     });
                 }));
             }
@@ -754,7 +754,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
             await Promise.all(promises);
 
             // Need to modify so file content to change appName in it
-            let fileToReplace = ['/config/metadata.json', '/config/database.js'];
+            const fileToReplace = ['/config/metadata.json', '/config/database.js'];
             for (let i = 0; i < fileToReplace.length; i++) {
                 let content = fs.readFileSync(workspacePath + fileToReplace[i], 'utf8');
                 content = content.replace(appRegex, data.options.value);
@@ -768,14 +768,14 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
                 return data.options.value;
 
             // Saving tmp sql file
-            let sqlFilePath = __dirname + '/../sql/' + req.files['sqlfile'][0].originalname;
+            const sqlFilePath = __dirname + '/../sql/' + req.files['sqlfile'][0].originalname;
             fs.writeFileSync(sqlFilePath, req.files['sqlfile'][0].buffer);
 
             // Getting workspace DB conf
-            let dbConfig = require(workspacePath + '/config/database');
+            const dbConfig = require(workspacePath + '/config/database');
 
-            let cmd = "mysql";
-            let cmdArgs = [
+            const cmd = "mysql";
+            const cmdArgs = [
                 "-u",
                 dbConfig.user,
                 "-p" + dbConfig.password,
@@ -790,7 +790,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
                 return new Promise((resolve, reject) => {
 
                     // Exec instruction
-                    let childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
+                    const childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
                     childProcess.stdout.setEncoding('utf8');
                     childProcess.stderr.setEncoding('utf8');
 
@@ -817,7 +817,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
                     })
 
                     // Child close
-                    childProcess.on('close', code => {
+                    childProcess.on('close', _ => {
                         resolve();
                     })
                 })
@@ -858,7 +858,7 @@ router.get('/export/:app_name', block_access.hasAccessApplication, (req, res) =>
      // We know what directory we want
     const workspacePath = __dirname + '/../workspace/' + req.params.app_name;
 
-    let zip = new JSZip();
+    const zip = new JSZip();
     helpers.buildZipFromDirectory(workspacePath, zip, workspacePath);
 
     // Generate zip file content
