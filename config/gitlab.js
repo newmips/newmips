@@ -1,6 +1,6 @@
 const globalConf = require('./global');
 
-let config = {
+const config = {
     develop: {
         doGit: false, // Should the application try to push your app on a repository ?
         protocol: "http",

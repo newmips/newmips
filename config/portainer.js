@@ -1,15 +1,15 @@
 const globalConf = require('./global');
 
-let config = {
-	docker: {
-    	url: "",
-    	login: "",
-    	password: ""
+const config = {
+    docker: {
+        url: "",
+        login: "",
+        password: ""
     },
     cloud: {
-    	url: "",
-    	login: "",
-    	password: ""
+        url: "",
+        login: "",
+        password: ""
     }
 }
 

@@ -1,9 +1,9 @@
-const sequelize = require('../models/').sequelize;
+const {sequelize} = require('../models/');
 const fs = require('fs-extra');
 
 function pushToSyncQuery(app, query) {
     try {
-        let toSync = JSON.parse(fs.readFileSync('workspace/' + app.name + '/models/toSync.json'));
+        const toSync = JSON.parse(fs.readFileSync('workspace/' + app.name + '/models/toSync.json'));
         if (!toSync.queries)
             toSync.queries = [];
         toSync.queries.push(query);
@@ -25,26 +25,6 @@ exports.dropDataEntity = (app, entity) => {
         query = "DROP TABLE IF EXISTS \"" + entity + "\" CASCADE;";
 
     return pushToSyncQuery(app, query);
-}
-
-exports.addConstraintDeleteUpdate = function (attr, callback) {
-    var query = '';
-    if(sequelize.options.dialect == "mysql"){
-        if (attr.dropForeignKey)
-            query += "ALTER TABLE " + attr.id_application + "_" + attr.sourceEntity + " DROP FOREIGN KEY " + attr.foreignKey + "; ";
-        query += " ALTER TABLE " + attr.id_application + "_" + attr.sourceEntity + " ADD CONSTRAINT " + attr.foreignKey
-            + " FOREIGN KEY (" + attr.foreignKey + ") REFERENCES " + attr.id_application + "_" + attr.targetEntity
-            + "(" + attr.targetKey + ") ON DELETE " + attr.constraintDelete + " ON UDPATE " + attr.constraintUpdate + " ;";
-    } else if(sequelize.options.dialect == "postgres"){
-        if (attr.dropForeignKey)
-            query += "ALTER TABLE \"" + attr.id_application + "_" + attr.sourceEntity + "\" DROP FOREIGN KEY " + attr.foreignKey + "; ";
-        query += " ALTER TABLE \"" + attr.id_application + "_" + attr.sourceEntity + "\" ADD CONSTRAINT " + attr.foreignKey
-            + " FOREIGN KEY (" + attr.foreignKey + ") REFERENCES " + attr.id_application + "_" + attr.targetEntity
-            + "(" + attr.targetKey + ") ON DELETE " + attr.constraintDelete + " ON UDPATE " + attr.constraintUpdate + " ;";
-    }
-    if (!pushToSyncQuery(attr.id_application, query))
-        return callback("ERROR: Can't set constraint");
-    callback();
 }
 
 // Drop DataField
