@@ -1,5 +1,3 @@
-const fs = require('fs-extra');
-
 class Component {
     constructor(name, displayName, type) {
         this._name = name;
