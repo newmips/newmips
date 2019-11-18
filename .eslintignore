@@ -13,8 +13,4 @@ test.js
 !.eslintrc.js
 node_modules
 jspm_packages
-<<<<<<< HEAD
-/public/*
-=======
 public/
->>>>>>> 93ccf22eace8e68256141aef7f58bcd4f9cda2ff

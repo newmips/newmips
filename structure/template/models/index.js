@@ -6,11 +6,7 @@ const globalConf = require('../config/global');
 const moment = require('moment');
 
 const Op = Sequelize.Op;
-<<<<<<< HEAD
 const db = {
-=======
-let db = {
->>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 	$eq: Op.eq,
 	$ne: Op.ne,
 	$gte: Op.gte,
