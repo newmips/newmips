@@ -21,7 +21,6 @@
             "after": true
         }],
         "complexity": ["warn", 20],
-        "consistent-return": "error",
         "constructor-super": "warn",
         "curly": ["error", "multi"],
         "default-case": "error",
@@ -71,7 +70,7 @@
         "no-unsafe-finally": "error",
         "no-unsafe-negation": "error",
         "no-unused-expressions": "error",
-        "no-unused-vars": "warn",
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_{1}" }],
         "no-use-before-define": "error",
         "no-var": 2,
         "prefer-const": "warn",

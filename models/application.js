@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-    var Application = sequelize.define("Application", {
+    const Application = sequelize.define("Application", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -14,12 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     })
 
     Application.associate = (models) => {
-        Application.hasMany(models.Module, {
-            foreignKey: {
-                name: 'id_application'
-            },
-            onDelete: 'cascade'
-        })
         Application.belongsToMany(models.User, {
             foreignKey: 'id_application',
             through: "application_user",
@@ -28,10 +22,9 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     Application.addHook('beforeFindAfterOptions', (application) => {
-        if (typeof application.where !== "undefined") {
+        if (typeof application.where !== "undefined")
             if (typeof application.where.name !== "undefined")
                 application.where.name = application.where.name.toLowerCase();
-        }
     })
 
     Application.addHook('beforeCreate', (application) => {
