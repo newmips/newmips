@@ -4,9 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const dbConfig = require('../config/database');
-
 const basename = path.basename(module.filename);
-
 
 const {Op} = Sequelize;
 const db = {

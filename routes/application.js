@@ -854,8 +854,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 });
 
 router.get('/export/:app_name', block_access.hasAccessApplication, (req, res) => {
-
-	 // We know what directory we want
+	// We know what directory we want
 	const workspacePath = __dirname + '/../workspace/' + req.params.app_name;
 
 	const zip = new JSZip();
