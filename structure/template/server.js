@@ -138,7 +138,7 @@ cons.dust.debugLevel = "DEBUG";
 app.set('view engine', 'dust');
 
 // Required for passport
-var options = {
+const options = {
 	host: dbConf.host,
 	port: dbConf.port,
 	user: dbConf.user,
@@ -150,7 +150,7 @@ if(dbConf.dialect == "mysql")
 	var sessionStore = new SessionStore(options);
 
 if(dbConf.dialect == "postgres"){
-	var pgPool = new pg.Pool(options);
+	const pgPool = new pg.Pool(options);
 	pgPool.connect((err, client, done) => {
 		if (err) {console.error(err);}
 		client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
@@ -168,7 +168,7 @@ if(dbConf.dialect == "postgres"){
 	});
 }
 
-var sessionInstance = session({
+const sessionInstance = session({
 	store: sessionStore,
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
@@ -178,7 +178,7 @@ var sessionInstance = session({
 	maxAge: 360*5,
 	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific
 });
-var socketSession = require('express-socket.io-session');
+const socketSession = require('express-socket.io-session');
 
 app.use(sessionInstance);
 
@@ -196,7 +196,7 @@ app.locals.moment = require('moment');
 // to keep track of it, and redirect after server restart
 if (startedFromGenerator) {
 	app.get('/*', function(req, res, next) {
-		var url = req.originalUrl;
+		const url = req.originalUrl;
 		// Do not remove this comment
 		if(url.indexOf("/inline_help/") != -1 || url.indexOf('/loadtab/') != -1 || req.query.ajax)
 			return next();
@@ -239,13 +239,13 @@ app.use(function(req, res, next) {
 });
 
 app.use(function(req, res, next) {
-	var redirect = res.redirect;
+	const redirect = res.redirect;
 	res.redirect = function(view) {
 		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
 		if (req.query.ajax) {
 			// Check role access error in toastr. Send 403 if found, {refresh: true} will force reload of the page (behavior comes from public/newmips/show.js)
-			for (var i = 0; i < req.session.toastr.length; i++) {
-				var toast = req.session.toastr[i];
+			for (let i = 0; i < req.session.toastr.length; i++) {
+				const toast = req.session.toastr[i];
 				if (toast.message && toast.message == "settings.auth_component.no_access_role")
 					return res.status(403).send({refresh: true});
 			}
@@ -256,7 +256,7 @@ app.use(function(req, res, next) {
 	}
 
 	// Overload res.render to always get and reset toastr, load notifications and inline-help helper
-	var render = res.render;
+	const render = res.render;
 	res.render = function(view, locals, cb) {
 		if(typeof locals === "undefined")
 			locals = {};
@@ -266,7 +266,7 @@ app.use(function(req, res, next) {
 		}
 
 		// Load notifications
-		var userId;
+		let userId;
 		try {
 			userId = req.session.passport.user.id;
 		} catch(e) {
@@ -288,8 +288,8 @@ app.use(function(req, res, next) {
 
 			// Load inline-help when rendering create, update or show page
 			if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
-				var entityName = view.split('/')[0];
-				var options;
+				const entityName = view.split('/')[0];
+				let options;
 				try {
 					options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
 				} catch(e) {
@@ -297,13 +297,13 @@ app.use(function(req, res, next) {
 					dust.helpers.inline_help = function(){return false;}
 					return render.call(res, view, locals, cb);
 				}
-				var entityList = [entityName];
-				for (var i = 0; i < options.length; i++)
+				const entityList = [entityName];
+				for (let i = 0; i < options.length; i++)
 					entityList.push(options[i].target);
 
 				models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
 					dust.helpers.inline_help = function(ch, con, bod, params){
-						for (var i = 0; i < helps.length; i++) {
+						for (let i = 0; i < helps.length; i++) {
 							if (params.field == helps[i].f_field)
 								return true;
 						}
@@ -346,7 +346,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 			let hasAdmin = false;
 
 			// Check if user admin is in already created users
-			for (var i = 0; i < users.length; i++) {
+			for (let i = 0; i < users.length; i++) {
 				if(users[i].f_login == "admin"){
 					hasAdmin = true
 				}
@@ -374,7 +374,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 				});
 			}
 		});
-		var server;
+		let server;
 		if (globalConf.protocol == 'https')
 			server = https.createServer(globalConf.ssl, app);
 		else

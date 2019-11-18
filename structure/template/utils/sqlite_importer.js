@@ -35,7 +35,7 @@ function arraySplit(str) {
 			// return v.replace(/.*DROP\s/g, 'DROP ').replace(/--.*/g, ' ').replace(/\n\r/g,'').trim()
 		})
 
-		for (var i = 0; i < arr.length; i++) {
+		for (let i = 0; i < arr.length; i++) {
 			if (arr[i] == "") {
 				arr.splice(i, 1);
 				i--;

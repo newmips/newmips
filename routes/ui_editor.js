@@ -1,23 +1,23 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var fs = require('fs');
-var domHelper = require('../utils/jsDomHelper');
-var language = require('../services/language');
-var gitHelper = require('../utils/git_helper');
-var models = require('../models/');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const fs = require('fs');
+const domHelper = require('../utils/jsDomHelper');
+const language = require('../services/language');
+const gitHelper = require('../utils/git_helper');
+const models = require('../models/');
 
 function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
 	return new Promise(function(resolve, reject) {
-		var pageFiles = ['create_fields.dust', 'update_fields.dust', 'show_fields.dust', 'print_fields.dust'];
-		var ctp = 0;
+		const pageFiles = ['create_fields.dust', 'update_fields.dust', 'show_fields.dust', 'print_fields.dust'];
+		let ctp = 0;
 
-		for (var i = 0; i < pageFiles.length; i++) {
+		for (let i = 0; i < pageFiles.length; i++) {
 			if (pageFiles[i] != notPage) {
-				var pageUri = __dirname + '/../workspace/' + idApp + '/views/' + entity + '/' + pageFiles[i];
+				const pageUri = __dirname + '/../workspace/' + idApp + '/views/' + entity + '/' + pageFiles[i];
 				(function(currentURI, currentPage, currentHtmlBis) {
 					domHelper.read(currentURI).then(function($) {
-						var saveDataField = {};
+						const saveDataField = {};
 
 						// Save current state of fields in the current working page
 						$("div[data-field]").each(function() {
@@ -26,8 +26,8 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
 
 						if (currentPage == "print_fields.dust") {
 							currentHtmlBis("div[data-field]").each(function() {
-								var gridSize = "12";
-								var classes = currentHtmlBis(this).attr("class").split(" ");
+								let gridSize = "12";
+								const classes = currentHtmlBis(this).attr("class").split(" ");
 								switch (screenMode) {
 									case "Desktop":
 										gridSize = /col-md-([^ ]+)/.exec(currentHtmlBis(this).attr("class"))[1];
@@ -40,7 +40,7 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
 										break;
 								}
 
-								for (var i = 0; i < classes.length; i++) {
+								for (let i = 0; i < classes.length; i++) {
 									if (classes[i].indexOf("col-") != -1) {
 										currentHtmlBis(this).removeClass(classes[i]);
 									}
@@ -60,9 +60,9 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
 						});
 
 						// Missing fields from the source that we'll append in col-xs-12
-						for (var field in saveDataField) {
+						for (const field in saveDataField) {
 							if (saveDataField[field] != true) {
-								var newDiv = "<div data-field='" + field + "' class='fieldLineHeight col-xs-12 col-sm-12 col-md-12'>";
+								let newDiv = "<div data-field='" + field + "' class='fieldLineHeight col-xs-12 col-sm-12 col-md-12'>";
 								newDiv += saveDataField[field];
 								newDiv += "</div>";
 								currentHtmlBis("div[data-field]:last").after(newDiv);
@@ -70,8 +70,8 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
 						}
 
 						// Find all rows and group them to be appended to #fields
-						var packedRow = '';
-						for (var i = 0; i < currentHtmlBis("body").children('.row').length; i++)
+						let packedRow = '';
+						for (let i = 0; i < currentHtmlBis("body").children('.row').length; i++)
 							if (currentHtmlBis("body").children('.row').eq(i).html() != "")
 								packedRow += currentHtmlBis("body").children('.row').eq(i).html();
 
@@ -92,30 +92,30 @@ function applyToAllEntity(currentHtml, notPage, entity, idApp, screenMode) {
 }
 
 router.get('/getPage/:entity/:page', block_access.hasAccessApplication, function(req, res) {
-	var page = req.params.page;
-	var generatorLanguage = language(req.session.lang_user);
+	let page = req.params.page;
+	const generatorLanguage = language(req.session.lang_user);
 
 	if (!page || (page != 'create' && page != 'update' && page != 'show' && page != 'print'))
 		return res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
 	page += '_fields.dust';
 
-	var entity = req.params.entity;
-	var workspaceLanguage = require(__dirname + '/../workspace/' + req.session.id_application + '/services/language')(req.session.lang_user);
+	const entity = req.params.entity;
+	const workspaceLanguage = require(__dirname + '/../workspace/' + req.session.id_application + '/services/language')(req.session.lang_user);
 
-	var pageUri = __dirname + '/../workspace/' + req.session.id_application + '/views/' + entity + '/' + page;
+	const pageUri = __dirname + '/../workspace/' + req.session.id_application + '/views/' + entity + '/' + page;
 	domHelper.read(pageUri).then(function($) {
 		// Encapsulate traduction with span to be able to translate, keep comment for later use
-		var tradRegex = new RegExp(/(<!--{#__ key="(.*)" ?\/}-->)/g);
+		const tradRegex = new RegExp(/(<!--{#__ key="(.*)" ?\/}-->)/g);
 		$("body #fields")[0].innerHTML = $("body #fields")[0].innerHTML.replace(tradRegex, '<span class="trad-result">$2</span><span class="trad-src">$1</span>');
 
 		// Translate each .trad-result
 		$(".trad-result").each(function() {
-			var tradKey = $(this).text();
+			const tradKey = $(this).text();
 			$(this).text(workspaceLanguage.__(tradKey));
 		});
 
 		$("option").each(function() {
-			var comment = $(this).contents().filter(function() {
+			const comment = $(this).contents().filter(function() {
 				return this.nodeType === 8;
 			}).get(0);
 			if (typeof comment !== "undefined")
@@ -130,20 +130,20 @@ router.get('/getPage/:entity/:page', block_access.hasAccessApplication, function
 });
 
 router.post('/setPage/:entity/:page', block_access.hasAccessApplication, function(req, res) {
-	var page = req.params.page;
-	var generatorLanguage = language(req.session.lang_user);
+	let page = req.params.page;
+	const generatorLanguage = language(req.session.lang_user);
 
 	if (!page || (page != 'create' && page != 'update' && page != 'show' && page != 'print'))
 		return res.status(404).send(generatorLanguage.__("ui_editor.page_not_found"));
 	page += '_fields.dust';
 
-	var entity = req.params.entity;
-	var html = req.body.html;
+	const entity = req.params.entity;
+	const html = req.body.html;
 
-	var pageUri = __dirname + '/../workspace/' + req.session.id_application + '/views/' + entity + '/' + page;
+	const pageUri = __dirname + '/../workspace/' + req.session.id_application + '/views/' + entity + '/' + page;
 	domHelper.loadFromHtml(html).then(function($) {
 		$("option").each(function() {
-			var trad = $(this).data('trad');
+			const trad = $(this).data('trad');
 			$(this).text(trad);
 		});
 
@@ -157,15 +157,15 @@ router.post('/setPage/:entity/:page', block_access.hasAccessApplication, functio
 
 		// Remove grid-editor left overs (div.ge-content, .column)
 		$(".ge-content").each(function() {
-			var toExtract = $(this).html();
+			const toExtract = $(this).html();
 			$(this).parent().removeClass('column').html(toExtract);
 		});
 
 		// If it's a print page we need to remove all col-sm, col-md and col-lg, only col-xs are used
 		if (page == "print_fields.dust") {
 			$("div[data-field]").each(function() {
-				var classes = $(this).attr("class").split(" ");
-				for (var i = 0; i < classes.length; i++) {
+				const classes = $(this).attr("class").split(" ");
+				for (let i = 0; i < classes.length; i++) {
 					if (classes[i].indexOf("col-") != -1 && classes[i].indexOf("col-xs") == -1) {
 						$(this).removeClass(classes[i]);
 					}
@@ -174,14 +174,14 @@ router.post('/setPage/:entity/:page', block_access.hasAccessApplication, functio
 		}
 
 		// Find all rows and group them to be appended to #fields
-		var packedRow = '';
-		for (var i = 0; i < $("body").children('.row').length; i++)
+		let packedRow = '';
+		for (let i = 0; i < $("body").children('.row').length; i++)
 			if ($("body").children('.row').eq(i).html() != "")
 				packedRow += $("body").children('.row').eq(i).html();
 
 		function git() {
 			// We simply add session values in attributes array
-			var attr = {};
+			const attr = {};
 			attr.function = "Save a file from UI designer: " + pageUri;
 			attr.id_project = req.session.id_project;
 			attr.id_application = req.session.id_application;

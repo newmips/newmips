@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-var addressConf = require('../addressconfig/addressConfig');
+const addressConf = require('../addressconfig/addressConfig');
 
 exports.generateFields = function (componentName, componentCodeName) {
-	var result = {
+	const result = {
 		db_fields: {
 			f_address_label: {
 				type: 'STRING'
 			}
 		}
 	};
-	var createHtml = `\
+	let createHtml = `\
 	<label>{#__ key="entity.${componentCodeName}.label_entity"/}</label>&nbsp;\n\
 	<a href="#" id="info_address_maps">\n\
 		<i class="fa fa-info-circle"></i>\n\
@@ -22,7 +22,7 @@ exports.generateFields = function (componentName, componentCodeName) {
 	<section id='section_${componentCodeName}_fields' class='col-xs-12 section_address_fields'>\n`;
 
 
-	var updateHtml = `\
+	let updateHtml = `\
 	<label>{#__ key="entity.${componentCodeName}.label_entity"/}</label>&nbsp;&nbsp;\n\
 	<a href="#" id="info_address_maps">\n\
 		<i class="fa fa-info-circle"></i>\n\
@@ -30,11 +30,11 @@ exports.generateFields = function (componentName, componentCodeName) {
 	<br><br>\n\
 	<section id='section_${componentCodeName}_fields' class='col-xs-12 section_address_fields'>\n`;
 
-	var showFieldsHtml = '';
-	var headers = '';
-	var tds = '';
-	var singleHeader = '';
-	var singleTD = '';
+	let showFieldsHtml = '';
+	let headers = '';
+	let tds = '';
+	let singleHeader = '';
+	let singleTD = '';
 
 	// For default
 	if (addressConf.endpoint.enable) {
@@ -63,7 +63,7 @@ exports.generateFields = function (componentName, componentCodeName) {
 		updateHtml += "			<hr>\n";
 		updateHtml += "		</div>\n";
 	}
-	var locales = {
+	const locales = {
 		fr: {
 			search: 'Saisir une adresse',
 			label_entity: componentName,
@@ -79,15 +79,15 @@ exports.generateFields = function (componentName, componentCodeName) {
 			id_entity: 'ID'
 		}
 	};
-	for (var attributeKey in addressConf.attributes) {
-		var attribute = addressConf.attributes[attributeKey];
-		var addInForm = attribute.addInForm || false;
+	for (const attributeKey in addressConf.attributes) {
+		const attribute = addressConf.attributes[attributeKey];
+		const addInForm = attribute.addInForm || false;
 		if (addInForm) {
 			//Api field apiField
-			var apiField = attribute.apiField;
+			const apiField = attribute.apiField;
 
 			//prefix dbcolumn name
-			var dbcolumn = 'f_address_' + attributeKey.toLowerCase();
+			const dbcolumn = 'f_address_' + attributeKey.toLowerCase();
 			//set lang
 			if (typeof attribute.lang !== 'undefined') {
 				locales.en[dbcolumn] = attribute.lang.en || '';
@@ -97,17 +97,17 @@ exports.generateFields = function (componentName, componentCodeName) {
 				type: 'STRING'
 			};
 
-			var required = attribute.required === true ? 'required' : '';
-			var readonly = (attribute.readonly === false || typeof addressConf.endpoint === 'undefined' || addressConf.endpoint.enable === false) ? '' : 'readonly';
-			var max = (typeof attribute.maxLength !== 'undefined' && attribute.maxLength !== '') ? 'maxlength="' + attribute.maxLength + '"' : '';
-			var min = (typeof attribute.minLength !== 'undefined' && attribute.minLength !== '') ? 'minlength="' + attribute.minLength + '"' : '';
+			const required = attribute.required === true ? 'required' : '';
+			const readonly = (attribute.readonly === false || typeof addressConf.endpoint === 'undefined' || addressConf.endpoint.enable === false) ? '' : 'readonly';
+			const max = (typeof attribute.maxLength !== 'undefined' && attribute.maxLength !== '') ? 'maxlength="' + attribute.maxLength + '"' : '';
+			const min = (typeof attribute.minLength !== 'undefined' && attribute.minLength !== '') ? 'minlength="' + attribute.minLength + '"' : '';
 
-			var pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern="' + attribute.pattern + '"' : '';
-			var defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
+			const pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern="' + attribute.pattern + '"' : '';
+			const defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
 
-			var type = 'text';
+			let type = 'text';
 			/*Hide or display field on different views,adapted for lon and lat fields*/
-			var display_create = 'block', display_udpate = 'block', display_show = 'block';
+			let display_create = 'block', display_udpate = 'block', display_show = 'block';
 
 			if (typeof attribute.type !== 'undefined') {
 				if (typeof attribute.type === "object") {

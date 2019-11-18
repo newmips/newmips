@@ -1,8 +1,8 @@
-var exec = require('child_process').exec;
-var fs = require('fs');
-var helpers = require('./utils/helpers');
+const exec = require('child_process').exec;
+const fs = require('fs');
+const helpers = require('./utils/helpers');
 
-var cmd = 'npm install';
+let cmd = 'npm install';
 
 if (!fs.existsSync('workspace'))
 	fs.mkdirSync('workspace');

@@ -77,9 +77,9 @@ const funcs = {
 	// Split SQL request if too many inclusion
 	optimizedFindOne: async function (modelName, idObj, options, forceOptions = []) {
 		const includePromises = [], includes = forceOptions, includeMaxlength = 5;
-		for (var i = 0; i < options.length; i++)
+		for (let i = 0; i < options.length; i++)
 			if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'relatedToMultipleCheckbox') {
-				var opt = {
+				const opt = {
 					model: models[funcs.capitalizeFirstLetter(options[i].target)],
 					as: options[i].as
 				};
@@ -113,7 +113,7 @@ const funcs = {
 	},
 	getLoadOnStartData: async function (data, options) {
 		// Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
-		var todoPromises = [];
+		const todoPromises = [];
 		for (var i = 0; i < options.length; i++) {
 			if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart) {
 				(alias => {
@@ -132,19 +132,19 @@ const funcs = {
 		return data;
 	},
 	error: function (err, req, res, redirect, entity) {
-		var isKnownError = false;
-		var ajax = req.query.ajax || false;
-		var data = {
+		let isKnownError = false;
+		const ajax = req.query.ajax || false;
+		const data = {
 			code: 500,
 			message: err.message || null
 		};
 
 		try {
-			var lang = "fr-FR";
+			let lang = "fr-FR";
 			if (typeof req.session.lang_user !== "undefined")
 				lang = req.session.lang_user;
 
-			var __ = language(lang).__;
+			const __ = language(lang).__;
 
 			//Sequelize validation error
 			if (err.name == "SequelizeValidationError") {
@@ -159,7 +159,7 @@ const funcs = {
 
 			// Unique value constraint error
 			if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-				var message = __('message.unique') + " " + __("entity." + entity + "." + err.errors[0].path);
+				const message = __('message.unique') + " " + __("entity." + entity + "." + err.errors[0].path);
 				req.session.toastr.push({level: 'error', message: message});
 				data.code = 400;
 				isKnownError = true;
@@ -171,8 +171,7 @@ const funcs = {
 			}
 			if (isKnownError) {
 				return res.redirect(redirect || '/');
-			} else
-				console.error(err);
+			} console.error(err);
 
 			logger.debug(err);
 			res.status(data.code).render('common/error', data);
@@ -182,23 +181,23 @@ const funcs = {
 		return new Promise(function (resolve, reject) {
 			if (!entity)
 				resolve();
-			var attributes;
+			let attributes;
 			try {
 				attributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + modelName + '.json'));
 			} catch (e) {
 				resolve();
 			}
 
-			var bufferPromises = [];
-			for (var key in entity.dataValues)
+			const bufferPromises = [];
+			for (const key in entity.dataValues)
 				if (attributes[key] && attributes[key].newmipsType == 'picture') {
 					(function (keyCopy) {
 						bufferPromises.push(new Promise(function (resolveBuf, rejectBuf) {
-							var value = entity.dataValues[keyCopy] || '';
-							var partOfValue = value.split('-');
+							const value = entity.dataValues[keyCopy] || '';
+							const partOfValue = value.split('-');
 							if (partOfValue.length <= 1)
 								return resolveBuf();
-							var path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
+							let path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
 							if (isThumbnail)
 								path = 'thumbnail/' + path;
 							file_helper.getFileBuffer(path).then(buffer => {
@@ -228,7 +227,7 @@ const funcs = {
 						attribute == key) {
 					const value = entity.dataValues[key];
 					if (value && entityName) {
-						var options = {
+						const options = {
 							entityName: entityName,
 							value: value,
 							type: attributes[attribute].newmipsType
@@ -241,7 +240,7 @@ const funcs = {
 		}
 	},
 	findInclude: function (includes, searchType, toFind) {
-		var type = '';
+		let type = '';
 		switch (searchType) {
 			case "model":
 				type = 'model';
@@ -253,9 +252,9 @@ const funcs = {
 				type = 'model';
 				break;
 		}
-		for (var i = 0; i < includes.length; i++) {
-			var include = includes[i];
-			var name = (type == 'model' ? include[type].name : include.as);
+		for (let i = 0; i < includes.length; i++) {
+			const include = includes[i];
+			const name = (type == 'model' ? include[type].name : include.as);
 			if (name == toFind) {
 				return include;
 			}

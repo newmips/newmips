@@ -29,27 +29,27 @@ exports.setColumnVisibility = async (data) => {
 			message: hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show",
 			messageParams: [data.options.showValue]
 		};
-	} else {
+	}
 
-		// Check if it's a related to field
-		const fieldCodeName = "r_" + data.options.value.substring(2);
+	// Check if it's a related to field
+	const fieldCodeName = "r_" + data.options.value.substring(2);
 
-		if($("*[data-field='" + fieldCodeName + "']").length > 0){
-			//$("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
-			$("*[data-field='" + fieldCodeName + "']").attr("data-hidden", hide ? '1' : '0');
-			await domHelper.write(pathToViews + '/list_fields.dust', $);
-			return {
-				message: hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show",
-				messageParams: [data.options.showValue]
-			}
-		}
-		else {
-			// No column found
-			const err = new Error('structure.ui.columnVisibility.noColumn');
-			err.messageParams = [data.options.showValue]
-			throw err;
+	if($("*[data-field='" + fieldCodeName + "']").length > 0){
+		//$("*[data-field='" + fieldCodeName + "']")[hide ? 'hide' : 'show']();
+		$("*[data-field='" + fieldCodeName + "']").attr("data-hidden", hide ? '1' : '0');
+		await domHelper.write(pathToViews + '/list_fields.dust', $);
+		return {
+			message: hide ? "structure.ui.columnVisibility.hide" : "structure.ui.columnVisibility.show",
+			messageParams: [data.options.showValue]
 		}
 	}
+
+	// No column found
+	const err = new Error('structure.ui.columnVisibility.noColumn');
+	err.messageParams = [data.options.showValue]
+	throw err;
+
+
 }
 
 exports.setLogo = async (data) => {
@@ -154,14 +154,14 @@ exports.setLayout = async (data) => {
 			messageParams: [data.options.value, data.np_module.displayName],
 			restartServer: false
 		}
-	} else {
-		const err = new Error('structure.ui.layout.cannotFind');
-		let msgParams = "";
-		for (let i = 0; i < layoutListAvailable.length; i++)
-			msgParams += "-  " + layoutListAvailable[i] + "<br>";
-		err.messageParams = [msgParams];
-		throw err;
 	}
+	const err = new Error('structure.ui.layout.cannotFind');
+	let msgParams = "";
+	for (let i = 0; i < layoutListAvailable.length; i++)
+		msgParams += "-  " + layoutListAvailable[i] + "<br>";
+	err.messageParams = [msgParams];
+	throw err;
+
 }
 
 exports.listLayout = async (data) => {

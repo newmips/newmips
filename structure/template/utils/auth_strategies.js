@@ -51,11 +51,11 @@ function(req, login_user, password_user, done) {
 		// If the user is found but the password is wrong
 		if (!bcrypt.compareSync(password_user, user.f_password))
 			return accessForbidden('Mauvais mot de passe.');
-		else {
-			// Access authorized
-			delete req.session.loginAttempt;
-			return done(null, user);
-		}
+
+		// Access authorized
+		delete req.session.loginAttempt;
+		return done(null, user);
+
 	});
 }
 ));

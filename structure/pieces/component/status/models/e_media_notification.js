@@ -1,28 +1,28 @@
-var builder = require('../utils/model_builder');
-var fs = require('fs-extra');
+const builder = require('../utils/model_builder');
+const fs = require('fs-extra');
 
-var attributes_origin = require("./attributes/e_media_notification.json");
-var associations = require("./options/e_media_notification.json");
-var socket;
-var models;
-var moment = require('moment');
+const attributes_origin = require("./attributes/e_media_notification.json");
+const associations = require("./options/e_media_notification.json");
+let socket;
+let models;
+const moment = require('moment');
 
 module.exports = (sequelize, DataTypes) => {
-	var attributes = builder.buildForModel(attributes_origin, DataTypes);
-	var options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_media_notification',
 		timestamps: true
 	};
 
-	var Model = sequelize.define('E_media_notification', attributes, options);
+	const Model = sequelize.define('E_media_notification', attributes, options);
 	Model.associate = builder.buildAssociation('E_media_notification', associations);
 
 	// Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
 	//	  Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
 	Model.prototype.parseForInclude = function() {
-		var fieldsToParse = ['f_title', 'f_description'];
-		var valuesForInclude = [];
-		for (var i = 0; i < fieldsToParse.length; i++) {
+		const fieldsToParse = ['f_title', 'f_description'];
+		const valuesForInclude = [];
+		for (let i = 0; i < fieldsToParse.length; i++) {
 			var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
 			while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
 				valuesForInclude.push(matches[1]);
@@ -30,43 +30,43 @@ module.exports = (sequelize, DataTypes) => {
 
 		var regex = new RegExp(/{(user_target\|[^}]*)}/g), matches = null;
 		while ((matches = regex.exec(this.f_targets)) != null) {
-			var placeholderParts = matches[1].split('|');
-			var userFieldPath = placeholderParts[placeholderParts.length-1];
+			const placeholderParts = matches[1].split('|');
+			const userFieldPath = placeholderParts[placeholderParts.length-1];
 			valuesForInclude.push(userFieldPath+'.id');
 		}
 		return valuesForInclude;
 	}
 
 	Model.prototype.execute = function(resolve, reject, dataInstance) {
-		var self = this;
+		const self = this;
 		if (!models)
 			models = require('./index');
 
 		async function getGroupAndUserID() {
 			property = 'f_targets';
-			var userIds = [];
+			let userIds = [];
 
 			// EXTRACT GROUP USERS
 			// Placeholder ex: {group|Admin|1}
 			{
-				var groupIds = [];
+				const groupIds = [];
 				// Exctract all group IDs from property to find them all at once
-				var groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+				const groupRegex = new RegExp(/{(group\|[^}]*)}/g);
 				while ((match = groupRegex.exec(self[property])) != null) {
 					var placeholderParts = match[1].split('|');
-					var groupId = parseInt(placeholderParts[placeholderParts.length-1]);
+					const groupId = parseInt(placeholderParts[placeholderParts.length-1]);
 					groupIds.push(groupId);
 				}
 
 				// Fetch all groups found and their users
-				var groups = await sequelize.models.E_group.findAll({
+				const groups = await sequelize.models.E_group.findAll({
 					where: {id: {[models.$in]: groupIds}},
 					include: {model: sequelize.models.E_user, as: 'r_user'}
 				});
 
 				// Exctract email and build intermediateData object used to replace placeholders
-				for (var i = 0; i < groups.length; i++) {
-					for (var j = 0; j < groups[i].r_user.length; j++)
+				for (let i = 0; i < groups.length; i++) {
+					for (let j = 0; j < groups[i].r_user.length; j++)
 						userIds.push(groups[i].r_user[j].id);
 				}
 			}
@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
 				var userRegex = new RegExp(/{(user\|[^}]*)}/g);
 				while ((match = userRegex.exec(self[property])) != null) {
 					var placeholderParts = match[1].split('|');
-					var userId = parseInt(placeholderParts[placeholderParts.length-1]);
+					const userId = parseInt(placeholderParts[placeholderParts.length-1]);
 					userIds.push(userId);
 				}
 			}
@@ -92,9 +92,9 @@ module.exports = (sequelize, DataTypes) => {
 					if (depth < path.length)
 						return findAndPushUser(object[path[depth]], path, ++depth);
 
-					var targetedUser = object;
+					const targetedUser = object;
 					if (targetedUser instanceof Array)
-						for (var i = 0; i < targetedUser.length; i++)
+						for (let i = 0; i < targetedUser.length; i++)
 							userIds.push(targetedUser[i].id);
 					else
 						userIds.push(targetedUser.id)
@@ -103,7 +103,7 @@ module.exports = (sequelize, DataTypes) => {
 				var userRegex = new RegExp(/{(user_target\|[^}]*)}/g);
 				while ((match = userRegex.exec(self[property])) != null) {
 					var placeholderParts = match[1].split('|');
-					var userFieldPath = placeholderParts[placeholderParts.length-1];
+					const userFieldPath = placeholderParts[placeholderParts.length-1];
 					// Dive in dataInstance to find targeted user
 					findAndPushUser(dataInstance, userFieldPath.split('.'));
 				}
@@ -126,19 +126,18 @@ module.exports = (sequelize, DataTypes) => {
 					// Case where targeted field is in an array.
 					// Ex: r_projet.r_participants.f_name <- Loop through r_participants and join all f_name
 					else if (object[depths[idx]] instanceof Array && depths.length-2 == idx) {
-						var values = [];
-						for (var i = 0; i < object[depths[idx]].length; i++)
+						const values = [];
+						for (let i = 0; i < object[depths[idx]].length; i++)
 							if (typeof object[depths[idx]][i][depths[idx+1]] !== 'undefined')
 								values.push(object[depths[idx]][i][depths[idx+1]]);
 						return values.join(' ');
 					}
 					return diveData(object[depths[idx]], depths, ++idx);
-				} else
-					return object[depths[idx]];
+				} return object[depths[idx]];
 			}
 
-			var newString = self[property];
-			var regex = new RegExp(/{field\|([^}]*)}/g),
+			let newString = self[property];
+			let regex = new RegExp(/{field\|([^}]*)}/g),
 				matches = null;
 			while ((matches = regex.exec(self[property])) != null)
 				newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
@@ -147,12 +146,12 @@ module.exports = (sequelize, DataTypes) => {
 		}
 
 		getGroupAndUserID().then(function(targetIds) {
-			var entityUrl, notificationObj;
+			let entityUrl, notificationObj;
 			try {
 				try {
 					// Build show url of targeted entity
-					var tableName = dataInstance.constructor.getTableName();
-					var prefixIdx = tableName.indexOf('_e_')+('_e_'.length);
+					const tableName = dataInstance.constructor.getTableName();
+					const prefixIdx = tableName.indexOf('_e_')+('_e_'.length);
 					// Remove table ID and prefix: 10_e_user -> user
 					entityUrl = tableName.substring(prefixIdx);
 					entityUrl = '/' + entityUrl + '/show?id=' + dataInstance.id;

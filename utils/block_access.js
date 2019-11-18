@@ -1,12 +1,12 @@
-var models = require('../models/');
+const models = require('../models/');
 // Route middleware to make sure if user is identified
 exports.isLoggedIn = function(req, res, next) {
 	// If user is authenticated in the session, carry on
 	if (req.isAuthenticated()){
 		return next();
-	} else {
-		res.redirect('/login');
 	}
+	res.redirect('/login');
+
 };
 
 // Route middleware to make sure if user is identified
@@ -15,16 +15,16 @@ exports.isAdmin = function(req, res, next) {
 	if (req.isAuthenticated()){
 		if(req.session.passport.user.id_role == 1)
 			return next();
-		else {
-			req.session.toastr = [{
-				message: "action.no_access_admin",
-				level: "error"
-			}];
-			return res.redirect('/');
-		}
-	} else {
-		res.redirect('/login');
+
+		req.session.toastr = [{
+			message: "action.no_access_admin",
+			level: "error"
+		}];
+		return res.redirect('/');
+
 	}
+	res.redirect('/login');
+
 };
 
 // Check access to specific application

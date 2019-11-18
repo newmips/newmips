@@ -116,7 +116,7 @@ exports.deleteModule = async (data) => {
 		return file.indexOf('.') !== 0 && file.indexOf('layout_') === 0;
 	});
 
-	for (var i = 0; i < layoutFiles.length; i++) {
+	for (let i = 0; i < layoutFiles.length; i++) {
 		const $ = await domHelper.read(layoutsPath + layoutFiles[i]);
 		$("option[data-module='" + data.module_name + "']").remove();
 		await domHelper.write(layoutsPath + layoutFiles[i], $);

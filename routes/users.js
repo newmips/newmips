@@ -26,7 +26,7 @@ router.get('/', block_access.isAdmin, (req, res) => {
 })
 
 router.get('/show/:id', block_access.isAdmin, (req, res) => {
-	var user_id = req.params.id;
+	const user_id = req.params.id;
 	models.User.findOne({
 		where: {
 			id: user_id
@@ -34,7 +34,7 @@ router.get('/show/:id', block_access.isAdmin, (req, res) => {
 		include: [{all: true}]
 	}).then(user => {
 		const idAppUser = [];
-		for (var i = 0; i < user.Applications.length; i++)
+		for (let i = 0; i < user.Applications.length; i++)
 			idAppUser.push(user.Applications[i].id)
 		models.Application.findAll({
 			where: {
@@ -194,7 +194,7 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
 		const applications = await user.getApplications();
 
 		// Remove entity from association array
-		for (var i = 0; i < applications.length; i++)
+		for (let i = 0; i < applications.length; i++)
 			if (applications[i].id == appID) {
 				applications.splice(i, 1);
 				break;

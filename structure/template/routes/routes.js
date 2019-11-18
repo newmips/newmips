@@ -83,7 +83,7 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
-	var login_user = req.body.login_user;
+	const login_user = req.body.login_user;
 
 	models.E_user.findOne({
 		where: {
@@ -99,7 +99,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
 			req.flash('loginMessage', "login.first_connection.alreadyHavePassword");
 			res.redirect('/login');
 		} else {
-			var password = bcrypt.hashSync(req.body.password_user2, null, null);
+			const password = bcrypt.hashSync(req.body.password_user2, null, null);
 
 			user.update({
 				f_password: password,
@@ -145,12 +145,12 @@ router.get('/reset_password', block_access.loginAccess, function(req, res) {
 
 // Reset password, Generate token, insert into DB, send email
 router.post('/reset_password', block_access.loginAccess, function(req, res) {
-	var login_user = req.body.login;
-	var given_mail = req.body.mail;
+	const login_user = req.body.login;
+	const given_mail = req.body.mail;
 
 	function resetPasswordProcess(user) {
 		// Create unique token and insert into user
-		var token = crypto.randomBytes(64).toString('hex');
+		const token = crypto.randomBytes(64).toString('hex');
 
 		models.E_user.update({
 			f_token_password_reset: token
@@ -160,7 +160,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 			}
 		}).then(function(){
 			// Send email with generated token
-			var mailOptions = {
+			const mailOptions = {
 				data: {
 					href: mailer.config.host + '/reset_password/' + token,
 					user: user

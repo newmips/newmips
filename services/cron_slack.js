@@ -1,20 +1,20 @@
 'use strict';
 
-var slack = require('slack');
-var slack_conf = require('../config/slack');
-var moment = require("moment");
+const slack = require('slack');
+const slack_conf = require('../config/slack');
+const moment = require("moment");
 
 module.exports = function() {
 
-	var cpt = 0;
-	var today = moment();
+	let cpt = 0;
+	const today = moment();
 
 	function done(listChannel) {
 		cpt++;
 		if (cpt == listChannel.channels.length) {
-			for (var i = 0; i < listChannel.channels.length; i++) {
-				var dateCreated = moment.unix(listChannel.channels[i].created);
-				var diff = today.diff(dateCreated, "days");
+			for (let i = 0; i < listChannel.channels.length; i++) {
+				const dateCreated = moment.unix(listChannel.channels[i].created);
+				const diff = today.diff(dateCreated, "days");
 				if (listChannel.channels[i].name.substring(0, 4) == "user" && !listChannel.channels[i].is_archived && diff >= 3) {
 					slack.channels.archive({
 						token: slack_conf.SLACK_API_USER_TOKEN,
@@ -37,10 +37,10 @@ module.exports = function() {
 		slack.users.list({
 			token: slack_conf.SLACK_API_USER_TOKEN
 		}, function(err, listUser) {
-			for (var i = 0; i < listChannel.channels.length; i++) {
+			for (let i = 0; i < listChannel.channels.length; i++) {
 				var ibis = i;
-				var dateCreated = moment.unix(listChannel.channels[i].created);
-				var diff = today.diff(dateCreated, "days");
+				const dateCreated = moment.unix(listChannel.channels[i].created);
+				const diff = today.diff(dateCreated, "days");
 				if (listChannel.channels[i].name.substring(0, 4) == "user" && !listChannel.channels[i].is_archived && diff >= 3) {
 					slack.channels.leave({
 						token: slack_conf.SLACK_API_USER_TOKEN,
@@ -51,7 +51,7 @@ module.exports = function() {
 							console.error(err);
 						}
 
-						var cpt2 = 0;
+						let cpt2 = 0;
 
 						function done2(listUser, listChannel) {
 							cpt2++;
@@ -60,7 +60,7 @@ module.exports = function() {
 							}
 						}
 
-						for (var j = 0; j < listUser.members.length; j++) {
+						for (let j = 0; j < listUser.members.length; j++) {
 							slack.channels.kick({
 								token: slack_conf.SLACK_API_USER_TOKEN,
 								channel: listChannel.channels[ibis].id,

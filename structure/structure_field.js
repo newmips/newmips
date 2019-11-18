@@ -275,7 +275,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 		case "case à sélectionner" :
 			var clearValues = [];
 			var clearDefaultValue = "";
-			for (var i = 0; i < values.length; i++)
+			for (let i = 0; i < values.length; i++)
 				clearValues[i] = dataHelper.clearString(values[i]);
 
 			if (typeof defaultValue !== "undefined" && defaultValue != "" && defaultValue != null)
@@ -1319,7 +1319,7 @@ exports.deleteField = async (data) => {
 		autoGenerateFound = false;
 		targetJsonPath = workspacePath + '/models/options/' + deletedOptionsTarget[i].target + '.json';
 		targetOption = JSON.parse(fs.readFileSync(targetJsonPath));
-		for (var j = 0; j < targetOption.length; j++) {
+		for (let j = 0; j < targetOption.length; j++) {
 			if(targetOption[j].structureType == "auto_generate" && targetOption[j].foreignKey == deletedOptionsTarget[i].foreignKey){
 				targetOption.splice(j, 1);
 				autoGenerateFound = true;
@@ -1333,9 +1333,9 @@ exports.deleteField = async (data) => {
 	fs.writeFileSync(jsonPath, JSON.stringify(dataToWrite, null, 4), "utf8");
 
 	// Remove field from create/update/show views files
-	var viewsPath = workspacePath + '/views/' + data.entity.name + '/';
-	var fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
-	var promises = [];
+	const viewsPath = workspacePath + '/views/' + data.entity.name + '/';
+	const fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
+	const promises = [];
 	for (var i = 0; i < fieldsFiles.length; i++)
 		promises.push(new Promise((resolve, reject) => {
 			(function (file) {
@@ -1380,7 +1380,7 @@ exports.deleteField = async (data) => {
 					currentOption[i].target == data.entity.name &&
 					typeof currentOption[i].usingField !== "undefined") {
 				// Check if our deleted field is in the using fields
-				for (var j = 0; j < currentOption[i].usingField.length; j++) {
+				for (let j = 0; j < currentOption[i].usingField.length; j++) {
 					if (currentOption[i].usingField[j].value == field) {
 						for (var k = 0; k < fieldsFiles.length; k++) {
 							// Clean file
@@ -1429,8 +1429,8 @@ exports.deleteField = async (data) => {
 	await Promise.all(promises);
 
 	// Remove translation in enum locales
-	var enumsPath = workspacePath + '/locales/enum_radio.json';
-	var enumJson = JSON.parse(fs.readFileSync(enumsPath));
+	const enumsPath = workspacePath + '/locales/enum_radio.json';
+	const enumJson = JSON.parse(fs.readFileSync(enumsPath));
 
 	if (typeof enumJson[data.entity.name] !== "undefined") {
 		if (typeof enumJson[data.entity.name][info.fieldToDrop] !== "undefined") {
@@ -1440,7 +1440,7 @@ exports.deleteField = async (data) => {
 	}
 
 	// Remove translation in global locales
-	var fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
+	const fieldToDropInTranslate = info.isConstraint ? "r_" + url_value : info.fieldToDrop;
 	translateHelper.removeLocales(data.application.name, "field", [data.entity.name, fieldToDropInTranslate])
 	return info;
 }

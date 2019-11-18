@@ -10,10 +10,10 @@ function capitalizeFirstLetter(word) {
 }
 
 exports.addHooks = function (Model, model_name, attributes) {
-	var hooks = require('../models/hooks')(model_name, attributes);
-	for (var hookType in hooks) {
-		for (var i = 0; i < hooks[hookType].length; i++) {
-			var hook = hooks[hookType][i];
+	const hooks = require('../models/hooks')(model_name, attributes);
+	for (const hookType in hooks) {
+		for (let i = 0; i < hooks[hookType].length; i++) {
+			const hook = hooks[hookType][i];
 			if (hook.name)
 				Model.addHook(hookType, hook.name, hook.func);
 			else
@@ -45,23 +45,23 @@ exports.attributesValidation = function (attributes) {
 //  Returns a sequelize valid include object.
 //			  Ex: [{model: E_project, as:'r_project'}, {model: E_user, as:'r_user', include: [{model: E_user, as:'r_children'}]}}]
 exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
-	var globalInclude = [];
+	const globalInclude = [];
 	function buildInclude(currentEntity, includeObject, depths, idx = 0) {
 		if (depths.length-1 == idx)
 			return ;
-		var entityOptions = require('../models/options/'+currentEntity);
+		const entityOptions = require('../models/options/'+currentEntity);
 
-		for (var j = 0; j < entityOptions.length; j++) {
+		for (let j = 0; j < entityOptions.length; j++) {
 			if (entityOptions[j].as == depths[idx]) {
 				// If include for current depth exists, fill the same object
-				for (var i = 0; i < includeObject.length; i++)
+				for (let i = 0; i < includeObject.length; i++)
 					if (includeObject[i].as == depths[idx])
 						return buildInclude(entityOptions[j].target, includeObject[i].include, depths, ++idx);
 
 				// Uppercase target's first letter to build model name. This is necessary because of component `C`_adresse
-				var modelPrefix = entityOptions[j].target.charAt(0).toUpperCase()+'_';
+				const modelPrefix = entityOptions[j].target.charAt(0).toUpperCase()+'_';
 				// If include for current depth doesn't exists, create it and send include array to recursive buildInclude
-				var depthInclude = {
+				const depthInclude = {
 					model: models[modelPrefix+entityOptions[j].target.slice(2)],
 					as: depths[idx],
 					include: [],
@@ -73,7 +73,7 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 		}
 	}
 
-	for (var field = 0; fieldsArray[field] && field < fieldsArray.length; field++)
+	for (let field = 0; fieldsArray[field] && field < fieldsArray.length; field++)
 		buildInclude(headEntity, globalInclude, fieldsArray[field].split('.'));
 
 	return globalInclude;
@@ -119,7 +119,7 @@ exports.formatSearch = (column, searchValue, type) => {
 			break;
 	}
 
-	var field = column, searchLine = {};
+	let field = column, searchLine = {};
 	if (field.indexOf('.') != -1)
 		field = `$${field}$`;
 
@@ -130,9 +130,9 @@ exports.formatSearch = (column, searchValue, type) => {
 // Build the attribute object for sequelize model's initialization
 // It convert simple attribute.json file to correct sequelize model descriptor
 exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp = true, recursionLevel = 0) {
-	var object = {};
-	for (var prop in attributes) {
-		var currentValue = attributes[prop];
+	const object = {};
+	for (const prop in attributes) {
+		const currentValue = attributes[prop];
 		if (typeof currentValue === 'object' && currentValue != null) {
 			if (currentValue.type == 'ENUM')
 				object[prop] = DataTypes.ENUM(currentValue.values);
@@ -160,10 +160,10 @@ exports.buildForModel = function objectify(attributes, DataTypes, addTimestamp =
 // Build create / update object for routes /create and /update
 // It find correspondances between req.body and attributes.
 exports.buildForRoute = function buildForRoute(attributes, options, body) {
-	var object = {};
+	const object = {};
 
 	// Simple field
-	for (var prop in attributes) {
+	for (const prop in attributes) {
 		if (prop !== 'id' && typeof body[prop] !== 'undefined') {
 			if (body[prop] == "")
 				body[prop] = null;
@@ -177,10 +177,10 @@ exports.buildForRoute = function buildForRoute(attributes, options, body) {
 	}
 
 	// Association Field
-	for (var i = 0; i < options.length; i++) {
-		var association = options[i].as;
-		var foreignKey = options[i].foreignKey.toLowerCase();
-		var associationLower = association.toLowerCase();
+	for (let i = 0; i < options.length; i++) {
+		const association = options[i].as;
+		const foreignKey = options[i].foreignKey.toLowerCase();
+		const associationLower = association.toLowerCase();
 
 		if (options[i].relation === 'belongsTo') {
 			if (typeof body[association] !== 'undefined') {
@@ -202,10 +202,10 @@ exports.buildForRoute = function buildForRoute(attributes, options, body) {
 // ex: {target: 'entityT', relation: 'hasMany'} -> models.SelfModel.hasMany(entityT);
 exports.buildAssociation = function buildAssociation(selfModel, associations) {
 	return function (models) {
-		for (var i = 0; i < associations.length; i++) {
-			var association = associations[i];
-			var options = {};
-			var target = capitalizeFirstLetter(association.target.toLowerCase());
+		for (let i = 0; i < associations.length; i++) {
+			const association = associations[i];
+			const options = {};
+			const target = capitalizeFirstLetter(association.target.toLowerCase());
 
 			options.foreignKey = association.foreignKey.toLowerCase();
 			options.as = association.as.toLowerCase();
@@ -229,10 +229,10 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
 		// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 		// because those values are not updated yet
 
-		var unusedValueFromReqBody = [];
-		for(var propBody in body){
-			var toAdd = true;
-			for(var propObj in buildForRouteObj){
+		const unusedValueFromReqBody = [];
+		for(const propBody in body){
+			let toAdd = true;
+			for(const propObj in buildForRouteObj){
 				if(propBody == "id" || propBody == propObj)
 					toAdd = false;
 			}
@@ -240,21 +240,21 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
 				unusedValueFromReqBody.push(propBody);
 		}
 
-		var cpt = 0;
+		const cpt = 0;
 		if(unusedValueFromReqBody.length == 0)
 			return resolve();
 
 		async function setAssociationMany(){
 			// Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
-			for (var i=0; i<options.length; i++) {
+			for (let i=0; i<options.length; i++) {
 				// Loop on the unused (for now) values in body
-				for (var j=0; j<unusedValueFromReqBody.length; j++) {
+				for (let j=0; j<unusedValueFromReqBody.length; j++) {
 					// If the alias match between the option and the body
 					if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
 						// BelongsTo association have been already done before
 						if(options[i].relation != "belongsTo"){
-							var target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-							var value = [];
+							const target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+							const value = [];
 
 							// Empty string is not accepted by postgres, clean array to avoid error
 							if(body[unusedValueFromReqBody[j]].length > 0){
@@ -263,7 +263,7 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
 									if(body[unusedValueFromReqBody[j]] != "")
 										value.push(parseInt(body[unusedValueFromReqBody[j]]))
 								} else if(typeof body[unusedValueFromReqBody[j]] == "object") {
-									for(var val in body[unusedValueFromReqBody[j]])
+									for(const val in body[unusedValueFromReqBody[j]])
 										if(body[unusedValueFromReqBody[j]][val] != "")
 											value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
 								}
@@ -300,24 +300,24 @@ exports.setAssocationManyValues = function setAssocationManyValues(model, body, 
 }
 
 exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) {
-	var structureDatalist = [];
+	const structureDatalist = [];
 
 	/* Two level of all inclusion */
-	for (var i = 0; i < options.length; i++) {
-		var target = capitalizeFirstLetter(options[i].target.toLowerCase());
+	for (let i = 0; i < options.length; i++) {
+		const target = capitalizeFirstLetter(options[i].target.toLowerCase());
 
-		var toPush = {
+		const toPush = {
 			model: models[target],
 			as: options[i].as
 		};
 
 		/* Go deeper in second level include */
-		var optionsSecondLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/' + options[i].target.toLowerCase()+'.json', 'utf8'));
-		var includeSecondLevel = [];
-		for (var j = 0; j < optionsSecondLevel.length; j++) {
-			var targetSecondLevel = capitalizeFirstLetter(optionsSecondLevel[j].target.toLowerCase());
+		const optionsSecondLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/' + options[i].target.toLowerCase()+'.json', 'utf8'));
+		const includeSecondLevel = [];
+		for (let j = 0; j < optionsSecondLevel.length; j++) {
+			const targetSecondLevel = capitalizeFirstLetter(optionsSecondLevel[j].target.toLowerCase());
 
-			var include = {
+			const include = {
 				model: models[targetSecondLevel],
 				as: optionsSecondLevel[j].as,
 				include: []
@@ -327,8 +327,8 @@ exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) 
 				try {
 					// Check if second level entity has a status component
 					// If so, add thrid include level to fetch status's children and be able to display next buttons
-					var optionsThirdLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+optionsSecondLevel[j].target+'.json', 'utf8'));
-					for (var k = 0; k < optionsThirdLevel.length; k++) {
+					const optionsThirdLevel = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+optionsSecondLevel[j].target+'.json', 'utf8'));
+					for (let k = 0; k < optionsThirdLevel.length; k++) {
 						if (optionsThirdLevel[k].target == 'e_status') {
 							include.include.push({
 								model: models.E_status,

@@ -14,8 +14,8 @@ router.get('/:id/downloadProgram', function(req, res) {
 	models.E_task.findOne({where: {id: req.params.id}}).then(task => {
 		if (!task)
 			return res.sendStatus(404);
-		var fileFolder = task.f_program_file.split('-')[0];
-		var filePath = globalConf.localstorage+'/e_task/'+fileFolder+'/'+task.f_program_file;
+		const fileFolder = task.f_program_file.split('-')[0];
+		const filePath = globalConf.localstorage+'/e_task/'+fileFolder+'/'+task.f_program_file;
 
 		res.download(filePath);
 	});
@@ -25,30 +25,30 @@ router.get('/:id/downloadProgram', function(req, res) {
 // FIND ALL
 //
 router.get('/', function(req, res) {
-	var answer = {
+	const answer = {
 		limit: parseInt(req.query.limit || 50),
 		offset: parseInt(req.query.offset || 0),
 		error: null
 	};
 
 	// Build include from query parameter: `?include=r_asso1,r_asso2`
-	var include = [];
+	const include = [];
 	if (req.query.include) {
-		var queryIncludes = req.query.include.split(',');
-		for (var i = 0; i < queryIncludes.length; i++)
-			for (var j = 0; j < options.length; j++)
+		const queryIncludes = req.query.include.split(',');
+		for (let i = 0; i < queryIncludes.length; i++)
+			for (let j = 0; j < options.length; j++)
 				if (queryIncludes[i] == options[j].as)
 					include.push({
 						model: models[entity_helper.capitalizeFirstLetter(options[j].target)],
 						as: options[j].as
 					});
 	}
-	var query = {limit: answer.limit, offset: answer.offset};
+	const query = {limit: answer.limit, offset: answer.offset};
 	if (include.length)
 		query.include = include;
 
-	var where = {};
-	for (var field in req.query)
+	const where = {};
+	for (const field in req.query)
 		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
 			where[field] = req.query[field];
 	if (Object.keys(where).length)
@@ -70,29 +70,29 @@ router.get('/', function(req, res) {
 // FIND ONE
 //
 router.get('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_e_task = parseInt(req.params.id);
+	const id_e_task = parseInt(req.params.id);
 
 	// Build include from query parameter: `?include=r_asso1,r_asso2`
-	var include = [];
+	const include = [];
 	if (req.query.include) {
-		var queryIncludes = req.query.include.split(',');
-		for (var i = 0; i < queryIncludes.length; i++)
-			for (var j = 0; j < options.length; j++)
+		const queryIncludes = req.query.include.split(',');
+		for (let i = 0; i < queryIncludes.length; i++)
+			for (let j = 0; j < options.length; j++)
 				if (queryIncludes[i] == options[j].as)
 					include.push({
 						model: models[entity_helper.capitalizeFirstLetter(options[j].target)],
 						as: options[j].as
 					});
 	}
-	var query = {limit: answer.limit, offset: answer.offset};
+	const query = {limit: answer.limit, offset: answer.offset};
 	if (include.length)
 		query.include = include;
 
-	var where = {id: id_e_task};
-	for (var field in req.query)
+	const where = {id: id_e_task};
+	for (const field in req.query)
 		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
 			where[field] = req.query[field];
 	query.where = where;
@@ -115,16 +115,16 @@ router.get('/:id', function(req, res) {
 // FIND ASSOCIATION
 //
 router.get('/:id/:association', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null,
 		limit: parseInt(req.query.limit || 50),
 		offset: parseInt(req.query.offset || 0)
 	};
-	var id_e_task = req.params.id;
-	var association = req.params.association;
+	const id_e_task = req.params.id;
+	const association = req.params.association;
 
-	var include = null;
-	for (var i = 0; i < options.length; i++) {
+	let include = null;
+	for (let i = 0; i < options.length; i++) {
 		if (options[i].as == 'r_' + association) {
 			if (options[i].relation.toLowerCase().indexOf('many') != -1) {
 				include = {
@@ -150,8 +150,8 @@ router.get('/:id/:association', function(req, res) {
 		return res.status(404).json(answer);
 	}
 
-	var where = {};
-	for (var field in req.query)
+	const where = {};
+	for (const field in req.query)
 		if (field.indexOf('f_') == 0)
 			where[field] = req.query[field];
 	if (Object.keys(where).length)
@@ -178,18 +178,18 @@ router.get('/:id/:association', function(req, res) {
 // CREATE
 //
 router.post('/', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_task.create(createObject).then(function(e_task) {
 		answer["e_task".substring(2)] = e_task;
 
 		// Set associations
-		var associationPromises = [];
-		for (var prop in req.body)
+		const associationPromises = [];
+		for (const prop in req.body)
 			if (prop.indexOf('r_') == 0) {
 				if (e_task['set'+entity_helper.capitalizeFirstLetter(prop)] !== 'undefined')
 					associationPromises.push(e_task['set'+entity_helper.capitalizeFirstLetter(prop)](req.body[prop]));
@@ -213,11 +213,11 @@ router.post('/', function(req, res) {
 // UPDATE
 //
 router.put('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_e_task = parseInt(req.params.id);
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const id_e_task = parseInt(req.params.id);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	// Fetch e_task to update
 	models.E_task.findOne({where: {id: id_e_task}}).then(function(e_task) {
@@ -231,8 +231,8 @@ router.put('/:id', function(req, res) {
 			answer["e_task".substring(2)] = e_task;
 
 			// Set associations
-			var associationPromises = [];
-			for (var prop in req.body)
+			const associationPromises = [];
+			for (const prop in req.body)
 				if (prop.indexOf('r_') == 0) {
 					if (e_task['set'+entity_helper.capitalizeFirstLetter(prop)] !== 'undefined')
 						associationPromises.push(e_task['set'+entity_helper.capitalizeFirstLetter(prop)](req.body[prop]));
@@ -260,10 +260,10 @@ router.put('/:id', function(req, res) {
 // DELETE
 //
 router.delete('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	}
-	var id_e_task = req.params.id;
+	const id_e_task = req.params.id;
 
 	models.E_task.destroy({where: {id: id_e_task}}).then(function() {
 		res.status(200).end();

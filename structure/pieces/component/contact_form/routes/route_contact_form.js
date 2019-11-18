@@ -38,9 +38,9 @@ router.post('/datalist', block_access.actionAccessMiddleware("URL_VALUE_CONTACT"
 });
 
 router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "read"), (req, res) => {
-	var id_CODE_VALUE_CONTACT = req.query.id;
-	var tab = req.query.tab;
-	var data = {
+	const id_CODE_VALUE_CONTACT = req.query.id;
+	const tab = req.query.tab;
+	const data = {
 		tab: tab,
 		enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
 	};
@@ -76,7 +76,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
 });
 
 router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), (req, res) => {
-	var data = {
+	const data = {
 		enum_radio: enums_radios.translated("CODE_VALUE_CONTACT", req.session.lang_user, options)
 	};
 
@@ -90,7 +90,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
 
 	// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
 	entity_helper.getLoadOnStartData(data, options).then(data => {
-		var view = req.query.ajax ? 'CODE_VALUE_CONTACT/create_fields' : 'CODE_VALUE_CONTACT/create';
+		const view = req.query.ajax ? 'CODE_VALUE_CONTACT/create_fields' : 'CODE_VALUE_CONTACT/create';
 		res.render(view, data);
 	}).catch(err => {
 		entity_helper.error(err, req, res, '/URL_VALUE_CONTACT/create_form', "CODE_VALUE_CONTACT");
@@ -100,14 +100,14 @@ router.get('/create_form', block_access.actionAccessMiddleware("URL_VALUE_CONTAC
 router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), (req, res) => {
 
 	models.MODEL_VALUE_SETTINGS.findByPk(1).then(function(settings) {
-		var from = req.body.f_name + " <" + req.body.f_sender + ">";
-		var mailOptions = {
+		const from = req.body.f_name + " <" + req.body.f_sender + ">";
+		const mailOptions = {
 			from: from,
 			to: settings.f_form_recipient,
 			subject: req.body.f_title,
 			html: req.body.f_content
 		};
-		var mailSettings = {
+		const mailSettings = {
 			transport: {
 				host: settings.f_transport_host,
 				port: settings.f_port,
@@ -121,12 +121,12 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 			administrateur: settings.f_form_recipient
 		};
 		mailer_helper.sendMailAsyncCustomTransport(mailOptions, mailSettings).then(function(success) {
-			var createObject = model_builder.buildForRoute(attributes, options, req.body);
+			const createObject = model_builder.buildForRoute(attributes, options, req.body);
 			//createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
 			createObject.fk_id_user_user = req.session.passport.user.id;
 			createObject.f_recipient = settings.f_form_recipient;
 			models.MODEL_VALUE_CONTACT.create(createObject).then((CODE_VALUE_CONTACT) => {
-				var redirect = '/URL_VALUE_CONTACT/create_form';
+				let redirect = '/URL_VALUE_CONTACT/create_form';
 				req.session.toastr = [{
 					message: "entity.CODE_VALUE_CONTACT.successSendMail",
 					level: "success"
@@ -141,16 +141,16 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 					}).then((association) => {
 						if (!association) {
 							CODE_VALUE_CONTACT.destroy();
-							var err = new Error();
+							const err = new Error();
 							err.message = "Association not found."
 							return entity_helper.error(err, req, res, "/");
 						}
 
-						var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+						const modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
 						if (typeof association['add' + modelName] !== 'undefined')
 							association['add' + modelName](CODE_VALUE_CONTACT.id);
 						else {
-							var obj = {};
+							const obj = {};
 							obj[req.body.associationForeignKey] = CODE_VALUE_CONTACT.id;
 							association.update(obj);
 						}
@@ -171,7 +171,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "delete"), (req, res) => {
-	var id_CODE_VALUE_CONTACT = req.body.id;
+	const id_CODE_VALUE_CONTACT = req.body.id;
 
 	models.MODEL_VALUE_CONTACT.findOne({
 		where: {
@@ -188,7 +188,7 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 				level: "success"
 			}];
 
-			var redirect = '/URL_VALUE_CONTACT/list';
+			let redirect = '/URL_VALUE_CONTACT/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);
@@ -202,21 +202,21 @@ router.post('/delete', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 });
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "create"), (req, res) => {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.MODEL_VALUE_CONTACT.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then((CODE_VALUE_CONTACT) => {
 		if (!CODE_VALUE_CONTACT) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof(toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -234,16 +234,16 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("URL_VAL
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "delete"), (req, res) => {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.MODEL_VALUE_CONTACT.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then((CODE_VALUE_CONTACT) => {
 		if (!CODE_VALUE_CONTACT) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			return res.render('common/error', data);
@@ -252,7 +252,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
 		// Get all associations
 		CODE_VALUE_CONTACT['get' + entity_helper.capitalizeFirstLetter(alias)]().then((aliasEntities) => {
 			// Remove entity from association array
-			for (var i = 0; i < aliasEntities.length; i++)
+			for (let i = 0; i < aliasEntities.length; i++)
 				if (aliasEntities[i].id == idToRemove) {
 					aliasEntities.splice(i, 1);
 					break;

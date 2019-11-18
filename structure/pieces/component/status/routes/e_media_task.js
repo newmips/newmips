@@ -1,30 +1,30 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_media_task');
-var options = require('../models/options/e_media_task');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var status_helper = require('../utils/status_helper');
+const models = require('../models/');
+const attributes = require('../models/attributes/e_media_task');
+const options = require('../models/options/e_media_task');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const file_helper = require('../utils/file_helper');
+const status_helper = require('../utils/status_helper');
 
 // Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 router.get('/entityTree', function(req, res) {
 	res.json(status_helper.entityFieldTree('e_media_task'));
 });
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_task.create(createObject).then(function (e_media_task) {
 		models.E_media.create({
@@ -33,7 +33,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 			f_target_entity: req.body.f_target_entity,
 			fk_id_media_task: e_media_task.id
 		}).then(function(e_media) {
-			var redirect = '/media/show?id='+e_media.id;
+			let redirect = '/media/show?id='+e_media.id;
 			req.session.toastr = [{
 				message: 'message.create.success',
 				level: "success"
@@ -44,16 +44,16 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 				models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
 					if (!association) {
 						e_media.destroy();
-						var err = new Error();
+						const err = new Error();
 						err.message = "Association not found."
 						return entity_helper.error(err, req, res, "/");
 					}
 
-					var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+					const modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
 					if (typeof association['add' + modelName] !== 'undefined')
 						association['add' + modelName](e_media.id);
 					else {
-						var obj = {};
+						const obj = {};
 						obj[req.body.associationForeignKey] = e_media.id;
 						association.update(obj);
 					}
@@ -72,8 +72,8 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
-	var id_e_media_task = req.query.id;
-	var data = {
+	const id_e_media_task = req.query.id;
+	const data = {
 		menu: "e_media",
 		sub_menu: "list_e_media",
 		enum_radio: enums_radios.translated("e_media_task", req.session.lang_user, options)
@@ -101,14 +101,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 });
 
 router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
-	var id_e_media_task = parseInt(req.body.id_media_task);
+	const id_e_media_task = parseInt(req.body.id_media_task);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_task.findOne({where: {id: id_e_media_task}}).then(function (e_media_task) {
 		if (!e_media_task) {
@@ -124,7 +124,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 			model_builder.setAssocationManyValues(e_media_task, req.body, updateObject, options);
 
 			models.E_media.findOne({where: {fk_id_media_task: e_media_task.id}}).then(function(e_media) {
-				var redirect = '/media/show?id=' + e_media.id;
+				let redirect = '/media/show?id=' + e_media.id;
 				if (typeof req.body.associationFlag !== 'undefined')
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -144,11 +144,11 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 });
 
 router.get('/set_status/:id_media_task/:status/:id_new_status', block_access.actionAccessMiddleware("media", "create"), function(req, res) {
-	var historyModel = 'E_history_e_media_task_'+req.params.status;
-	var historyAlias = 'r_history_'+req.params.status.substring(2);
-	var statusAlias = 'r_'+req.params.status.substring(2);
+	const historyModel = 'E_history_e_media_task_'+req.params.status;
+	const historyAlias = 'r_history_'+req.params.status.substring(2);
+	const statusAlias = 'r_'+req.params.status.substring(2);
 
-	var errorRedirect = '/media_task/show?id='+req.params.id_media_task;
+	const errorRedirect = '/media_task/show?id='+req.params.id_media_task;
 	// Find target entity instance
 	models.E_media_task.findOne({
 		where: {id: req.params.id_media_task},
@@ -182,9 +182,9 @@ router.get('/set_status/:id_media_task/:status/:id_new_status', block_access.act
 			}
 
 			// Check if new status is actualy the current status's children
-			var children = current_status.r_children;
-			var validNext = false;
-			for (var i = 0; i < children.length; i++) {
+			const children = current_status.r_children;
+			let validNext = false;
+			for (let i = 0; i < children.length; i++) {
 				if (children[i].id == req.params.id_new_status)
 				{validNext = true; break;}
 			}
@@ -199,7 +199,7 @@ router.get('/set_status/:id_media_task/:status/:id_new_status', block_access.act
 
 			// Create history record for this status field
 			// Beeing the most recent history for media_task it will now be its current status
-			var createObject = {fk_id_status_status: req.params.id_new_status};
+			const createObject = {fk_id_status_status: req.params.id_new_status};
 			createObject["fk_id_media_task_history_"+req.params.status.substring(2)] = req.params.id_media_task;
 			models[historyModel].create(createObject).then(function() {
 				res.redirect('/media_task/show?id='+req.params.id_media_task)
@@ -211,20 +211,20 @@ router.get('/set_status/:id_media_task/:status/:id_new_status', block_access.act
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("media", "delete"), function (req, res) {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.E_media_task.findOne({where: {id: idEntity}}).then(function (e_media_task) {
 		if (!e_media_task) {
-			var data = {error: 404};
+			const data = {error: 404};
 			return res.render('common/error', data);
 		}
 
 		// Get all associations
 		e_media_task['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
-			var toKeep = [];
+			const toKeep = [];
 			// Remove entity from association array
-			for (var i = 0; i < aliasEntities.length; i++)
+			for (let i = 0; i < aliasEntities.length; i++)
 				if (aliasEntities[i].id == idToRemove)
 					aliasEntities.splice(i, 1);
 				else
@@ -241,16 +241,16 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
 });
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.E_media_task.findOne({where: {id: idEntity}}).then(function (e_media_task) {
 		if (!e_media_task) {
-			var data = {error: 404};
+			const data = {error: 404};
 			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -268,7 +268,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media",
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), function (req, res) {
-	var id_e_media_task = parseInt(req.body.id);
+	const id_e_media_task = parseInt(req.body.id);
 
 	models.E_media_task.findOne({where: {id: id_e_media_task}}).then(function (deleteObject) {
 		 if (!deleteObject) {
@@ -281,7 +281,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), f
 				level: "success"
 			}];
 
-			var redirect = '/media_task/list';
+			let redirect = '/media_task/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);

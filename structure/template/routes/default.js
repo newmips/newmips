@@ -19,14 +19,14 @@ router.get('/status', function (req, res) {
 });
 
 router.post('/widgets', block_access.isLoggedIn, function (req, res) {
-	var user = req.session.passport.user;
-	var widgetsInfo = req.body.widgets;
-	var widgetsPromises = [];
-	var data = {};
+	const user = req.session.passport.user;
+	const widgetsInfo = req.body.widgets;
+	const widgetsPromises = [];
+	const data = {};
 
-	for (var i = 0; i < widgetsInfo.length; i++) {
-		var currentWidget = widgetsInfo[i];
-		var modelName = 'E_' + currentWidget.entity.substring(2);
+	for (let i = 0; i < widgetsInfo.length; i++) {
+		const currentWidget = widgetsInfo[i];
+		const modelName = 'E_' + currentWidget.entity.substring(2);
 
 		// Check group and role access to widget's entity
 		if (!block_access.entityAccess(user.r_group, currentWidget.entity.substring(2)) || !block_access.actionAccess(user.r_role, currentWidget.entity.substring(2), 'read'))
@@ -52,15 +52,15 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 						}
 						// STATUS PIECHART
 						if (widget.field.indexOf('s_') == 0) {
-							var statusAlias = 'r_' + widget.field.substring(2);
+							const statusAlias = 'r_' + widget.field.substring(2);
 							models[model].findAll({
 								attributes: [statusAlias + '.f_name', statusAlias + '.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
 								group: [statusAlias + '.f_name', statusAlias + '.f_color', statusAlias + '.id'],
 								include: {model: models.E_status, as: statusAlias},
 								raw: true
 							}).then((piechartData) => {
-								var dataSet = {labels: [], backgroundColor: [], data: []};
-								for (var i = 0; i < piechartData.length; i++) {
+								const dataSet = {labels: [], backgroundColor: [], data: []};
+								for (let i = 0; i < piechartData.length; i++) {
 									if (dataSet.labels.indexOf(piechartData[i].f_name) != -1) {
 										dataSet.data[dataSet.labels.indexOf(piechartData[i].f_name)] += piechartData[i].count
 									} else {
@@ -133,9 +133,9 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 								group: [widget.field],
 								raw: true
 							}).then((piechartData) => {
-								var dataSet = {labels: [], data: []};
-								for (var i = 0; i < piechartData.length; i++) {
-									var label = piechartData[i][widget.field];
+								const dataSet = {labels: [], data: []};
+								for (let i = 0; i < piechartData.length; i++) {
+									let label = piechartData[i][widget.field];
 									if (widget.fieldType == 'enum')
 										label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
 
@@ -172,14 +172,14 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 // *** Dynamic Module | Do not remove ***
 
 router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
-	var source = req.params.source;
-	var id = req.params.id;
+	const source = req.params.source;
+	const id = req.params.id;
 
 	models['E_' + source].findOne({
 		where: {id: id},
 		include: [{all: true, eager: true}]
 	}).then(function (dustData) {
-		var sourceOptions;
+		let sourceOptions;
 		try {
 			sourceOptions = JSON.parse(fs.readFileSync(__dirname + '/../models/options/e_' + source + '.json', 'utf8'));
 		} catch (e) {
@@ -192,14 +192,14 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
 		imagePromises = [];
 		// Source entity images
 		imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_' + source));
-		
+
 		// Relations images
-		for (var i = 0; i < sourceOptions.length; i++) {
+		for (let i = 0; i < sourceOptions.length; i++) {
 			// Has many/preset
 			if (dustData[sourceOptions[i].as] instanceof Array) {
-				for (var j = 0; j < dustData[sourceOptions[i].as].length; j++)
+				for (let j = 0; j < dustData[sourceOptions[i].as].length; j++)
 					imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));
-				
+
 			}
 			// Has one
 			else
@@ -211,7 +211,7 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
 
 		Promise.all(imagePromises).then(function () {
 			// Open and render dust file
-			var file = fs.readFileSync(__dirname + '/../views/e_' + source + '/print_fields.dust', 'utf8');
+			const file = fs.readFileSync(__dirname + '/../views/e_' + source + '/print_fields.dust', 'utf8');
 			dust.insertLocalsFn(dustData ? dustData : {}, req);
 			dust.renderSource(file, dustData || {}, function (err, rendered) {
 				if (err) {
@@ -248,17 +248,17 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 			console.error(err);
 			return res.status(500).end(err);
 		}
-		var folder = req.file.originalname.split('-');
-		var dataEntity = req.body.dataEntity;
+		const folder = req.file.originalname.split('-');
+		const dataEntity = req.body.dataEntity;
 		if (folder.length > 1 && !!dataEntity) {
-			var basePath = globalConfig.localstorage + dataEntity + '/' + folder[0] + '/';
+			let basePath = globalConfig.localstorage + dataEntity + '/' + folder[0] + '/';
 			fs.mkdirs(basePath, function (err) {
 				if (err) {
 					console.error(err);
 					return res.status(500).end(err);
 				}
-				var uploadPath = basePath + req.file.originalname;
-				var outStream = fs.createWriteStream(uploadPath);
+				const uploadPath = basePath + req.file.originalname;
+				const outStream = fs.createWriteStream(uploadPath);
 				outStream.write(req.file.buffer);
 				outStream.end();
 				outStream.on('finish', function (err) {

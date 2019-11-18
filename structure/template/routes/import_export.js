@@ -271,13 +271,13 @@ router.post('/access_import', block_access.isLoggedIn, block_access.actionAccess
 			level: "success"
 		});
 		return res.redirect("/import_export/access_show");
-	} else {
-		req.session.toastr.push({
-			message: "An error occured.",
-			level: "error"
-		});
-		return res.redirect("/import_export/access_show");
 	}
+	req.session.toastr.push({
+		message: "An error occured.",
+		level: "error"
+	});
+	return res.redirect("/import_export/access_show");
+
 })
 
 module.exports = router;

@@ -1,16 +1,16 @@
 
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 
 // Sequelize
-var models = require('../models/');
+const models = require('../models/');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 router.get('/load/:offset', function(req, res) {
-	var offset = parseInt(req.params.offset);
+	const offset = parseInt(req.params.offset);
 
 	models.E_notification.findAll({
 		include: [{
@@ -32,7 +32,7 @@ router.get('/load/:offset', function(req, res) {
 
 // Delete notification and redirect to notif's url
 router.get('/read/:id', function (req, res) {
-	var id_e_notification = parseInt(req.params.id);
+	const id_e_notification = parseInt(req.params.id);
 
 	// Check if user owns notification
 	models.E_notification.findOne({
@@ -48,7 +48,7 @@ router.get('/read/:id', function (req, res) {
 			return res.render('common/error', {error: 401});
 		}
 
-		var redirect = notification.f_url != "#" ? notification.f_url : req.headers.referer;
+		const redirect = notification.f_url != "#" ? notification.f_url : req.headers.referer;
 
 		models.E_user.findByPk(req.session.passport.user.id).then(function(user){
 			user.removeR_notification(notification.id).then(function(){

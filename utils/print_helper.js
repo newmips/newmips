@@ -1,11 +1,11 @@
-var fs = require("fs");
-var domHelper = require('../utils/jsDomHelper');
+const fs = require("fs");
+const domHelper = require('../utils/jsDomHelper');
 
 module.exports = {
 	addHasOne: function(fileBase, target, targetAlias) {
 		return new Promise(function(resolve, reject) {
-			var sourceTemplatePath = fileBase + '/print_fields.dust';
-			var content = '';
+			const sourceTemplatePath = fileBase + '/print_fields.dust';
+			let content = '';
 			content += '<div class="dontbreakitplz">\n';
 			content += '<!--{#entityAccess entity="'+target.substring(2)+'" }-->\n';
 			content += "<div id='"+targetAlias+"_print' class='row'>\n";
@@ -27,8 +27,8 @@ module.exports = {
 	},
 	addHasMany: function(fileBase, target, targetAlias) {
 		return new Promise(function(resolve, reject) {
-			var sourceTemplatePath = fileBase + '/print_fields.dust';
-			var content = '';
+			const sourceTemplatePath = fileBase + '/print_fields.dust';
+			let content = '';
 			content += '<div class="dontbreakitplz">\n';
 			content += '<!--{#entityAccess entity="'+target.substring(2)+'" }-->\n';
 			content += "<div id='"+targetAlias+"_print' class=\"row\">\n";
@@ -57,8 +57,8 @@ module.exports = {
 	},
 	addLocalFileStorage: function(fileBase, componentName) {
 		return new Promise(function(resolve, reject) {
-			var sourceTemplatePath = fileBase + '/print_fields.dust';
-			var content = ""+
+			const sourceTemplatePath = fileBase + '/print_fields.dust';
+			const content = ""+
 			"<div class='dontbreakitplz'>\n"+
 			'<!--{#entityAccess entity="'+target.substring(2)+'" }-->\n'+
 			"<div id='"+componentName+"_print' class='row'>\n"+
@@ -95,8 +95,8 @@ module.exports = {
 	},
 	addAddressComponent: function(fileBase, componentName) {
 		return new Promise(function(resolve, reject) {
-			var sourceTemplatePath = fileBase + '/print_fields.dust';
-			var content = ""+
+			const sourceTemplatePath = fileBase + '/print_fields.dust';
+			const content = ""+
 			"<div class='dontbreakitplz'>\n"+
 			"<!--{#entityAccess entity=\""+componentName+"\"}-->\n"+
 			"<div id='"+componentName+"_print' class='row'>\n"+

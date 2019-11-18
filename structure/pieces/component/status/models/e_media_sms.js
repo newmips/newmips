@@ -1,34 +1,34 @@
-var globalConf = require('../config/global');
-var builder = require('../utils/model_builder');
-var sms = require('../utils/sms_helper');
-var fs = require('fs-extra');
+const globalConf = require('../config/global');
+const builder = require('../utils/model_builder');
+const sms = require('../utils/sms_helper');
+const fs = require('fs-extra');
 
-var attributes_origin = require("./attributes/e_media_sms.json");
-var associations = require("./options/e_media_sms.json");
+const attributes_origin = require("./attributes/e_media_sms.json");
+const associations = require("./options/e_media_sms.json");
 
 module.exports = (sequelize, DataTypes) => {
-	var attributes = builder.buildForModel(attributes_origin, DataTypes);
-	var options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_media_sms',
 		timestamps: true
 	};
 
-	var Model = sequelize.define('E_media_sms', attributes, options);
+	const Model = sequelize.define('E_media_sms', attributes, options);
 	Model.associate = builder.buildAssociation('E_media_sms', associations);
 	builder.addHooks(Model, 'e_media_sms', attributes_origin);
 
 	// Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
 	//	  Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
 	Model.prototype.parseForInclude = function() {
-		var valuesForInclude = [];
-		var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+		const valuesForInclude = [];
+		let regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
 		while ((matches = regex.exec(this.f_message)) != null)
 			valuesForInclude.push(matches[1]);
 
-		var userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);
+		const userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);
 		while ((match = userRegex.exec(this.f_targets)) != null) {
-			var placeholderParts = match[1].split('|');
-			var fieldPath = placeholderParts[placeholderParts.length-1];
+			const placeholderParts = match[1].split('|');
+			const fieldPath = placeholderParts[placeholderParts.length-1];
 			valuesForInclude.push(fieldPath);
 		}
 
@@ -36,34 +36,34 @@ module.exports = (sequelize, DataTypes) => {
 	}
 
 	Model.prototype.execute = function(resolve, reject, dataInstance) {
-		var self = this;
+		const self = this;
 
 		async function getGroupAndUserID() {
 			property = 'f_phone_numbers';
-			var userIds = [],
+			let userIds = [],
 				phoneNumbers = [];
 
 			// EXTRACT GROUP USERS
 			// Placeholder ex: {group|Admin|1}
 			{
-				var groupIds = [];
+				const groupIds = [];
 				// Exctract all group IDs from property to find them all at once
-				var groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+				const groupRegex = new RegExp(/{(group\|[^}]*)}/g);
 				while ((match = groupRegex.exec(self[property])) != null) {
 					var placeholderParts = match[1].split('|');
-					var groupId = parseInt(placeholderParts[placeholderParts.length-1]);
+					const groupId = parseInt(placeholderParts[placeholderParts.length-1]);
 					groupIds.push(groupId);
 				}
 
 				// Fetch all groups found and their users
-				var groups = await sequelize.models.E_group.findAll({
+				const groups = await sequelize.models.E_group.findAll({
 					where: {id: {[models.$in]: groupIds}},
 					include: {model: sequelize.models.E_user, as: 'r_user'}
 				});
 
 				// Exctract email and build intermediateData object used to replace placeholders
 				for (var i = 0; i < groups.length; i++)
-					for (var j = 0; j < groups[i].r_user.length; j++) {
+					for (let j = 0; j < groups[i].r_user.length; j++) {
 						// Push user contact phone field. This is defined in conf/application.json
 						phoneNumbers.push(groups[i].r_user[j][globalConf.contact_field_for_sms]);
 					}
@@ -76,7 +76,7 @@ module.exports = (sequelize, DataTypes) => {
 				var userRegex = new RegExp(/{(user\|[^}]*)}/g);
 				while ((match = userRegex.exec(self[property])) != null) {
 					var placeholderParts = match[1].split('|');
-					var userId = parseInt(placeholderParts[placeholderParts.length-1]);
+					const userId = parseInt(placeholderParts[placeholderParts.length-1]);
 					userIds.push(userId);
 				}
 			}
@@ -91,9 +91,9 @@ module.exports = (sequelize, DataTypes) => {
 						return findAndPushUserPhone(object[path[depth]], path, ++depth);
 
 					// path[depth] is the field with the type phone we're looking for
-					var targetedEntity = object;
+					const targetedEntity = object;
 					if (targetedEntity instanceof Array)
-						for (var i = 0; i < targetedEntity.length; i++)
+						for (let i = 0; i < targetedEntity.length; i++)
 							phoneNumbers.push(targetedEntity[i][path[depth]]);
 					else
 						phoneNumbers.push(targetedEntity[path[depth]])
@@ -102,7 +102,7 @@ module.exports = (sequelize, DataTypes) => {
 				var userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);
 				while ((match = userRegex.exec(self[property])) != null) {
 					var placeholderParts = match[1].split('|');
-					var fieldPath = placeholderParts[placeholderParts.length-1];
+					const fieldPath = placeholderParts[placeholderParts.length-1];
 					// Dive in dataInstance to find targeted field
 					findAndPushUserPhone(dataInstance, fieldPath.split('.'));
 				}
@@ -114,7 +114,7 @@ module.exports = (sequelize, DataTypes) => {
 			});
 			// FETCH USERS
 			// Push their contact phone field. This is defined in conf/application.json
-			var users = await sequelize.models.E_user.findAll({where: {id: {[models.$in]: userIds}}});
+			const users = await sequelize.models.E_user.findAll({where: {id: {[models.$in]: userIds}}});
 			for (var i = 0; i < users.length; i++)
 				phoneNumbers.push(users[i][globalConf.contact_field_for_sms]);
 
@@ -134,12 +134,11 @@ module.exports = (sequelize, DataTypes) => {
 						return moment(object[depths[idx]]).format("DD/MM/YYYY");
 					return diveData(object[depths[idx]], depths, ++idx);
 				}
-				else
-					return object[depths[idx]];
+				return object[depths[idx]];
 			}
 
-			var newString = self[property];
-			var regex = new RegExp(/{field\|([^}]*)}/g),
+			let newString = self[property];
+			let regex = new RegExp(/{field\|([^}]*)}/g),
 				matches = null;
 			while ((matches = regex.exec(self[property])) != null)
 				newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));

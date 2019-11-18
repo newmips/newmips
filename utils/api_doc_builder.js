@@ -1,6 +1,6 @@
-var models = require('../models/');
-var fs = require('fs-extra');
-var exec = require('child_process').exec;
+const models = require('../models/');
+const fs = require('fs-extra');
+const exec = require('child_process').exec;
 const path = require("path");
 
 function capitalizeFirstLetter(word) {
@@ -10,8 +10,8 @@ function capitalizeFirstLetter(word) {
 }
 
 function routeGet(entity, attributes, options) {
-	var name = entity.codeName.substring(2);
-	var doc = [];
+	const name = entity.codeName.substring(2);
+	const doc = [];
 	doc.push('/**');
 	doc.push(' * @api {get} /api/'+name+'?token=TOKEN 1 - Find all');
 	doc.push(' * @apiVersion 1.0.0');
@@ -19,14 +19,14 @@ function routeGet(entity, attributes, options) {
 	doc.push(' * @apiGroup '+entity.codeName);
 
 	let possibleIncludes = [];
-	for (var i = 0; i < options.length; i++)
+	for (let i = 0; i < options.length; i++)
 		possibleIncludes.push(options[i].as);
 	possibleIncludes = `{String=${possibleIncludes.join(',')}}`;
 	doc.push(` * @apiParam (Query parameters) ${possibleIncludes} [include] Include specified association(s) to each <code>${name}</code> result.<br>Multiple values can be given separated by a comma <br><br>Ex: ?include=r_asso1,r_asso2`);
 
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiSuccess {Object[]} '+name+'s List of '+name);
-	for (var attr in attributes)
+	for (const attr in attributes)
 		doc.push(' * @apiSuccess {'+capitalizeFirstLetter(attributes[attr].type)+'} '+name+'s.'+attr+' <code>'+attr+'</code> of '+name);
 
 	doc.push(' * @apiSuccess {Integer} limit Limit used to fetch data');
@@ -39,8 +39,8 @@ function routeGet(entity, attributes, options) {
 }
 
 function routeGetId(entity, attributes, options) {
-	var name = entity.codeName.substring(2);
-	var doc = [];
+	const name = entity.codeName.substring(2);
+	const doc = [];
 	doc.push('/**');
 	doc.push(' * @api {get} /api/'+name+'/:id?token=TOKEN 2 - Find one');
 	doc.push(' * @apiVersion 1.0.0');
@@ -49,14 +49,14 @@ function routeGetId(entity, attributes, options) {
 	doc.push(' * @apiUse token');
 
 	let possibleIncludes = [];
-	for (var i = 0; i < options.length; i++)
+	for (let i = 0; i < options.length; i++)
 		possibleIncludes.push(options[i].as);
 	possibleIncludes = `{String=${possibleIncludes.join(',')}}`;
 	doc.push(` * @apiParam (Query parameters) ${possibleIncludes} [include] Include specified association(s) to each <code>${name}</code> result.<br>Multiple values can be given separated by a comma <br><br>Ex: ?include=r_asso1,r_asso2`);
 
 	doc.push(' * @apiParam (Params parameters) {Integer} id The <code>id</code> of '+name+' to fetch');
 	doc.push(' * @apiSuccess {Object} '+name+' Object of '+name);
-	for (var attr in attributes)
+	for (const attr in attributes)
 		doc.push(' * @apiSuccess {'+capitalizeFirstLetter(attributes[attr].type)+'} '+name+'.'+attr+' <code>'+attr+'</code> of '+name);
 	doc.push(' * @apiError (Error 404) {Object} NotFound No '+name+' with ID <code>id</code> found');
 
@@ -70,8 +70,8 @@ function routeGetAssociation(entity, options) {
 	if (options.length == 0)
 		return '';
 
-	var name = entity.codeName.substring(2);
-	var doc = [];
+	const name = entity.codeName.substring(2);
+	const doc = [];
 	doc.push('/**');
 	doc.push(' * @api {get} /api/'+name+'/:id/:association?token=TOKEN 2.a - Find association');
 	doc.push(' * @apiVersion 1.0.0');
@@ -80,8 +80,8 @@ function routeGetAssociation(entity, options) {
 	doc.push(' * @apiUse tokenLimitOffset');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to which <code>association</code> is related');
 
-	var allowedValues = []
-	for (var i = 0; i < options.length; i++)
+	let allowedValues = []
+	for (let i = 0; i < options.length; i++)
 		allowedValues.push(options[i].target.substring(2));
 	allowedValues = `{String=${allowedValues.join(',')}}`;
 	doc.push(` * @apiParam (Params parameters) ${allowedValues} association Name of the related entity`);
@@ -97,10 +97,10 @@ function routeGetAssociation(entity, options) {
 	return doc.join('\n');
 }
 
-var privateFields = ['version', 'f_password', 'f_token_password_reset', 'f_enabled'];
+const privateFields = ['version', 'f_password', 'f_token_password_reset', 'f_enabled'];
 function routePost(entity, attributes, options) {
-	var name = entity.codeName.substring(2);
-	var doc = [];
+	const name = entity.codeName.substring(2);
+	const doc = [];
 	doc.push('/**');
 	doc.push(' * @api {post} /api/'+name+'/?token=TOKEN 3 - Create');
 	doc.push(' * @apiVersion 1.0.0');
@@ -110,7 +110,7 @@ function routePost(entity, attributes, options) {
 	for (var attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
 			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} ['+attr+'] <code>'+attr+'</code> of '+name);
-	for (var i = 0; i < options.length; i++)
+	for (let i = 0; i < options.length; i++)
 		if (options[i].relation != 'belongsToMany')
 			doc.push(' * @apiParam (Body parameters) {Integer} ['+options[i].foreignKey+'] <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
 	doc.push(' * @apiSuccess {Object} '+name+' Created '+name);
@@ -126,8 +126,8 @@ function routePost(entity, attributes, options) {
 }
 
 function routePut(entity, attributes, options) {
-	var name = entity.codeName.substring(2);
-	var doc = [];
+	const name = entity.codeName.substring(2);
+	const doc = [];
 	doc.push('/**');
 	doc.push(' * @api {put} /api/'+name+'/:id?token=TOKEN 4 - Update');
 	doc.push(' * @apiVersion 1.0.0');
@@ -138,7 +138,7 @@ function routePut(entity, attributes, options) {
 	for (var attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
 			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} ['+attr+'] New value of <code>'+attr+'</code> for '+name);
-	for (var i = 0; i < options.length; i++)
+	for (let i = 0; i < options.length; i++)
 		if (options[i].relation != 'belongsToMany')
 			doc.push(' * @apiParam (Body parameters) {Integer} ['+options[i].foreignKey+'] <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
 
@@ -156,8 +156,8 @@ function routePut(entity, attributes, options) {
 }
 
 function routeDelete(entity) {
-	var name = entity.codeName.substring(2);
-	var doc = [];
+	const name = entity.codeName.substring(2);
+	const doc = [];
 	doc.push('/**');
 	doc.push(' * @api {delete} /api/'+name+'/:id?token=TOKEN 5 - Delete');
 	doc.push(' * @apiVersion 1.0.0');
@@ -176,7 +176,7 @@ function routeDelete(entity) {
 }
 
 function entityDocumentation(entity, attributes, options) {
-	var entityDoc = '';
+	let entityDoc = '';
 	entityDoc += '/********************************************\n';
 	entityDoc += ' ********************************************\n';
 	entityDoc += ' * '+entity.name.toUpperCase()+'\n';

@@ -1,9 +1,9 @@
 // Set up ======================================================================
 // Get all the tools we need
-var path = require('path');
-var express = require('express');
-var session = require('express-session');
-var dbConfig = require('./config/database');
+const path = require('path');
+const express = require('express');
+const session = require('express-session');
+const dbConfig = require('./config/database');
 
 // MySql
 if(dbConfig.dialect == "mysql")
@@ -15,26 +15,26 @@ if(dbConfig.dialect == "postgres"){
 	var SessionStore = require('connect-pg-simple')(session);
 }
 
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var app = express();
-var globalConf = require('./config/global');
-var protocol = globalConf.protocol;
-var port = globalConf.port;
-var passport = require('passport');
-var flash = require('connect-flash');
-var language = require('./services/language');
-var extend = require('util')._extend;
-var https = require('https');
-var fs = require('fs');
-var helper = require('./utils/helpers');
-var logger = require('./utils/logger');
-var split = require('split');
-var AnsiToHTML = require('ansi-to-html');
-var ansiToHtml = new AnsiToHTML();
-var moment = require('moment');
-var models = require('./models/');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const app = express();
+const globalConf = require('./config/global');
+const protocol = globalConf.protocol;
+const port = globalConf.port;
+const passport = require('passport');
+const flash = require('connect-flash');
+const language = require('./services/language');
+const extend = require('util')._extend;
+const https = require('https');
+const fs = require('fs');
+const helper = require('./utils/helpers');
+const logger = require('./utils/logger');
+const split = require('split');
+const AnsiToHTML = require('ansi-to-html');
+const ansiToHtml = new AnsiToHTML();
+const moment = require('moment');
+const models = require('./models/');
 
 // Passport for configuration
 require('./utils/authStrategies');
@@ -43,15 +43,15 @@ require('./utils/authStrategies');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
-var allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
+const allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
 	flags: 'a'
 });
 
 app.use(morgan('dev', {
 	skip: function(req, res) {
 		// Remove spamming useless logs
-		var skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/watch", "/"];
-		var currentURL = req.originalUrl;
+		const skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/watch", "/"];
+		let currentURL = req.originalUrl;
 		if (currentURL.indexOf("?") != -1) {
 			// Remove params from URL
 			currentURL = currentURL.split("?")[0];
@@ -131,8 +131,8 @@ app.use(bodyParser.json({
 
 // Template rendering
 //------------------------------ DUST.JS ------------------------------ //
-var dust = require('dustjs-linkedin');
-var cons = require('consolidate');
+const dust = require('dustjs-linkedin');
+const cons = require('consolidate');
 
 app.set('views', path.join(__dirname, 'views'));
 app.engine('dust', cons.dust);
@@ -140,7 +140,7 @@ cons.dust.debugLevel = "DEBUG";
 app.set('view engine', 'dust');
 
 // Required for passport
-var options = {
+const options = {
 	host: dbConfig.host,
 	port: dbConfig.port,
 	user: dbConfig.user,
@@ -151,7 +151,7 @@ var options = {
 if(dbConfig.dialect == "mysql")
 	var sessionStore = new SessionStore(options);
 if(dbConfig.dialect == "postgres"){
-	var pgPool = new pg.Pool(options);
+	const pgPool = new pg.Pool(options);
 	pgPool.connect((err, client, done) => {
 		if (err) {console.error(err);}
 		client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
@@ -203,21 +203,20 @@ app.use(function(req, res, next) {
 
 	// Helpers
 	dust.helpers.ifTrue = function(chunk, context, bodies, params) {
-		var value = params.key;
+		const value = params.key;
 
 		if(value == true || value == "true" || value == 1){
 			return true;
-		} else{
-			return false;
 		}
+		return false;
+
 	};
 
 	dust.helpers.in = function(chunk, context, bodies, params) {
 		const paramsArray = params.value.split(",");
 		if(paramsArray.indexOf(params.key) != -1)
 			return true;
-		else
-			return false;
+		return false;
 	};
 
 	// Locals
@@ -248,15 +247,15 @@ app.use(function(req, res, next) {
 
 // Overload res.render to always get and reset toastr
 app.use(function(req, res, next) {
-	var render = res.render;
+	const render = res.render;
 	res.render = function(view, locals, cb) {
 		if (typeof locals === "undefined")
 			locals = {};
 		if (req.session.toastr && req.session.toastr.length > 0) {
 			locals.toastr = [];
-			for (var i = 0; i < req.session.toastr.length; i++) {
-				var toast = req.session.toastr[i];
-				var traductedToast = {
+			for (let i = 0; i < req.session.toastr.length; i++) {
+				const toast = req.session.toastr[i];
+				const traductedToast = {
 					message: language(req.session.lang_user).__(toast.message),
 					level: toast.level
 				};
@@ -315,7 +314,7 @@ models.sequelize.sync({
 		}
 	})
 	if (protocol == 'https') {
-		var server = https.createServer(globalConf.ssl, app);
+		const server = https.createServer(globalConf.ssl, app);
 		server.listen(port);
 		console.log("Started https on " + port);
 	} else {

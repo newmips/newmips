@@ -1,17 +1,17 @@
-var builder = require('../utils/model_builder');
-var fs = require('fs-extra');
+const builder = require('../utils/model_builder');
+const fs = require('fs-extra');
 
-var attributes_origin = require("./attributes/e_media.json");
-var associations = require("./options/e_media.json");
+const attributes_origin = require("./attributes/e_media.json");
+const associations = require("./options/e_media.json");
 
 module.exports = (sequelize, DataTypes) => {
-	var attributes = builder.buildForModel(attributes_origin, DataTypes);
-	var options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_media',
 		timestamps: true
 	};
 
-	var Model = sequelize.define('E_media', attributes, options);
+	const Model = sequelize.define('E_media', attributes, options);
 	Model.associate = builder.buildAssociation('E_media', associations);
 
 	Model.prototype.getFieldsToInclude = function() {

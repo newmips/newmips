@@ -50,7 +50,7 @@ async (req, login, password, done) => {
 	// Check if current user is already connected
 	const sessions = await models.sequelize.query("SELECT "+sessionIDCol+", "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
 	let currentSession, sessionID;
-	for (var i = 0; i < sessions.length; i++) {
+	for (let i = 0; i < sessions.length; i++) {
 		sessionID = sessions[i][sessionIDCol];
 		currentSession = sessions[i][dataColumnName];
 

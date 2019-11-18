@@ -9,7 +9,7 @@ const options = require('../models/options/e_URL_ROUTE_event');
 const entity_helper = require('../utils/entity_helper');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
-	var data = {};
+	const data = {};
 	models.CODE_NAME_EVENT_MODEL.findAll({
 		include: [{
 			model: models.CODE_NAME_CATEGORY_MODEL,
@@ -20,15 +20,15 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 		}]
 	}).then(function(events) {
 
-		var eventsArray = [];
-		for(var i=0; i<events.length; i++){
+		const eventsArray = [];
+		for(let i=0; i<events.length; i++){
 			if(events[i].r_category == null){
 				events[i].r_category = {
 					f_color: "#CCCCCC"
 				};
 			}
-			var ressourceIds = [];
-			for(var j=0; j<events[i].r_users.length; j++){
+			const ressourceIds = [];
+			for(let j=0; j<events[i].r_users.length; j++){
 				ressourceIds.push(events[i].r_users[j].id);
 			}
 			eventsArray.push({
@@ -65,7 +65,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event",
 	if(req.body.idCategory == "" || req.body.idCategory == 0)
 		req.body.idCategory = null;
 
-	var createObj = {
+	const createObj = {
 		version: 0,
 		f_title: req.body.title,
 		f_start_date: req.body.start,
@@ -75,7 +75,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event",
 	};
 
 	models.CODE_NAME_EVENT_MODEL.create(createObj).then(function(createdEvent){
-		var users = [];
+		const users = [];
 		if(req.body.idUser != null)
 			users.push(req.body.idUser);
 		createdEvent.setR_users(users).then(function(){
@@ -89,7 +89,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event",
 
 router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "create"), function(req, res) {
 
-	var updateObj = {
+	const updateObj = {
 		f_start_date: req.body.start,
 		f_end_date: req.body.end
 	};
@@ -102,14 +102,14 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 });
 
 router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "update"), function(req, res) {
-	var id_e_URL_ROUTE_event = parseInt(req.body.id);
+	const id_e_URL_ROUTE_event = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.CODE_NAME_EVENT_MODEL.findOne({
 		where: {
@@ -163,7 +163,7 @@ router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_ev
 });
 
 router.post('/delete_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "delete"), function (req, res) {
-	var id_e_URL_ROUTE_event = parseInt(req.body.id);
+	const id_e_URL_ROUTE_event = parseInt(req.body.id);
 
 	models.CODE_NAME_EVENT_MODEL.findOne({where: {id: id_e_URL_ROUTE_event}}).then(function (deleteObject) {
 		models.CODE_NAME_EVENT_MODEL.destroy({

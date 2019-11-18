@@ -1,18 +1,18 @@
-var globalConf = require('../config/global');
-var io;
+const globalConf = require('../config/global');
+let io;
 
-var chat = false;
+let chat = false;
 if (globalConf.socket.chat)
 	chat = require('../utils/chat');
 
-var connectedUsers = {};
+const connectedUsers = {};
 
 module.exports = function(ioParam) {
 	if (ioParam)
 		io = ioParam;
 	if (io)
 		io.on('connection', function(socket) {
-			var user;
+			let user;
 			try {
 				user = socket.handshake.session.passport.user;
 				if (!user)
@@ -42,7 +42,7 @@ module.exports = function(ioParam) {
 		sendNotification: function(notification, targetIds) {
 			if (!globalConf.socket.enabled || !globalConf.socket.notification)
 				return console.log('Sockets or notifications disabled. Notification ID '+notification.id+' couldn\'t be sent');
-			for (var i = 0; i < targetIds.length; i++)
+			for (let i = 0; i < targetIds.length; i++)
 				if (connectedUsers[targetIds[i]])
 					connectedUsers[targetIds[i]].socket.emit('notification', notification);
 		}

@@ -2,13 +2,12 @@
 function formatDate(value) {
 	if (lang_user == "fr-FR")
 		return moment(new Date(value)).format("DD/MM/YYYY");
-	else
-		return moment(new Date(value)).format("YYYY-MM-DD");
+	return moment(new Date(value)).format("YYYY-MM-DD");
 }
 
 // Prepend notification to notification list
 function displayNotification(notification, isNew) {
-	var notifHtml = '';
+	let notifHtml = '';
 	notifHtml += '<li class="notification">';
 	notifHtml += '	<ul class="menu">';
 	notifHtml += '		<li>';
@@ -26,7 +25,7 @@ function displayNotification(notification, isNew) {
 	notifHtml += '	</ul>';
 	notifHtml += '</li>';
 
-	var currentNotifCount = 0;
+	let currentNotifCount = 0;
 	if ($("#notification-total").text() != "" && !isNaN($("#notification-total").text()))
 		currentNotifCount = parseInt($("#notification-total").text());
 
@@ -41,13 +40,13 @@ socket.on('notification', displayNotification);
 $(function() {
 
 	// Load new notifications on scroll
-	var lastNotifReached = false;
+	let lastNotifReached = false;
 	$("#notification-wrapper").scroll(function() {
-		var wrapper = $(this);
+		const wrapper = $(this);
 
 		// Scrollbar reached bottom
 		if (wrapper[0].scrollHeight - wrapper.scrollTop() == wrapper.height()) {
-			var notificationOffset = wrapper.children('li').length;
+			const notificationOffset = wrapper.children('li').length;
 
 			// Stop ajax calls if there is no more notification to load
 			if (lastNotifReached)
@@ -57,7 +56,7 @@ $(function() {
 				success: function(notifications) {
 					if (notifications.length == 0)
 						lastNotifReached = true;
-					for (var i = 0; i < notifications.length; i++)
+					for (let i = 0; i < notifications.length; i++)
 						displayNotification(notifications[i], false);
 				}
 			});

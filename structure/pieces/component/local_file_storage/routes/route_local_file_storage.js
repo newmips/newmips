@@ -1,26 +1,26 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 
-var models = require('../models/');
-var attributes = require('../models/attributes/COMPONENT_NAME_LOWER');
-var options = require('../models/options/COMPONENT_NAME_LOWER');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
+const models = require('../models/');
+const attributes = require('../models/attributes/COMPONENT_NAME_LOWER');
+const options = require('../models/options/COMPONENT_NAME_LOWER');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
 
-var multer = require('multer');
-var fs = require('fs');
-var fse = require('fs-extra');
-var moment = require("moment");
-var upload = multer().single('file');
+const multer = require('multer');
+const fs = require('fs');
+const fse = require('fs-extra');
+const moment = require("moment");
+const upload = multer().single('file');
 
-var config = require('../config/global');
+const config = require('../config/global');
 
 router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
 
-	var version = parseInt(req.body.version) + 1;
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
-	var redirect = '/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.SOURCE_ENTITY_LOWER+'#COMPONENT_NAME_LOWER';
+	const version = parseInt(req.body.version) + 1;
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const redirect = '/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.SOURCE_ENTITY_LOWER+'#COMPONENT_NAME_LOWER';
 
 	models.COMPONENT_NAME.create(createObject).then(function(COMPONENT_NAME_LOWER) {
 		req.session.toastr = [{
@@ -28,21 +28,21 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 			level: "success"
 		}];
 
-		var foreignKeyArray = [];
-		var asArray = [];
-		for (var j = 0; j < options.length; j++) {
+		const foreignKeyArray = [];
+		const asArray = [];
+		for (let j = 0; j < options.length; j++) {
 			if(typeof options[j].foreignKey != "undefined")
 				foreignKeyArray.push(options[j].foreignKey.toLowerCase());
 			if(typeof options[j].as != "undefined")
 				asArray.push(options[j].as.toLowerCase());
 		}
 
-		first: for (var prop in req.body) {
+		first: for (const prop in req.body) {
 			if (prop.indexOf('id_') != 0 && asArray.indexOf(prop.toLowerCase()) == -1){
 				continue;
 			}
 			//BELONGS TO with foreignKey naming
-			for (var i = 0; i < options.length; i++) {
+			for (let i = 0; i < options.length; i++) {
 				if(typeof options[i].foreignKey != "undefined" && options[i].foreignKey == prop){
 					continue first;
 				}
@@ -51,9 +51,9 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 				continue;
 			}
 
-			var target = prop.substr(3);
+			let target = prop.substr(3);
 			//HAS MANY with as naming
-			for (var k = 0; k < options.length; k++) {
+			for (let k = 0; k < options.length; k++) {
 				if(typeof options[k].as != "undefined" && options[k].as.toLowerCase() == prop.toLowerCase())
 					target = options[k].as;
 			}
@@ -81,9 +81,9 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 			});
 		}
 		fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
-		var uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
-		var byte;
-		var outStream = fs.createWriteStream(uploadPath);
+		const uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
+		let byte;
+		const outStream = fs.createWriteStream(uploadPath);
 		outStream.write(req.file.buffer);
 		outStream.end();
 		outStream.on('finish', function(err){
@@ -96,15 +96,15 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 
 /* COMPONENT ajax download file */
 router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
-	var downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
-	var fileName = req.body.originalname;
+	const downloadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.body.originalname;
+	const fileName = req.body.originalname;
 	res.download(downloadPath, fileName, function(err) {
 		if(err){console.error(err);}
 	});
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
-	var id_COMPONENT_NAME = req.body.id;
+	const id_COMPONENT_NAME = req.body.id;
 
 	models.COMPONENT_NAME.findOne({
 		where:{

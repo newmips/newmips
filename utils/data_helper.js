@@ -92,7 +92,7 @@ function clearString(string){
 }
 
 function lowerFirstWord(instruction){
-	var instructions = instruction.split(' ');
+	const instructions = instruction.split(' ');
 	instructions[0] = instructions[0].toLowerCase();
 	return instructions.join(' ');
 }
@@ -160,7 +160,7 @@ function addPrefix(string, instructionFunction){
 }
 
 function removePrefix(string, type){
-	var stringLower = string.toLowerCase();
+	const stringLower = string.toLowerCase();
 	switch(type){
 		case 'project':
 			if(stringLower.substring(0,2) == "p_")
@@ -274,9 +274,9 @@ module.exports = {
 				}
 
 				if(typeof data.options.usingField !== "undefined"){
-					var usingFields = data.options.usingField.split(",");
+					const usingFields = data.options.usingField.split(",");
 					data.options.showUsingField = data.options.usingField.split(",");
-					for (var j = 0; j < usingFields.length; j++) {
+					for (let j = 0; j < usingFields.length; j++) {
 						usingFields[j] = usingFields[j].trim();
 						usingFields[j] = clearString(usingFields[j]);
 						usingFields[j] = addPrefix(usingFields[j], "using");

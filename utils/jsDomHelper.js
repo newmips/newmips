@@ -7,7 +7,7 @@ const beautify = require('js-beautify').html;
 
 function read(fileName) {
 	return new Promise(function(resolve, reject) {
-		var fileData = helpers.readFileSyncWithCatch(fileName);
+		let fileData = helpers.readFileSyncWithCatch(fileName);
 
 		if(typeof fileData !== "undefined"){
 			// Comment `dust` elements. We need to comment them to allow jsdom to parse the file correctly
@@ -26,7 +26,7 @@ function read(fileName) {
 			});
 
 		} else {
-			var err = new Error();
+			const err = new Error();
 			err.message = "Unable to read the file: " + fileName.split("/workspace/").pop();
 			reject(err);
 		}
@@ -82,7 +82,7 @@ exports.insertHtml = function(filename, element, html) {
 
 function write(fileName, $) {
 	return new Promise(function(resolve, reject) {
-		var newFileData = $("body")[0].innerHTML;
+		let newFileData = $("body")[0].innerHTML;
 
 		// Fix a bug caused by JSDOM that append &nbsp; at the beginning of the document
 		if (newFileData.substring(0, 6) == "&nbsp;")
@@ -123,7 +123,7 @@ exports.write = write;
 exports.writeMainLayout = function(fileName, $) {
 	return new Promise(function(resolve, reject) {
 
-		var newFileData = "<!DOCTYPE html>";
+		let newFileData = "<!DOCTYPE html>";
 		newFileData += $("html")[0].outerHTML;
 
 		// Replace escaped characters and script inclusion
@@ -153,7 +153,7 @@ exports.writeMainLayout = function(fileName, $) {
 		newFileData = newFileData.replace(/placeholder=(.+?)(\|)(.+?)(\|)/g, 'placeholder=$1"$3"');
 
 		// Write back to file
-		var writeStream = fs.createWriteStream(fileName);
+		const writeStream = fs.createWriteStream(fileName);
 		writeStream.write(newFileData);
 		writeStream.end();
 		writeStream.on('finish', function() {

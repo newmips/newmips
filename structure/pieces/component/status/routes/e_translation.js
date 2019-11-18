@@ -1,29 +1,29 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_translation');
-var options = require('../models/options/e_translation');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var status_helper = require('../utils/status_helper');
-var globalConfig = require('../config/global');
-var fs = require('fs-extra');
-var dust = require('dustjs-linkedin');
+const models = require('../models/');
+const attributes = require('../models/attributes/e_translation');
+const options = require('../models/options/e_translation');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const file_helper = require('../utils/file_helper');
+const status_helper = require('../utils/status_helper');
+const globalConfig = require('../config/global');
+const fs = require('fs-extra');
+const dust = require('dustjs-linkedin');
 
 // Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 router.get('/list', block_access.actionAccessMiddleware("translation", "read"), function (req, res) {
-	var data = {
+	const data = {
 		"menu": "e_translation",
 		"sub_menu": "list_e_translation"
 	};
@@ -47,9 +47,9 @@ router.post('/datalist', block_access.actionAccessMiddleware("translation", "rea
 });
 
 router.get('/show', block_access.actionAccessMiddleware("translation", "read"), function (req, res) {
-	var id_e_translation = req.query.id;
-	var tab = req.query.tab;
-	var data = {
+	const id_e_translation = req.query.id;
+	const tab = req.query.tab;
+	const data = {
 		menu: "e_translation",
 		sub_menu: "list_e_translation",
 		tab: tab,
@@ -78,9 +78,9 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
 					data.next_status = nextStatus;
 
 				// Give children status entity/field translation
-				for (var i = 0; e_translation.r_children && i < e_translation.r_children.length; i++) {
-					var curr = e_translation.r_children[i];
-					var entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
+				for (let i = 0; e_translation.r_children && i < e_translation.r_children.length; i++) {
+					const curr = e_translation.r_children[i];
+					const entityTradKey = 'entity.'+curr.f_entity+'.label_entity';
 					curr.f_field = 'entity.'+curr.f_entity+'.'+curr.f_field;
 					curr.f_entity = entityTradKey;
 				}
@@ -102,7 +102,7 @@ router.get('/show', block_access.actionAccessMiddleware("translation", "read"), 
 });
 
 router.get('/create_form', block_access.actionAccessMiddleware("translation", "create"), function (req, res) {
-	var data = {
+	const data = {
 		menu: "e_translation",
 		sub_menu: "create_e_translation",
 		enum_radio: enums_radios.translated("e_translation", req.session.lang_user, options)
@@ -123,22 +123,22 @@ router.get('/create_form', block_access.actionAccessMiddleware("translation", "c
 		data.languages.push(file.substring(0, file.length-5));
 	});
 
-	var view = req.query.ajax ? 'e_translation/create_fields' : 'e_translation/create';
+	const view = req.query.ajax ? 'e_translation/create_fields' : 'e_translation/create';
 	res.render(view, data);
 });
 
 router.post('/create', block_access.actionAccessMiddleware("translation", "create"), function (req, res) {
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_translation.create(createObject).then(function (e_translation) {
-		var redirect = '/translation/show?id='+e_translation.id;
+		let redirect = '/translation/show?id='+e_translation.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
 			level: "success"
 		}];
 
-		var promises = [];
+		const promises = [];
 
 		if (typeof req.body.associationFlag !== 'undefined') {
 			redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
@@ -146,18 +146,18 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
 				models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
 					if (!association) {
 						e_translation.destroy();
-						var err = new Error();
+						const err = new Error();
 						err.message = "Association not found.";
 						reject(err);
 					}
 
-					var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+					const modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
 					if (typeof association['add' + modelName] !== 'undefined'){
 						association['add' + modelName](e_translation.id).then(resolve).catch(function(err){
 							reject(err);
 						});
 					} else {
-						var obj = {};
+						const obj = {};
 						obj[req.body.associationForeignKey] = e_translation.id;
 						association.update(obj).then(resolve).catch(function(err){
 							reject(err);
@@ -182,8 +182,8 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("translation", "update"), function (req, res) {
-	var id_e_translation = req.query.id;
-	var data = {
+	const id_e_translation = req.query.id;
+	const data = {
 		menu: "e_translation",
 		sub_menu: "list_e_translation",
 		enum_radio: enums_radios.translated("e_translation", req.session.lang_user, options)
@@ -221,14 +221,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("translation", "u
 });
 
 router.post('/update', block_access.actionAccessMiddleware("translation", "update"), function (req, res) {
-	var id_e_translation = parseInt(req.body.id);
+	const id_e_translation = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_translation.findOne({where: {id: id_e_translation}}).then(function (e_translation) {
 		if (!e_translation) {
@@ -243,7 +243,7 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
 			// because those values are not updated for now
 			model_builder.setAssocationManyValues(e_translation, req.body, updateObject, options).then(function () {
 
-				var redirect = '/translation/show?id=' + id_e_translation;
+				let redirect = '/translation/show?id=' + id_e_translation;
 				if (typeof req.body.associationFlag !== 'undefined')
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -263,12 +263,12 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
 });
 
 router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translation', 'read'), function(req, res) {
-	var alias = req.params.alias;
-	var id = req.params.id;
+	const alias = req.params.alias;
+	const id = req.params.id;
 
 	// Find tab option
-	var option;
-	for (var i = 0; i < options.length; i++)
+	let option;
+	for (let i = 0; i < options.length; i++)
 		if (options[i].as == req.params.alias)
 		{option = options[i]; break;}
 	if (!option)
@@ -290,9 +290,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translati
 		if (!e_translation)
 			return res.status(404).end();
 
-		var dustData = e_translation[option.as];
-		var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		var dustFile, idSubentity, promisesData = [];
+		let dustData = e_translation[option.as];
+		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
+		let dustFile, idSubentity, promisesData = [];
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -304,7 +304,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translati
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);
+					const statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);
 					for (var i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
 							(function(alias) {
@@ -325,7 +325,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translati
 				// Status history specific behavior. Replace history_model by history_table to open view
 				if (option.target.indexOf('_history_') == 0) {
 					option.noCreateBtn = true;
-					for (var attr in attributes)
+					for (const attr in attributes)
 						if (attributes[attr].history_table && attributes[attr].history_model == option.target)
 							dustFile = attributes[attr].history_table+'/list_fields';
 				}
@@ -354,7 +354,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translati
 		// Image buffer promise
 		Promise.all(promisesData).then(function() {
 			// Open and render dust file
-			var file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
+			const file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
 			dust.insertLocalsFn(dustData ? dustData : {}, req);
 			dust.renderSource(file, dustData || {}, function(err, rendered) {
 				if (err) {
@@ -381,13 +381,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translati
 });
 
 router.get('/set_status/:id_translation/:status/:id_new_status', block_access.actionAccessMiddleware("translation", "update"), function(req, res) {
-	var historyModel = 'E_history_e_translation_'+req.params.status;
-	var historyAlias = 'r_history_'+req.params.status.substring(2);
-	var statusAlias = 'r_'+req.params.status.substring(2);
+	const historyModel = 'E_history_e_translation_'+req.params.status;
+	const historyAlias = 'r_history_'+req.params.status.substring(2);
+	const statusAlias = 'r_'+req.params.status.substring(2);
 
-	var errorRedirect = '/translation/show?id='+req.params.id_translation;
+	const errorRedirect = '/translation/show?id='+req.params.id_translation;
 
-	var includeTree = status_helper.generateEntityInclude(models, 'e_translation');
+	const includeTree = status_helper.generateEntityInclude(models, 'e_translation');
 
 	// Find target entity instance and include its child to be able to replace variables in media
 	includeTree.push({
@@ -433,9 +433,9 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 			}
 
 			// Check if new status is actualy the current status's children
-			var children = current_status.r_children;
-			var nextStatus = false;
-			for (var i = 0; i < children.length; i++) {
+			const children = current_status.r_children;
+			let nextStatus = false;
+			for (let i = 0; i < children.length; i++) {
 				if (children[i].id == req.params.id_new_status)
 				{nextStatus = children[i]; break;}
 			}
@@ -452,7 +452,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 			nextStatus.executeActions(e_translation).then(function() {
 				// Create history record for this status field
 				// Beeing the most recent history for translation it will now be its current status
-				var createObject = {}
+				const createObject = {}
 				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_translation_history_"+req.params.status.substring(2)] = req.params.id_translation;
 				models[historyModel].create(createObject).then(function() {
@@ -465,7 +465,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 					level: 'warning',
 					message: 'component.status.error.action_error'
 				}]
-				var createObject = {}
+				const createObject = {}
 				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_translation_history_"+req.params.status.substring(2)] = req.params.id_translation;
 				models[historyModel].create(createObject).then(function() {
@@ -479,25 +479,25 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 	});
 });
 
-var SELECT_PAGE_SIZE = 10
+const SELECT_PAGE_SIZE = 10
 router.post('/search', block_access.actionAccessMiddleware('translation', 'read'), function (req, res) {
-	var search = '%' + (req.body.search || '') + '%';
-	var limit = SELECT_PAGE_SIZE;
-	var offset = (req.body.page-1)*limit;
+	const search = '%' + (req.body.search || '') + '%';
+	const limit = SELECT_PAGE_SIZE;
+	const offset = (req.body.page-1)*limit;
 
 	// ID is always needed
 	if (req.body.searchField.indexOf("id") == -1)
 		req.body.searchField.push('id');
 
-	var where = {raw: true, attributes: req.body.searchField, where: {}};
+	const where = {raw: true, attributes: req.body.searchField, where: {}};
 	if (search != '%%') {
 		if (req.body.searchField.length == 1) {
 			where.where[req.body.searchField[0]] = {$like: search};
 		} else {
 			where.where.$or = [];
-			for (var i = 0; i < req.body.searchField.length; i++) {
+			for (let i = 0; i < req.body.searchField.length; i++) {
 				if (req.body.searchField[i] != "id") {
-					var currentOrObj = {};
+					const currentOrObj = {};
 					currentOrObj[req.body.searchField[i]] = {$like: search}
 					where.where.$or.push(currentOrObj);
 				}
@@ -507,11 +507,11 @@ router.post('/search', block_access.actionAccessMiddleware('translation', 'read'
 
 	// Possibility to add custom where in select2 ajax instanciation
 	if (typeof req.body.customwhere !== "undefined") {
-		var customwhere = {};
+		let customwhere = {};
 		try {
 			customwhere = JSON.parse(req.body.customwhere);
 		} catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
-		for (var param in customwhere)
+		for (const param in customwhere)
 			where.where[param] = customwhere[param];
 	}
 
@@ -522,9 +522,9 @@ router.post('/search', block_access.actionAccessMiddleware('translation', 'read'
 	models.E_translation.findAndCountAll(where).then(function (results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
 		// Format value like date / datetime / etc...
-		for (var field in attributes) {
-			for (var i = 0; i < results.rows.length; i++) {
-				for (var fieldSelect in results.rows[i]) {
+		for (const field in attributes) {
+			for (let i = 0; i < results.rows.length; i++) {
+				for (const fieldSelect in results.rows[i]) {
 					if(fieldSelect == field){
 						switch(attributes[field].newmipsType) {
 							case "date":
@@ -547,19 +547,19 @@ router.post('/search', block_access.actionAccessMiddleware('translation', 'read'
 
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("translation", "delete"), function (req, res) {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.E_translation.findOne({where: {id: idEntity}}).then(function (e_translation) {
 		if (!e_translation) {
-			var data = {error: 404};
+			const data = {error: 404};
 			return res.render('common/error', data);
 		}
 
 		// Get all associations
 		e_translation['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
 			// Remove entity from association array
-			for (var i = 0; i < aliasEntities.length; i++)
+			for (let i = 0; i < aliasEntities.length; i++)
 				if (aliasEntities[i].id == idToRemove) {
 					aliasEntities.splice(i, 1);
 					break;
@@ -578,16 +578,16 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("tran
 });
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("translation", "create"), function (req, res) {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.E_translation.findOne({where: {id: idEntity}}).then(function (e_translation) {
 		if (!e_translation) {
-			var data = {error: 404};
+			const data = {error: 404};
 			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -607,7 +607,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("transla
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("translation", "delete"), function (req, res) {
-	var id_e_translation = parseInt(req.body.id);
+	const id_e_translation = parseInt(req.body.id);
 
 	models.E_translation.findOne({where: {id: id_e_translation}}).then(function (deleteObject) {
 		models.E_translation.destroy({
@@ -620,7 +620,7 @@ router.post('/delete', block_access.actionAccessMiddleware("translation", "delet
 				level: "success"
 			}];
 
-			var redirect = '/translation/list';
+			let redirect = '/translation/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);

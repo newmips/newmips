@@ -1,16 +1,16 @@
-var builder = require('../utils/model_builder');
+const builder = require('../utils/model_builder');
 
-var attributes_origin = require("./attributes/e_chat.json");
-var associations = require("./options/e_chat.json");
+const attributes_origin = require("./attributes/e_chat.json");
+const associations = require("./options/e_chat.json");
 
 module.exports = (sequelize, DataTypes) => {
-	var attributes = builder.buildForModel(attributes_origin, DataTypes);
-	var options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_chat_chat',
 		timestamps: true
 	};
 
-	var Model = sequelize.define('E_chat', attributes, options);
+	const Model = sequelize.define('E_chat', attributes, options);
 	Model.associate = builder.buildAssociation('E_chat', associations);
 	builder.addHooks(Model, "e_chat", attributes_origin);
 

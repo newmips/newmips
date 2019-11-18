@@ -48,7 +48,7 @@ const deleteLocalFile = function (options) {
 				if (err)
 					return reject(err);
 				if (options.type === 'picture') {
-					//remove picture thumbnail 
+					//remove picture thumbnail
 					const fileThumnailPath = globalConf.localstorage + globalConf.thumbnail.folder + options.entityName + '/' + partOfValue[0] + '/' + options.value;
 					fs.unlink(fileThumnailPath, function (err) {
 						if (err)

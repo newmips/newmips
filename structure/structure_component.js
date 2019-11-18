@@ -8,8 +8,8 @@ async function addTab(entity, file, newLi, newTabContent) {
 	const $ = await domHelper.read(file);
 
 	// Tabs structure doesn't exist, create it
-	var tabs = '';
-	var context;
+	let tabs = '';
+	let context;
 	if ($("#tabs").length == 0) {
 		tabs = '\
 		<div class="nav-tabs-custom" id="tabs">\n\
@@ -390,7 +390,7 @@ exports.newAgenda = async (data) => {
 
 		for (let i = 0; i < fileToReplace.length; i++) {
 			const eventFile = workspacePath + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
-			var eventTemplate = fs.readFileSync(eventFile, 'utf8');
+			let eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
 			eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
 			eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
@@ -493,7 +493,7 @@ exports.newAgenda = async (data) => {
 	await domHelper.write(layoutFileName, $);
 
 	// Clean empty and useless dust helper created by removing <li>
-	var layoutContent = fs.readFileSync(layoutFileName, 'utf8');
+	let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
 	// Remove empty dust helper
 	layoutContent = layoutContent.replace(/{#entityAccess entity=".+"}\W*{\/entityAccess}/g, "");
@@ -958,8 +958,8 @@ exports.addNewComponentAddress = async (data) => {
 	await require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body);
 
 	// Update locales
-	var langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
-	var langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
+	const langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+	const langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
 	langFR.entity[data.options.value] = fields.locales.fr;
 	langFR.entity[data.entity.name].r_address = 'Adresse';
 	langEN.entity[data.options.value] = fields.locales.en;
@@ -1097,7 +1097,7 @@ exports.deleteComponentAddress = async (data) => {
 	fs.writeFileSync(workspacePath + 'models/options/' + data.entity.name + '.json', JSON.stringify(relations, null, 4), 'utf8');
 
 	const toDoFile = ['create_fields', 'update_fields', 'show_fields'];
-	for (var i = 0; i < toDoFile.length; i++) {
+	for (let i = 0; i < toDoFile.length; i++) {
 		const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust');
 		$('.' + data.options.value).remove();
 		await domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $);

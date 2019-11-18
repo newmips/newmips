@@ -9,7 +9,7 @@ const path = require('path');
 function rmdirSyncRecursive(path) {
 	if (fs.existsSync(path)) {
 		fs.readdirSync(path).forEach(function (file, index) {
-			var curPath = path + "/" + file;
+			const curPath = path + "/" + file;
 			if (fs.lstatSync(curPath).isDirectory()) {
 				// recurse
 				rmdirSyncRecursive(curPath);
@@ -33,9 +33,9 @@ function compare(a, b) {
 function sortEditorFolder(workspaceFolder) {
 	//console.log(workspaceFolder);
 
-	var underArray = [];
-	var fileArray = [];
-	var answer = [];
+	const underArray = [];
+	const fileArray = [];
+	const answer = [];
 
 	if (!workspaceFolder)
 		return [];
@@ -55,14 +55,14 @@ function sortEditorFolder(workspaceFolder) {
 }
 
 function readdirSyncRecursive(path, excludeFolder, excludeFile) {
-	var workspace = [];
+	const workspace = [];
 	if (fs.existsSync(path)) {
 		if (path.substr(path.length - 1) == "/") {
 			path = path.slice(0, -1);
 		}
 		fs.readdirSync(path).forEach(function (file, index) {
-			var curPath = path + "/" + file;
-			var splitPath = curPath.split("/");
+			const curPath = path + "/" + file;
+			const splitPath = curPath.split("/");
 			if (excludeFolder.indexOf(file) == -1) {
 				if (fs.lstatSync(curPath).isDirectory()) {
 					var obj = {
@@ -87,27 +87,27 @@ function readdirSyncRecursive(path, excludeFolder, excludeFile) {
 }
 
 function unzipSync(url, folder, entry) {
-	var tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_template_archive.zip";
-	var tmpPath = __dirname+'/../upload/'+tmpFilename;
-	var file = fs.createWriteStream(tmpPath);
+	const tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_template_archive.zip";
+	const tmpPath = __dirname+'/../upload/'+tmpFilename;
+	const file = fs.createWriteStream(tmpPath);
 
-	var cmd = 'wget -O ' + tmpPath + ' ' + url;
+	const cmd = 'wget -O ' + tmpPath + ' ' + url;
 	exec(cmd, function (error, stdout, stderr) {
 
 		if (error !== null) {
 			console.log('exec error: ' + error);
 		}
-		var zip = new admzip(tmpPath);
+		const zip = new admzip(tmpPath);
 		zip.extractAllTo(folder);
 		// zip.extractEntryTo(entry, folder, /*maintainEntryPath*/false, /*overwrite*/true);
 
-		var cmd1 = 'cp -r ' + folder + entry + '-master/* ' + folder;
+		const cmd1 = 'cp -r ' + folder + entry + '-master/* ' + folder;
 		exec(cmd1, function (err, stdo, stde) {
 			if (err !== null) {
 				console.log('exec error: ' + err);
 			}
 
-			var cmd2 = 'rm -r ' + folder + entry + '-master';
+			const cmd2 = 'rm -r ' + folder + entry + '-master';
 			exec(cmd2, function (err2, stdo2, stde2) {
 				if (err2 !== null) {
 					console.log('exec error: ' + err2);
@@ -139,7 +139,7 @@ function buildZipFromDirectory(dir, zip, root) {
 module.exports = {
 	queuedPromises: function queuedAll(headPromises) {
 		return new Promise(function(headResolve, headReject) {
-			var returnedValues = [];
+			const returnedValues = [];
 			function execPromise(promises, idx) {
 				if (!promises[idx])
 					return headResolve(returnedValues);
@@ -155,27 +155,27 @@ module.exports = {
 		})
 	},
 	encrypt: function (text) {
-		var cipher = crypto.createCipher('aes-256-cbc', 'd6F3Efeq');
-		var crypted = cipher.update(text, 'utf8', 'hex');
+		const cipher = crypto.createCipher('aes-256-cbc', 'd6F3Efeq');
+		let crypted = cipher.update(text, 'utf8', 'hex');
 		crypted += cipher.final('hex');
 		return crypted;
 	}
 	,
 	decrypt: function (text) {
-		var decipher = crypto.createDecipher('aes-256-cbc', 'd6F3Efeq');
-		var dec = decipher.update(text, 'hex', 'utf8');
+		const decipher = crypto.createDecipher('aes-256-cbc', 'd6F3Efeq');
+		let dec = decipher.update(text, 'hex', 'utf8');
 		dec += decipher.final('utf8');
 		return dec;
 	},
 	generate_key: function () {
-		var sha = crypto.createHash('sha256');
+		const sha = crypto.createHash('sha256');
 		sha.update(Math.random().toString());
 		return sha.digest('hex');
 	},
 	randomString: function (length) {
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		for (var i = 0; i < length; i++) {
+		let text = "";
+		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		for (let i = 0; i < length; i++) {
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		}
 		return text;
@@ -193,10 +193,10 @@ module.exports = {
 		}
 	},
 	getDatalistStructure: function (options, attributes, mainEntity, idApplication) {
-		var structureDatalist = [];
+		const structureDatalist = [];
 
 		/* Get first attributes from the main entity */
-		for (var attr in attributes) {
+		for (const attr in attributes) {
 			structureDatalist.push({
 				field: attr,
 				type: attributes[attr].newmipsType,
@@ -207,10 +207,10 @@ module.exports = {
 		}
 
 		/* Then get attributes from other entity associated to main entity */
-		for (var j = 0; j < options.length; j++) {
+		for (let j = 0; j < options.length; j++) {
 			if (options[j].relation.toLowerCase() == "hasone" || options[j].relation.toLowerCase() == "belongsto") {
-				var currentAttributes = require(__dirname + '/../workspace/' + idApplication + '/models/attributes/' + options[j].target);
-				for (var currentAttr in currentAttributes) {
+				const currentAttributes = require(__dirname + '/../workspace/' + idApplication + '/models/attributes/' + options[j].target);
+				for (const currentAttr in currentAttributes) {
 					structureDatalist.push({
 						field: currentAttr,
 						type: currentAttributes[currentAttr].newmipsType,
@@ -230,8 +230,7 @@ module.exports = {
 			// First line of last error in app logs
 			if (logContent.indexOf("Error:") == -1)
 				return "No error detected.";
-			else
-				return logContent.split("Error:")[logContent.split("Error:").length - 1].split("\n")[0];
+			return logContent.split("Error:")[logContent.split("Error:").length - 1].split("\n")[0];
 		} catch (err) {
 			console.error(err);
 			return err;

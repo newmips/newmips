@@ -299,7 +299,7 @@ exports.createNewModule = async (data) => {
 exports.listModule = async (data) => {
 	const info = {};
 	let listing = "<br><ul>";
-	for (var i = 0; i < data.application.modules.length; i++) {
+	for (let i = 0; i < data.application.modules.length; i++) {
 		listing += "<li>" + modules[i].displayName + "(" + modules[i].name + ")</li>";
 	}
 	listing += "</ul>";
@@ -383,9 +383,9 @@ exports.createNewEntity = async (data) => {
 exports.listEntity = async (data) => {
 	const info = {};
 	let listing = "<br><ul>";
-	for (var i = 0; i < data.application.modules.length; i++) {
+	for (let i = 0; i < data.application.modules.length; i++) {
 		listing += "<li>" + data.application.modules[i].displayName + "</li>";
-		for (var j = 0; j < data.application.modules[i].entities.length; j++) {
+		for (let j = 0; j < data.application.modules[i].entities.length; j++) {
 			listing += "- " + data.application.modules[i].entities[j].displayName + " (" + data.application.modules[i].entities[j].name + ")<br>";
 		}
 	}
@@ -724,18 +724,18 @@ exports.setFieldKnownAttribute = async (data) => {
 			messageParams: [data.options.showValue, data.options.word]
 		}
 
-	} else {
-		const err = new Error("structure.field.attributes.notUnderstandGiveAvailable");
-		let msgParams = "";
-		for (let i = 0; i < requiredAttribute.length; i++) {
-			msgParams += "-  " + requiredAttribute[i] + "<br>";
-		}
-		for (let j = 0; j < uniqueAttribute.length; j++) {
-			msgParams += "-  " + uniqueAttribute[j] + "<br>";
-		}
-		err.messageParams = [msgParams];
-		throw err;
 	}
+	const err = new Error("structure.field.attributes.notUnderstandGiveAvailable");
+	let msgParams = "";
+	for (let i = 0; i < requiredAttribute.length; i++) {
+		msgParams += "-  " + requiredAttribute[i] + "<br>";
+	}
+	for (let j = 0; j < uniqueAttribute.length; j++) {
+		msgParams += "-  " + uniqueAttribute[j] + "<br>";
+	}
+	err.messageParams = [msgParams];
+	throw err;
+
 }
 
 exports.setFieldAttribute = async (data) => {
@@ -767,8 +767,8 @@ exports.createNewHasOne = async (data) => {
 	data.np_module = sourceEntity.np_module;
 	data.source_entity = sourceEntity.entity;
 
-	var answer = {};
-	var toSync = true;
+	const answer = {};
+	let toSync = true;
 	let constraints = true;
 
 	let target_entity = data.application.findEntity(data.options.target);
@@ -793,7 +793,7 @@ exports.createNewHasOne = async (data) => {
 	let saveFile = false;
 
 	// Checking relation existence from source to target
-	for (var i = 0; i < optionsSourceObject.length; i++) {
+	for (let i = 0; i < optionsSourceObject.length; i++) {
 		if (optionsSourceObject[i].target == data.options.target) {
 			// If alias already used
 			if (data.options.as == optionsSourceObject[i].as){
@@ -1091,7 +1091,7 @@ exports.createNewHasMany = async (data) => {
 	}
 
 	// Créer le lien hasMany en la source et la target
-	var associationOption = {
+	const associationOption = {
 		application: data.application,
 		source: data.options.source,
 		target: data.options.target,
@@ -1310,7 +1310,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	let saveFile = false;
 
 	// Check if an association already exists with the same alias
-	for (var i = 0; i < optionsSourceObject.length; i++) {
+	for (let i = 0; i < optionsSourceObject.length; i++) {
 		if (optionsSourceObject[i].target == data.options.target) {
 			// If alias already used
 			if (data.options.as == optionsSourceObject[i].as){
@@ -1465,7 +1465,7 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
 	// Check if an association already exists from target to source
 	const optionsObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.target_entity.name + '.json'));
 
-	for (var i = 0; i < optionsObject.length; i++) {
+	for (let i = 0; i < optionsObject.length; i++) {
 		if (data.source_entity.name != data.target_entity.name
 				&& (optionsObject[i].target == data.source_entity.name
 					&& optionsObject[i].relation == "belongsTo")) {

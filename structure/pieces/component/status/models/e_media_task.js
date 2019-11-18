@@ -1,30 +1,30 @@
-var builder = require('../utils/model_builder');
-var fs = require('fs-extra');
+const builder = require('../utils/model_builder');
+const fs = require('fs-extra');
 
-var attributes_origin = require("./attributes/e_media_task.json");
-var associations = require("./options/e_media_task.json");
-var globalConf = require('../config/global');
-var moment = require('moment');
-var models;
+const attributes_origin = require("./attributes/e_media_task.json");
+const associations = require("./options/e_media_task.json");
+const globalConf = require('../config/global');
+const moment = require('moment');
+let models;
 
 module.exports = (sequelize, DataTypes) => {
-	var attributes = builder.buildForModel(attributes_origin, DataTypes);
-	var options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_media_task',
 		timestamps: true
 	};
 
-	var Model = sequelize.define('E_media_task', attributes, options);
+	const Model = sequelize.define('E_media_task', attributes, options);
 	Model.associate = builder.buildAssociation('E_media_task', associations);
 	builder.addHooks(Model, 'e_media_task', attributes_origin);
 
 	// Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
 	//	  Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
 	Model.prototype.parseForInclude = function() {
-		var fieldsToParse = ['f_task_name'];
-		var valuesForInclude = [];
-		for (var i = 0; i < fieldsToParse.length; i++) {
-			var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+		const fieldsToParse = ['f_task_name'];
+		const valuesForInclude = [];
+		for (let i = 0; i < fieldsToParse.length; i++) {
+			let regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
 			while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
 				valuesForInclude.push(matches[1]);
 		}
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
 	}
 
 	Model.prototype.execute = function(resolve, reject, dataInstance) {
-		var self = this;
+		const self = this;
 		if (!models)
 			models = require('./index');
 
@@ -46,19 +46,18 @@ module.exports = (sequelize, DataTypes) => {
 					// Case where targeted field is in an array.
 					// Ex: r_projet.r_participants.f_name <- Loop through r_participants and join all f_name
 					else if (object[depths[idx]] instanceof Array && depths.length-2 == idx) {
-						var values = [];
-						for (var i = 0; i < object[depths[idx]].length; i++)
+						const values = [];
+						for (let i = 0; i < object[depths[idx]].length; i++)
 							if (typeof object[depths[idx]][i][depths[idx+1]] !== 'undefined')
 								values.push(object[depths[idx]][i][depths[idx+1]]);
 						return values.join(' ');
 					}
 					return diveData(object[depths[idx]], depths, ++idx);
-				} else
-					return object[depths[idx]];
+				} return object[depths[idx]];
 			}
 
-			var newString = self[property];
-			var regex = new RegExp(/{field\|([^}]*)}/g),
+			let newString = self[property];
+			const regex = new RegExp(/{field\|([^}]*)}/g),
 				matches = null;
 			while ((matches = regex.exec(self[property])) != null)
 				newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
@@ -71,13 +70,13 @@ module.exports = (sequelize, DataTypes) => {
 				if (!originFileName || originFileName == '')
 					return fileResolve(null);
 				try {
-					var originFolder = originFileName.split('-')[0];
-					var originPath = globalConf.localstorage+'e_media_task/'+originFolder;
+					const originFolder = originFileName.split('-')[0];
+					const originPath = globalConf.localstorage+'e_media_task/'+originFolder;
 
-					var duplicateFolder = moment().format("YYYYMMDD-HHmmssSSS");
-					var duplicateFileName = duplicateFolder+'_'+originFileName.substring(16);
+					let duplicateFolder = moment().format("YYYYMMDD-HHmmssSSS");
+					const duplicateFileName = duplicateFolder+'_'+originFileName.substring(16);
 					duplicateFolder = duplicateFolder.split('-')[0];
-					var duplicatePath = globalConf.localstorage+'e_task/'+duplicateFolder;
+					const duplicatePath = globalConf.localstorage+'e_task/'+duplicateFolder;
 					fs.mkdirs(duplicatePath, err => {
 						if (err)
 							return fileReject(err);

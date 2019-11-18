@@ -1,30 +1,30 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_user');
-var options = require('../models/options/e_user');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var status_helper = require('../utils/status_helper');
-var component_helper = require('../utils/component_helper');
-var globalConfig = require('../config/global');
-var fs = require('fs-extra');
-var dust = require('dustjs-linkedin');
-var moment = require("moment");
-var bcrypt = require('bcrypt-nodejs');
-var SELECT_PAGE_SIZE = 10;
+const models = require('../models/');
+const attributes = require('../models/attributes/e_user');
+const options = require('../models/options/e_user');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const file_helper = require('../utils/file_helper');
+const status_helper = require('../utils/status_helper');
+const component_helper = require('../utils/component_helper');
+const globalConfig = require('../config/global');
+const fs = require('fs-extra');
+const dust = require('dustjs-linkedin');
+const moment = require("moment");
+const bcrypt = require('bcrypt-nodejs');
+const SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 router.get('/list', block_access.actionAccessMiddleware("user", "read"), function(req, res) {
 	res.render('e_user/list');
@@ -32,8 +32,8 @@ router.get('/list', block_access.actionAccessMiddleware("user", "read"), functio
 
 router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), function(req, res) {
 	filterDataTable("E_user", req.body).then(function(rawData) {
-		for (var i = 0; i < rawData.data.length; i++) {
-			var user = rawData.data[i];
+		for (let i = 0; i < rawData.data.length; i++) {
+			const user = rawData.data[i];
 			user.f_password = undefined;
 			user.f_token_password_reset = undefined;
 			user.f_enabled = undefined;
@@ -53,19 +53,19 @@ router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), fu
 });
 
 router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"), function(req, res) {
-	var start = parseInt(req.body.start || 0);
-	var length = parseInt(req.body.length || 10);
+	const start = parseInt(req.body.start || 0);
+	const length = parseInt(req.body.length || 10);
 
-	var sourceId = req.query.sourceId;
-	var subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
-	var subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
-	var doPagination = req.query.paginate;
+	const sourceId = req.query.sourceId;
+	const subentityAlias = req.query.subentityAlias, subentityName = req.query.subentityModel;
+	const subentityModel = entity_helper.capitalizeFirstLetter(req.query.subentityModel);
+	const doPagination = req.query.paginate;
 
 	// Build array of fields for include and search object
-	var isGlobalSearch = req.body.search.value == "" ? false : true;
-	var search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
+	const isGlobalSearch = req.body.search.value == "" ? false : true;
+	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
 	search[searchTerm] = [];
-	var toInclude = [];
+	const toInclude = [];
 	// Loop over columns array
 	for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
 		if (columns[i].searchable == 'false')
@@ -76,7 +76,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 
 		// Add column own search
 		if (columns[i].search.value != "") {
-			var {type, value} = JSON.parse(columns[i].search.value);
+			const {type, value} = JSON.parse(columns[i].search.value);
 			search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
 		}
 		// Add column global search
@@ -87,14 +87,14 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 		if (req.body.columns[i].searchable == 'true')
 			toInclude.push(req.body.columns[i].data);
 	// Get sequelize include object
-	var subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
+	const subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
 	// ORDER BY
-	var order, stringOrder = req.body.columns[req.body.order[0].column].data;
+	let order, stringOrder = req.body.columns[req.body.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
 	order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
-	var include = {
+	const include = {
 		model: models[subentityModel],
 		as: subentityAlias,
 		order: order,
@@ -119,12 +119,12 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 		}
 
 		e_user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
-			var rawData = {
+			const rawData = {
 				recordsTotal: count,
 				recordsFiltered: count,
 				data: []
 			};
-			for (var i = 0; i < e_user[subentityAlias].length; i++)
+			for (let i = 0; i < e_user[subentityAlias].length; i++)
 				rawData.data.push(e_user[subentityAlias][i].get({plain: true}));
 
 			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
@@ -139,9 +139,9 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 });
 
 router.get('/show', block_access.actionAccessMiddleware("user", "read"), function(req, res) {
-	var id_e_user = req.query.id;
-	var tab = req.query.tab;
-	var data = {
+	const id_e_user = req.query.id;
+	const tab = req.query.tab;
+	const data = {
 		tab: tab,
 		enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
 	};
@@ -178,7 +178,7 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
 });
 
 router.get('/create_form', block_access.actionAccessMiddleware("user", "create"), function(req, res) {
-	var data = {
+	const data = {
 		enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
 	};
 
@@ -192,7 +192,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
 
 	// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
 	entity_helper.getLoadOnStartData(data, options).then(function(data) {
-		var view = req.query.ajax ? 'e_user/create_fields' : 'e_user/create';
+		const view = req.query.ajax ? 'e_user/create_fields' : 'e_user/create';
 		res.render(view, data);
 	}).catch(function(err) {
 		entity_helper.error(err, req, res, '/user/create_form', "e_user");
@@ -201,20 +201,20 @@ router.get('/create_form', block_access.actionAccessMiddleware("user", "create")
 
 router.post('/create', block_access.actionAccessMiddleware("user", "create"), function(req, res) {
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 	// Make sure it's impossible to set sensitive information through create form
 	createObject.f_token_password_reset = undefined;
 	createObject.f_enabled = 0;
 	createObject.f_password = undefined;
 
 	models.E_user.create(createObject).then(function(e_user) {
-		var redirect = '/user/show?id=' + e_user.id;
+		let redirect = '/user/show?id=' + e_user.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
 			level: "success"
 		}];
 
-		var promises = [];
+		const promises = [];
 
 		if (typeof req.body.associationFlag !== 'undefined') {
 			redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
@@ -226,18 +226,18 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
 				}).then(function(association) {
 					if (!association) {
 						e_user.destroy();
-						var err = new Error();
+						const err = new Error();
 						err.message = "Association not found.";
 						reject(err);
 					}
 
-					var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+					const modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
 					if (typeof association['add' + modelName] !== 'undefined') {
 						association['add' + modelName](e_user.id).then(resolve).catch(function(err) {
 							reject(err);
 						});
 					} else {
-						var obj = {};
+						const obj = {};
 						obj[req.body.associationForeignKey] = e_user.id;
 						association.update(obj).then(resolve).catch(function(err) {
 							reject(err);
@@ -264,8 +264,8 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
-	var id_e_user = req.query.id;
-	var data = {
+	const id_e_user = req.query.id;
+	const data = {
 		enum_radio: enums_radios.translated("e_user", req.session.lang_user, options)
 	};
 
@@ -308,14 +308,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
 });
 
 router.post('/update', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
-	var id_e_user = parseInt(req.body.id);
+	const id_e_user = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 	// Make sure it's impossible to set sensitive information through update form
 	updateObject.f_token_password_reset = undefined;
 	updateObject.f_enabled = undefined;
@@ -333,7 +333,7 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 		}
 		component_helper.address.updateAddressIfComponentExists(e_user, options, req.body);
 
-		var redirect = '/user/show?id=' + id_e_user;
+		let redirect = '/user/show?id=' + id_e_user;
 		// If we are in user settings,then he cannot modify sensible data, and we redirect differently
 		if(req.body.is_settings){
 			delete updateObject.f_login;
@@ -368,12 +368,12 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 });
 
 router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'read'), function(req, res) {
-	var alias = req.params.alias;
-	var id = req.params.id;
+	const alias = req.params.alias;
+	const id = req.params.id;
 
 	// Find tab option
-	var option;
-	for (var i = 0; i < options.length; i++)
+	let option;
+	for (let i = 0; i < options.length; i++)
 		if (options[i].as == req.params.alias) {
 			option = options[i];
 			break;
@@ -385,7 +385,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
 		return res.status(403).end();
 
-	var queryOpts = {
+	const queryOpts = {
 		where: {
 			id: id
 		}
@@ -405,9 +405,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 		if (!e_user)
 			return res.status(404).end();
 
-		var dustData = e_user[option.as] || null;
-		var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		var dustFile, idSubentity, promisesData = [];
+		let dustData = e_user[option.as] || null;
+		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
+		let dustFile, idSubentity, promisesData = [];
 		var subentityOptions = [];
 
 		// Build tab specific variables
@@ -488,7 +488,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 			// Image buffer promise
 			Promise.all(promisesData).then(function() {
 				// Open and render dust file
-				var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
 				dust.insertLocalsFn(dustData ? dustData : {}, req);
 				dust.renderSource(file, dustData || {}, function(err, rendered) {
 					if (err) {
@@ -528,15 +528,15 @@ router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAcc
 });
 
 router.post('/search', block_access.actionAccessMiddleware('user', 'read'), function(req, res) {
-	var search = '%' + (req.body.search || '') + '%';
-	var limit = SELECT_PAGE_SIZE;
-	var offset = (req.body.page - 1) * limit;
+	const search = '%' + (req.body.search || '') + '%';
+	const limit = SELECT_PAGE_SIZE;
+	const offset = (req.body.page - 1) * limit;
 
 	// ID is always needed
 	if (req.body.searchField.indexOf("id") == -1)
 		req.body.searchField.push('id');
 
-	var where = {
+	const where = {
 		raw: true,
 		attributes: req.body.searchField,
 		where: {}
@@ -548,9 +548,9 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 			};
 		} else {
 			where.where[models.$or] = [];
-			for (var i = 0; i < req.body.searchField.length; i++) {
+			for (let i = 0; i < req.body.searchField.length; i++) {
 				if (req.body.searchField[i] != "id") {
-					var currentOrObj = {};
+					const currentOrObj = {};
 					if(req.body.searchField[i].indexOf(".") != -1){
 						currentOrObj["$"+req.body.searchField[i]+"$"] = {
 							[models.$like]: search
@@ -577,9 +577,9 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 	models.E_user.findAndCountAll(where).then(function(results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
 		// Format value like date / datetime / etc...
-		for (var field in attributes)
-			for (var i = 0; i < results.rows.length; i++)
-				for (var fieldSelect in results.rows[i])
+		for (const field in attributes)
+			for (let i = 0; i < results.rows.length; i++)
+				for (const fieldSelect in results.rows[i])
 					if(fieldSelect == field){
 						switch(attributes[field].newmipsType) {
 							case "date":
@@ -598,16 +598,16 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user", "delete"), function(req, res) {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.E_user.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then(function(e_user) {
 		if (!e_user) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			return res.render('common/error', data);
@@ -625,22 +625,22 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user
 });
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("user", "create"), function(req, res) {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.E_user.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then(function(e_user) {
 		if (!e_user) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof(toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -660,7 +660,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("user", 
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), function(req, res) {
-	var id_e_user = parseInt(req.body.id);
+	const id_e_user = parseInt(req.body.id);
 
 	models.E_user.findOne({
 		where: {
@@ -677,7 +677,7 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
 				level: "success"
 			}];
 
-			var redirect = '/user/list';
+			let redirect = '/user/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);
@@ -742,15 +742,15 @@ router.post('/settings', block_access.isLoggedIn, function(req, res) {
 				return reject("settings.error2");
 			} else if(req.body.new_password_1.length < 4){
 				return reject("settings.error3");
-			} else {
-				bcrypt.compare(req.body.old_password, user.f_password, function(err, check) {
-					if(!check){
-						return reject("settings.error4");
-					}
-					updateObject.f_password = bcrypt.hashSync(req.body.new_password_1, null, null);
-					resolve(updateObject);
-				})
 			}
+			bcrypt.compare(req.body.old_password, user.f_password, function(err, check) {
+				if(!check){
+					return reject("settings.error4");
+				}
+				updateObject.f_password = bcrypt.hashSync(req.body.new_password_1, null, null);
+				resolve(updateObject);
+			})
+
 		})
 
 		newPassword.then(updateObject => {

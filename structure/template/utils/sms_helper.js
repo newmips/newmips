@@ -1,6 +1,6 @@
-var smsConf = require('../config/sms');
+const smsConf = require('../config/sms');
 
-var ovh = require('ovh')(smsConf);
+const ovh = require('ovh')(smsConf);
 
 module.exports = function(phones, text) {
 	return new Promise(function(resolve, reject) {
@@ -11,7 +11,7 @@ module.exports = function(phones, text) {
 
 			try {
 				// Format phone number to match ovh api
-				for (var i = 0; i < phones.length; i++)
+				for (let i = 0; i < phones.length; i++)
 				   phones[i] = '0033'+phones[i].split(' ').join('').substring(1);
 
 			} catch(e) {
