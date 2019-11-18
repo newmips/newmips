@@ -136,7 +136,7 @@ exports.newLocalFileStorage = async (data) => {
     let componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, componentName);
     componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
     componentContent = componentContent.replace(/SOURCE_LOWER/g, source);
-    fs.mkdirSync(workspacePath + '/views/' + componentName, 0766);
+    fs.mkdirSync(workspacePath + '/views/' + componentName);
     fs.writeFileSync(workspacePath + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
 
     let newLi = '<li><a id="' + componentName + '-click" data-toggle="tab" href="#' + componentName + '"><!--{#__ key="component.' + componentName + '.label_component" /}--></a></li>';

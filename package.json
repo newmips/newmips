@@ -68,6 +68,10 @@
     },
     "scripts": {
         "test": "mocha",
-        "start": "node ./server"
+        "start": "node ./server",
+        "lint": "eslint ./database/ ;exit 0"
+    },
+    "devDependencies": {
+        "eslint": "^6.6.0"
     }
 }

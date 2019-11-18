@@ -1,6 +1,6 @@
-var globalConf = require('./global');
+const globalConf = require('./global');
 
-var mattermost = {
+const mattermost = {
 	develop: {
 		api_url: 'https://team.newmips.com:8065/api/v4',
 		team: "support",
