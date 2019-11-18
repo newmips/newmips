@@ -1,114 +1,114 @@
 {>"layout_m_administration"/}
 {<custom_css_2}
-    <link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
-    <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
-    <link href='/js/plugins/bootstrap-duallistbox/src/bootstrap-duallistbox.css' rel='stylesheet' type='text/css'>
+	<link href='/css/Datatables/dataTables.bootstrap.css' rel='stylesheet' type='text/css'>
+	<link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
+	<link href='/js/plugins/bootstrap-duallistbox/src/bootstrap-duallistbox.css' rel='stylesheet' type='text/css'>
 {/custom_css_2}
 {<header}
-    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
-    <ol class="breadcrumb">
-        <li>
-            <a href="/">
-                <i class="fa fa-home"></i>
-                {#__ key="module.home"/}
-            </a>
-        </li>
-        <li>   <a class='sub-module-arianne' href='/default/administration'>       {#__ key="module.m_administration"/}   </a></li>
-        <li class="active">
-            {#__ key="entity.e_status.name_entity"/}
-        </li>
-    </ol>
+	<h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
+	<ol class="breadcrumb">
+		<li>
+			<a href="/">
+				<i class="fa fa-home"></i>
+				{#__ key="module.home"/}
+			</a>
+		</li>
+		<li>   <a class='sub-module-arianne' href='/default/administration'>	   {#__ key="module.m_administration"/}   </a></li>
+		<li class="active">
+			{#__ key="entity.e_status.name_entity"/}
+		</li>
+	</ol>
 {/header}
 {<content}
-    <div class="row">
-        <div class="col-xs-12 connectedSortable">
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">{#__ key="operation.show"/} {#__ key="entity.e_status.name_entity" /}</h3>
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-minus"></i></button>
-                    </div>
-                </div>
-                <div class="box-body">
-                    {#e_status}
-                        <div class="form-group">
-                            <label for="id">{#__ key="entity.e_status.id_entity"/} {#__ key="entity.e_status.name_entity"/}</label>
-                            <input type="text" name="sourceId" value="{e_status.id}" disabled="" class="form-control"/>
-                            <input type="text" name="sourceName" value="e_status" disabled="" class="form-control" style="display:none;" />
-                        </div>
-                        {>"e_status/show_fields"/}
-                    {/e_status}
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="row">
+		<div class="col-xs-12 connectedSortable">
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">{#__ key="operation.show"/} {#__ key="entity.e_status.name_entity" /}</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fa fa-minus"></i></button>
+					</div>
+				</div>
+				<div class="box-body">
+					{#e_status}
+						<div class="form-group">
+							<label for="id">{#__ key="entity.e_status.id_entity"/} {#__ key="entity.e_status.name_entity"/}</label>
+							<input type="text" name="sourceId" value="{e_status.id}" disabled="" class="form-control"/>
+							<input type="text" name="sourceName" value="e_status" disabled="" class="form-control" style="display:none;" />
+						</div>
+						{>"e_status/show_fields"/}
+					{/e_status}
+				</div>
+			</div>
+		</div>
+	</div>
 {/content}
 {<custom_js}
-    <script type="text/javascript">
-        /* Static variables using dust, used in show.js */
-        var EMPTY = '{#__ key="message.empty" /}';
-        var CREATE_TEXT = '{#__ key="button.create"/}';
-        var UPDATE_TEXT = '{#__ key="button.update"/}';
-        var SAVE_TEXT = '{#__ key="button.save"/}';
-        var DELETE_TEXT = '{#__ key="button.delete"/}';
-        var CANCEL_TEXT = '{#__ key="button.cancel"/}';
-        var REMOVE_TEXT = '{#__ key="button.remove" /}';
-        var CREATE_BUTTON = '<a href="#" data-href="" class="ajax btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>'+CREATE_TEXT+'</span></a>';
-        var UPDATE_BUTTON = '<a style="margin-right:8px;" data-href="" href="#" class="ajax btn btn-warning"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>'+UPDATE_TEXT+'</span></a>';
-        var DELETE_FORM = '<form action="" class="ajax" method="post"><button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.delete" /}</span><input name="id" type="hidden"></button></form>';
-        var FIELDSET_SELECT = '<form action="" class="ajax" method="post" style="margin-bottom: 20px;"><select style="width:200px;" class="form-control regular-select" name="ids" required="" multiple=""></select><button style="margin-left:7px;" type="submit" class="btn btn-success">{#__ key="button.add"/}</button><input type="hidden" value="{custom_data_entity.id}" name="idEntity"></form>';
+	<script type="text/javascript">
+		/* Static variables using dust, used in show.js */
+		var EMPTY = '{#__ key="message.empty" /}';
+		var CREATE_TEXT = '{#__ key="button.create"/}';
+		var UPDATE_TEXT = '{#__ key="button.update"/}';
+		var SAVE_TEXT = '{#__ key="button.save"/}';
+		var DELETE_TEXT = '{#__ key="button.delete"/}';
+		var CANCEL_TEXT = '{#__ key="button.cancel"/}';
+		var REMOVE_TEXT = '{#__ key="button.remove" /}';
+		var CREATE_BUTTON = '<a href="#" data-href="" class="ajax btn btn-success"><i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>'+CREATE_TEXT+'</span></a>';
+		var UPDATE_BUTTON = '<a style="margin-right:8px;" data-href="" href="#" class="ajax btn btn-warning"><i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>'+UPDATE_TEXT+'</span></a>';
+		var DELETE_FORM = '<form action="" class="ajax" method="post"><button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.delete" /}</span><input name="id" type="hidden"></button></form>';
+		var FIELDSET_SELECT = '<form action="" class="ajax" method="post" style="margin-bottom: 20px;"><select style="width:200px;" class="form-control regular-select" name="ids" required="" multiple=""></select><button style="margin-left:7px;" type="submit" class="btn btn-success">{#__ key="button.add"/}</button><input type="hidden" value="{custom_data_entity.id}" name="idEntity"></form>';
 
-        var DATALIST_BUTTONS = [];
-    </script>
+		var DATALIST_BUTTONS = [];
+	</script>
 
-    <script type="text/javascript">
-        var AVAILABLE_STATUS = '{#__ key="component.status.available_status"/}';
-        var NEXT_STATUS = '{#__ key="component.status.children"/}';
-    </script>
+	<script type="text/javascript">
+		var AVAILABLE_STATUS = '{#__ key="component.status.available_status"/}';
+		var NEXT_STATUS = '{#__ key="component.status.children"/}';
+	</script>
 
-    <!-- DATA TABLES SCRIPT-->
-    <script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
-    <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
-    <script src="/js/Newmips/dataTableBuilder.js?v={config.version}" type="text/javascript"></script>
-    <script src="/js/Newmips/simpleTable.js?v={config.version}" type="text/javascript"></script>
-    <!-- DATATABLE EXPORT-->
-    <script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
-    <script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
-    <script src="/js/plugins/datatables/buttons/buttons.html5.min.js" type="text/javascript"></script>
-    <script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="/js/plugins/bootstrap-duallistbox/src/jquery.bootstrap-duallistbox.js"></script>
-    <script type="text/javascript" src="/js/Newmips/show.js?v={config.version}"></script>
+	<!-- DATA TABLES SCRIPT-->
+	<script src="/js/plugins/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
+	<script src="/js/Newmips/dataTableBuilder.js?v={config.version}" type="text/javascript"></script>
+	<script src="/js/Newmips/simpleTable.js?v={config.version}" type="text/javascript"></script>
+	<!-- DATATABLE EXPORT-->
+	<script src="/js/plugins/datatables/buttons/datatableButton.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/datatables/jszip.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/datatables/buttons/buttons.html5.min.js" type="text/javascript"></script>
+	<script src="/js/plugins/datatables/buttons/buttons.print.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="/js/plugins/bootstrap-duallistbox/src/jquery.bootstrap-duallistbox.js"></script>
+	<script type="text/javascript" src="/js/Newmips/show.js?v={config.version}"></script>
 
-    <script type='text/javascript'>
-        $(function() {
-            $("select[name='next_status'").bootstrapDualListbox({
-                nonSelectedListLabel: AVAILABLE_STATUS,
-                selectedListLabel: NEXT_STATUS,
-                moveOnSelect: false,
-                showFilterInputs: false,
-                infoText: false,
-                selectorMinimalHeight: 250
-            });
+	<script type='text/javascript'>
+		$(function() {
+			$("select[name='next_status'").bootstrapDualListbox({
+				nonSelectedListLabel: AVAILABLE_STATUS,
+				selectedListLabel: NEXT_STATUS,
+				moveOnSelect: false,
+				showFilterInputs: false,
+				infoText: false,
+				selectorMinimalHeight: 250
+			});
 
-            /* Call component delete action */
-            $(document).on("submit", ".componentDeleteForm", function() {
-                var component = $(this).attr("data-component");
-                var url = '/'+component+'/delete';
-                var data = $(this).serialize();
-                data += '&idEntity={e_status.id}';
-                var form = this;
-                $.ajax({
-                    url: url,
-                    method: 'post',
-                    data: data,
-                    success:function() {
-                        /* tables is a global var comming from simpleTable.js */
-                        tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
-                    }
-                });
-                return false;
-            });
-        });
-    </script>
+			/* Call component delete action */
+			$(document).on("submit", ".componentDeleteForm", function() {
+				var component = $(this).attr("data-component");
+				var url = '/'+component+'/delete';
+				var data = $(this).serialize();
+				data += '&idEntity={e_status.id}';
+				var form = this;
+				$.ajax({
+					url: url,
+					method: 'post',
+					data: data,
+					success:function() {
+						/* tables is a global var comming from simpleTable.js */
+						tables[$(form).parents('table').attr('id')].row($(form).parents('tr')).remove().draw();
+					}
+				});
+				return false;
+			});
+		});
+	</script>
 {/custom_js}

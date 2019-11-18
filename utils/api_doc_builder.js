@@ -6,7 +6,7 @@ const path = require("path");
 function capitalizeFirstLetter(word) {
 	if(typeof word === "undefined" || !word)
 		return "Integer";
-    return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
+	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
 function routeGet(entity, attributes, options) {
@@ -167,7 +167,7 @@ function routeDelete(entity) {
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of '+name+' to delete');
 
 	doc.push(' * @apiSuccessExample {json} Success-Response:');
-	doc.push(' *     HTTP/1.1 200 OK');
+	doc.push(' *	 HTTP/1.1 200 OK');
 	doc.push(' * @apiError (Error 404) {Object} NotFound No '+name+' with ID <code>id</code> found');
 
 	doc.push(' */');
@@ -223,20 +223,20 @@ async function build(application) {
 	// Write file to workspace's api folder
 	fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
 	let isWin = /^win/.test(process.platform), cmd;
-    if (isWin || process.platform == "win32")
-        cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
-    else
-        cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+	if (isWin || process.platform == "win32")
+		cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
+	else
+		cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
 
-    await new Promise((resolve, reject) => {
-    	exec(cmd, (err, stdout, stderr) => {
-	        if (err)
-	            console.error(err);
-	        resolve();
-	    });
+	await new Promise((resolve, reject) => {
+		exec(cmd, (err, stdout, stderr) => {
+			if (err)
+				console.error(err);
+			resolve();
+		});
 	});
 
-    return;
+	return;
 }
 
 exports.build = build;

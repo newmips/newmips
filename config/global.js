@@ -37,34 +37,34 @@ const config = {
 		authStrategy: 'local',
 		support_chat_enabled: false
 	},
-    docker: {
-        env: 'docker',
-        protocol: 'http',
-        protocol_iframe: 'http',
-        host: '127.0.0.1',
-        dns: process.env.DOMAIN_STUDIO,
-        dns_cloud: process.env.DOMAIN_CLOUD,
-        sub_domain: process.env.SUB_DOMAIN,
-        port: process.env.PORT || 1337,
-        support_chat_enabled: false,
-        separate_workspace_db: true,
-        authStrategy: 'local',
-        server_ip: process.env.SERVER_IP
-    },
-    cloud: {
-        env: 'cloud',
-        protocol: 'http',
-        protocol_iframe: 'https',
-        host: process.env.HOSTNAME,
-        dns: process.env.DOMAIN_STUDIO,
-        dns_cloud: process.env.DOMAIN_CLOUD,
-        sub_domain: process.env.SUB_DOMAIN,
-        port: process.env.PORT || 1337,
-        support_chat_enabled: true,
-        separate_workspace_db: true,
-        authStrategy: 'local',
-        server_ip: process.env.SERVER_IP
-    }
+	docker: {
+		env: 'docker',
+		protocol: 'http',
+		protocol_iframe: 'http',
+		host: '127.0.0.1',
+		dns: process.env.DOMAIN_STUDIO,
+		dns_cloud: process.env.DOMAIN_CLOUD,
+		sub_domain: process.env.SUB_DOMAIN,
+		port: process.env.PORT || 1337,
+		support_chat_enabled: false,
+		separate_workspace_db: true,
+		authStrategy: 'local',
+		server_ip: process.env.SERVER_IP
+	},
+	cloud: {
+		env: 'cloud',
+		protocol: 'http',
+		protocol_iframe: 'https',
+		host: process.env.HOSTNAME,
+		dns: process.env.DOMAIN_STUDIO,
+		dns_cloud: process.env.DOMAIN_CLOUD,
+		sub_domain: process.env.SUB_DOMAIN,
+		port: process.env.PORT || 1337,
+		support_chat_enabled: true,
+		separate_workspace_db: true,
+		authStrategy: 'local',
+		server_ip: process.env.SERVER_IP
+	}
 }
 
 const fullConfig = config[env];

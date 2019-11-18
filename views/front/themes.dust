@@ -94,16 +94,16 @@
 				} else {
 					currentChecked.prop("checked", false);
 					$.ajax({
-		                url: "/themes/default_theme",
-		                method: 'post',
-		                data: {theme: $(this).data("codename")},
-		                context: this,
-		                success: function() {
-		                },
-		                error: function(err) {
-		                    console.error(err);
-		                }
-		            });
+						url: "/themes/default_theme",
+						method: 'post',
+						data: {theme: $(this).data("codename")},
+						context: this,
+						success: function() {
+						},
+						error: function(err) {
+							console.error(err);
+						}
+					});
 				}
 			});
 
@@ -115,17 +115,17 @@
 						toastr.error("This is the default theme, please change the default theme before deleting it.");
 					} else {
 						$.ajax({
-			                url: "/themes/delete_theme",
-			                method: 'post',
-			                data: {theme: $(this).data("codename")},
-			                context: this,
-			                success: function() {
-			                	$("#box-"+$(this).data("codename")).remove();
-			                },
-			                error: function(err) {
-			                    console.error(err);
-			                }
-			            });
+							url: "/themes/delete_theme",
+							method: 'post',
+							data: {theme: $(this).data("codename")},
+							context: this,
+							success: function() {
+								$("#box-"+$(this).data("codename")).remove();
+							},
+							error: function(err) {
+								console.error(err);
+							}
+						});
 					}
 				}
 			});

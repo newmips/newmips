@@ -1,89 +1,89 @@
 {>"main_layout"/}
 {<title}
-    {#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
+	{#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<custom_css}
-    <link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
+	<link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css}
 {<content}
 <div class="box">
-    <div class="box-header">
-        <h3 class="box-title">Liste des utilisateurs</h3>
-    </div>
-    <div class="box-body">
-        <div class="table-responsive">
-            <div class="col-xs-12 connectedSortable">
-                <table id="table_users" class="dataTable table table-bordered table-striped">
-                    <thead class="main">
-                        <tr class="fields">
-                            <th data-field="id" data-col="id" data-type="string">
-                                ID
-                            </th>
-                            <th data-field="login" data-col="login" data-type="string">
-                                {#__ key="users.login"/}
-                            </th>
-                            <th data-field="enabled" data-col="enabled" data-type="boolean">
-                                {#__ key="users.enabled"/}
-                            </th>
-                            <th data-field="email" data-col="email" data-type="email">
-                                {#__ key="users.email"/}
-                            </th>
-                            <th data-field="role" data-col="role" data-type="string">
-                                {#__ key="users.role"/}
-                            </th>
-                            <th>{#__ key="users.applications"/}</th>
-                            <th style="width:20%;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#users}
-                        <tr id="bodyTR">
-                            <td data-field="id" data-type="string">{id}</td>
-                            <td data-field="login" data-type="string">{login}</td>
-                            <td data-field="enabled" data-type="boolean">{enabled}</td>
-                            <td data-field="email" data-type="email">{email}</td>
-                            <td data-field="role" data-type="string">{Role.name}</td>
-                            <td data-field="applications" data-type="string">
-                                {#Applications}
-                                    <b><a href="application/preview?id_application={id}" target="_blank">{displayName}</a></b><br>
-                                {/Applications}
-                            </td>
-                            <td>
-                                <a href="/users/show/{id}">
-                                    <button class="pull-left btn btn-info">
-                                        <i class="fa fa-eye fa-md">&nbsp;&nbsp;</i>
-                                        <span>{#__ key="button.show"/}</span>
-                                    </button>
-                                </a>
-                                <a href="/users/update/{id}">
-                                    <button class="pull-left btn btn-warning" style="margin-left: 10px;">
-                                        <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                                        <span>{#__ key="button.update"/}</span>
-                                    </button>
-                                </a>
-                                <form class="pull-left" action="/users/delete" method="post">
-                                    <input type="hidden" name="id" value="{id}">
-                                    <button class="btn btn-danger btn-confirm" style="margin-left: 10px;">
-                                        <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                                        <span>{#__ key="button.delete"/}</span>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {/users}
-                    </tbody>
-                </table>
-                <br>
-                <a href="/users/create">
-                    <button class="btn btn-success">
-                        <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                        <span>{#__ key="button.create"/}</span>
-                    </button>
-                </a>
-            </div>
-        </div>
-    </div>
+	<div class="box-header">
+		<h3 class="box-title">Liste des utilisateurs</h3>
+	</div>
+	<div class="box-body">
+		<div class="table-responsive">
+			<div class="col-xs-12 connectedSortable">
+				<table id="table_users" class="dataTable table table-bordered table-striped">
+					<thead class="main">
+						<tr class="fields">
+							<th data-field="id" data-col="id" data-type="string">
+								ID
+							</th>
+							<th data-field="login" data-col="login" data-type="string">
+								{#__ key="users.login"/}
+							</th>
+							<th data-field="enabled" data-col="enabled" data-type="boolean">
+								{#__ key="users.enabled"/}
+							</th>
+							<th data-field="email" data-col="email" data-type="email">
+								{#__ key="users.email"/}
+							</th>
+							<th data-field="role" data-col="role" data-type="string">
+								{#__ key="users.role"/}
+							</th>
+							<th>{#__ key="users.applications"/}</th>
+							<th style="width:20%;">Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#users}
+						<tr id="bodyTR">
+							<td data-field="id" data-type="string">{id}</td>
+							<td data-field="login" data-type="string">{login}</td>
+							<td data-field="enabled" data-type="boolean">{enabled}</td>
+							<td data-field="email" data-type="email">{email}</td>
+							<td data-field="role" data-type="string">{Role.name}</td>
+							<td data-field="applications" data-type="string">
+								{#Applications}
+									<b><a href="application/preview?id_application={id}" target="_blank">{displayName}</a></b><br>
+								{/Applications}
+							</td>
+							<td>
+								<a href="/users/show/{id}">
+									<button class="pull-left btn btn-info">
+										<i class="fa fa-eye fa-md">&nbsp;&nbsp;</i>
+										<span>{#__ key="button.show"/}</span>
+									</button>
+								</a>
+								<a href="/users/update/{id}">
+									<button class="pull-left btn btn-warning" style="margin-left: 10px;">
+										<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+										<span>{#__ key="button.update"/}</span>
+									</button>
+								</a>
+								<form class="pull-left" action="/users/delete" method="post">
+									<input type="hidden" name="id" value="{id}">
+									<button class="btn btn-danger btn-confirm" style="margin-left: 10px;">
+										<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+										<span>{#__ key="button.delete"/}</span>
+									</button>
+								</form>
+							</td>
+						</tr>
+						{/users}
+					</tbody>
+				</table>
+				<br>
+				<a href="/users/create">
+					<button class="btn btn-success">
+						<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+						<span>{#__ key="button.create"/}</span>
+					</button>
+				</a>
+			</div>
+		</div>
+	</div>
 </div>
 {/content}
 {<custom_js}
@@ -94,33 +94,33 @@
 <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
 <script src="/js/Newmips/simpleTable.js" type="text/javascript"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        /* Make the table horizontaly scrollable with mouse drag on it */
-        var x,y,top,left = 0,down;
-        /* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
-        var scrolling = false;
-        $("tbody").css("cursor", "pointer");
-        $("tbody").mousedown(function(e){
-            e.preventDefault();
-            down=true;
-            x=e.pageX;
-            left=$(".table-responsive").scrollLeft();
-        });
-        $("tbody").mousemove(function(e){
-            if(down){
-                scrolling = true;
-                var newX=e.pageX;
-                $(".table-responsive").scrollLeft(left-newX+x);
-            }
-        });
-        $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
-        $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
-        $('tbody').on('click', 'tr', function (e) {
-            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
-                return;
-            if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
-                window.location = $(this).find('td > a.btn-show:first').attr('href');
-        });
-    });
+	$(document).ready(function(){
+		/* Make the table horizontaly scrollable with mouse drag on it */
+		var x,y,top,left = 0,down;
+		/* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
+		var scrolling = false;
+		$("tbody").css("cursor", "pointer");
+		$("tbody").mousedown(function(e){
+			e.preventDefault();
+			down=true;
+			x=e.pageX;
+			left=$(".table-responsive").scrollLeft();
+		});
+		$("tbody").mousemove(function(e){
+			if(down){
+				scrolling = true;
+				var newX=e.pageX;
+				$(".table-responsive").scrollLeft(left-newX+x);
+			}
+		});
+		$("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+		$("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+		$('tbody').on('click', 'tr', function (e) {
+			if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
+				return;
+			if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
+				window.location = $(this).find('td > a.btn-show:first').attr('href');
+		});
+	});
 </script>
 {/custom_js}
