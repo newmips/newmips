@@ -1,10 +1,8 @@
 // Global configuration file
+const env = 'develop';
+const applicationConf = require('./application.json');
 
-const fs = require('fs');
-let env = 'develop';
-let applicationConf = require('./application.json');
-
-let config = {
+const config = {
     develop: {
         env: 'develop',
         protocol: 'http',
@@ -77,7 +75,6 @@ let config = {
         localstorage: __dirname + "/../upload/",
         syncfolder: __dirname + '/../sync/',
         port: process.env.PORT || 1338,
-        localstorage: "/var/data/localstorage/",
         authStrategy: 'local',
         thumbnail: {
             folder: 'thumbnail/',
@@ -149,9 +146,8 @@ let config = {
 
 // Merge applicationConf with the returned globalConf object
 // After requiring config/global.js, the returned object contain the properties of config/application.json
-var currentConfig = config[env];
-for (var appConf in applicationConf) {
+const currentConfig = config[env];
+for (const appConf in applicationConf)
     currentConfig[appConf] = applicationConf[appConf];
-}
 
 module.exports = currentConfig;

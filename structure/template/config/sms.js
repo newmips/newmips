@@ -1,6 +1,6 @@
-let globalConf = require('./global');
+const globalConf = require('./global');
 
-let smsConf = {
+const smsConf = {
 	develop: {
 		appKey: "",
 		appSecret: "",
