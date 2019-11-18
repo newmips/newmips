@@ -352,12 +352,12 @@
 	{@ifTrue key=isSupportChatEnabled}
 		<script src="/js/plugins/moment.js" type="text/javascript"></script>
 		<script src="/js/plugins/mattermost/mattermost-chat.js" type="text/javascript"></script>
-	    <script type="text/javascript">
-	    	if(user_lang = "fr-FR")
-	    		moment.locale('fr');
-	    	$("#message-box").mattermostChat();
-	    </script>
-    {:else}
+		<script type="text/javascript">
+			if(user_lang = "fr-FR")
+				moment.locale('fr');
+			$("#message-box").mattermostChat();
+		</script>
+	{:else}
 		<script type="text/javascript">
 			$("#message-box").click(function() {
 				var chatDisabledMsg = '{#__ key="preview.help-disabled"/}';

@@ -8,11 +8,11 @@ function printerr( s ){ print s | "cat >&2" }
 
 BEGIN {
   if( ARGC != 2 ){
-    printerr( \
-      "USAGE: mysql2sqlite dump_mysql.sql > dump_sqlite3.sql\n" \
-      "       file name - (dash) is not supported, because - means stdin")
-    no_END = 1
-    exit 1
+	printerr( \
+	  "USAGE: mysql2sqlite dump_mysql.sql > dump_sqlite3.sql\n" \
+	  "	   file name - (dash) is not supported, because - means stdin")
+	no_END = 1
+	exit 1
   }
 
   # Find INT_MAX supported by both this AWK (usually an ISO C signed int)
@@ -58,16 +58,16 @@ function bit_to_int( str_bit,   powtwo, i, res, bit, overflow ){
   overflow = 0
   # 011101 = 1*2^0 + 0*2^1 + 1*2^2 ...
   for( i = length( str_bit ); i > 0; --i ){
-    bit = substr( str_bit, i, 1 )
-    if( overflow || ( bit == 1 && res > INT_MAX_HALF ) ){
-      printerr( \
-        NR ": WARN Bit field overflow, number truncated (LSBs saved, MSBs ignored)." )
-      break
-    }
-    res = res + bit * powtwo
-    # no warning here as it might be the last iteration
-    if( powtwo > INT_MAX_HALF ){ overflow = 1; continue }
-    powtwo = powtwo * 2
+	bit = substr( str_bit, i, 1 )
+	if( overflow || ( bit == 1 && res > INT_MAX_HALF ) ){
+	  printerr( \
+		NR ": WARN Bit field overflow, number truncated (LSBs saved, MSBs ignored)." )
+	  break
+	}
+	res = res + bit * powtwo
+	# no warning here as it might be the last iteration
+	if( powtwo > INT_MAX_HALF ){ overflow = 1; continue }
+	powtwo = powtwo * 2
   }
   return res
 }
@@ -129,13 +129,13 @@ inView != 0 { next }
 
   # sqlite3 is limited to 16 significant digits of precision
   while( match( $0, /0x[0-9a-fA-F]{17}/ ) ){
-    hexIssue = 1
-    sub( /0x[0-9a-fA-F]+/, substr( $0, RSTART, RLENGTH-1 ), $0 )
+	hexIssue = 1
+	sub( /0x[0-9a-fA-F]+/, substr( $0, RSTART, RLENGTH-1 ), $0 )
   }
   if( hexIssue ){
-    printerr( \
-      NR ": WARN Hex number trimmed (length longer than 16 chars)." )
-    hexIssue = 0
+	printerr( \
+	  NR ": WARN Hex number trimmed (length longer than 16 chars)." )
+	hexIssue = 0
   }
   print
   next
@@ -147,13 +147,13 @@ inView != 0 { next }
 # print the CREATE line as is and capture the table name
 /^(CREATE|create)/ {
   if( $0 ~ /IF NOT EXISTS|if not exists/ || $0 ~ /TEMPORARY|temporary/ ){
-    caseIssue = 1
-    printerr( \
-      NR ": WARN Potential case sensitivity issues with table/column naming\n" \
-      "          (see INFO at the end)." )
+	caseIssue = 1
+	printerr( \
+	  NR ": WARN Potential case sensitivity issues with table/column naming\n" \
+	  "		  (see INFO at the end)." )
   }
   if( match( $0, /`[^`]+/ ) ){
-    tableName = substr( $0, RSTART+1, RLENGTH-1 )
+	tableName = substr( $0, RSTART+1, RLENGTH-1 )
   }
   aInc = 0
   prev = ""
@@ -176,8 +176,8 @@ aInc == 1 && /PRIMARY KEY|primary key/ { next }
 # Print all fields definition lines except the `KEY` lines.
 /^  / && !/^(  (KEY|key)|\);)/ {
   if( match( $0, /[^"`]AUTO_INCREMENT|auto_increment[^"`]/) ){
-    aInc = 1
-    gsub( /AUTO_INCREMENT|auto_increment/, "PRIMARY KEY AUTOINCREMENT" )
+	aInc = 1
+	gsub( /AUTO_INCREMENT|auto_increment/, "PRIMARY KEY AUTOINCREMENT" )
   }
   gsub( /(UNIQUE KEY|unique key) (`.*`|".*") /, "UNIQUE " )
   gsub( /(CHARACTER SET|character set) [^ ]+[ ,]/, "" )
@@ -198,40 +198,40 @@ aInc == 1 && /PRIMARY KEY|primary key/ { next }
   gsub( /" [^ ]*(INT|int|BIT|bit)[^ ]*/, "\" integer" )
   ere_bit_field = "[bB]'[10]+'"
   if( match($0, ere_bit_field) ){
-    sub( ere_bit_field, bit_to_int( substr( $0, RSTART +2, RLENGTH -2 -1 ) ) )
+	sub( ere_bit_field, bit_to_int( substr( $0, RSTART +2, RLENGTH -2 -1 ) ) )
   }
   # field comments are not supported
   gsub( / (COMMENT|comment).+$/, "" )
   # Get commas off end of line
   gsub( /,.?$/, "" )
   if( prev ){
-    if( firstInTable ){
-      print prev
-      firstInTable = 0
-    }
-    else {
-      print "," prev
-    }
+	if( firstInTable ){
+	  print prev
+	  firstInTable = 0
+	}
+	else {
+	  print "," prev
+	}
   }
   else {
-    # FIXME check if this is correct in all cases
-    if( match( $1,
-        /(CONSTRAINT|constraint) \".*\" (FOREIGN KEY|foreign key)/ ) ){
-      print ","
-    }
+	# FIXME check if this is correct in all cases
+	if( match( $1,
+		/(CONSTRAINT|constraint) \".*\" (FOREIGN KEY|foreign key)/ ) ){
+	  print ","
+	}
   }
   prev = $1
 }
 
 / ENGINE| engine/ {
   if( prev ){
-    if( firstInTable ){
-      print prev
-      firstInTable = 0
-    }
-    else {
-      print "," prev
-    }
+	if( firstInTable ){
+	  print prev
+	  firstInTable = 0
+	}
+	else {
+	  print "," prev
+	}
   }
   prev=""
   print ");"
@@ -242,28 +242,28 @@ aInc == 1 && /PRIMARY KEY|primary key/ { next }
 # avoid a sqlite error for duplicate index name.
 /^(  (KEY|key)|\);)/ {
   if( prev ){
-    if( firstInTable ){
-      print prev
-      firstInTable = 0
-    }
-    else {
-      print "," prev
-    }
+	if( firstInTable ){
+	  print prev
+	  firstInTable = 0
+	}
+	else {
+	  print "," prev
+	}
   }
   prev = ""
   if( $0 == ");" ){
-    print
+	print
   }
   else {
-    if( match( $0, /`[^`]+/ ) ){
-      indexName = substr( $0, RSTART+1, RLENGTH-1 )
-    }
-    if( match( $0, /\([^()]+/ ) ){
-      indexKey = substr( $0, RSTART+1, RLENGTH-1 )
-    }
-    # idx_ prefix to avoid name clashes (they really happen!)
-    key[tableName] = key[tableName] "CREATE INDEX \"idx_" \
-       tableName "_" indexName "\" ON \"" tableName "\" (" indexKey ");\n"
+	if( match( $0, /`[^`]+/ ) ){
+	  indexName = substr( $0, RSTART+1, RLENGTH-1 )
+	}
+	if( match( $0, /\([^()]+/ ) ){
+	  indexKey = substr( $0, RSTART+1, RLENGTH-1 )
+	}
+	# idx_ prefix to avoid name clashes (they really happen!)
+	key[tableName] = key[tableName] "CREATE INDEX \"idx_" \
+	   tableName "_" indexName "\" ON \"" tableName "\" (" indexKey ");\n"
   }
 }
 
@@ -275,9 +275,9 @@ END {
   print "END TRANSACTION;"
 
   if( caseIssue ){
-    printerr( \
-      "INFO Pure sqlite identifiers are case insensitive (even if quoted\n" \
-      "     or if ASCII) and doesnt cross-check TABLE and TEMPORARY TABLE\n" \
-      "     identifiers. Thus expect errors like \"table T has no column named F\".")
+	printerr( \
+	  "INFO Pure sqlite identifiers are case insensitive (even if quoted\n" \
+	  "	 or if ASCII) and doesnt cross-check TABLE and TEMPORARY TABLE\n" \
+	  "	 identifiers. Thus expect errors like \"table T has no column named F\".")
   }
 }

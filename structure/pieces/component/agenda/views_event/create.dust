@@ -1,155 +1,155 @@
 {>"layout_MODULE_NAME"/}
 {<header}
-    <h1>{#__ key="module.MODULE_NAME"/}<small>{#__ key="module.module"/}</small></h1>
-    <ol class="breadcrumb">
-        <li>
-            <a href="/">
-                <i class="fa fa-home"></i>
-                {#__ key="module.home"/}
-            </a>
-        </li>
-        <li>
-            <a class='sub-module-arianne' href='/default/coucou'>
-                {#__ key="module.MODULE_NAME"/}
-            </a>
-        </li>
-        <li class="active">
-            {#__ key="entity.CODE_NAME_EVENT_LOWER.name_entity"/}
-        </li>
-    </ol>
+	<h1>{#__ key="module.MODULE_NAME"/}<small>{#__ key="module.module"/}</small></h1>
+	<ol class="breadcrumb">
+		<li>
+			<a href="/">
+				<i class="fa fa-home"></i>
+				{#__ key="module.home"/}
+			</a>
+		</li>
+		<li>
+			<a class='sub-module-arianne' href='/default/coucou'>
+				{#__ key="module.MODULE_NAME"/}
+			</a>
+		</li>
+		<li class="active">
+			{#__ key="entity.CODE_NAME_EVENT_LOWER.name_entity"/}
+		</li>
+	</ol>
 {/header}
 
 {<content}
-    <div class="row">
-        <div class="col-xs-12 connectedSortable">
-            <form action="/URL_EVENT/create" method="post">
-                <div class="box">
-                    <div class="box-header">
-                        <h3 class="box-title">{#__ key="operation.create"/} {#__ key="entity.CODE_NAME_EVENT_LOWER.name_entity"/}</h3>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                            <i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                    <div class="box-body">
-                        {>"CODE_NAME_EVENT_LOWER/create_fields"/}
-                        <div class="form-group">
-                            <input name="version" value="1" type="hidden" />
-                        </div>
-                    </div>
+	<div class="row">
+		<div class="col-xs-12 connectedSortable">
+			<form action="/URL_EVENT/create" method="post">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">{#__ key="operation.create"/} {#__ key="entity.CODE_NAME_EVENT_LOWER.name_entity"/}</h3>
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+							<i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						{>"CODE_NAME_EVENT_LOWER/create_fields"/}
+						<div class="form-group">
+							<input name="version" value="1" type="hidden" />
+						</div>
+					</div>
 
-                    <div class="box-footer">
-                        <a class="btn btn-default" href="javascript:history.back();">{#__ key="button.cancel"/}</a>&nbsp;&nbsp;
-                        {#actionAccess entity="URL_EVENT" action="create"}
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
-                                {#__ key="button.save"/}
-                            </button>
-                        {/actionAccess}
-                    </div>
+					<div class="box-footer">
+						<a class="btn btn-default" href="javascript:history.back();">{#__ key="button.cancel"/}</a>&nbsp;&nbsp;
+						{#actionAccess entity="URL_EVENT" action="create"}
+							<button type="submit" class="btn btn-primary">
+								<i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+								{#__ key="button.save"/}
+							</button>
+						{/actionAccess}
+					</div>
 
-                    {#associationFlag}
-                        <input type="hidden" name='associationFlag' value="{.}">
-                    {/associationFlag}
-                    {#associationSource}
-                        <input type="hidden" name='associationSource' value="{.}">
-                    {/associationSource}
-                    {#associationForeignKey}
-                        <input type="hidden" name='associationForeignKey' value="{.}">
-                    {/associationForeignKey}
-                    {#associationAlias}
-                        <input type="hidden" name='associationAlias' value="{.}">
-                    {/associationAlias}
-                    {#associationUrl}
-                        <input type="hidden" name='associationUrl' value="{.}">
-                    {/associationUrl}
-                </div>
-            </form>
-        </div>
-    </div>
+					{#associationFlag}
+						<input type="hidden" name='associationFlag' value="{.}">
+					{/associationFlag}
+					{#associationSource}
+						<input type="hidden" name='associationSource' value="{.}">
+					{/associationSource}
+					{#associationForeignKey}
+						<input type="hidden" name='associationForeignKey' value="{.}">
+					{/associationForeignKey}
+					{#associationAlias}
+						<input type="hidden" name='associationAlias' value="{.}">
+					{/associationAlias}
+					{#associationUrl}
+						<input type="hidden" name='associationUrl' value="{.}">
+					{/associationUrl}
+				</div>
+			</form>
+		</div>
+	</div>
 {/content}
 
 {<custom_js}
-    <script type="text/javascript">
-        $(function() {
-            /* Apply focus on first row's form element */
-            function firstElementFocus(idx) {
-                if(!idx)
-                    idx = 0;
-                var element = $(".form-group:eq("+idx+") label:eq(0)").next().focus();
-                if ((element && (!element.is(":visible") || element.prop('disabled') == true || element.prop('readonly') == true))
-                && ($(".form-group").length > 0 && idx <= $(".form-group").length))
-                    firstElementFocus(idx+1);
-            }
-            firstElementFocus();
-        });
+	<script type="text/javascript">
+		$(function() {
+			/* Apply focus on first row's form element */
+			function firstElementFocus(idx) {
+				if(!idx)
+					idx = 0;
+				var element = $(".form-group:eq("+idx+") label:eq(0)").next().focus();
+				if ((element && (!element.is(":visible") || element.prop('disabled') == true || element.prop('readonly') == true))
+				&& ($(".form-group").length > 0 && idx <= $(".form-group").length))
+					firstElementFocus(idx+1);
+			}
+			firstElementFocus();
+		});
 
-        var format;
-        if (lang_user == 'fr-FR')
-            format = 'DD/MM/YYYY HH:mm';
-        else
-            format = 'YYYY-MM-DD HH:mm';
+		var format;
+		if (lang_user == 'fr-FR')
+			format = 'DD/MM/YYYY HH:mm';
+		else
+			format = 'YYYY-MM-DD HH:mm';
 
-        var START_DATE_MSG = '{#__ key="global_component.agenda.start_date" /}';
-        var START_AFTER_END_MSG = '{#__ key="global_component.agenda.start_after_end" /}';
-        var END_BEFORE_START_MSG = '{#__ key="global_component.agenda.end_before_start" /}';
+		var START_DATE_MSG = '{#__ key="global_component.agenda.start_date" /}';
+		var START_AFTER_END_MSG = '{#__ key="global_component.agenda.start_after_end" /}';
+		var END_BEFORE_START_MSG = '{#__ key="global_component.agenda.end_before_start" /}';
 
-        $(document).on('click', 'button[type="submit"]', function(){
-            if($('input[name="f_start_date"]').val() != '' && $('input[name="f_end_date"]').val() != ''){
-                var start = moment($('input[name="f_start_date"]').val(), format);
-                var end = moment($('input[name="f_end_date"]').val(), format);
-                if(end.diff(start) < 0){
-                    toastr.error(START_AFTER_END_MSG);
-                    return false;
-                }
-            }
-            if($('input[name="f_end_date"]').val() != '' && $('input[name="f_start_date"]').val() != ''){
-                var start = moment($('input[name="f_start_date"]').val(), format);
-                var end = moment($('input[name="f_end_date"]').val(), format);
-                if(end.diff(start) < 0){
-                    toastr.error(END_BEFORE_START_MSG);
-                    return false;
-                }
-            }
-            return true;
-        });
+		$(document).on('click', 'button[type="submit"]', function(){
+			if($('input[name="f_start_date"]').val() != '' && $('input[name="f_end_date"]').val() != ''){
+				var start = moment($('input[name="f_start_date"]').val(), format);
+				var end = moment($('input[name="f_end_date"]').val(), format);
+				if(end.diff(start) < 0){
+					toastr.error(START_AFTER_END_MSG);
+					return false;
+				}
+			}
+			if($('input[name="f_end_date"]').val() != '' && $('input[name="f_start_date"]').val() != ''){
+				var start = moment($('input[name="f_start_date"]').val(), format);
+				var end = moment($('input[name="f_end_date"]').val(), format);
+				if(end.diff(start) < 0){
+					toastr.error(END_BEFORE_START_MSG);
+					return false;
+				}
+			}
+			return true;
+		});
 
-        $(document).on('dp.change', 'input[name="f_start_date"]', function(){
-            if($(this).val() != '' && $('input[name="f_end_date"]').val() != ''){
-                var start = moment($(this).val(), format);
-                var end = moment($('input[name="f_end_date"]').val(), format);
-                if(end.diff(start) < 0){
-                    $(this).val('');
-                }
-            }
-        });
+		$(document).on('dp.change', 'input[name="f_start_date"]', function(){
+			if($(this).val() != '' && $('input[name="f_end_date"]').val() != ''){
+				var start = moment($(this).val(), format);
+				var end = moment($('input[name="f_end_date"]').val(), format);
+				if(end.diff(start) < 0){
+					$(this).val('');
+				}
+			}
+		});
 
-        $(document).on('dp.change', 'input[name="f_end_date"]', function(){
-            if($(this).val() != '' && $('input[name="f_start_date"]').val() != ''){
-                var start = moment($('input[name="f_start_date"]').val(), format);
-                var end = moment($(this).val(), format);
-                if(end.diff(start) < 0){
-                    $(this).val('');
-                }
-            }
-        });
+		$(document).on('dp.change', 'input[name="f_end_date"]', function(){
+			if($(this).val() != '' && $('input[name="f_start_date"]').val() != ''){
+				var start = moment($('input[name="f_start_date"]').val(), format);
+				var end = moment($(this).val(), format);
+				if(end.diff(start) < 0){
+					$(this).val('');
+				}
+			}
+		});
 
-        $(document).on('ifChecked', 'input[name="f_all_day"]', function(e){
-            if(!$("input[name='f_start_date']").val() || $("input[name='f_start_date']").val() == ""){
-                toastr.error(START_DATE_MSG);
-                $(this).icheck('unchecked');
-                return false;
-            }
+		$(document).on('ifChecked', 'input[name="f_all_day"]', function(e){
+			if(!$("input[name='f_start_date']").val() || $("input[name='f_start_date']").val() == ""){
+				toastr.error(START_DATE_MSG);
+				$(this).icheck('unchecked');
+				return false;
+			}
 
-            var formatWithoutHours = format.split(" ")[0];
-            var currentDate = moment($("input[name='f_start_date']").val(), format).format(formatWithoutHours);
-            $("input[name='f_start_date']").val(currentDate + "00:00").prop('readonly', true);
-            $("input[name='f_end_date']").val(currentDate + "23:59").prop('readonly', true);
-        });
+			var formatWithoutHours = format.split(" ")[0];
+			var currentDate = moment($("input[name='f_start_date']").val(), format).format(formatWithoutHours);
+			$("input[name='f_start_date']").val(currentDate + "00:00").prop('readonly', true);
+			$("input[name='f_end_date']").val(currentDate + "23:59").prop('readonly', true);
+		});
 
-        $(document).on('ifUnchecked', 'input[name="f_all_day"]', function(e){
-            $("input[name='f_start_date']").prop('readonly', false);
-            $("input[name='f_end_date']").prop('readonly', false);
-        });
-    </script>
+		$(document).on('ifUnchecked', 'input[name="f_all_day"]', function(e){
+			$("input[name='f_start_date']").prop('readonly', false);
+			$("input[name='f_end_date']").prop('readonly', false);
+		});
+	</script>
 {/custom_js}

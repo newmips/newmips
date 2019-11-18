@@ -19,7 +19,7 @@
 		{! Select2 !}
 		<link href="/css/select2/css/select2.min.css" rel="stylesheet" type="text/css">
 		{! Admin LTE Select2 !}
-        <link href='/css/select2/css/AdminLTE-select2.min.css' rel='stylesheet' type='text/css'>
+		<link href='/css/select2/css/AdminLTE-select2.min.css' rel='stylesheet' type='text/css'>
 		{! iCheck !}
 		<link href="/css/iCheck/flat/blue.css" rel="stylesheet" type="text/css">
 		{! Animated CSS !}
@@ -86,16 +86,16 @@
 		{! Select2 !}
 		<script src="/js/plugins/select2/dist/js/select2.full.min.js" type="text/javascript"></script>
 		<script>
-            var toastrArray = [];
-        </script>
-        {#toastr}
-            <script>
-                toastrArray.push({
-                    message: '{message}',
-                    level: "{level}"
-                });
-            </script>
-        {/toastr}
+			var toastrArray = [];
+		</script>
+		{#toastr}
+			<script>
+				toastrArray.push({
+					message: '{message}',
+					level: "{level}"
+				});
+			</script>
+		{/toastr}
 		<script>
 			$(document).ready(function() {
 				try {

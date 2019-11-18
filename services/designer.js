@@ -32,60 +32,60 @@ const Application = require('../database/application');
 
 // Execute an array of newmips instructions
 exports.recursiveInstructionExecute = async (recursiveData, instructions, idx) => {
-    let exportsContext = this;
-    // Create the attr obj
-    let data = bot.parse(instructions[idx]);
-    if (data.error)
-        throw data.error;
+	let exportsContext = this;
+	// Create the attr obj
+	let data = bot.parse(instructions[idx]);
+	if (data.error)
+		throw data.error;
 
-    // Rework the attr obj
-    data = dataHelper.reworkData(data);
+	// Rework the attr obj
+	data = dataHelper.reworkData(data);
 
-    data.application = recursiveData.application;
-    data.module_name = recursiveData.module_name;
-    data.entity_name = recursiveData.entity_name;
+	data.application = recursiveData.application;
+	data.module_name = recursiveData.module_name;
+	data.entity_name = recursiveData.entity_name;
 
-    // Execute the designer function
-    let info = await this[data.function](data);
-    session.setSessionObj(data, info);
+	// Execute the designer function
+	let info = await this[data.function](data);
+	session.setSessionObj(data, info);
 
-    idx += 1;
-    if (instructions.length == idx)
-        return info;
+	idx += 1;
+	if (instructions.length == idx)
+		return info;
 
-    return await exportsContext.recursiveInstructionExecute(data, instructions, idx);
+	return await exportsContext.recursiveInstructionExecute(data, instructions, idx);
 }
 
 exports.help = async (data) => {
-    return {
-        message: "botresponse.help",
-        restartServer: false
-    }
+	return {
+		message: "botresponse.help",
+		restartServer: false
+	}
 }
 
 exports.deploy = async (data) => {
 
-    // Generator DB
-    const dbApp = await models.Application.findOne({
-        name: data.application.name
-    });
+	// Generator DB
+	const dbApp = await models.Application.findOne({
+		name: data.application.name
+	});
 
-    data.appID = dbApp.id;
+	data.appID = dbApp.id;
 
-    return await cloud_manager.deploy(data);
+	return await cloud_manager.deploy(data);
 }
 
 exports.restart = async (data) => {
-    return {
-        message: "structure.global.restart.success"
-    };
+	return {
+		message: "structure.global.restart.success"
+	};
 }
 
 exports.installNodePackage = async (data) => {
-    await structure_application.installAppModules(attr);
-    return {
-        message: "structure.global.npmInstall.success"
-    };
+	await structure_application.installAppModules(attr);
+	return {
+		message: "structure.global.npmInstall.success"
+	};
 }
 
 /* --------------------------------------------------------------- */
@@ -93,251 +93,251 @@ exports.installNodePackage = async (data) => {
 /* --------------------------------------------------------------- */
 
 exports.gitPush = async (data) => {
-    await gitHelper.gitPush(data);
-    return {
-        message: "structure.global.gitPush.success",
-        restartServer: false
-    }
+	await gitHelper.gitPush(data);
+	return {
+		message: "structure.global.gitPush.success",
+		restartServer: false
+	}
 }
 
 exports.gitPull = async (data) => {
-    await gitHelper.gitPull(data);
-    return {
-        message: "structure.global.gitPull.success",
-        restartServer: false
-    }
+	await gitHelper.gitPull(data);
+	return {
+		message: "structure.global.gitPull.success",
+		restartServer: false
+	}
 }
 
 exports.gitCommit = async (data) => {
-    await gitHelper.gitCommit(attr);
-    return {
-        message: "structure.global.gitCommit.success",
-        restartServer: false
-    }
+	await gitHelper.gitCommit(attr);
+	return {
+		message: "structure.global.gitCommit.success",
+		restartServer: false
+	}
 }
 
 exports.gitStatus = async (data) => {
-    await gitHelper.gitStatus(data);
-    return {
-        message: JSON.stringify(infoGit).replace(/,/g, ",<br>"),
-        restartServer: false
-    };
+	await gitHelper.gitStatus(data);
+	return {
+		message: JSON.stringify(infoGit).replace(/,/g, ",<br>"),
+		restartServer: false
+	};
 }
 
 /* --------------------------------------------------------------- */
 /* ----------------------- Application --------------------------- */
 /* --------------------------------------------------------------- */
 exports.selectApplication = async (data) => {
-    let exportsContext = this;
+	let exportsContext = this;
 
-    data.application = metadata.getApplication(data.options.value);
+	data.application = metadata.getApplication(data.options.value);
 
-    // Select the module home automatically after selecting an application
-    await exportsContext.recursiveInstructionExecute(data, ["select module home"], 0);
-    return data;
+	// Select the module home automatically after selecting an application
+	await exportsContext.recursiveInstructionExecute(data, ["select module home"], 0);
+	return data;
 }
 
 exports.createNewApplication = async (data) => {
 
-    const existingApp = await models.Application.findOne({
-        where: {
-            name: data.options.value
-        }
-    });
+	const existingApp = await models.Application.findOne({
+		where: {
+			name: data.options.value
+		}
+	});
 
-    if (existingApp) {
-        let err = new Error("database.application.alreadyExist");
-        err.messageParams = [data.options.showValue];
-        throw err;
-    }
+	if (existingApp) {
+		let err = new Error("database.application.alreadyExist");
+		err.messageParams = [data.options.showValue];
+		throw err;
+	}
 
-    // Generator DB
-    const dbApp = await models.Application.create({
-        name: data.options.value,
-        displayName: data.options.showValue
-    });
+	// Generator DB
+	const dbApp = await models.Application.create({
+		name: data.options.value,
+		displayName: data.options.showValue
+	});
 
-    // Metadata
-    const newApp = new Application(data.options.value, data.options.showValue);
+	// Metadata
+	const newApp = new Application(data.options.value, data.options.showValue);
 
-    // If connected user is admin, then add only him. If not, add admin and current user
-    let userToAdd = data.currentUser.id == 1 ? 1 : [1, data.currentUser.id];
-    await dbApp.addUser(userToAdd);
+	// If connected user is admin, then add only him. If not, add admin and current user
+	let userToAdd = data.currentUser.id == 1 ? 1 : [1, data.currentUser.id];
+	await dbApp.addUser(userToAdd);
 
-    let gitlabRepo = await structure_application.setupApplication(data);
+	let gitlabRepo = await structure_application.setupApplication(data);
 
-    // Set gitlab project ID
-    if(gitlabRepo)
-        newApp.gitlabID = gitlabRepo.id;
+	// Set gitlab project ID
+	if(gitlabRepo)
+		newApp.gitlabID = gitlabRepo.id;
 
-    // Save metadata in application
-    newApp.save();
+	// Save metadata in application
+	newApp.save();
 
-    return {
-        application: newApp,
-        message: "database.application.create.success",
-        messageParams: [newApp.name]
-    };
+	return {
+		application: newApp,
+		message: "database.application.create.success",
+		messageParams: [newApp.name]
+	};
 }
 
 // Declare this function not directly within exports to be able to use it from deleteApplicationRecursive()
 exports.deleteApplication = async (data) => {
 
-    // Load app before deleting it
-    metadata.getApplication(data.options.value);
+	// Load app before deleting it
+	metadata.getApplication(data.options.value);
 
-    let hasAccess = await models.User.findOne({
-        where: {
-            id: data.currentUser.id
-        },
-        include: [{
-            model: models.Application,
-            required: true,
-            where: {
-                name: data.options.value
-            }
-        }]
-    });
+	let hasAccess = await models.User.findOne({
+		where: {
+			id: data.currentUser.id
+		},
+		include: [{
+			model: models.Application,
+			required: true,
+			where: {
+				name: data.options.value
+			}
+		}]
+	});
 
-    if(!hasAccess)
-        throw new Error("You do not have access to this application, you cannot delete it.");
+	if(!hasAccess)
+		throw new Error("You do not have access to this application, you cannot delete it.");
 
-    await structure_application.deleteApplication(data.options.value);
+	await structure_application.deleteApplication(data.options.value);
 
-    let request = "";
-    if(sequelize.options.dialect == "mysql")
-        request = "SHOW TABLES LIKE '" + data.options.value + "_%';";
-    else if(sequelize.options.dialect == "postgres")
-        request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
+	let request = "";
+	if(sequelize.options.dialect == "mysql")
+		request = "SHOW TABLES LIKE '" + data.options.value + "_%';";
+	else if(sequelize.options.dialect == "postgres")
+		request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
 
-    let results = await sequelize.query(request)
+	let results = await sequelize.query(request)
 
-    /* Calculate the length of table to drop */
-    let resultLength = 0;
+	/* Calculate the length of table to drop */
+	let resultLength = 0;
 
-    for (let i = 0; i < results.length; i++) {
-        for (let prop in results[i]) {
-            resultLength++;
-        }
-    }
+	for (let i = 0; i < results.length; i++) {
+		for (let prop in results[i]) {
+			resultLength++;
+		}
+	}
 
-    /* Function when all query are done */
-    request = "";
-    if(sequelize.options.dialect == "mysql")
-        request += "SET FOREIGN_KEY_CHECKS=0;";
+	/* Function when all query are done */
+	request = "";
+	if(sequelize.options.dialect == "mysql")
+		request += "SET FOREIGN_KEY_CHECKS=0;";
 
-    for (let i = 0; i < results.length; i++) {
-        for (let prop in results[i]) {
-            // Postgres additionnal check
-            if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
-                // For each request disable foreign key checks, drop table. Foreign key check
-                // last only for the time of the request
-                if(sequelize.options.dialect == "mysql")
-                    request += "DROP TABLE " + results[i][prop] + ";";
-                if(sequelize.options.dialect == "postgres")
-                    request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
-            }
-        }
-    }
+	for (let i = 0; i < results.length; i++) {
+		for (let prop in results[i]) {
+			// Postgres additionnal check
+			if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
+				// For each request disable foreign key checks, drop table. Foreign key check
+				// last only for the time of the request
+				if(sequelize.options.dialect == "mysql")
+					request += "DROP TABLE " + results[i][prop] + ";";
+				if(sequelize.options.dialect == "postgres")
+					request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
+			}
+		}
+	}
 
-    if(sequelize.options.dialect == "mysql")
-        request += "SET FOREIGN_KEY_CHECKS=1;";
+	if(sequelize.options.dialect == "mysql")
+		request += "SET FOREIGN_KEY_CHECKS=1;";
 
-    await sequelize.query(request);
+	await sequelize.query(request);
 
-    await models.Application.destroy({
-        where: {
-            name: data.options.value
-        }
-    });
+	await models.Application.destroy({
+		where: {
+			name: data.options.value
+		}
+	});
 
-    metadata.deleteApplication(data.options.value);
+	metadata.deleteApplication(data.options.value);
 
-    return {
-        message: 'database.application.delete.deleted',
-        messageParams: [data.options.showValue]
-    };
+	return {
+		message: 'database.application.delete.deleted',
+		messageParams: [data.options.showValue]
+	};
 }
 
 /* --------------------------------------------------------------- */
 /* ------------------------- Module ------------------------------ */
 /* --------------------------------------------------------------- */
 exports.selectModule = async (data) => {
-    data.module = data.application.getModule(data.options.value, true);
-    return {
-        module: data.module,
-        message: "database.module.select.selected",
-        messageParams: [data.module.name],
-        restartServer: false
-    };
+	data.module = data.application.getModule(data.options.value, true);
+	return {
+		module: data.module,
+		message: "database.module.select.selected",
+		messageParams: [data.module.name],
+		restartServer: false
+	};
 }
 
 exports.createNewModule = async (data) => {
 
-    if(data.application.getModule(data.options.value)){
-        let err = new Error("database.module.create.alreadyExist");
-        err.messageParams = [data.options.showValue];
-        throw err;
-    }
+	if(data.application.getModule(data.options.value)){
+		let err = new Error("database.module.create.alreadyExist");
+		err.messageParams = [data.options.showValue];
+		throw err;
+	}
 
-    const np_module = data.application.addModule(data.options.value, data.options.showValue);
+	const np_module = data.application.addModule(data.options.value, data.options.showValue);
 
-    // Assign list of existing application modules
-    // Needed to recreate the dropdown list of modules in the interface
-    data.modules = data.application.modules;
+	// Assign list of existing application modules
+	// Needed to recreate the dropdown list of modules in the interface
+	data.modules = data.application.modules;
 
-    // Structure
-    await structure_module.setupModule(data);
+	// Structure
+	await structure_module.setupModule(data);
 
-    return {
-        module: np_module,
-        message: "database.module.create.success",
-        messageParams: [data.options.showValue, data.options.showValue]
-    };
+	return {
+		module: np_module,
+		message: "database.module.create.success",
+		messageParams: [data.options.showValue, data.options.showValue]
+	};
 }
 
 exports.listModule = async (data) => {
-    let info = {};
-    let listing = "<br><ul>";
-    for (var i = 0; i < data.application.modules.length; i++) {
-        listing += "<li>" + modules[i].displayName + "(" + modules[i].name + ")</li>";
-    }
-    listing += "</ul>";
-    return {
-        message: listing,
-        restartServer: false
-    }
+	let info = {};
+	let listing = "<br><ul>";
+	for (var i = 0; i < data.application.modules.length; i++) {
+		listing += "<li>" + modules[i].displayName + "(" + modules[i].name + ")</li>";
+	}
+	listing += "</ul>";
+	return {
+		message: listing,
+		restartServer: false
+	}
 }
 
 exports.deleteModule = async (data) => {
 
-    if (data.options.value == 'm_home')
-        throw new Error("structure.module.error.notHome");
+	if (data.options.value == 'm_home')
+		throw new Error("structure.module.error.notHome");
 
-    data.np_module = data.application.getModule(data.options.value, true);
-    let entities = data.np_module.entities;
+	data.np_module = data.application.getModule(data.options.value, true);
+	let entities = data.np_module.entities;
 
-    let promises = [];
-    for (let i = 0; i < entities.length; i++) {
-        let tmpAttr = {
-            application: data.application,
-            module_name: data.np_module.name,
-            options: {
-                value: entities[i].name,
-                showValue: entities[i].displayName
-            }
-        }
+	let promises = [];
+	for (let i = 0; i < entities.length; i++) {
+		let tmpAttr = {
+			application: data.application,
+			module_name: data.np_module.name,
+			options: {
+				value: entities[i].name,
+				showValue: entities[i].displayName
+			}
+		}
 
-        promises.push(deleteDataEntity(tmpAttr));
-    }
+		promises.push(deleteDataEntity(tmpAttr));
+	}
 
-    await Promise.all(promises);
-    await structure_module.deleteModule(data);
-    data.application.deleteModule(data.np_module.name);
-    return {
-        message: "database.module.delete.deleted",
-        messageParams: [data.np_module.displayName]
-    };
+	await Promise.all(promises);
+	await structure_module.deleteModule(data);
+	data.application.deleteModule(data.np_module.name);
+	return {
+		message: "database.module.delete.deleted",
+		messageParams: [data.np_module.displayName]
+	};
 }
 
 /* --------------------------------------------------------------- */
@@ -345,182 +345,182 @@ exports.deleteModule = async (data) => {
 /* --------------------------------------------------------------- */
 exports.selectEntity = async (data) => {
 
-    let {np_module, entity} = data.application.findEntity(data.options.value, true);
-    data.module = np_module;
-    data.doRedirect = await structure_entity.selectEntity(data);
+	let {np_module, entity} = data.application.findEntity(data.options.value, true);
+	data.module = np_module;
+	data.doRedirect = await structure_entity.selectEntity(data);
 
-    return {
-        entity: entity,
-        module: np_module,
-        doRedirect: data.doRedirect,
-        message: "database.entity.select.selected",
-        messageParams: [entity.displayName],
-        restartServer: false
-    }
+	return {
+		entity: entity,
+		module: np_module,
+		doRedirect: data.doRedirect,
+		message: "database.entity.select.selected",
+		messageParams: [entity.displayName],
+		restartServer: false
+	}
 }
 
 exports.createNewEntity = async (data) => {
 
-    data.np_module = data.application.getModule(data.module_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
 
-    if (data.np_module.getEntity(data.options.value)) {
-        let err = new Error('database.entity.create.alreadyExist');
-        err.messageParams = [data.options.showValue];
-        throw err;
-    }
+	if (data.np_module.getEntity(data.options.value)) {
+		let err = new Error('database.entity.create.alreadyExist');
+		err.messageParams = [data.options.showValue];
+		throw err;
+	}
 
-    let entity = data.np_module.addEntity(data.options.value, data.options.showValue);
+	let entity = data.np_module.addEntity(data.options.value, data.options.showValue);
 
-    await structure_entity.setupEntity(data);
+	await structure_entity.setupEntity(data);
 
-    return {
-        entity: entity,
-        message: "database.entity.create.success",
-        messageParams: [entity.displayName, data.np_module.displayName, entity.displayName]
-    };
+	return {
+		entity: entity,
+		message: "database.entity.create.success",
+		messageParams: [entity.displayName, data.np_module.displayName, entity.displayName]
+	};
 }
 
 exports.listEntity = async (data) => {
-    let info = {};
-    let listing = "<br><ul>";
-    for (var i = 0; i < data.application.modules.length; i++) {
-        listing += "<li>" + data.application.modules[i].displayName + "</li>";
-        for (var j = 0; j < data.application.modules[i].entities.length; j++) {
-            listing += "- " + data.application.modules[i].entities[j].displayName + " (" + data.application.modules[i].entities[j].name + ")<br>";
-        }
-    }
-    listing += "</ul>";
-    return {
-        message: listing,
-        restartServer: false
-    };
+	let info = {};
+	let listing = "<br><ul>";
+	for (var i = 0; i < data.application.modules.length; i++) {
+		listing += "<li>" + data.application.modules[i].displayName + "</li>";
+		for (var j = 0; j < data.application.modules[i].entities.length; j++) {
+			listing += "- " + data.application.modules[i].entities[j].displayName + " (" + data.application.modules[i].entities[j].name + ")<br>";
+		}
+	}
+	listing += "</ul>";
+	return {
+		message: listing,
+		restartServer: false
+	};
 }
 
 async function deleteDataEntity(data) {
 
-    let workspacePath = __dirname + '/../workspace/' + data.application.name;
-    let foundEntity = data.application.findEntity(data.options.value, true);
-    data.np_module = foundEntity.np_module;
-    data.entity = foundEntity.entity;
+	let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	let foundEntity = data.application.findEntity(data.options.value, true);
+	data.np_module = foundEntity.np_module;
+	data.entity = foundEntity.entity;
 
-    // Delete entity relations
-    let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
+	// Delete entity relations
+	let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
 
-    for (let i = 0; i < entityOptions.length; i++) {
-        if (entityOptions[i].relation == 'hasMany') {
-            let tmpData = {
-                options: {
-                    value: entityOptions[i].as,
-                    urlValue: entityOptions[i].as.substring(2)
-                },
-                application: data.application,
-                module_name: data.np_module.name,
-                entity_name:  data.entity.name,
-                structureType: entityOptions[i].structureType
-            };
+	for (let i = 0; i < entityOptions.length; i++) {
+		if (entityOptions[i].relation == 'hasMany') {
+			let tmpData = {
+				options: {
+					value: entityOptions[i].as,
+					urlValue: entityOptions[i].as.substring(2)
+				},
+				application: data.application,
+				module_name: data.np_module.name,
+				entity_name:  data.entity.name,
+				structureType: entityOptions[i].structureType
+			};
 
-            if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
-                if(tmpData.options && tmpData.options.value != '' && tmpData.options.value.indexOf('r_history_') != -1){
-                    let statusName = tmpData.options.value.split('r_history_')[1];
-                    await deleteComponentStatus({
-                        application: tmpData.application,
-                        entity_name: tmpData.entity_name,
-                        options: {
-                            value : "s_"+statusName,
-                            urlValue: statusName,
-                            showValue: statusName
-                        }
-                    })
-                } else {
-                    await deleteTab(tmpData);
-                }
-            } else {
-                console.warn("WARNING - Unknown option to delete !");
-                console.warn(entityOptions[i]);
-            }
-        } else if (entityOptions[i].relation == 'belongsToMany') {
-            await database.dropTable(data.application.name, entityOptions[i].through);
-        }
-    }
+			if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
+				if(tmpData.options && tmpData.options.value != '' && tmpData.options.value.indexOf('r_history_') != -1){
+					let statusName = tmpData.options.value.split('r_history_')[1];
+					await deleteComponentStatus({
+						application: tmpData.application,
+						entity_name: tmpData.entity_name,
+						options: {
+							value : "s_"+statusName,
+							urlValue: statusName,
+							showValue: statusName
+						}
+					})
+				} else {
+					await deleteTab(tmpData);
+				}
+			} else {
+				console.warn("WARNING - Unknown option to delete !");
+				console.warn(entityOptions[i]);
+			}
+		} else if (entityOptions[i].relation == 'belongsToMany') {
+			await database.dropTable(data.application.name, entityOptions[i].through);
+		}
+	}
 
-    // Delete relation comming from other entities
-    let files = fs.readdirSync(workspacePath + '/models/options/').filter(file => {
-        return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != data.entity.name;
-    });
+	// Delete relation comming from other entities
+	let files = fs.readdirSync(workspacePath + '/models/options/').filter(file => {
+		return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != data.entity.name;
+	});
 
-    for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        let source = file.slice(0, -5);
-        let options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
+	for (let i = 0; i < files.length; i++) {
+		let file = files[i];
+		let source = file.slice(0, -5);
+		let options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
 
-        // Look for auto_generate key targeting deleted entity and remove them
-        let idxToRemove = [];
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].target != data.entity.name)
-                continue;
-            if (options[i].structureType == 'auto_generate')
-                idxToRemove.push(i);
-        }
+		// Look for auto_generate key targeting deleted entity and remove them
+		let idxToRemove = [];
+		for (let i = 0; i < options.length; i++) {
+			if (options[i].target != data.entity.name)
+				continue;
+			if (options[i].structureType == 'auto_generate')
+				idxToRemove.push(i);
+		}
 
-        options = options.filter((val, idx, arr) => {
-            return idxToRemove.indexOf(idx) == -1
-        });
-        fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
+		options = options.filter((val, idx, arr) => {
+			return idxToRemove.indexOf(idx) == -1
+		});
+		fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
 
-        // Loop on entity options
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].target != data.entity.name)
-                continue;
+		// Loop on entity options
+		for (let i = 0; i < options.length; i++) {
+			if (options[i].target != data.entity.name)
+				continue;
 
 
-            let tmpAttr = {
-                options: {
-                    value: options[i].as,
-                    urlValue: options[i].as.substring(2)
-                },
-                application: data.application,
-                module_name: data.module_name,
-                structureType: options[i].structureType
-            };
+			let tmpAttr = {
+				options: {
+					value: options[i].as,
+					urlValue: options[i].as.substring(2)
+				},
+				application: data.application,
+				module_name: data.module_name,
+				structureType: options[i].structureType
+			};
 
-            tmpAttr.entity_name = source;
-            if (options[i].relation == 'hasMany') {
-                if (tmpAttr.structureType == "hasMany" || tmpAttr.structureType == "hasManyPreset") {
-                    await deleteTab(tmpAttr);
-                } else {
-                    console.warn("WARNING - Unknown option to delete !");
-                    console.warn(tmpAttr);
-                }
-            } else if (options[i].relation == 'belongsTo') {
-                if (tmpAttr.structureType == "relatedTo") {
-                    tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-                    await deleteField(tmpAttr);
-                } else if (tmpAttr.structureType == "hasOne") {
-                    await deleteTab(tmpAttr);
-                } else {
-                    console.warn("WARNING - Unknown option to delete !");
-                    console.warn(tmpAttr);
-                }
-            } else if(options[i].relation == 'belongsToMany' && tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
-                tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-                await deleteField(tmpAttr);
-            }
-        }
-    }
+			tmpAttr.entity_name = source;
+			if (options[i].relation == 'hasMany') {
+				if (tmpAttr.structureType == "hasMany" || tmpAttr.structureType == "hasManyPreset") {
+					await deleteTab(tmpAttr);
+				} else {
+					console.warn("WARNING - Unknown option to delete !");
+					console.warn(tmpAttr);
+				}
+			} else if (options[i].relation == 'belongsTo') {
+				if (tmpAttr.structureType == "relatedTo") {
+					tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+					await deleteField(tmpAttr);
+				} else if (tmpAttr.structureType == "hasOne") {
+					await deleteTab(tmpAttr);
+				} else {
+					console.warn("WARNING - Unknown option to delete !");
+					console.warn(tmpAttr);
+				}
+			} else if(options[i].relation == 'belongsToMany' && tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
+				tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
+				await deleteField(tmpAttr);
+			}
+		}
+	}
 
-    // Fake session for delete widget
-    data.entity_name = data.entity.name;
-    await deleteEntityWidgets(data);
+	// Fake session for delete widget
+	data.entity_name = data.entity.name;
+	await deleteEntityWidgets(data);
 
-    database.dropDataEntity(data.application, data.entity.name);
-    data.np_module.deleteEntity(data.entity.name);
-    await structure_entity.deleteDataEntity(data);
+	database.dropDataEntity(data.application, data.entity.name);
+	data.np_module.deleteEntity(data.entity.name);
+	await structure_entity.deleteDataEntity(data);
 
-    return {
-        message: "database.entity.delete.deleted",
-        messageParams: [data.entity.displayName],
-        entity: data.entity
-    };
+	return {
+		message: "database.entity.delete.deleted",
+		messageParams: [data.entity.displayName],
+		entity: data.entity
+	};
 }
 exports.deleteDataEntity = deleteDataEntity;
 
@@ -529,92 +529,92 @@ exports.deleteDataEntity = deleteDataEntity;
 /* --------------------------------------------------------------- */
 exports.createNewDataField = async (data) => {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    if (data.entity.getField(data.options.value)) {
-        let err = new Error('database.field.error.alreadyExist');
-        err.messageParams = [data.options.showValue];
-        throw err;
-    }
+	if (data.entity.getField(data.options.value)) {
+		let err = new Error('database.field.error.alreadyExist');
+		err.messageParams = [data.options.showValue];
+		throw err;
+	}
 
-    data.entity.addField(data.options.value, data.options.showValue);
-    await structure_field.setupField(data);
+	data.entity.addField(data.options.value, data.options.showValue);
+	await structure_field.setupField(data);
 
-    return {
-        message: "database.field.create.created",
-        messageParams: [data.options.showValue, data.entity_name, data.options.showValue, data.options.showValue, data.options.showValue]
-    };
+	return {
+		message: "database.field.create.created",
+		messageParams: [data.options.showValue, data.entity_name, data.options.showValue, data.options.showValue, data.options.showValue]
+	};
 }
 
 async function deleteTab(data) {
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    let {fk, target, tabType} = await structure_entity.deleteTab(data);
+	let {fk, target, tabType} = await structure_entity.deleteTab(data);
 
-    data.fieldToDrop = fk;
-    data.name_data_entity = target;
+	data.fieldToDrop = fk;
+	data.name_data_entity = target;
 
-    await database.dropFKDataField(data);
+	await database.dropFKDataField(data);
 
-    return {
-        tabType: tabType,
-        message: 'structure.association.deleteTab',
-        messageParams: [data.options.showValue]
-    };
+	return {
+		tabType: tabType,
+		message: 'structure.association.deleteTab',
+		messageParams: [data.options.showValue]
+	};
 }
 exports.deleteTab = deleteTab;
 
 // Delete
 async function deleteField(data) {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
-    data.field = data.entity.getField(data.options.value, true)
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.field = data.entity.getField(data.options.value, true)
 
-    // Delete field from views and models
-    let infoStructure = await structure_field.deleteField(data);
+	// Delete field from views and models
+	let infoStructure = await structure_field.deleteField(data);
 
-    // Alter database
-    data.fieldToDrop = infoStructure.fieldToDrop;
+	// Alter database
+	data.fieldToDrop = infoStructure.fieldToDrop;
 
-    // Related To Multiple
-    if (infoStructure.isMultipleConstraint) {
-        data.target = infoStructure.target;
-        await database.dropFKMultipleDataField(data);
-    } else if (infoStructure.isConstraint)
-        await database.dropFKDataField(data);
-    else
-        database.dropDataField(data);
+	// Related To Multiple
+	if (infoStructure.isMultipleConstraint) {
+		data.target = infoStructure.target;
+		await database.dropFKMultipleDataField(data);
+	} else if (infoStructure.isConstraint)
+		await database.dropFKDataField(data);
+	else
+		database.dropDataField(data);
 
-    // Missing id_ in data.options.value, so we use fieldToDrop
-    // data.options.value = data.fieldToDrop;
+	// Missing id_ in data.options.value, so we use fieldToDrop
+	// data.options.value = data.fieldToDrop;
 
-    data.entity.deleteField(data.options.value);
+	data.entity.deleteField(data.options.value);
 
-    return {
-        message: 'database.field.delete.deleted',
-        messageParams: [data.options.showValue]
-    };
+	return {
+		message: 'database.field.delete.deleted',
+		messageParams: [data.options.showValue]
+	};
 }
 exports.deleteField = deleteField;
 
 exports.listField = async (data) => {
-    let info = {};
-    let listing = "<br><ul>";
-    for (let i = 0; i < data.application.modules.length; i++) {
-        listing += "<li>" + data.application.modules[i].displayName + "<ul>";
-        for (let j = 0; j < data.application.modules[i].entities.length; j++) {
-            listing += "<li><b>" + data.application.modules[i].entities[j].displayName + "</b></li>";
-            for (let k = 0; k < data.application.modules[i].entities[j].fields.length; k++) {
-                listing += "- " + data.application.modules[i].entities[j].fields[k].displayName + " (" + data.application.modules[i].entities[j].fields[k].name + ")<br>";
-            }
-        }
-        listing += "</ul></li>";
-    }
-    listing += "</ul>";
-    return {
-        message: listing,
-        restartServer: false
-    };
+	let info = {};
+	let listing = "<br><ul>";
+	for (let i = 0; i < data.application.modules.length; i++) {
+		listing += "<li>" + data.application.modules[i].displayName + "<ul>";
+		for (let j = 0; j < data.application.modules[i].entities.length; j++) {
+			listing += "<li><b>" + data.application.modules[i].entities[j].displayName + "</b></li>";
+			for (let k = 0; k < data.application.modules[i].entities[j].fields.length; k++) {
+				listing += "- " + data.application.modules[i].entities[j].fields[k].displayName + " (" + data.application.modules[i].entities[j].fields[k].name + ")<br>";
+			}
+		}
+		listing += "</ul></li>";
+	}
+	listing += "</ul>";
+	return {
+		message: listing,
+		restartServer: false
+	};
 }
 
 /* --------------------------------------------------------------- */
@@ -623,136 +623,136 @@ exports.listField = async (data) => {
 
 exports.setFieldKnownAttribute = async (data) => {
 
-    let wordParam = data.options.word.toLowerCase();
-    let requiredAttribute = ["mandatory", "required", "obligatoire", "optionnel", "non-obligatoire", "optional"];
-    let uniqueAttribute = ["unique", "not-unique", "non-unique"];
+	let wordParam = data.options.word.toLowerCase();
+	let requiredAttribute = ["mandatory", "required", "obligatoire", "optionnel", "non-obligatoire", "optional"];
+	let uniqueAttribute = ["unique", "not-unique", "non-unique"];
 
-    data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(data.options.value);
+	data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(data.options.value);
 
-    // Standard field not found, looking for related to field
-    if (!data.field) {
-        let optionsArray = JSON.parse(fs.readFileSync(__dirname + '/../workspace/' + data.application.name + '/models/options/' + data.entity_name + '.json'));
-        for (let i = 0; i < optionsArray.length; i++) {
-            if (optionsArray[i].showAs == data.options.showValue) {
-                if (optionsArray[i].structureType == "relatedTo") {
-                    // We need the key in DB to set it unique instead of the client side name of the field
-                    if (uniqueAttribute.indexOf(wordParam) != -1)
-                        data.options.value = optionsArray[i].foreignKey;
-                } else if (optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
-                    if (uniqueAttribute.indexOf(wordParam) != -1)
-                        throw new Error("structure.field.attributes.notUnique4RelatedToMany");
-                    else
-                        data.structureType = optionsArray[i].structureType;
-                }
-                break;
-            }
-        }
-    }
+	// Standard field not found, looking for related to field
+	if (!data.field) {
+		let optionsArray = JSON.parse(fs.readFileSync(__dirname + '/../workspace/' + data.application.name + '/models/options/' + data.entity_name + '.json'));
+		for (let i = 0; i < optionsArray.length; i++) {
+			if (optionsArray[i].showAs == data.options.showValue) {
+				if (optionsArray[i].structureType == "relatedTo") {
+					// We need the key in DB to set it unique instead of the client side name of the field
+					if (uniqueAttribute.indexOf(wordParam) != -1)
+						data.options.value = optionsArray[i].foreignKey;
+				} else if (optionsArray[i].structureType == "relatedToMultiple" || optionsArray[i].structureType == "relatedToMultipleCheckbox") {
+					if (uniqueAttribute.indexOf(wordParam) != -1)
+						throw new Error("structure.field.attributes.notUnique4RelatedToMany");
+					else
+						data.structureType = optionsArray[i].structureType;
+				}
+				break;
+			}
+		}
+	}
 
-    // Check the attribute asked in the instruction
-    if (requiredAttribute.indexOf(wordParam) != -1) {
-        // Get DB SQL type needed to Alter Column
-        let {sqlDataType, sqlDataTypeLength} = await database.getDatabaseSQLType({
-            table: data.entity_name,
-            column: data.options.value
-        });
+	// Check the attribute asked in the instruction
+	if (requiredAttribute.indexOf(wordParam) != -1) {
+		// Get DB SQL type needed to Alter Column
+		let {sqlDataType, sqlDataTypeLength} = await database.getDatabaseSQLType({
+			table: data.entity_name,
+			column: data.options.value
+		});
 
-        data.sqlDataType = sqlDataType;
-        data.sqlDataTypeLength = sqlDataTypeLength;
-        data.dialect = sequelize.options.dialect;
+		data.sqlDataType = sqlDataType;
+		data.sqlDataTypeLength = sqlDataTypeLength;
+		data.dialect = sequelize.options.dialect;
 
-        await structure_field.setRequiredAttribute(data);
+		await structure_field.setRequiredAttribute(data);
 
-        return {
-            message: "structure.field.attributes.successKnownAttribute",
-            messageParams: [data.options.showValue, data.options.word]
-        }
-    } else if (uniqueAttribute.indexOf(wordParam) != -1) {
+		return {
+			message: "structure.field.attributes.successKnownAttribute",
+			messageParams: [data.options.showValue, data.options.word]
+		}
+	} else if (uniqueAttribute.indexOf(wordParam) != -1) {
 
-        let sourceEntity = data.entity_name;
-        let constraintName = sourceEntity + "_" + data.options.value + "_unique";
+		let sourceEntity = data.entity_name;
+		let constraintName = sourceEntity + "_" + data.options.value + "_unique";
 
-        let possibilityUnique = ["unique"];
-        let possibilityNotUnique = ["not-unique", "non-unique"];
+		let possibilityUnique = ["unique"];
+		let possibilityNotUnique = ["not-unique", "non-unique"];
 
-        let request = "";
+		let request = "";
 
-        // Get application database, it won't be newmips if seperate DB
-        let appDBConf = require(__dirname+'/../workspace/' + data.application.name + '/config/database.js');
+		// Get application database, it won't be newmips if seperate DB
+		let appDBConf = require(__dirname+'/../workspace/' + data.application.name + '/config/database.js');
 
-        // Add or remove the unique constraint ?
-        if(sequelize.options.dialect == "mysql"){
-            if (possibilityUnique.indexOf(wordParam) != -1) {
-                request = "ALTER TABLE `" + appDBConf.database + "`.`" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + data.options.value + "`);";
-            } else if (possibilityNotUnique.indexOf(wordParam) != -1) {
-                request = "ALTER TABLE `" + appDBConf.database + "`.`" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
-            }
-        } else if (sequelize.options.dialect == "postgres"){
-            if (possibilityUnique.indexOf(wordParam) != -1) {
-                request = "ALTER TABLE \"" + appDBConf.database + "\".\"" + sourceEntity + "\" ADD CONSTRAINT \"" + constraintName + "\" UNIQUE (" + data.options.value + ");";
-            } else if (possibilityNotUnique.indexOf(wordParam) != -1) {
-                request = "ALTER TABLE \"" + appDBConf.database + "\".\"" + sourceEntity + "\" DROP INDEX \"" + constraintName + "\";";
-            }
-        }
+		// Add or remove the unique constraint ?
+		if(sequelize.options.dialect == "mysql"){
+			if (possibilityUnique.indexOf(wordParam) != -1) {
+				request = "ALTER TABLE `" + appDBConf.database + "`.`" + sourceEntity + "` ADD CONSTRAINT " + constraintName + " UNIQUE (`" + data.options.value + "`);";
+			} else if (possibilityNotUnique.indexOf(wordParam) != -1) {
+				request = "ALTER TABLE `" + appDBConf.database + "`.`" + sourceEntity + "` DROP INDEX `" + constraintName + "`;";
+			}
+		} else if (sequelize.options.dialect == "postgres"){
+			if (possibilityUnique.indexOf(wordParam) != -1) {
+				request = "ALTER TABLE \"" + appDBConf.database + "\".\"" + sourceEntity + "\" ADD CONSTRAINT \"" + constraintName + "\" UNIQUE (" + data.options.value + ");";
+			} else if (possibilityNotUnique.indexOf(wordParam) != -1) {
+				request = "ALTER TABLE \"" + appDBConf.database + "\".\"" + sourceEntity + "\" DROP INDEX \"" + constraintName + "\";";
+			}
+		}
 
-        try {
-            await sequelize.query(request);
-        } catch(err) {
-            if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-                throw new Error('structure.field.attributes.duplicateUnique');
-            } else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01" || err.parent.code == "3F000")){
-                // Handle case by Newmips, no worry about this one
-                if(['e_group', 'e_role', 'e_user'].indexOf(data.entity_name) == -1 && data.options.showValue == 'label'){
-                    // Table do not exist - In case of script it's totally normal, just generate a warning
-                    console.warn("WARNING - The database unique constraint on '"+data.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.");
-                }
-                structure_field.setUniqueField(data);
+		try {
+			await sequelize.query(request);
+		} catch(err) {
+			if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
+				throw new Error('structure.field.attributes.duplicateUnique');
+			} else if(typeof err.parent !== "undefined" && (err.parent.errno == 1146 || err.parent.code == "42P01" || err.parent.code == "3F000")){
+				// Handle case by Newmips, no worry about this one
+				if(['e_group', 'e_role', 'e_user'].indexOf(data.entity_name) == -1 && data.options.showValue == 'label'){
+					// Table do not exist - In case of script it's totally normal, just generate a warning
+					console.warn("WARNING - The database unique constraint on '"+data.options.showValue+"' could not be applied, the corresponding table '"+sourceEntity+"' does not exist at the time of the instruction.");
+				}
+				structure_field.setUniqueField(data);
 
-                return {
-                    message: "structure.field.attributes.successKnownAttributeWarning",
-                    messageParams: [data.options.showValue, data.options.word]
-                };
-            } else {
-                throw err;
-            }
-        }
+				return {
+					message: "structure.field.attributes.successKnownAttributeWarning",
+					messageParams: [data.options.showValue, data.options.word]
+				};
+			} else {
+				throw err;
+			}
+		}
 
-        structure_field.setUniqueField(data);
+		structure_field.setUniqueField(data);
 
-        return {
-            message: "structure.field.attributes.successKnownAttribute",
-            messageParams: [data.options.showValue, data.options.word]
-        }
+		return {
+			message: "structure.field.attributes.successKnownAttribute",
+			messageParams: [data.options.showValue, data.options.word]
+		}
 
-    } else {
-        let err = new Error("structure.field.attributes.notUnderstandGiveAvailable");
-        let msgParams = "";
-        for (let i = 0; i < requiredAttribute.length; i++) {
-            msgParams += "-  " + requiredAttribute[i] + "<br>";
-        }
-        for (let j = 0; j < uniqueAttribute.length; j++) {
-            msgParams += "-  " + uniqueAttribute[j] + "<br>";
-        }
-        err.messageParams = [msgParams];
-        throw err;
-    }
+	} else {
+		let err = new Error("structure.field.attributes.notUnderstandGiveAvailable");
+		let msgParams = "";
+		for (let i = 0; i < requiredAttribute.length; i++) {
+			msgParams += "-  " + requiredAttribute[i] + "<br>";
+		}
+		for (let j = 0; j < uniqueAttribute.length; j++) {
+			msgParams += "-  " + uniqueAttribute[j] + "<br>";
+		}
+		err.messageParams = [msgParams];
+		throw err;
+	}
 }
 
 exports.setFieldAttribute = async (data) => {
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
-    await structure_field.setFieldAttribute(data);
-    return {
-        message: "structure.field.attributes.success",
-        messageParams: [data.options.showValue, data.options.word, data.options.attributeValue]
-    }
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	await structure_field.setFieldAttribute(data);
+	return {
+		message: "structure.field.attributes.success",
+		messageParams: [data.options.showValue, data.options.word, data.options.attributeValue]
+	}
 }
 /* --------------------------------------------------------------- */
 /* -------------------------- Datalist --------------------------- */
 /* --------------------------------------------------------------- */
 
 exports.setColumnVisibility = async (data) => {
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
-    return await structure_ui.setColumnVisibility(data);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	return await structure_ui.setColumnVisibility(data);
 }
 
 /* --------------------------------------------------------------- */
@@ -762,1399 +762,1399 @@ exports.setColumnVisibility = async (data) => {
 // Create a tab with an add button to create one new object associated to source entity
 exports.createNewHasOne = async (data) => {
 
-    /* Check if entity source exist before doing anything */
-    let sourceEntity = data.application.findEntity(data.options.source, true);
-    data.np_module = sourceEntity.np_module;
-    data.source_entity = sourceEntity.entity;
+	/* Check if entity source exist before doing anything */
+	let sourceEntity = data.application.findEntity(data.options.source, true);
+	data.np_module = sourceEntity.np_module;
+	data.source_entity = sourceEntity.entity;
 
-    var answer = {};
-    var toSync = true;
-    let constraints = true;
+	var answer = {};
+	var toSync = true;
+	let constraints = true;
 
-    let target_entity = data.application.findEntity(data.options.target);
+	let target_entity = data.application.findEntity(data.options.target);
 
-    // Target entity does not exist -> Subentity generation
-    if(!target_entity) {
-        target_entity = data.np_module.addEntity(data.options.target, data.options.showTarget);
+	// Target entity does not exist -> Subentity generation
+	if(!target_entity) {
+		target_entity = data.np_module.addEntity(data.options.target, data.options.showTarget);
 
-        answer.message = "structure.association.hasMany.successSubEntity";
-        answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
+		answer.message = "structure.association.hasMany.successSubEntity";
+		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
 
-        // Subentity code generation
-        await structure_entity.setupEntity(data)
-    } else {
-        answer.message = "structure.association.hasOne.successEntity";
-        answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
-    }
+		// Subentity code generation
+		await structure_entity.setupEntity(data)
+	} else {
+		answer.message = "structure.association.hasOne.successEntity";
+		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
+	}
 
-    // Check already existing relation from source to target
-    let sourceOptionsPath = __dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.source + '.json';
-    let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
-    let saveFile = false;
+	// Check already existing relation from source to target
+	let sourceOptionsPath = __dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.source + '.json';
+	let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
+	let saveFile = false;
 
-    // Checking relation existence from source to target
-    for (var i = 0; i < optionsSourceObject.length; i++) {
-        if (optionsSourceObject[i].target == data.options.target) {
-            // If alias already used
-            if (data.options.as == optionsSourceObject[i].as){
-                if(optionsSourceObject[i].structureType == "auto_generate") {
-                    // Remove auto generate key by the generator
-                    optionsSourceObject.splice(i, 1);
-                    saveFile = true;
-                } else {
-                    throw new Error('structure.association.error.alreadySameAlias');
-                }
-            }
-        } else if(data.options.as == optionsSourceObject[i].as){
-            let err = new Error('database.field.error.alreadyExist');
-            err.messageParams = [data.options.showAs];
-            throw err;
-        }
-    }
+	// Checking relation existence from source to target
+	for (var i = 0; i < optionsSourceObject.length; i++) {
+		if (optionsSourceObject[i].target == data.options.target) {
+			// If alias already used
+			if (data.options.as == optionsSourceObject[i].as){
+				if(optionsSourceObject[i].structureType == "auto_generate") {
+					// Remove auto generate key by the generator
+					optionsSourceObject.splice(i, 1);
+					saveFile = true;
+				} else {
+					throw new Error('structure.association.error.alreadySameAlias');
+				}
+			}
+		} else if(data.options.as == optionsSourceObject[i].as){
+			let err = new Error('database.field.error.alreadyExist');
+			err.messageParams = [data.options.showAs];
+			throw err;
+		}
+	}
 
-    // Changes to be saved, remove auto_generate key
-    if(saveFile)
-        fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8");
+	// Changes to be saved, remove auto_generate key
+	if(saveFile)
+		fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8");
 
-    // Check already existing relation from target to source
-    let optionsFile = fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json');
-    let targetOptionsObject = JSON.parse(optionsFile);
+	// Check already existing relation from target to source
+	let optionsFile = fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json');
+	let targetOptionsObject = JSON.parse(optionsFile);
 
-    for (let i = 0; i < targetOptionsObject.length; i++) {
-        if (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation != "hasMany" && targetOptionsObject[i].relation != "belongsToMany") {
-            // Remove constraint to accept circular belongsTo
-            constraints = false;
-        } else if (data.options.source != data.options.target
-                && (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation == "hasMany")
-                && (targetOptionsObject[i].foreignKey == data.options.foreignKey)) {
-            // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
-            toSync = false;
-        }
+	for (let i = 0; i < targetOptionsObject.length; i++) {
+		if (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation != "hasMany" && targetOptionsObject[i].relation != "belongsToMany") {
+			// Remove constraint to accept circular belongsTo
+			constraints = false;
+		} else if (data.options.source != data.options.target
+				&& (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation == "hasMany")
+				&& (targetOptionsObject[i].foreignKey == data.options.foreignKey)) {
+			// We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+			toSync = false;
+		}
 
-        if (data.options.source != data.options.target
-                && (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation == "hasMany")
-                && (targetOptionsObject[i].foreignKey == data.options.foreignKey)) {
-            // We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
-            toSync = false;
-        }
-    }
+		if (data.options.source != data.options.target
+				&& (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation == "hasMany")
+				&& (targetOptionsObject[i].foreignKey == data.options.foreignKey)) {
+			// We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
+			toSync = false;
+		}
+	}
 
-    // Add the foreign key reference in generator database
-    let associationOption = {
-        application: data.application,
-        source: data.options.source,
-        target: data.options.target,
-        foreignKey: data.options.foreignKey,
-        as: data.options.as,
-        relation: "belongsTo",
-        through: null,
-        toSync: toSync,
-        type: "hasOne",
-        constraints: constraints
-    };
+	// Add the foreign key reference in generator database
+	let associationOption = {
+		application: data.application,
+		source: data.options.source,
+		target: data.options.target,
+		foreignKey: data.options.foreignKey,
+		as: data.options.as,
+		relation: "belongsTo",
+		through: null,
+		toSync: toSync,
+		type: "hasOne",
+		constraints: constraints
+	};
 
-    let reversedOption = {
-        application: data.application,
-        source: data.options.target,
-        target: data.options.source,
-        foreignKey: data.options.foreignKey,
-        as: "r_"+data.options.source.substring(2),
-        relation: "hasMany",
-        type: "auto_generate",
-        constraints: constraints
-    };
+	let reversedOption = {
+		application: data.application,
+		source: data.options.target,
+		target: data.options.source,
+		foreignKey: data.options.foreignKey,
+		as: "r_"+data.options.source.substring(2),
+		relation: "hasMany",
+		type: "auto_generate",
+		constraints: constraints
+	};
 
-    // Create belongsTo association between source and target
-    structure_entity.setupAssociation(associationOption);
-    // Create the opposite hasMany association
-    structure_entity.setupAssociation(reversedOption);
+	// Create belongsTo association between source and target
+	structure_entity.setupAssociation(associationOption);
+	// Create the opposite hasMany association
+	structure_entity.setupAssociation(reversedOption);
 
-    // Generator tabulation in display
-    await structure_entity.setupHasOneTab(data);
+	// Generator tabulation in display
+	await structure_entity.setupHasOneTab(data);
 
-    return {
-        ...answer,
-        entity: data.source_entity
-    };
+	return {
+		...answer,
+		entity: data.source_entity
+	};
 }
 
 async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 
-    data.options.through = data.application.associationSeq + "_" + data.options.source + "_" + data.options.target;
-    let through = data.options.through;
+	data.options.through = data.application.associationSeq + "_" + data.options.source + "_" + data.options.target;
+	let through = data.options.through;
 
-    try {
-        /* First we have to save the already existing data to put them in the new relation */
-        let workspaceData = await database.retrieveWorkspaceHasManyData(data.application.name, dataHelper.capitalizeFirstLetter(data.options.source), optionObj.foreignKey);
-        structure_entity.saveHasManyData(data, workspaceData, optionObj.foreignKey);
-    } catch (err) {
-        if(err.original && err.original.code == 'ER_NO_SUCH_TABLE')
-            console.warn('BelongsToMany generation => Cannot retrieve already existing data, the table do no exist.');
-        else
-            throw err;
-    }
+	try {
+		/* First we have to save the already existing data to put them in the new relation */
+		let workspaceData = await database.retrieveWorkspaceHasManyData(data.application.name, dataHelper.capitalizeFirstLetter(data.options.source), optionObj.foreignKey);
+		structure_entity.saveHasManyData(data, workspaceData, optionObj.foreignKey);
+	} catch (err) {
+		if(err.original && err.original.code == 'ER_NO_SUCH_TABLE')
+			console.warn('BelongsToMany generation => Cannot retrieve already existing data, the table do no exist.');
+		else
+			throw err;
+	}
 
-    /* Secondly we have to remove the already existing has many to create the belongs to many relation */
-    let instructions = [
-        "select entity " + data.options.showTarget
-    ];
+	/* Secondly we have to remove the already existing has many to create the belongs to many relation */
+	let instructions = [
+		"select entity " + data.options.showTarget
+	];
 
-    let setRequired = false;
+	let setRequired = false;
 
-    if (optionObj.structureType == "relatedToMultiple" || optionObj.structureType == "relatedToMultipleCheckbox") {
-        instructions.push("delete field " + optionObj.as.substring(2));
-        // If related to is required, then rebuilt it required
-        if(optionObj.allowNull === false)
-            setRequired = true;
-    } else {
-        instructions.push("delete tab " + optionObj.as.substring(2));
-    }
+	if (optionObj.structureType == "relatedToMultiple" || optionObj.structureType == "relatedToMultipleCheckbox") {
+		instructions.push("delete field " + optionObj.as.substring(2));
+		// If related to is required, then rebuilt it required
+		if(optionObj.allowNull === false)
+			setRequired = true;
+	} else {
+		instructions.push("delete tab " + optionObj.as.substring(2));
+	}
 
-    // Start doing necessary instruction for component creation
-    let infoInstruction = await exportsContext.recursiveInstructionExecute(data, instructions, 0);
+	// Start doing necessary instruction for component creation
+	let infoInstruction = await exportsContext.recursiveInstructionExecute(data, instructions, 0);
 
-    if (typeof infoInstruction.tabType !== "undefined")
-        data.targetType = infoInstruction.tabType;
-    else
-        data.targetType = optionObj.structureType;
-    /* Then lets create the belongs to many association */
+	if (typeof infoInstruction.tabType !== "undefined")
+		data.targetType = infoInstruction.tabType;
+	else
+		data.targetType = optionObj.structureType;
+	/* Then lets create the belongs to many association */
 
-    /* We need the same alias for both relation */
-    //data.options.as = "r_"+data.options.source.substring(2)+ "_" + data.options.target.substring(2);
+	/* We need the same alias for both relation */
+	//data.options.as = "r_"+data.options.source.substring(2)+ "_" + data.options.target.substring(2);
 
-    let associationOptionOne = {
-        application: data.application,
-        source: data.options.source,
-        target: data.options.target,
-        foreignKey: data.options.foreignKey,
-        as: data.options.as,
-        showAs: data.options.showAs,
-        relation: "belongsToMany",
-        through: through,
-        toSync: false,
-        type: data.targetType,
-        usingField: data.options.usingField || undefined,
-    };
+	let associationOptionOne = {
+		application: data.application,
+		source: data.options.source,
+		target: data.options.target,
+		foreignKey: data.options.foreignKey,
+		as: data.options.as,
+		showAs: data.options.showAs,
+		relation: "belongsToMany",
+		through: through,
+		toSync: false,
+		type: data.targetType,
+		usingField: data.options.usingField || undefined,
+	};
 
-    structure_entity.setupAssociation(associationOptionOne);
+	structure_entity.setupAssociation(associationOptionOne);
 
-    let associationOptionTwo = {
-        application: data.application,
-        source: data.options.target,
-        target: data.options.source,
-        foreignKey: data.options.foreignKey,
-        as: optionObj.as,
-        showAs: optionObj.showAs,
-        relation: "belongsToMany",
-        through: through,
-        toSync: false,
-        type: data.targetType,
-        usingField: optionObj.usingField || undefined,
-    };
+	let associationOptionTwo = {
+		application: data.application,
+		source: data.options.target,
+		target: data.options.source,
+		foreignKey: data.options.foreignKey,
+		as: optionObj.as,
+		showAs: optionObj.showAs,
+		relation: "belongsToMany",
+		through: through,
+		toSync: false,
+		type: data.targetType,
+		usingField: optionObj.usingField || undefined,
+	};
 
-    structure_entity.setupAssociation(associationOptionTwo);
+	structure_entity.setupAssociation(associationOptionTwo);
 
-    await structure_entity[setupFunction](data);
-    let reversedAttr = {
-        options: {
-            target: data.options.source,
-            source: data.options.target,
-            foreignKey: optionObj.foreignKey,
-            as: optionObj.as,
-            showTarget: data.options.showSource,
-            urlTarget: data.options.urlSource,
-            showSource: data.options.showTarget,
-            urlSource: data.options.urlTarget,
-            showAs: optionObj.showAs,
-            urlAs: optionObj.as.substring(2)
-        },
-        application: data.application,
-        module_name: data.module_name,
-        entity_name: data.entity_name,
-        source_entity: data.application.getModule(data.module_name, true).getEntity(data.entity_name, true)
-    };
+	await structure_entity[setupFunction](data);
+	let reversedAttr = {
+		options: {
+			target: data.options.source,
+			source: data.options.target,
+			foreignKey: optionObj.foreignKey,
+			as: optionObj.as,
+			showTarget: data.options.showSource,
+			urlTarget: data.options.urlSource,
+			showSource: data.options.showTarget,
+			urlSource: data.options.urlTarget,
+			showAs: optionObj.showAs,
+			urlAs: optionObj.as.substring(2)
+		},
+		application: data.application,
+		module_name: data.module_name,
+		entity_name: data.entity_name,
+		source_entity: data.application.getModule(data.module_name, true).getEntity(data.entity_name, true)
+	};
 
-    if (data.targetType == "hasMany") {
-        await structure_entity.setupHasManyTab(reversedAttr);
-    } else if (data.targetType == "hasManyPreset") {
-        await structure_entity.setupHasManyPresetTab(reversedAttr);
-    } else if (data.targetType == "relatedToMultiple" || data.targetType == "relatedToMultipleCheckbox") {
+	if (data.targetType == "hasMany") {
+		await structure_entity.setupHasManyTab(reversedAttr);
+	} else if (data.targetType == "hasManyPreset") {
+		await structure_entity.setupHasManyPresetTab(reversedAttr);
+	} else if (data.targetType == "relatedToMultiple" || data.targetType == "relatedToMultipleCheckbox") {
 
-        if (typeof optionObj.usingField !== "undefined")
-            reversedAttr.options.usingField = optionObj.usingField;
+		if (typeof optionObj.usingField !== "undefined")
+			reversedAttr.options.usingField = optionObj.usingField;
 
-        await structure_field.setupRelatedToMultipleField(reversedAttr);
+		await structure_field.setupRelatedToMultipleField(reversedAttr);
 
-        if(setRequired){
-            reversedAttr.name_data_entity = reversedAttr.options.source;
-            reversedAttr.options.value = "f_"+reversedAttr.options.urlAs;
-            reversedAttr.options.word = "required";
-            await structure_field.setRequiredAttribute(reversedAttr);
-        }
-    } else {
-        throw new Error('Unknown target type for belongsToMany generation.')
-    }
+		if(setRequired){
+			reversedAttr.name_data_entity = reversedAttr.options.source;
+			reversedAttr.options.value = "f_"+reversedAttr.options.urlAs;
+			reversedAttr.options.word = "required";
+			await structure_field.setRequiredAttribute(reversedAttr);
+		}
+	} else {
+		throw new Error('Unknown target type for belongsToMany generation.')
+	}
 }
 
 // Create a tab with an add button to create multiple new object associated to source entity
 exports.createNewHasMany = async (data) => {
-    let exportsContext = this;
+	let exportsContext = this;
 
-    let sourceEntity = data.application.findEntity(data.options.source, true);
-    data.np_module = sourceEntity.np_module;
-    data.source_entity = sourceEntity.entity;
+	let sourceEntity = data.application.findEntity(data.options.source, true);
+	data.np_module = sourceEntity.np_module;
+	data.source_entity = sourceEntity.entity;
 
-    let sourceOptionsPath = __dirname+'/../workspace/' + data.application.name + '/models/options/' + data.source_entity.name + '.json';
-    let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
-    let saveFile = false;
+	let sourceOptionsPath = __dirname+'/../workspace/' + data.application.name + '/models/options/' + data.source_entity.name + '.json';
+	let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
+	let saveFile = false;
 
-    // Vérification si une relation existe déjà de la source VERS la target
-    for (let i = 0; i < optionsSourceObject.length; i++) {
-        if (optionsSourceObject[i].target == data.options.target) {
-            // If alias already used
-            if (data.options.as == optionsSourceObject[i].as){
-                if(optionsSourceObject[i].structureType == "auto_generate") {
-                    // Remove auto generate key by the generator
-                    optionsSourceObject.splice(i, 1);
-                    saveFile = true;
-                } else
-                    throw new Error("structure.association.error.alreadySameAlias");
-            }
-        } else if(data.options.as == optionsSourceObject[i].as){
-            let err = new Error('database.field.error.alreadyExist');
-            err.messageParams = [data.options.showAs];
-            throw err;
-        }
-    }
+	// Vérification si une relation existe déjà de la source VERS la target
+	for (let i = 0; i < optionsSourceObject.length; i++) {
+		if (optionsSourceObject[i].target == data.options.target) {
+			// If alias already used
+			if (data.options.as == optionsSourceObject[i].as){
+				if(optionsSourceObject[i].structureType == "auto_generate") {
+					// Remove auto generate key by the generator
+					optionsSourceObject.splice(i, 1);
+					saveFile = true;
+				} else
+					throw new Error("structure.association.error.alreadySameAlias");
+			}
+		} else if(data.options.as == optionsSourceObject[i].as){
+			let err = new Error('database.field.error.alreadyExist');
+			err.messageParams = [data.options.showAs];
+			throw err;
+		}
+	}
 
-    // Changes to be saved, remove auto_generate key
-    if(saveFile)
-        fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8");
+	// Changes to be saved, remove auto_generate key
+	if(saveFile)
+		fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8");
 
-    let answer = {};
-    let toSync = true;
-    let optionsObject;
+	let answer = {};
+	let toSync = true;
+	let optionsObject;
 
-    let targetEntity = data.application.findEntity(data.options.target);
+	let targetEntity = data.application.findEntity(data.options.target);
 
-    // Target entity does not exist -> Subentity generation
-    if(!targetEntity) {
-        targetEntity = data.np_module.addEntity(data.options.target, data.options.showTarget);
+	// Target entity does not exist -> Subentity generation
+	if(!targetEntity) {
+		targetEntity = data.np_module.addEntity(data.options.target, data.options.showTarget);
 
-        answer.message = "structure.association.hasMany.successSubEntity";
-        answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
+		answer.message = "structure.association.hasMany.successSubEntity";
+		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
 
-        // Subentity code generation
-        await structure_entity.setupEntity(data)
+		// Subentity code generation
+		await structure_entity.setupEntity(data)
 
-        optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
-    } else {
-        optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target.toLowerCase() + '.json'));
+		optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
+	} else {
+		optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target.toLowerCase() + '.json'));
 
-        let cptExistingHasMany = 0;
-        // Check if there is no or just one belongsToMany to do
-        for (let i = 0; i < optionsObject.length; i++)
-            if (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo")
-                if (optionsObject[i].relation != "belongsToMany")
-                    cptExistingHasMany++;
+		let cptExistingHasMany = 0;
+		// Check if there is no or just one belongsToMany to do
+		for (let i = 0; i < optionsObject.length; i++)
+			if (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo")
+				if (optionsObject[i].relation != "belongsToMany")
+					cptExistingHasMany++;
 
-        /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-        if (cptExistingHasMany > 1)
-            throw new Error("structure.association.error.tooMuchHasMany");
+		/* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
+		if (cptExistingHasMany > 1)
+			throw new Error("structure.association.error.tooMuchHasMany");
 
-        answer.message = "structure.association.hasMany.successEntity";
-        answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
-    }
+		answer.message = "structure.association.hasMany.successEntity";
+		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
+	}
 
-    // Vérification si une relation existe déjà de la target VERS la source
-    for (let i = 0; i < optionsObject.length; i++) {
-        if (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase()
-            && optionsObject[i].target.toLowerCase() != data.options.target.toLowerCase()
-            && optionsObject[i].relation != "belongsTo"
-            && optionsObject[i].structureType != "auto_generate") {
+	// Vérification si une relation existe déjà de la target VERS la source
+	for (let i = 0; i < optionsObject.length; i++) {
+		if (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase()
+			&& optionsObject[i].target.toLowerCase() != data.options.target.toLowerCase()
+			&& optionsObject[i].relation != "belongsTo"
+			&& optionsObject[i].structureType != "auto_generate") {
 
-            /* Then lets create the belongs to many association */
-            await belongsToMany(data, optionsObject[i], "setupHasManyTab", exportsContext);
+			/* Then lets create the belongs to many association */
+			await belongsToMany(data, optionsObject[i], "setupHasManyTab", exportsContext);
 
-            return {
-                entity: data.source_entity,
-                message: 'structure.association.hasMany.successEntity',
-                messageParams: [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs]
-            }
+			return {
+				entity: data.source_entity,
+				message: 'structure.association.hasMany.successEntity',
+				messageParams: [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs]
+			}
 
-        } else if (data.options.source.toLowerCase() != data.options.target.toLowerCase()
-                && (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
-                && (optionsObject[i].foreignKey == data.options.foreignKey)) {
-            // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
-            toSync = false;
-        }
-    }
+		} else if (data.options.source.toLowerCase() != data.options.target.toLowerCase()
+				&& (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
+				&& (optionsObject[i].foreignKey == data.options.foreignKey)) {
+			// We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
+			toSync = false;
+		}
+	}
 
-    // Créer le lien hasMany en la source et la target
-    var associationOption = {
-        application: data.application,
-        source: data.options.source,
-        target: data.options.target,
-        foreignKey: data.options.foreignKey,
-        as: data.options.as,
-        showAs: data.options.showAs,
-        relation: "hasMany",
-        through: null,
-        toSync: toSync,
-        type: "hasMany"
-    };
+	// Créer le lien hasMany en la source et la target
+	var associationOption = {
+		application: data.application,
+		source: data.options.source,
+		target: data.options.target,
+		foreignKey: data.options.foreignKey,
+		as: data.options.as,
+		showAs: data.options.showAs,
+		relation: "hasMany",
+		through: null,
+		toSync: toSync,
+		type: "hasMany"
+	};
 
-    let reversedOptions = {
-        application: data.application,
-        source: data.options.target,
-        target: data.options.source,
-        foreignKey: data.options.foreignKey,
-        as: "r_"+data.options.source.substring(2),
-        relation: "belongsTo",
-        toSync: toSync,
-        type: "auto_generate"
-    }
+	let reversedOptions = {
+		application: data.application,
+		source: data.options.target,
+		target: data.options.source,
+		foreignKey: data.options.foreignKey,
+		as: "r_"+data.options.source.substring(2),
+		relation: "belongsTo",
+		toSync: toSync,
+		type: "auto_generate"
+	}
 
-    // Generate hasMany relation in options
-    structure_entity.setupAssociation(associationOption);
-    // Generate opposite belongsTo relation in options
-    structure_entity.setupAssociation(reversedOptions);
+	// Generate hasMany relation in options
+	structure_entity.setupAssociation(associationOption);
+	// Generate opposite belongsTo relation in options
+	structure_entity.setupAssociation(reversedOptions);
 
-    // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-    structure_entity.setupHasManyTab(data);
+	// Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+	structure_entity.setupHasManyTab(data);
 
-    return {
-        ...answer,
-        entity: data.source_entity
-    };
+	return {
+		...answer,
+		entity: data.source_entity
+	};
 }
 
 // Create a tab with a select of existing object and a list associated to it
 exports.createNewHasManyPreset = async (data) => {
 
-    let exportsContext = this;
-    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	let exportsContext = this;
+	let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
-    let sourceEntity = data.application.findEntity(data.options.source, true);
-    data.np_module = sourceEntity.np_module;
-    data.source_entity = sourceEntity.entity;
+	let sourceEntity = data.application.findEntity(data.options.source, true);
+	data.np_module = sourceEntity.np_module;
+	data.source_entity = sourceEntity.entity;
 
-    // If a using field or fields has been asked, we have to check if those fields exist in the entity
-    if (typeof data.options.usingField !== "undefined") {
-        let attributesPath = workspacePath + '/models/attributes/' + data.options.target + '.json';
-        let attributeTarget = JSON.parse(fs.readFileSync(attributesPath));
+	// If a using field or fields has been asked, we have to check if those fields exist in the entity
+	if (typeof data.options.usingField !== "undefined") {
+		let attributesPath = workspacePath + '/models/attributes/' + data.options.target + '.json';
+		let attributeTarget = JSON.parse(fs.readFileSync(attributesPath));
 
-        for (let i = 0; i < data.options.usingField.length; i++) {
-            if (typeof attributeTarget[data.options.usingField[i]] === "undefined") {
-                // If a asked using field doesn't exist in the target entity we send an error
-                let err = new Error('structure.association.relatedTo.missingField');
-                err.messageParams = [data.options.showUsingField[i], data.options.showTarget];
-                throw err;
-            } else {
-                data.options.usingField[i] = {
-                    value: data.options.usingField[i],
-                    type: attributeTarget[data.options.usingField[i]].newmipsType
-                }
-            }
-        }
-    }
+		for (let i = 0; i < data.options.usingField.length; i++) {
+			if (typeof attributeTarget[data.options.usingField[i]] === "undefined") {
+				// If a asked using field doesn't exist in the target entity we send an error
+				let err = new Error('structure.association.relatedTo.missingField');
+				err.messageParams = [data.options.showUsingField[i], data.options.showTarget];
+				throw err;
+			} else {
+				data.options.usingField[i] = {
+					value: data.options.usingField[i],
+					type: attributeTarget[data.options.usingField[i]].newmipsType
+				}
+			}
+		}
+	}
 
-    let targetEntity = data.application.findEntity(data.options.target);
-    let sourceOptionsPath = workspacePath + '/models/options/' + data.options.source + '.json';
-    let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
+	let targetEntity = data.application.findEntity(data.options.target);
+	let sourceOptionsPath = workspacePath + '/models/options/' + data.options.source + '.json';
+	let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
 
-    let toSync = true;
-    let saveFile = false;
-    // Vérification si une relation existe déjà avec cet alias
-    for (let i = 0; i < optionsSourceObject.length; i++) {
-        if (optionsSourceObject[i].target == data.options.target) {
-            // If alias already used
-            if (data.options.as == optionsSourceObject[i].as){
-                if(optionsSourceObject[i].structureType == "auto_generate") {
-                    // Remove auto generate key by the generator
-                    optionsSourceObject.splice(i, 1);
-                    saveFile = true;
-                } else {
-                    throw new Error('structure.association.error.alreadySameAlias');
-                }
-            }
-        } else if(data.options.as == optionsSourceObject[i].as){
-            let err = new Error('database.field.error.alreadyExist');
-            err.messageParams = [data.options.showAs];
-            throw err;
-        }
-    }
+	let toSync = true;
+	let saveFile = false;
+	// Vérification si une relation existe déjà avec cet alias
+	for (let i = 0; i < optionsSourceObject.length; i++) {
+		if (optionsSourceObject[i].target == data.options.target) {
+			// If alias already used
+			if (data.options.as == optionsSourceObject[i].as){
+				if(optionsSourceObject[i].structureType == "auto_generate") {
+					// Remove auto generate key by the generator
+					optionsSourceObject.splice(i, 1);
+					saveFile = true;
+				} else {
+					throw new Error('structure.association.error.alreadySameAlias');
+				}
+			}
+		} else if(data.options.as == optionsSourceObject[i].as){
+			let err = new Error('database.field.error.alreadyExist');
+			err.messageParams = [data.options.showAs];
+			throw err;
+		}
+	}
 
-    // Association table
-    data.options.through = data.application.associationSeq + "_" + data.options.as.substring(2);
+	// Association table
+	data.options.through = data.application.associationSeq + "_" + data.options.as.substring(2);
 
-    if (data.options.through.length > 55) {
-        let err = new Error('error.valueTooLong');
-        err.messageParams = [data.options.through];
-        throw err;
-    }
+	if (data.options.through.length > 55) {
+		let err = new Error('error.valueTooLong');
+		err.messageParams = [data.options.through];
+		throw err;
+	}
 
-    // Changes to be saved, remove auto_generate key
-    if(saveFile)
-        fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8")
+	// Changes to be saved, remove auto_generate key
+	if(saveFile)
+		fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8")
 
-    let targetOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.options.target + '.json'));
-    let cptExistingHasMany = 0;
+	let targetOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.options.target + '.json'));
+	let cptExistingHasMany = 0;
 
-    // Preparing variable
-    let source = data.options.source.toLowerCase();
-    let target = data.options.target.toLowerCase();
+	// Preparing variable
+	let source = data.options.source.toLowerCase();
+	let target = data.options.target.toLowerCase();
 
-    // Check if there is no or just one belongsToMany to do
-    for (let i = 0; i < targetOptions.length; i++)
-        if (targetOptions[i].target.toLowerCase() == source && targetOptions[i].relation != "belongsTo")
-            cptExistingHasMany++;
+	// Check if there is no or just one belongsToMany to do
+	for (let i = 0; i < targetOptions.length; i++)
+		if (targetOptions[i].target.toLowerCase() == source && targetOptions[i].relation != "belongsTo")
+			cptExistingHasMany++;
 
-    /* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-    if (cptExistingHasMany > 1)
-        throw new Error("structure.association.error.tooMuchHasMany");
+	/* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
+	if (cptExistingHasMany > 1)
+		throw new Error("structure.association.error.tooMuchHasMany");
 
-    let targetObjTarget;
-    // Vérification si une relation existe déjà de la target VERS la source
-    for (let i = 0; i < targetOptions.length; i++) {
-        targetObjTarget = targetOptions[i].target.toLowerCase();
+	let targetObjTarget;
+	// Vérification si une relation existe déjà de la target VERS la source
+	for (let i = 0; i < targetOptions.length; i++) {
+		targetObjTarget = targetOptions[i].target.toLowerCase();
 
-        if (targetObjTarget == source
-            && targetObjTarget != target
-            && targetOptions[i].relation != "belongsTo"
-            && targetOptions[i].structureType != "auto_generate") {
+		if (targetObjTarget == source
+			&& targetObjTarget != target
+			&& targetOptions[i].relation != "belongsTo"
+			&& targetOptions[i].structureType != "auto_generate") {
 
-            /* Then lets create the belongs to many association */
-            await belongsToMany(data, targetOptions[i], "setupHasManyPresetTab", exportsContext);
+			/* Then lets create the belongs to many association */
+			await belongsToMany(data, targetOptions[i], "setupHasManyPresetTab", exportsContext);
 
-            return {
-                message: "structure.association.hasManyExisting.success",
-                messageParams: [data.options.showTarget, data.options.showSource]
-            }
-        } else if (source != target
-            && (targetObjTarget == source && targetOptions[i].relation == "belongsTo")
-            && targetOptions[i].foreignKey == data.options.foreignKey) {
-            // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
-            toSync = false;
-        }
-    }
+			return {
+				message: "structure.association.hasManyExisting.success",
+				messageParams: [data.options.showTarget, data.options.showSource]
+			}
+		} else if (source != target
+			&& (targetObjTarget == source && targetOptions[i].relation == "belongsTo")
+			&& targetOptions[i].foreignKey == data.options.foreignKey) {
+			// We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
+			toSync = false;
+		}
+	}
 
-    let associationOption = {
-        application: data.application,
-        source: data.options.source,
-        target: data.options.target,
-        foreignKey: data.options.foreignKey,
-        as: data.options.as,
-        showAs: data.options.showAs,
-        relation: "belongsToMany",
-        through: data.options.through,
-        toSync: toSync,
-        usingField: data.options.usingField || undefined,
-        type: "hasManyPreset"
-    };
+	let associationOption = {
+		application: data.application,
+		source: data.options.source,
+		target: data.options.target,
+		foreignKey: data.options.foreignKey,
+		as: data.options.as,
+		showAs: data.options.showAs,
+		relation: "belongsToMany",
+		through: data.options.through,
+		toSync: toSync,
+		usingField: data.options.usingField || undefined,
+		type: "hasManyPreset"
+	};
 
-    // Créer le lien belongsTo en la source et la target
-    structure_entity.setupAssociation(associationOption);
+	// Créer le lien belongsTo en la source et la target
+	structure_entity.setupAssociation(associationOption);
 
-    // Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-    await structure_entity.setupHasManyPresetTab(data);
+	// Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+	await structure_entity.setupHasManyPresetTab(data);
 
-    return {
-        message: "structure.association.hasManyExisting.success",
-        messageParams: [data.options.showTarget, data.options.showSource]
-    };
+	return {
+		message: "structure.association.hasManyExisting.success",
+		messageParams: [data.options.showTarget, data.options.showSource]
+	};
 }
 
 // Create a field in create/show/update related to target entity
 exports.createNewFieldRelatedTo = async (data) => {
 
-    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
-    // Get source entity
-    data.source_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	// Get source entity
+	data.source_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    // Check if a field with this name already exist
-    if(data.source_entity.getField('f_' + data.options.urlAs)) {
-        let err = new Error('database.field.error.alreadyExist');
-        err.messageParams = [data.options.showAs];
-        throw err;
-    }
+	// Check if a field with this name already exist
+	if(data.source_entity.getField('f_' + data.options.urlAs)) {
+		let err = new Error('database.field.error.alreadyExist');
+		err.messageParams = [data.options.showAs];
+		throw err;
+	}
 
-    // Check if the target entity exist
-    data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	// Check if the target entity exist
+	data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    // If a using field or fields has been asked, we have to check if those fields exist in the entity
-    if (typeof data.options.usingField !== "undefined") {
-        let attributeTarget = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + data.options.target + '.json'));
-        for (let i = 0; i < data.options.usingField.length; i++) {
-            if (typeof attributeTarget[data.options.usingField[i]] === "undefined") {
-                // If a asked using field doesn't exist in the target entity we send an error
-                let err = new Error('structure.association.relatedTo.missingField');
-                err.messageParams = [data.options.showUsingField[i], data.options.showTarget];
-                throw err;
-            } else {
-                data.options.usingField[i] = {
-                    value: data.options.usingField[i],
-                    type: attributeTarget[data.options.usingField[i]].newmipsType
-                }
-            }
-        }
-    }
+	// If a using field or fields has been asked, we have to check if those fields exist in the entity
+	if (typeof data.options.usingField !== "undefined") {
+		let attributeTarget = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + data.options.target + '.json'));
+		for (let i = 0; i < data.options.usingField.length; i++) {
+			if (typeof attributeTarget[data.options.usingField[i]] === "undefined") {
+				// If a asked using field doesn't exist in the target entity we send an error
+				let err = new Error('structure.association.relatedTo.missingField');
+				err.messageParams = [data.options.showUsingField[i], data.options.showTarget];
+				throw err;
+			} else {
+				data.options.usingField[i] = {
+					value: data.options.usingField[i],
+					type: attributeTarget[data.options.usingField[i]].newmipsType
+				}
+			}
+		}
+	}
 
-    // Check if an association already exists from source to target
-    let sourceOptionsPath = workspacePath + '/models/options/' + data.source_entity.name + '.json';
-    let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
+	// Check if an association already exists from source to target
+	let sourceOptionsPath = workspacePath + '/models/options/' + data.source_entity.name + '.json';
+	let optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
 
-    let toSync = true;
-    let constraints = true;
-    let saveFile = false;
+	let toSync = true;
+	let constraints = true;
+	let saveFile = false;
 
-    // Check if an association already exists with the same alias
-    for (var i = 0; i < optionsSourceObject.length; i++) {
-        if (optionsSourceObject[i].target == data.options.target) {
-            // If alias already used
-            if (data.options.as == optionsSourceObject[i].as){
-                if(optionsSourceObject[i].structureType == "auto_generate") {
-                    // Remove auto generate key by the generator
-                    optionsSourceObject.splice(i, 1);
-                    saveFile = true;
-                } else
-                    throw new Error("structure.association.error.alreadySameAlias");
-            }
-        } else if(data.options.as == optionsSourceObject[i].as){
-            let err = new Error('database.field.error.alreadyExist');
-            err.messageParams = [data.options.showAs];
-            throw err;
-        }
-    }
+	// Check if an association already exists with the same alias
+	for (var i = 0; i < optionsSourceObject.length; i++) {
+		if (optionsSourceObject[i].target == data.options.target) {
+			// If alias already used
+			if (data.options.as == optionsSourceObject[i].as){
+				if(optionsSourceObject[i].structureType == "auto_generate") {
+					// Remove auto generate key by the generator
+					optionsSourceObject.splice(i, 1);
+					saveFile = true;
+				} else
+					throw new Error("structure.association.error.alreadySameAlias");
+			}
+		} else if(data.options.as == optionsSourceObject[i].as){
+			let err = new Error('database.field.error.alreadyExist');
+			err.messageParams = [data.options.showAs];
+			throw err;
+		}
+	}
 
-    // Changes to be saved, remove auto_generate key
-    if(saveFile)
-        fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8");
+	// Changes to be saved, remove auto_generate key
+	if(saveFile)
+		fs.writeFileSync(sourceOptionsPath, JSON.stringify(optionsSourceObject, null, 4), "utf8");
 
-    // Check if an association already exists from target to source
-    let optionsObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.options.target + '.json'));
-    for (let i = 0; i < optionsObject.length; i++) {
-        if (optionsObject[i].target == data.source_entity.name && optionsObject[i].relation != "hasMany" && optionsObject[i].relation != "belongsToMany") {
-            constraints = false;
-        } else if (data.source_entity.name != data.options.target
-                && (optionsObject[i].target == data.source_entity.name && optionsObject[i].relation == "hasMany")
-                && (optionsObject[i].foreignKey == data.options.foreignKey)) {
-            // We avoid the toSync to append because the already existing has many relation has already created the foreign key in BDD
-            toSync = false;
-        }
-    }
+	// Check if an association already exists from target to source
+	let optionsObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.options.target + '.json'));
+	for (let i = 0; i < optionsObject.length; i++) {
+		if (optionsObject[i].target == data.source_entity.name && optionsObject[i].relation != "hasMany" && optionsObject[i].relation != "belongsToMany") {
+			constraints = false;
+		} else if (data.source_entity.name != data.options.target
+				&& (optionsObject[i].target == data.source_entity.name && optionsObject[i].relation == "hasMany")
+				&& (optionsObject[i].foreignKey == data.options.foreignKey)) {
+			// We avoid the toSync to append because the already existing has many relation has already created the foreign key in BDD
+			toSync = false;
+		}
+	}
 
-    // Créer le lien belongsTo en la source et la target dans models/options/source.json
-    let associationOption = {
-        application: data.application,
-        source: data.source_entity.name,
-        target: data.options.target,
-        foreignKey: data.options.foreignKey,
-        as: data.options.as,
-        showAs: data.options.showAs,
-        relation: "belongsTo",
-        through: null,
-        toSync: true,
-        type: "relatedTo",
-        constraints: constraints
-    };
+	// Créer le lien belongsTo en la source et la target dans models/options/source.json
+	let associationOption = {
+		application: data.application,
+		source: data.source_entity.name,
+		target: data.options.target,
+		foreignKey: data.options.foreignKey,
+		as: data.options.as,
+		showAs: data.options.showAs,
+		relation: "belongsTo",
+		through: null,
+		toSync: true,
+		type: "relatedTo",
+		constraints: constraints
+	};
 
-    if (typeof data.options.usingField !== "undefined")
-        associationOption.usingField = data.options.usingField;
+	if (typeof data.options.usingField !== "undefined")
+		associationOption.usingField = data.options.usingField;
 
-    let reversedOption = {
-        application: data.application,
-        source: data.options.target,
-        target: data.source_entity.name,
-        foreignKey: data.options.foreignKey,
-        as: "r_"+data.source_entity.name.substring(2),
-        relation: "hasMany",
-        type: "auto_generate",
-        constraints: constraints
-    };
+	let reversedOption = {
+		application: data.application,
+		source: data.options.target,
+		target: data.source_entity.name,
+		foreignKey: data.options.foreignKey,
+		as: "r_"+data.source_entity.name.substring(2),
+		relation: "hasMany",
+		type: "auto_generate",
+		constraints: constraints
+	};
 
-    structure_entity.setupAssociation(associationOption);
-    structure_entity.setupAssociation(reversedOption);
+	structure_entity.setupAssociation(associationOption);
+	structure_entity.setupAssociation(reversedOption);
 
-    // Generate html code in dust file
-    await structure_field.setupRelatedToField(data);
+	// Generate html code in dust file
+	await structure_field.setupRelatedToField(data);
 
-    data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
+	data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
 
-    return {
-        entity: data.source_entity,
-        message: "structure.association.relatedTo.success",
-        messageParams: [data.options.showAs, data.options.showTarget, data.options.showAs, data.options.showAs, data.options.showAs]
-    }
+	return {
+		entity: data.source_entity,
+		message: "structure.association.relatedTo.success",
+		messageParams: [data.options.showAs, data.options.showTarget, data.options.showAs, data.options.showAs, data.options.showAs]
+	}
 }
 
 // Select multiple in create/show/update related to target entity
 exports.createNewFieldRelatedToMultiple = async (data) => {
 
-    let exportsContext = this;
-    let alias = data.options.as;
-    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	let exportsContext = this;
+	let alias = data.options.as;
+	let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
-    // Get source entity
-    data.source_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	// Get source entity
+	data.source_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    // Check if a field with this name already exist
-    if(data.source_entity.getField('f_' + data.options.urlAs)) {
-        let err = new Error('database.field.error.alreadyExist');
-        err.messageParams = [data.options.showAs];
-        throw err;
-    }
+	// Check if a field with this name already exist
+	if(data.source_entity.getField('f_' + data.options.urlAs)) {
+		let err = new Error('database.field.error.alreadyExist');
+		err.messageParams = [data.options.showAs];
+		throw err;
+	}
 
-    // Foreign key name generation
-    data.options.foreignKey = "fk_id_" + data.source_entity.name + "_" + alias.substring(2);
+	// Foreign key name generation
+	data.options.foreignKey = "fk_id_" + data.source_entity.name + "_" + alias.substring(2);
 
-    // Check if the target entity exist
-    data.target_entity = data.application.findEntity(data.options.target, true).entity;
+	// Check if the target entity exist
+	data.target_entity = data.application.findEntity(data.options.target, true).entity;
 
-    // If a using field or fields has been asked, we have to check if those fields exist in the entity
-    if (typeof data.options.usingField !== "undefined") {
-        let attributesPath = workspacePath + '/models/attributes/' + data.options.target.toLowerCase() + '.json';
-        let attributeTarget = JSON.parse(fs.readFileSync(attributesPath));
+	// If a using field or fields has been asked, we have to check if those fields exist in the entity
+	if (typeof data.options.usingField !== "undefined") {
+		let attributesPath = workspacePath + '/models/attributes/' + data.options.target.toLowerCase() + '.json';
+		let attributeTarget = JSON.parse(fs.readFileSync(attributesPath));
 
-        for (let i = 0; i < data.options.usingField.length; i++) {
-            if (typeof attributeTarget[data.options.usingField[i]] === "undefined") {
-                // If a asked using field doesn't exist in the target entity we send an error
-                let err = new Error('structure.association.relatedTo.missingField');
-                err.messageParams = [data.options.showUsingField[i], data.options.showTarget];
-                throw err;
-            } else {
-                data.options.usingField[i] = {
-                    value: data.options.usingField[i],
-                    type: attributeTarget[data.options.usingField[i]].newmipsType
-                }
-            }
-        }
-    }
+		for (let i = 0; i < data.options.usingField.length; i++) {
+			if (typeof attributeTarget[data.options.usingField[i]] === "undefined") {
+				// If a asked using field doesn't exist in the target entity we send an error
+				let err = new Error('structure.association.relatedTo.missingField');
+				err.messageParams = [data.options.showUsingField[i], data.options.showTarget];
+				throw err;
+			} else {
+				data.options.usingField[i] = {
+					value: data.options.usingField[i],
+					type: attributeTarget[data.options.usingField[i]].newmipsType
+				}
+			}
+		}
+	}
 
-    // Check if an association already exists from source to target
-    let optionsSourceObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.source_entity.name + '.json'));
+	// Check if an association already exists from source to target
+	let optionsSourceObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.source_entity.name + '.json'));
 
-    let toSync = true;
-    let relation = "belongsToMany";
+	let toSync = true;
+	let relation = "belongsToMany";
 
-    // Check already exisiting association from source to target entity
-    for (let i = 0; i < optionsSourceObject.length; i++) {
-        if (optionsSourceObject[i].target.toLowerCase() == data.options.target.toLowerCase()) {
-            if (data.options.as == optionsSourceObject[i].as)
-                throw new Error("structure.association.error.alreadySameAlias");
-        } else if (optionsSourceObject[i].relation == "belongsToMany" && (data.options.as == optionsSourceObject[i].as)) {
-            throw new Error("structure.association.error.alreadySameAlias");
-        } else if(data.options.as == optionsSourceObject[i].as){
-            let err = new Error('database.field.error.alreadyExist');
-            err.messageParams = [data.options.showAs];
-            throw err;
-        }
-    }
+	// Check already exisiting association from source to target entity
+	for (let i = 0; i < optionsSourceObject.length; i++) {
+		if (optionsSourceObject[i].target.toLowerCase() == data.options.target.toLowerCase()) {
+			if (data.options.as == optionsSourceObject[i].as)
+				throw new Error("structure.association.error.alreadySameAlias");
+		} else if (optionsSourceObject[i].relation == "belongsToMany" && (data.options.as == optionsSourceObject[i].as)) {
+			throw new Error("structure.association.error.alreadySameAlias");
+		} else if(data.options.as == optionsSourceObject[i].as){
+			let err = new Error('database.field.error.alreadyExist');
+			err.messageParams = [data.options.showAs];
+			throw err;
+		}
+	}
 
-    // Association table
-    data.options.through = data.application.associationSeq + "_" + data.options.as.substring(2);
+	// Association table
+	data.options.through = data.application.associationSeq + "_" + data.options.as.substring(2);
 
-    // MySQL table length limit
-    if (data.options.through.length > 60) {
-        let err = new Error('error.valueTooLong');
-        err.messageParams = [data.options.through];
-        throw err;
-    }
+	// MySQL table length limit
+	if (data.options.through.length > 60) {
+		let err = new Error('error.valueTooLong');
+		err.messageParams = [data.options.through];
+		throw err;
+	}
 
-    // Check if an association already exists from target to source
-    let optionsObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.target_entity.name + '.json'));
+	// Check if an association already exists from target to source
+	let optionsObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.target_entity.name + '.json'));
 
-    for (var i = 0; i < optionsObject.length; i++) {
-        if (data.source_entity.name != data.target_entity.name
-                && (optionsObject[i].target == data.source_entity.name
-                    && optionsObject[i].relation == "belongsTo")) {
-            // Temporary solution ! TODO: Mispy should ask if we want to link the already existing 1,1 with this new 1,n
-            if ((data.options.target.substring(2) == data.options.as.substring(2))
-                    && (optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2))) {
-                //&& (optionsObject[i].foreignKey == data.options.foreignKey)
-                // If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
-                data.options.foreignKey = optionsObject[i].foreignKey;
-                // We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
-                toSync = false;
-                // If it's already define that target entity belongsTo source entity, then we create a simple hasMany instead of a belongsToMany
-                relation = "hasMany";
-                data.options.through = null;
-            }
-        }
-    }
+	for (var i = 0; i < optionsObject.length; i++) {
+		if (data.source_entity.name != data.target_entity.name
+				&& (optionsObject[i].target == data.source_entity.name
+					&& optionsObject[i].relation == "belongsTo")) {
+			// Temporary solution ! TODO: Mispy should ask if we want to link the already existing 1,1 with this new 1,n
+			if ((data.options.target.substring(2) == data.options.as.substring(2))
+					&& (optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2))) {
+				//&& (optionsObject[i].foreignKey == data.options.foreignKey)
+				// If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
+				data.options.foreignKey = optionsObject[i].foreignKey;
+				// We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
+				toSync = false;
+				// If it's already define that target entity belongsTo source entity, then we create a simple hasMany instead of a belongsToMany
+				relation = "hasMany";
+				data.options.through = null;
+			}
+		}
+	}
 
-    // Create the association link between source and target
-    let associationOption = {
-        application: data.application,
-        source: data.source_entity.name,
-        target: data.target_entity.name,
-        foreignKey: data.options.foreignKey,
-        as: data.options.as,
-        showAs: data.options.showAs,
-        relation: relation,
-        through: data.options.through,
-        toSync: toSync,
-        type: data.options.isCheckbox ? "relatedToMultipleCheckbox" : "relatedToMultiple"
-    };
+	// Create the association link between source and target
+	let associationOption = {
+		application: data.application,
+		source: data.source_entity.name,
+		target: data.target_entity.name,
+		foreignKey: data.options.foreignKey,
+		as: data.options.as,
+		showAs: data.options.showAs,
+		relation: relation,
+		through: data.options.through,
+		toSync: toSync,
+		type: data.options.isCheckbox ? "relatedToMultipleCheckbox" : "relatedToMultiple"
+	};
 
-    if (typeof data.options.usingField !== "undefined")
-        associationOption.usingField = data.options.usingField;
-    if (typeof data.options.isCheckbox !== "undefined" && data.options.isCheckbox) {
-        // If it's a checkbox presentation style, we need to load association directly in the route, not in ajax
-        associationOption.loadOnStart = true;
-    }
+	if (typeof data.options.usingField !== "undefined")
+		associationOption.usingField = data.options.usingField;
+	if (typeof data.options.isCheckbox !== "undefined" && data.options.isCheckbox) {
+		// If it's a checkbox presentation style, we need to load association directly in the route, not in ajax
+		associationOption.loadOnStart = true;
+	}
 
-    // Generate ORM association
-    structure_entity.setupAssociation(associationOption);
+	// Generate ORM association
+	structure_entity.setupAssociation(associationOption);
 
-    // Generate HTML code
-    await structure_field.setupRelatedToMultipleField(data);
+	// Generate HTML code
+	await structure_field.setupRelatedToMultipleField(data);
 
-    data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
+	data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
 
-    return {
-        message: 'structure.association.relatedToMultiple.success',
-        messageParams: [data.options.showAs, data.options.showTarget, data.source_entity.name, data.options.showAs, data.options.showAs]
-    };
+	return {
+		message: 'structure.association.relatedToMultiple.success',
+		messageParams: [data.options.showAs, data.options.showTarget, data.source_entity.name, data.options.showAs, data.options.showAs]
+	};
 }
 
 /* --------------------------------------------------------------- */
 /* -------------------------- COMPONENT -------------------------- */
 /* --------------------------------------------------------------- */
 exports.createNewComponentStatus = async (data) => {
-    let self = this;
+	let self = this;
 
-    let entity = data.application.findEntity(data.entity_name, true);
-    data.np_module = entity.np_module;
-    data.entity = entity.entity;
+	let entity = data.application.findEntity(data.entity_name, true);
+	data.np_module = entity.np_module;
+	data.entity = entity.entity;
 
-    if (data.entity.getComponent(data.options.value, 'status'))
-        throw new Error('structure.component.error.alreadyExistOnEntity');
+	if (data.entity.getComponent(data.options.value, 'status'))
+		throw new Error('structure.component.error.alreadyExistOnEntity');
 
-    data.history_table_db_name = data.application.associationSeq + '_history_' + data.options.value;
-    data.history_table = 'history_' + data.entity.name.substring(2) + '_' + data.options.value.substring(2);
+	data.history_table_db_name = data.application.associationSeq + '_history_' + data.options.value;
+	data.history_table = 'history_' + data.entity.name.substring(2) + '_' + data.options.value.substring(2);
 
-    // These instructions create a has many with a new entity history_status
-    // It also does a hasMany relation with e_status
-    let instructions = [
-        "entity " + data.entity.name.substring(2) + ' has many ' + data.history_table_db_name + ' called History ' + data.options.showValue,
-        "select entity " + data.history_table_db_name,
-        "add field " + data.options.showValue + " related to Status using name, color",
-        "add field Comment with type text",
-        "add field Modified by related to user using login",
-        "entity status has many " + data.history_table_db_name,
-        "select entity " + data.entity.name.substring(2),
-        "add field " + data.options.showValue + " related to Status using name"
-    ];
+	// These instructions create a has many with a new entity history_status
+	// It also does a hasMany relation with e_status
+	let instructions = [
+		"entity " + data.entity.name.substring(2) + ' has many ' + data.history_table_db_name + ' called History ' + data.options.showValue,
+		"select entity " + data.history_table_db_name,
+		"add field " + data.options.showValue + " related to Status using name, color",
+		"add field Comment with type text",
+		"add field Modified by related to user using login",
+		"entity status has many " + data.history_table_db_name,
+		"select entity " + data.entity.name.substring(2),
+		"add field " + data.options.showValue + " related to Status using name"
+	];
 
-    await self.recursiveInstructionExecute(data, instructions, 0);
-    await structure_component.newStatus(data);
+	await self.recursiveInstructionExecute(data, instructions, 0);
+	await structure_component.newStatus(data);
 
-    data.entity.addComponent(data.options.value, data.options.showValue, 'status');
+	data.entity.addComponent(data.options.value, data.options.showValue, 'status');
 
-    return {
-        message: 'database.component.create.successOnEntity',
-        messageParams: ['status', data.entity.displayName]
-    };
+	return {
+		message: 'database.component.create.successOnEntity',
+		messageParams: ['status', data.entity.displayName]
+	};
 }
 
 let workspacesModels = {};
 async function deleteComponentStatus(data) {
 
-    let self = this;
-    let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	let self = this;
+	let workspacePath = __dirname + '/../workspace/' + data.application.name;
 
-    /* If there is no defined name for the module, set the default */
-    if (typeof data.options.value === 'undefined') {
-        data.options.value = "s_status";
-        data.options.urlValue = "status";
-        data.options.showValue = "Status";
-    }
+	/* If there is no defined name for the module, set the default */
+	if (typeof data.options.value === 'undefined') {
+		data.options.value = "s_status";
+		data.options.urlValue = "status";
+		data.options.showValue = "Status";
+	}
 
-    let foundEntity = data.application.findEntity(data.entity_name, true);
-    data.np_module = foundEntity.np_module;
-    data.entity = foundEntity.entity;
-    data.component = data.entity.getComponent(data.options.value, 'status', true);
+	let foundEntity = data.application.findEntity(data.entity_name, true);
+	data.np_module = foundEntity.np_module;
+	data.entity = foundEntity.entity;
+	data.component = data.entity.getComponent(data.options.value, 'status', true);
 
-    // Looking for status & history status information in options.json
-    let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
-    let historyInfo, statusFieldInfo;
+	// Looking for status & history status information in options.json
+	let entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
+	let historyInfo, statusFieldInfo;
 
-    for (let option of entityOptions) {
-        if (option.as == 'r_' + data.options.urlValue)
-            statusFieldInfo = option;
+	for (let option of entityOptions) {
+		if (option.as == 'r_' + data.options.urlValue)
+			statusFieldInfo = option;
 
-        if (option.as == 'r_history_' + data.options.urlValue)
-            historyInfo = option;
-    }
+		if (option.as == 'r_history_' + data.options.urlValue)
+			historyInfo = option;
+	}
 
-    let modelsPath = workspacePath + '/models/';
-    if(typeof workspacesModels[data.application.name] === 'undefined'){
-        delete require.cache[require.resolve(modelsPath)];
-        workspacesModels[data.application.name] = require(modelsPath);
-    }
-    let historyTableName = workspacesModels[data.application.name]['E_' + historyInfo.target.substring(2)].getTableName();
+	let modelsPath = workspacePath + '/models/';
+	if(typeof workspacesModels[data.application.name] === 'undefined'){
+		delete require.cache[require.resolve(modelsPath)];
+		workspacesModels[data.application.name] = require(modelsPath);
+	}
+	let historyTableName = workspacesModels[data.application.name]['E_' + historyInfo.target.substring(2)].getTableName();
 
-    await structure_component.deleteStatus({
-        application: data.application,
-        status_field: 's_' + data.options.urlValue,
-        fk_status: statusFieldInfo.foreignKey,
-        entity: data.entity.name,
-        historyName: historyInfo.target,
-        historyTableName: historyTableName
-    });
+	await structure_component.deleteStatus({
+		application: data.application,
+		status_field: 's_' + data.options.urlValue,
+		fk_status: statusFieldInfo.foreignKey,
+		entity: data.entity.name,
+		historyName: historyInfo.target,
+		historyTableName: historyTableName
+	});
 
-    data.entity.deleteComponent(data.options.value, 'status');
+	data.entity.deleteComponent(data.options.value, 'status');
 
-    return {
-        message: 'database.component.delete.success'
-    };
+	return {
+		message: 'database.component.delete.success'
+	};
 }
 exports.deleteComponentStatus = deleteComponentStatus;
 
 // Componant that we can add on an entity to store local documents
 exports.createNewComponentLocalFileStorage = async (data) => {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    /* If there is no defined name for the module */
-    if (typeof data.options.value === "undefined") {
-        data.options.value = "c_local_file_storage_" + data.entity.name;
-        data.options.urlValue = "local_file_storage_" + data.entity.name;
-        data.options.showValue = "Local File Storage";
-    } else {
-        data.options.value = data.options.value + "_" + data.entity.name;
-        data.options.urlValue = data.options.urlValue + "_" + data.entity.name;
-    }
+	/* If there is no defined name for the module */
+	if (typeof data.options.value === "undefined") {
+		data.options.value = "c_local_file_storage_" + data.entity.name;
+		data.options.urlValue = "local_file_storage_" + data.entity.name;
+		data.options.showValue = "Local File Storage";
+	} else {
+		data.options.value = data.options.value + "_" + data.entity.name;
+		data.options.urlValue = data.options.urlValue + "_" + data.entity.name;
+	}
 
-    data.options.urlSource = data.options.value.substring(2);
+	data.options.urlSource = data.options.value.substring(2);
 
-    if (data.entity.getComponent(data.options.value, 'file_storage'))
-        throw new Error('structure.component.error.alreadyExistOnEntity');
+	if (data.entity.getComponent(data.options.value, 'file_storage'))
+		throw new Error('structure.component.error.alreadyExistOnEntity');
 
-    if(data.application.findEntity(data.options.value))
-        throw new Error("structure.component.error.alreadyExistInApp");
+	if(data.application.findEntity(data.options.value))
+		throw new Error("structure.component.error.alreadyExistInApp");
 
-    data.entity.addComponent(data.options.value, data.options.showValue, 'file_storage');
+	data.entity.addComponent(data.options.value, data.options.showValue, 'file_storage');
 
-    let associationOption = {
-        application: data.application,
-        source: data.entity.name,
-        target: data.options.value,
-        foreignKey: "fk_id_" + data.entity.name,
-        as: data.options.value,
-        showAs: data.options.showValue,
-        relation: "hasMany",
-        through: null,
-        toSync: false,
-        type: 'localfilestorage'
-    };
+	let associationOption = {
+		application: data.application,
+		source: data.entity.name,
+		target: data.options.value,
+		foreignKey: "fk_id_" + data.entity.name,
+		as: data.options.value,
+		showAs: data.options.showValue,
+		relation: "hasMany",
+		through: null,
+		toSync: false,
+		type: 'localfilestorage'
+	};
 
-    structure_entity.setupAssociation(associationOption);
-    await structure_component.newLocalFileStorage(data);
+	structure_entity.setupAssociation(associationOption);
+	await structure_component.newLocalFileStorage(data);
 
-    return {
-        message: "database.component.create.successOnEntity",
-        messageParams: [data.options.showValue, data.entity.displayName]
-    };
+	return {
+		message: "database.component.create.successOnEntity",
+		messageParams: [data.options.showValue, data.entity.displayName]
+	};
 }
 
 // Componant to create a contact form in a module
 exports.createNewComponentContactForm = async (data) => {
 
-    let exportsContext = this;
+	let exportsContext = this;
 
-    /* If there is no defined name for the module */
-    if (typeof data.options.value === "undefined") {
-        data.options.value = "e_contact_form";
-        data.options.urlValue = "contact_form";
-        data.options.showValue = "Contact Form";
-    }
+	/* If there is no defined name for the module */
+	if (typeof data.options.value === "undefined") {
+		data.options.value = "e_contact_form";
+		data.options.urlValue = "contact_form";
+		data.options.showValue = "Contact Form";
+	}
 
-    data.np_module = data.application.getModule(data.module_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
 
-    data.options.valueSettings = data.options.value + "_settings";
-    data.options.urlValueSettings = data.options.urlValue + "_settings";
-    data.options.showValueSettings = data.options.showValue + " Settings";
+	data.options.valueSettings = data.options.value + "_settings";
+	data.options.urlValueSettings = data.options.urlValue + "_settings";
+	data.options.showValueSettings = data.options.showValue + " Settings";
 
-    let instructions = [
-        "add entity " + data.options.showValue,
-        "add field Name",
-        "set field Name required",
-        "add field Sender with type email",
-        "set field Sender required",
-        "add field Recipient with type email",
-        "add field User related to user using login",
-        "add field Title",
-        "set field Title required",
-        "add field Content with type text",
-        "set field Content required",
-        "add entity " + data.options.showValueSettings,
-        "add field Transport Host",
-        "add field Port with type number",
-        "add field Secure with type boolean and default value true",
-        "add field User",
-        "add field Pass",
-        "add field Form Recipient",
-        "set field Transport Host required",
-        "set field Port required",
-        "set field User required",
-        "set field Pass required",
-        "set field Form Recipient required"
-    ];
+	let instructions = [
+		"add entity " + data.options.showValue,
+		"add field Name",
+		"set field Name required",
+		"add field Sender with type email",
+		"set field Sender required",
+		"add field Recipient with type email",
+		"add field User related to user using login",
+		"add field Title",
+		"set field Title required",
+		"add field Content with type text",
+		"set field Content required",
+		"add entity " + data.options.showValueSettings,
+		"add field Transport Host",
+		"add field Port with type number",
+		"add field Secure with type boolean and default value true",
+		"add field User",
+		"add field Pass",
+		"add field Form Recipient",
+		"set field Transport Host required",
+		"set field Port required",
+		"set field User required",
+		"set field Pass required",
+		"set field Form Recipient required"
+	];
 
-    // Start doing necessary instruction for component creation
-    await exportsContext.recursiveInstructionExecute(data, instructions, 0);
-    data.np_module.addComponent(data.options.value, data.options.showValue, 'contact_form');
-    await structure_component.newContactForm(data);
-    return {
-        message: "database.component.create.success",
-        messageParams: [data.options.showValue]
-    };
+	// Start doing necessary instruction for component creation
+	await exportsContext.recursiveInstructionExecute(data, instructions, 0);
+	data.np_module.addComponent(data.options.value, data.options.showValue, 'contact_form');
+	await structure_component.newContactForm(data);
+	return {
+		message: "database.component.create.success",
+		messageParams: [data.options.showValue]
+	};
 }
 
 exports.deleteComponentContactForm = async (data) => {
 
-    let exportsContext = this;
+	let exportsContext = this;
 
-    /* If there is no defined name for the module */
-    if (typeof data.options.value === "undefined") {
-        data.options.value = "e_contact_form";
-        data.options.urlValue = "contact_form";
-        data.options.showValue = "Contact Form";
-    };
+	/* If there is no defined name for the module */
+	if (typeof data.options.value === "undefined") {
+		data.options.value = "e_contact_form";
+		data.options.urlValue = "contact_form";
+		data.options.showValue = "Contact Form";
+	};
 
-    data.np_module = data.application.getModule(data.module_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
 
-    // Checking that component exist
-    data.np_module.getComponent(data.options.value, 'contact_form', true);
+	// Checking that component exist
+	data.np_module.getComponent(data.options.value, 'contact_form', true);
 
-    data.options.valueSettings = data.options.value + "_settings";
-    data.options.urlValueSettings = data.options.urlValue + "_settings";
-    data.options.showValueSettings = data.options.showValue + " Settings";
+	data.options.valueSettings = data.options.value + "_settings";
+	data.options.urlValueSettings = data.options.urlValue + "_settings";
+	data.options.showValueSettings = data.options.showValue + " Settings";
 
-    let instructions = [
-        "delete entity " + data.options.showValue,
-        "delete entity " + data.options.showValueSettings
-    ];
+	let instructions = [
+		"delete entity " + data.options.showValue,
+		"delete entity " + data.options.showValueSettings
+	];
 
-    // Create a tmp route file to avoid error during the delete entity, this file was removed at the component generation
-    fs.writeFileSync(__dirname + "/../workspace/" + data.application.name + "/routes/" + data.options.valueSettings + ".js", "", "utf-8");
+	// Create a tmp route file to avoid error during the delete entity, this file was removed at the component generation
+	fs.writeFileSync(__dirname + "/../workspace/" + data.application.name + "/routes/" + data.options.valueSettings + ".js", "", "utf-8");
 
-    // Start doing necessary instructions for component deletion
-    await exportsContext.recursiveInstructionExecute(data, instructions, 0);
-    data.np_module.deleteComponent(data.options.value, 'contact_form');
+	// Start doing necessary instructions for component deletion
+	await exportsContext.recursiveInstructionExecute(data, instructions, 0);
+	data.np_module.deleteComponent(data.options.value, 'contact_form');
 
-    return {
-        message: "database.component.delete.success"
-    };
+	return {
+		message: "database.component.delete.success"
+	};
 }
 
 // Componant to create an agenda in a module
 exports.createNewComponentAgenda = async (data) => {
 
-    /* If there is no defined name for the module */
-    if (typeof data.options.value === "undefined") {
-        data.options.value = "c_agenda";
-        data.options.urlValue = "agenda";
-        data.options.showValue = "Agenda";
-    }
+	/* If there is no defined name for the module */
+	if (typeof data.options.value === "undefined") {
+		data.options.value = "c_agenda";
+		data.options.urlValue = "agenda";
+		data.options.showValue = "Agenda";
+	}
 
-    data.np_module = data.application.getModule(data.module_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
 
-    if(data.np_module.getComponent(data.options.value, 'agenda'))
-        throw new Error("structure.component.error.alreadyExistOnModule");
+	if(data.np_module.getComponent(data.options.value, 'agenda'))
+		throw new Error("structure.component.error.alreadyExistOnModule");
 
-    let valueEvent = "e_" + data.options.urlValue + "_event";
-    let valueCategory = "e_" + data.options.urlValue + "_category";
+	let valueEvent = "e_" + data.options.urlValue + "_event";
+	let valueCategory = "e_" + data.options.urlValue + "_category";
 
-    let showValueEvent = data.options.showValue + " Event";
-    let showValueCategory = data.options.showValue + " Category";
+	let showValueEvent = data.options.showValue + " Event";
+	let showValueCategory = data.options.showValue + " Category";
 
-    let instructions = [
-        "add entity " + showValueCategory,
-        "add field Label",
-        "add field Color with type color",
-        "set field Label required",
-        "set field Color required",
-        "add entity " + showValueEvent,
-        "add field Title",
-        "add field Description with type text",
-        "add field Place",
-        "add field Start date with type datetime",
-        "add field End date with type datetime",
-        "add field All day with type boolean",
-        "add field Category related to " + showValueCategory + " using Label",
-        "add field Users related to many user using login, email",
-        "set field Title required",
-        "set field Start date required"
-    ];
+	let instructions = [
+		"add entity " + showValueCategory,
+		"add field Label",
+		"add field Color with type color",
+		"set field Label required",
+		"set field Color required",
+		"add entity " + showValueEvent,
+		"add field Title",
+		"add field Description with type text",
+		"add field Place",
+		"add field Start date with type datetime",
+		"add field End date with type datetime",
+		"add field All day with type boolean",
+		"add field Category related to " + showValueCategory + " using Label",
+		"add field Users related to many user using login, email",
+		"set field Title required",
+		"set field Start date required"
+	];
 
-    // Start doing necessary instruction for component creation
-    await this.recursiveInstructionExecute(data, instructions, 0);
-    data.np_module.addComponent(data.options.value, data.options.showValue, 'agenda');
-    await structure_component.newAgenda(data);
+	// Start doing necessary instruction for component creation
+	await this.recursiveInstructionExecute(data, instructions, 0);
+	data.np_module.addComponent(data.options.value, data.options.showValue, 'agenda');
+	await structure_component.newAgenda(data);
 
-    return {
-        message: "database.component.create.success",
-        messageParams: [data.options.showValue]
-    };
+	return {
+		message: "database.component.create.success",
+		messageParams: [data.options.showValue]
+	};
 }
 
 exports.deleteAgenda = async (data) => {
 
-    /* If there is no defined name for the module */
-    if (typeof data.options.value === "undefined") {
-        data.options.value = "c_agenda";
-        data.options.urlValue = "agenda";
-        data.options.showValue = "Agenda";
-    }
+	/* If there is no defined name for the module */
+	if (typeof data.options.value === "undefined") {
+		data.options.value = "c_agenda";
+		data.options.urlValue = "agenda";
+		data.options.showValue = "Agenda";
+	}
 
-    data.np_module = data.application.getModule(data.module_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
 
-    if(!data.np_module.getComponent(data.options.value, 'agenda')) {
-        let err = new Error("database.component.notFound.notFoundInModule");
-        err.messageParams = [data.options.showValue, data.np_module.displayName];
-        throw err;
-    }
+	if(!data.np_module.getComponent(data.options.value, 'agenda')) {
+		let err = new Error("database.component.notFound.notFoundInModule");
+		err.messageParams = [data.options.showValue, data.np_module.displayName];
+		throw err;
+	}
 
-    let showValueEvent = data.options.showValue + " Event";
-    let showValueCategory = data.options.showValue + " Category";
+	let showValueEvent = data.options.showValue + " Event";
+	let showValueCategory = data.options.showValue + " Category";
 
-    let instructions = [
-        "delete entity " + showValueCategory,
-        "delete entity " + showValueEvent,
-    ];
+	let instructions = [
+		"delete entity " + showValueCategory,
+		"delete entity " + showValueEvent,
+	];
 
-    // Start doing necessary instruction for component creation
-    await this.recursiveInstructionExecute(data, instructions, 0);
-    await structure_component.deleteAgenda(data);
-    data.np_module.deleteComponent(data.options.value, 'agenda');
+	// Start doing necessary instruction for component creation
+	await this.recursiveInstructionExecute(data, instructions, 0);
+	await structure_component.deleteAgenda(data);
+	data.np_module.deleteComponent(data.options.value, 'agenda');
 
-    return {
-        message: "database.component.delete.success"
-    };
+	return {
+		message: "database.component.delete.success"
+	};
 }
 
 exports.createComponentChat = async (data) => {
 
-    if(data.application.getComponent('chat', 'chat'))
-        throw new Error("structure.component.error.alreadyExistInApp");
+	if(data.application.getComponent('chat', 'chat'))
+		throw new Error("structure.component.error.alreadyExistInApp");
 
-    await structure_component.setupChat(data);
-    data.application.addComponent('chat', 'Chat', 'chat');
+	await structure_component.setupChat(data);
+	data.application.addComponent('chat', 'Chat', 'chat');
 
-    return {
-        message: 'structure.component.chat.success'
-    }
+	return {
+		message: 'structure.component.chat.success'
+	}
 }
 
 // Create new component address
 exports.createNewComponentAddress = async (data) => {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    data.options.value = 'e_address_' + data.entity_name;
-    data.options.showValue = 'Address ' + data.entity.displayName;
-    data.options.urlValue = 'address_' + data.entity_name;
+	data.options.value = 'e_address_' + data.entity_name;
+	data.options.showValue = 'Address ' + data.entity.displayName;
+	data.options.urlValue = 'address_' + data.entity_name;
 
-    if(data.entity.getComponent(data.options.value, 'address'))
-        throw new Error("structure.component.error.alreadyExistOnEntity");
+	if(data.entity.getComponent(data.options.value, 'address'))
+		throw new Error("structure.component.error.alreadyExistOnEntity");
 
-    let associationOption = {
-        application: data.application,
-        source: data.entity.name,
-        target: data.options.value,
-        foreignKey: 'fk_id_address',
-        as: 'r_address',
-        type: "relatedTo",
-        relation: "belongsTo",
-        targetType: "component",
-        toSync: true
-    };
+	let associationOption = {
+		application: data.application,
+		source: data.entity.name,
+		target: data.options.value,
+		foreignKey: 'fk_id_address',
+		as: 'r_address',
+		type: "relatedTo",
+		relation: "belongsTo",
+		targetType: "component",
+		toSync: true
+	};
 
-    structure_entity.setupAssociation(associationOption);
+	structure_entity.setupAssociation(associationOption);
 
-    data.entity.addComponent(data.options.value, 'Address', 'address');
-    await structure_component.addNewComponentAddress(data);
+	data.entity.addComponent(data.options.value, 'Address', 'address');
+	await structure_component.addNewComponentAddress(data);
 
-    return {
-        message: 'database.component.create.success',
-        messageParams: [data.options.showValue]
-    };
+	return {
+		message: 'database.component.create.success',
+		messageParams: [data.options.showValue]
+	};
 }
 
 exports.deleteComponentAddress = async (data) => {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    data.options.value = 'e_address_' + data.entity_name;
-    data.options.showValue = 'Address ' + data.entity.displayName;
-    data.options.urlValue = 'address_' + data.entity_name;
+	data.options.value = 'e_address_' + data.entity_name;
+	data.options.showValue = 'Address ' + data.entity.displayName;
+	data.options.urlValue = 'address_' + data.entity_name;
 
-    if(!data.entity.getComponent(data.options.value, 'address')){
-        let err = new Error("database.component.notFound.notFoundOnEntity");
-        err.messageParams = [data.options.showValue, data.entity.displayName];
-        throw err;
-    }
+	if(!data.entity.getComponent(data.options.value, 'address')){
+		let err = new Error("database.component.notFound.notFoundOnEntity");
+		err.messageParams = [data.options.showValue, data.entity.displayName];
+		throw err;
+	}
 
-    await structure_component.deleteComponentAddress(data);
-    data.fieldToDrop = 'fk_id_address';
-    database.dropFKDataField(data);
+	await structure_component.deleteComponentAddress(data);
+	data.fieldToDrop = 'fk_id_address';
+	database.dropFKDataField(data);
 
-    data.entity.deleteComponent(data.options.value, 'address');
+	data.entity.deleteComponent(data.options.value, 'address');
 
-    return {
-        message: 'database.component.delete.success'
-    }
+	return {
+		message: 'database.component.delete.success'
+	}
 }
 
 exports.createComponentDocumentTemplate = async (data) => {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    data.options.value = 'c_document_template';
-    data.options.showValue = 'Document template';
-    data.options.urlValue = 'document_template';
+	data.options.value = 'c_document_template';
+	data.options.showValue = 'Document template';
+	data.options.urlValue = 'document_template';
 
-    if(data.entity.getComponent(data.options.value, 'document_template'))
-        throw new Error("structure.component.error.alreadyExistOnEntity");
+	if(data.entity.getComponent(data.options.value, 'document_template'))
+		throw new Error("structure.component.error.alreadyExistOnEntity");
 
-    await structure_component.createComponentDocumentTemplate(data);
+	await structure_component.createComponentDocumentTemplate(data);
 
-    data.entity.addComponent(data.options.value, "Document template", 'document_template');
+	data.entity.addComponent(data.options.value, "Document template", 'document_template');
 
-    if(!data.application.hasDocumentTemplate)
-        data.application.hasDocumentTemplate = 1;
+	if(!data.application.hasDocumentTemplate)
+		data.application.hasDocumentTemplate = 1;
 
-    return {
-        message: 'database.component.create.success',
-        messageParams: ["Document template"]
-    };
+	return {
+		message: 'database.component.create.success',
+		messageParams: ["Document template"]
+	};
 };
 
 exports.deleteComponentDocumentTemplate = async (data) => {
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    data.options.value = 'c_document_template';
-    data.options.showValue = 'Document template';
-    data.options.urlValue = 'document_template';
+	data.options.value = 'c_document_template';
+	data.options.showValue = 'Document template';
+	data.options.urlValue = 'document_template';
 
-    if(!data.entity.getComponent(data.options.value, 'document_template')){
-        let err = new Error("database.component.notFound.notFoundOnEntity");
-        err.messageParams = [data.options.showValue, data.entity.displayName];
-        throw err;
-    }
+	if(!data.entity.getComponent(data.options.value, 'document_template')){
+		let err = new Error("database.component.notFound.notFoundOnEntity");
+		err.messageParams = [data.options.showValue, data.entity.displayName];
+		throw err;
+	}
 
-    // Remove component template from entity
-    await structure_component.deleteComponentDocumentTemplate(data)
-    data.entity.deleteComponent(data.options.value, 'document_template');
+	// Remove component template from entity
+	await structure_component.deleteComponentDocumentTemplate(data)
+	data.entity.deleteComponent(data.options.value, 'document_template');
 
-    return {
-        message: 'database.component.create.success',
-        messageParams: ["Document template"]
-    };
+	return {
+		message: 'database.component.create.success',
+		messageParams: ["Document template"]
+	};
 };
 
 /* --------------------------------------------------------------- */
 /* -------------------------- INTERFACE -------------------------- */
 /* --------------------------------------------------------------- */
 exports.setLogo = async (data) => {
-    await structure_ui.setLogo(data);
-    return {
-        message: 'preview.logo.add',
-        restartServer: false
-    };
+	await structure_ui.setLogo(data);
+	return {
+		message: 'preview.logo.add',
+		restartServer: false
+	};
 }
 
 exports.removeLogo = async (data) => {
-    let message = await structure_ui.removeLogo(data);
-    return {
-        message: message,
-        restartServer: false
-    };
+	let message = await structure_ui.removeLogo(data);
+	return {
+		message: message,
+		restartServer: false
+	};
 }
 
 exports.setLayout = async (data) => {
-    data.np_module = data.application.getModule(data.module_name, true);
-    return await structure_ui.setLayout(data);
+	data.np_module = data.application.getModule(data.module_name, true);
+	return await structure_ui.setLayout(data);
 }
 
 exports.listLayout = async (data) => {
-    return await structure_ui.listLayout(data);
+	return await structure_ui.listLayout(data);
 }
 
 exports.setTheme = async (data) => {
-    await structure_ui.setTheme(data);
-    return {
-        message: "structure.ui.theme.successInstall",
-        messageParams: [data.options.value],
-        restartServer: false
-    }
+	await structure_ui.setTheme(data);
+	return {
+		message: "structure.ui.theme.successInstall",
+		messageParams: [data.options.value],
+		restartServer: false
+	}
 }
 
 exports.listTheme = async (data) => {
-    return await structure_ui.listTheme(data);
+	return await structure_ui.listTheme(data);
 }
 
 exports.listIcon = async (data) => {
-    return {
-        message: "structure.ui.icon.list",
-        messageParams: ['https://fontawesome.com/v4.7.0/icons/'],
-        restartServer: false
-    }
+	return {
+		message: "structure.ui.icon.list",
+		messageParams: ['https://fontawesome.com/v4.7.0/icons/'],
+		restartServer: false
+	}
 }
 
 exports.setIcon = async (data) => {
 
-    if(typeof data.options.value !== 'undefined')
-        data.entity_name = data.options.value;
+	if(typeof data.options.value !== 'undefined')
+		data.entity_name = data.options.value;
 
-    data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-    await structure_ui.setIcon(data);
-    return {
-        message: "structure.ui.icon.success",
-        messageParams: [data.entity.displayName, data.iconValue],
-        restartServer: false
-    }
+	await structure_ui.setIcon(data);
+	return {
+		message: "structure.ui.icon.success",
+		messageParams: [data.entity.displayName, data.iconValue],
+		restartServer: false
+	}
 }
 
 exports.addTitle = async (data) => {
 
-    if(data.options.afterField) {
-        let field = "f_" + dataHelper.clearString(attr.options.afterField);
-        data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(field, true);
-    }
+	if(data.options.afterField) {
+		let field = "f_" + dataHelper.clearString(attr.options.afterField);
+		data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(field, true);
+	}
 
-    await structure_ui.addTitle(attr);
-    return {
-        message: 'structure.ui.title.success'
-    }
+	await structure_ui.addTitle(attr);
+	return {
+		message: 'structure.ui.title.success'
+	}
 }
 
 exports.createWidgetPiechart = async (data) => {
 
-    if(data.entityTarget) {
-        let entity = "e_" + dataHelper.clearString(data.entityTarget);
-        data.entity_name = entity;
-    }
+	if(data.entityTarget) {
+		let entity = "e_" + dataHelper.clearString(data.entityTarget);
+		data.entity_name = entity;
+	}
 
-    data.np_module = data.application.getModule(data.module_name, true);
-    data.entity = data.np_module.getEntity(data.entity_name, true);
-    data.field = data.entity.getField("f_" + dataHelper.clearString(data.givenField));
+	data.np_module = data.application.getModule(data.module_name, true);
+	data.entity = data.np_module.getEntity(data.entity_name, true);
+	data.field = data.entity.getField("f_" + dataHelper.clearString(data.givenField));
 
-    await structure_ui.createWidgetPiechart(data);
+	await structure_ui.createWidgetPiechart(data);
 
-    return {
-        message: 'structure.ui.widget.success',
-        messageParams: [data.widgetInputType, data.np_module.displayName]
-    }
+	return {
+		message: 'structure.ui.widget.success',
+		messageParams: [data.widgetInputType, data.np_module.displayName]
+	}
 }
 
 exports.createWidgetLastRecords = async (data) => {
 
-    if(data.entityTarget) {
-        let entity = "e_" + dataHelper.clearString(data.entityTarget);
-        data.entity_name = entity;
-    }
+	if(data.entityTarget) {
+		let entity = "e_" + dataHelper.clearString(data.entityTarget);
+		data.entity_name = entity;
+	}
 
-    data.np_module = data.application.getModule(data.module_name, true);
-    data.entity = data.np_module.getEntity(data.entity_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
+	data.entity = data.np_module.getEntity(data.entity_name, true);
 
-    // Check for not found fields and build error message
-    for (let k = 0; k < data.columns.length; k++) {
+	// Check for not found fields and build error message
+	for (let k = 0; k < data.columns.length; k++) {
 
-        let kFound = false;
-        if (data.columns[k].toLowerCase() == 'id') {
-            data.columns[k] = {
-                name: 'id',
-                displayName: 'id',
-                found: true
-            };
-            kFound = true;
-            continue;
-        }
+		let kFound = false;
+		if (data.columns[k].toLowerCase() == 'id') {
+			data.columns[k] = {
+				name: 'id',
+				displayName: 'id',
+				found: true
+			};
+			kFound = true;
+			continue;
+		}
 
-        for (let i = 0; i < data.entity.fields.length; i++) {
-            if (data.entity.fields[i].name.indexOf('s_') == 0)
-                data.entity.fields[i].name = 'r_' + data.entity.fields[i].name.substring(2);
-            if (data.columns[k].toLowerCase() == data.entity.fields[i].displayName.toLowerCase()) {
-                data.columns[k] = {
-                    name: data.entity.fields[i].name,
-                    displayName: data.entity.fields[i].displayName,
-                    found: true
-                };
-                kFound = true;
-                break;
-            }
-        }
-        if (!kFound)
-            data.columns[k] = {
-                name: data.columns[k],
-                found: false
-            };
-    }
+		for (let i = 0; i < data.entity.fields.length; i++) {
+			if (data.entity.fields[i].name.indexOf('s_') == 0)
+				data.entity.fields[i].name = 'r_' + data.entity.fields[i].name.substring(2);
+			if (data.columns[k].toLowerCase() == data.entity.fields[i].displayName.toLowerCase()) {
+				data.columns[k] = {
+					name: data.entity.fields[i].name,
+					displayName: data.entity.fields[i].displayName,
+					found: true
+				};
+				kFound = true;
+				break;
+			}
+		}
+		if (!kFound)
+			data.columns[k] = {
+				name: data.columns[k],
+				found: false
+			};
+	}
 
-    await structure_ui.createWidgetLastRecords(data);
+	await structure_ui.createWidgetLastRecords(data);
 
-    return {
-        message: 'structure.ui.widget.success',
-        messageParams: [data.widgetInputType, data.np_module.displayName]
-    };
+	return {
+		message: 'structure.ui.widget.success',
+		messageParams: [data.widgetInputType, data.np_module.displayName]
+	};
 }
 
 exports.createWidgetOnEntity = async (data) => {
-    data.entity_name = data.application.findEntity(data.entityTarget, true).entity.name;
-    return await createWidget(data);
+	data.entity_name = data.application.findEntity(data.entityTarget, true).entity.name;
+	return await createWidget(data);
 }
 
 async function createWidget(data) {
-    if (data.widgetType == -1) {
-        let err = new Error('structure.ui.widget.unknown');
-        err.messageParams = [data.widgetInputType];
-        throw err;
-    }
+	if (data.widgetType == -1) {
+		let err = new Error('structure.ui.widget.unknown');
+		err.messageParams = [data.widgetInputType];
+		throw err;
+	}
 
-    let entity = data.application.findEntity(data.entity_name, true);
-    data.np_module = entity.np_module;
-    data.entity = entity.entity;
-    await structure_ui.createWidget(data);
-    return {
-        message: "structure.ui.widget.success",
-        messageParams: [data.widgetInputType, entity.np_module.name]
-    };
+	let entity = data.application.findEntity(data.entity_name, true);
+	data.np_module = entity.np_module;
+	data.entity = entity.entity;
+	await structure_ui.createWidget(data);
+	return {
+		message: "structure.ui.widget.success",
+		messageParams: [data.widgetInputType, entity.np_module.name]
+	};
 }
 exports.createWidget = createWidget;
 
 async function deleteWidget(data) {
-    if (data.widgetType == -1) {
-        let err = new Error('structure.ui.widget.unkown');
-        err.messageParams = [data.widgetInputType];
-        throw err;
-    }
+	if (data.widgetType == -1) {
+		let err = new Error('structure.ui.widget.unkown');
+		err.messageParams = [data.widgetInputType];
+		throw err;
+	}
 
-    data.np_module = data.application.getModule(data.module_name, true);
-    data.entity = data.np_module.getEntity(data.entity_name, true);
+	data.np_module = data.application.getModule(data.module_name, true);
+	data.entity = data.np_module.getEntity(data.entity_name, true);
 
-    await structure_ui.deleteWidget(data);
+	await structure_ui.deleteWidget(data);
 
-    return {
-        message: "structure.ui.widget.delete",
-        messageParams: [data.widgetInputType]
-    }
+	return {
+		message: "structure.ui.widget.delete",
+		messageParams: [data.widgetInputType]
+	}
 }
 exports.deleteWidget = deleteWidget;
 
 async function deleteEntityWidgets(data) {
-    data.widgetTypes = ['info', 'stats', 'lastrecords', 'piechart'];
-    await deleteWidget(data);
+	data.widgetTypes = ['info', 'stats', 'lastrecords', 'piechart'];
+	await deleteWidget(data);
 
-    return {
-        message: "structure.ui.widget.all_deleted",
-        messageParams: [data.entityTarget]
-    };
+	return {
+		message: "structure.ui.widget.all_deleted",
+		messageParams: [data.entityTarget]
+	};
 }
 exports.deleteEntityWidgets = deleteEntityWidgets;

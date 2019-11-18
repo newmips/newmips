@@ -35,850 +35,850 @@ const excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 const excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 function initPreviewData(appName, data){
-    // Editor
-    const workspacePath = __dirname + "/../workspace/" + appName + "/";
-    const folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
-    /* Sort folder first, file after */
-    data.workspaceFolder = helpers.sortEditorFolder(folder);
+	// Editor
+	const workspacePath = __dirname + "/../workspace/" + appName + "/";
+	const folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
+	/* Sort folder first, file after */
+	data.workspaceFolder = helpers.sortEditorFolder(folder);
 
-    const application = metadata.getApplication(appName);
-    const {modules} = application;
+	const application = metadata.getApplication(appName);
+	const {modules} = application;
 
-    // UI designer entity list
-    data.entities = [];
-    for (let i = 0; i < modules.length; i++)
-        for (let j = 0; j < modules[i].entities.length; j++)
-            data.entities.push(modules[i].entities[j]);
+	// UI designer entity list
+	data.entities = [];
+	for (let i = 0; i < modules.length; i++)
+		for (let j = 0; j < modules[i].entities.length; j++)
+			data.entities.push(modules[i].entities[j]);
 
-    function sortEntities(entities, idx) {
-        if (entities.length == 0 || !entities[idx+1])
-            return entities;
-        if (entities[idx].name > entities[idx+1].name) {
-            const swap = entities[idx];
-            entities[idx] = entities[idx+1];
-            entities[idx+1] = swap;
-            return sortEntities(entities, idx == 0 ? 0 : idx-1);
-        }
-        return sortEntities(entities, idx+1);
-    }
-    data.entities = sortEntities(data.entities, 0);
-    return data;
+	function sortEntities(entities, idx) {
+		if (entities.length == 0 || !entities[idx+1])
+			return entities;
+		if (entities[idx].name > entities[idx+1].name) {
+			const swap = entities[idx];
+			entities[idx] = entities[idx+1];
+			entities[idx+1] = swap;
+			return sortEntities(entities, idx == 0 ? 0 : idx-1);
+		}
+		return sortEntities(entities, idx+1);
+	}
+	data.entities = sortEntities(data.entities, 0);
+	return data;
 }
 
 const chats = {};
 function setChat(req, app_name, userID, user, content, params, isError){
 
-    // Init if necessary
-    if(!chats[app_name])
-        chats[app_name] = {};
-    if(!chats[app_name][userID])
-        chats[app_name][userID] = {items: []};
+	// Init if necessary
+	if(!chats[app_name])
+		chats[app_name] = {};
+	if(!chats[app_name][userID])
+		chats[app_name][userID] = {items: []};
 
-    // Add chat
-    if(content != "chat.welcome" || chats[app_name][userID].items.length < 1)
-        chats[app_name][userID].items.push({
-            user: user,
-            dateEmission: req.moment().format("DD MMM HH:mm"),
-            content: content,
-            params: params || [],
-            isError: isError || false
-        });
+	// Add chat
+	if(content != "chat.welcome" || chats[app_name][userID].items.length < 1)
+		chats[app_name][userID].items.push({
+			user: user,
+			dateEmission: req.moment().format("DD MMM HH:mm"),
+			content: content,
+			params: params || [],
+			isError: isError || false
+		});
 }
 
 async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 
-    // Lower the first word for the basic parser json
-    instruction = dataHelper.lowerFirstWord(instruction);
+	// Lower the first word for the basic parser json
+	instruction = dataHelper.lowerFirstWord(instruction);
 
-    // Instruction to be executed
-    data = {
-        ...data,
-        ...parser.parse(instruction)
-    };
+	// Instruction to be executed
+	data = {
+		...data,
+		...parser.parse(instruction)
+	};
 
-    // Rework the data to get value for the code / url / show
-    data = dataHelper.reworkData(data);
+	// Rework the data to get value for the code / url / show
+	data = dataHelper.reworkData(data);
 
-    if (typeof data.error !== 'undefined')
-        throw data.error;
+	if (typeof data.error !== 'undefined')
+		throw data.error;
 
-    data.app_name = req.session.app_name;
-    data.module_name = req.session.module_name;
-    data.entity_name = req.session.entity_name;
-    data.googleTranslate = req.session.toTranslate || false;
-    data.lang_user = req.session.lang_user;
-    data.currentUser = req.session.passport.user;
-    data.gitlabUser = null;
+	data.app_name = req.session.app_name;
+	data.module_name = req.session.module_name;
+	data.entity_name = req.session.entity_name;
+	data.googleTranslate = req.session.toTranslate || false;
+	data.lang_user = req.session.lang_user;
+	data.currentUser = req.session.passport.user;
+	data.gitlabUser = null;
 
-    if(typeof req.session.gitlab !== 'undefined'
-        && typeof req.session.gitlab.user !== 'undefined'
-        && !isNaN(req.session.gitlab.user.id))
-        data.gitlabUser = req.session.gitlab.user;
+	if(typeof req.session.gitlab !== 'undefined'
+		&& typeof req.session.gitlab.user !== 'undefined'
+		&& !isNaN(req.session.gitlab.user.id))
+		data.gitlabUser = req.session.gitlab.user;
 
-    if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
-        data.application = metadata.getApplication(data.app_name);
+	if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
+		data.application = metadata.getApplication(data.app_name);
 
-    let info;
-    try {
-        info = await designer[data.function](data);
-    } catch (err) {
-        console.error(err);
-        throw __(err.message ? err.message : err, err.messageParams || []);
-    }
+	let info;
+	try {
+		info = await designer[data.function](data);
+	} catch (err) {
+		console.error(err);
+		throw __(err.message ? err.message : err, err.messageParams || []);
+	}
 
-    const newData = session_manager.setSession(data.function, req, info, data);
+	const newData = session_manager.setSession(data.function, req, info, data);
 
-    // Save metadata
-    if(data.application && data.function != 'deleteApplication' && saveMetadata)
-        data.application.save();
+	// Save metadata
+	if(data.application && data.function != 'deleteApplication' && saveMetadata)
+		data.application.save();
 
-    newData.message = info.message;
-    newData.messageParams = info.messageParams;
-    newData.restartServer = typeof info.restartServer === 'undefined';
-    return newData;
+	newData.message = info.message;
+	newData.messageParams = info.messageParams;
+	newData.restartServer = typeof info.restartServer === 'undefined';
+	return newData;
 }
 
 // Preview Get
 router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) => {
 
-    const appName = req.params.app_name;
+	const appName = req.params.app_name;
 
-    // Application starting timeout
-    let timeoutServer = 30000;
-    if(typeof req.query.timeout !== "undefined")
-        timeoutServer = req.query.timeout;
+	// Application starting timeout
+	let timeoutServer = 30000;
+	if(typeof req.query.timeout !== "undefined")
+		timeoutServer = req.query.timeout;
 
-    const currentUserID = req.session.passport.user.id;
+	const currentUserID = req.session.passport.user.id;
 
-    req.session.app_name = appName;
-    req.session.module_name = 'm_home';
-    req.session.entity_name = null;
+	req.session.app_name = appName;
+	req.session.module_name = 'm_home';
+	req.session.entity_name = null;
 
-    let data = {
-        application: metadata.getApplication(appName),
-        currentUser: req.session.passport.user,
-        gitlabUser: null
-    };
+	let data = {
+		application: metadata.getApplication(appName),
+		currentUser: req.session.passport.user,
+		gitlabUser: null
+	};
 
-    if ((!appName || appName == '') && typeof process_server_per_app[appName] === 'undefined') {
-        req.session.toastr.push({level: "warning", message: "application.not_started"});
-        return res.redirect('/default/home');
-    }
+	if ((!appName || appName == '') && typeof process_server_per_app[appName] === 'undefined') {
+		req.session.toastr.push({level: "warning", message: "application.not_started"});
+		return res.redirect('/default/home');
+	}
 
-    setChat(req, appName, currentUserID, "Mipsy", "chat.welcome", []);
+	setChat(req, appName, currentUserID, "Mipsy", "chat.welcome", []);
 
-    models.Application.findOne({where: {name: appName}}).then(db_app => {
+	models.Application.findOne({where: {name: appName}}).then(db_app => {
 
-        const env = Object.create(process.env);
-        const port = math.add(9000, db_app.id);
-        env.PORT = port;
+		const env = Object.create(process.env);
+		const port = math.add(9000, db_app.id);
+		env.PORT = port;
 
-        if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
-            process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+		if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
+			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
 
-        if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
-            data.gitlabUser = req.session.gitlab.user;
+		if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+			data.gitlabUser = req.session.gitlab.user;
 
-        data.session = session_manager.getSession(req)
+		data.session = session_manager.getSession(req)
 
-        const initialTimestamp = new Date().getTime();
-        let iframe_url = globalConf.protocol_iframe + '://';
+		const initialTimestamp = new Date().getTime();
+		let iframe_url = globalConf.protocol_iframe + '://';
 
-        if (globalConf.env == 'cloud')
-            iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
-        else
-            iframe_url += globalConf.host + ":" + port + "/default/status";
+		if (globalConf.env == 'cloud')
+			iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
+		else
+			iframe_url += globalConf.host + ":" + port + "/default/status";
 
-        data = initPreviewData(appName, data);
-        data.chat = chats[appName][currentUserID];
+		data = initPreviewData(appName, data);
+		data.chat = chats[appName][currentUserID];
 
-        // Check server has started every 50 ms
-        console.log('Starting server...');
-        process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
-            data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
-            // Let's do git init or commit depending the env (only on cloud env for now)
-            gitHelper.doGit(data);
-            res.render('front/preview', data);
-        }).catch(err => {
-            console.error(err);
-            let chatKey = err.message;
-            let chatParams = err.messageParams;
-            let lastError = helpers.getLastLoggedError(appName);
-            // If missing module error
-            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                chatKey = "structure.global.restart.missing_module";
-                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                chatParams = [lastError, lastError];
-            }
+		// Check server has started every 50 ms
+		console.log('Starting server...');
+		process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
+			data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
+			// Let's do git init or commit depending the env (only on cloud env for now)
+			gitHelper.doGit(data);
+			res.render('front/preview', data);
+		}).catch(err => {
+			console.error(err);
+			let chatKey = err.message;
+			let chatParams = err.messageParams;
+			let lastError = helpers.getLastLoggedError(appName);
+			// If missing module error
+			if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+				chatKey = "structure.global.restart.missing_module";
+				lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+				chatParams = [lastError, lastError];
+			}
 
-            setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
-            data.iframe_url = -1;
-            res.render('front/preview', data);
-        });
-    }).catch(err => {
-        data = initPreviewData(appName, data);
-        data.code = 500;
-        console.error(err);
-        res.render('common/error', data);
-    });
+			setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
+			data.iframe_url = -1;
+			res.render('front/preview', data);
+		});
+	}).catch(err => {
+		data = initPreviewData(appName, data);
+		data.code = 500;
+		console.error(err);
+		res.render('common/error', data);
+	});
 });
 
 // AJAX Preview Post
 router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
-    const appName = req.session.app_name;
-    /* Lower the first word for the basic parser json */
-    const instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
-    const currentUserID = req.session.passport.user.id;
-    let data = {};
+	const appName = req.session.app_name;
+	/* Lower the first word for the basic parser json */
+	const instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
+	const currentUserID = req.session.passport.user.id;
+	let data = {};
 
-    (async () => {
-        const db_app = await models.Application.findOne({where: {name: appName}});
+	(async () => {
+		const db_app = await models.Application.findOne({where: {name: appName}});
 
-        const port = math.add(9000, db_app.id);
-        const env = Object.create(process.env);
-        env.PORT = port;
+		const port = math.add(9000, db_app.id);
+		const env = Object.create(process.env);
+		env.PORT = port;
 
-        const {protocol_iframe} = globalConf;
-        const {host} = globalConf;
-        const timeoutServer = 30000;
+		const {protocol_iframe} = globalConf;
+		const {host} = globalConf;
+		const timeoutServer = 30000;
 
-        // Current application url
-        data.iframe_url = process_manager.childUrl(req, db_app.id);
+		// Current application url
+		data.iframe_url = process_manager.childUrl(req, db_app.id);
 
-        /* Add instruction in chat */
-        setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
+		/* Add instruction in chat */
+		setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
 
-        const {__} = require("../services/language")(req.session.lang_user);
+		const {__} = require("../services/language")(req.session.lang_user);
 
-        // Executing instruction
-        data = await execute(req, instruction, __, data);
+		// Executing instruction
+		data = await execute(req, instruction, __, data);
 
-        // On entity delete, reset child_url to avoid 404
-        if (data.function == 'deleteDataEntity') {
-            data.iframe_url = protocol_iframe + '://' + host + ":" + port + "/default/home";
-            process_manager.setChildUrl(req.sessionID, appName, "/default/home");
-        }
+		// On entity delete, reset child_url to avoid 404
+		if (data.function == 'deleteDataEntity') {
+			data.iframe_url = protocol_iframe + '://' + host + ":" + port + "/default/home";
+			process_manager.setChildUrl(req.sessionID, appName, "/default/home");
+		}
 
-        /* Save an instruction history in the history script in workspace folder */
-        if (data.function != 'restart') {
-            const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
-            let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "\n" + instruction;
-            fs.writeFileSync(historyScriptPath, historyScript);
-        }
+		/* Save an instruction history in the history script in workspace folder */
+		if (data.function != 'restart') {
+			const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+			let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+			historyScript += "\n" + instruction;
+			fs.writeFileSync(historyScriptPath, historyScript);
+		}
 
-        if (data.function == "deleteApplication"){
-            data.toRedirect = true;
-            data.url = "/default/home";
-            return data;
-        }
+		if (data.function == "deleteApplication"){
+			data.toRedirect = true;
+			data.url = "/default/home";
+			return data;
+		}
 
-        // Generator answer
-        setChat(req, appName, currentUserID, "Mipsy", data.message, data.messageParams);
+		// Generator answer
+		setChat(req, appName, currentUserID, "Mipsy", data.message, data.messageParams);
 
-        // If we stop the server manually we loose some stored data, so we just need to redirect.
-        if(typeof process_server_per_app[appName] === "undefined"){
-            data.toRedirect = true;
-            data.url = "/application/preview/" + appName;
-            return data;
-        }
+		// If we stop the server manually we loose some stored data, so we just need to redirect.
+		if(typeof process_server_per_app[appName] === "undefined"){
+			data.toRedirect = true;
+			data.url = "/application/preview/" + appName;
+			return data;
+		}
 
-        if(data.restartServer) {
-            // Kill server first
-            await process_manager.killChildProcess(process_server_per_app[appName].pid)
+		if(data.restartServer) {
+			// Kill server first
+			await process_manager.killChildProcess(process_server_per_app[appName].pid)
 
-            // Launch a new server instance to reload resources
-            process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
+			// Launch a new server instance to reload resources
+			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
 
-            const initialTimestamp = new Date().getTime();
-            let iframe_url = protocol_iframe + '://';
+			const initialTimestamp = new Date().getTime();
+			let iframe_url = protocol_iframe + '://';
 
-            if (globalConf.env == 'cloud')
-                iframe_url += globalConf.sub_domain + '-' + req.session.app_name + "." + globalConf.dns + '/default/status';
-            else
-                iframe_url += host + ":" + port + "/default/status";
+			if (globalConf.env == 'cloud')
+				iframe_url += globalConf.sub_domain + '-' + req.session.app_name + "." + globalConf.dns + '/default/status';
+			else
+				iframe_url += host + ":" + port + "/default/status";
 
-            console.log('Starting server...');
-            await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
-        }
+			console.log('Starting server...');
+			await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
+		}
 
-        data.session = session_manager.getSession(req);
-        data = initPreviewData(appName, data);
-        data.chat = chats[appName][currentUserID];
+		data.session = session_manager.getSession(req);
+		data = initPreviewData(appName, data);
+		data.chat = chats[appName][currentUserID];
 
-        // Let's do git init or commit depending the situation
-        if (data.function != 'restart' && data.function != 'installNodePackage')
-            gitHelper.doGit(data);
+		// Let's do git init or commit depending the situation
+		if (data.function != 'restart' && data.function != 'installNodePackage')
+			gitHelper.doGit(data);
 
-        return data;
+		return data;
 
-    })().then(data => {
-        if(data.application)
-            docBuilder.build(data.application).catch(err => {
-                console.error(err);
-            });
-        res.send(data);
-    }).catch(err => {
+	})().then(data => {
+		if(data.application)
+			docBuilder.build(data.application).catch(err => {
+				console.error(err);
+			});
+		res.send(data);
+	}).catch(err => {
 
-        // Error handling code goes here
-        console.error(err);
+		// Error handling code goes here
+		console.error(err);
 
-        // Server timed out handling
-        if(err.message == 'preview.server_timeout') {
+		// Server timed out handling
+		if(err.message == 'preview.server_timeout') {
 
-            // Get last error from app logs
-            let lastError = helpers.getLastLoggedError(appName);
-            let chatKey = "structure.global.restart.error";
-            let chatParams = [lastError];
+			// Get last error from app logs
+			let lastError = helpers.getLastLoggedError(appName);
+			let chatKey = "structure.global.restart.error";
+			let chatParams = [lastError];
 
-            // If missing module error
-            if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
-                chatKey = "structure.global.restart.missing_module";
-                lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
-                chatParams = [lastError, lastError];
-            }
-            data.iframe_url = -1;
-            setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
-        } else
-            setChat(req, appName, currentUserID, "Mipsy", err.message ? err.message : err, err.messageParams, true);
+			// If missing module error
+			if(typeof lastError === "string" && lastError.indexOf("Cannot find module") != -1){
+				chatKey = "structure.global.restart.missing_module";
+				lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
+				chatParams = [lastError, lastError];
+			}
+			data.iframe_url = -1;
+			setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
+		} else
+			setChat(req, appName, currentUserID, "Mipsy", err.message ? err.message : err, err.messageParams, true);
 
-        /* Save ERROR an instruction history in the history script in workspace folder */
-        if (data.function != 'restart') {
-            const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
-            let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
-            historyScript += "\n//ERROR: " + instruction + " (" + err.message + ")";
-            fs.writeFileSync(historyScriptPath, historyScript);
-        }
+		/* Save ERROR an instruction history in the history script in workspace folder */
+		if (data.function != 'restart') {
+			const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
+			let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
+			historyScript += "\n//ERROR: " + instruction + " (" + err.message + ")";
+			fs.writeFileSync(historyScriptPath, historyScript);
+		}
 
-        // Load session values
-        data = initPreviewData(appName, data);
-        data.session = session_manager.getSession(req);
-        data.chat = chats[appName][currentUserID];
-        res.send(data);
-    });
+		// Load session values
+		data = initPreviewData(appName, data);
+		data.session = session_manager.getSession(req);
+		data.chat = chats[appName][currentUserID];
+		res.send(data);
+	});
 });
 
 // Dropzone FIELD ajax upload file
 router.post('/set_logo', block_access.hasAccessApplication, (req, res) => {
-    multer().single('file')(req, res, err => {
-        if (err) {
-            console.error(err);
-            return res.status(500).end(err);
-        }
+	multer().single('file')(req, res, err => {
+		if (err) {
+			console.error(err);
+			return res.status(500).end(err);
+		}
 
-        const configLogo = {
-            folder: 'thumbnail/',
-            height: 30,
-            width: 30,
-            quality: 60
-        };
+		const configLogo = {
+			folder: 'thumbnail/',
+			height: 30,
+			width: 30,
+			quality: 60
+		};
 
-        const entity = req.body.entity;
+		const entity = req.body.entity;
 
-        if (!entity)
-            return res.status(500).end(new Error('Internal error, entity not found.'));
+		if (!entity)
+			return res.status(500).end(new Error('Internal error, entity not found.'));
 
-        let basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/';
-        fs.mkdirs(basePath, err => {
-            if (err) {
-                console.error(err);
-                return res.status(500).end(err);
-            }
+		let basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/';
+		fs.mkdirs(basePath, err => {
+			if (err) {
+				console.error(err);
+				return res.status(500).end(err);
+			}
 
-            const uploadPath = basePath + req.file.originalname;
-            fs.writeFileSync(uploadPath, req.file.buffer);
+			const uploadPath = basePath + req.file.originalname;
+			fs.writeFileSync(uploadPath, req.file.buffer);
 
-            // Thumbnail creation
-            basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/' + configLogo.folder;
-            fs.mkdirs(basePath, err => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).end(err);
-                }
+			// Thumbnail creation
+			basePath = __dirname + "/../workspace/" + req.body.appName + "/public/img/" + entity + '/' + configLogo.folder;
+			fs.mkdirs(basePath, err => {
+				if (err) {
+					console.error(err);
+					return res.status(500).end(err);
+				}
 
-                Jimp.read(uploadPath, (err, imgThumb) => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).end(err);
-                    }
+				Jimp.read(uploadPath, (err, imgThumb) => {
+					if (err) {
+						console.error(err);
+						return res.status(500).end(err);
+					}
 
-                    imgThumb.resize(configLogo.height, configLogo.width).quality(configLogo.quality).write(basePath + req.file.originalname);
-                    res.json({
-                        success: true
-                    });
-                });
-            });
-        });
-    });
+					imgThumb.resize(configLogo.height, configLogo.width).quality(configLogo.quality).write(basePath + req.file.originalname);
+					res.json({
+						success: true
+					});
+				});
+			});
+		});
+	});
 });
 
 // List all applications
 router.get('/list', block_access.isLoggedIn, (req, res) => {
-    (async () => {
-        const applications = await models.Application.findAll({
-            include: [{
-                model: models.User,
-                as: "users",
-                where: {
-                    id: req.session.passport.user.id
-                },
-                required: true
-            }],
-            order: [
-                ['id', 'DESC']
-            ]
-        });
+	(async () => {
+		const applications = await models.Application.findAll({
+			include: [{
+				model: models.User,
+				as: "users",
+				where: {
+					id: req.session.passport.user.id
+				},
+				required: true
+			}],
+			order: [
+				['id', 'DESC']
+			]
+		});
 
-        let app_url, port, appName;
-        const data = {};
-        const {host} = globalConf;
+		let app_url, port, appName;
+		const data = {};
+		const {host} = globalConf;
 
-        // Get user project for clone url generation
-        let gitlabProjects = [];
-        if(gitlabConf.doGit && req.session.gitlab && req.session.gitlab.user)
-            gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
+		// Get user project for clone url generation
+		let gitlabProjects = [];
+		if(gitlabConf.doGit && req.session.gitlab && req.session.gitlab.user)
+			gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
 
-        for (let i = 0; i < applications.length; i++) {
+		for (let i = 0; i < applications.length; i++) {
 
-            app_url = globalConf.protocol_iframe + '://';
-            port = 9000 + parseInt(applications[i].id);
-            appName = applications[i].name.substring(2);
-            app_url += host + ":" + port + "/";
+			app_url = globalConf.protocol_iframe + '://';
+			port = 9000 + parseInt(applications[i].id);
+			appName = applications[i].name.substring(2);
+			app_url += host + ":" + port + "/";
 
-            if (globalConf.env == 'cloud')
-                app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+			if (globalConf.env == 'cloud')
+				app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
-            if(gitlabConf.doGit){
-                const project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
-                if(project) {
-                    // applications[i].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
-                    applications[i].dataValues.repo_url = project.http_url_to_repo;
-                    data.gitlabUser = req.session.gitlab.user;
-                }
-            }
-            applications[i].dataValues.url = app_url;
-        }
+			if(gitlabConf.doGit){
+				const project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
+				if(project) {
+					// applications[i].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
+					applications[i].dataValues.repo_url = project.http_url_to_repo;
+					data.gitlabUser = req.session.gitlab.user;
+				}
+			}
+			applications[i].dataValues.url = app_url;
+		}
 
-        data.applications = applications
-        return data;
-    })().then(data => {
-        res.render('front/application', data);
-    }).catch(err => {
-        console.error(err);
-        res.render('common/error', {
-            code: 500
-        });
-    })
+		data.applications = applications
+		return data;
+	})().then(data => {
+		res.render('front/application', data);
+	}).catch(err => {
+		console.error(err);
+		res.render('common/error', {
+			code: 500
+		});
+	})
 });
 
 router.post('/delete', block_access.isLoggedIn, (req, res) => {
-    const {__} = require("../services/language")(req.session.lang_user);
-    execute(req, "delete application " + req.body.appName, __).then(_ => {
-        res.status(200).send(true);
-    }).catch(err => {
-        console.error(err);
-        res.status(500).send(err);
-    });
+	const {__} = require("../services/language")(req.session.lang_user);
+	execute(req, "delete application " + req.body.appName, __).then(_ => {
+		res.status(200).send(true);
+	}).catch(err => {
+		console.error(err);
+		res.status(500).send(err);
+	});
 });
 
 router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 
-    pourcent_generation[req.session.passport.user.id] = 1;
-    if (req.body.application == "") {
-        req.session.toastr = [{
-            message: "Missing application name.",
-            level: "error"
-        }];
-        return res.redirect('/default/home');
-    }
+	pourcent_generation[req.session.passport.user.id] = 1;
+	if (req.body.application == "") {
+		req.session.toastr = [{
+			message: "Missing application name.",
+			level: "error"
+		}];
+		return res.redirect('/default/home');
+	}
 
-    const instructions = [];
-    instructions.push("create application " + req.body.application);
-    instructions.push("create module home");
+	const instructions = [];
+	instructions.push("create application " + req.body.application);
+	instructions.push("create module home");
 
-    // Authentication module
-    instructions.push("create module Administration");
-    instructions.push("create entity User");
-    instructions.push("add field login");
-    instructions.push("set field login required");
-    instructions.push("set field login unique");
-    instructions.push("add field password");
-    instructions.push("add field email with type email");
-    instructions.push("add field token_password_reset");
-    instructions.push("add field enabled with type number");
-    instructions.push("set icon user");
-    instructions.push("create entity Role");
-    instructions.push("add field label");
-    instructions.push("set field label required");
-    instructions.push("set field label unique");
-    instructions.push("set icon asterisk");
-    instructions.push("create entity Group");
-    instructions.push("add field label");
-    instructions.push("set field label required");
-    instructions.push("set field label unique");
-    instructions.push("set icon users");
-    instructions.push("select entity User");
-    instructions.push("add field Role related to many Role using label");
-    instructions.push("add field Group related to many Group using label");
-    instructions.push("set field Role required");
-    instructions.push("set field Group required");
-    instructions.push("entity Role has many user");
-    instructions.push("entity Group has many user");
-    instructions.push("add entity API credentials");
-    instructions.push("add field Client Name");
-    instructions.push("add field Client Key");
-    instructions.push("add field Client Secret");
-    instructions.push("set icon key");
-    instructions.push("add field role related to many Role using label");
-    instructions.push("add field group related to many Group using label");
-    instructions.push("add field Token");
-    instructions.push("add field Token timeout TMSP");
-    instructions.push("add entity Synchronization");
-    instructions.push("entity Synchronization has one API credentials");
-    instructions.push("add field Journal backup file");
-    instructions.push("add entity Synchro credentials");
-    instructions.push("add field Cloud host with type url");
-    instructions.push("add field Client key");
-    instructions.push("add field Client secret");
-    instructions.push("set icon unlink");
-    instructions.push("add widget stat on entity User");
+	// Authentication module
+	instructions.push("create module Administration");
+	instructions.push("create entity User");
+	instructions.push("add field login");
+	instructions.push("set field login required");
+	instructions.push("set field login unique");
+	instructions.push("add field password");
+	instructions.push("add field email with type email");
+	instructions.push("add field token_password_reset");
+	instructions.push("add field enabled with type number");
+	instructions.push("set icon user");
+	instructions.push("create entity Role");
+	instructions.push("add field label");
+	instructions.push("set field label required");
+	instructions.push("set field label unique");
+	instructions.push("set icon asterisk");
+	instructions.push("create entity Group");
+	instructions.push("add field label");
+	instructions.push("set field label required");
+	instructions.push("set field label unique");
+	instructions.push("set icon users");
+	instructions.push("select entity User");
+	instructions.push("add field Role related to many Role using label");
+	instructions.push("add field Group related to many Group using label");
+	instructions.push("set field Role required");
+	instructions.push("set field Group required");
+	instructions.push("entity Role has many user");
+	instructions.push("entity Group has many user");
+	instructions.push("add entity API credentials");
+	instructions.push("add field Client Name");
+	instructions.push("add field Client Key");
+	instructions.push("add field Client Secret");
+	instructions.push("set icon key");
+	instructions.push("add field role related to many Role using label");
+	instructions.push("add field group related to many Group using label");
+	instructions.push("add field Token");
+	instructions.push("add field Token timeout TMSP");
+	instructions.push("add entity Synchronization");
+	instructions.push("entity Synchronization has one API credentials");
+	instructions.push("add field Journal backup file");
+	instructions.push("add entity Synchro credentials");
+	instructions.push("add field Cloud host with type url");
+	instructions.push("add field Client key");
+	instructions.push("add field Client secret");
+	instructions.push("set icon unlink");
+	instructions.push("add widget stat on entity User");
 
-    // Component status base
-    instructions.push("add entity Status");
-    instructions.push("set icon tags");
-    instructions.push("add field Entity");
-    instructions.push("add field Field");
-    instructions.push("add field Name");
-    instructions.push("add field Color with type color");
-    instructions.push("add field Accepted group related to many Group using Label");
-    instructions.push("add field Button label");
-    instructions.push("add field Position with type number");
-    instructions.push("add field Default with type boolean");
-    instructions.push("add field Comment with type boolean");
-    instructions.push("entity Status has many Status called Children");
-    instructions.push("entity status has many Translation called Translations");
-    instructions.push("select entity translation");
-    instructions.push("add field Language");
-    instructions.push("add field Value");
-    instructions.push("create entity Robot");
-    instructions.push("set icon android");
-    instructions.push("add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING");
-    instructions.push("add field Name");
-    instructions.push("add field Api credentials related to api credentials using client name");
-    instructions.push("add field Comment with type regular text");
-    instructions.push("create entity Task");
-    instructions.push("set icon cogs");
-    instructions.push("add component status with name State");
-    instructions.push("add field Title");
-    instructions.push("set field Title required");
-    instructions.push("add field Type with type enum and values Manual, Automatic and default value Manual");
-    instructions.push("add field Planned date with type date");
-    instructions.push("add field Execution start date with type date");
-    instructions.push("add field Execution finish date with type date");
-    instructions.push("add field Duration with type decimal");
-    instructions.push("add field Data flow with type regular text");
-    instructions.push("add field Robot related to Robot using Name");
-    instructions.push("add field Program file with type file");
-    instructions.push("add field Procedure with type regular text");
-    instructions.push("add component localfilestorage with name Documents");
-    instructions.push("create entity Media");
-    instructions.push("set icon envelope");
-    instructions.push("add field Type with type enum and values Mail, Notification, SMS, Task");
-    instructions.push("add field Name");
-    instructions.push("set field Name required");
-    instructions.push("add field Target entity");
-    instructions.push("entity Media has one Media Mail");
-    instructions.push("entity Media has one Media Notification");
-    instructions.push("entity Media has one Media SMS");
-    instructions.push("entity Media has one Media Task");
-    instructions.push("select entity media task");
-    instructions.push("add field Task name");
-    instructions.push("add field Task type with type enum and values Manual, Automatic and default value Manual");
-    instructions.push("add field Assignment logic");
-    instructions.push("add field Program file with type file");
-    instructions.push("add field Data flow with type text");
+	// Component status base
+	instructions.push("add entity Status");
+	instructions.push("set icon tags");
+	instructions.push("add field Entity");
+	instructions.push("add field Field");
+	instructions.push("add field Name");
+	instructions.push("add field Color with type color");
+	instructions.push("add field Accepted group related to many Group using Label");
+	instructions.push("add field Button label");
+	instructions.push("add field Position with type number");
+	instructions.push("add field Default with type boolean");
+	instructions.push("add field Comment with type boolean");
+	instructions.push("entity Status has many Status called Children");
+	instructions.push("entity status has many Translation called Translations");
+	instructions.push("select entity translation");
+	instructions.push("add field Language");
+	instructions.push("add field Value");
+	instructions.push("create entity Robot");
+	instructions.push("set icon android");
+	instructions.push("add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING");
+	instructions.push("add field Name");
+	instructions.push("add field Api credentials related to api credentials using client name");
+	instructions.push("add field Comment with type regular text");
+	instructions.push("create entity Task");
+	instructions.push("set icon cogs");
+	instructions.push("add component status with name State");
+	instructions.push("add field Title");
+	instructions.push("set field Title required");
+	instructions.push("add field Type with type enum and values Manual, Automatic and default value Manual");
+	instructions.push("add field Planned date with type date");
+	instructions.push("add field Execution start date with type date");
+	instructions.push("add field Execution finish date with type date");
+	instructions.push("add field Duration with type decimal");
+	instructions.push("add field Data flow with type regular text");
+	instructions.push("add field Robot related to Robot using Name");
+	instructions.push("add field Program file with type file");
+	instructions.push("add field Procedure with type regular text");
+	instructions.push("add component localfilestorage with name Documents");
+	instructions.push("create entity Media");
+	instructions.push("set icon envelope");
+	instructions.push("add field Type with type enum and values Mail, Notification, SMS, Task");
+	instructions.push("add field Name");
+	instructions.push("set field Name required");
+	instructions.push("add field Target entity");
+	instructions.push("entity Media has one Media Mail");
+	instructions.push("entity Media has one Media Notification");
+	instructions.push("entity Media has one Media SMS");
+	instructions.push("entity Media has one Media Task");
+	instructions.push("select entity media task");
+	instructions.push("add field Task name");
+	instructions.push("add field Task type with type enum and values Manual, Automatic and default value Manual");
+	instructions.push("add field Assignment logic");
+	instructions.push("add field Program file with type file");
+	instructions.push("add field Data flow with type text");
 
-    instructions.push("entity status has many Action called Actions");
-    instructions.push("select entity action");
-    instructions.push("add field Media related to Media using name");
-    instructions.push("add field Order with type number");
-    instructions.push("add field Execution with type enum and values Immédiate, Différée with default value Immédiate");
-    instructions.push("select entity media mail");
-    instructions.push("add field To");
-    instructions.push("add field Cc");
-    instructions.push("add field Cci");
-    instructions.push("add field From");
-    instructions.push("add field Attachments");
-    instructions.push("add field Subject");
-    instructions.push("add field Content with type text");
-    instructions.push("select entity media notification");
-    instructions.push("add field Title");
-    instructions.push("add field Description");
-    instructions.push("add field Icon");
-    instructions.push("add field Color with type color");
-    instructions.push("add field targets");
-    instructions.push("add entity Notification");
-    instructions.push("add field Title");
-    instructions.push("add field Description");
-    instructions.push("add field URL");
-    instructions.push("add field Color with type color");
-    instructions.push("add field Icon");
-    instructions.push("select entity media SMS");
-    instructions.push("add field Message with type text");
-    instructions.push("add field Phone numbers");
-    instructions.push("entity user has many notification");
-    instructions.push("entity notification has many user");
+	instructions.push("entity status has many Action called Actions");
+	instructions.push("select entity action");
+	instructions.push("add field Media related to Media using name");
+	instructions.push("add field Order with type number");
+	instructions.push("add field Execution with type enum and values Immédiate, Différée with default value Immédiate");
+	instructions.push("select entity media mail");
+	instructions.push("add field To");
+	instructions.push("add field Cc");
+	instructions.push("add field Cci");
+	instructions.push("add field From");
+	instructions.push("add field Attachments");
+	instructions.push("add field Subject");
+	instructions.push("add field Content with type text");
+	instructions.push("select entity media notification");
+	instructions.push("add field Title");
+	instructions.push("add field Description");
+	instructions.push("add field Icon");
+	instructions.push("add field Color with type color");
+	instructions.push("add field targets");
+	instructions.push("add entity Notification");
+	instructions.push("add field Title");
+	instructions.push("add field Description");
+	instructions.push("add field URL");
+	instructions.push("add field Color with type color");
+	instructions.push("add field Icon");
+	instructions.push("select entity media SMS");
+	instructions.push("add field Message with type text");
+	instructions.push("add field Phone numbers");
+	instructions.push("entity user has many notification");
+	instructions.push("entity notification has many user");
 
-    // Inline help
-    instructions.push("add entity Inline Help");
-    instructions.push("set icon question-circle-o");
-    instructions.push("add field Entity");
-    instructions.push("add field Field");
-    instructions.push("add field Content with type text");
+	// Inline help
+	instructions.push("add entity Inline Help");
+	instructions.push("set icon question-circle-o");
+	instructions.push("add field Entity");
+	instructions.push("add field Field");
+	instructions.push("add field Content with type text");
 
-    // Set default theme if different than blue-light
-    if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
-        instructions.push("set theme "+req.session.defaultTheme);
+	// Set default theme if different than blue-light
+	if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
+		instructions.push("set theme "+req.session.defaultTheme);
 
-    // Set home module selected
-    instructions.push("select module home");
+	// Set home module selected
+	instructions.push("select module home");
 
-    // Needed for translation purpose
-    const {__} = require("../services/language")(req.session.lang_user);
+	// Needed for translation purpose
+	const {__} = require("../services/language")(req.session.lang_user);
 
-    (async () => {
-        for (let i = 0; i < instructions.length; i++) {
-            await execute(req, instructions[i], __, {}, false);
-            pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
-        }
-        metadata.getApplication(req.session.app_name).save();
-        await structure_application.initializeApplication(metadata.getApplication(req.session.app_name));
-        return;
-    })().then(_ => {
-        // Build API documentation
-        docBuilder.build(metadata.getApplication(req.session.app_name));
-        res.redirect('/application/preview/' + req.session.app_name);
-    }).catch(err => {
-        console.error(err);
-        req.session.toastr = [{
-            message: err,
-            level: "error"
-        }];
-        return res.redirect('/default/home');
-    });
+	(async () => {
+		for (let i = 0; i < instructions.length; i++) {
+			await execute(req, instructions[i], __, {}, false);
+			pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
+		}
+		metadata.getApplication(req.session.app_name).save();
+		await structure_application.initializeApplication(metadata.getApplication(req.session.app_name));
+		return;
+	})().then(_ => {
+		// Build API documentation
+		docBuilder.build(metadata.getApplication(req.session.app_name));
+		res.redirect('/application/preview/' + req.session.app_name);
+	}).catch(err => {
+		console.error(err);
+		req.session.toastr = [{
+			message: err,
+			level: "error"
+		}];
+		return res.redirect('/default/home');
+	});
 });
 
 router.get('/get_pourcent_generation', (req, res) => {
-    res.json({
-        pourcent: pourcent_generation[req.session.passport.user.id]
-    });
+	res.json({
+		pourcent: pourcent_generation[req.session.passport.user.id]
+	});
 });
 
 // Application import
 router.get('/import', block_access.isLoggedIn, (req, res) => {
-    res.render('front/import');
+	res.render('front/import');
 });
 
 router.post('/import', block_access.isLoggedIn, (req, res) => {
-    multer().fields([{
-        name: 'zipfile',
-        maxCount: 1
-    }, {
-        name: 'sqlfile',
-        maxCount: 1
-    }])(req, res, err => {
-        if (err)
-            console.error(err);
+	multer().fields([{
+		name: 'zipfile',
+		maxCount: 1
+	}, {
+		name: 'sqlfile',
+		maxCount: 1
+	}])(req, res, err => {
+		if (err)
+			console.error(err);
 
-        let infoText = '';
+		let infoText = '';
 
-        (async() => {
-            const {__} = require("../services/language")(req.session.lang_user);
+		(async() => {
+			const {__} = require("../services/language")(req.session.lang_user);
 
-            // Generate standard app
-            const data = await execute(req, "add application " + req.body.appName, __);
-            const workspacePath = __dirname + '/../workspace/' + data.options.value;
+			// Generate standard app
+			const data = await execute(req, "add application " + req.body.appName, __);
+			const workspacePath = __dirname + '/../workspace/' + data.options.value;
 
-            // Delete generated workspace folder
-            helpers.rmdirSyncRecursive(workspacePath);
-            fs.mkdirsSync(workspacePath);
+			// Delete generated workspace folder
+			helpers.rmdirSyncRecursive(workspacePath);
+			fs.mkdirsSync(workspacePath);
 
-            const zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
+			const zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
 
-            const promises = [];
-            let oldAppName = false,
-                appRegex;
+			const promises = [];
+			let oldAppName = false,
+				appRegex;
 
-            // Looping first time to find metadata.json to get old app name
-            for (const item in zip.files)
-                if(item.indexOf('metadata.json') != -1) {
-                    let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer');
-                    metadataContent = JSON.parse(metadataContent);
-                    oldAppName = Object.keys(metadataContent)[0];
-                    appRegex = new RegExp(oldAppName, 'g');
-                }
+			// Looping first time to find metadata.json to get old app name
+			for (const item in zip.files)
+				if(item.indexOf('metadata.json') != -1) {
+					let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer');
+					metadataContent = JSON.parse(metadataContent);
+					oldAppName = Object.keys(metadataContent)[0];
+					appRegex = new RegExp(oldAppName, 'g');
+				}
 
-            if(!oldAppName) {
-                infoText += '- Unable to find metadata.json in .zip.<br>';
-                return null;
-            }
+			if(!oldAppName) {
+				infoText += '- Unable to find metadata.json in .zip.<br>';
+				return null;
+			}
 
-            for (let item in zip.files) {
-                item = zip.files[item];
+			for (let item in zip.files) {
+				item = zip.files[item];
 
-                promises.push(new Promise((resolve, reject) => {
-                    const currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
+				promises.push(new Promise((resolve, reject) => {
+					const currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
 
-                    // Directory
-                    if (item.dir) {
-                        try {
-                            fs.mkdirsSync(currentPath);
-                        } catch (err) {
-                            console.error(err);
-                        }
-                        return resolve();
-                    }
+					// Directory
+					if (item.dir) {
+						try {
+							fs.mkdirsSync(currentPath);
+						} catch (err) {
+							console.error(err);
+						}
+						return resolve();
+					}
 
-                    // File
-                    zip.file(item.name).async('nodebuffer').then(content => {
-                        fs.writeFileSync(currentPath, content);
-                        resolve();
-                    }).catch(err => {
-                        console.error(err);
-                        reject(err);
-                    });
-                }));
-            }
+					// File
+					zip.file(item.name).async('nodebuffer').then(content => {
+						fs.writeFileSync(currentPath, content);
+						resolve();
+					}).catch(err => {
+						console.error(err);
+						reject(err);
+					});
+				}));
+			}
 
-            await Promise.all(promises);
+			await Promise.all(promises);
 
-            // Need to modify so file content to change appName in it
-            const fileToReplace = ['/config/metadata.json', '/config/database.js'];
-            for (let i = 0; i < fileToReplace.length; i++) {
-                let content = fs.readFileSync(workspacePath + fileToReplace[i], 'utf8');
-                content = content.replace(appRegex, data.options.value);
-                fs.writeFileSync(workspacePath + fileToReplace[i], content);
-            }
+			// Need to modify so file content to change appName in it
+			const fileToReplace = ['/config/metadata.json', '/config/database.js'];
+			for (let i = 0; i < fileToReplace.length; i++) {
+				let content = fs.readFileSync(workspacePath + fileToReplace[i], 'utf8');
+				content = content.replace(appRegex, data.options.value);
+				fs.writeFileSync(workspacePath + fileToReplace[i], content);
+			}
 
-            infoText += '- The application is ready to be launched.<br>';
+			infoText += '- The application is ready to be launched.<br>';
 
-            // Executing SQL file if exist
-            if(typeof req.files['sqlfile'] === 'undefined')
-                return data.options.value;
+			// Executing SQL file if exist
+			if(typeof req.files['sqlfile'] === 'undefined')
+				return data.options.value;
 
-            // Saving tmp sql file
-            const sqlFilePath = __dirname + '/../sql/' + req.files['sqlfile'][0].originalname;
-            fs.writeFileSync(sqlFilePath, req.files['sqlfile'][0].buffer);
+			// Saving tmp sql file
+			const sqlFilePath = __dirname + '/../sql/' + req.files['sqlfile'][0].originalname;
+			fs.writeFileSync(sqlFilePath, req.files['sqlfile'][0].buffer);
 
-            // Getting workspace DB conf
-            const dbConfig = require(workspacePath + '/config/database');
+			// Getting workspace DB conf
+			const dbConfig = require(workspacePath + '/config/database');
 
-            const cmd = "mysql";
-            const cmdArgs = [
-                "-u",
-                dbConfig.user,
-                "-p" + dbConfig.password,
-                dbConfig.database,
-                "-h" + dbConfig.host,
-                "--default-character-set=utf8",
-                "<",
-                sqlFilePath
-            ];
+			const cmd = "mysql";
+			const cmdArgs = [
+				"-u",
+				dbConfig.user,
+				"-p" + dbConfig.password,
+				dbConfig.database,
+				"-h" + dbConfig.host,
+				"--default-character-set=utf8",
+				"<",
+				sqlFilePath
+			];
 
-            function handleExecStdout(cmd, args) {
-                return new Promise((resolve, reject) => {
+			function handleExecStdout(cmd, args) {
+				return new Promise((resolve, reject) => {
 
-                    // Exec instruction
-                    const childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
-                    childProcess.stdout.setEncoding('utf8');
-                    childProcess.stderr.setEncoding('utf8');
+					// Exec instruction
+					const childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
+					childProcess.stdout.setEncoding('utf8');
+					childProcess.stderr.setEncoding('utf8');
 
-                    // Child Success output
-                    childProcess.stdout.on('data', stdout => {
-                        console.log(stdout)
-                    })
+					// Child Success output
+					childProcess.stdout.on('data', stdout => {
+						console.log(stdout)
+					})
 
-                    // Child Error output
-                    childProcess.stderr.on('data', stderr => {
-                        // Avoid reject if only warning
-                        if (stderr.toLowerCase().indexOf("warning") != -1) {
-                            console.log("!! mysql ignored warning !!: " + stderr)
-                            return;
-                        }
-                        childProcess.kill();
-                        reject(stderr);
-                    })
+					// Child Error output
+					childProcess.stderr.on('data', stderr => {
+						// Avoid reject if only warning
+						if (stderr.toLowerCase().indexOf("warning") != -1) {
+							console.log("!! mysql ignored warning !!: " + stderr)
+							return;
+						}
+						childProcess.kill();
+						reject(stderr);
+					})
 
-                    // Child error
-                    childProcess.on('error', error => {
-                        childProcess.kill();
-                        reject(error);
-                    })
+					// Child error
+					childProcess.on('error', error => {
+						childProcess.kill();
+						reject(error);
+					})
 
-                    // Child close
-                    childProcess.on('close', _ => {
-                        resolve();
-                    })
-                })
-            }
+					// Child close
+					childProcess.on('close', _ => {
+						resolve();
+					})
+				})
+			}
 
-            try {
-                await handleExecStdout(cmd, cmdArgs);
-                infoText += '- The SQL file has been successfully executed.<br>';
-            } catch(err) {
-                console.error('Error while executing SQL file in the application.');
-                console.error(err);
-                infoText += '- An error while executing SQL file in the application:<br>';
-                infoText += err;
-            }
+			try {
+				await handleExecStdout(cmd, cmdArgs);
+				infoText += '- The SQL file has been successfully executed.<br>';
+			} catch(err) {
+				console.error('Error while executing SQL file in the application.');
+				console.error(err);
+				infoText += '- An error while executing SQL file in the application:<br>';
+				infoText += err;
+			}
 
-            // Delete tmp sql file
-            fs.unlinkSync(sqlFilePath);
+			// Delete tmp sql file
+			fs.unlinkSync(sqlFilePath);
 
-            return data.options.value;
-        })().then(appName => {
-            res.render('front/import', {
-                infoText: infoText,
-                appName: appName
-            });
-        }).catch(err => {
-            console.error(err);
-            infoText += '- An error occured during the process:<br>';
-            infoText += err;
-            res.render('front/import', {
-                infoText: infoText
-            });
-        });
-    });
+			return data.options.value;
+		})().then(appName => {
+			res.render('front/import', {
+				infoText: infoText,
+				appName: appName
+			});
+		}).catch(err => {
+			console.error(err);
+			infoText += '- An error occured during the process:<br>';
+			infoText += err;
+			res.render('front/import', {
+				infoText: infoText
+			});
+		});
+	});
 });
 
 router.get('/export/:app_name', block_access.hasAccessApplication, (req, res) => {
 
-     // We know what directory we want
-    const workspacePath = __dirname + '/../workspace/' + req.params.app_name;
+	 // We know what directory we want
+	const workspacePath = __dirname + '/../workspace/' + req.params.app_name;
 
-    const zip = new JSZip();
-    helpers.buildZipFromDirectory(workspacePath, zip, workspacePath);
+	const zip = new JSZip();
+	helpers.buildZipFromDirectory(workspacePath, zip, workspacePath);
 
-    // Generate zip file content
-    zip.generateAsync({
-        type: 'nodebuffer',
-        comment: 'ser-web-manangement',
-        compression: "DEFLATE",
-        compressionOptions: {
-            level: 9
-        }
-    }).then(zipContent => {
+	// Generate zip file content
+	zip.generateAsync({
+		type: 'nodebuffer',
+		comment: 'ser-web-manangement',
+		compression: "DEFLATE",
+		compressionOptions: {
+			level: 9
+		}
+	}).then(zipContent => {
 
-        // Create zip file
-        fs.writeFileSync(workspacePath + '.zip', zipContent);
-        res.download(workspacePath + '.zip', req.params.app_name + '.zip', err => {
-            if(err)
-                console.error(err);
-            fs.unlinkSync(workspacePath + '.zip')
-        });
-    });
+		// Create zip file
+		fs.writeFileSync(workspacePath + '.zip', zipContent);
+		res.download(workspacePath + '.zip', req.params.app_name + '.zip', err => {
+			if(err)
+				console.error(err);
+			fs.unlinkSync(workspacePath + '.zip')
+		});
+	});
 });
 
 module.exports = router;

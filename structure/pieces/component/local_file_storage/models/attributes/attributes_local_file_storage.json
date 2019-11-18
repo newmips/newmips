@@ -1,10 +1,10 @@
 {
-    "id": {
-        "type": "INTEGER",
-        "autoIncrement": true,
-        "primaryKey": true
-    },
-    "f_name": {"type":"STRING"},
-    "f_filename": {"type":"STRING"},
-    "version": {"type":"INTEGER"}
+	"id": {
+		"type": "INTEGER",
+		"autoIncrement": true,
+		"primaryKey": true
+	},
+	"f_name": {"type":"STRING"},
+	"f_filename": {"type":"STRING"},
+	"version": {"type":"INTEGER"}
 }

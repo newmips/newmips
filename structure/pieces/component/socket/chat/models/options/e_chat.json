@@ -1,16 +1,16 @@
 [
-    {
-        "target": "e_user",
-        "relation": "belongsToMany",
-        "foreignKey": "id_chat",
-        "otherKey": "id_user",
-        "through": "chat_user_chat",
-        "as": "r_user"
-    },
-    {
-        "target": "e_chatmessage",
-        "relation": "hasMany",
-        "foreignKey": "fk_id_chat",
-        "as": "r_chatmessage"
-    }
+	{
+		"target": "e_user",
+		"relation": "belongsToMany",
+		"foreignKey": "id_chat",
+		"otherKey": "id_user",
+		"through": "chat_user_chat",
+		"as": "r_user"
+	},
+	{
+		"target": "e_chatmessage",
+		"relation": "hasMany",
+		"foreignKey": "fk_id_chat",
+		"as": "r_chatmessage"
+	}
 ]

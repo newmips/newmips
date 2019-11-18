@@ -1,52 +1,52 @@
 <label>{#__ key="entity.COMPONENT_NAME.label_entity"/}</label>
 <section id='COMPONENT_NAME_fields' class='col-xs-12 section_address_fields' style="padding-top: 10px;">
-    {@ifTrue key=componentAddressConfig.enableMaps}
-    {@eq key=componentAddressConfig.mapsPosition value="top"}
-    <div class="row">
-        <div class="col-md-12 col-xs-12">
-            {>"COMPONENT_NAME/maps"/}
-        </div>
-        <div class="col-md-12 col-xs-12 address_fields">
-            {>"COMPONENT_NAME/fields"/}
-        </div>
-    </div>
-    {/eq}
-    {@eq key=componentAddressConfig.mapsPosition value="right"}
-    <div class="row">
-        <div class="col-md-6 col-xs-12 address_fields">
-            {>"COMPONENT_NAME/fields"/}
-        </div>
-        <div class="col-md-6 col-xs-12">
-            {>"COMPONENT_NAME/maps"/}
-        </div>
-    </div>
-    {/eq}
-    {@eq key=componentAddressConfig.mapsPosition value="bottom"}
-    <div class="row">
-        <div class="col-md-12 col-xs-12 address_fields">
-            {>"COMPONENT_NAME/fields"/}
-        </div>
-        <div class="col-md-12 col-xs-12 ">
-            {>"COMPONENT_NAME/maps"/}
-        </div>
-    </div>
-    {/eq}
-    {@eq key=componentAddressConfig.mapsPosition value="left"}
-    <div class="row">
-        <div class="col-md-6 col-xs-12">
-            {>"COMPONENT_NAME/maps"/}
-        </div>
-        <div class="col-md-6 col-xs-12 address_fields">
-            {>"COMPONENT_NAME/fields"/}
-        </div>
-    </div>
-    {/eq}
-    {:else}
-    {>"COMPONENT_NAME/fields"/}
-    {/ifTrue}
-    <input name="f_address_navigation" value="{componentAddressConfig.navigation}" id="f_address_navigation" type="hidden" class="print-not-remove f_address_navigation"/>
-    <input name="f_address_zoomBar" value="{componentAddressConfig.zoomBar}" id="f_address_zoomBar" type="hidden" class="print-not-remove f_address_zoomBar"/>
-    <input name="f_address_mousePosition" value="{componentAddressConfig.mousePosition}" id="f_address_mousePosition" type="hidden" class="print-not-remove f_address_mousePosition"/>
-    <input name="f_address_enableMaps" value="{componentAddressConfig.enableMaps}" id="f_address_enableMaps" type="hidden" class="print-not-remove f_address_enableMaps"/>
-    <input name="f_address_notValid" value='{#__ key="component.address_settings.addressNotValid"/}' id="f_address_notValid" type="hidden" class="print-not-remove f_address_notValid"/>
+	{@ifTrue key=componentAddressConfig.enableMaps}
+	{@eq key=componentAddressConfig.mapsPosition value="top"}
+	<div class="row">
+		<div class="col-md-12 col-xs-12">
+			{>"COMPONENT_NAME/maps"/}
+		</div>
+		<div class="col-md-12 col-xs-12 address_fields">
+			{>"COMPONENT_NAME/fields"/}
+		</div>
+	</div>
+	{/eq}
+	{@eq key=componentAddressConfig.mapsPosition value="right"}
+	<div class="row">
+		<div class="col-md-6 col-xs-12 address_fields">
+			{>"COMPONENT_NAME/fields"/}
+		</div>
+		<div class="col-md-6 col-xs-12">
+			{>"COMPONENT_NAME/maps"/}
+		</div>
+	</div>
+	{/eq}
+	{@eq key=componentAddressConfig.mapsPosition value="bottom"}
+	<div class="row">
+		<div class="col-md-12 col-xs-12 address_fields">
+			{>"COMPONENT_NAME/fields"/}
+		</div>
+		<div class="col-md-12 col-xs-12 ">
+			{>"COMPONENT_NAME/maps"/}
+		</div>
+	</div>
+	{/eq}
+	{@eq key=componentAddressConfig.mapsPosition value="left"}
+	<div class="row">
+		<div class="col-md-6 col-xs-12">
+			{>"COMPONENT_NAME/maps"/}
+		</div>
+		<div class="col-md-6 col-xs-12 address_fields">
+			{>"COMPONENT_NAME/fields"/}
+		</div>
+	</div>
+	{/eq}
+	{:else}
+	{>"COMPONENT_NAME/fields"/}
+	{/ifTrue}
+	<input name="f_address_navigation" value="{componentAddressConfig.navigation}" id="f_address_navigation" type="hidden" class="print-not-remove f_address_navigation"/>
+	<input name="f_address_zoomBar" value="{componentAddressConfig.zoomBar}" id="f_address_zoomBar" type="hidden" class="print-not-remove f_address_zoomBar"/>
+	<input name="f_address_mousePosition" value="{componentAddressConfig.mousePosition}" id="f_address_mousePosition" type="hidden" class="print-not-remove f_address_mousePosition"/>
+	<input name="f_address_enableMaps" value="{componentAddressConfig.enableMaps}" id="f_address_enableMaps" type="hidden" class="print-not-remove f_address_enableMaps"/>
+	<input name="f_address_notValid" value='{#__ key="component.address_settings.addressNotValid"/}' id="f_address_notValid" type="hidden" class="print-not-remove f_address_notValid"/>
 </section>

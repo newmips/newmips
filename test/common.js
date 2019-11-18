@@ -5,8 +5,8 @@
 
 
 describe("***************************  Newmips Test *************************", function () {
-    it("Start", function () {
+	it("Start", function () {
 
-    });
+	});
 
 });
