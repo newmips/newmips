@@ -16,8 +16,7 @@ function writeJournalLine(line) {
 	let journalData;
 	try {
 		journalData = JSON.parse(fs.readFileSync(__dirname + '/../sync/journal.json', 'utf8'));
-	}
-	catch(e) {
+	} catch(e) {
 		journalData = {"transactions":[]};
 	}
 	journalData.transactions.push(line);
@@ -31,114 +30,111 @@ module.exports = function(model_name, attributes) {
 		// CREATE HOOKS
 		afterCreate: [{
 			name: 'initializeEntityStatus',
-			func: (model, options) => {
-				return new Promise((finalResolve, finalReject) => {
-					// Look for s_status fields. If none, resolve
-					const statusFields = [];
-					for (const field in attributes)
-						if (field.indexOf('s_') == 0)
-							statusFields.push(field);
-					if (statusFields.length == 0)
-						return finalResolve();
+			func: model => new Promise((finalResolve, finalReject) => {
+				// Look for s_status fields. If none, resolve
+				const statusFields = [];
+				for (const field in attributes)
+					if (field.indexOf('s_') == 0)
+						statusFields.push(field);
+				if (statusFields.length == 0)
+					return finalResolve();
 
-					// Special object, no status available
-					if (!getModels()['E_' + model_name.substring(2)])
-						return finalResolve();
+				// Special object, no status available
+				if (!getModels()['E_' + model_name.substring(2)])
+					return finalResolve();
 
-					const initStatusPromise = [];
-					let field;
-					for (let i = 0; i < statusFields.length; i++) {
-						field = statusFields[i];
+				const initStatusPromise = [];
+				let field;
+				for (let i = 0; i < statusFields.length; i++) {
+					field = statusFields[i];
 
-						initStatusPromise.push(new Promise((resolve, reject) => {
-							((fieldIn) => {
-								const historyModel = 'E_history_' + model_name.substring(2) + '_' + fieldIn.substring(2);
-								getModels().E_status.findOrCreate({
-									where: {
-										f_entity: model_name,
-										f_field: fieldIn,
-										f_default: true
-									},
-									defaults: {
-										f_entity: model_name,
-										f_field: fieldIn,
-										f_name: 'Initial',
-										f_default: true,
-										f_color: '#999999'
-									},
+					initStatusPromise.push(new Promise((resolve, reject) => {
+						((fieldIn) => {
+							const historyModel = 'E_history_' + model_name.substring(2) + '_' + fieldIn.substring(2);
+							getModels().E_status.findOrCreate({
+								where: {
+									f_entity: model_name,
+									f_field: fieldIn,
+									f_default: true
+								},
+								defaults: {
+									f_entity: model_name,
+									f_field: fieldIn,
+									f_name: 'Initial',
+									f_default: true,
+									f_color: '#999999'
+								},
+								include: [{
+									model: getModels().E_action,
+									as: 'r_actions',
 									include: [{
-										model: getModels().E_action,
-										as: 'r_actions',
+										model: getModels().E_media,
+										as: 'r_media',
 										include: [{
-											model: getModels().E_media,
-											as: 'r_media',
-											include: [{
-												model: getModels().E_media_mail,
-												as: 'r_media_mail'
-											}, {
-												model: getModels().E_media_notification,
-												as: 'r_media_notification'
-											}, {
-												model: getModels().E_media_sms,
-												as: 'r_media_sms'
-											}, {
-												model: getModels().E_media_task,
-												as: 'r_media_task'
-											}]
+											model: getModels().E_media_mail,
+											as: 'r_media_mail'
+										}, {
+											model: getModels().E_media_notification,
+											as: 'r_media_notification'
+										}, {
+											model: getModels().E_media_sms,
+											as: 'r_media_sms'
+										}, {
+											model: getModels().E_media_task,
+											as: 'r_media_task'
 										}]
 									}]
-								}).spread((status, created) => {
-									const include = [];
-									if (!created) {
-										let fieldsToInclude = [];
-										for (let i = 0; i < status.r_actions.length; i++)
-											fieldsToInclude = [...fieldsToInclude, ...status.r_actions[i].r_media.getFieldsToInclude()];
-										include = model_builder.getIncludeFromFields(getModels(), model_name, fieldsToInclude);
-									}
+								}]
+							}).spread((status, created) => {
+								let includeArray = [];
+								if (!created) {
+									let fieldsToInclude = [];
+									for (let i = 0; i < status.r_actions.length; i++)
+										fieldsToInclude = [...fieldsToInclude, ...status.r_actions[i].r_media.getFieldsToInclude()];
+									includeArray = model_builder.getIncludeFromFields(getModels(), model_name, fieldsToInclude);
+								}
 
-									getModels()['E_' + model_name.substring(2)].findOne({
-										where: {
-											id: model.id
-										},
-										include: include
-									}).then(modelWithRelations => {
-										// Create history object with initial status related to new entity
-										const historyObject = {
-											version: 1,
-											f_comment: ''
-										};
-										historyObject["fk_id_status_" + fieldIn.substring(2)] = status.id;
-										historyObject["fk_id_" + model_urlvalue + "_history_" + fieldIn.substring(2)] = modelWithRelations.id;
+								getModels()['E_' + model_name.substring(2)].findOne({
+									where: {
+										id: model.id
+									},
+									include: includeArray
+								}).then(modelWithRelations => {
+									// Create history object with initial status related to new entity
+									const historyObject = {
+										version: 1,
+										f_comment: ''
+									};
+									historyObject["fk_id_status_" + fieldIn.substring(2)] = status.id;
+									historyObject["fk_id_" + model_urlvalue + "_history_" + fieldIn.substring(2)] = modelWithRelations.id;
 
-										getModels()[historyModel].create(historyObject).then(_ => {
-											modelWithRelations['setR_' + fieldIn.substring(2)](status.id).then(_ => {
-												if (!created) {
-													status.executeActions(modelWithRelations).then(resolve).catch(err => {
-														console.error("Unable to execute actions");
-														console.error(err);
-														resolve();
-													});
-												} else
+									getModels()[historyModel].create(historyObject).then(_ => {
+										modelWithRelations['setR_' + fieldIn.substring(2)](status.id).then(_ => {
+											if (!created)
+												status.executeActions(modelWithRelations).then(resolve).catch(err => {
+													console.error("Unable to execute actions");
+													console.error(err);
 													resolve();
-											})
-										});
+												});
+											else
+												resolve();
+										})
 									});
-								}).catch(err => {
-									reject(err);
 								});
-							})(field);
-						}));
-					}
+							}).catch(err => {
+								reject(err);
+							});
+						})(field);
+					}));
+				}
 
-					if (initStatusPromise.length > 0)
-						return Promise.all(initStatusPromise).then(finalResolve).catch(finalReject);
-					else
-						finalResolve();
-				});
-			}
+				if (initStatusPromise.length > 0)
+					return Promise.all(initStatusPromise).then(finalResolve).catch(finalReject);
+				finalResolve();
+			})
 		}, {
 			name: 'synchroJournalCreate',
-			func: function(model, options) {
+			func: function(model) {
 				if (globalConf.env != "tablet" || ignoreList.indexOf(model_name) != -1)
 					return;
 				const line = model.dataValues;
@@ -153,7 +149,7 @@ module.exports = function(model_name, attributes) {
 		// UPDATE HOOKS
 		afterUpdate: [{
 			name: 'synchroJournalUpdate',
-			func: function(model, options) {
+			func: function(model) {
 				if (globalConf.env != "tablet" || ignoreList.indexOf(model_name) != -1)
 					return;
 				const line = model.dataValues;
@@ -167,7 +163,7 @@ module.exports = function(model_name, attributes) {
 		// DELETE HOOKS
 		afterDestroy: [{
 			name: 'synchroJournalDelete',
-			func: function(model, options) {
+			func: function(model) {
 				if (globalConf.env != "tablet" || ignoreList.indexOf(model_name) != -1)
 					return;
 				const line = model.dataValues;

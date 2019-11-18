@@ -1,13 +1,16 @@
-let fs = require('fs-extra');
-let path = require('path');
-let Sequelize = require('sequelize');
-let basename = path.basename(module.filename);
-let dbConfig = require('../config/database');
-let globalConf = require('../config/global');
-let moment = require('moment');
+const path = require('path');
+const Sequelize = require('sequelize');
+const basename = path.basename(module.filename);
+const dbConfig = require('../config/database');
+const globalConf = require('../config/global');
+const moment = require('moment');
 
 const Op = Sequelize.Op;
+<<<<<<< HEAD
+const db = {
+=======
 let db = {
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 	$eq: Op.eq,
 	$ne: Op.ne,
 	$gte: Op.gte,
@@ -45,13 +48,21 @@ let db = {
 };
 
 let sequelizeOptions;
+<<<<<<< HEAD
+if (dbConfig.dialect == 'sqlite')
+=======
 if (dbConfig.dialect == 'sqlite'){
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 	sequelizeOptions = {
 		dialect: dbConfig.dialect,
 		storage: dbConfig.storage,
 		logging: false
 	}
+<<<<<<< HEAD
+else
+=======
 } else {
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 	sequelizeOptions = {
 		host: dbConfig.host,
 		logging: false,
@@ -66,16 +77,26 @@ if (dbConfig.dialect == 'sqlite'){
 		charset: 'utf8',
 		collate: 'utf8_general_ci'
 	}
+<<<<<<< HEAD
+const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, sequelizeOptions);
+=======
 }
 
 var sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, sequelizeOptions);
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 
 sequelize.customAfterSync = async () => {
+	if (globalConf.env == "tablet")
+		return;
 
+<<<<<<< HEAD
+	const toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
+=======
 	if (globalConf.env == "tablet")
 		return;
 
 	let toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 
 	/* ----------------- Récupération du toSync.json -----------------*/
 	let toSyncObject = JSON.parse(fs.readFileSync(__dirname + '/toSync.json'));
@@ -83,7 +104,11 @@ sequelize.customAfterSync = async () => {
 
 	for (let entity in toSyncObject) {
 		// Sync attributes
+<<<<<<< HEAD
+		if (toSyncObject[entity].attributes)
+=======
 		if (toSyncObject[entity].attributes) {
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 			for (let attribute in toSyncObject[entity].attributes) {
 				let type;
 				let request = "";
@@ -158,19 +183,32 @@ sequelize.customAfterSync = async () => {
 				try {
 					await sequelize.query(request)
 				} catch(err) {
+<<<<<<< HEAD
+					if(typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701)
+						console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
+					else
+						throw err;
+=======
 					if(typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701){
 						console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
 					} else {
 						throw err;
 					}
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 				}
 
 				toSyncProdObject.queries.push(request);
 			}
+<<<<<<< HEAD
+
+		// Sync options
+		if (toSyncObject[entity].options)
+=======
 		}
 
 		// Sync options
 		if (toSyncObject[entity].options) {
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 			for (let j = 0; j < toSyncObject[entity].options.length; j++) {
 				if(toSyncObject[entity].options[j].relation != "belongsToMany"){
 
@@ -187,12 +225,19 @@ sequelize.customAfterSync = async () => {
 					// Status specific target. Get real history table name from attributes
 					if (option.target.indexOf('_history_') != -1) {
 						let attris = JSON.parse(fs.readFileSync(__dirname+'/attributes/'+entity.substring(entity.indexOf('e_'), entity.length)+'.json', 'utf8'));
+<<<<<<< HEAD
+						for (let attri in attris)
+=======
 						for (let attri in attris){
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 							if (attris[attri].history_table && attris[attri].history_table == option.target){
 								targetName = attris[attri].history_model;
 								break;
 							}
+<<<<<<< HEAD
+=======
 						}
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 					}
 					// Regular target
 					if (!targetName)
@@ -229,16 +274,26 @@ sequelize.customAfterSync = async () => {
 					try {
 						await sequelize.query(request);
 					} catch(err) {
+<<<<<<< HEAD
+						if (typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701)
+							console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
+						else
+							throw err;
+=======
 						if(typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701){
 							console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
 						} else{
 							throw err;
 						}
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 					}
 					toSyncProdObject.queries.push(request);
 				}
 			}
+<<<<<<< HEAD
+=======
 		}
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 	}
 
 	if (toSyncObject.queries)
@@ -253,16 +308,25 @@ sequelize.customAfterSync = async () => {
 
 fs.readdirSync(__dirname).filter(function(file) {
 	var excludeFiles = ['hooks.js', 'validators.js'];
+<<<<<<< HEAD
+	return file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js' && excludeFiles.indexOf(file) == -1;
+=======
 	return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js') && excludeFiles.indexOf(file) == -1;
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 }).forEach(function(file) {
 	var model = sequelize['import'](path.join(__dirname, file));
 	db[model.name] = model;
 });
 
 Object.keys(db).forEach(function(modelName) {
+<<<<<<< HEAD
+	if (db[modelName].associate)
+		db[modelName].associate(db);
+=======
 	if (db[modelName].associate) {
 		db[modelName].associate(db);
 	}
+>>>>>>> e8ab5fd5875af3ac5d32fb97d56d1e0c80c3e699
 });
 
 db.sequelize = sequelize;

@@ -15,12 +15,12 @@
 		"array-callback-return": "error",
 		"arrow-body-style": ["error", "as-needed"],
 		"block-scoped-var": "error",
-		"brace-style": "error",
+		"brace-style": 0,
 		"comma-spacing": ["error", {
 			"before": false,
 			"after": true
 		}],
-		"complexity": ["warn", 50],
+		"complexity": 0,
 		"constructor-super": "warn",
 		"curly": ["error", "multi"],
 		"default-case": "error",
