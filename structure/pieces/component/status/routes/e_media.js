@@ -168,9 +168,9 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 	models.E_media.create(createObject).then(function (e_media) {
 		var redirect = '/media/show?id='+e_media.id;
 		req.session.toastr = [{
-				message: 'message.create.success',
-				level: "success"
-			}];
+			message: 'message.create.success',
+			level: "success"
+		}];
 
 		if (typeof req.body.associationFlag !== 'undefined') {
 			redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
@@ -263,9 +263,9 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
 			req.session.toastr = [{
-					message: 'message.update.success',
-					level: "success"
-				}];
+				message: 'message.update.success',
+				level: "success"
+			}];
 
 			res.redirect(redirect);
 		}).catch(function (err) {

@@ -43,7 +43,7 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 							data[widget.widgetID] = widgetRes;
 							resolve();
 						}).catch(resolve);
-					break;
+						break;
 
 					case 'piechart':
 						if (!widget.field) {
@@ -279,8 +279,8 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 								return console.error(err);
 
 							imgThumb.resize(globalConfig.thumbnail.height, globalConfig.thumbnail.width)
-									.quality(globalConfig.thumbnail.quality)
-									.write(basePath + req.file.originalname);
+								.quality(globalConfig.thumbnail.quality)
+								.write(basePath + req.file.originalname);
 						});
 					});
 				}

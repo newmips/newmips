@@ -573,21 +573,21 @@ exports.newStatus = async (data) => {
 	const optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + source + '.json'));
 	for (const opt in optionsObj)
 		if (optionsObj[opt].target == 'e_' + data.history_table_db_name)
-			{optionsObj[opt].target = 'e_' + data.history_table;break;}
+		{optionsObj[opt].target = 'e_' + data.history_table;break;}
 	fs.writeFileSync(workspacePath + '/models/options/' + source + '.json', JSON.stringify(optionsObj, null, 4), 'utf8');
 
 	// Remove useless options on e_status
 	const statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
 	for (let i = 0; i < statusModel.length; i++)
 		if (statusModel[i].target == 'e_' + data.history_table_db_name)
-			{statusModel.splice(i, 1);break;}
+		{statusModel.splice(i, 1);break;}
 	fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
 	// Remove useless options on e_user (association hasMany with history table needs to be removed)
 	const userModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
 	for (let i = 0; i < userModel.length; i++)
 		if (userModel[i].target == 'e_' + data.history_table_db_name)
-			{userModel.splice(i, 1);break;}
+		{userModel.splice(i, 1);break;}
 	fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
 
 	// Remove useless options in toSync

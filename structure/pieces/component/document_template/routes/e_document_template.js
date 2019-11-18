@@ -115,9 +115,9 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 	models.E_document_template.create(createObject).then(function (e_document_template) {
 		var redirect = '/document_template/show?id=' + e_document_template.id;
 		req.session.toastr = [{
-				message: 'message.create.success',
-				level: "success"
-			}];
+			message: 'message.create.success',
+			level: "success"
+		}];
 		res.redirect(redirect);
 	}).catch(function (err) {
 		entity_helper.error(err, req, res, '/document_template/create_form');
@@ -145,8 +145,8 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 			id: id_e_document_template
 		},
 		include: [{
-				all: true
-			}]
+			all: true
+		}]
 	}).then(function (e_document_template) {
 		if (!e_document_template) {
 			data.error = 404;
@@ -209,9 +209,9 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
 				req.session.toastr = [{
-						message: 'message.update.success',
-						level: "success"
-					}];
+					message: 'message.update.success',
+					level: "success"
+				}];
 
 				res.redirect(redirect);
 			});
@@ -314,9 +314,9 @@ router.post('/delete', block_access.actionAccessMiddleware("document_template", 
 			}
 		}).then(function () {
 			req.session.toastr = [{
-					message: 'message.delete.success',
-					level: "success"
-				}];
+				message: 'message.delete.success',
+				level: "success"
+			}];
 
 			var redirect = '/document_template/list';
 			if (typeof req.body.associationFlag !== 'undefined')
@@ -420,9 +420,9 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 								res.end();
 							}).catch(function (e) {
 								req.session.toastr = [{
-										message: e.message,
-										level: "error"
-									}];
+									message: e.message,
+									level: "error"
+								}];
 								res.redirect('/document_template/list');
 							});
 						} else {

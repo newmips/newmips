@@ -258,7 +258,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
 					break;
 				}
 
-				// Set back associations without removed entity
+			// Set back associations without removed entity
 			CODE_VALUE_CONTACT['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(_ => {
 				res.sendStatus(200).end();
 			});

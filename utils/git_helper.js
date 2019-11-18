@@ -39,11 +39,11 @@ module.exports = {
 				const nameRepo = cleanHost+"-"+nameApp;
 				const originName = "origin-"+cleanHost+"-"+nameApp;
 				simpleGit.addAnnotatedTag(tagName, 'Tagging '+tagName)
-				.pushTags(['-u', originName, 'master'], function(err) {
-					if (err)
-						return reject(err);
-					resolve();
-				});
+					.pushTags(['-u', originName, 'master'], function(err) {
+						if (err)
+							return reject(err);
+						resolve();
+					});
 			});
 		});
 	},
@@ -91,16 +91,16 @@ module.exports = {
 						gitProcesses[originName] = true;
 
 						simpleGit.init()
-						.add('.')
-						.commit("First commit!")
-						.addRemote(originName, repoUrl)
-						.push(['-u', originName, 'master'], function(err, answer){
-							gitProcesses[originName] = false;
-							if(err)
-								console.error(err);
-							console.log(answer);
-							writeAllLogs("Git first commit / push", answer, err);
-						});
+							.add('.')
+							.commit("First commit!")
+							.addRemote(originName, repoUrl)
+							.push(['-u', originName, 'master'], function(err, answer){
+								gitProcesses[originName] = false;
+								if(err)
+									console.error(err);
+								console.log(answer);
+								writeAllLogs("Git first commit / push", answer, err);
+							});
 					} else {
 						throw new Error("structure.global.error.alreadyInProcess");
 					}
@@ -111,12 +111,12 @@ module.exports = {
 
 					const commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
 					simpleGit.add('.')
-					.commit(commitMsg, function(err, answer){
-						if(err)
-							console.error(err);
-						console.log(answer);
-						writeAllLogs("Git commit", answer, err);
-					});
+						.commit(commitMsg, function(err, answer){
+							if(err)
+								console.error(err);
+							console.log(answer);
+							writeAllLogs("Git commit", answer, err);
+						});
 				}
 				throw err;
 			} else{
@@ -174,17 +174,17 @@ module.exports = {
 					console.log(repoUrl);
 
 					simpleGit.init()
-					.add('.')
-					.commit("First commit!")
-					.addRemote(originName, repoUrl)
-					.push(['-u', originName, 'master'], (err, answer) => {
-						gitProcesses[originName] = false;
-						console.log(answer);
-						writeAllLogs("Git push", answer, err);
-						if(err)
-							return reject(err);
-						resolve(answer);
-					});
+						.add('.')
+						.commit("First commit!")
+						.addRemote(originName, repoUrl)
+						.push(['-u', originName, 'master'], (err, answer) => {
+							gitProcesses[originName] = false;
+							console.log(answer);
+							writeAllLogs("Git push", answer, err);
+							if(err)
+								return reject(err);
+							resolve(answer);
+						});
 				} else if(typeof data.function !== "undefined"){
 					// We are just after a new instruction
 					console.log("GIT: Doing Git push...");
@@ -281,15 +281,15 @@ module.exports = {
 				gitProcesses[originName] = true;
 				const commitMsg = data.function+" -> App:" + appName + " Module:" + data.module_name + " Entity:" + data.entity_name;
 				simpleGit.add('.')
-				.commit(commitMsg, function(err, answer){
-					gitProcesses[originName] = false;
-					console.log(answer);
-					writeAllLogs("Git commit", answer, err);
-					if(err)
-						return reject(err);
+					.commit(commitMsg, function(err, answer){
+						gitProcesses[originName] = false;
+						console.log(answer);
+						writeAllLogs("Git commit", answer, err);
+						if(err)
+							return reject(err);
 
-					resolve(answer);
-				});
+						resolve(answer);
+					});
 			});
 		})
 	},

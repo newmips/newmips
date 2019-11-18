@@ -36,7 +36,7 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
 		entities.push(entityObject);
 
 		const currentFile = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + file))
-			// Get through tables
+		// Get through tables
 		for (let i = 0; i < currentFile.length; i++) {
 			if (typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1) {
 				through.push(currentFile[i].through);
@@ -104,9 +104,9 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 
 				// Child Success output
 				childProcess.stdout.on('data', function(stdout) {
-						fileStream.write(stdout);
-					})
-					// Child Error output
+					fileStream.write(stdout);
+				})
+				// Child Error output
 				childProcess.stderr.on('data', function(stderr) {
 					// Avoid reject if only warning
 					if (stderr.toLowerCase().indexOf("warning") != -1) {
@@ -120,12 +120,12 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 
 				// Child error
 				childProcess.on('error', function(error) {
-						console.error(error);
-						fileStream.end();
-						childProcess.kill();
-						reject(error);
-					})
-					// Child close
+					console.error(error);
+					fileStream.end();
+					childProcess.kill();
+					reject(error);
+				})
+				// Child close
 				childProcess.on('close', function(code) {
 					fileStream.end();
 					resolve();

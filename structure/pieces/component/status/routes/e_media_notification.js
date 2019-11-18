@@ -187,7 +187,7 @@ router.get('/set_status/:id_media_notification/:status/:id_new_status', block_ac
 			include: [{
 				model: models.E_status,
 				as: 'r_children',
-					include: [{
+				include: [{
 					model: models.E_action,
 					as: 'r_actions',
 					order: ["f_position", "ASC"],
@@ -209,7 +209,7 @@ router.get('/set_status/:id_media_notification/:status/:id_new_status', block_ac
 			var nextStatus = false;
 			for (var i = 0; i < children.length; i++) {
 				if (children[i].id == req.params.id_new_status)
-					{nextStatus = children[i]; break;}
+				{nextStatus = children[i]; break;}
 			}
 			// Unautorized
 			if (nextStatus === false){

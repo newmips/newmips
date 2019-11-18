@@ -72,7 +72,7 @@ router.post('/create', block_access.isAdmin, (req, res) => {
 				level: "success"
 			}];
 			res.redirect("/users/show/"+user.id)
-			})
+		})
 	} else {
 		req.session.toastr = [{
 			message: "action.missing_values",
