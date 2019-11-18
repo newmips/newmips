@@ -1,6 +1,6 @@
-var globalConf = require('./global');
+const globalConf = require('./global');
 
-var mailConf = {
+const mailConf = {
     develop: {
         transport: {
             host: 'mail',
