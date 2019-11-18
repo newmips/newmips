@@ -78,14 +78,14 @@ app.use(morgan('dev', {
 }));
 
 if(globalConf.env != "develop"){
-    require('console-stamp')(console, {
-        formatter: function() {
-            return moment().format('MM-DD HH:mm:ss');
-        },
-        label: false,
-        datePrefix: "",
-        dateSuffix: ""
-    });
+    // require('console-stamp')(console, {
+    //     formatter: function() {
+    //         return moment().format('MM-DD HH:mm:ss');
+    //     },
+    //     label: false,
+    //     datePrefix: "",
+    //     dateSuffix: ""
+    // });
 }
 
 // Overide console.warn & console.error to file+line
