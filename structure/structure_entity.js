@@ -400,9 +400,6 @@ exports.setupHasManyPresetTab = async (data) => {
     dataFR.entity[source][alias] = showAlias;
     dataEN.entity[source][alias] = showAlias;
 
-    let stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
-    let stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
-
     fs.writeFileSync(fileTranslationFR, JSON.stringify(dataFR, null, 4));
     fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 4));
 
@@ -452,9 +449,6 @@ exports.setupHasOneTab = async (data) => {
 
     dataFR.entity[source][alias] = showAlias;
     dataEN.entity[source][alias] = showAlias;
-
-    let stream_fileTranslationFR = fs.createWriteStream(fileTranslationFR);
-    let stream_fileTranslationEN = fs.createWriteStream(fileTranslationEN);
 
     fs.writeFileSync(fileTranslationFR, JSON.stringify(dataFR, null, 2))
     fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 2))
