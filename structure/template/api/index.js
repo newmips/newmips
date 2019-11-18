@@ -1,10 +1,10 @@
-var fs = require('fs');
-var path = require('path');
-var basename = path.basename(module.filename);
-var block_access = require('../utils/block_access');
+const fs = require('fs');
+const path = require('path');
+const basename = path.basename(module.filename);
+const block_access = require('../utils/block_access');
+const appConf = require('../config/application.json');
 
 function isApiEnabled(req, res, next) {
-	var appConf = require('../config/application.json');
 	if (appConf.api_enabled)
 		return next();
 	res.status(501).json({error: 'API not enabled'});
@@ -12,14 +12,16 @@ function isApiEnabled(req, res, next) {
 
 module.exports = function(app) {
 	fs.readdirSync(__dirname).filter(function(file){
-		return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
+		return file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js';
 	}).forEach(function(file){
 		file = file.slice(0, -3);
+		/* eslint-disable */
 		if (file == 'default')
 			app.use('/api/', isApiEnabled, require('./'+file));
 		else if (file == 'synchronization')
 			app.use('/api/synchronization', isApiEnabled, block_access.apiAuthentication, require('./'+file));
 		else
 			app.use('/api/'+file.substring(2), isApiEnabled, block_access.apiAuthentication, require('./'+file));
+		/* eslint-enable */
 	});
 }
