@@ -50,6 +50,15 @@ const cons = require('consolidate');
 // Pass passport for configuration
 require('./utils/auth_strategies');
 
+// Autologin for newmips's "iframe" live preview context
+let startedFromGenerator = false;
+// Global var used in block_access
+AUTO_LOGIN = false;
+if (process.argv[2] == 'autologin') {
+    startedFromGenerator = true;
+    AUTO_LOGIN = true;
+}
+
 // Set up public files access (js/css...)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
@@ -58,24 +67,28 @@ app.use(express.static(__dirname + '/public'));
 app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
 // Log every request (not /) to the console
-app.use(morgan('dev', {
+const morganConf = {
     skip: function(req, res) {
         if(req.url == "/")
-        	return true;
-    },
-    stream: require('split')().on('data', function(line) {
+            return true;
+    }
+}
+if (!startedFromGenerator)
+    morganConf.stream = require('split')().on('data', function(line) {
         process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
     })
-}));
+app.use(morgan('dev', morganConf));
 
-require('console-stamp')(console, {
-    formatter: function() {
-        return moment().format('MM-DD HH:mm:ss');
-    },
-    label: false,
-    datePrefix: "",
-    dateSuffix: ""
-});
+if (!startedFromGenerator) {
+    require('console-stamp')(console, {
+        formatter: function() {
+            return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
+        },
+        label: false,
+        datePrefix: "",
+        dateSuffix: ""
+    });
+}
 
 // Overide console.warn & console.error to file+line
 ['warn', 'error'].forEach((methodName) => {
@@ -178,15 +191,6 @@ app.use(flash());
 
 // Locals global ======================================================================
 app.locals.moment = require('moment');
-
-// Autologin for newmips's "iframe" live preview context
-var startedFromGenerator = false;
-// Global var used in block_access
-AUTO_LOGIN = false;
-if (process.argv[2] == 'autologin') {
-	startedFromGenerator = true;
-	AUTO_LOGIN = true;
-}
 
 // When application process is a child of generator process, log each routes for the generator
 // to keep track of it, and redirect after server restart

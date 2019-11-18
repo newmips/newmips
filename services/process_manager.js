@@ -42,21 +42,26 @@ exports.launchChildProcess = function(req, appName, env) {
     var allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_'+appName+'.log'), {flags: 'a'});
 
     process_server.stdout.on('data', function(data) {
+        data = data.toString();
         // Check for child process log specifying current url. child_url will then be used to redirect
         // child process after restart
-        if ((data + '').indexOf("IFRAME_URL") != -1) {
-            if ((data + '').indexOf("/status") == -1){
-                childsUrlsStorage[req.sessionID][appName] = (data + '').split('::')[1];
+        if (data.indexOf("IFRAME_URL") != -1) {
+            if (data.indexOf("/status") == -1){
+                childsUrlsStorage[req.sessionID][appName] = data.split('::')[1];
             }
-        } else if(data.toString().length > 15) { // Not just the date, mean avoid empty logs
-            allLogStream.write('<span style="color:#00ffff;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
-            console.log('\x1b[36m%s\x1b[0m', 'Log '+appName+': ' + data.toString().replace(/\r?\n|\r/, ''));
+        } else {
+            const cleaned = data.replace(/(.*)\n*$/, '$1');
+            if (!cleaned.length)
+                return;
+            allLogStream.write('<span style="color:#00ffff;">'+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+':</span>  ' + ansiToHtml.toHtml(cleaned) + '\n');
+            console.log('\x1b[36m%s\x1b[0m', appName+' '+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+': ' + cleaned);
         }
     });
 
     process_server.stderr.on('data', function(data) {
-        allLogStream.write('<span style="color: red;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
-        console.log('\x1b[31m%s\x1b[0m', 'Err '+appName+': ' + data.toString().replace(/\r?\n|\r/, ''));
+        data = data.toString();
+        allLogStream.write('<span style="color: red;">'+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+':</span>  ' + ansiToHtml.toHtml(data) + '\n');
+        console.log('\x1b[31m%s\x1b[0m', 'Err '+appName+' '+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+': ' + data.replace(/(.*)\n*$/, '$1'));
     });
 
     process_server.on('close', function(code) {
