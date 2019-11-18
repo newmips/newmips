@@ -7,29 +7,29 @@ var filterDataTable = require('../utils/filter_datatable');
 // Sequelize
 var models = require('../models/');
 var attributes = require('../models/attributes/e_media');
-var options = require('../models/options/e_media');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var status_helper = require('../utils/status_helper');
-var globalConf = require('../config/global');
-var fs = require('fs-extra');
-var language = require('../services/language');
+const options = require('../models/options/e_media');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const file_helper = require('../utils/file_helper');
+const status_helper = require('../utils/status_helper');
+const globalConf = require('../config/global');
+const fs = require('fs-extra');
+const language = require('../services/language');
 
-var icon_list = require('../config/icon_list');
+const icon_list = require('../config/icon_list');
 
 // Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
-var targetEntities = [];
+let TARGET_ENTITIES = [];
 fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
     return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_';
 }).forEach(function(file) {
-    var fileContent = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
-    targetEntities.push({
+    const fileContent = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
+    TARGET_ENTITIES.push({
         codename: file.substring(0, file.length-5),
         tradKey: 'entity.'+file.substring(0, file.length-5)+'.label_entity'
     });
@@ -38,7 +38,7 @@ fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
 function sortTargetEntities(lang_user) {
     // Copy global object to add traducted property and sort it
     const targetEntitiesCpy = [];
-    for (const target of targetEntities) {
+    for (const target of TARGET_ENTITIES) {
         targetEntitiesCpy.push({
             codename: target.codename,
             trad: language(lang_user).__(target.tradKey)
