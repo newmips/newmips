@@ -1,6 +1,6 @@
-var models = require('../models/');
-var dbconfig = require('../config/database');
-var fs = require('fs-extra');
+const models = require('../models/');
+const dbconfig = require('../config/database');
+const fs = require('fs-extra');
 
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
@@ -39,11 +39,11 @@ exports.loginAccess = function(req, res, next) {
 	res.redirect('/default/home');
 };
 
-var LOAD_ACCESS_FILE = true;
+let LOAD_ACCESS_FILE = true;
 exports.reloadAccess = function(reload = true) {
 	LOAD_ACCESS_FILE = reload;
 }
-var ACCESS;
+let ACCESS;
 function getAccess() {
 	if (LOAD_ACCESS_FILE || !ACCESS) {
 		try {
@@ -57,10 +57,10 @@ function getAccess() {
 function isInBothArray(stringArray, objectArray) {
 	if (stringArray.length == 0)
 		return false;
-	var allowedCount = 0;
-	for (var j = 0; j < objectArray.length; j++) {
-		var isAllowed = true;
-		for (var i = 0; i < stringArray.length; i++) {
+	let allowedCount = 0;
+	for (let j = 0; j < objectArray.length; j++) {
+		let isAllowed = true;
+		for (let i = 0; i < stringArray.length; i++) {
 			if (stringArray[i] == objectArray[j].f_label)
 				isAllowed = false;
 		}
@@ -77,8 +77,8 @@ function moduleAccess(userGroups, moduleName) {
 	try {
 		if(userGroups.length == 0)
 			return false;
-		var access = getAccess();
-		for (var npsModule in access)
+		const access = getAccess();
+		for (const npsModule in access)
 			if (npsModule == moduleName)
 				if (!isInBothArray(access[npsModule].groups, userGroups))
 					return true;
@@ -114,7 +114,7 @@ exports.moduleAccessMiddleware = function(moduleName) {
 }
 
 exports.haveGroup = function(userGroups, group) {
-	for (var i = 0; i < userGroups.length; i++)
+	for (let i = 0; i < userGroups.length; i++)
 		if (userGroups[i].f_label == group)
 			return true;
 	return false;
@@ -333,8 +333,8 @@ exports.statusGroupAccess = function(req, res, next) {
 			// Not groups defined, open for all
 			return next();
 		}
-		for (var i = 0; i < userGroups.length; i++) {
-			for (var j = 0; j < newStatus.r_accepted_group.length; j++) {
+		for (let i = 0; i < userGroups.length; i++) {
+			for (let j = 0; j < newStatus.r_accepted_group.length; j++) {
 				if(userGroups[i].id == newStatus.r_accepted_group[j].id){
 					// You are in accepted groups, let's continue
 					return next();

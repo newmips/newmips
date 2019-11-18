@@ -1,4 +1,4 @@
-var languages = [];
+const languages = [];
 
 function fetchText(key, params, lang) {
 
@@ -16,7 +16,7 @@ function fetchText(key, params, lang) {
 		}
 	}
 
-	var keys = key.split('.');
+	const keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {
 		try {
 			languages[lang] = require(__dirname + '/../locales/'+lang);
@@ -26,8 +26,8 @@ function fetchText(key, params, lang) {
 		}
 	}
 
-	var depth = languages[lang];
-	for (var i = 0; i < keys.length; i++) {
+	let depth = languages[lang];
+	for (let i = 0; i < keys.length; i++) {
 		depth = depth[keys[i]];
 		if (typeof depth === 'undefined'){
 			return key;
@@ -39,10 +39,10 @@ function fetchText(key, params, lang) {
 		return key;
 	}
 
-	var nbParamsFound = (depth.match(/%s/g) || []).length;
+	const nbParamsFound = (depth.match(/%s/g) || []).length;
 
 	if(nbParamsFound > 0 && nbParamsFound == params.length){
-		for(var j=0; j<nbParamsFound; j++){
+		for(let j=0; j<nbParamsFound; j++){
 			depth = depth.replace("%s", params[j]);
 		}
 	}
@@ -51,12 +51,12 @@ function fetchText(key, params, lang) {
 }
 
 function capitalizeFirstLetters(key, params, lang) {
-	var msg = fetchText(key, params, lang);
-	var words = msg.split(' ');
-	var res = '';
-	for (var i =0; i < words.length; i++) {
-		var word = words[i];
-		var wordParts = word.split('\'');
+	const msg = fetchText(key, params, lang);
+	const words = msg.split(' ');
+	let res = '';
+	for (let i =0; i < words.length; i++) {
+		const word = words[i];
+		const wordParts = word.split('\'');
 		if (wordParts.length > 1)
 			res += wordParts[0] + '\'' + wordParts[1].charAt(0).toUpperCase() + word.slice(3);
 		else

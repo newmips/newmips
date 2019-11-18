@@ -1,7 +1,7 @@
 /**
  * Component config, we use BANO API
  */
-var config = {
+const config = {
 	endpoint: {
 		url: "https://api-adresse.data.gouv.fr/search/",
 		query_parm: 'q',

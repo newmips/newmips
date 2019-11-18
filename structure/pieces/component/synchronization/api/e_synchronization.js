@@ -1,15 +1,15 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var fs = require("fs-extra");
-var request = require('request');
-var models = require('../models/');
-var model_builder = require('../utils/model_builder');
-var enums_radios = require('../utils/enum_radio.js');
-var entity_helper = require('../utils/entity_helper');
-var upload = require('multer')().single('file');
-var moment = require('moment');
-var globalConf = require('../config/global');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const fs = require("fs-extra");
+const request = require('request');
+const models = require('../models/');
+const model_builder = require('../utils/model_builder');
+const enums_radios = require('../utils/enum_radio.js');
+const entity_helper = require('../utils/entity_helper');
+const upload = require('multer')().single('file');
+const moment = require('moment');
+const globalConf = require('../config/global');
 
 function capitalizeFirstLetter(word) {
 	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
@@ -35,20 +35,20 @@ router.post('/situation', function(req, res) {
 				return new Promise(function(resolve, reject) {
 					if (!items[idx])
 						return resolve();
-					var item = items[idx];
-					var entity = item.entityName;
-					var modelName = entity_helper.capitalizeFirstLetter(entity);
+					const item = items[idx];
+					const entity = item.entityName;
+					const modelName = entity_helper.capitalizeFirstLetter(entity);
 
 					// Save id and delete it from object to avoid conflicts when querying
-					var originId = item.id;
+					const originId = item.id;
 					delete item.id;
 
 					if (item.verb == 'create') {
 						return resolve(models[modelName].create(item, {transaction: transac}).then(function(entityInstance) {
 
 							// Loop over lines left to replace ID with the created row's ID
-							for (var j = idx; j < items.length; j++) {
-								var line = items[j];
+							for (let j = idx; j < items.length; j++) {
+								const line = items[j];
 
 								if (line.verb == "update" || line.verb == "delete" || line.verb == "associate") {
 									// Same entity
@@ -60,8 +60,8 @@ router.post('/situation', function(req, res) {
 
 								// Search for foreign key related to the new ID in line's entity options.json
 								// Replace ID if found
-								var entitiesOptions = {};
-								for (var field in line) {
+								const entitiesOptions = {};
+								for (const field in line) {
 									// If a field isn't a foreign key, skip
 									if (field.indexOf('fk_id_') != 0)
 										continue;
@@ -115,20 +115,20 @@ router.post('/situation', function(req, res) {
 	upload(req, res, function(err) {
 
 		// Load Journal of transactions
-		var journal = JSON.parse(req.file.buffer.toString('utf-8'));
+		const journal = JSON.parse(req.file.buffer.toString('utf-8'));
 
 		// Execute journal
 		return executeJournal(journal.transactions).then(function() {
 			// Create journal backup folder
-			var backupPath = globalConf.syncfolder+'journal_backups';
-			var backupFilename = 'journal-CRED-'+req.apiCredentials.id+'-'+(new moment().format("DDMMYYYYHHmmssSSS"))+'.json';
+			const backupPath = globalConf.syncfolder+'journal_backups';
+			const backupFilename = 'journal-CRED-'+req.apiCredentials.id+'-'+(new moment().format("DDMMYYYYHHmmssSSS"))+'.json';
 			fs.mkdirs(backupPath, function (err) {
 				if (err) {
 					console.log(err);
 					return res.status(500).end(err);
 				}
 				// Write journal backup file
-				var outStream = fs.createWriteStream(backupPath+'/'+backupFilename);
+				const outStream = fs.createWriteStream(backupPath+'/'+backupFilename);
 				outStream.write(req.file.buffer);
 				outStream.end();
 				outStream.on('finish', function (err) {
@@ -165,15 +165,15 @@ router.post('/file_upload', function(req, res) {
 			console.error(err)
 			return res.status(500).end(err);
 		}
-		var fileName = req.file.originalname;
-		var fileDirPath = globalConf.localstorage+req.query.entity+'/'+fileName.split('-')[0];
-		var filePath = fileDirPath+'/'+fileName;
+		const fileName = req.file.originalname;
+		const fileDirPath = globalConf.localstorage+req.query.entity+'/'+fileName.split('-')[0];
+		const filePath = fileDirPath+'/'+fileName;
 		fs.mkdirs(fileDirPath, function (err) {
 			if (err) {
 				console.log(err);
 				return res.status(500).end(err);
 			}
-			var outStream = fs.createWriteStream(filePath);
+			const outStream = fs.createWriteStream(filePath);
 			outStream.write(req.file.buffer);
 			outStream.end();
 			outStream.on('finish', function (err) {

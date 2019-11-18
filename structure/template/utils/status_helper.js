@@ -1,15 +1,15 @@
-var fs = require('fs-extra');
-var language = require('../services/language');
-var model_builder = require('../utils/model_builder');
-var models = require('../models');
+const fs = require('fs-extra');
+const language = require('../services/language');
+const model_builder = require('../utils/model_builder');
+const models = require('../models');
 
 module.exports = {
 	// Build entity tree with fields and ONLY belongsTo associations
 	entityFieldTree:  (entity, alias) => {
-		var genealogy = [];
+		const genealogy = [];
 		// Create inner function to use genealogy globaly
 		function loadTree(entity, alias) {
-			var fieldTree = {
+			const fieldTree = {
 				entity: entity,
 				alias: alias || entity,
 				fields: [],
@@ -28,7 +28,7 @@ module.exports = {
 			}
 
 			// Building field array
-			for (var field in entityFields) {
+			for (const field in entityFields) {
 				if (entityFields[field].newmipsType == "email")
 					fieldTree.email_fields.push(field);
 				if (entityFields[field].newmipsType == "phone")
@@ -44,7 +44,7 @@ module.exports = {
 			genealogy.push(entity);
 
 			// Building children array
-			for (var i = 0; i < entityAssociations.length; i++)
+			for (let i = 0; i < entityAssociations.length; i++)
 				if (entityAssociations[i].relation == 'belongsTo' && entityAssociations[i].target != entity)
 					fieldTree.children.push(loadTree(entityAssociations[i].target, entityAssociations[i].as));
 
@@ -114,11 +114,11 @@ module.exports = {
 	},
 	// Build array of fields for media sms/notification/email insertion <select>
 	entityFieldForSelect: function(entityTree, lang) {
-		var __ = language(lang).__;
-		var separator = ' > ';
-		var options = [];
+		const __ = language(lang).__;
+		const separator = ' > ';
+		const options = [];
 		function dive(obj, codename, parent, parentTraduction = "") {
-			var traduction;
+			let traduction;
 			// Top level. Entity traduction Ex: 'Ticket'
 			if (!parent)
 				traduction = __('entity.'+obj.entity+'.label_entity');
@@ -126,7 +126,7 @@ module.exports = {
 			else
 				traduction = parentTraduction + separator + __('entity.'+parent.entity+'.'+obj.alias);
 
-			for (var j = 0; j < obj.fields.length; j++) {
+			for (let j = 0; j < obj.fields.length; j++) {
 				if (obj.fields[j].indexOf('f_') != 0)
 					continue;
 				options.push({
@@ -139,7 +139,7 @@ module.exports = {
 				});
 			}
 
-			for (var i = 0; i < obj.children.length; i++)
+			for (let i = 0; i < obj.children.length; i++)
 				dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj, traduction);
 		}
 
@@ -207,10 +207,10 @@ module.exports = {
 	},
 	// Build sequelize formated include object from tree
 	buildIncludeFromTree: function (entityTree) {
-		var includes = [];
-		for (var i = 0; entityTree.children && i < entityTree.children.length; i++) {
-			var include = {};
-			var child = entityTree.children[i];
+		const includes = [];
+		for (let i = 0; entityTree.children && i < entityTree.children.length; i++) {
+			const include = {};
+			const child = entityTree.children[i];
 			include.as = child.alias;
 			include.model = models[child.entity.charAt(0).toUpperCase() + child.entity.toLowerCase().slice(1)];
 			if (child.children && child.children.length != 0)
@@ -222,9 +222,9 @@ module.exports = {
 	},
 	// Build array of user target for media_notification insertion <select>
 	getUserTargetList: (entityTree, lang) => {
-		var __ = language(lang).__;
+		const __ = language(lang).__;
 		entityTree.topLevel = true;
-		var userList = [];
+		const userList = [];
 		function dive(obj, parent = null) {
 			if (obj.entity == "e_user") {
 				userList.push({
@@ -233,7 +233,7 @@ module.exports = {
 				});
 			}
 			else
-				for (var i = 0; i < obj.children.length; i++)
+				for (let i = 0; i < obj.children.length; i++)
 					dive(obj.children[i], obj)
 		}
 		dive(entityTree);
@@ -241,11 +241,11 @@ module.exports = {
 	},
 	// Build array of fields for media sms/notification/email insertion <select>
 	entityFieldForSelect: function(entityTree, lang) {
-		var __ = language(lang).__;
-		var separator = ' > ';
-		var options = [];
+		const __ = language(lang).__;
+		const separator = ' > ';
+		const options = [];
 		function dive(obj, codename, parent, parentTraduction = "") {
-			var traduction;
+			let traduction;
 			// Top level. Entity traduction Ex: 'Ticket'
 			if (!parent)
 				traduction = __('entity.'+obj.entity+'.label_entity');
@@ -253,7 +253,7 @@ module.exports = {
 			else
 				traduction = parentTraduction + separator + __('entity.'+parent.entity+'.'+obj.alias);
 
-			for (var j = 0; j < obj.fields.length; j++) {
+			for (let j = 0; j < obj.fields.length; j++) {
 				if (obj.fields[j].indexOf('f_') != 0)
 					continue;
 				options.push({
@@ -266,7 +266,7 @@ module.exports = {
 				});
 			}
 
-			for (var i = 0; i < obj.children.length; i++)
+			for (let i = 0; i < obj.children.length; i++)
 				dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj, traduction);
 		}
 
@@ -328,16 +328,16 @@ module.exports = {
 		return options;
 	},
 	entityStatusFieldList: function() {
-		var self = this;
-		var entities = [];
+		const self = this;
+		const entities = [];
 		fs.readdirSync(__dirname+'/../models/attributes').filter(function(file){
 			return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json');
 		}).forEach(function(file){
-			var entityName = file.slice(0, -5);
-			var attributesObj = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
-			var statuses = self.statusFieldList(attributesObj);
+			const entityName = file.slice(0, -5);
+			const attributesObj = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
+			const statuses = self.statusFieldList(attributesObj);
 			if (statuses.length > 0) {
-				for (var i = 0; i < statuses.length; i++)
+				for (let i = 0; i < statuses.length; i++)
 					statuses[i] = {status: statuses[i], statusTrad: 'entity.'+entityName+'.'+statuses[i]};
 				entities.push({entity: entityName, entityTrad: 'entity.'+entityName+'.label_entity', statuses: statuses});
 			}
@@ -354,21 +354,21 @@ module.exports = {
 		return entities;
 	},
 	statusFieldList: (attributes) => {
-		var list = [];
-		for (var prop in attributes)
+		const list = [];
+		for (const prop in attributes)
 			if (prop.indexOf('s_') == 0)
 				list.push(prop);
 		return list;
 	},
 	translate:  function (entity, attributes, lang) {
-		var self = this;
-		var statusList = self.statusFieldList(attributes);
+		const self = this;
+		const statusList = self.statusFieldList(attributes);
 
-		for (var i = 0; i < statusList.length; i++) {
-			var statusAlias = 'r_'+statusList[i].substring(2);
+		for (let i = 0; i < statusList.length; i++) {
+			const statusAlias = 'r_'+statusList[i].substring(2);
 			if (!entity[statusAlias] || !entity[statusAlias].r_translations)
 				continue;
-			for (var j = 0; j < entity[statusAlias].r_translations.length; j++) {
+			for (let j = 0; j < entity[statusAlias].r_translations.length; j++) {
 				if (entity[statusAlias].r_translations[j].f_language == lang) {
 					entity[statusAlias].f_name = entity[statusAlias].r_translations[j].f_value;
 					break;

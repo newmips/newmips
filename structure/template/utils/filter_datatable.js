@@ -1,6 +1,6 @@
-var models = require('../models/');
-var entity_helper = require('./entity_helper');
-var model_builder = require('./model_builder');
+const models = require('../models/');
+const entity_helper = require('./entity_helper');
+const model_builder = require('./model_builder');
 
 // Prototype:
 //  - modelName: 'E_user'
@@ -9,17 +9,17 @@ var model_builder = require('./model_builder');
 //  - speWhere - optional: {id: 1, property: 'value'}
 module.exports = function (modelName, params, speInclude, speWhere) {
 	return new Promise(function (resolve, reject) {
-		var count = 0;
-		var start = params.start ? parseInt(params.start) : 1;
-		var length = params.length ? parseInt(params.length) : 10;
+		const count = 0;
+		const start = params.start ? parseInt(params.start) : 1;
+		const length = params.length ? parseInt(params.length) : 10;
 
-		var toInclude = speInclude || [];
-		var isGlobalSearch = params.search.value == "" ? false : true;
-		var search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+		const toInclude = speInclude || [];
+		const isGlobalSearch = params.search.value == "" ? false : true;
+		const search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
 		search[searchTerm] = [];
 
 		// Loop over columns array
-		for (var i = 0, columns = params.columns; i < columns.length; i++) {
+		for (let i = 0, columns = params.columns; i < columns.length; i++) {
 			if (columns[i].searchable == 'false')
 				continue;
 
@@ -28,7 +28,7 @@ module.exports = function (modelName, params, speInclude, speWhere) {
 
 			// Add column own search
 			if (columns[i].search.value != "") {
-				var {type, value} = JSON.parse(columns[i].search.value);
+				const {type, value} = JSON.parse(columns[i].search.value);
 				search[searchTerm].push(model_builder.formatSearch(columns[i].data, value, type));
 			}
 			// Add column global search
@@ -37,12 +37,12 @@ module.exports = function (modelName, params, speInclude, speWhere) {
 		}
 
 		// ORDER BY Managment
-		var order, stringOrder = params.columns[params.order[0].column].data;
+		let order, stringOrder = params.columns[params.order[0].column].data;
 		// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
 		order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), params.order[0].dir]] : [[stringOrder, params.order[0].dir]];
 
 		// Building final query object
-		var queryObject;
+		let queryObject;
 		if (search[searchTerm].length == 0)
 			queryObject = {where: {}, order: order};
 		else
@@ -54,7 +54,7 @@ module.exports = function (modelName, params, speInclude, speWhere) {
 		}
 
 		if (speWhere)
-			for (var prop in speWhere)
+			for (const prop in speWhere)
 				queryObject.where[prop] = speWhere[prop];
 
 		// TODO: handle attributes
@@ -62,8 +62,8 @@ module.exports = function (modelName, params, speInclude, speWhere) {
 
 		// If postgres, then we have to parse all value to text, postgres cannot compare varchar with integer for example
 		if(models.sequelize.options.dialect == "postgres" && typeof queryObject.where !== "undefined"){
-			for(var item in queryObject.where[searchTerm]){
-				var attribute = Object.keys(queryObject.where[searchTerm][item])[0]
+			for(const item in queryObject.where[searchTerm]){
+				const attribute = Object.keys(queryObject.where[searchTerm][item])[0]
 				queryObject.where[searchTerm][item][attribute] = models.sequelize.where(
 					models.sequelize.cast(models.sequelize.col(modelName+'.'+attribute), 'text'),
 					queryObject.where[searchTerm][item][attribute])
@@ -73,16 +73,16 @@ module.exports = function (modelName, params, speInclude, speWhere) {
 		// Build include from field array
 		// At the moment queryObject.include = [ 'id', 'r_user.f_nom', 'r_user.r_parent.f_email']
 		// `model_builder.getIncludeFromFields()` transform this array into a squelize include object
-		var entityName = `e_${modelName.substring(2)}`;
+		const entityName = `e_${modelName.substring(2)}`;
 		queryObject.include = model_builder.getIncludeFromFields(models, entityName, toInclude);
 
 		// Execute query with filters and get total count
 		models[modelName].findAndCountAll(queryObject).then(function (result) {
-			var data = {};
+			const data = {};
 			data.recordsTotal = result.count;
 			data.recordsFiltered = result.count;
 			lightRows = [];
-			for (var i = 0; i < result.rows.length; i++)
+			for (let i = 0; i < result.rows.length; i++)
 				lightRows.push(result.rows[i].get({plain: true}));
 			data.data = lightRows;
 			return resolve(data);

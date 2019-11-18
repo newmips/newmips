@@ -42,9 +42,9 @@ router.post('/datalist', block_access.actionAccessMiddleware("document_template"
 });
 
 router.get('/show', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-	var id_e_document_template = req.query.id;
-	var tab = req.query.tab;
-	var data = {
+	const id_e_document_template = req.query.id;
+	const tab = req.query.tab;
+	const data = {
 		menu: "e_document_template",
 		sub_menu: "list_e_document_template",
 		tab: tab,
@@ -69,9 +69,9 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
 		}
 
 		data.e_document_template = e_document_template;
-		var relations = document_template_helper.getRelations(e_document_template.f_entity);
-		var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
-		for (var i = 0; i < relations.length; i++) {
+		const relations = document_template_helper.getRelations(e_document_template.f_entity);
+		const f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
+		for (let i = 0; i < relations.length; i++) {
 			if (f_exclude_relations.indexOf(relations[i].value) < 0)
 				relations[i].isSelected = true;
 		}
@@ -84,7 +84,7 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
 });
 
 router.get('/create_form', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
-	var data = {
+	const data = {
 		menu: "e_document_template",
 		sub_menu: "create_e_document_template",
 		enum_radio: enums_radios.translated("e_document_template", req.session.lang_user, options)
@@ -104,16 +104,16 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
 
 router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
-	var relations = document_template_helper.getRelations(req.body.f_entity);
-	var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
-	var exclude_relations = [];
-	for (var i = 0; i < relations.length; i++)
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const relations = document_template_helper.getRelations(req.body.f_entity);
+	const f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
+	const exclude_relations = [];
+	for (let i = 0; i < relations.length; i++)
 		if (f_exclude_relations.indexOf(relations[i].value) < 0)
 			exclude_relations.push(relations[i].value);
 	createObject.f_exclude_relations = exclude_relations.join(',');
 	models.E_document_template.create(createObject).then(function (e_document_template) {
-		var redirect = '/document_template/show?id=' + e_document_template.id;
+		const redirect = '/document_template/show?id=' + e_document_template.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
 			level: "success"
@@ -125,8 +125,8 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
-	var id_e_document_template = req.query.id;
-	var data = {
+	const id_e_document_template = req.query.id;
+	const data = {
 		menu: "e_document_template",
 		sub_menu: "list_e_document_template",
 		enum_radio: enums_radios.translated("e_document_template", req.session.lang_user, options)
@@ -156,9 +156,9 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 		data.e_document_template = e_document_template;
 		data.document_template_entities = document_template_helper.get_entities(models);
 
-		var relations = document_template_helper.getRelations(e_document_template.f_entity, {lang: req.session.lang_user});
-		var f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
-		for (var i = 0; i < relations.length; i++) {
+		const relations = document_template_helper.getRelations(e_document_template.f_entity, {lang: req.session.lang_user});
+		const f_exclude_relations = (e_document_template.f_exclude_relations || '').split(',');
+		for (let i = 0; i < relations.length; i++) {
 			if (f_exclude_relations.indexOf(relations[i].value) < 0)
 				relations[i].isSelected = true;
 		}
@@ -171,19 +171,19 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 });
 
 router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
-	var id_e_document_template = parseInt(req.body.id);
+	const id_e_document_template = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	var relations = document_template_helper.getRelations(req.body.f_entity);
-	var f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
-	var exclude_relations = [];
-	for (var i = 0; i < relations.length; i++)
+	const relations = document_template_helper.getRelations(req.body.f_entity);
+	const f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
+	const exclude_relations = [];
+	for (let i = 0; i < relations.length; i++)
 		if (f_exclude_relations.indexOf(relations[i].value) < 0)
 			exclude_relations.push(relations[i].value);
 	updateObject.f_exclude_relations = exclude_relations.join(',');
@@ -204,7 +204,7 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 			// because those values are not updated for now
 			model_builder.setAssocationManyValues(e_document_template, req.body, updateObject, options).then(function () {
 
-				var redirect = '/document_template/show?id=' + id_e_document_template;
+				let redirect = '/document_template/show?id=' + id_e_document_template;
 				if (typeof req.body.associationFlag !== 'undefined')
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -233,16 +233,16 @@ router.get('/set_status/:id_document_template/:status/:id_new_status', block_acc
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("document_template", "delete"), function (req, res) {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.E_document_template.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then(function (e_document_template) {
 		if (!e_document_template) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			return res.render('common/error', data);
@@ -251,7 +251,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
 		// Get all associations
 		e_document_template['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
 			// Remove entity from association array
-			for (var i = 0; i < aliasEntities.length; i++)
+			for (let i = 0; i < aliasEntities.length; i++)
 				if (aliasEntities[i].id == idToRemove) {
 					aliasEntities.splice(i, 1);
 					break;
@@ -268,22 +268,22 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("docu
 });
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.E_document_template.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then(function (e_document_template) {
 		if (!e_document_template) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -301,7 +301,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("documen
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("document_template", "delete"), function (req, res) {
-	var id_e_document_template = parseInt(req.body.id);
+	const id_e_document_template = parseInt(req.body.id);
 
 	models.E_document_template.findOne({
 		where: {
@@ -318,7 +318,7 @@ router.post('/delete', block_access.actionAccessMiddleware("document_template", 
 				level: "success"
 			}];
 
-			var redirect = '/document_template/list';
+			let redirect = '/document_template/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);
@@ -332,9 +332,9 @@ router.post('/delete', block_access.actionAccessMiddleware("document_template", 
 });
 
 router.post('/generate', block_access.isLoggedIn, function (req, res) {
-	var id_entity = req.body.id_entity;
-	var entity = req.body.entity;
-	var id_document = req.body.f_model_document;
+	const id_entity = req.body.id_entity;
+	let entity = req.body.entity;
+	const id_document = req.body.f_model_document;
 
 	if (id_entity && id_document && entity) {
 		models.E_document_template.findOne({
@@ -347,7 +347,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 				entity = entity.charAt(0).toUpperCase() + entity.slice(1);
 
 				// Build include according to template configuration
-				var includes = document_template_helper.buildInclude(entity, e_model_document.f_exclude_relations, models);
+				const includes = document_template_helper.buildInclude(entity, e_model_document.f_exclude_relations, models);
 
 				// If you need to add more levels in the inclusion to access deeper data
 				// You can add here more inclusion
@@ -367,19 +367,19 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 					include: includes
 				}).then(function (e_entity) {
 					if (e_entity) {
-						var partOfFilepath = e_model_document.f_file.split('-');
+						const partOfFilepath = e_model_document.f_file.split('-');
 						if (partOfFilepath.length > 1) {
-							var completeFilePath = globalConfig.localstorage + 'e_document_template/' + partOfFilepath[0] + '/' + e_model_document.f_file;
-							var today = moment();
-							var isDust = false;
+							let completeFilePath = globalConfig.localstorage + 'e_document_template/' + partOfFilepath[0] + '/' + e_model_document.f_file;
+							const today = moment();
+							let isDust = false;
 							if (completeFilePath.indexOf('.dust') >= 0) {
 								isDust = true;
 								completeFilePath = completeFilePath.replace('.dust', '.html');
 							}
-							var mimeType = mimeTypes.lookup(completeFilePath);
+							const mimeType = mimeTypes.lookup(completeFilePath);
 							if (isDust)
 								completeFilePath = completeFilePath.replace('.html', '.dust');
-							var reworkOptions = {
+							const reworkOptions = {
 								// Entity by entity
 								// 'e_entity': [{
 								//	 item: 'f_date',
@@ -389,7 +389,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 								// Next entity
 							};
 							// Rework data with given options
-							var data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user, mimeType);
+							const data = document_template_helper.rework(e_entity, entity.toLowerCase(), reworkOptions, req.session.lang_user, mimeType);
 
 							// Now add others globals variables
 							document_template_helper.globalVariables.forEach(function (g) {
@@ -399,7 +399,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 							data['g_email'] = req.session.passport.user.f_email != null ? req.session.passport.user.f_email : '';
 							data['g_login'] = req.session.passport.user.f_login != null ? req.session.passport.user.f_login : '';
 
-							var options = {
+							const options = {
 								file: completeFilePath,
 								mimeType: mimeType,
 								data: data,
@@ -408,7 +408,7 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 								req: req
 							};
 							document_template_helper.generateDoc(options).then(function (infos) {
-								var filename = (e_entity.id || '') +
+								const filename = (e_entity.id || '') +
 									'_' + today.format('DDMMYYYY_HHmmss') +
 									'_' + today.unix() +
 									infos.ext;
@@ -466,11 +466,11 @@ router.post('/generate', block_access.isLoggedIn, function (req, res) {
 });
 
 router.get('/readme/:entity', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-	var data = {
+	const data = {
 		"menu": "e_document_template",
 		"sub_menu": "list_e_document_template"
 	};
-	var entity = req.params.entity;
+	const entity = req.params.entity;
 	if (entity) {
 		data.toastr = req.session.toastr;
 		req.session.toastr = [];
@@ -483,7 +483,7 @@ router.get('/readme/:entity', block_access.actionAccessMiddleware("document_temp
 });
 
 router.get('/help/:type', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-	var type = req.params.type;
+	const type = req.params.type;
 
 	if (type === "subEntities") {
 		res.status(200).json({
@@ -494,8 +494,8 @@ router.get('/help/:type', block_access.actionAccessMiddleware("document_template
 });
 
 router.get('/entities/:entity/relations', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
-	var entity = req.params.entity;
-	var type = req.query.t;
+	const entity = req.params.entity;
+	const type = req.query.t;
 	if (entity) {
 		if (type === 'html') {
 			document_template_helper.buildHTML_EntitiesHelperAjax(document_template_helper.build_help(entity, req.session.lang_user), req.session.lang_user).then(out => {
@@ -526,15 +526,15 @@ router.get('/global-variables', block_access.actionAccessMiddleware("document_te
 });
 
 router.post('/search', block_access.actionAccessMiddleware('document_template', 'read'), function (req, res) {
-	var search = '%' + (req.body.search || '') + '%';
-	var limit = SELECT_PAGE_SIZE;
-	var offset = (req.body.page - 1) * limit;
+	const search = '%' + (req.body.search || '') + '%';
+	const limit = SELECT_PAGE_SIZE;
+	const offset = (req.body.page - 1) * limit;
 
 	// ID is always needed
 	if (req.body.searchField.indexOf("id") == -1)
 		req.body.searchField.push('id');
 
-	var where = {
+	const where = {
 		raw: true,
 		attributes: req.body.searchField,
 		where: {}
@@ -546,9 +546,9 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
 			};
 		} else {
 			where.where[models.$or] = [];
-			for (var i = 0; i < req.body.searchField.length; i++) {
+			for (let i = 0; i < req.body.searchField.length; i++) {
 				if (req.body.searchField[i] != "id") {
-					var currentOrObj = {};
+					const currentOrObj = {};
 					currentOrObj[req.body.searchField[i]] = {
 						[models.$like]: search
 					}
@@ -568,10 +568,10 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
 		// If customwhere from select HTML attribute, we need to parse to object
 		if (typeof req.body.customwhere === "string")
 			req.body.customwhere = JSON.parse(req.body.customwhere);
-		for (var param in req.body.customwhere) {
+		for (const param in req.body.customwhere) {
 			// If the custom where is on a foreign key
 			if (param.indexOf("fk_") != -1) {
-				for (var option in options) {
+				for (const option in options) {
 					// We only add where condition on key that are standard hasMany relation, not belongsToMany association
 					if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
 						where.where[param] = req.body.customwhere[param];
@@ -587,9 +587,9 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
 	models.E_document_template.findAndCountAll(where).then(function (results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
 		// Format value like date / datetime / etc...
-		for (var field in attributes) {
-			for (var i = 0; i < results.rows.length; i++) {
-				for (var fieldSelect in results.rows[i]) {
+		for (const field in attributes) {
+			for (let i = 0; i < results.rows.length; i++) {
+				for (const fieldSelect in results.rows[i]) {
 					if (fieldSelect == field) {
 						switch (attributes[field].newmipsType) {
 							case "date":

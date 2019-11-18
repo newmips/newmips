@@ -1,11 +1,11 @@
-var webdav = require('../config/webdav');
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var xpath = require('xpath');
-var dom = require('xmldom').DOMParser;
-var btoa = require('btoa');
+const webdav = require('../config/webdav');
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+const xpath = require('xpath');
+const dom = require('xmldom').DOMParser;
+const btoa = require('btoa');
 
 exports.webdav_createdir = function(lib,id){
-	var req3 = new XMLHttpRequest();
+	const req3 = new XMLHttpRequest();
 	req3.open('MKCOL', webdav.url + lib + '/' + id , true);
 	req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
 	req3.onreadystatechange = function() {
@@ -17,7 +17,7 @@ exports.webdav_createdir = function(lib,id){
 };
 
 exports.webdav_rmdir = function(lib,id){
-	var req3 = new XMLHttpRequest();
+	const req3 = new XMLHttpRequest();
 	req3.open('DELETE', webdav.url + lib + '/' + id , true);
 	req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
 	req3.onreadystatechange = function() {
@@ -35,7 +35,7 @@ exports.webdav_readdir = function(lib, id) {
 	// List files folder
 	// Build the HTTP request object.
 	// do not use the name req reserved for the html request used for the user session
-	var req2 = new XMLHttpRequest();
+	const req2 = new XMLHttpRequest();
 	req2.open('PROPFIND', webdav.url + lib + '/' + id + '/', false);
 	req2.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
 	req2.onreadystatechange = function() {
@@ -50,16 +50,16 @@ exports.webdav_readdir = function(lib, id) {
 	// var xml = "<book><title>Harry Potter</title></book>"
 	// var doc = new dom().parseFromString(req2.responseText);
 	// console.log(doc);
-		var doc = new dom().parseFromString(req2.responseText);
-		var select = xpath.useNamespaces({"d": "DAV:"});
-		var nodes = select('//d:href', doc);
+		const doc = new dom().parseFromString(req2.responseText);
+		const select = xpath.useNamespaces({"d": "DAV:"});
+		const nodes = select('//d:href', doc);
 
 		// DO NOT DELETE THIS COMMENT !!!!
 		// console.log(nodes[0].localName + ": " + nodes[0].firstChild.data);
 		// console.log("node: " + nodes[0].toString());
-		var i = 1;
-		var finished = false;
-		var str_folder = "{";
+		let i = 1;
+		let finished = false;
+		let str_folder = "{";
 		while (finished == false) {
 	  if (!nodes[i]) {
 				finished = true;
@@ -89,21 +89,21 @@ exports.webdav_readdir = function(lib, id) {
 
 		return JSON.parse(str_folder);
 
-	} else {
+	}
 
-		// repository to create
-		console.log("profile - create MKCOL");
-		var req3 = new XMLHttpRequest();
-		req3.open('MKCOL', webdav.url + lib + '/' + id , true);
-		req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
-		req3.onreadystatechange = function() {
+	// repository to create
+	console.log("profile - create MKCOL");
+	const req3 = new XMLHttpRequest();
+	req3.open('MKCOL', webdav.url + lib + '/' + id , true);
+	req3.setRequestHeader("Authorization", "Basic "  + btoa(webdav.user_name + ':' + webdav.password));
+	req3.onreadystatechange = function() {
 	  if (req3.readyState == 4) {
 		  console.log('Folder ' + webdav.url + lib + '/' + id +  ' created.');
 	  }
-		};
-		req3.send();
-		console.log("statut MKCOL = " + req3.status + "--" + req3.statusText);
-	}
+	};
+	req3.send();
+	console.log("statut MKCOL = " + req3.status + "--" + req3.statusText);
+
 
 	return {};
 }

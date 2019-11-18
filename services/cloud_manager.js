@@ -250,7 +250,7 @@ async function updateStack(currentStack, cloudUrl) {
 
 	// Looking for our container ID
 	let ourContainerID = null;
-	for (var i = 0; i < allContainers.length; i++) {
+	for (let i = 0; i < allContainers.length; i++) {
 		for(const item in allContainers[i].Labels){
 			// Matching on traefik labels for cloud application DNS
 			if(item.indexOf("traefik.frontend.rule") != -1 && allContainers[i].Labels[item].indexOf(cloudUrl) != -1){

@@ -1,5 +1,5 @@
 $(".apiOn, .apiOff").click(function() {
-	var enable;
+	let enable;
 	if ($(this).hasClass('apiOn')) {
 		enable = true;
 	}
@@ -26,9 +26,9 @@ $(".apiOn, .apiOff").click(function() {
 });
 
 $("tbody").find("input").on('ifChanged',function(event) {
-	var self = event.target;
-	var tdIndex = $(self).parents('tr').find('td').index($(self).parents('td'));
-	var tableBody = $(self).parents('tbody');
+	const self = event.target;
+	const tdIndex = $(self).parents('tr').find('td').index($(self).parents('td'));
+	const tableBody = $(self).parents('tbody');
 
 	// /* On module uncheck, uncheck all related entities */
 	// if ($(self).attr('name').indexOf('module') == 0 && !$(self).is(":checked")) {

@@ -225,7 +225,7 @@ module.exports = {
 		return;
 	},
 	updateLocales: function(appName, lang, keys, value) {
-		var urlFile = __dirname + '/../workspace/' + appName + '/locales/' + lang + ".json";
+		const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + lang + ".json";
 		const dataLocales = JSON.parse(fs.readFileSync(urlFile))
 
 		let depth = dataLocales;

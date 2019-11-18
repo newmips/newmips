@@ -1,15 +1,15 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-var component_helper = require('../utils/component_helper');
-var fs = require('fs-extra');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const component_helper = require('../utils/component_helper');
+const fs = require('fs-extra');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 router.get('/config', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
-	var tab = req.query.tab;
-	var data = {
+	const tab = req.query.tab;
+	const data = {
 		menu: "e_address_settings",
 		sub_menu: "show_e_address_settings",
 		tab: tab,
@@ -19,16 +19,16 @@ router.get('/config', block_access.actionAccessMiddleware("address_settings", "r
 });
 
 router.post('/save', block_access.actionAccessMiddleware("address_settings", "create"), function (req, res) {
-	var config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
-	var i = 0;
-	for (var item in config.entities) {
+	const config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
+	let i = 0;
+	for (const item in config.entities) {
 		config.entities[item].enableMaps = req.body.enableMaps[i];
 		config.entities[item].navigation = req.body.navigation[i];
 		config.entities[item].zoomBar = req.body.zoomBar[i];
 		config.entities[item].mousePosition = req.body.mousePosition[i];
-		var entity = item.replace('e_', '');
+		let entity = item.replace('e_', '');
 		entity = entity.charAt(0).toUpperCase() + entity.slice(1);
-		for (var pos in config.entities[item].mapsPosition) {
+		for (const pos in config.entities[item].mapsPosition) {
 			if (pos !== req.body["mapsPosition" + entity])
 				config.entities[item].mapsPosition[pos] = false;
 			else
@@ -46,7 +46,7 @@ router.post('/save', block_access.actionAccessMiddleware("address_settings", "cr
 
 router.get('/info_address_maps_ajax', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
 	try {
-		var translate = require('../services/language');
+		const translate = require('../services/language');
 		res.status(200).json({message: translate(req.session.lang_user).__("component.address_settings.info_address_maps")});
 	} catch (e) {
 		res.status(500).end();

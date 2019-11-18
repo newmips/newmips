@@ -1,19 +1,19 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 
-var models = require('../models/');
-var attributes = require('../models/attributes/e_user');
-var options = require('../models/options/e_user');
-var model_builder = require('../utils/model_builder');
-var enums_radios = require('../utils/enum_radio.js');
+const models = require('../models/');
+const attributes = require('../models/attributes/e_user');
+const options = require('../models/options/e_user');
+const model_builder = require('../utils/model_builder');
+const enums_radios = require('../utils/enum_radio.js');
 
 function capitalizeFirstLetter(word) {
 	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
-var publicAttributes = [];
-for (var attribute in attributes) {
+const publicAttributes = [];
+for (const attribute in attributes) {
 	if (attribute != 'f_password' && attribute != 'f_enabled' && attribute != 'f_token_password_reset')
 		publicAttributes.push(attribute);
 }
@@ -22,7 +22,7 @@ for (var attribute in attributes) {
 // FIND ALL
 //
 router.get('/', function(req, res) {
-	var answer = {
+	const answer = {
 		limit: parseInt(req.query.limit || 10),
 		offset: parseInt(req.query.offset || 0),
 		error: null
@@ -47,10 +47,10 @@ router.get('/', function(req, res) {
 // FIND ONE
 //
 router.get('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_e_user = parseInt(req.params.id);
+	const id_e_user = parseInt(req.params.id);
 
 	models.E_user.findOne({where: {id: id_e_user}, attributes: publicAttributes}).then(function(e_user) {
 		if (!e_user) {
@@ -70,14 +70,14 @@ router.get('/:id', function(req, res) {
 // FIND ASSOCIATION
 //
 router.get('/:id/:association', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_e_user = req.params.id;
-	var association = req.params.association;
+	const id_e_user = req.params.id;
+	const association = req.params.association;
 
-	var include = null;
-	for (var i = 0; i < options.length; i++) {
+	let include = null;
+	for (let i = 0; i < options.length; i++) {
 		if (options[i].as == 'r_'+association)
 			include = {
 				model: models[capitalizeFirstLetter(options[i].target)],
@@ -111,16 +111,16 @@ router.get('/:id/:association', function(req, res) {
 // CREATE
 //
 router.post('/', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
 
-	var publicFields = {};
-	for (var field in req.body) {
+	const publicFields = {};
+	for (const field in req.body) {
 		if (publicAttributes.indexOf(field) != -1)
 			publicFields[field] = req.body[field];
 	}
-	var createObject = model_builder.buildForRoute(attributes, options, publicFields);
+	const createObject = model_builder.buildForRoute(attributes, options, publicFields);
 	//createObject = enums.values("e_user", createObject, req.body)
 
 	models.E_user.create(createObject).then(function(e_user) {
@@ -137,16 +137,16 @@ router.post('/', function(req, res) {
 // UPDATE
 //
 router.put('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_e_user = parseInt(req.params.id);
-	var publicFields = {};
-	for (var field in req.body) {
+	const id_e_user = parseInt(req.params.id);
+	const publicFields = {};
+	for (const field in req.body) {
 		if (publicAttributes.indexOf(field) != -1)
 			publicFields[field] = req.body[field];
 	}
-	var updateObject = model_builder.buildForRoute(attributes, options, publicFields);
+	const updateObject = model_builder.buildForRoute(attributes, options, publicFields);
 	//updateObject = enums.values("e_user", updateObject, req.body);
 
 	models.E_user.findOne({where: {id: id_e_user}, attributes: publicAttributes}).then(function(e_user) {
@@ -173,10 +173,10 @@ router.put('/:id', function(req, res) {
 // DELETE
 //
 router.delete('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	}
-	var id_e_user = req.params.id;
+	const id_e_user = req.params.id;
 
 	models.E_user.destroy({where: {id: id_e_user}}).then(function() {
 		res.status(200).end();

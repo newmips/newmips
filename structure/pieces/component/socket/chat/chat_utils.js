@@ -1,5 +1,5 @@
-var models = require('../models/');
-var sequelize = models.sequelize;
+const models = require('../models/');
+const sequelize = models.sequelize;
 
 function sendChatChannelList(user, socket) {
 	return new Promise(function(resolve, reject) {
@@ -19,7 +19,7 @@ function sendChatChannelList(user, socket) {
 				}]
 			}]
 		}).then(function(chatAndChannel) {
-			var lastSeenChatPromises = [];
+			const lastSeenChatPromises = [];
 			for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
 				// Build promise array that count the number of not seen messages for each chat
 				lastSeenChatPromises.push(new Promise(function(resolve, reject) {
@@ -41,7 +41,7 @@ function sendChatChannelList(user, socket) {
 				}));
 			}
 
-			var lastSeenChannelPromises = [];
+			const lastSeenChannelPromises = [];
 			for (var i = 0; i < chatAndChannel.r_user_channel.length; i++) {
 				lastSeenChannelPromises.push(new Promise(function(resolve, reject) {
 					models.E_user_channel.findOne({
@@ -63,10 +63,10 @@ function sendChatChannelList(user, socket) {
 			}
 
 			Promise.all(lastSeenChatPromises).then(function(notSeens) {
-				for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
+				for (let i = 0; i < chatAndChannel.r_chat.length; i++) {
 					// Remove self from chat user array to simplify client side operations
-					var chatUsers = chatAndChannel.r_chat[i].r_user;
-					for (var j = 0; j < chatUsers.length; j++) {
+					const chatUsers = chatAndChannel.r_chat[i].r_user;
+					for (let j = 0; j < chatUsers.length; j++) {
 						if (chatUsers[j].id != user.id) {
 							chatAndChannel.r_chat[i].dataValues.contact = chatUsers[j];
 							break;
@@ -77,7 +77,7 @@ function sendChatChannelList(user, socket) {
 				}
 
 				Promise.all(lastSeenChannelPromises).then(function(notSeens) {
-					for (var i = 0; i < chatAndChannel.r_user_channel.length; i++)
+					for (let i = 0; i < chatAndChannel.r_user_channel.length; i++)
 						chatAndChannel.r_user_channel[i].dataValues.notSeen = notSeens[i].notSeen;
 					socket.emit('contacts', chatAndChannel);
 				});
@@ -97,8 +97,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 
 		// Middleware to check access right
 		socket.use(function(packet, next) {
-			var eventName = packet[0];
-			var params = packet[1];
+			const eventName = packet[0];
+			const params = packet[1];
 			if (['chat-load', 'chat-message', 'chat-update_last_seen'].indexOf(eventName) != -1) {
 				models.E_chat.findOne({
 					where: {id: params.id_chat},
@@ -137,7 +137,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				where: {id_user: user.id},
 				attributes: ['id_chat', 'id_user', 'id_last_seen_message', 'id']
 			}).then(function(userChat) {
-				var notificationsPromises = [];
+				const notificationsPromises = [];
 				for (var i = 0; i < userChat.length; i++) {
 					notificationsPromises.push(new Promise(function(resolve, reject) {
 						if (userChat[i].id_last_seen_message == null)
@@ -174,8 +174,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 						}));
 
 					Promise.all(notificationsPromises).then(function(notSeens) {
-						var total = 0;
-						for (var i = 0; i < notSeens.length; i++)
+						let total = 0;
+						for (let i = 0; i < notSeens.length; i++)
 							total += notSeens[i];
 						socket.emit('notifications-total', {total: total});
 					});
@@ -274,7 +274,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 						models.E_user_channel.findAll({
 							where: {id_channel: data.id_channel}
 						}).then(function(channelusers) {
-							for (var i = 0; i < channelusers.length; i++)
+							for (let i = 0; i < channelusers.length; i++)
 								if (connectedUsers[channelusers[i].id_user]) {
 									channelmessage.dataValues.id_self = channelusers[i].id_user;
 									connectedUsers[channelusers[i].id_user].socket.emit('channel-message', channelmessage);
@@ -337,7 +337,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 	{
 		// Chat creation
 		socket.on('chat-create', function(data) {
-			var chatUserIds = [user.id, data.receiver];
+			const chatUserIds = [user.id, data.receiver];
 			models.E_chat.findAll({
 				include: [{
 					model: models.E_user,

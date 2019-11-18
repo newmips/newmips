@@ -1,12 +1,12 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_media');
+const models = require('../models/');
+const attributes = require('../models/attributes/e_media');
 const options = require('../models/options/e_media');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
@@ -53,25 +53,25 @@ function sortTargetEntities(lang_user) {
 }
 
 router.get('/entity_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-	var entityTree = status_helper.entityFieldTree(req.params.entity);
-	var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
+	const entityTree = status_helper.entityFieldTree(req.params.entity);
+	const entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
 	res.json(entityTreeSelect).end();
 });
 
 router.get('/entity_full_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-	var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
-	var entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
+	const entityTree = status_helper.fullEntityFieldTree(req.params.entity);
+	const entityTreeSelect = status_helper.entityFieldForSelect(entityTree, req.session.lang_user);
 	res.json(entityTreeSelect).end();
 });
 
 router.get('/user_tree/:entity', block_access.actionAccessMiddleware("media", "read"), function(req, res) {
-	var entityTree = status_helper.fullEntityFieldTree(req.params.entity);
-	var userTree = status_helper.getUserTargetList(entityTree, req.session.lang_user);
+	const entityTree = status_helper.fullEntityFieldTree(req.params.entity);
+	const userTree = status_helper.getUserTargetList(entityTree, req.session.lang_user);
 	res.json(userTree).end();
 });
 
 router.get('/list', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
-	var data = {
+	const data = {
 		"menu": "e_media",
 		"sub_menu": "list_e_media"
 	};
@@ -95,9 +95,9 @@ router.post('/datalist', block_access.actionAccessMiddleware("media", "read"), f
 });
 
 router.get('/show', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
-	var id_e_media = req.query.id;
-	var tab = req.query.tab;
-	var data = {
+	const id_e_media = req.query.id;
+	const tab = req.query.tab;
+	const data = {
 		menu: "e_media",
 		sub_menu: "list_e_media",
 		tab: tab,
@@ -109,7 +109,7 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 		data.hideButton = req.query.hideButton;
 
 	/* Looking for two level of include to get all associated data in show tab list */
-	var include = model_builder.getTwoLevelIncludeAll(models, options);
+	const include = model_builder.getTwoLevelIncludeAll(models, options);
 
 	models.E_media.findOne({where: {id: id_e_media}, include: include}).then(function (e_media) {
 		if (!e_media) {
@@ -119,10 +119,10 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 		}
 
 		/* Modify e_media value with the translated enum value in show result */
-		for (var item in data.enum)
-			for (var field in e_media.dataValues)
+		for (const item in data.enum)
+			for (const field in e_media.dataValues)
 				if (item == field)
-					for (var value in data.enum[item])
+					for (const value in data.enum[item])
 						if (data.enum[item][value].value == e_media[field])
 							e_media[field] = data.enum[item][value].translation;
 
@@ -142,7 +142,7 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 });
 
 router.get('/create_form', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
-	var data = {
+	const data = {
 		menu: "e_media",
 		sub_menu: "create_e_media",
 		enum_radio: enums_radios.translated("e_media", req.session.lang_user, options)
@@ -163,10 +163,10 @@ router.get('/create_form', block_access.actionAccessMiddleware("media", "create"
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media.create(createObject).then(function (e_media) {
-		var redirect = '/media/show?id='+e_media.id;
+		let redirect = '/media/show?id='+e_media.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
 			level: "success"
@@ -177,16 +177,16 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 			models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({where: {id: req.body.associationFlag}}).then(function (association) {
 				if (!association) {
 					e_media.destroy();
-					var err = new Error();
+					const err = new Error();
 					err.message = "Association not found."
 					return entity_helper.error(err, req, res, "/");
 				}
 
-				var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+				const modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
 				if (typeof association['add' + modelName] !== 'undefined')
 					association['add' + modelName](e_media.id);
 				else {
-					var obj = {};
+					const obj = {};
 					obj[req.body.associationForeignKey] = e_media.id;
 					association.update(obj);
 				}
@@ -204,8 +204,8 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
-	var id_e_media = req.query.id;
-	var data = {
+	const id_e_media = req.query.id;
+	const data = {
 		menu: "e_media",
 		sub_menu: "list_e_media",
 		enum_radio: enums_radios.translated("e_media", req.session.lang_user, options)
@@ -236,14 +236,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 });
 
 router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
-	var id_e_media = parseInt(req.body.id);
+	const id_e_media = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media.findOne({where: {id: id_e_media}}).then(function (e_media) {
 		if (!e_media) {
@@ -258,7 +258,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 			// because those values are not updated for now
 			model_builder.setAssocationManyValues(e_media, req.body, updateObject, options);
 
-			var redirect = '/media/show?id=' + id_e_media;
+			let redirect = '/media/show?id=' + id_e_media;
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -286,19 +286,19 @@ router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAc
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("media", "delete"), function (req, res) {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.E_media.findOne({where: {id: idEntity}}).then(function (e_media) {
 		if (!e_media) {
-			var data = {error: 404};
+			const data = {error: 404};
 			return res.render('common/error', data);
 		}
 
 		// Get all associations
 		e_media['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function (aliasEntities) {
 			// Remove entity from association array
-			for (var i = 0; i < aliasEntities.length; i++)
+			for (let i = 0; i < aliasEntities.length; i++)
 				if (aliasEntities[i].id == idToRemove) {
 					aliasEntities.splice(i, 1);
 					break;
@@ -314,25 +314,25 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
 	});
 });
 
-var SELECT_PAGE_SIZE = 10
+const SELECT_PAGE_SIZE = 10
 router.post('/search', block_access.actionAccessMiddleware('media', 'read'), function (req, res) {
-	var search = '%' + (req.body.search || '') + '%';
-	var limit = SELECT_PAGE_SIZE;
-	var offset = (req.body.page-1)*limit;
+	const search = '%' + (req.body.search || '') + '%';
+	const limit = SELECT_PAGE_SIZE;
+	const offset = (req.body.page-1)*limit;
 
 	// ID is always needed
 	if (req.body.searchField.indexOf("id") == -1)
 		req.body.searchField.push('id');
 
-	var where = {raw: true, attributes: req.body.searchField, where: {}};
+	const where = {raw: true, attributes: req.body.searchField, where: {}};
 	if (search != '%%') {
 		if (req.body.searchField.length == 1) {
 			where.where[req.body.searchField[0]] = {[models.$like]: search};
 		} else {
 			where.where[models.$or] = [];
-			for (var i = 0; i < req.body.searchField.length; i++) {
+			for (let i = 0; i < req.body.searchField.length; i++) {
 				if (req.body.searchField[i] != "id") {
-					var currentOrObj = {};
+					const currentOrObj = {};
 					currentOrObj[req.body.searchField[i]] = {[models.$like]: search}
 					where.where[models.$or].push(currentOrObj);
 				}
@@ -342,11 +342,11 @@ router.post('/search', block_access.actionAccessMiddleware('media', 'read'), fun
 
 	// Possibility to add custom where in select2 ajax instanciation
 	if (typeof req.body.customwhere !== "undefined") {
-		var customwhere = {};
+		let customwhere = {};
 		try {
 			customwhere = JSON.parse(req.body.customwhere);
 		} catch(e){console.error(e);console.error("ERROR: Error in customwhere")}
-		for (var param in customwhere)
+		for (const param in customwhere)
 			where.where[param] = customwhere[param];
 	}
 
@@ -357,9 +357,9 @@ router.post('/search', block_access.actionAccessMiddleware('media', 'read'), fun
 	models.E_media.findAndCountAll(where).then(function (results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
 		// Format value like date / datetime / etc...
-		for (var field in attributes) {
-			for (var i = 0; i < results.rows.length; i++) {
-				for (var fieldSelect in results.rows[i]) {
+		for (const field in attributes) {
+			for (let i = 0; i < results.rows.length; i++) {
+				for (const fieldSelect in results.rows[i]) {
 					if(fieldSelect == field){
 						switch(attributes[field].newmipsType) {
 							case "date":
@@ -382,16 +382,16 @@ router.post('/search', block_access.actionAccessMiddleware('media', 'read'), fun
 
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.E_media.findOne({where: {id: idEntity}}).then(function (e_media) {
 		if (!e_media) {
-			var data = {error: 404};
+			const data = {error: 404};
 			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -409,7 +409,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media",
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), function (req, res) {
-	var id_e_media = parseInt(req.body.id);
+	const id_e_media = parseInt(req.body.id);
 
 	models.E_media.findOne({where: {id: id_e_media}}).then(function (deleteObject) {
 		models.E_media.destroy({
@@ -422,7 +422,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), f
 				level: "success"
 			}];
 
-			var redirect = '/media/list';
+			let redirect = '/media/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);

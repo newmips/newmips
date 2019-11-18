@@ -1,32 +1,32 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 // Datalist
-var filterDataTable = require('../utils/filter_datatable');
+const filterDataTable = require('../utils/filter_datatable');
 
 // Sequelize
-var models = require('../models/');
-var attributes = require('../models/attributes/e_media_sms');
-var options = require('../models/options/e_media_sms');
-var model_builder = require('../utils/model_builder');
-var entity_helper = require('../utils/entity_helper');
-var file_helper = require('../utils/file_helper');
-var status_helper = require('../utils/status_helper');
-var component_helper = require('../utils/component_helper');
-var globalConfig = require('../config/global');
-var fs = require('fs-extra');
-var dust = require('dustjs-linkedin');
-var SELECT_PAGE_SIZE = 10;
+const models = require('../models/');
+const attributes = require('../models/attributes/e_media_sms');
+const options = require('../models/options/e_media_sms');
+const model_builder = require('../utils/model_builder');
+const entity_helper = require('../utils/entity_helper');
+const file_helper = require('../utils/file_helper');
+const status_helper = require('../utils/status_helper');
+const component_helper = require('../utils/component_helper');
+const globalConfig = require('../config/global');
+const fs = require('fs-extra');
+const dust = require('dustjs-linkedin');
+const SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment
-var enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
 // Winston logger
-var logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"), function(req, res) {
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_sms.create(createObject).then(function(e_media_sms) {
 		models.E_media.create({
@@ -36,13 +36,13 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 			fk_id_media_sms: e_media_sms.id
 		}).then(function(e_media) {
 
-			var redirect = '/media/show?id=' + e_media.id;
+			let redirect = '/media/show?id=' + e_media.id;
 			req.session.toastr = [{
 				message: 'message.create.success',
 				level: "success"
 			}];
 
-			var promises = [];
+			const promises = [];
 
 			if (typeof req.body.associationFlag !== 'undefined') {
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
@@ -54,18 +54,18 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 					}).then(function(association) {
 						if (!association) {
 							e_media_sms.destroy();
-							var err = new Error();
+							const err = new Error();
 							err.message = "Association not found.";
 							reject(err);
 						}
 
-						var modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
+						const modelName = req.body.associationAlias.charAt(0).toUpperCase() + req.body.associationAlias.slice(1).toLowerCase();
 						if (typeof association['add' + modelName] !== 'undefined') {
 							association['add' + modelName](e_media_sms.id).then(resolve).catch(function(err) {
 								reject(err);
 							});
 						} else {
-							var obj = {};
+							const obj = {};
 							obj[req.body.associationForeignKey] = e_media_sms.id;
 							association.update(obj).then(resolve).catch(function(err) {
 								reject(err);
@@ -95,8 +95,8 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 });
 
 router.get('/update_form', block_access.actionAccessMiddleware("media_sms", "update"), function(req, res) {
-	var id_e_media_sms = req.query.id;
-	var data = {
+	const id_e_media_sms = req.query.id;
+	const data = {
 		menu: "e_media_sms",
 		sub_menu: "list_e_media_sms",
 		enum_radio: enums_radios.translated("e_media_sms", req.session.lang_user, options)
@@ -141,14 +141,14 @@ router.get('/update_form', block_access.actionAccessMiddleware("media_sms", "upd
 });
 
 router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"), function(req, res) {
-	var id_e_media_sms = parseInt(req.body.id);
+	const id_e_media_sms = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_sms.findOne({
 		where: {
@@ -167,7 +167,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 			// because those values are not updated for now
 			model_builder.setAssocationManyValues(e_media_sms, req.body, updateObject, options).then(function() {
 
-				var redirect = '/media/show?id=' + id_e_media_sms;
+				let redirect = '/media/show?id=' + id_e_media_sms;
 				if (typeof req.body.associationFlag !== 'undefined')
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -189,12 +189,12 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 });
 
 router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms', 'read'), function(req, res) {
-	var alias = req.params.alias;
-	var id = req.params.id;
+	const alias = req.params.alias;
+	const id = req.params.id;
 
 	// Find tab option
-	var option;
-	for (var i = 0; i < options.length; i++)
+	let option;
+	for (let i = 0; i < options.length; i++)
 		if (options[i].as == req.params.alias) {
 			option = options[i];
 			break;
@@ -206,7 +206,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
 		return res.status(403).end();
 
-	var queryOpts = {
+	const queryOpts = {
 		where: {
 			id: id
 		}
@@ -226,9 +226,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 		if (!e_media_sms)
 			return res.status(404).end();
 
-		var dustData = e_media_sms[option.as] || null;
-		var empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		var dustFile, idSubentity, promisesData = [];
+		let dustData = e_media_sms[option.as] || null;
+		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
+		let dustFile, idSubentity, promisesData = [];
 		var subentityOptions = [];
 
 		// Build tab specific variables
@@ -311,7 +311,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 			// Image buffer promise
 			Promise.all(promisesData).then(function() {
 				// Open and render dust file
-				var file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
 				dust.insertLocalsFn(dustData ? dustData : {}, req);
 				dust.renderSource(file, dustData || {}, function(err, rendered) {
 					if (err) {
@@ -342,13 +342,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 });
 
 router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.actionAccessMiddleware("media_sms", "update"), function(req, res) {
-	var historyModel = 'E_history_e_media_sms_' + req.params.status;
-	var historyAlias = 'r_history_' + req.params.status.substring(2);
-	var statusAlias = 'r_' + req.params.status.substring(2);
+	const historyModel = 'E_history_e_media_sms_' + req.params.status;
+	const historyAlias = 'r_history_' + req.params.status.substring(2);
+	const statusAlias = 'r_' + req.params.status.substring(2);
 
-	var errorRedirect = '/media_sms/show?id=' + req.params.id_media_sms;
+	const errorRedirect = '/media_sms/show?id=' + req.params.id_media_sms;
 
-	var includeTree = status_helper.generateEntityInclude(models, 'e_media_sms');
+	const includeTree = status_helper.generateEntityInclude(models, 'e_media_sms');
 	models.E_media_sms.findOne({
 		where: {
 			id: req.params.id_media_sms
@@ -386,9 +386,9 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 			}
 
 			// Check if new status is actualy the current status's children
-			var children = current_status.r_children;
-			var nextStatus = false;
-			for (var i = 0; i < children.length; i++) {
+			const children = current_status.r_children;
+			let nextStatus = false;
+			for (let i = 0; i < children.length; i++) {
 				if (children[i].id == req.params.id_new_status) {
 					nextStatus = children[i];
 					break;
@@ -407,7 +407,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 			nextStatus.executeActions(e_media_sms).then(function() {
 				// Create history record for this status field
 				// Beeing the most recent history for media_sms it will now be its current status
-				var createObject = {}
+				const createObject = {}
 				if (req.query.comment)
 					createObject.f_comment = req.query.comment;
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
@@ -422,7 +422,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 					level: 'warning',
 					message: 'component.status.error.action_error'
 				}]
-				var createObject = {}
+				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_media_sms_history_" + req.params.status.substring(2)] = req.params.id_media_sms;
 				models[historyModel].create(createObject).then(function() {
@@ -437,15 +437,15 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 });
 
 router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'), function(req, res) {
-	var search = '%' + (req.body.search || '') + '%';
-	var limit = SELECT_PAGE_SIZE;
-	var offset = (req.body.page - 1) * limit;
+	const search = '%' + (req.body.search || '') + '%';
+	const limit = SELECT_PAGE_SIZE;
+	const offset = (req.body.page - 1) * limit;
 
 	// ID is always needed
 	if (req.body.searchField.indexOf("id") == -1)
 		req.body.searchField.push('id');
 
-	var where = {
+	const where = {
 		raw: true,
 		attributes: req.body.searchField,
 		where: {}
@@ -457,9 +457,9 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
 			};
 		} else {
 			where.where[models.$or] = [];
-			for (var i = 0; i < req.body.searchField.length; i++) {
+			for (let i = 0; i < req.body.searchField.length; i++) {
 				if (req.body.searchField[i] != "id") {
-					var currentOrObj = {};
+					const currentOrObj = {};
 					currentOrObj[req.body.searchField[i]] = {
 						[models.$like]: search
 					}
@@ -471,10 +471,10 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
 
 	// Possibility to add custom where in select2 ajax instanciation
 	if (typeof req.body.customWhere !== "undefined")
-		for (var param in req.body.customWhere) {
+		for (const param in req.body.customWhere) {
 			// If the custom where is on a foreign key
 			if (param.indexOf("fk_") != -1) {
-				for (var option in options) {
+				for (const option in options) {
 					// We only add where condition on key that are standard hasMany relation, not belongsToMany association
 					if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany")
 						where.where[param] = req.body.customWhere[param];
@@ -489,9 +489,9 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
 	models.E_media_sms.findAndCountAll(where).then(function(results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
 		// Format value like date / datetime / etc...
-		for (var field in attributes) {
-			for (var i = 0; i < results.rows.length; i++) {
-				for (var fieldSelect in results.rows[i]) {
+		for (const field in attributes) {
+			for (let i = 0; i < results.rows.length; i++) {
+				for (const fieldSelect in results.rows[i]) {
 					if(fieldSelect == field){
 						switch(attributes[field].newmipsType) {
 							case "date":
@@ -513,16 +513,16 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
 });
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("media_sms", "delete"), function(req, res) {
-	var alias = req.params.alias;
-	var idToRemove = req.body.idRemove;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idToRemove = req.body.idRemove;
+	const idEntity = req.body.idEntity;
 	models.E_media_sms.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then(function(e_media_sms) {
 		if (!e_media_sms) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			return res.render('common/error', data);
@@ -531,7 +531,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
 		// Get all associations
 		e_media_sms['get' + entity_helper.capitalizeFirstLetter(alias)]().then(function(aliasEntities) {
 			// Remove entity from association array
-			for (var i = 0; i < aliasEntities.length; i++)
+			for (let i = 0; i < aliasEntities.length; i++)
 				if (aliasEntities[i].id == idToRemove) {
 					aliasEntities.splice(i, 1);
 					break;
@@ -550,22 +550,22 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("medi
 });
 
 router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_sms", "create"), function(req, res) {
-	var alias = req.params.alias;
-	var idEntity = req.body.idEntity;
+	const alias = req.params.alias;
+	const idEntity = req.body.idEntity;
 	models.E_media_sms.findOne({
 		where: {
 			id: idEntity
 		}
 	}).then(function(e_media_sms) {
 		if (!e_media_sms) {
-			var data = {
+			const data = {
 				error: 404
 			};
 			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
-		var toAdd;
+		let toAdd;
 		if (typeof(toAdd = req.body.ids) === 'undefined') {
 			req.session.toastr.push({
 				message: 'message.create.failure',
@@ -585,7 +585,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_s
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("media_sms", "delete"), function(req, res) {
-	var id_e_media_sms = parseInt(req.body.id);
+	const id_e_media_sms = parseInt(req.body.id);
 
 	models.E_media_sms.findOne({
 		where: {
@@ -602,7 +602,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media_sms", "delete"
 				level: "success"
 			}];
 
-			var redirect = '/media_sms/list';
+			let redirect = '/media_sms/list';
 			if (typeof req.body.associationFlag !== 'undefined')
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);

@@ -10,13 +10,13 @@ const associations = require("./options/e_media_mail.json");
 const INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments'];
 
 module.exports = (sequelize, DataTypes) => {
-	var attributes = builder.buildForModel(attributes_origin, DataTypes);
-	var options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_media_mail',
 		timestamps: true
 	};
 
-	var Model = sequelize.define('E_media_mail', attributes, options);
+	const Model = sequelize.define('E_media_mail', attributes, options);
 
 	Model.associate = builder.buildAssociation('E_media_mail', associations);
 	builder.addHooks(Model, 'e_media_mail', attributes_origin);
@@ -24,10 +24,10 @@ module.exports = (sequelize, DataTypes) => {
 	// Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
 	//	  Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
 	Model.prototype.parseForInclude = function() {
-		var fieldsToParse = ['f_from','f_to','f_cc','f_cci','f_subject', 'f_content', 'f_attachments'];
-		var valuesForInclude = [];
-		for (var i = 0; i < fieldsToParse.length; i++) {
-			var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+		const fieldsToParse = ['f_from','f_to','f_cc','f_cci','f_subject', 'f_content', 'f_attachments'];
+		const valuesForInclude = [];
+		for (let i = 0; i < fieldsToParse.length; i++) {
+			let regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
 			while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
 				valuesForInclude.push(matches[1]);
 		}
@@ -35,12 +35,12 @@ module.exports = (sequelize, DataTypes) => {
 	}
 
 	Model.prototype.execute = function(resolve, reject, dataInstance) {
-		var self = this;
+		const self = this;
 
 		async function insertGroupAndUserEmail() {
-			for (var fieldIdx = 0; fieldIdx < INSERT_USER_GROUP_FIELDS.length; fieldIdx++) {
+			for (let fieldIdx = 0; fieldIdx < INSERT_USER_GROUP_FIELDS.length; fieldIdx++) {
 				property = INSERT_USER_GROUP_FIELDS[fieldIdx];
-				var groupIds = [],
+				const groupIds = [],
 					userIds = [],
 					userMails = [],
 					intermediateData = {};
@@ -48,16 +48,16 @@ module.exports = (sequelize, DataTypes) => {
 				// FETCH GROUP EMAIL
 				{
 					// Exctract all group IDs from property to find them all at once
-					var groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+					const groupRegex = new RegExp(/{(group\|[^}]*)}/g);
 					while ((match = groupRegex.exec(self[property])) != null) {
 						var placeholderParts = match[1].split('|');
-						var groupId = parseInt(placeholderParts[placeholderParts.length-1]);
+						const groupId = parseInt(placeholderParts[placeholderParts.length-1]);
 						intermediateData['group'+groupId] = {placeholder: match[0], emails: []};
 						groupIds.push(groupId);
 					}
 
 					// Fetch all groups found and their users
-					var groups = await sequelize.models.E_group.findAll({
+					const groups = await sequelize.models.E_group.findAll({
 						where: {id: {[models.$in]: groupIds}},
 						include: {model: sequelize.models.E_user, as: 'r_user'}
 					});
@@ -65,7 +65,7 @@ module.exports = (sequelize, DataTypes) => {
 					// Exctract email and build intermediateData object used to replace placeholders
 					for (var i = 0; i < groups.length; i++) {
 						var intermediateKey = 'group'+groups[i].id;
-						for (var j = 0; j < groups[i].r_user.length; j++)
+						for (let j = 0; j < groups[i].r_user.length; j++)
 							if (groups[i].r_user[j].f_email && groups[i].r_user[j].f_email != '') {
 								intermediateData[intermediateKey].emails.push(groups[i].r_user[j].f_email);
 								userMails.push(groups[i].r_user[j].f_email);
@@ -76,16 +76,16 @@ module.exports = (sequelize, DataTypes) => {
 				// FETCH USER EMAIL
 				{
 					// Exctract all user IDs from property to find them all at once
-					var userRegex = new RegExp(/{(user\|[^}]*)}/g);
+					const userRegex = new RegExp(/{(user\|[^}]*)}/g);
 					while ((match = userRegex.exec(self[property])) != null) {
 						var placeholderParts = match[1].split('|');
-						var userId = parseInt(placeholderParts[placeholderParts.length-1]);
+						const userId = parseInt(placeholderParts[placeholderParts.length-1]);
 						intermediateData['user'+userId] = {placeholder: match[0], emails: []};
 						userIds.push(userId);
 					}
 
 					// Fetch all users found
-					var users = await sequelize.models.E_user.findAll({
+					const users = await sequelize.models.E_user.findAll({
 						where: {id: {[models.$in]: userIds}}
 					});
 
@@ -100,11 +100,11 @@ module.exports = (sequelize, DataTypes) => {
 				}
 
 				// Replace each occurence of {group|label|id} and {user|label|id} placeholders by their built emails list
-				for (var prop in intermediateData) {
+				for (const prop in intermediateData) {
 					// Escape placeholder and use it as a regex key to execute the replace on self[property]
-					var regKey = intermediateData[prop].placeholder.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
+					const regKey = intermediateData[prop].placeholder.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\-]', 'g'), '\\$&')
 					// Replace globaly
-					var reg = new RegExp(regKey, 'g');
+					const reg = new RegExp(regKey, 'g');
 					self[property] = self[property].replace(reg, intermediateData[prop].emails.join(', '));
 				}
 			}
@@ -122,20 +122,19 @@ module.exports = (sequelize, DataTypes) => {
 					// Case where targeted field is in an array.
 					// Ex: r_projet.r_participants.f_email <- Loop through r_participants and join all f_email
 					else if (object[depths[idx]] instanceof Array && depths.length-2 == idx) {
-						var values = [];
-						for (var i = 0; i < object[depths[idx]].length; i++)
+						const values = [];
+						for (let i = 0; i < object[depths[idx]].length; i++)
 							if (typeof object[depths[idx]][i][depths[idx+1]] !== 'undefined')
 								values.push(object[depths[idx]][i][depths[idx+1]]);
 						return values.join(', ');
 					}
 					return diveData(object[depths[idx]], depths, ++idx);
 				}
-				else
-					return object[depths[idx]];
+				return object[depths[idx]];
 			}
 
-			var newString = self[property];
-			var regex = new RegExp(/{field\|([^}]*)}/g),
+			let newString = self[property];
+			const regex = new RegExp(/{field\|([^}]*)}/g),
 				matches = null;
 
 			// Need an array for attachments, not a string
@@ -170,7 +169,7 @@ module.exports = (sequelize, DataTypes) => {
 		// to avoid trying to replace placeholders as entity's fields
 		insertGroupAndUserEmail().then(_ => {
 			// Build mail options and replace entity's fields
-			var options = {
+			const options = {
 				from: insertVariablesValue('f_from'),
 				to: insertVariablesValue('f_to'),
 				cc: insertVariablesValue('f_cc'),

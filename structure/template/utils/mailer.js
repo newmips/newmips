@@ -1,12 +1,12 @@
-var mailConfig = require('../config/mail');
-var nodemailer = require('nodemailer');
-var fs = require('fs');
-var dust = require('dustjs-linkedin');
-var path = require('path');
+const mailConfig = require('../config/mail');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+const dust = require('dustjs-linkedin');
+const path = require('path');
 
-var appDir = path.dirname(require.main.filename);
-var transporter = nodemailer.createTransport(mailConfig.transport);
-var templatePath = __dirname+'/../mails/';
+const appDir = path.dirname(require.main.filename);
+const transporter = nodemailer.createTransport(mailConfig.transport);
+const templatePath = __dirname+'/../mails/';
 
 exports.config = mailConfig;
 
@@ -88,7 +88,7 @@ exports.sendHtml = function(html, options, attachments) {
 // Send mail with custom transporteur
 exports.sendMailAsyncCustomTransport = function(mailOptions, config) {
 	return new Promise(function(resolve, reject) {
-		var customTransporter = nodemailer.createTransport(config.transport);
+		const customTransporter = nodemailer.createTransport(config.transport);
 		customTransporter.sendMail(mailOptions, function(error, info) {
 			if (error) {
 				console.error(error);

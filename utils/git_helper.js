@@ -11,8 +11,7 @@ function checkAlreadyInit(idApplication){
 	const dotGitPath = __dirname+'/../workspace/'+idApplication+'/.git';
 	if (fs.existsSync(dotGitPath))
 		return true;
-	else
-		return false;
+	return false;
 }
 
 function writeAllLogs(title, content, err){

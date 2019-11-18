@@ -18,7 +18,7 @@ const exec = require('child_process').exec;
 
 function installAppModules(attr) {
 	return new Promise(function(resolve, reject) {
-		var dir = __dirname;
+		const dir = __dirname;
 
 		// Mandatory workspace folder
 		if (!fs.existsSync(dir + '/../workspace'))

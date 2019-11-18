@@ -184,7 +184,7 @@ async function addTeamToChannel(teamMembers, channelID) {
 		forever: true
 	};
 
-	for (var i = 0; i < teamMembers.length; i++) {
+	for (let i = 0; i < teamMembers.length; i++) {
 		member = teamMembers[i];
 		options.body = {
 			user_id: member.user_id

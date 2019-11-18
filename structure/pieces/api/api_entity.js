@@ -1,42 +1,42 @@
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
 
-var models = require('../models/');
-var attributes = require('../models/attributes/ENTITY_NAME');
-var options = require('../models/options/ENTITY_NAME');
-var model_builder = require('../utils/model_builder');
-var enums_radios = require('../utils/enum_radio.js');
-var entity_helper = require('../utils/entity_helper');
+const models = require('../models/');
+const attributes = require('../models/attributes/ENTITY_NAME');
+const options = require('../models/options/ENTITY_NAME');
+const model_builder = require('../utils/model_builder');
+const enums_radios = require('../utils/enum_radio.js');
+const entity_helper = require('../utils/entity_helper');
 
 //
 // FIND ALL
 //
 router.get('/', function(req, res) {
-	var answer = {
+	const answer = {
 		limit: parseInt(req.query.limit || 50),
 		offset: parseInt(req.query.offset || 0),
 		error: null
 	};
 
 	// Build include from query parameter: `?include=r_asso1,r_asso2`
-	var include = [];
+	const include = [];
 	if (req.query.include) {
-		var queryIncludes = req.query.include.split(',');
-		for (var i = 0; i < queryIncludes.length; i++)
-			for (var j = 0; j < options.length; j++)
+		const queryIncludes = req.query.include.split(',');
+		for (let i = 0; i < queryIncludes.length; i++)
+			for (let j = 0; j < options.length; j++)
 				if (queryIncludes[i] == options[j].as)
 					include.push({
 						model: models[entity_helper.capitalizeFirstLetter(options[j].target)],
 						as: options[j].as
 					});
 	}
-	var query = {limit: answer.limit, offset: answer.offset};
+	const query = {limit: answer.limit, offset: answer.offset};
 	if (include.length)
 		query.include = include;
 
-	var where = {};
-	for (var field in req.query)
+	const where = {};
+	for (const field in req.query)
 		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
 			where[field] = req.query[field];
 	if (Object.keys(where).length)
@@ -58,29 +58,29 @@ router.get('/', function(req, res) {
 // FIND ONE
 //
 router.get('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_ENTITY_NAME = parseInt(req.params.id);
+	const id_ENTITY_NAME = parseInt(req.params.id);
 
 	// Build include from query parameter: `?include=r_asso1,r_asso2`
-	var include = [];
+	const include = [];
 	if (req.query.include) {
-		var queryIncludes = req.query.include.split(',');
-		for (var i = 0; i < queryIncludes.length; i++)
-			for (var j = 0; j < options.length; j++)
+		const queryIncludes = req.query.include.split(',');
+		for (let i = 0; i < queryIncludes.length; i++)
+			for (let j = 0; j < options.length; j++)
 				if (queryIncludes[i] == options[j].as)
 					include.push({
 						model: models[entity_helper.capitalizeFirstLetter(options[j].target)],
 						as: options[j].as
 					});
 	}
-	var query = {limit: answer.limit, offset: answer.offset, };
+	const query = {limit: answer.limit, offset: answer.offset, };
 	if (include.length)
 		query.include = include;
 
-	var where = {id: id_ENTITY_NAME};
-	for (var field in req.query)
+	const where = {id: id_ENTITY_NAME};
+	for (const field in req.query)
 		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
 			where[field] = req.query[field];
 	query.where = where;
@@ -103,16 +103,16 @@ router.get('/:id', function(req, res) {
 // FIND ASSOCIATION
 //
 router.get('/:id/:association', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null,
 		limit: parseInt(req.query.limit || 50),
 		offset: parseInt(req.query.offset || 0)
 	};
-	var id_ENTITY_NAME = req.params.id;
-	var association = req.params.association;
+	const id_ENTITY_NAME = req.params.id;
+	const association = req.params.association;
 
-	var include = null;
-	for (var i = 0; i < options.length; i++) {
+	let include = null;
+	for (let i = 0; i < options.length; i++) {
 		if (options[i].as == 'r_' + association) {
 			if (options[i].relation.toLowerCase().indexOf('many') != -1) {
 				include = {
@@ -138,8 +138,8 @@ router.get('/:id/:association', function(req, res) {
 		return res.status(404).json(answer);
 	}
 
-	var where = {};
-	for (var field in req.query)
+	const where = {};
+	for (const field in req.query)
 		if (field.indexOf('f_') == 0)
 			where[field] = req.query[field];
 	if (Object.keys(where).length)
@@ -166,18 +166,18 @@ router.get('/:id/:association', function(req, res) {
 // CREATE
 //
 router.post('/', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
 
-	var createObject = model_builder.buildForRoute(attributes, options, req.body);
+	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.MODEL_NAME.create(createObject).then(function(ENTITY_NAME) {
 		answer["ENTITY_NAME".substring(2)] = ENTITY_NAME;
 
 		// Set associations
-		var associationPromises = [];
-		for (var prop in req.body)
+		const associationPromises = [];
+		for (const prop in req.body)
 			if (prop.indexOf('r_') == 0) {
 				if (ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(prop)] !== 'undefined')
 					associationPromises.push(ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(prop)](req.body[prop]));
@@ -201,11 +201,11 @@ router.post('/', function(req, res) {
 // UPDATE
 //
 router.put('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	};
-	var id_ENTITY_NAME = parseInt(req.params.id);
-	var updateObject = model_builder.buildForRoute(attributes, options, req.body);
+	const id_ENTITY_NAME = parseInt(req.params.id);
+	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	// Fetch ENTITY_NAME to update
 	models.MODEL_NAME.findOne({where: {id: id_ENTITY_NAME}}).then(function(ENTITY_NAME) {
@@ -219,8 +219,8 @@ router.put('/:id', function(req, res) {
 			answer["ENTITY_NAME".substring(2)] = ENTITY_NAME;
 
 			// Set associations
-			var associationPromises = [];
-			for (var prop in req.body)
+			const associationPromises = [];
+			for (const prop in req.body)
 				if (prop.indexOf('r_') == 0) {
 					if (ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(prop)] !== 'undefined')
 						associationPromises.push(ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(prop)](req.body[prop]));
@@ -248,10 +248,10 @@ router.put('/:id', function(req, res) {
 // DELETE
 //
 router.delete('/:id', function(req, res) {
-	var answer = {
+	const answer = {
 		error: null
 	}
-	var id_ENTITY_NAME = req.params.id;
+	const id_ENTITY_NAME = req.params.id;
 
 	models.MODEL_NAME.destroy({where: {id: id_ENTITY_NAME}}).then(function() {
 		res.status(200).end();

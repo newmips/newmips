@@ -1,15 +1,15 @@
-var moment = require('moment');
-var globalConfig = require('../config/global');
-var fs = require('fs');
-var dust = require('dustjs-linkedin');
-var pdf = require('html-pdf');
-var enums_radios = require('../locales/enum_radio');
-var JSZip = require('jszip');
-var Docxtemplater = require('docxtemplater');
-var pdfFiller = require('fill-pdf');
-var language = require('../services/language');
-var langMessage = require('../locales/document_template_locales');
-var lang = "fr-FR";
+const moment = require('moment');
+const globalConfig = require('../config/global');
+const fs = require('fs');
+const dust = require('dustjs-linkedin');
+const pdf = require('html-pdf');
+const enums_radios = require('../locales/enum_radio');
+const JSZip = require('jszip');
+const Docxtemplater = require('docxtemplater');
+const pdfFiller = require('fill-pdf');
+const language = require('../services/language');
+const langMessage = require('../locales/document_template_locales');
+const lang = "fr-FR";
 
 module.exports = {
 	entities_to_exclude: [
@@ -26,12 +26,12 @@ module.exports = {
 	],
 	get_entities: function (models) {
 		/**Get all models**/
-		var entities = models.sequelize.models;
-		var document_template_entities = [];
+		const entities = models.sequelize.models;
+		const document_template_entities = [];
 		if (entities) {
-			for (var item in entities) {
+			for (const item in entities) {
 				if (item.startsWith('E_') && this.entities_to_exclude.indexOf(item) < 0) {
-					var entity_to_show = item.replace('E_', '');
+					let entity_to_show = item.replace('E_', '');
 					entity_to_show = entity_to_show.charAt(0).toUpperCase() + entity_to_show.slice(1); //uc first
 					document_template_entities.push({
 						value: entity_to_show,
@@ -44,32 +44,32 @@ module.exports = {
 	},
 	rework: function (object, entityName, reworkOptions, userLang, fileType) {
 		try {
-			var result = {};
-			var options = typeof reworkOptions === 'undefined' ? {} : reworkOptions;
-			var relationsOptions = require('../models/options/' + entityName.toLowerCase() + '.json');
-			var attributes = require('../models/attributes/' + entityName.toLowerCase() + '.json');
-			for (var item in object.dataValues) {
+			const result = {};
+			const options = typeof reworkOptions === 'undefined' ? {} : reworkOptions;
+			const relationsOptions = require('../models/options/' + entityName.toLowerCase() + '.json');
+			const attributes = require('../models/attributes/' + entityName.toLowerCase() + '.json');
+			for (const item in object.dataValues) {
 				result[item] = object.dataValues[item];
 			}
 			/** Add createdAt and updatedAt who are not in attributes **/
 			setCreatedAtAndUpdatedAtValues(result, object, userLang);
 
-			var entityModelData = {
+			const entityModelData = {
 				entityName: entityName,
 				attributes: attributes,
 				options: options[entityName]
 			};
 			this.cleanData(result, entityModelData, userLang, fileType);
 
-			var that = this;
+			const that = this;
 			function cleanIncludeLevels(relationsOptions, obj) {
-				for (var i = 0; i < relationsOptions.length; i++) {
-					var relation = relationsOptions[i];
+				for (let i = 0; i < relationsOptions.length; i++) {
+					const relation = relationsOptions[i];
 					if (obj[relation.as]) {
-						var relationAttributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + relation.target + '.json'));
-						var relationsOptions2 = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + relation.target + '.json'));
+						const relationAttributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + relation.target + '.json'));
+						const relationsOptions2 = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + relation.target + '.json'));
 
-						var entityModelData = {
+						const entityModelData = {
 							entityName: relation.target,
 							attributes: relationAttributes,
 							options: options[relation.target]
@@ -84,7 +84,7 @@ module.exports = {
 						} else if (relation.relation === "hasMany" || relation.relation === "belongsToMany") {
 							result[relation.as] = [];
 							// Be carefull if we have a lot lot lot lot of data.
-							for (var j = 0; j < obj[relation.as].length; j++) {
+							for (let j = 0; j < obj[relation.as].length; j++) {
 								result[relation.as].push(obj[relation.as][j].dataValues);
 								that.cleanData(result[relation.as][j], entityModelData, userLang, fileType);
 								setCreatedAtAndUpdatedAtValues(result[relation.as][j], obj[relation.as][j].dataValues, userLang);
@@ -105,19 +105,19 @@ module.exports = {
 		}
 	},
 	cleanData: function (object, entityModelData, userLang, fileType) {
-		var attributes = entityModelData.attributes;
-		var reworkOptions = entityModelData.options;
-		var entityName = entityModelData.entityName;
-		for (var item in object) {
+		const attributes = entityModelData.attributes;
+		const reworkOptions = entityModelData.options;
+		const entityName = entityModelData.entityName;
+		for (const item in object) {
 			if (object[item] == 'null' || object[item] == null || typeof object[item] === "undefined")
 				object[item] = '';
 			//clean all date
-			for (var attr in attributes) {
-				var attribute = attributes[attr];
+			for (const attr in attributes) {
+				const attribute = attributes[attr];
 				if (attr === item) {
 					//clean all date
 					if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && object[item] !== '') {
-						var format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
+						const format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
 						object[item] = moment(new Date(object[item])).format(format);
 					}
 					if ((attribute.newmipsType === "password")) {
@@ -155,8 +155,8 @@ module.exports = {
 				}
 			}
 			if (reworkOptions) {
-				for (var i = 0; i < reworkOptions.length; i++) {
-					var reworkOption = reworkOptions[i];
+				for (let i = 0; i < reworkOptions.length; i++) {
+					const reworkOption = reworkOptions[i];
 					if (item === reworkOption.item) {
 						if ((reworkOption.type === 'date' || reworkOption.type === 'datetime') && object[item] !== '' && reworkOption.newFormat)
 							object[item] = moment(object[item], this.getDateFormatUsingLang(userLang, reworkOption.type)).format(reworkOption.newFormat);
@@ -168,11 +168,11 @@ module.exports = {
 		}
 	},
 	getRelations: function (entity, options = {lang:lang}) {
-		var result = [];
-		var modelOptions = require('../models/options/e_' + entity.toLowerCase() + '.json');
-		for (var i = 0; i < modelOptions.length; i++) {
-			var modelOption = modelOptions[i];
-			var target = modelOption.target.charAt(0).toUpperCase() + modelOption.target.slice(1);
+		const result = [];
+		const modelOptions = require('../models/options/e_' + entity.toLowerCase() + '.json');
+		for (let i = 0; i < modelOptions.length; i++) {
+			const modelOption = modelOptions[i];
+			let target = modelOption.target.charAt(0).toUpperCase() + modelOption.target.slice(1);
 			if (target && this.entities_to_exclude.indexOf(target) < 0) {
 				target = modelOption.target.replace('e_', '');
 				target = target.charAt(0).toUpperCase() + target.slice(1); //uc first
@@ -185,7 +185,7 @@ module.exports = {
 		return result;
 	},
 	getDateFormatUsingLang: function (userLang, type) {
-		var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
+		const l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
 		switch (type) {
 			case 'datetime':
 				return l === 'fr-FR' ? 'DD/MM/YYYY HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
@@ -198,13 +198,13 @@ module.exports = {
 		}
 	},
 	getSubEntitiesHelp: function (userLang) {
-		var l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
+		const l = typeof userLang === 'undefined' ? 'fr-FR' : userLang;
 		return langMessage[l].subEntities.help;
 	},
 	getAttributes: function (attributes) {
-		var result = [];
+		const result = [];
 		if (attributes)
-			for (var item in attributes)
+			for (const item in attributes)
 				result.push(item);
 		return result;
 	},
@@ -212,10 +212,10 @@ module.exports = {
 		return langMessage[userLang || lang].readme;
 	},
 	build_help: function (entityRoot, userLang) {
-		var result = [];
+		const result = [];
 		var attributes = require('../models/attributes/e_' + entityRoot.toLowerCase() + '.json');
-		var options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
-		var entityRootTranslated = language(userLang).__('entity.e_' + entityRoot.toLowerCase() + '.label_entity');
+		const options = require('../models/options/e_' + entityRoot.toLowerCase() + '.json');
+		let entityRootTranslated = language(userLang).__('entity.e_' + entityRoot.toLowerCase() + '.label_entity');
 		entityRootTranslated = entityRootTranslated.charAt(0).toUpperCase() + entityRootTranslated.slice(1);
 		result.push({
 			id: 0,
@@ -226,12 +226,12 @@ module.exports = {
 			color: "#ffffff"
 		});
 		//now get options entities and there attributes
-		for (var i = 0; i < options.length; i++) {
-			var relation = options[i];
-			var target = relation.target.charAt(0).toUpperCase() + relation.target.slice(1);
+		for (let i = 0; i < options.length; i++) {
+			const relation = options[i];
+			const target = relation.target.charAt(0).toUpperCase() + relation.target.slice(1);
 			if (target && this.entities_to_exclude.indexOf(target) < 0) {
 				var attributes = require('../models/attributes/' + relation.target + '.json');
-				var message = '';
+				let message = '';
 				if (relation.relation === "belongsTo")
 					message = "";
 				else if (relation.relation === "belongsToMany" || relation.relation === "hasMany")
@@ -260,7 +260,7 @@ module.exports = {
 						langMessage[userLang || lang].empty + ": <br>" +
 						"<pre>{#" + relation.as + "}<b>{variable}</b><br>" +
 						"{/" + relation.as + "}</pre><br><br>";
-				var entity = language(userLang).__('entity.' + relation.target + '.label_entity');
+				const entity = language(userLang).__('entity.' + relation.target + '.label_entity');
 				result.push({
 					id: i + 1,
 					message: message,
@@ -275,18 +275,18 @@ module.exports = {
 		return result;
 	},
 	buildInclude: function (entity, f_exclude_relations, models) {
-		var result = [];
-		var options = require('../models/options/' + entity.toLowerCase() + '.json');
-		var parts_of_exclude_relations = (f_exclude_relations || '').split(',');
-		for (var i = 0; i < options.length; i++) {
-			var found = false;
-			var target = options[i].target.toLowerCase();
-			for (var j = 0; j < parts_of_exclude_relations.length; j++) {
+		const result = [];
+		const options = require('../models/options/' + entity.toLowerCase() + '.json');
+		const parts_of_exclude_relations = (f_exclude_relations || '').split(',');
+		for (let i = 0; i < options.length; i++) {
+			let found = false;
+			const target = options[i].target.toLowerCase();
+			for (let j = 0; j < parts_of_exclude_relations.length; j++) {
 				if (parts_of_exclude_relations[j] && target.replace('e_', '') === parts_of_exclude_relations[j].toLowerCase())
 					found = true;
 			}
 			if (!found) {
-				var subEntity = target.charAt(0).toUpperCase() + target.slice(1);
+				const subEntity = target.charAt(0).toUpperCase() + target.slice(1);
 				result.push({
 					model: models[subEntity],
 					as: options[i].as
@@ -320,9 +320,9 @@ module.exports = {
 		});
 	},
 	randomColor: function (size) {
-		var text = "";
-		var possible = "abcdef0123456789";
-		for (var i = 0; i < size; i++)
+		let text = "";
+		const possible = "abcdef0123456789";
+		for (let i = 0; i < size; i++)
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
 	},
@@ -350,21 +350,21 @@ function generateHtmlToPDF(options) {
 	return new Promise(function (resolve, reject) {
 		options.data.staticImagePath = __dirname + '/../public/img';
 
-		var dustSrc = fs.readFileSync(options.file, 'utf8');
+		const dustSrc = fs.readFileSync(options.file, 'utf8');
 		dust.insertLocalsFn(options.data ? options.data : {}, options.req);
 		dust.renderSource(dustSrc, options.data, function (err, html) {
 			if (err)
 				return reject(err);
 
-			var tmpFileName = __dirname + '/../' + new Date().getTime() + '' + (Math.floor(Math.random() * Math.floor(100))) + '.pdf';
+			const tmpFileName = __dirname + '/../' + new Date().getTime() + '' + (Math.floor(Math.random() * Math.floor(100))) + '.pdf';
 
-			var headerStartIdx = html.indexOf('<!--HEADER-->');
-			var headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx + ('<!--HEADER-->'.length)) + ('<!--HEADER-->'.length);
-			var header = html.substring(headerStartIdx, headerEndIdx);
+			const headerStartIdx = html.indexOf('<!--HEADER-->');
+			const headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx + ('<!--HEADER-->'.length)) + ('<!--HEADER-->'.length);
+			const header = html.substring(headerStartIdx, headerEndIdx);
 
-			var footerStartIdx = html.indexOf('<!--FOOTER-->');
-			var footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx + ('<!--FOOTER-->'.length)) + ('<!--FOOTER-->'.length);
-			var footer = html.substring(footerStartIdx, footerEndIdx);
+			const footerStartIdx = html.indexOf('<!--FOOTER-->');
+			const footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx + ('<!--FOOTER-->'.length)) + ('<!--FOOTER-->'.length);
+			const footer = html.substring(footerStartIdx, footerEndIdx);
 
 			pdf.create(html, {
 				orientation: "portrait",
@@ -407,12 +407,12 @@ var generateDocxDoc = function (options) {
 		fs.readFile(options.file, function (err, content) {
 			if (!err) {
 				try {
-					var zip = new JSZip(content);
-					var doc = new Docxtemplater();
-					var templateOptions = {
+					const zip = new JSZip(content);
+					const doc = new Docxtemplater();
+					const templateOptions = {
 						nullGetter: function (part, scope) {
 							if (part && part.value) {
-								var parts = part.value.split('.');
+								const parts = part.value.split('.');
 								if (parts.length)
 									return getValue(parts, options.data, scope);
 								return "";
@@ -425,7 +425,7 @@ var generateDocxDoc = function (options) {
 					doc.setData(options.data);
 					try {
 						doc.render();
-						var buf = doc.getZip()
+						const buf = doc.getZip()
 							.generate({
 								type: 'nodebuffer',
 								compression: "DEFLATE"
@@ -450,8 +450,8 @@ var generateDocxDoc = function (options) {
 };
 var generatePDFDoc = function (options) {
 	return new Promise(function (resolve, reject) {
-		var sourcePDF = options.file;
-		var pdfData = buildPDFJSON(options.entity, options.data);
+		const sourcePDF = options.file;
+		const pdfData = buildPDFJSON(options.entity, options.data);
 		pdfFiller.generatePdf(pdfData, sourcePDF, ["flatten"], function (err, out) {
 			if (err)
 				reject({
@@ -468,16 +468,16 @@ var generatePDFDoc = function (options) {
 	});
 };
 var buildPDFJSON = function (entityRoot, data) {
-	var result = {};
-	var relationsOptions = require('../models/options/' + entityRoot.toLowerCase() + '.json');
-	for (var item in data) {
+	const result = {};
+	const relationsOptions = require('../models/options/' + entityRoot.toLowerCase() + '.json');
+	for (const item in data) {
 		result[item] = data[item];
-		for (var i = 0; i < relationsOptions.length; i++) {
-			var relation = relationsOptions[i];
+		for (let i = 0; i < relationsOptions.length; i++) {
+			const relation = relationsOptions[i];
 			//				if (item === relation.as && relation.relation === "hasMany")
 			//					result[item] = data[item];
 			if (item === relation.as && relation.relation === "belongsTo") {
-				for (var item2 in data[item])
+				for (const item2 in data[item])
 					result[relation.as + '.' + item2] = data[item][item2];
 				delete result[relation.as];
 			}
@@ -489,14 +489,14 @@ var buildPDFJSON = function (entityRoot, data) {
 // Get value in json object
 var getValue = function (itemPath /*array*/, data, scope /*where value is expected*/) {
 	try {
-		var i = 0;
-		var key = itemPath[i];
+		let i = 0;
+		let key = itemPath[i];
 		if (scope && scope.scopePath &&
 			scope.scopePathItem &&
 			scope.scopePath.length &&
 			scope.scopePath.length === scope.scopePathItem.length) {
 			//Go to data scope  before search value
-			for (var j = 0; j < scope.scopePath.length; j++)
+			for (let j = 0; j < scope.scopePath.length; j++)
 				data = data[scope.scopePath[j]][scope.scopePathItem[j]];
 		}
 		do {
@@ -524,17 +524,17 @@ var getValue = function (itemPath /*array*/, data, scope /*where value is expect
 };
 
 var format_tel = function (tel, separator) {
-	var formats = {
+	const formats = {
 		"0": [2, 2, 2, 2, 2, 2],
 		"33": [3, 1, 2, 2, 2, 2],
 		"0033": [4, 1, 2, 2, 2, 2]
 	};
-	var format = [];
-	var newstr = [];
-	var str = tel + '';
+	let format = [];
+	const newstr = [];
+	let str = tel + '';
 	str = str.split(' ').join('');
-	var _separator = typeof separator === "undefined" ? " " : separator;
-	var i = 0;
+	const _separator = typeof separator === "undefined" ? " " : separator;
+	let i = 0;
 	if ((str.startsWith("0") && !str.startsWith("00")) || str.length === 10)
 		format = formats["0"];
 	if (str.startsWith("+33"))
@@ -547,15 +547,14 @@ var format_tel = function (tel, separator) {
 			i += jump;
 		});
 		return newstr.join(_separator);
-	} else
-		return str;
+	} return str;
 };
 
 var setEnumValue = function (object, enumItem, entityName, fileType, userLang) {
-	var values = enums_radios[entityName][enumItem];
+	const values = enums_radios[entityName][enumItem];
 	if (typeof values !== "undefined") {
-		for (var i = 0; i < values.length; i++) {
-			var entry = values[i];
+		for (let i = 0; i < values.length; i++) {
+			const entry = values[i];
 			if (object[enumItem].toLowerCase() === entry.value.toLowerCase()) {
 				if (fileType === "application/pdf") {
 					object[enumItem] = (i + 1) + '';
@@ -570,7 +569,7 @@ var setEnumValue = function (object, enumItem, entityName, fileType, userLang) {
 };
 
 var setCreatedAtAndUpdatedAtValues = function (resultToReturn, object, userLang) {
-	var defaultDateFormat = userLang === 'fr-FR' ? 'DD/MM/YYYY HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
+	const defaultDateFormat = userLang === 'fr-FR' ? 'DD/MM/YYYY HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
 	if (object.createdAt)
 		resultToReturn.createdAt = moment(new Date(object.createdAt)).format(defaultDateFormat);
 	if (object.updatedAt)
