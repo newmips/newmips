@@ -7,22 +7,22 @@ var associations = require("./options/e_task.json");
 var models;
 
 module.exports = (sequelize, DataTypes) => {
-    var attributes = builder.buildForModel(attributes_origin, DataTypes);
-    var options = {
-        tableName: 'e_task',
-        timestamps: true
-    };
+	var attributes = builder.buildForModel(attributes_origin, DataTypes);
+	var options = {
+		tableName: 'e_task',
+		timestamps: true
+	};
 
-    var Model = sequelize.define('E_task', attributes, options);
-    Model.associate = builder.buildAssociation('E_task', associations);
-    builder.addHooks(Model, 'e_task', attributes_origin);
+	var Model = sequelize.define('E_task', attributes, options);
+	Model.associate = builder.buildAssociation('E_task', associations);
+	builder.addHooks(Model, 'e_task', attributes_origin);
 
-    Model.addHook('beforeCreate', (model, options)=> {
-    	return new Promise((resolve, reject) => {
-	    	if (!models)
-	    		models = require('../models/');
+	Model.addHook('beforeCreate', (model, options)=> {
+		return new Promise((resolve, reject) => {
+			if (!models)
+				models = require('../models/');
 
-	    	models.sequelize.query("\
+			models.sequelize.query("\
 				SELECT\
 					`E_robot`.`id` as `robot`,\
 					count(`E_task`.`id`) as `nb_pending_task`\
@@ -46,21 +46,21 @@ module.exports = (sequelize, DataTypes) => {
 					`E_robot`.`id`\
 				ORDER BY\
 					`nb_pending_task` ASC\
-	    	", {type: sequelize.QueryTypes.SELECT}).spread(result => {
+			", {type: sequelize.QueryTypes.SELECT}).spread(result => {
 
-	    		// No robot with connected status. Do not assign robot to task
-	    		if (!result)
+				// No robot with connected status. Do not assign robot to task
+				if (!result)
 					return resolve(model);
 
-	    		// Robot with minimum pending task and connected status found. Assign to new task
-    			model.fk_id_robot_robot = result.robot;
-    			resolve(model);
-	    	}).catch(err => {
-	    		console.error("E_task.beforeCreate(): Couldn't assign Robot to Task.");
-	    		console.error(err);
-	    		resolve();
-	    	});
-    	});
-    })
-    return Model;
+				// Robot with minimum pending task and connected status found. Assign to new task
+				model.fk_id_robot_robot = result.robot;
+				resolve(model);
+			}).catch(err => {
+				console.error("E_task.beforeCreate(): Couldn't assign Robot to Task.");
+				console.error(err);
+				resolve();
+			});
+		});
+	})
+	return Model;
 };

@@ -9,8 +9,8 @@ class Field {
 	}
 
 	get displayName() {
-        return this._displayName;
-    }
+		return this._displayName;
+	}
 }
 
 module.exports = Field;

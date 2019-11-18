@@ -3,173 +3,173 @@
 {#__ key="menu.users"/}<small>{#__ key="menu.module"/}</small>
 {/title}
 {<custom_css}
-    <link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
+	<link href="/css/Datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href='/css/Datatables/buttons/buttons.dataTables.min.css' rel='stylesheet' type='text/css'>
 {/custom_css}
 {<content}
 <div class="row">
-    <div class="col-xs-12 connectedSortable">
-        <div class="box">
-            <div class="box-header">
-                <h3 class="box-title">{#__ key="users.title"/}</h3>
-            </div>
-            <div class="box-body">
-                <div class="nav-tabs-custom" id="tabs">
-                    <ul class="nav nav-tabs">
-                        <li class="active">
-                            <a data-toggle="tab" href="#home">
-                                {#__ key="users.title"/}
-                            </a>
-                        </li>
-                        <li>
-                            <a id="applications-click" data-toggle="tab" href="#applications">
-                                {#__ key="users.applications"/}
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="tab-content" style="min-height:275px;">
-                        {#user}
-                            <div id="home" class="tab-pane fade in active">
-                                <div id="fields" class="row">
-                                    <div data-field="id" class="col-xs-12">
-                                        <div class="form-group">
-                                            <label for="id">ID</label>
-                                            <input type="text" name="sourceId" value="{id}" disabled="" class="form-control"/>
-                                        </div>
-                                    </div>
-                                    <div data-field="login" class="col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="login">
-                                                {#__ key="users.login"/}&nbsp;
-                                            </label>
-                                            <input class="form-control input" placeholder='{#__ key="users.login" /}' value="{login}" type="text" maxlength="255" readonly="">
-                                        </div>
-                                    </div>
-                                    <div data-field="role" class="col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="role">
-                                                {#__ key="users.role" /}
-                                            </label>
-                                            <input class="form-control input" placeholder='{#__ key="users.role" /}' value="{Role.name}" type="text" readonly="">
-                                        </div>
-                                    </div>
-                                    <div data-field="first_name" class="col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="first_name">
-                                                {#__ key="users.first_name"/}&nbsp;
-                                            </label>
-                                            <input class="form-control input" placeholder='{#__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" readonly="">
-                                        </div>
-                                    </div>
-                                    <div data-field="last_name" class="col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="last_name">
-                                                {#__ key="users.last_name"/}&nbsp;
-                                            </label>
-                                            <input class="form-control input" placeholder='{#__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" readonly="">
-                                        </div>
-                                    </div>
-                                    <div data-field="phone" class="col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="phone">
-                                                {#__ key="users.phone"/}&nbsp;
-                                            </label>
-                                            <input class="form-control input" placeholder='{#__ key="users.phone" /}' value="{phone}" type="text" maxlength="255" readonly="">
-                                        </div>
-                                    </div>
-                                    <div data-field="email" class="col-xs-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="email">
-                                                {#__ key="users.email"/}&nbsp;
-                                            </label>
-                                            <div class="input-group">
-                                                <div class="input-group-addon">
-                                                    <i class="fa fa-envelope"></i>
-                                                </div>
-                                                <input class="form-control input" placeholder='{#__ key="users.email" /}' value="{email}" type="text" data-type="email" readonly="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="actions">
-                                    <form action="/users/delete" method="post">
-                                        <div class="quicklinks">
-                                            <button class="btn btn-danger btn-confirm">
-                                                <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                                                <span>{#__ key="button.delete"/}</span>
-                                            </button>&nbsp;&nbsp;
-                                            <input name="id" type="hidden" value="{id}" class="form-control">
-                                            <a href="/users/update/{id}" class="btn btn-warning">
-                                                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update"/}</span>
-                                            </a>&nbsp;&nbsp;
-                                            <a href="/users/create" class="btn btn-success">
-                                                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
-                                            </a>&nbsp;&nbsp;
-                                            <a href="/users" type="submit" class="btn btn-primary">
-                                                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.list"/}</span>
-                                            </a>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div id="applications" class="tab-pane fade in">
-                                <form action="/users/assign" method="POST">
-                                    <label>Donner l'accès aux applications:</label>
-                                    <div class="input-group">
-                                        <select required multiple name="app" class="form-control select" style="width: 300px;">
-                                            {#otherApp}
-                                                <option value="{id}">{id} - {displayName}</option>
-                                            {/otherApp}
-                                        </select>
-                                        <input type="hidden" name="id_user" value="{user.id}">
-                                        <button style="margin-left: 10px;" class="btn btn-primary" type="submit">Donner accès</button>
-                                    </div>
-                                </form>
-                                <br>
-                                <table id="table_applications" class="dataTable table table-bordered table-striped">
-                                    <thead class="main">
-                                        <tr class="fields">
-                                            <th data-field="id" data-col="id" data-type="string">
-                                                ID
-                                            </th>
-                                            <th data-field="displayName" data-col="displayName" data-type="string">
-                                                {#__ key="application.label"/}
-                                            </th>
-                                            <th style="width:20%;">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {#Applications}
-                                            <tr id="bodyTR">
-                                                <td data-field="id" data-type="string">{id}</td>
-                                                <td data-field="login" data-type="string">{displayName}</td>
-                                                <td>
-                                                    <a class="pull-left" href="/application/preview?id_application={id}" target="_blank">
-                                                        <button class="btn btn-info">
-                                                            <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
-                                                            <span>{#__ key="button.show"/}</span>
-                                                        </button>
-                                                    </a>&nbsp;&nbsp;&nbsp;
-                                                    <form class="pull-left" action="/users/remove_access" method="POST" style="margin-left: 10px;">
-                                                        <input type="hidden" name="id_app" value="{id}">
-                                                        <input type="hidden" name="id_user" value="{user.id}">
-                                                        <button class="btn btn-danger">
-                                                            <i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
-                                                            <span>{#__ key="button.remove"/}</span>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        {/Applications}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {/user}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="col-xs-12 connectedSortable">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">{#__ key="users.title"/}</h3>
+			</div>
+			<div class="box-body">
+				<div class="nav-tabs-custom" id="tabs">
+					<ul class="nav nav-tabs">
+						<li class="active">
+							<a data-toggle="tab" href="#home">
+								{#__ key="users.title"/}
+							</a>
+						</li>
+						<li>
+							<a id="applications-click" data-toggle="tab" href="#applications">
+								{#__ key="users.applications"/}
+							</a>
+						</li>
+					</ul>
+					<div class="tab-content" style="min-height:275px;">
+						{#user}
+							<div id="home" class="tab-pane fade in active">
+								<div id="fields" class="row">
+									<div data-field="id" class="col-xs-12">
+										<div class="form-group">
+											<label for="id">ID</label>
+											<input type="text" name="sourceId" value="{id}" disabled="" class="form-control"/>
+										</div>
+									</div>
+									<div data-field="login" class="col-xs-12 col-sm-6">
+										<div class="form-group">
+											<label for="login">
+												{#__ key="users.login"/}&nbsp;
+											</label>
+											<input class="form-control input" placeholder='{#__ key="users.login" /}' value="{login}" type="text" maxlength="255" readonly="">
+										</div>
+									</div>
+									<div data-field="role" class="col-xs-12 col-sm-6">
+										<div class="form-group">
+											<label for="role">
+												{#__ key="users.role" /}
+											</label>
+											<input class="form-control input" placeholder='{#__ key="users.role" /}' value="{Role.name}" type="text" readonly="">
+										</div>
+									</div>
+									<div data-field="first_name" class="col-xs-12 col-sm-6">
+										<div class="form-group">
+											<label for="first_name">
+												{#__ key="users.first_name"/}&nbsp;
+											</label>
+											<input class="form-control input" placeholder='{#__ key="users.first_name" /}' value="{first_name}" type="text" maxlength="255" readonly="">
+										</div>
+									</div>
+									<div data-field="last_name" class="col-xs-12 col-sm-6">
+										<div class="form-group">
+											<label for="last_name">
+												{#__ key="users.last_name"/}&nbsp;
+											</label>
+											<input class="form-control input" placeholder='{#__ key="users.last_name" /}' value="{last_name}" type="text" maxlength="255" readonly="">
+										</div>
+									</div>
+									<div data-field="phone" class="col-xs-12 col-sm-6">
+										<div class="form-group">
+											<label for="phone">
+												{#__ key="users.phone"/}&nbsp;
+											</label>
+											<input class="form-control input" placeholder='{#__ key="users.phone" /}' value="{phone}" type="text" maxlength="255" readonly="">
+										</div>
+									</div>
+									<div data-field="email" class="col-xs-12 col-sm-6">
+										<div class="form-group">
+											<label for="email">
+												{#__ key="users.email"/}&nbsp;
+											</label>
+											<div class="input-group">
+												<div class="input-group-addon">
+													<i class="fa fa-envelope"></i>
+												</div>
+												<input class="form-control input" placeholder='{#__ key="users.email" /}' value="{email}" type="text" data-type="email" readonly="">
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="actions">
+									<form action="/users/delete" method="post">
+										<div class="quicklinks">
+											<button class="btn btn-danger btn-confirm">
+												<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+												<span>{#__ key="button.delete"/}</span>
+											</button>&nbsp;&nbsp;
+											<input name="id" type="hidden" value="{id}" class="form-control">
+											<a href="/users/update/{id}" class="btn btn-warning">
+												<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.update"/}</span>
+											</a>&nbsp;&nbsp;
+											<a href="/users/create" class="btn btn-success">
+												<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
+											</a>&nbsp;&nbsp;
+											<a href="/users" type="submit" class="btn btn-primary">
+												<i class="fa fa-list fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.list"/}</span>
+											</a>
+										</div>
+									</form>
+								</div>
+							</div>
+							<div id="applications" class="tab-pane fade in">
+								<form action="/users/assign" method="POST">
+									<label>Donner l'accès aux applications:</label>
+									<div class="input-group">
+										<select required multiple name="app" class="form-control select" style="width: 300px;">
+											{#otherApp}
+												<option value="{id}">{id} - {displayName}</option>
+											{/otherApp}
+										</select>
+										<input type="hidden" name="id_user" value="{user.id}">
+										<button style="margin-left: 10px;" class="btn btn-primary" type="submit">Donner accès</button>
+									</div>
+								</form>
+								<br>
+								<table id="table_applications" class="dataTable table table-bordered table-striped">
+									<thead class="main">
+										<tr class="fields">
+											<th data-field="id" data-col="id" data-type="string">
+												ID
+											</th>
+											<th data-field="displayName" data-col="displayName" data-type="string">
+												{#__ key="application.label"/}
+											</th>
+											<th style="width:20%;">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#Applications}
+											<tr id="bodyTR">
+												<td data-field="id" data-type="string">{id}</td>
+												<td data-field="login" data-type="string">{displayName}</td>
+												<td>
+													<a class="pull-left" href="/application/preview?id_application={id}" target="_blank">
+														<button class="btn btn-info">
+															<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
+															<span>{#__ key="button.show"/}</span>
+														</button>
+													</a>&nbsp;&nbsp;&nbsp;
+													<form class="pull-left" action="/users/remove_access" method="POST" style="margin-left: 10px;">
+														<input type="hidden" name="id_app" value="{id}">
+														<input type="hidden" name="id_user" value="{user.id}">
+														<button class="btn btn-danger">
+															<i class="fa fa-times fa-md">&nbsp;&nbsp;</i>
+															<span>{#__ key="button.remove"/}</span>
+														</button>
+													</form>
+												</td>
+											</tr>
+										{/Applications}
+									</tbody>
+								</table>
+							</div>
+						{/user}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {/content}
 {<custom_js}
@@ -180,42 +180,42 @@
 <script src="/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
 <script src="/js/Newmips/simpleTable.js" type="text/javascript"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        /* Make the table horizontaly scrollable with mouse drag on it */
-        var x,y,top,left = 0,down;
-        /* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
-        var scrolling = false;
-        $("tbody").css("cursor", "pointer");
-        $("tbody").mousedown(function(e){
-            e.preventDefault();
-            down=true;
-            x=e.pageX;
-            left=$(".table-responsive").scrollLeft();
-        });
-        $("tbody").mousemove(function(e){
-            if(down){
-                scrolling = true;
-                var newX=e.pageX;
-                $(".table-responsive").scrollLeft(left-newX+x);
-            }
-        });
-        $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
-        $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
-        $('tbody').on('click', 'tr', function (e) {
-            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
-                return;
-            if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
-                window.location = $(this).find('td > a.btn-show:first').attr('href');
-        });
-        $("select").each(function () {
-            $(this).select2();
-        });
-    });
-    /* Check url to go on tabs */
-    var url = document.location.toString();
-    if (url.match('#')) {
-        $("#" + url.split('#')[1] + "-click").trigger("click");
-        $("html, body").animate({ scrollTop: 0 }, "fast");
-    }
+	$(document).ready(function(){
+		/* Make the table horizontaly scrollable with mouse drag on it */
+		var x,y,top,left = 0,down;
+		/* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
+		var scrolling = false;
+		$("tbody").css("cursor", "pointer");
+		$("tbody").mousedown(function(e){
+			e.preventDefault();
+			down=true;
+			x=e.pageX;
+			left=$(".table-responsive").scrollLeft();
+		});
+		$("tbody").mousemove(function(e){
+			if(down){
+				scrolling = true;
+				var newX=e.pageX;
+				$(".table-responsive").scrollLeft(left-newX+x);
+			}
+		});
+		$("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+		$("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+		$('tbody').on('click', 'tr', function (e) {
+			if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).parents("button.btn-danger").length != 0)
+				return;
+			if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
+				window.location = $(this).find('td > a.btn-show:first').attr('href');
+		});
+		$("select").each(function () {
+			$(this).select2();
+		});
+	});
+	/* Check url to go on tabs */
+	var url = document.location.toString();
+	if (url.match('#')) {
+		$("#" + url.split('#')[1] + "-click").trigger("click");
+		$("html, body").animate({ scrollTop: 0 }, "fast");
+	}
 </script>
 {/custom_js}

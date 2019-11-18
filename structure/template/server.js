@@ -17,12 +17,12 @@ const appConf = require('./config/application');
 
 // MySql
 if(dbConf.dialect == "mysql")
-    var SessionStore = require('express-mysql-session');
+	var SessionStore = require('express-mysql-session');
 
 // Postgres
 if(dbConf.dialect == "postgres"){
-    var pg = require('pg');
-    var SessionStore = require('connect-pg-simple')(session);
+	var pg = require('pg');
+	var SessionStore = require('connect-pg-simple')(session);
 }
 
 const cookieParser = require('cookie-parser');
@@ -55,8 +55,8 @@ let startedFromGenerator = false;
 // Global var used in block_access
 AUTO_LOGIN = false;
 if (process.argv[2] == 'autologin') {
-    startedFromGenerator = true;
-    AUTO_LOGIN = true;
+	startedFromGenerator = true;
+	AUTO_LOGIN = true;
 }
 
 // Set up public files access (js/css...)
@@ -68,58 +68,58 @@ app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
 // Log every request (not /) to the console
 const morganConf = {
-    skip: function(req, res) {
-        if(req.url == "/")
-            return true;
-    }
+	skip: function(req, res) {
+		if(req.url == "/")
+			return true;
+	}
 }
 if (!startedFromGenerator)
-    morganConf.stream = require('split')().on('data', function(line) {
-        process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
-    })
+	morganConf.stream = require('split')().on('data', function(line) {
+		process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
+	})
 app.use(morgan('dev', morganConf));
 
 if (!startedFromGenerator) {
-    require('console-stamp')(console, {
-        formatter: function() {
-            return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
-        },
-        label: false,
-        datePrefix: "",
-        dateSuffix: ""
-    });
+	require('console-stamp')(console, {
+		formatter: function() {
+			return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
+		},
+		label: false,
+		datePrefix: "",
+		dateSuffix: ""
+	});
 }
 
 // Overide console.warn & console.error to file+line
 ['warn', 'error'].forEach((methodName) => {
-    const originalMethod = console[methodName];
-    console[methodName] = (...args) => {
-        let initiator = 'unknown place';
-        try {
-            throw new Error();
-        } catch (e) {
-            if (typeof e.stack === 'string') {
-                let isFirst = true;
-                for (const line of e.stack.split('\n')) {
-                    const matches = line.match(/^\s+at\s+(.*)/);
-                    if (matches) {
-                        if (!isFirst) {
-                            // first line - current function
-                            // second line - caller (what we are looking for)
-                            initiator = matches[1];
-                            break;
-                        }
-                        isFirst = false;
-                    }
-                }
-            }
-        }
-        const at = initiator.split(__dirname)[1];
-        if (!at)
-            originalMethod.apply(console, [...args]);
-        else
-            originalMethod.apply(console, [...args, `   - ${at}`]);
-    };
+	const originalMethod = console[methodName];
+	console[methodName] = (...args) => {
+		let initiator = 'unknown place';
+		try {
+			throw new Error();
+		} catch (e) {
+			if (typeof e.stack === 'string') {
+				let isFirst = true;
+				for (const line of e.stack.split('\n')) {
+					const matches = line.match(/^\s+at\s+(.*)/);
+					if (matches) {
+						if (!isFirst) {
+							// first line - current function
+							// second line - caller (what we are looking for)
+							initiator = matches[1];
+							break;
+						}
+						isFirst = false;
+					}
+				}
+			}
+		}
+		const at = initiator.split(__dirname)[1];
+		if (!at)
+			originalMethod.apply(console, [...args]);
+		else
+			originalMethod.apply(console, [...args, `   - ${at}`]);
+	};
 });
 
 // Read cookies (needed for auth)
@@ -147,25 +147,25 @@ var options = {
 };
 
 if(dbConf.dialect == "mysql")
-    var sessionStore = new SessionStore(options);
+	var sessionStore = new SessionStore(options);
 
 if(dbConf.dialect == "postgres"){
-    var pgPool = new pg.Pool(options);
-    pgPool.connect((err, client, done) => {
-        if (err) {console.error(err);}
-        client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
-            if (err) {console.error(err.stack)} else if(!res.rows[0].exists) {
-                // Postgres sessions table do not exist, creating it...
-                client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), (err, res) => {
-                    if (err) {console.error(err)} else {console.log("Postgres sessions table created !");}
-                });
-            }
-        })
-    })
-    var sessionStore = new SessionStore({
-        pool: pgPool,
-        tableName: 'sessions'
-    });
+	var pgPool = new pg.Pool(options);
+	pgPool.connect((err, client, done) => {
+		if (err) {console.error(err);}
+		client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
+			if (err) {console.error(err.stack)} else if(!res.rows[0].exists) {
+				// Postgres sessions table do not exist, creating it...
+				client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), (err, res) => {
+					if (err) {console.error(err)} else {console.log("Postgres sessions table created !");}
+				});
+			}
+		})
+	})
+	var sessionStore = new SessionStore({
+		pool: pgPool,
+		tableName: 'sessions'
+	});
 }
 
 var sessionInstance = session({
@@ -173,7 +173,7 @@ var sessionInstance = session({
 	cookieName: 'workspaceCookie',
 	secret: 'newmipsWorkspaceMakeyourlifebetter',
 	resave: false,
-    rolling: true,
+	rolling: true,
 	saveUninitialized: false,
 	maxAge: 360*5,
 	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific
@@ -210,32 +210,32 @@ if (startedFromGenerator) {
 //------------------------------ LOCALS ------------------------------ //
 app.use(function(req, res, next) {
 
-    // If not a person (healthcheck service or other spamming services)
-    if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
+	// If not a person (healthcheck service or other spamming services)
+	if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
 
-    let lang = appConf.lang;
-    if (req.session.lang_user)
-        lang = req.session.lang_user;
-    else
-    	req.session.lang_user = lang;
+	let lang = appConf.lang;
+	if (req.session.lang_user)
+		lang = req.session.lang_user;
+	else
+		req.session.lang_user = lang;
 
-    if (typeof req.session.toastr === 'undefined')
+	if (typeof req.session.toastr === 'undefined')
 		req.session.toastr = [];
 
-    res.locals.lang_user = lang;
-    res.locals.config = globalConf;
+	res.locals.lang_user = lang;
+	res.locals.config = globalConf;
 
-    // To use before calling renderSource function
-    // Insert locals function in dustData
-    dust.insertLocalsFn = function(locals, request){
-        require("./utils/dust_fn").getLocals(locals, request, language(request.session.lang_user), block_access);
-    }
+	// To use before calling renderSource function
+	// Insert locals function in dustData
+	dust.insertLocalsFn = function(locals, request){
+		require("./utils/dust_fn").getLocals(locals, request, language(request.session.lang_user), block_access);
+	}
 
-    // Helpers / Locals / Filters
-    require("./utils/dust_fn").getHelpers(dust);
-    require("./utils/dust_fn").getLocals(res.locals, req, language(lang), block_access);
-    require("./utils/dust_fn").getFilters(dust, lang);
-    next();
+	// Helpers / Locals / Filters
+	require("./utils/dust_fn").getHelpers(dust);
+	require("./utils/dust_fn").getLocals(res.locals, req, language(lang), block_access);
+	require("./utils/dust_fn").getFilters(dust, lang);
+	next();
 });
 
 app.use(function(req, res, next) {
@@ -256,68 +256,68 @@ app.use(function(req, res, next) {
 	}
 
 	// Overload res.render to always get and reset toastr, load notifications and inline-help helper
-    var render = res.render;
-    res.render = function(view, locals, cb) {
-    	if(typeof locals === "undefined")
-            locals = {};
-    	if (req.session.toastr && req.session.toastr.length > 0) {
-	        locals.toastr = req.session.toastr;
-	        req.session.toastr = [];
-        }
+	var render = res.render;
+	res.render = function(view, locals, cb) {
+		if(typeof locals === "undefined")
+			locals = {};
+		if (req.session.toastr && req.session.toastr.length > 0) {
+			locals.toastr = req.session.toastr;
+			req.session.toastr = [];
+		}
 
-        // Load notifications
-        var userId;
-        try {
-        	userId = req.session.passport.user.id;
-        } catch(e) {
-        	userId = null;
-        }
-        models.E_notification.findAndCountAll({
-        	include: [{
-        		model: models.E_user,
-        		as: 'r_user',
-        		where: {id: userId}
-        	}],
-        	subQuery: false,
-        	order: [["createdAt", "DESC"]],
-        	offset: 0,
-        	limit: 10
-        }).then(function(notifications) {
-        	locals.notificationsCount = notifications.count;
-        	locals.notifications = notifications.rows;
+		// Load notifications
+		var userId;
+		try {
+			userId = req.session.passport.user.id;
+		} catch(e) {
+			userId = null;
+		}
+		models.E_notification.findAndCountAll({
+			include: [{
+				model: models.E_user,
+				as: 'r_user',
+				where: {id: userId}
+			}],
+			subQuery: false,
+			order: [["createdAt", "DESC"]],
+			offset: 0,
+			limit: 10
+		}).then(function(notifications) {
+			locals.notificationsCount = notifications.count;
+			locals.notifications = notifications.rows;
 
-	        // Load inline-help when rendering create, update or show page
-	    	if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
-	    		var entityName = view.split('/')[0];
-	    		var options;
-	    		try {
-	    			options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
-	    		} catch(e) {
-	    			// No options file, always return false
-	    			dust.helpers.inline_help = function(){return false;}
-	    			return render.call(res, view, locals, cb);
-	    		}
-	    		var entityList = [entityName];
-	    		for (var i = 0; i < options.length; i++)
-	    			entityList.push(options[i].target);
+			// Load inline-help when rendering create, update or show page
+			if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
+				var entityName = view.split('/')[0];
+				var options;
+				try {
+					options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
+				} catch(e) {
+					// No options file, always return false
+					dust.helpers.inline_help = function(){return false;}
+					return render.call(res, view, locals, cb);
+				}
+				var entityList = [entityName];
+				for (var i = 0; i < options.length; i++)
+					entityList.push(options[i].target);
 
-	    		models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
-	    			dust.helpers.inline_help = function(ch, con, bod, params){
-	    				for (var i = 0; i < helps.length; i++) {
-	    					if (params.field == helps[i].f_field)
-	    						return true;
-	    				}
-	    				return false;
-	    			}
+				models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
+					dust.helpers.inline_help = function(ch, con, bod, params){
+						for (var i = 0; i < helps.length; i++) {
+							if (params.field == helps[i].f_field)
+								return true;
+						}
+						return false;
+					}
 
-			        render.call(res, view, locals, cb);
-	    		});
-	    	}
-	    	else
-	        	render.call(res, view, locals, cb);
-        });
-    };
-    next();
+					render.call(res, view, locals, cb);
+				});
+			}
+			else
+				render.call(res, view, locals, cb);
+		});
+	};
+	next();
 });
 
 // Routes ======================================================================
@@ -341,70 +341,70 @@ app.use(function(req, res) {
 // Launch ======================================================================
 
 models.sequelize.sync({logging: false, hooks: false}).then(() => {
-    models.sequelize.customAfterSync().then(_ => {
-        models.E_user.findAll().then(users => {
-            let hasAdmin = false;
+	models.sequelize.customAfterSync().then(_ => {
+		models.E_user.findAll().then(users => {
+			let hasAdmin = false;
 
-            // Check if user admin is in already created users
-            for (var i = 0; i < users.length; i++) {
-                if(users[i].f_login == "admin"){
-                    hasAdmin = true
-                }
-            }
+			// Check if user admin is in already created users
+			for (var i = 0; i < users.length; i++) {
+				if(users[i].f_login == "admin"){
+					hasAdmin = true
+				}
+			}
 
-            if (!users || users.length == 0 || !hasAdmin) {
-                models.E_group.create({
-                    version: 0,
-                    f_label: 'admin'
-                }).then(group => {
-                    models.E_role.create({
-                        version: 0,
-                        f_label: 'admin'
-                    }).then(role => {
-                        models.E_user.create({
-                            f_login: 'admin',
-                            f_password: null,
-                            f_enabled: 0,
-                            version: 0
-                        }).then(user => {
-                            user.setR_role(role.id);
-                            user.setR_group(group.id);
-                        });
-                    });
-                });
-            }
-        });
-        var server;
-        if (globalConf.protocol == 'https')
-            server = https.createServer(globalConf.ssl, app);
-        else
-            server = http.createServer(app);
+			if (!users || users.length == 0 || !hasAdmin) {
+				models.E_group.create({
+					version: 0,
+					f_label: 'admin'
+				}).then(group => {
+					models.E_role.create({
+						version: 0,
+						f_label: 'admin'
+					}).then(role => {
+						models.E_user.create({
+							f_login: 'admin',
+							f_password: null,
+							f_enabled: 0,
+							version: 0
+						}).then(user => {
+							user.setR_role(role.id);
+							user.setR_group(group.id);
+						});
+					});
+				});
+			}
+		});
+		var server;
+		if (globalConf.protocol == 'https')
+			server = https.createServer(globalConf.ssl, app);
+		else
+			server = http.createServer(app);
 
-        if (globalConf.socket.enabled) {
-            io = require('socket.io')(server);
-            // Provide shared express session to sockets
-            io.use(socketSession(sessionInstance));
-            require('./services/socket')(io);
-        }
+		if (globalConf.socket.enabled) {
+			io = require('socket.io')(server);
+			// Provide shared express session to sockets
+			io.use(socketSession(sessionInstance));
+			require('./services/socket')(io);
+		}
 
 		// Handle access.json file for various situation
 		block_access.accessFileManagment();
 
 		server.listen(globalConf.port);
-        if (globalConf.env == 'tablet') {
-            try {
-                const cordova = require('cordova-bridge');
-                cordova.channel.send('STARTED');
-            } catch(e) {console.error("Couldn't require 'cordova-bridge'");}
-        }
+		if (globalConf.env == 'tablet') {
+			try {
+				const cordova = require('cordova-bridge');
+				cordova.channel.send('STARTED');
+			} catch(e) {console.error("Couldn't require 'cordova-bridge'");}
+		}
 		console.log("Started " + globalConf.protocol + " on " + globalConf.port + " !");
-    }).catch(err => {
-        console.error(err);
-        logger.silly(err);
-    })
+	}).catch(err => {
+		console.error(err);
+		logger.silly(err);
+	})
 }).catch(function(err) {
-    console.error(err);
-    logger.silly(err);
+	console.error(err);
+	logger.silly(err);
 })
 
 module.exports = app;

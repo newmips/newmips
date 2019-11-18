@@ -1,5 +1,5 @@
 <table id="table_custom_data_entity" data-url="/custom_url_data_entity/datalist" class="dataTable table table-bordered table-striped animated fadeIn" style="display: none;">
-    <thead class="main">
+	<thead class="main">
 		<tr class='fields'>
 			<th data-field="id" data-col="id">
 				{#__ key="entity.custom_data_entity.id_entity"/}&nbsp;{#__ key="entity.custom_data_entity.label_entity"/}
@@ -14,10 +14,10 @@
 				<th></th>
 			{/actionAccess}
 		</tr>
-    </thead>
-    <thead class='filters'>
-    	<tr class='fields'>
-    		<th data-field="id" data-col="id">
+	</thead>
+	<thead class='filters'>
+		<tr class='fields'>
+			<th data-field="id" data-col="id">
 				{#__ key="entity.custom_data_entity.id_entity"/}&nbsp;{#__ key="entity.custom_data_entity.label_entity"/}
 			</th>
 			{#actionAccess entity="custom_url_data_entity" action="read"}
@@ -29,8 +29,8 @@
 			{#actionAccess entity="custom_url_data_entity" action="delete"}
 				<th></th>
 			{/actionAccess}
-    	</tr>
-    </thead>
-    <tbody>
-    </tbody>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
 </table>

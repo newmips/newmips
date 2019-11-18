@@ -26,11 +26,11 @@
 	"entity": {
 		"e_status": {
 			"as_r_children": "Next status",
-            "apply_default": "Apply this status to entities without status",
-            "modal_title": "Comment",
-            "r_accepted_group": "Accepted group (No group means accepted for all)",
-            "f_default": "Is the default status",
-            "f_button_label": "Button label"
+			"apply_default": "Apply this status to entities without status",
+			"modal_title": "Comment",
+			"r_accepted_group": "Accepted group (No group means accepted for all)",
+			"f_default": "Is the default status",
+			"f_button_label": "Button label"
 		},
 		"e_translation": {
 			"as_r_translations": "Traductions"
