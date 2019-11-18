@@ -1,9 +1,6 @@
 const router = require('express').Router();
 const fs = require('fs-extra');
-const moment = require('moment');
-const request = require('request');
 const models = require('../models/');
-const readline = require('readline');
 const multer = require('multer');
 const Jimp = require('jimp');
 const math = require('math');
@@ -15,7 +12,7 @@ const gitlabConf = require('../config/gitlab.js');
 
 // Services
 const process_manager = require('../services/process_manager.js');
-const process_server_per_app = process_manager.process_server_per_app;
+const {process_server_per_app} = process_manager;
 const exec = require('child_process');
 const session_manager = require('../services/session.js');
 const designer = require('../services/designer.js');
@@ -25,40 +22,39 @@ const gitlab = require('../services/gitlab_api');
 // Utils
 const block_access = require('../utils/block_access');
 const docBuilder = require('../utils/api_doc_builder');
-const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const dataHelper = require('../utils/data_helper');
 const gitHelper = require('../utils/git_helper');
 
 const metadata = require('../database/metadata')();
 const structure_application = require('../structure/structure_application');
-let pourcent_generation = {};
+const pourcent_generation = {};
 
 // Exclude from Editor
-let excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-let excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
+const excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
+const excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 function initPreviewData(appName, data){
     // Editor
-    let workspacePath = __dirname + "/../workspace/" + appName + "/";
-    let folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
+    const workspacePath = __dirname + "/../workspace/" + appName + "/";
+    const folder = helpers.readdirSyncRecursive(workspacePath, excludeFolder, excludeFile);
     /* Sort folder first, file after */
     data.workspaceFolder = helpers.sortEditorFolder(folder);
 
-    let application = metadata.getApplication(appName);
-    let modules = application.modules;
-    // UI designer entity list
+    const application = metadata.getApplication(appName);
+    const {modules} = application;
 
+    // UI designer entity list
     data.entities = [];
-    for (let i = 0; i < modules.length; i++) {
+    for (let i = 0; i < modules.length; i++)
         for (let j = 0; j < modules[i].entities.length; j++)
             data.entities.push(modules[i].entities[j]);
-    }
+
     function sortEntities(entities, idx) {
         if (entities.length == 0 || !entities[idx+1])
             return entities;
         if (entities[idx].name > entities[idx+1].name) {
-            let swap = entities[idx];
+            const swap = entities[idx];
             entities[idx] = entities[idx+1];
             entities[idx+1] = swap;
             return sortEntities(entities, idx == 0 ? 0 : idx-1);
@@ -69,7 +65,7 @@ function initPreviewData(appName, data){
     return data;
 }
 
-let chats = {};
+const chats = {};
 function setChat(req, app_name, userID, user, content, params, isError){
 
     // Init if necessary
@@ -79,7 +75,7 @@ function setChat(req, app_name, userID, user, content, params, isError){
         chats[app_name][userID] = {items: []};
 
     // Add chat
-    if(content != "chat.welcome" || chats[app_name][userID].items.length < 1){
+    if(content != "chat.welcome" || chats[app_name][userID].items.length < 1)
         chats[app_name][userID].items.push({
             user: user,
             dateEmission: req.moment().format("DD MMM HH:mm"),
@@ -87,7 +83,6 @@ function setChat(req, app_name, userID, user, content, params, isError){
             params: params || [],
             isError: isError || false
         });
-    }
 }
 
 async function execute(req, instruction, __, data = {}, saveMetadata = true) {
@@ -131,30 +126,29 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
         throw __(err.message ? err.message : err, err.messageParams || []);
     }
 
-    data = session_manager.setSession(data.function, req, info, data);
+    const newData = session_manager.setSession(data.function, req, info, data);
 
     // Save metadata
     if(data.application && data.function != 'deleteApplication' && saveMetadata)
         data.application.save();
 
-    data.message = info.message;
-    data.messageParams = info.messageParams;
-    data.restartServer = typeof info.restartServer === 'undefined' ? true : false;
-
-    return data;
+    newData.message = info.message;
+    newData.messageParams = info.messageParams;
+    newData.restartServer = typeof info.restartServer === 'undefined';
+    return newData;
 }
 
 // Preview Get
 router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) => {
 
-    let appName = req.params.app_name;
+    const appName = req.params.app_name;
 
     // Application starting timeout
     let timeoutServer = 30000;
     if(typeof req.query.timeout !== "undefined")
         timeoutServer = req.query.timeout;
 
-    let currentUserID = req.session.passport.user.id;
+    const currentUserID = req.session.passport.user.id;
 
     req.session.app_name = appName;
     req.session.module_name = 'm_home';
@@ -175,8 +169,8 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 
     models.Application.findOne({where: {name: appName}}).then(db_app => {
 
-        let env = Object.create(process.env);
-        let port = math.add(9000, db_app.id);
+        const env = Object.create(process.env);
+        const port = math.add(9000, db_app.id);
         env.PORT = port;
 
         if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
@@ -187,7 +181,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 
         data.session = session_manager.getSession(req)
 
-        let initialTimestamp = new Date().getTime();
+        const initialTimestamp = new Date().getTime();
         let iframe_url = globalConf.protocol_iframe + '://';
 
         if (globalConf.env == 'cloud')
@@ -220,7 +214,6 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
             setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
             data.iframe_url = -1;
             res.render('front/preview', data);
-
         });
     }).catch(err => {
         data = initPreviewData(appName, data);
@@ -233,22 +226,22 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 // AJAX Preview Post
 router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
-    let appName = req.session.app_name;
+    const appName = req.session.app_name;
     /* Lower the first word for the basic parser json */
-    let instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
-    let currentUserID = req.session.passport.user.id;
+    const instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
+    const currentUserID = req.session.passport.user.id;
     let data = {};
 
     (async () => {
-        let db_app = await models.Application.findOne({where: {name: appName}});
+        const db_app = await models.Application.findOne({where: {name: appName}});
 
-        let port = math.add(9000, db_app.id);
-        let env = Object.create(process.env);
+        const port = math.add(9000, db_app.id);
+        const env = Object.create(process.env);
         env.PORT = port;
 
-        let protocol_iframe = globalConf.protocol_iframe;
-        let host = globalConf.host;
-        let timeoutServer = 30000;
+        const {protocol_iframe} = globalConf;
+        const {host} = globalConf;
+        const timeoutServer = 30000;
 
         // Current application url
         data.iframe_url = process_manager.childUrl(req, db_app.id);
@@ -256,7 +249,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
         /* Add instruction in chat */
         setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
 
-        let __ = require("../services/language")(req.session.lang_user).__;
+        const {__} = require("../services/language")(req.session.lang_user);
 
         // Executing instruction
         data = await execute(req, instruction, __, data);

@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-    var User = sequelize.define("User", {
+    const User = sequelize.define("User", {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,

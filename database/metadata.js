@@ -1,6 +1,3 @@
-const fs = require('fs-extra');
-const workspacePath = __dirname + '/../workspace/';
-const models = require('../models');
 const Application = require('./application');
 
 class Metadata {
@@ -10,7 +7,7 @@ class Metadata {
 
 	getApplication(name){
 		// Looking for already loaded app
-		for(let app of this._applications)
+		for(const app of this._applications)
 			if(app.name == name)
 				return app
 
@@ -27,13 +24,12 @@ class Metadata {
 		if(this._applications.filter(x => x.name == name).length == 0)
 			throw new Error('database.application.notFound.withThisName');
 
-		for (let i = 0; i < this._applications.length; i++) {
+		for (let i = 0; i < this._applications.length; i++)
 			if(this._applications[i].name == name) {
 				delete this._applications[i];
 				this._applications.splice(i, 1);
 				break;
 			}
-		}
 
 		return true;
 	}

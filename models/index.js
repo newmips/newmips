@@ -3,14 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const env = require('../config/global');
 const dbConfig = require('../config/database');
 
-let basename = path.basename(module.filename);
+const basename = path.basename(module.filename);
 
 
-const Op = Sequelize.Op;
-let db = {
+const {Op} = Sequelize;
+const db = {
     $eq: Op.eq,
     $ne: Op.ne,
     $gte: Op.gte,
@@ -62,17 +61,14 @@ const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.passw
     collate: 'utf8_general_ci'
 })
 
-fs.readdirSync(__dirname).filter(function(file) {
-    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
-}).forEach(function(file) {
-    let model = sequelize['import'](path.join(__dirname, file));
+fs.readdirSync(__dirname).filter(file => file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js').forEach(function(file) {
+    const model = sequelize['import'](path.join(__dirname, file));
     db[model.name] = model;
 })
 
-Object.keys(db).forEach(function(modelName) {
-    if (db[modelName].associate) {
+Object.keys(db).forEach(modelName => {
+    if (db[modelName].associate)
         db[modelName].associate(db);
-    }
 })
 
 db.sequelize = sequelize;
