@@ -575,15 +575,15 @@ async function deleteField(data) {
 
     // Alter database
     data.fieldToDrop = infoStructure.fieldToDrop;
-    let dropFunction = infoStructure.isConstraint ? 'dropFKDataField' : 'dropDataField';
 
     // Related To Multiple
     if (infoStructure.isMultipleConstraint) {
         data.target = infoStructure.target;
-        dropFunction = 'dropFKMultipleDataField';
-    }
-
-    await database[dropFunction](data);
+        await database.dropFKMultipleDataField(data);
+    } else if (infoStructure.isConstraint)
+        await database.dropFKDataField(data);
+    else
+        database.dropDataField(data);
 
     // Missing id_ in data.options.value, so we use fieldToDrop
     // data.options.value = data.fieldToDrop;

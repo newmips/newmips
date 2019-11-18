@@ -26,14 +26,14 @@ class Module {
     }
 
     getEntity(entity_name, required) {
-        if(!entity_name)
+        if (!entity_name)
             throw new Error('database.field.error.selectOrCreateBefore');
 
-        if(this._entities.filter(x => x.name == entity_name).length > 0)
+        if (this._entities.filter(x => x.name == entity_name).length > 0)
             return this._entities.filter(x => x.name == entity_name)[0];
 
-        if(required) {
-            let err = new Error('database.entity.notFound.withThisName');
+        if (required) {
+            const err = new Error('database.entity.notFound.withThisName');
             err.messageParams = [entity_name];
             throw err;
         }
@@ -43,11 +43,11 @@ class Module {
 
     getComponent(component_name, type, required) {
 
-        if(this._components.filter(x => x.name == component_name && x.type == type).length > 0)
+        if (this._components.filter(x => x.name == component_name && x.type == type).length > 0)
             return this._components.filter(x => x.name == component_name && x.type == type)[0];
 
-        if(required) {
-            let err = new Error("database.component.notFound.notFound");
+        if (required) {
+            const err = new Error("database.component.notFound.notFound");
             err.messageParams = [component_name];
             throw err;
         }
@@ -55,11 +55,10 @@ class Module {
     }
 
     addEntity(name, displayName) {
+        const entity = new Entity(name, displayName);
 
-    	let entity = new Entity(name, displayName);
-
-        if (this._entities.filter(x => x.name == entity.name).length != 0){
-        	console.warn("addEntity => Entity already loaded in the module instance.")
+        if (this._entities.filter(x => x.name == entity.name).length != 0) {
+            console.warn("addEntity => Entity already loaded in the module instance.")
             return this._entities.filter(x => x.name == entity.name)[0];
         }
 
@@ -68,9 +67,9 @@ class Module {
     }
 
     addComponent(name, displayName, type) {
-        let component = new Component(name, displayName, type);
+        const component = new Component(name, displayName, type);
 
-        if(this._components.filter(x => x.name == component.name && x.type == component.type).length != 0) {
+        if (this._components.filter(x => x.name == component.name && x.type == component.type).length != 0) {
             console.warn("addComponent => Component already loaded in the module instance.")
             return this._components.filter(x => x.name == component.name && x.type == component.type)[0];
         }
@@ -82,38 +81,36 @@ class Module {
     // --- DELETE ---
     deleteEntity(name) {
 
-        if(this._entities.filter(x => x.name == name).length == 0){
-            let err = new Error('database.entity.notFound.withThisName')
+        if (this._entities.filter(x => x.name == name).length == 0) {
+            const err = new Error('database.entity.notFound.withThisName')
             err.messageParams = [name]
             throw err;
         }
 
-        for (let i = 0; i < this._entities.length; i++) {
-            if(this._entities[i].name == name) {
+        for (let i = 0; i < this._entities.length; i++)
+            if (this._entities[i].name == name) {
                 delete this._entities[i];
                 this._entities.splice(i, 1);
                 break;
             }
-        }
 
         return true;
     }
 
     deleteComponent(name, type) {
 
-        if(this._components.filter(x => x.name == name && x.type == type).length == 0){
-            let err = new Error("database.component.notFound.notFound");
+        if (this._components.filter(x => x.name == name && x.type == type).length == 0) {
+            const err = new Error("database.component.notFound.notFound");
             err.messageParams = [name]
             throw err;
         }
 
-        for (let i = 0; i < this._components.length; i++) {
-            if(this._components[i].name == name && this._components[i].type == type) {
+        for (let i = 0; i < this._components.length; i++)
+            if (this._components[i].name == name && this._components[i].type == type) {
                 delete this._components[i];
                 this._components.splice(i, 1);
                 break;
             }
-        }
 
         return true;
     }

@@ -28,7 +28,7 @@ exports.dropDataEntity = (app, entity) => {
 }
 
 // Drop DataField
-exports.dropDataField = async (data) => {
+exports.dropDataField = (data) => {
 
     let query = "";
     if(sequelize.options.dialect == "mysql")
@@ -36,51 +36,51 @@ exports.dropDataField = async (data) => {
     if(sequelize.options.dialect == "postgres")
         query = "ALTER TABLE \"" + data.application.name + "_" + data.entity.name + "\" DROP " + data.fieldToDrop + ";";
 
-    return pushToSyncQuery(attr.application, query);
+    return pushToSyncQuery(data.application, query);
 }
 
-exports.dropFKDataField = async (data) => {
+exports.dropFKDataField = async(data) => {
 
     // *** 1 - Initialize variables according to options ***
-    let table_name = data.entity.name;
+    const table_name = data.entity.name;
 
     let query = "";
     if (sequelize.options.dialect == "mysql")
         query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + data.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
-    else(sequelize.options.dialect == "postgres")
+    else if(sequelize.options.dialect == "postgres")
         query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + data.fieldToDrop + "' AND table_name = '" + table_name + "';";
 
-    let constraintName = await sequelize.query(query);
+    const constraintName = await sequelize.query(query);
 
     if (typeof constraintName[0][0] === "undefined")
         return;
 
     query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop + ";";
 
-    return pushToSyncQuery(data.application, query);
+    pushToSyncQuery(data.application, query);
 }
 
 // Delete field related to multiple
 exports.dropFKMultipleDataField = async (data) => {
 
     // *** 1 - Initialize variables according to options ***
-    let table_name = data.entity.name;
+    const table_name = data.entity.name;
     let query = "";
     if(sequelize.options.dialect == "mysql")
         query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + data.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
-    else(sequelize.options.dialect == "postgres")
+    else if(sequelize.options.dialect == "postgres")
         query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + data.fieldToDrop + "' AND table_name = '" + table_name + "';";
 
-    let constraintName = await sequelize.query(query);
+    const constraintName = await sequelize.query(query);
     if (typeof constraintName[0][0] === "undefined")
         return;
     query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop +";";
-    return pushToSyncQuery(data.application, query);
+    pushToSyncQuery(data.application, query);
 }
 
 exports.dropTable = async (appName, table_name) => {
     delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
-    let workspaceModels = require('../workspace/' + appName + '/models/').sequelize;
+    const workspaceModels = require('../workspace/' + appName + '/models/').sequelize;
 
     return await workspaceModels.query(`DROP TABLE ${table_name};`);
 }
@@ -91,18 +91,17 @@ exports.dropTable = async (appName, table_name) => {
 //     table: yourTableName,
 //     column: yourColumnName
 // }
-exports.getDatabaseSQLType = async (params) => {
-    let request = "SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + params.table + "' AND COLUMN_NAME = '" + params.column + "';"
-    let result = await sequelize.query(request, {
+exports.getDatabaseSQLType = async(params) => {
+    const request = "SELECT DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + params.table + "' AND COLUMN_NAME = '" + params.column + "';"
+    const result = await sequelize.query(request, {
         type: sequelize.QueryTypes.SELECT
     })
 
-    if (result.length > 0) {
+    if (result.length > 0)
         return {
             sqlDataType: result[0].DATA_TYPE,
             sqlDataTypeLength: result[0].CHARACTER_MAXIMUM_LENGTH
         }
-    }
 
     return {
         sqlDataType: false,
@@ -112,8 +111,8 @@ exports.getDatabaseSQLType = async (params) => {
 
 exports.retrieveWorkspaceHasManyData = async (appName, entity, foreignKey) => {
     delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
-    let workspaceModels = require('../workspace/' + appName + '/models/');
-    let where = {};
+    const workspaceModels = require('../workspace/' + appName + '/models/');
+    const where = {};
     where[foreignKey] = {
         [workspaceModels.$ne]: null
     };

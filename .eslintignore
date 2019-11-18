@@ -13,3 +13,4 @@ test.js
 !.eslintrc.js
 node_modules
 jspm_packages
+public/
