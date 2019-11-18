@@ -7,7 +7,6 @@ const path = require('path');
 const moment = require('moment');
 const dataHelper = require('../utils/data_helper');
 const block_access = require('../utils/block_access');
-const docBuilder = require('../utils/api_doc_builder');
 const designer = require('../services/designer.js');
 const session_manager = require('../services/session.js');
 const parser = require('../services/bot.js');
@@ -16,13 +15,13 @@ const jschardet = require('jschardet');
 const process_manager = require('../services/process_manager.js');
 const metadata = require('../database/metadata')();
 
-let scriptProcessing = {
+const scriptProcessing = {
     timeout: moment(),
     state: false
 };
-let scriptData = {};
+const scriptData = {};
 
-let mandatoryInstructions = [
+const mandatoryInstructions = [
     "create module home",
     "create module Administration",
     "create entity User",
@@ -215,12 +214,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
     if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
         data.application = metadata.getApplication(data.app_name);
 
-    let info;
-    try {
-        info = await designer[data.function](data);
-    } catch (err) {
-        throw err;
-    }
+    const info = await designer[data.function](data);
 
     data = session_manager.setSession(data.function, req, info, data);
 
@@ -238,16 +232,13 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 function executeFile(req, userID, __) {
 
     // Open file descriptor
-    let rl = readline.createInterface({
+    const rl = readline.createInterface({
         input: fs.createReadStream(req.file.path)
     });
 
-    // Read file line by line, check for empty line, line comment, scope comment
-    let fileLines = [], commenting = false;
-
     /* If one of theses value is to 2 after readings all lines then there is an error,
     line to 1 are set because they are mandatory lines added by the generator */
-    let exceptions = {
+    const exceptions = {
         createNewApplication : {
             error: 0,
             errorMessage: "You can't create or select more than one application in the same script."
@@ -282,6 +273,10 @@ function executeFile(req, userID, __) {
         }
     };
 
+    // Read file line by line, check for empty line, line comment, scope comment
+    const fileLines = [];
+    let commenting = false;
+
     // Checking file
     rl.on('line', line => {
 
@@ -298,7 +293,7 @@ function executeFile(req, userID, __) {
             commenting = false;
 
         else if (!commenting) {
-            let positionComment = line.indexOf('//');
+            const positionComment = line.indexOf('//');
             // Line start with comment
             if (positionComment == 0)
                 return;
@@ -319,7 +314,7 @@ function executeFile(req, userID, __) {
                 return processEnd(req.file.path, userID);
             }
 
-            let designerFunction = parserResult.function;
+            const designerFunction = parserResult.function;
 
             let designerValue = '';
             if (typeof parserResult.options !== "undefined")
@@ -360,7 +355,7 @@ function executeFile(req, userID, __) {
             return;
 
         let errorMsg = '';
-        for(let item in exceptions){
+        for(const item in exceptions){
             if(item == "createNewApplication" && exceptions[item].value == 0)
                 errorMsg += 'You have to create or select an application in your script.<br><br>';
             if(exceptions[item].value > 1)
@@ -397,7 +392,7 @@ function executeFile(req, userID, __) {
             if(i == mandatoryInstructions.length + 1) {
                 await structure_application.initializeApplication(data.application);
                 // Write source script in generated workspace
-                let historyPath = __dirname + '/../workspace/' + data.application.name + "/history_script.nps";
+                const historyPath = __dirname + '/../workspace/' + data.application.name + "/history_script.nps";
                 let instructionsToWrite = fileLines.slice().splice(mandatoryInstructions.length + 2).join("\n");
                 instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
                 fs.writeFileSync(historyPath, instructionsToWrite);
@@ -429,26 +424,26 @@ function executeFile(req, userID, __) {
         const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/');
 
         // We need to clear toSync.json
-        let toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
-        let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+        const toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+        const toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
         let tableName = "TABLE_NAME"; // MySQL
         if(workspaceSequelize.sequelize.options.dialect == "postgres")
             tableName = "table_name";
 
         // Looking for already exisiting table in workspace BDD
-        let result = await workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT});
-        let workspaceTables = [];
+        const result = await workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT});
+        const workspaceTables = [];
         for (let i = 0; i < result.length; i++)
             workspaceTables.push(result[i][tableName]);
 
-        for(let entity in toSyncObject){
+        for(const entity in toSyncObject){
             if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
                 toSyncObject[entity].attributes = {};
                 // We have to remove options from toSync.json that will be generate with sequelize sync
                 // But we have to keep relation toSync on already existing entities
                 if(typeof toSyncObject[entity].options !== "undefined"){
-                    let cleanOptions = [];
+                    const cleanOptions = [];
                     for(let i=0; i<toSyncObject[entity].options.length; i++){
                         if(workspaceTables.indexOf(toSyncObject[entity].options[i].target) != -1 &&
                             toSyncObject[entity].options[i].relation != "belongsTo"){
@@ -462,7 +457,7 @@ function executeFile(req, userID, __) {
         fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
 
         // Kill the application server if it's running, it will be restarted when accessing it
-        let process_server_per_app = process_manager.process_server_per_app;
+        const process_server_per_app = process_manager.process_server_per_app;
         if (process_server_per_app[data.application.name] != null && typeof process_server_per_app[data.application.name] !== "undefined")
             await process_manager.killChildProcess(process_server_per_app[data.application.name].pid)
 
@@ -480,8 +475,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
     dest: './upload/'
 }).single('instructions'), (req, res) => {
 
-    let userID = req.session.passport.user.id;
-    let __ = require("../services/language")(req.session.lang_user).__;
+    const userID = req.session.passport.user.id;
+    const __ = require("../services/language")(req.session.lang_user).__;
 
     // Init scriptData object for user. (session simulation)
     scriptData[userID] = {
@@ -506,7 +501,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
     extensionFile = extensionFile[extensionFile.length -1];
     // Read file to determine encoding
     let encoding = jschardet.detect(fs.readFileSync(req.file.path));
-    let acceptedEncoding = ['utf-8', 'windows-1252', 'ascii'];
+    const acceptedEncoding = ['utf-8', 'windows-1252', 'ascii'];
     // If extension or encoding is not supported, send error
     if ((extensionFile != 'txt' && extensionFile != 'nps') || acceptedEncoding.indexOf(encoding.encoding.toLowerCase()) == -1) {
         scriptData[userID].answers.push({
@@ -530,8 +525,8 @@ router.post('/execute', block_access.isLoggedIn, multer({
 /* Execute when it's not a file upload but a file written in textarea */
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
-    let userID = req.session.passport.user.id;
-    let __ = require("../services/language")(req.session.lang_user).__;
+    const userID = req.session.passport.user.id;
+    const __ = require("../services/language")(req.session.lang_user).__;
 
     // Init scriptData object for user. (session simulation)
     scriptData[userID] = {
@@ -551,13 +546,11 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
     scriptProcessing.state = true;
     scriptProcessing.timeout = moment();
 
-    let tmpFilename = moment().format('YY-MM-DD-HH_mm_ss') + "_custom_script.nps";
-    let tmpPath = __dirname + '/../upload/' + tmpFilename;
+    const tmpFilename = moment().format('YY-MM-DD-HH_mm_ss') + "_custom_script.nps";
+    const tmpPath = __dirname + '/../upload/' + tmpFilename;
 
     // Load template script and unzip master file if application is created using template
-    let templateEntry = req.body.template_entry;
-    let template = {};
-
+    const templateEntry = req.body.template_entry;
     fs.openSync(tmpPath, 'w');
 
     if(templateEntry){
@@ -574,7 +567,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
                 break;
         }
 
-        let files = fs.readdirSync(__dirname + "/../templates/" + templateEntry);
+        const files = fs.readdirSync(__dirname + "/../templates/" + templateEntry);
         let filename = false;
 
         for (let i = 0; i < files.length; i++) {
@@ -617,7 +610,7 @@ router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 // Script execution status
 router.get('/status', (req, res) => {
     try {
-        let userID = req.session.passport.user.id;
+        const userID = req.session.passport.user.id;
         res.send(scriptData[userID]).end();
         // Clean answers that will be shown in the client
         scriptData[userID].answers = [];

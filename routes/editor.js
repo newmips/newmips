@@ -4,14 +4,13 @@ const block_access = require('../utils/block_access');
 const fs = require('fs-extra');
 const helpers = require('../utils/helpers');
 const gitHelper = require('../utils/git_helper');
-const models = require('../models/');
 
 // Check file to edit extension
-let fileExtRegex = /(?:\.([^.]+))?$/;
+const fileExtRegex = /(?:\.([^.]+))?$/;
 
 // Exclude folder from editor
-let excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-let excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
+const excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
+const excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 router.post('/load_file', block_access.hasAccessApplication, function(req, res) {
     if (!req.body.path.includes("/../workspace/" + req.session.app_name))
@@ -23,7 +22,7 @@ router.post('/load_file', block_access.hasAccessApplication, function(req, res) 
     if (excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1)
         return res.status(403).send("You won't have the death star plans ! You rebel scum !");
 
-    let data = {};
+    const data = {};
     data.html = helpers.readFileSyncWithCatch(req.body.path);
     data.path = req.body.path;
     data.extension = fileExtRegex.exec(req.body.path)[1];
@@ -42,7 +41,7 @@ router.post('/update_file', block_access.hasAccessApplication, function(req, res
 
     fs.writeFileSync(req.body.path, req.body.content);
 
-    let data = {};
+    const data = {};
     data.function = "Saved a file from editor: " + req.body.path;
     data.app_name = req.session.app_name;
 
