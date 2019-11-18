@@ -1,9 +1,6 @@
-// router/routes.js
 const express = require('express');
-const request = require('request');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-const auth = require('../utils/authStrategies');
 const fs = require("fs-extra");
 const language = require("../services/language");
 const readLastLines = require('read-last-lines');
@@ -44,7 +41,7 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
             }]
         });
 
-        let data = {};
+        const data = {};
         data.applications = applications;
         data.lastThreeApp = lastThreeApp;
         data.nb_application = applications.length;
@@ -55,14 +52,15 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
             req.session.showytpopup = false;
         }
 
-        data.version;
-        if(fs.existsSync(__dirname+"/../public/version.txt"))
-            data.version = fs.readFileSync(__dirname+"/../public/version.txt", "utf-8").split("\n")[0];
+        data.version = '';
+        if (fs.existsSync(__dirname + "/../public/version.txt"))
+            data.version = fs.readFileSync(__dirname + "/../public/version.txt", "utf-8").split("\n")[0];
 
         return data;
     })().then(data => {
         res.render('front/home', data);
     }).catch(err => {
+        console.error(err);
         res.render('common/error', {code: 500});
     });
 })
@@ -82,25 +80,23 @@ router.post('/get_applications_by_project', block_access.isLoggedIn, function(re
             }
         }]
     }).then((applications) => {
-        if(applications){
+        if(applications)
             res.json({applications: applications});
-        } else {
+        else
             res.status(500).send("Oups, something's broken.");
-        }
     });
 });
 
 router.post('/update_logs', block_access.isLoggedIn, function(req, res) {
     try {
-        if (req.body.appName && typeof req.body.appName === 'string') {
+        if (req.body.appName && typeof req.body.appName === 'string')
             readLastLines.read(__dirname + "/../workspace/logs/app_" + req.body.appName + ".log", 1000).then(lines => {
                 res.status(200).send(lines);
             });
-        } else {
+        else
             readLastLines.read(__dirname + "/../all.log", 1000).then(lines => {
                 res.status(200).send(lines);
             });
-        }
     } catch (e) {
         console.log(e);
         res.send(false);
@@ -108,11 +104,9 @@ router.post('/update_logs', block_access.isLoggedIn, function(req, res) {
 });
 
 router.get('/completion', function(req, res) {
-    try{
-        var str = req.query.str;
-        res.send(bot.complete(str));
-
-    } catch(e){
+    try {
+        res.send(bot.complete(req.query.str));
+    } catch (e) {
         console.log(e);
         res.send(false);
     }
