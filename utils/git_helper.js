@@ -5,10 +5,10 @@ const gitlabConf = require('../config/gitlab.js');
 //Sequelize
 const models = require('../models/');
 
-let gitProcesses = {};
+const gitProcesses = {};
 
 function checkAlreadyInit(idApplication){
-	let dotGitPath = __dirname+'/../workspace/'+idApplication+'/.git';
+	const dotGitPath = __dirname+'/../workspace/'+idApplication+'/.git';
 	if (fs.existsSync(dotGitPath))
 		return true;
 	else
@@ -32,12 +32,12 @@ module.exports = {
 			const simpleGit = require('simple-git')(workspacePath);
 			models.Application.findOne({where:{name: appName}}).then(application => {
 				// . becomes -
-				let cleanHost = globalConf.host.replace(/\./g, "-");
+				const cleanHost = globalConf.host.replace(/\./g, "-");
 
 				// Remove prefix
-				let nameApp = application.codeName.substring(2);
-				let nameRepo = cleanHost+"-"+nameApp;
-				let originName = "origin-"+cleanHost+"-"+nameApp;
+				const nameApp = application.codeName.substring(2);
+				const nameRepo = cleanHost+"-"+nameApp;
+				const originName = "origin-"+cleanHost+"-"+nameApp;
 				simpleGit.addAnnotatedTag(tagName, 'Tagging '+tagName)
 				.pushTags(['-u', originName, 'master'], function(err) {
 					if (err)
@@ -50,25 +50,25 @@ module.exports = {
 	doGit: (data) => {
 		// We push code on gitlab only in our cloud env
 		if(gitlabConf.doGit){
-			let appName = data.application.name;
+			const appName = data.application.name;
 
 			// Workspace path
-			let workspacePath = __dirname + '/../workspace/' + appName;
+			const workspacePath = __dirname + '/../workspace/' + appName;
 
 			// Init simple-git in the workspace path
-			let simpleGit = require('simple-git')(workspacePath);
+			const simpleGit = require('simple-git')(workspacePath);
 
 			// . becomes -
-			let cleanHost = globalConf.host.replace(/\./g, "-");
+			const cleanHost = globalConf.host.replace(/\./g, "-");
 
 			// Remove prefix
-			let nameApp = application.name.substring(2);
-			let nameRepo = cleanHost + "-" + nameApp;
-			let originName = "origin-" + cleanHost + "-" + nameApp;
+			const nameApp = application.name.substring(2);
+			const nameRepo = cleanHost + "-" + nameApp;
+			const originName = "origin-" + cleanHost + "-" + nameApp;
 			let repoUrl = "";
 
 			if(data.gitlabUser != null){
-				let usernameGitlab = data.gitlabUser.username;
+				const usernameGitlab = data.gitlabUser.username;
 
 				if (!gitlabConf.useSSH) {
 					repoUrl = gitlab.protocol + "://" + gitlabConf.url + "/" + usernameGitlab + "/" + nameRepo + ".git";
@@ -79,7 +79,7 @@ module.exports = {
 				if(typeof gitProcesses[originName] === "undefined")
 					gitProcesses[originName] = false;
 
-				let err = null;
+				const err = null;
 
 				// Is the workspace already git init ?
 				if(!checkAlreadyInit(appName)){
@@ -109,7 +109,7 @@ module.exports = {
 					console.log("GIT: Git commit after new instruction.");
 					console.log(repoUrl);
 
-					let commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
+					const commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
 					simpleGit.add('.')
 					.commit(commitMsg, function(err, answer){
 						if(err)
@@ -129,10 +129,10 @@ module.exports = {
 			if(!gitlabConf.doGit)
 				return reject(new Error('structure.global.error.notDoGit'));
 
-			let appName = data.application.name;
+			const appName = data.application.name;
 
 			// Workspace path
-			let workspacePath = __dirname+'/../workspace/'+appName;
+			const workspacePath = __dirname+'/../workspace/'+appName;
 
 			// Init simple-git in the workspace path
 			const simpleGit = require('simple-git')(workspacePath);
@@ -140,18 +140,18 @@ module.exports = {
 			// Get current application values
 			models.Application.findOne({where:{name: appName}}).then(application => {
 				// . becomes -
-				let cleanHost = globalConf.host.replace(/\./g, "-");
+				const cleanHost = globalConf.host.replace(/\./g, "-");
 
 				// Remove prefix
-				let nameApp = application.codeName.substring(2);
-				let nameRepo = cleanHost + "-" + nameApp;
-				let originName = "origin-" + cleanHost + "-" + nameApp;
+				const nameApp = application.codeName.substring(2);
+				const nameRepo = cleanHost + "-" + nameApp;
+				const originName = "origin-" + cleanHost + "-" + nameApp;
 				let repoUrl = "";
 
 				if(!data.gitlabUser || data.gitlabUser == null)
 					return reject(new Error('Missing gitlab user in server session.'));
 
-				let usernameGitlab = data.gitlabUser.username;
+				const usernameGitlab = data.gitlabUser.username;
 
 				if(!gitlabConf.useSSH){
 					repoUrl = gitlabConf.url+"/"+usernameGitlab+"/"+nameRepo+".git";
@@ -209,23 +209,23 @@ module.exports = {
 				return reject(new Error('structure.global.error.notDoGit'));
 
 			// We push code on gitlab only in our cloud env
-			let appName = data.application.name;
+			const appName = data.application.name;
 
 			// Workspace path
-			let workspacePath = __dirname+'/../workspace/'+appName;
+			const workspacePath = __dirname+'/../workspace/'+appName;
 
 			// Init simple-git in the workspace path
-			let simpleGit = require('simple-git')(workspacePath);
+			const simpleGit = require('simple-git')(workspacePath);
 
 			// Get current application values
 			models.Application.findOne({where:{name: appName}}).then(application => {
 				// . becomes -
-				let cleanHost = globalConf.host.replace(/\./g, "-");
+				const cleanHost = globalConf.host.replace(/\./g, "-");
 
 				// Remove prefix
-				let nameApp = application.codeName.substring(2);
-				let nameRepo = cleanHost+"-"+nameApp;
-				let originName = "origin-"+cleanHost+"-"+nameApp;
+				const nameApp = application.codeName.substring(2);
+				const nameRepo = cleanHost+"-"+nameApp;
+				const originName = "origin-"+cleanHost+"-"+nameApp;
 
 				if(typeof gitProcesses[originName] === "undefined")
 					gitProcesses[originName] = false;
@@ -253,23 +253,23 @@ module.exports = {
 				return reject(new Error('structure.global.error.notDoGit'));
 
 			// We push code on gitlab only in our cloud env
-			let appName = data.application.name;
+			const appName = data.application.name;
 
 			// Workspace path
-			let workspacePath = __dirname+'/../workspace/'+appName;
+			const workspacePath = __dirname+'/../workspace/'+appName;
 
 			// Init simple-git in the workspace path
-			let simpleGit = require('simple-git')(workspacePath);
+			const simpleGit = require('simple-git')(workspacePath);
 
 			// Get current application values
 			models.Application.findOne({where:{name: appName}}).then(application => {
 				// . becomes -
-				let cleanHost = globalConf.host.replace(/\./g, "-");
+				const cleanHost = globalConf.host.replace(/\./g, "-");
 
 				// Remove prefix
-				let nameApp = application.codeName.substring(2);
-				let nameRepo = cleanHost + "-" + nameApp;
-				let originName = "origin-" + cleanHost + "-" + nameApp;
+				const nameApp = application.codeName.substring(2);
+				const nameRepo = cleanHost + "-" + nameApp;
+				const originName = "origin-" + cleanHost + "-" + nameApp;
 
 				if(typeof gitProcesses[originName] === "undefined")
 					gitProcesses[originName] = false;
@@ -279,7 +279,7 @@ module.exports = {
 
 				// Set gitProcesses to prevent any other git command during this process
 				gitProcesses[originName] = true;
-				let commitMsg = data.function+" -> App:" + appName + " Module:" + data.module_name + " Entity:" + data.entity_name;
+				const commitMsg = data.function+" -> App:" + appName + " Module:" + data.module_name + " Entity:" + data.entity_name;
 				simpleGit.add('.')
 				.commit(commitMsg, function(err, answer){
 					gitProcesses[originName] = false;
@@ -300,20 +300,20 @@ module.exports = {
 			if(!gitlabConf.doGit)
 				return reject(new Error('structure.global.error.notDoGit'));
 
-			let appName = attr.application.name;
+			const appName = attr.application.name;
 			// Workspace path
-			let workspacePath = __dirname + '/../workspace/' + appName;
+			const workspacePath = __dirname + '/../workspace/' + appName;
 			// Init simple-git in the workspace path
-			let simpleGit = require('simple-git')(workspacePath);
+			const simpleGit = require('simple-git')(workspacePath);
 			// Get current application values
 			models.Application.findOne({where:{id: appName}}).then(application => {
 				// . becomes -
-				let cleanHost = globalConf.host.replace(/\./g, "-");
+				const cleanHost = globalConf.host.replace(/\./g, "-");
 
 				// Remove prefix
-				let nameApp = application.codeName.substring(2);
-				let nameRepo = cleanHost + "-" + nameApp;
-				let originName = "origin-" + cleanHost + "-" + nameApp;
+				const nameApp = application.codeName.substring(2);
+				const nameRepo = cleanHost + "-" + nameApp;
+				const originName = "origin-" + cleanHost + "-" + nameApp;
 
 				if(typeof gitProcesses[originName] === "undefined")
 					gitProcesses[originName] = false;
@@ -337,7 +337,7 @@ module.exports = {
 	gitRemotes: (data) => {
 		return new Promise((resolve, reject) => {
 			// Workspace path
-			let workspacePath = __dirname + '/../workspace/' + data.application.name;
+			const workspacePath = __dirname + '/../workspace/' + data.application.name;
 			// Init simple-git in the workspace path
 			const simpleGit = require('simple-git')(workspacePath);
 			simpleGit.getRemotes(true, (err, answer) => {

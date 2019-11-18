@@ -5,7 +5,7 @@ const translateHelper = require("../utils/translate");
 
 async function addTab(data, file, newLi, newTabContent, target) {
 
-	let $ = await domHelper.read(file);
+	const $ = await domHelper.read(file);
 
 	// Tabs structure doesn't exist, create it
 	let context, tabs;
@@ -47,22 +47,22 @@ async function addTab(data, file, newLi, newTabContent, target) {
 // Create entity associations between the models
 exports.setupAssociation = (data) => {
 
-	let workspacePath = __dirname+'/../workspace/' + data.application.name;
-	let source = data.source;
-	let target = data.target;
-	let foreignKey = data.foreignKey;
-	let as = data.as;
-	let showAs = data.showAs;
-	let relation = data.relation;
-	let through = data.through;
-	let toSync = data.toSync;
-	let type = data.type;
-	let constraints = data.constraints;
-	let targetType = data.targetType;
+	const workspacePath = __dirname+'/../workspace/' + data.application.name;
+	const source = data.source;
+	const target = data.target;
+	const foreignKey = data.foreignKey;
+	const as = data.as;
+	const showAs = data.showAs;
+	const relation = data.relation;
+	const through = data.through;
+	const toSync = data.toSync;
+	const type = data.type;
+	const constraints = data.constraints;
+	const targetType = data.targetType;
 
 	// SETUP MODEL OPTIONS FILE
-	let optionsFileName = workspacePath + '/models/options/' + source + '.json';
-	let optionsObject = JSON.parse(fs.readFileSync(optionsFileName));
+	const optionsFileName = workspacePath + '/models/options/' + source + '.json';
+	const optionsObject = JSON.parse(fs.readFileSync(optionsFileName));
 
 	// If we are generating automatically a key and the alias is already used, then cancel
 	for (let i = 0; i < optionsObject.length; i++)
@@ -74,7 +74,7 @@ exports.setupAssociation = (data) => {
 		if(optionsObject[i].as == as && optionsObject[i].type == "auto_generate")
 			optionsObject.splice(i, 1);
 
-	let baseOptions = {target: target, relation: relation};
+	const baseOptions = {target: target, relation: relation};
 	baseOptions.foreignKey = foreignKey;
 	baseOptions.as = as;
 	baseOptions.showAs = showAs;
@@ -108,8 +108,8 @@ exports.setupAssociation = (data) => {
 
 	if (toSync) {
 		// SETUP toSync.json
-		let toSyncFileName = workspacePath + '/models/toSync.json';
-		let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+		const toSyncFileName = workspacePath + '/models/toSync.json';
+		const toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
 		if (typeof toSyncObject[source] === "undefined") {
 			toSyncObject[source] = {};
@@ -127,8 +127,8 @@ exports.setupAssociation = (data) => {
 };
 
 exports.selectEntity = async (data) => {
-	let layout_path = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module.name + '.dust';
-	let $ = await domHelper.read(layout_path);
+	const layout_path = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module.name + '.dust';
+	const $ = await domHelper.read(layout_path);
 
 	// Check if entity is a subEntity or not to do the redirection if needed
 	if (typeof $('#' + data.entity_name + '_menu_item')[0] !== "undefined")
@@ -138,11 +138,11 @@ exports.selectEntity = async (data) => {
 
 exports.setupEntity = async (data) => {
 
-	let module_name = data.np_module.name;
+	const module_name = data.np_module.name;
 	let addInSidebar = true;
 
-	let piecesPath = __dirname + "/pieces";
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const piecesPath = __dirname + "/pieces";
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	let entity_name, entity_url;
 	if (data.function === "createNewHasOne" || data.function === 'createNewHasMany') {
@@ -158,7 +158,7 @@ exports.setupEntity = async (data) => {
 		entity_url = data.options.urlValue;
 	}
 
-	let entity_model = entity_name.charAt(0).toUpperCase() + entity_name.toLowerCase().slice(1);
+	const entity_model = entity_name.charAt(0).toUpperCase() + entity_name.toLowerCase().slice(1);
 
 	// CREATE MODEL FILE
 	let modelTemplate = fs.readFileSync(piecesPath + '/models/data_entity.js', 'utf8');
@@ -168,7 +168,7 @@ exports.setupEntity = async (data) => {
 	fs.writeFileSync(workspacePath+ '/models/'+entity_name+'.js', modelTemplate);
 
 	// CREATE MODEL ATTRIBUTES FILE
-	let baseAttributes = {
+	const baseAttributes = {
 		"id": {
 			"type": "INTEGER",
 			"autoIncrement": true,
@@ -199,9 +199,9 @@ exports.setupEntity = async (data) => {
 
 	// Add entity entry in the application module sidebar
 	if(addInSidebar) {
-		let fileName = workspacePath + '/views/layout_' + module_name + '.dust';
+		const fileName = workspacePath + '/views/layout_' + module_name + '.dust';
 		// Read file and get jQuery instance
-		let $ = await domHelper.read(fileName);
+		const $ = await domHelper.read(fileName);
 		let li = '';
 		// Create new html
 		li += '<!--{#entityAccess entity="' + entity_url + '"}-->\n';
@@ -241,21 +241,21 @@ exports.setupEntity = async (data) => {
 
 	// Copy CRUD view folder and customize them according to data entity properties
 	fs.copySync(piecesPath + '/views/entity', workspacePath + '/views/' + entity_name);
-	let fileBase = workspacePath + '/views/' + entity_name;
+	const fileBase = workspacePath + '/views/' + entity_name;
 
-	let dustFiles = ["create", "create_fields", "show", "show_fields", "update", "update_fields", "list", "list_fields"];
-	let dustPromises = [];
+	const dustFiles = ["create", "create_fields", "show", "show_fields", "update", "update_fields", "list", "list_fields"];
+	const dustPromises = [];
 
 	for (let i = 0; i < dustFiles.length; i++) {
 		dustPromises.push((async () => {
-			let fileToWrite = fileBase + '/' + dustFiles[i] + ".dust";
+			const fileToWrite = fileBase + '/' + dustFiles[i] + ".dust";
 			let dustContent = fs.readFileSync(fileToWrite, 'utf8');
 			dustContent = dustContent.replace(/custom_module/g, module_name);
 			dustContent = dustContent.replace(/custom_data_entity/g, entity_name);
 			dustContent = dustContent.replace(/custom_url_data_entity/g, entity_url);
 
 			if (module_name != "m_home") {
-				let htmlToAdd = "" +
+				const htmlToAdd = "" +
 					"<li>" +
 					"   <a class='sub-module-arianne' href='/default/" + module_name.substring(2) + "'>" +
 					"	   <!--{#__ key=\"module." + module_name + "\"/}-->" +
@@ -272,9 +272,9 @@ exports.setupEntity = async (data) => {
 	await Promise.all(dustPromises);
 
 	// Write new data entity to access.json file, within module's context
-	let accessPath = workspacePath + '/config/access.json';
-	let accessLockPath = workspacePath + '/config/access.lock.json';
-	let accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+	const accessPath = workspacePath + '/config/access.json';
+	const accessLockPath = workspacePath + '/config/access.lock.json';
+	const accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
 	accessObject[module_name.substring(2)].entities.push({
 		name: entity_url,
 		groups: [],
@@ -295,7 +295,7 @@ exports.setupEntity = async (data) => {
 };
 
 exports.deleteDataEntity = async (data) => {
-	let baseFolder = __dirname + '/../workspace/' + data.application.name;
+	const baseFolder = __dirname + '/../workspace/' + data.application.name;
 
 	// Delete views folder
 	helpers.rmdirSyncRecursive(baseFolder + '/views/' + data.entity.name);
@@ -311,10 +311,10 @@ exports.deleteDataEntity = async (data) => {
 	fs.unlinkSync(baseFolder + '/models/attributes/' + data.entity.name + '.json');
 
 	// Remove relationships in options.json files
-	let optionFiles = fs.readdirSync(baseFolder + '/models/options/').filter(x => x.indexOf('.json') != -1);
-	for (let file in optionFiles) {
-		let options = JSON.parse(fs.readFileSync(baseFolder + '/models/options/' + optionFiles[file]));
-		let optionsCpy = [];
+	const optionFiles = fs.readdirSync(baseFolder + '/models/options/').filter(x => x.indexOf('.json') != -1);
+	for (const file in optionFiles) {
+		const options = JSON.parse(fs.readFileSync(baseFolder + '/models/options/' + optionFiles[file]));
+		const optionsCpy = [];
 		for (let i = 0; i < options.length; i++)
 			if (options[i].target != data.entity.name)
 				optionsCpy.push(options[i]);
@@ -323,7 +323,7 @@ exports.deleteDataEntity = async (data) => {
 	}
 
 	// Clean up access config
-	let access = JSON.parse(fs.readFileSync(baseFolder + '/config/access.json', 'utf8'));
+	const access = JSON.parse(fs.readFileSync(baseFolder + '/config/access.json', 'utf8'));
 	for (let i = 0; i < access[data.np_module.name.substring(2)].entities.length; i++)
 		if (access[data.np_module.name.substring(2)].entities[i].name == data.entity.name.substring(2))
 			access[data.np_module.name.substring(2)].entities.splice(i, 1);
@@ -331,8 +331,8 @@ exports.deleteDataEntity = async (data) => {
 	fs.writeFileSync(baseFolder + '/config/access.lock.json', JSON.stringify(access, null, 4));
 
 	// Remove entity entry from layout select
-	let filePath = baseFolder + '/views/layout_' + data.np_module.name + '.dust';
-	let $ = await domHelper.read(filePath);
+	const filePath = baseFolder + '/views/layout_' + data.np_module.name + '.dust';
+	const $ = await domHelper.read(filePath);
 
 	$("#" + data.entity.name.substring(2) + '_menu_item').remove();
 
@@ -343,18 +343,18 @@ exports.deleteDataEntity = async (data) => {
 };
 
 exports.setupHasManyTab = async (data) => {
-	let target = data.options.target;
-	let source = data.options.source;
-	let urlSource = data.options.urlSource;
-	let alias = data.options.as;
-	let foreignKey = data.options.foreignKey;
-	let showAlias = data.options.showAs;
+	const target = data.options.target;
+	const source = data.options.source;
+	const urlSource = data.options.urlSource;
+	const alias = data.options.as;
+	const foreignKey = data.options.foreignKey;
+	const showAlias = data.options.showAs;
 
 	/* Add Alias in Translation file for tabs */
-	let fileTranslationFR = __dirname + '/../workspace/' + data.application.name + '/locales/fr-FR.json';
-	let fileTranslationEN = __dirname + '/../workspace/' + data.application.name + '/locales/en-EN.json';
-	let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
-	let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
+	const fileTranslationFR = __dirname + '/../workspace/' + data.application.name + '/locales/fr-FR.json';
+	const fileTranslationEN = __dirname + '/../workspace/' + data.application.name + '/locales/en-EN.json';
+	const dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+	const dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
 	dataFR.entity[source][alias] = showAlias;
 	dataEN.entity[source][alias] = showAlias;
@@ -363,11 +363,11 @@ exports.setupHasManyTab = async (data) => {
 	fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 4), 'utf8');
 
 	// Setup association tab for show_fields.dust
-	let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
-	let file = fileBase + '/show_fields.dust';
+	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
+	const file = fileBase + '/show_fields.dust';
 
 	// Create new tab button
-	let newLi = '\
+	const newLi = '\
 		<li>\n\
 			<a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasMany" href="#' + alias + '">\n\
 				<!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
@@ -375,27 +375,27 @@ exports.setupHasManyTab = async (data) => {
 		</li>';
 
 	// Create new tab content
-	let newTab = '  <div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
+	const newTab = '  <div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasMany" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
 	return await addTab(data, file, newLi, newTab, target);
 };
 
 exports.setupHasManyPresetTab = async (data) => {
 
-	let target = data.options.target;
-	let source = data.options.source;
-	let urlSource = data.options.urlSource;
-	let foreignKey = data.options.foreignKey;
-	let alias = data.options.as;
-	let showAlias = data.options.showAs;
+	const target = data.options.target;
+	const source = data.options.source;
+	const urlSource = data.options.urlSource;
+	const foreignKey = data.options.foreignKey;
+	const alias = data.options.as;
+	const showAlias = data.options.showAs;
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	/* Add Alias in Translation file for tabs */
-	let fileTranslationFR = workspacePath + '/locales/fr-FR.json';
-	let fileTranslationEN = workspacePath + '/locales/en-EN.json';
-	let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
-	let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
+	const fileTranslationFR = workspacePath + '/locales/fr-FR.json';
+	const fileTranslationEN = workspacePath + '/locales/en-EN.json';
+	const dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+	const dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
 	dataFR.entity[source][alias] = showAlias;
 	dataEN.entity[source][alias] = showAlias;
@@ -404,28 +404,28 @@ exports.setupHasManyPresetTab = async (data) => {
 	fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 4));
 
 	// Setup association tab for show_fields.dust
-	let fileBase = workspacePath + '/views/' + source;
-	let file = fileBase + '/show_fields.dust';
+	const fileBase = workspacePath + '/views/' + source;
+	const file = fileBase + '/show_fields.dust';
 
-	let newLi = '\
+	const newLi = '\
 	<li>\n\
 		<a id="' + alias + '-click" data-toggle="tab" data-tabtype="hasManyPreset" href="#' + alias + '">\n\
 			<!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
 		</a>\n\
 	</li>';
 
-	let newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
+	const newTabContent = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasManyPreset" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content sub-tab-table"></div></div>';
 
 	await addTab(data, file, newLi, newTabContent, data.options.target);
 	return true;
 };
 
 exports.saveHasManyData = (data, workspaceData, foreignKey) => {
-	let jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
-	let toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+	const jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+	const toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 	toSync.queries = [];
-	let firstKey = "fk_id_" + data.options.source;
-	let secondKey = "fk_id_" + data.options.target;
+	const firstKey = "fk_id_" + data.options.source;
+	const secondKey = "fk_id_" + data.options.target;
 	/* Insert value in toSync queries array to add values of the old has many in the belongs to many */
 	for (let i = 0; i < data.length; i++)
 		toSync.queries.push("INSERT INTO " + data.options.through + "(" + firstKey + ", " + secondKey + ") VALUES(" + data[i].id + ", " + data[i][foreignKey] + ");");
@@ -434,18 +434,18 @@ exports.saveHasManyData = (data, workspaceData, foreignKey) => {
 };
 
 exports.setupHasOneTab = async (data) => {
-	let target = data.options.target;
-	let source = data.options.source;
-	let urlSource = data.options.urlSource;
-	let foreignKey = data.options.foreignKey;
-	let alias = data.options.as;
-	let showAlias = data.options.showAs;
+	const target = data.options.target;
+	const source = data.options.source;
+	const urlSource = data.options.urlSource;
+	const foreignKey = data.options.foreignKey;
+	const alias = data.options.as;
+	const showAlias = data.options.showAs;
 
 	/* Add Alias in Translation file for tabs */
-	let fileTranslationFR = __dirname + '/../workspace/' + data.application.name + '/locales/fr-FR.json';
-	let fileTranslationEN = __dirname + '/../workspace/' + data.application.name + '/locales/en-EN.json';
-	let dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
-	let dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
+	const fileTranslationFR = __dirname + '/../workspace/' + data.application.name + '/locales/fr-FR.json';
+	const fileTranslationEN = __dirname + '/../workspace/' + data.application.name + '/locales/en-EN.json';
+	const dataFR = JSON.parse(fs.readFileSync(fileTranslationFR));
+	const dataEN = JSON.parse(fs.readFileSync(fileTranslationEN));
 
 	dataFR.entity[source][alias] = showAlias;
 	dataEN.entity[source][alias] = showAlias;
@@ -454,11 +454,11 @@ exports.setupHasOneTab = async (data) => {
 	fs.writeFileSync(fileTranslationEN, JSON.stringify(dataEN, null, 2))
 
 	// Setup association tab for show_fields.dust
-	let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
-	let file = fileBase + '/show_fields.dust';
+	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
+	const file = fileBase + '/show_fields.dust';
 
 	// Create new tab button
-	let newLi = '\
+	const newLi = '\
 	<li>\n\
 		<a id="' + alias + '-click" data-toggle="tab" href="#' + alias + '">\n\
 			<!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
@@ -466,22 +466,22 @@ exports.setupHasOneTab = async (data) => {
 	</li>';
 
 	// Create new tab content
-	let newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content"></div></div>';
+	const newTab = '<div id="' + alias + '" class="ajax-tab tab-pane fade" data-tabType="hasOne" data-asso-alias="' + alias + '" data-asso-foreignkey="' + foreignKey + '" data-asso-flag="{id}" data-asso-source="' + source + '" data-asso-url="' + urlSource + '"><div class="ajax-content"></div></div>';
 	return await addTab(data, file, newLi, newTab, target);
 };
 
 exports.deleteTab = async (data) => {
 
-	let tabNameWithoutPrefix = data.options.urlValue;
+	const tabNameWithoutPrefix = data.options.urlValue;
 	let target;
 
-	let workspacePath =  __dirname + '/../workspace/' + data.application.name;
-	let jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
+	const workspacePath =  __dirname + '/../workspace/' + data.application.name;
+	const jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
 
-	let options = JSON.parse(fs.readFileSync(jsonPath));
+	const options = JSON.parse(fs.readFileSync(jsonPath));
 	let found = false;
 	let option;
-	let deletedOptionsTarget = [];
+	const deletedOptionsTarget = [];
 
 	for (let i = 0; i < options.length; i++) {
 		if (options[i].as !== "r_" + tabNameWithoutPrefix)
@@ -503,7 +503,7 @@ exports.deleteTab = async (data) => {
 	}
 
 	if (!found) {
-		let err = new Error('structure.association.error.unableTab');
+		const err = new Error('structure.association.error.unableTab');
 		err.messageParams = [data.options.showValue];
 		throw err;
 	}
@@ -525,11 +525,11 @@ exports.deleteTab = async (data) => {
 	}
 	fs.writeFileSync(jsonPath, JSON.stringify(options, null, 4), "utf8");
 
-	let showFile = workspacePath + '/views/' + data.entity.name + '/show_fields.dust';
-	let $ = await domHelper.read(showFile)
+	const showFile = workspacePath + '/views/' + data.entity.name + '/show_fields.dust';
+	const $ = await domHelper.read(showFile)
 
 	// Get tab type before destroying it
-	let tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
+	const tabType = $("#r_" + tabNameWithoutPrefix + "-click").attr('data-tabtype');
 	// Remove tab (<li>)
 	$("#r_" + tabNameWithoutPrefix + "-click").parents('li').remove();
 	// Remove tab content

@@ -126,7 +126,7 @@ function buildZipFromDirectory(dir, zip, root) {
 
 	for (let file of list) {
 		file = path.resolve(dir, file)
-		let stat = fs.statSync(file)
+		const stat = fs.statSync(file)
 		if (stat && stat.isDirectory()) {
 			this.buildZipFromDirectory(file, zip, root)
 		} else {
@@ -226,7 +226,7 @@ module.exports = {
 	},
 	getLastLoggedError: function(appName) {
 		try {
-			let logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
+			const logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
 			// First line of last error in app logs
 			if (logContent.indexOf("Error:") == -1)
 				return "No error detected.";

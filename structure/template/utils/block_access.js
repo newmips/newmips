@@ -93,7 +93,7 @@ exports.moduleAccessMiddleware = function(moduleName) {
 	return function(req, res, next) {
 		if (!req.isAuthenticated())
 			return res.redirect('/login');
-		let userGroups = req.session.passport.user.r_group;
+		const userGroups = req.session.passport.user.r_group;
 		if (userGroups.length > 0 && moduleAccess(userGroups, moduleName))
 			return next();
 
@@ -237,7 +237,7 @@ exports.accessFileManagment = function(){
 		const access = JSON.parse(fs.readFileSync(__dirname +'/../config/access.json'))
 		const accessLock = JSON.parse(fs.readFileSync(__dirname +'/../config/access.lock.json'))
 
-		let emptyEntityContent = {
+		const emptyEntityContent = {
 			"name": "",
 			"groups": [],
 			"actions": {
@@ -250,7 +250,7 @@ exports.accessFileManagment = function(){
 
 		let lockEntities, accessEntities, found;
 		// Add missing things in access.json
-		for (let moduleLock in accessLock) {
+		for (const moduleLock in accessLock) {
 			// Generate new module with entities and groups if needed
 			if(!access[moduleLock]){
 				console.log("access.json: NEW MODULE: "+moduleLock);
@@ -278,7 +278,7 @@ exports.accessFileManagment = function(){
 		}
 
 		// Remove key in access that are not in access.lock
-		for (let nps_module in access) {
+		for (const nps_module in access) {
 			// Generate new module with entities and groups if needed
 			if(!accessLock[nps_module]){
 				console.log("access.json: REMOVE MODULE: "+nps_module);
@@ -314,8 +314,8 @@ exports.accessFileManagment = function(){
 
 exports.statusGroupAccess = function(req, res, next) {
 
-	let idNewStatus = parseInt(req.params.id_new_status);
-	let userGroups = req.session.passport.user.r_group;
+	const idNewStatus = parseInt(req.params.id_new_status);
+	const userGroups = req.session.passport.user.r_group;
 
 	models.E_status.findOne({
 		where: {

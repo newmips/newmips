@@ -25,7 +25,7 @@ function sendMailAsync(mailOptions) {
 }
 
 exports.sendMail_Reset_Password = (data, res) => {
-	let mailOptions = {
+	const mailOptions = {
 		from: mailConfig.expediteur,
 		to: data.mail_user,
 		subject: 'Newmips, modification de mot de passe',
@@ -54,7 +54,7 @@ exports.sendMail_Reset_Password = (data, res) => {
 
 // Mails relatifs à la connexion d'un utilisation
 exports.sendMail_Activation_Compte = (data, res) => {
-	let mailOptions = {
+	const mailOptions = {
 		from: mailConfig.expediteur,
 		to: data.mail_user,
 		subject: 'Bienvenue sur Newmips',

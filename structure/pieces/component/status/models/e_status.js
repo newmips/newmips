@@ -5,8 +5,8 @@ const attributes_origin = require("./attributes/e_status.json");
 const associations = require("./options/e_status.json");
 
 module.exports = (sequelize, DataTypes) => {
-	let attributes = builder.buildForModel(attributes_origin, DataTypes);
-	let options = {
+	const attributes = builder.buildForModel(attributes_origin, DataTypes);
+	const options = {
 		tableName: 'e_status',
 		timestamps: true
 	};
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 	const Model = sequelize.define('E_status', attributes, options);
 	Model.associate = builder.buildAssociation('E_status', associations);
 	Model.prototype.translate = function(lang) {
-		let self = this;
+		const self = this;
 		if (!self.r_translations)
 			return;
 		for (let i = 0; i < self.r_translations.length; i++)
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 			}
 	};
 	Model.prototype.executeActions = function(entitySource) {
-		let self = this;
+		const self = this;
 		return new Promise((resolve, reject) => {
 			function orderedExecute(actions, idx) {
 				// All actions executed

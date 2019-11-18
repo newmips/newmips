@@ -23,8 +23,8 @@ const funcs = {
 		for (let i = 0; i < data.data.length; i++) {
 			fieldLoop:for (const field in data.data[i]) {
 				// Look for enum translation
-				enumHeadLoop:for (const enumEntity in enumsTranslation) {
-					enumFieldsLoop:for (const enumField in enumsTranslation[enumEntity])
+				for (const enumEntity in enumsTranslation) {
+					for (const enumField in enumsTranslation[enumEntity])
 						if (enumField == field)
 							for (let j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
 								if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
@@ -220,13 +220,13 @@ const funcs = {
 		});
 	},
 	removeFiles: function (entityName, entity, attributes) {
-		for (let key in entity.dataValues) {
-			for (let attribute in attributes) {
+		for (const key in entity.dataValues) {
+			for (const attribute in attributes) {
 				if ((attributes[attribute].newmipsType === 'file' ||
 						attributes[attribute].newmipsType === "cloudfile" ||
 						attributes[attribute].newmipsType === "picture") &&
 						attribute == key) {
-					let value = entity.dataValues[key];
+					const value = entity.dataValues[key];
 					if (value && entityName) {
 						var options = {
 							entityName: entityName,

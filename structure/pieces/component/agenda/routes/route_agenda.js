@@ -139,7 +139,7 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 
 router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_event", 'update'), function(req, res) {
 
-	let updateObj = {
+	const updateObj = {
 		f_start_date: req.body.start,
 		f_end_date: req.body.end,
 		f_all_day: typeof req.body.allDay === 'boolean' ? req.body.allDay : false

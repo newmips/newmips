@@ -147,12 +147,12 @@ exports.generateFields = function (componentName, componentCodeName) {
 			showFieldsHtml += "		</div>\n";
 			// Headers
 
-			let header = `\
+			const header = `\
 			<th data-field="r_address.${dbcolumn}" data-col="r_address.${dbcolumn}">\n\
 				{#__ key="entity.${componentCodeName}.${dbcolumn}"/}\n\
 			</th>\n`;
 
-			let td = `	  <td data-field="address.${dbcolumn}">{${dbcolumn}}</td>\n`;
+			const td = `	  <td data-field="address.${dbcolumn}">{${dbcolumn}}</td>\n`;
 
 			headers += header;
 			// tds

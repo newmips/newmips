@@ -692,8 +692,8 @@ router.post('/delete', block_access.actionAccessMiddleware("user", "delete"), fu
 
 router.get('/settings', block_access.isLoggedIn, function(req, res) {
 
-	let id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
-	let data = {};
+	const id_e_user = req.session.passport && req.session.passport.user ? req.session.passport.user.id : 1;
+	const data = {};
 
 	models.E_user.findOne({
 		attributes: ["id", "f_login", "f_email"],
@@ -726,13 +726,13 @@ router.get('/settings', block_access.isLoggedIn, function(req, res) {
 
 router.post('/settings', block_access.isLoggedIn, function(req, res) {
 
-	let updateObject = {};
+	const updateObject = {};
 
 	if(req.body.f_email && req.body.f_email != '')
 		updateObject.f_email = req.body.f_email
 
 	models.E_user.findByPk(req.session.passport.user.id).then(user => {
-		let newPassword = new Promise((resolve, reject) => {
+		const newPassword = new Promise((resolve, reject) => {
 			if(!req.body.old_password || req.body.old_password == "")
 				return resolve(updateObject);
 

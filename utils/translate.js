@@ -1,17 +1,17 @@
 const fs = require('fs');
 const helpers = require("./helpers");
 // Google translation
-let translateKey = require("../config/googleAPI").translate;
+const translateKey = require("../config/googleAPI").translate;
 const googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
 	writeTree: function(appName, object, language, replaceBoolean = true) {
-		let localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json'));
+		const localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json'));
 
 		function dive(locales, newLocales) {
-			for (let newLocale in newLocales) {
+			for (const newLocale in newLocales) {
 				let found = false;
-				for (let locale in locales) {
+				for (const locale in locales) {
 					if (locale == newLocale && typeof newLocales[newLocale] === 'object') {
 						found = true;
 						dive(locales[locale], newLocales[newLocale])
@@ -63,14 +63,14 @@ module.exports = {
 		value = value.replace(String.fromCharCode(65533), "€");
 
 		// Current application language
-		let languageFileData = helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/config/application.json');
-		let appLang = JSON.parse(languageFileData).lang;
+		const languageFileData = helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/config/application.json');
+		const appLang = JSON.parse(languageFileData).lang;
 
 		// Google won't fr-FR, it just want fr
-		let appLang4Google = appLang.slice(0, -3);
+		const appLang4Google = appLang.slice(0, -3);
 
 		// Get all the differents languages to handle
-		let localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(function(file) {
+		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(function(file) {
 			return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
 		});
 
@@ -127,7 +127,7 @@ module.exports = {
 						case 'label':
 							value = lang == "fr-FR" ? "Libellé" : "Label";
 							break;
-					};
+					}
 					data.entity[keyValue][keyValueField] = value;
 					break;
 				case 'aliasfield':
@@ -147,18 +147,18 @@ module.exports = {
 						case 'label':
 							value = lang == "fr-FR" ? "Libellé" : "Label";
 							break;
-					};
+					}
 					data.entity[keyValue][alias] = value;
 					break;
 			}
 			return data;
 		}
 
-		let promises = [];
+		const promises = [];
 		for (let i = 0; i < localesDir.length; i++) {
 			promises.push(new Promise((resolve, reject) => {
-				let file = localesDir[i];
-				let urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
+				const file = localesDir[i];
+				const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
 				let dataLocales;
 				try {
 					dataLocales = JSON.parse(fs.readFileSync(urlFile));
@@ -166,8 +166,8 @@ module.exports = {
 					console.error(err);
 					console.log("Concerned file => " + urlFile);
 				}
-				let workingLocales = file.slice(0, -5);
-				let workingLocales4Google = workingLocales.slice(0, -3);
+				const workingLocales = file.slice(0, -5);
+				const workingLocales4Google = workingLocales.slice(0, -3);
 
 				// Google translate
 				if (workingLocales != appLang && (translateKey != "" && toTranslate)) {
@@ -203,14 +203,14 @@ module.exports = {
 	},
 	removeLocales: (appName, type, value) => {
 		// Get all the differents languages to handle
-		let localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => {
+		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => {
 			return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
 		});
 
 		localesDir.forEach(file => {
-			let urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
+			const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
 			delete require.cache[require.resolve(urlFile)];
-			let dataLocales = require(urlFile);
+			const dataLocales = require(urlFile);
 
 			if (type == "field")
 				delete dataLocales.entity[value[0]][value[1]];
@@ -226,7 +226,7 @@ module.exports = {
 	},
 	updateLocales: function(appName, lang, keys, value) {
 		var urlFile = __dirname + '/../workspace/' + appName + '/locales/' + lang + ".json";
-		let dataLocales = JSON.parse(fs.readFileSync(urlFile))
+		const dataLocales = JSON.parse(fs.readFileSync(urlFile))
 
 		let depth = dataLocales;
 		for (let i = 0; i < keys.length; i++) {

@@ -28,7 +28,7 @@ exports.getFileBuffer = function (path, options) {
 		const completeFilePath = globalConf.localstorage + path;
 		if (typeof path == 'undefined' || !fs.existsSync(globalConf.localstorage + path))
 			return reject(new Error({code: 404, message: 'File not found'}));
-		let encoding = typeof options !== 'undefined' && options.encoding ? options.encoding : 'base64';
+		const encoding = typeof options !== 'undefined' && options.encoding ? options.encoding : 'base64';
 		resolve(Buffer.from(fs.readFileSync(completeFilePath)).toString(encoding));
 	});
 };

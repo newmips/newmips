@@ -213,7 +213,7 @@ app.use(function(req, res, next) {
 	};
 
 	dust.helpers.in = function(chunk, context, bodies, params) {
-		let paramsArray = params.value.split(",");
+		const paramsArray = params.value.split(",");
 		if(paramsArray.indexOf(params.key) != -1)
 			return true;
 		else

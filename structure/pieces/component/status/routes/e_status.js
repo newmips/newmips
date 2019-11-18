@@ -356,7 +356,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "create
 
 router.post('/create', block_access.actionAccessMiddleware("status", "create"), function (req, res) {
 	var createObject = model_builder.buildForRoute(attributes, options, req.body);
-	let [entity, field] = req.body.entityStatus.split('.');
+	const [entity, field] = req.body.entityStatus.split('.');
 	createObject.f_entity = entity;
 	createObject.f_field = field;
 
@@ -554,7 +554,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);;
+					var statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);
 					for (var i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
 							(function(alias) {

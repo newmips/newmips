@@ -58,7 +58,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 	}
 
 	// Radiobutton HTML can't understand a simple readOnly ... So it's disabled for them
-	let disabled = readOnly ? 'disabled' : '';
+	const disabled = readOnly ? 'disabled' : '';
 	readOnly = readOnly ? 'readOnly' : '';
 
 	let str = `\
@@ -433,15 +433,15 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 }
 
 function getFieldInHeaderListHtml(type, fieldName, entityName) {
-	let entity = entityName.toLowerCase();
-	let field = fieldName.toLowerCase();
-	let result = {
+	const entity = entityName.toLowerCase();
+	const field = fieldName.toLowerCase();
+	const result = {
 		headers: '',
 		body: ''
 	};
 
 	/* ------------- Add new FIELD in headers ------------- */
-	let str = '\
+	const str = '\
 	<th data-field="' + field + '" data-col="' + field + '" data-type="' + type + '" >\n\
 		<!--{#__ key="entity.' + entity + '.' + field + '"/}-->\n\
 	</th>';
@@ -466,8 +466,8 @@ function getFieldInHeaderListHtml(type, fieldName, entityName) {
 }
 
 async function updateFile(fileBase, file, string) {
-	let fileToWrite = fileBase + '/' + file + '.dust';
-	let $ = await domHelper.read(fileToWrite);
+	const fileToWrite = fileBase + '/' + file + '.dust';
+	const $ = await domHelper.read(fileToWrite);
 	$("#fields").append(string);
 	await domHelper.write(fileToWrite, $);
 	return;
@@ -475,10 +475,10 @@ async function updateFile(fileBase, file, string) {
 
 async function updateListFile(fileBase, file, thString) {
 	fileToWrite = fileBase + '/' + file + '.dust';
-	let $ = await domHelper.read(fileToWrite)
+	const $ = await domHelper.read(fileToWrite)
 
 	// Count th to know where to insert new th (-4 because of actions th + id, show/update/delete)
-	let thCount = $(".main").find('th').length - 4;
+	const thCount = $(".main").find('th').length - 4;
 	// Add to header thead and filter thead
 	$(".fields").each(function () {
 		$(this).find('th').eq(thCount).after(thString);
@@ -491,13 +491,13 @@ async function updateListFile(fileBase, file, thString) {
 
 exports.setupField = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let entity_name = data.entity.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const entity_name = data.entity.name;
 	let field_type = "string",
 		field_values;
 	/* ----------------- 1 - Initialize variables according to options ----------------- */
-	let options = data.options;
-	let field_name = options.value;
+	const options = data.options;
+	const field_name = options.value;
 	let defaultValue = null;
 	let defaultValueForOption = null;
 
@@ -510,7 +510,7 @@ exports.setupField = async (data) => {
 
 	// Cut allValues for ENUM or other type
 	if (typeof options.allValues !== "undefined") {
-		let values = options.allValues;
+		const values = options.allValues;
 		if (values.indexOf(",") != -1) {
 			field_values = values.split(",");
 			for (let j = 0; j < field_values.length; j++)
@@ -519,8 +519,8 @@ exports.setupField = async (data) => {
 			throw new Error('structure.field.attributes.noSpace');
 		}
 
-		let sameResults_sorted = field_values.slice().sort();
-		let sameResults = [];
+		const sameResults_sorted = field_values.slice().sort();
+		const sameResults = [];
 		for (let i = 0; i < field_values.length - 1; i++)
 			if (sameResults_sorted[i + 1] == sameResults_sorted[i])
 				sameResults.push(sameResults_sorted[i]);
@@ -532,12 +532,12 @@ exports.setupField = async (data) => {
 	/* ----------------- 2 - Update the entity model, add the attribute ----------------- */
 
 	// attributes.json
-	let attributesFileName = workspacePath + '/models/attributes/' + entity_name + '.json';
-	let attributesObject = JSON.parse(fs.readFileSync(attributesFileName));
+	const attributesFileName = workspacePath + '/models/attributes/' + entity_name + '.json';
+	const attributesObject = JSON.parse(fs.readFileSync(attributesFileName));
 
 	// toSync.json
-	let toSyncFileName = workspacePath + '/models/toSync.json';
-	let toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+	const toSyncFileName = workspacePath + '/models/toSync.json';
+	const toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
 	if (typeof toSyncObject[entity_name] === "undefined")
 		toSyncObject[entity_name] = {
@@ -707,7 +707,7 @@ exports.setupField = async (data) => {
 		}
 	}
 
-	let cleanEnumValues = [], cleanRadioValues = [];
+	const cleanEnumValues = [], cleanRadioValues = [];
 	if (field_type == "enum") {
 		// Remove all special caractere for all enum values
 		if (typeof field_values === "undefined")
@@ -779,8 +779,8 @@ exports.setupField = async (data) => {
 
 	// Translation for enum and radio values
 	if (field_type == "enum") {
-		let fileEnum = workspacePath + '/locales/enum_radio.json';
-		let enumData = JSON.parse(fs.readFileSync(fileEnum));
+		const fileEnum = workspacePath + '/locales/enum_radio.json';
+		const enumData = JSON.parse(fs.readFileSync(fileEnum));
 		let json = {};
 		if (enumData[entity_name])
 			json = enumData[entity_name];
@@ -801,8 +801,8 @@ exports.setupField = async (data) => {
 
 	// Translation for radio values
 	if (field_type == "radio") {
-		let fileRadio = workspacePath + '/locales/enum_radio.json';
-		let radioData = JSON.parse(fs.readFileSync(fileRadio));
+		const fileRadio = workspacePath + '/locales/enum_radio.json';
+		const radioData = JSON.parse(fs.readFileSync(fileRadio));
 		let json = {};
 		if (radioData[entity_name])
 			json = radioData[entity_name];
@@ -822,9 +822,9 @@ exports.setupField = async (data) => {
 	}
 
 	/* ----------------- 4 - Add the fields in all the views  ----------------- */
-	let fileBase = workspacePath + '/views/' + entity_name;
+	const fileBase = workspacePath + '/views/' + entity_name;
 
-	let filePromises = [];
+	const filePromises = [];
 	/* show_fields.dust file with a disabled input */
 	let field_html = getFieldHtml(field_type, field_name, entity_name, true, "show", field_values, defaultValue);
 	filePromises.push(updateFile(fileBase, "show_fields", field_html));
@@ -850,10 +850,10 @@ exports.setupField = async (data) => {
 
 exports.setRequiredAttribute = async (data) => {
 
-	let possibilityRequired = ["mandatory", "required", "obligatoire"];
-	let possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
+	const possibilityRequired = ["mandatory", "required", "obligatoire"];
+	const possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
 
-	let attribute = data.options.word.toLowerCase();
+	const attribute = data.options.word.toLowerCase();
 	let set = null;
 
 	if (possibilityRequired.indexOf(attribute) != -1)
@@ -863,13 +863,13 @@ exports.setRequiredAttribute = async (data) => {
 	else
 		throw new Error('structure.field.attributes.notUnderstand');
 
-	let pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity_name;
+	const pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity_name;
 
 	// Update create_fields.dust file
 	let $ = await domHelper.read(pathToViews + '/create_fields.dust');
 
 	if ($("*[data-field='" + data.options.value + "']").length == 0) {
-		let err = new Error('structure.field.attributes.fieldNoFound');
+		const err = new Error('structure.field.attributes.fieldNoFound');
 		err.messageParams = [data.options.showValue];
 		throw err;
 	}
@@ -905,8 +905,8 @@ exports.setRequiredAttribute = async (data) => {
 	await domHelper.write(pathToViews + '/update_fields.dust', $);
 
 	// Update the Sequelize attributes.json to set allowNull
-	let pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
-	let attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
+	const pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
+	const attributesObj = JSON.parse(fs.readFileSync(pathToAttributesJson, "utf8"));
 
 	if (attributesObj[data.options.value]) {
 		// TODO: Handle allowNull: false field in user, role, group to avoid error during autogeneration
@@ -915,13 +915,13 @@ exports.setRequiredAttribute = async (data) => {
 		if (data.entity_name != "e_user" && data.entity_name != "e_role" && data.entity_name != "e_group")
 			attributesObj[data.options.value].allowNull = set ? false : true;
 		// Alter column to set default value in DB if models already exist
-		let jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
-		let toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+		const jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+		const toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 		if (typeof toSync.queries === "undefined")
 			toSync.queries = [];
 
 		let defaultValue = null;
-		let tableName = data.entity_name;
+		const tableName = data.entity_name;
 		let length = "";
 		if (data.sqlDataType == "varchar")
 			length = "(" + data.sqlDataTypeLength + ")";
@@ -973,9 +973,9 @@ exports.setRequiredAttribute = async (data) => {
 		fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 	} else {
 		// If not in attributes, maybe in options
-		let pathToOptionJson = __dirname + '/../workspace/' + data.application.name + '/models/options/' + data.entity_name + ".json";
-		let optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
-		let aliasValue = "r_" + data.options.value.substring(2);
+		const pathToOptionJson = __dirname + '/../workspace/' + data.application.name + '/models/options/' + data.entity_name + ".json";
+		const optionsObj = JSON.parse(fs.readFileSync(pathToOptionJson, "utf8"));
+		const aliasValue = "r_" + data.options.value.substring(2);
 		for (let i = 0; i < optionsObj.length; i++)
 			if (optionsObj[i].as == aliasValue)
 				optionsObj[i].allowNull = set ? false : true;
@@ -989,10 +989,10 @@ exports.setRequiredAttribute = async (data) => {
 
 exports.setUniqueField = (data) => {
 
-	let possibilityUnique = ["unique"];
-	let possibilityNotUnique = ["not-unique", "non-unique"];
+	const possibilityUnique = ["unique"];
+	const possibilityNotUnique = ["not-unique", "non-unique"];
 
-	let attribute = data.options.word.toLowerCase();
+	const attribute = data.options.word.toLowerCase();
 	let set = null;
 
 	if (possibilityUnique.indexOf(attribute) != -1)
@@ -1003,9 +1003,9 @@ exports.setUniqueField = (data) => {
 		throw new Error('structure.field.attributes.notUnderstand');
 
 	// Update the Sequelize attributes.json to set unique
-	let pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
-	let attributesContent = fs.readFileSync(pathToAttributesJson);
-	let attributesObj = JSON.parse(attributesContent);
+	const pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
+	const attributesContent = fs.readFileSync(pathToAttributesJson);
+	const attributesObj = JSON.parse(attributesContent);
 
 	// If the current field is an fk field then we won't find it in attributes.json
 	if (typeof attributesObj[data.options.value] !== "undefined")
@@ -1017,10 +1017,10 @@ exports.setUniqueField = (data) => {
 
 exports.setFieldAttribute = async (data) => {
 
-	let targetField = data.options.value;
-	let word = data.options.word.toLowerCase();
-	let attributeValue = data.options.attributeValue.toLowerCase();
-	let pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity.name;
+	const targetField = data.options.value;
+	const word = data.options.word.toLowerCase();
+	const attributeValue = data.options.attributeValue.toLowerCase();
+	const pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity.name;
 
 	// Update create_fields.dust file
 	let $ = await domHelper.read(pathToViews + '/create_fields.dust');
@@ -1039,7 +1039,7 @@ exports.setFieldAttribute = async (data) => {
 
 		await domHelper.write(pathToViews + '/update_fields.dust', $);
 	} else {
-		let err = new Error('structure.field.attributes.fieldNoFound');
+		const err = new Error('structure.field.attributes.fieldNoFound');
 		err.messageParams = [data.options.showValue];
 		throw err;
 	}
@@ -1047,11 +1047,11 @@ exports.setFieldAttribute = async (data) => {
 }
 
 exports.setupRelatedToField = async (data) => {
-	let target = data.options.target;
-	let urlTarget = data.options.urlTarget;
-	let source = data.source_entity.name;
-	let alias = data.options.as;
-	let urlAs = data.options.urlAs;
+	const target = data.options.target;
+	const urlTarget = data.options.urlTarget;
+	const source = data.source_entity.name;
+	const alias = data.options.as;
+	const urlAs = data.options.urlAs;
 
 	// Check if field is used in select, default to id
 	let usingField = [{value: "id", type: "string"}];
@@ -1062,7 +1062,7 @@ exports.setupRelatedToField = async (data) => {
 	if (typeof data.options.showUsingField !== "undefined")
 		showUsingField = data.options.showUsingField;
 
-	let usingList = [], usingOption = [];
+	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
 		usingList.push(usingField[i].value);
 		usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
@@ -1083,7 +1083,7 @@ exports.setupRelatedToField = async (data) => {
 		</div>\n\
 	</div>\n';
 
-	let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
+	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 	let file = 'create_fields';
 	await updateFile(fileBase, file, select);
 
@@ -1124,16 +1124,16 @@ exports.setupRelatedToField = async (data) => {
 	str += "</div>\n</div>\n";
 
 	file = fileBase + '/show_fields.dust';
-	let $ = await domHelper.read(file);
+	const $ = await domHelper.read(file);
 	$("#fields").append(str);
 
 	await domHelper.write(file, $)
 
 	for (let i = 0; i < usingField.length; i++) {
-		let targetField = (usingField[i].value == "id") ? "id_entity" : usingField[i].value;
+		const targetField = (usingField[i].value == "id") ? "id_entity" : usingField[i].value;
 
 		// Add <th> in list_field
-		let toAddInList = {headers: '', body: ''};
+		const toAddInList = {headers: '', body: ''};
 
 		/* ------------- Add new FIELD in headers ------------- */
 		let str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[i].value + '"';
@@ -1158,11 +1158,11 @@ exports.setupRelatedToField = async (data) => {
 
 exports.setupRelatedToMultipleField = async (data) => {
 
-	let urlTarget = data.options.urlTarget;
-	let source = data.source_entity.name;
-	let alias = data.options.as;
-	let urlAs = data.options.urlAs;
-	let fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
+	const urlTarget = data.options.urlTarget;
+	const source = data.source_entity.name;
+	const alias = data.options.as;
+	const urlAs = data.options.urlAs;
+	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
 	let usingField = [{value: "id", type: "string"}];
@@ -1173,14 +1173,14 @@ exports.setupRelatedToMultipleField = async (data) => {
 	if (typeof data.options.showUsingField !== "undefined")
 		showUsingField = data.options.showUsingField;
 
-	let usingList = [], usingOption = [];
+	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
 		usingList.push(usingField[i].value);
 		usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
 	}
 
 	// CREATE_FIELD
-	let head = '\
+	const head = '\
 	<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12" '+ (data.options.isCheckbox ? 'style="margin-bottom: 25px;"' : "") +'>\n\
 		<div class="form-group">\n\
 			<label for="f_' + urlAs + '">\n\
@@ -1257,7 +1257,7 @@ exports.setupRelatedToMultipleField = async (data) => {
 	select += '</div>\n';
 
 	file = fileBase + '/show_fields.dust';
-	let $ = await domHelper.read(file);
+	const $ = await domHelper.read(file);
 	$("#fields").append(head + select);
 	await domHelper.write(file, $);
 	await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
@@ -1266,18 +1266,18 @@ exports.setupRelatedToMultipleField = async (data) => {
 
 exports.deleteField = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let field = data.options.value;
-	let url_value = data.options.urlValue;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const field = data.options.value;
+	const url_value = data.options.urlValue;
 	let isInOptions = false;
-	let info = {};
+	const info = {};
 
 	// Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
 	let jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
 
 	// Clear the require cache
 	let dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-	let deletedOptionsTarget = [];
+	const deletedOptionsTarget = [];
 	for (let i = 0; i < dataToWrite.length; i++) {
 		if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
 			if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple" && dataToWrite[i].structureType != "relatedToMultipleCheckbox")
@@ -1363,16 +1363,16 @@ exports.deleteField = async (data) => {
 		});
 	}));
 
-	let optionsPath = workspacePath + '/models/options/';
-	let otherViewsPath = workspacePath + '/views/';
-	let structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
+	const optionsPath = workspacePath + '/models/options/';
+	const otherViewsPath = workspacePath + '/views/';
+	const structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
 	fieldsFiles.push("list_fields");
 	// Looking for association with using of the deleted field
 	fs.readdirSync(optionsPath).filter(function (file) {
 		return (file.indexOf('.json') != -1);
 	}).forEach(function (file) {
-		let currentOption = JSON.parse(fs.readFileSync(optionsPath + file, "utf8"));
-		let currentEntity = file.split(".json")[0];
+		const currentOption = JSON.parse(fs.readFileSync(optionsPath + file, "utf8"));
+		const currentEntity = file.split(".json")[0];
 		let toSave = false;
 		for (var i = 0; i < currentOption.length; i++) {
 			// If the option match with our source entity
@@ -1392,9 +1392,9 @@ exports.deleteField = async (data) => {
 							promises.push(new Promise((resolve, reject)=> {
 								(function (file, option, entity) {
 									domHelper.read(otherViewsPath + entity + '/' + file + '.dust').then(function ($) {
-										let el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
+										const el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
 										if (el.length > 0) {
-											let using = el.attr("data-using").split(",");
+											const using = el.attr("data-using").split(",");
 											if (using.indexOf(field) != -1) {
 												// If using is alone, then replace with id, or keep just other using
 												if (using.length == 1) {

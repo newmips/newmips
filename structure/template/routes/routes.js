@@ -37,7 +37,7 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 	delete req.session.flash;
 
 	if(req.session.loginAttempt >= 5){
-		let loginCaptcha = svgCaptcha.create({
+		const loginCaptcha = svgCaptcha.create({
 			size: 4, // size of random string
 			ignoreChars: '0oO1iIlL', // filter out some characters
 			noise: 1, // number of noise lines
@@ -62,12 +62,12 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
 	else
 		req.session.cookie.expires = false; // Logout on browser exit
 
-	let redirect = req.query.r ? req.query.r : "/default/home";
+	const redirect = req.query.r ? req.query.r : "/default/home";
 	res.redirect(redirect);
 });
 
 router.get('/refresh_login_captcha', function(req, res) {
-	let captcha = svgCaptcha.create({
+	const captcha = svgCaptcha.create({
 		size: 4,
 		ignoreChars: '0oO1iIlL',
 		noise: 1,

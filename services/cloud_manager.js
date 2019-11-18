@@ -12,12 +12,12 @@ exports.deploy = async (data) => {
 
 	console.log("STARTING DEPLOY");
 
-	let appName = data.application.name;
+	const appName = data.application.name;
 
 	// If local/develop environnement, then just give the generated application url
 	if (globalConfig.env != 'cloud') {
-		let port = math.add(9000, data.appID);
-		let url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
+		const port = math.add(9000, data.appID);
+		const url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
 		return {
 			message: "botresponse.applicationavailable",
 			messageParams: [url, url]
@@ -25,8 +25,8 @@ exports.deploy = async (data) => {
 	}
 
 	// Get and increment application's version
-	let applicationPath = 'workspace/' + appName;
-	let applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
+	const applicationPath = 'workspace/' + appName;
+	const applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
 	applicationConf.version++;
 	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
@@ -46,11 +46,11 @@ exports.deploy = async (data) => {
 	await gitHelper.gitTag(appName, applicationConf.version, applicationPath);
 	await gitHelper.gitPush(data);
 
-	let appNameWithoutPrefix = data.application.name.substring(2);
-	let nameRepo = globalConfig.host + '-' + appNameWithoutPrefix;
-	let subdomain = globalConfig.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConfig.dns_cloud.replace('.', '-');
+	const appNameWithoutPrefix = data.application.name.substring(2);
+	const nameRepo = globalConfig.host + '-' + appNameWithoutPrefix;
+	const subdomain = globalConfig.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConfig.dns_cloud.replace('.', '-');
 
-	let remotes = await gitHelper.gitRemotes(data);
+	const remotes = await gitHelper.gitRemotes(data);
 
 	// Gitlab url handling
 	let gitlabUrl = "";
@@ -70,10 +70,10 @@ exports.deploy = async (data) => {
 async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 	// Preparing all needed values
 	let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
-	let cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
+	const cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
 
 	// Cloud db conf
-	let cloudDbConf = {
+	const cloudDbConf = {
 		dbName: "np_" + appName,
 		dbUser: "np_" + appName,
 		dbPwd: "np_" + appName,
@@ -107,7 +107,7 @@ async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 
 // Getting authentication token from portainer with login and pwd
 async function authenticate() {
-	let options = {
+	const options = {
 		uri: portainerConfig.url + "/auth",
 		method: 'POST',
 		headers: {
@@ -121,14 +121,14 @@ async function authenticate() {
 	};
 
 	console.log("CALL => Authentication");
-	let callResults = await request(options);
+	const callResults = await request(options);
 
 	// Return full token
 	return "Bearer "+ callResults.jwt;
 }
 
 async function getStack(stackName) {
-	let options = {
+	const options = {
 		uri: portainerConfig.url + "/stacks",
 		method: 'GET',
 		headers: {
@@ -156,7 +156,7 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 	console.log("generateStack");
 
 	// CLOUD APP COMPOSE CONTENT
-	let composeContent = json2yaml.stringify({
+	const composeContent = json2yaml.stringify({
 		"version": "2",
 		"services": {
 			"container": {
@@ -206,7 +206,7 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 		}
 	});
 
-	let options = {
+	const options = {
 		uri: portainerConfig.url + "/stacks",
 		headers: {
 			'Content-Type': 'multipart/form-data',
@@ -225,7 +225,7 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 	};
 
 	console.log("CALL => Stack generation");
-	let callResults = await request.post(options);
+	const callResults = await request.post(options);
 
 	// Return generated stack
 	return callResults;
@@ -246,12 +246,12 @@ async function updateStack(currentStack, cloudUrl) {
 	};
 
 	console.log("CALL => Docker container list");
-	let allContainers = await request(options);
+	const allContainers = await request(options);
 
 	// Looking for our container ID
 	let ourContainerID = null;
 	for (var i = 0; i < allContainers.length; i++) {
-		for(let item in allContainers[i].Labels){
+		for(const item in allContainers[i].Labels){
 			// Matching on traefik labels for cloud application DNS
 			if(item.indexOf("traefik.frontend.rule") != -1 && allContainers[i].Labels[item].indexOf(cloudUrl) != -1){
 				ourContainerID = allContainers[i].Id;

@@ -42,7 +42,7 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 				continue;
 			}
 			//BELONGS TO with foreignKey naming
-			second: for (var i = 0; i < options.length; i++) {
+			for (var i = 0; i < options.length; i++) {
 				if(typeof options[i].foreignKey != "undefined" && options[i].foreignKey == prop){
 					continue first;
 				}

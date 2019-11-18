@@ -79,7 +79,7 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 							// Find option matching wdiget's targeted alias
 							let targetOption;
 							try {
-								let options = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+model.toLowerCase()+'.json'));
+								const options = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+model.toLowerCase()+'.json'));
 								for (const option of options) {
 									if (option.relation == 'belongsTo' && option.as == widget.field) {
 										targetOption = option;
@@ -192,14 +192,14 @@ router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
 		imagePromises = [];
 		// Source entity images
 		imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_' + source));
-		;
+		
 		// Relations images
 		for (var i = 0; i < sourceOptions.length; i++) {
 			// Has many/preset
 			if (dustData[sourceOptions[i].as] instanceof Array) {
 				for (var j = 0; j < dustData[sourceOptions[i].as].length; j++)
 					imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));
-				;
+				
 			}
 			// Has one
 			else
@@ -291,16 +291,16 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 
 router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
 	try {
-		let entity = req.query.entity;
-		let filename = req.query.src;
+		const entity = req.query.entity;
+		const filename = req.query.src;
 		let cleanFilename = filename.substring(16);
 
 		// Remove uuid
 		if(cleanFilename[32] == '_')
 			cleanFilename = cleanFilename.substring(33);
 
-		let folderName = filename.split("-")[0];
-		let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
+		const folderName = filename.split("-")[0];
+		const filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
 		if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
 			throw new Error("403 - Access forbidden");
@@ -308,7 +308,7 @@ router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
 		if (!fs.existsSync(filePath))
 			throw new Error("404 - File not found");
 
-		let picture = fs.readFileSync(filePath);
+		const picture = fs.readFileSync(filePath);
 
 		res.json({
 			result: 200,
@@ -324,16 +324,16 @@ router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
 
 router.get('/download', block_access.isLoggedIn, function (req, res) {
 	try {
-		let entity = req.query.entity;
-		let filename = req.query.f;
+		const entity = req.query.entity;
+		const filename = req.query.f;
 		let cleanFilename = filename.substring(16);
 
 		// Remove uuid
 		if(cleanFilename[32] == '_')
 			cleanFilename = cleanFilename.substring(33);
 
-		let folderName = filename.split("-")[0];
-		let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
+		const folderName = filename.split("-")[0];
+		const filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
 		if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
 			throw new Error("403 - Access forbidden");
@@ -358,16 +358,16 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
 router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
 	try {
 
-		let entity = req.body.entity;
-		let filename = req.body.filename;
+		const entity = req.body.entity;
+		const filename = req.body.filename;
 		let cleanFilename = filename.substring(16);
 
 		// Remove uuid
 		if(cleanFilename[32] == '_')
 			cleanFilename = cleanFilename.substring(33);
 
-		let folderName = filename.split("-")[0];
-		let filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
+		const folderName = filename.split("-")[0];
+		const filePath = globalConfig.localstorage + entity + '/' + folderName + '/' + filename;
 
 		if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
 			throw new Error("403 - Access forbidden");

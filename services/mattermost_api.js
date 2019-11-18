@@ -60,7 +60,7 @@ exports.watch = async (appName) => {
 	if(!channel[channelName] || typeof channel[channelName] === "undefined")
 		channel[channelName] = await getChannel(channelName);
 
-	let posts = await getPosts(channel[channelName]);
+	const posts = await getPosts(channel[channelName]);
 
 	return {
 		posts: posts,
@@ -70,7 +70,7 @@ exports.watch = async (appName) => {
 
 // Getting authentication token from mattermost
 async function authenticate() {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/users/login",
 		method: 'POST',
 		headers: {
@@ -85,7 +85,7 @@ async function authenticate() {
 		forever: true
 	};
 
-	let callResults = await request(options);
+	const callResults = await request(options);
 
 	supportUser = callResults.body;
 
@@ -96,7 +96,7 @@ async function authenticate() {
 }
 
 async function getChannel(channelName) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/teams/name/support/channels/name/" + channelName,
 		method: 'GET',
 		headers: {
@@ -116,7 +116,7 @@ async function getChannel(channelName) {
 }
 
 async function getTeam(teamName) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/teams/name/"+teamName,
 		method: 'GET',
 		headers: {
@@ -132,7 +132,7 @@ async function getTeam(teamName) {
 }
 
 async function getTeamMembers(teamID) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/teams/"+teamID+"/members",
 		method: 'GET',
 		headers: {
@@ -148,7 +148,7 @@ async function getTeamMembers(teamID) {
 }
 
 async function createChannel(channelName, teamID) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/channels",
 		method: 'POST',
 		headers: {
@@ -173,7 +173,7 @@ async function createChannel(channelName, teamID) {
 
 async function addTeamToChannel(teamMembers, channelID) {
 	let member;
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/channels/"+channelID+"/members",
 		method: 'POST',
 		headers: {
@@ -202,7 +202,7 @@ async function addTeamToChannel(teamMembers, channelID) {
 }
 
 async function createIncomingWebhook(channelID) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/hooks/incoming",
 		method: 'POST',
 		headers: {
@@ -221,7 +221,7 @@ async function createIncomingWebhook(channelID) {
 }
 
 async function getIncomingWebhook(teamID, channelID) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/hooks/incoming",
 		method: 'GET',
 		headers: {
@@ -237,14 +237,14 @@ async function getIncomingWebhook(teamID, channelID) {
 		forever: true
 	};
 	// console.log("CALL => getIncomingWebhook");
-	let incomingWebhooks = await request(options);
+	const incomingWebhooks = await request(options);
 	return incomingWebhooks.filter(x => {
 		return x.channel_id == channelID
 	})[0];
 }
 
 async function sendMessage(chan, message) {
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/posts",
 		method: 'POST',
 		headers: {
@@ -265,7 +265,7 @@ async function sendMessage(chan, message) {
 
 async function getPosts(chan) {
 
-	let options = {
+	const options = {
 		uri: mattermostConfig.api_url + "/channels/"+chan.id+"/posts",
 		method: 'GET',
 		headers: {
