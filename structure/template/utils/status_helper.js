@@ -54,10 +54,10 @@ module.exports = {
 	},
 	// Build entity tree with fields and ALL associations
 	fullEntityFieldTree:  (entity, alias = entity) => {
-		let genealogy = [];
+		const genealogy = [];
 		// Create inner function to use genealogy globaly
 		function loadTree(entity, alias, depth = 0) {
-			let fieldTree = {
+			const fieldTree = {
 				entity: entity,
 				alias: alias,
 				fields: [],
@@ -76,7 +76,7 @@ module.exports = {
 			}
 
 			// Building field array
-			for (let field in entityFields) {
+			for (const field in entityFields) {
 				if (entityFields[field].newmipsType == "email")
 					fieldTree.email_fields.push(field);
 				if (entityFields[field].newmipsType == "phone")
@@ -377,10 +377,10 @@ module.exports = {
 		}
 	},
 	setStatus: async function (entityName, entityID, statusName, statusId, userID = null, comment = "") {
-		let self = this;
-		let historyModel = 'E_history_' + entityName.substring(2) + '_' + statusName.substring(2);
-		let historyAlias = 'r_history_' + statusName.substring(2);
-		let statusAlias = 'r_' + statusName.substring(2);
+		const self = this;
+		const historyModel = 'E_history_' + entityName.substring(2) + '_' + statusName.substring(2);
+		const historyAlias = 'r_history_' + statusName.substring(2);
+		const statusAlias = 'r_' + statusName.substring(2);
 
 		// Fetch entity to get its current status's children and their media
 		let entity = await models['E_' + entityName.substring(2)].findOne({
@@ -419,7 +419,7 @@ module.exports = {
 			}
 		})
 
-		let current_status = entity[statusAlias];
+		const current_status = entity[statusAlias];
 		if (!current_status || !current_status.r_children) {
 			return reject("Not found - Set status");
 		}
@@ -446,7 +446,7 @@ module.exports = {
 			fieldsToInclude = fieldsToInclude.concat(nextStatus.r_actions[i].r_media.getFieldsToInclude());
 
 		// Generate include depending on required fields of all action's media
-		let include = model_builder.getIncludeFromFields(models, entityName, fieldsToInclude);
+		const include = model_builder.getIncludeFromFields(models, entityName, fieldsToInclude);
 
 		// Get entity with elements used in media included
 		entity = await models['E_' + entityName.substring(2)].findOne({
@@ -458,14 +458,14 @@ module.exports = {
 
 		entity.entity_name = entityName;
 		// Create history record for this status field
-		let createObject = {
+		const createObject = {
 			f_comment: comment
 		};
 		createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 		createObject["fk_id_" + entityName.substring(2) + "_history_" + statusName.substring(2)] = entityID;
 
 		// Execute newStatus actions
-		let history = await models[historyModel].create(createObject);
+		const history = await models[historyModel].create(createObject);
 		await entity['setR' + statusAlias.substring(1)](nextStatus.id);
 		if (userID)
 			history['setR_modified_by'](userID);

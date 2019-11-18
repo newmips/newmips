@@ -292,7 +292,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);;
+					var statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);
 					for (var i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
 							(function(alias) {

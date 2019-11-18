@@ -1,6 +1,6 @@
 function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 
-	let data = {
+	const data = {
 		function: instructionsFunction,
 		options: options
 	};
@@ -10,7 +10,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 
 	if (valueToCheck.length > 30) {
 		console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
-		let err = new Error('valueTooLong');
+		const err = new Error('valueTooLong');
 		err.msgParams = [valueToCheck];
 		throw err;
 	}
@@ -21,33 +21,33 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 // ******* BASIC Actions ******* //
 exports.showSession = result => {
 
-	let data = {};
+	const data = {};
 	data.function = "showSession";
 	return data;
 };
 
 exports.help = result => {
 
-	let data = {};
+	const data = {};
 	data.function = "help";
 	return data;
 };
 
 exports.deploy = result => {
 
-	let data = {};
+	const data = {};
 	data.function = "deploy";
 	return data;
 };
 
 exports.restart = result => {
-	let data = {};
+	const data = {};
 	data.function = "restart";
 	return data;
 };
 
 exports.installNodePackage = result => {
-	let data = {
+	const data = {
 		specificModule: null
 	};
 
@@ -60,25 +60,25 @@ exports.installNodePackage = result => {
 };
 
 exports.gitPush = result => {
-	let data = {};
+	const data = {};
 	data.function = "gitPush";
 	return data;
 };
 
 exports.gitPull = result => {
-	let data = {};
+	const data = {};
 	data.function = "gitPull";
 	return data;
 };
 
 exports.gitCommit = result => {
-	let data = {};
+	const data = {};
 	data.function = "gitCommit";
 	return data;
 };
 
 exports.gitStatus = result => {
-	let data = {};
+	const data = {};
 	data.function = "gitStatus";
 	return data;
 };
@@ -87,12 +87,12 @@ exports.gitStatus = result => {
 
 exports.selectApplication = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value
 	};
 
-	let data = {
+	const data = {
 		function: "selectApplication",
 		options: options
 	};
@@ -101,13 +101,13 @@ exports.selectApplication = result => {
 
 exports.selectModule = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value.trim(),
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "selectModule",
 		options: options
 	};
@@ -116,13 +116,13 @@ exports.selectModule = result => {
 
 exports.selectEntity = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value.trim(),
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "selectEntity",
 		options: options
 	};
@@ -133,14 +133,14 @@ exports.selectEntity = result => {
 exports.setFieldAttribute = result => {
 
 	// Set entity name as the first option in options array
-	let options = {
+	const options = {
 		value: result[1],
 		word: result[2],
 		attributeValue: result[3],
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "setFieldAttribute",
 		options: options
 	};
@@ -150,13 +150,13 @@ exports.setFieldAttribute = result => {
 exports.setFieldKnownAttribute = result => {
 
 	// Set entity name as the first option in options array
-	let options = {
+	const options = {
 		value: result[1],
 		word: result[2],
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "setFieldKnownAttribute",
 		options: options
 	};
@@ -167,13 +167,13 @@ exports.setFieldKnownAttribute = result => {
 exports.setColumnVisibility = result => {
 
 	// Set entity name as the first option in options array
-	let options = {
+	const options = {
 		value: result[1],
 		word: result[2],
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "setColumnVisibility",
 		options: options
 	};
@@ -183,13 +183,13 @@ exports.setColumnVisibility = result => {
 exports.setColumnHidden = result => {
 
 	// Set entity name as the first option in options array
-	let options = {
+	const options = {
 		value: result[1],
 		word: "hidden",
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "setColumnVisibility",
 		options: options
 	};
@@ -199,13 +199,13 @@ exports.setColumnHidden = result => {
 exports.setColumnVisible = result => {
 
 	// Set entity name as the first option in options array
-	let options = {
+	const options = {
 		value: result[1],
 		word: "visible",
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "setColumnVisibility",
 		options: options
 	};
@@ -216,8 +216,8 @@ exports.setColumnVisible = result => {
 
 exports.createNewApplication = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -227,8 +227,8 @@ exports.createNewApplication = result => {
 
 exports.createNewModule = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -238,8 +238,8 @@ exports.createNewModule = result => {
 
 exports.createNewEntity = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -250,14 +250,14 @@ exports.createNewEntity = result => {
 exports.createNewDataField = result => {
 
 	// Field name has not been defined
-	let value = result[1];
+	const value = result[1];
 	let defaultValue = null;
 
 	// Default value ?
 	if (typeof result[2] !== "undefined")
 		defaultValue = result[2];
 
-	let options = {
+	const options = {
 		value: value,
 		defaultValue: defaultValue,
 		processValue: true
@@ -268,8 +268,8 @@ exports.createNewDataField = result => {
 
 exports.createNewDataFieldWithType = result => {
 
-	let value = result[1];
-	let type = result[2].toLowerCase().trim();
+	const value = result[1];
+	const type = result[2].toLowerCase().trim();
 	let defaultValue = null;
 
 	// Default value ?
@@ -281,7 +281,7 @@ exports.createNewDataFieldWithType = result => {
 		//	 defaultValue = result[3];
 
 	// Preparing Options
-	let options = {
+	const options = {
 		value: value,
 		type: type,
 		defaultValue: defaultValue,
@@ -293,15 +293,15 @@ exports.createNewDataFieldWithType = result => {
 
 exports.createNewDataFieldWithTypeEnum = result => {
 
-	let value = result[1];
-	let allValues = result[2];
+	const value = result[1];
+	const allValues = result[2];
 	let defaultValue = null;
 
 	// Default value ?
 	if (typeof result[3] !== "undefined")
 		defaultValue = result[3];
 
-	let options = {
+	const options = {
 		value: value,
 		type: "enum",
 		allValues: allValues,
@@ -314,15 +314,15 @@ exports.createNewDataFieldWithTypeEnum = result => {
 
 exports.createNewDataFieldWithTypeRadio = result => {
 
-	let value = result[1];
-	let allValues = result[2];
+	const value = result[1];
+	const allValues = result[2];
 	let defaultValue = null;
 
 	// Default value ?
 	if (typeof result[3] !== "undefined")
 		defaultValue = result[3];
 
-	let options = {
+	const options = {
 		value: value,
 		type: "radio",
 		allValues: allValues,
@@ -337,14 +337,14 @@ exports.createNewDataFieldWithTypeRadio = result => {
 
 exports.deleteApplication = result => {
 
-	let value = result[1];
+	const value = result[1];
 
-	let options = {
+	const options = {
 		value: value,
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "deleteApplication",
 		options: options
 	};
@@ -353,14 +353,14 @@ exports.deleteApplication = result => {
 
 exports.deleteModule = result => {
 
-	let value = result[1];
+	const value = result[1];
 
-	let options = {
+	const options = {
 		value: value,
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "deleteModule",
 		options: options
 	};
@@ -369,14 +369,14 @@ exports.deleteModule = result => {
 
 exports.deleteDataEntity = result => {
 
-	let value = result[1];
+	const value = result[1];
 
-	let options = {
+	const options = {
 		value: value,
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "deleteDataEntity",
 		options: options
 	};
@@ -385,14 +385,14 @@ exports.deleteDataEntity = result => {
 
 exports.deleteField = result => {
 
-	let value = result[1];
+	const value = result[1];
 
-	let options = {
+	const options = {
 		value: value,
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "deleteField",
 		options: options
 	};
@@ -401,14 +401,14 @@ exports.deleteField = result => {
 
 exports.deleteTab = result => {
 
-	let value = result[1];
+	const value = result[1];
 
-	let options = {
+	const options = {
 		value: value,
 		processValue: true
 	};
 
-	let data = {
+	const data = {
 		function: "deleteTab",
 		options: options
 	};
@@ -418,7 +418,7 @@ exports.deleteTab = result => {
 // ******* LIST Actions ******* //
 exports.listApplication = result => {
 
-	let data = {
+	const data = {
 		function: "listApplication"
 	};
 	return data;
@@ -426,7 +426,7 @@ exports.listApplication = result => {
 
 exports.listModule = result => {
 
-	let data = {
+	const data = {
 		function: "listModule"
 	};
 	return data;
@@ -434,7 +434,7 @@ exports.listModule = result => {
 
 exports.listEntity = result => {
 
-	let data = {
+	const data = {
 		function: "listEntity"
 	};
 	return data;
@@ -442,7 +442,7 @@ exports.listEntity = result => {
 
 exports.listField = result => {
 
-	let data = {
+	const data = {
 		function: "listField"
 	};
 	return data;
@@ -454,10 +454,10 @@ exports.listField = result => {
 // Tabs in show
 exports.relationshipHasOne = result => {
 
-	let source = result[1];
-	let target = result[2];
+	const source = result[1];
+	const target = result[2];
 
-	let options = {
+	const options = {
 		target: target,
 		source: source,
 		foreignKey: "id_" + target.toLowerCase(),
@@ -470,11 +470,11 @@ exports.relationshipHasOne = result => {
 
 exports.relationshipHasOneWithName = result => {
 
-	let source = result[1];
-	let target = result[2];
-	let as = result[3];
+	const source = result[1];
+	const target = result[2];
+	const as = result[3];
 
-	let options = {
+	const options = {
 		target: target,
 		source: source,
 		foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
@@ -489,10 +489,10 @@ exports.relationshipHasOneWithName = result => {
 // --------- Field in create / update / show ---------
 exports.createFieldRelatedTo = result => {
 
-	let as = result[1];
-	let target = result[2];
+	const as = result[1];
+	const target = result[2];
 
-	let options = {
+	const options = {
 		target: target,
 		foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
 		as: as,
@@ -504,11 +504,11 @@ exports.createFieldRelatedTo = result => {
 
 exports.createFieldRelatedToUsing = result => {
 
-	let as = result[1];
-	let target = result[2];
-	let usingField = result[3];
+	const as = result[1];
+	const target = result[2];
+	const usingField = result[3];
 
-	let options = {
+	const options = {
 		target: target,
 		foreignKey: "id_" + target.toLowerCase() + "_" + as.toLowerCase(),
 		as: as,
@@ -521,11 +521,11 @@ exports.createFieldRelatedToUsing = result => {
 
 exports.createFieldRelatedToMultiple = result => {
 
-	let as = result[1];
-	let target = result[2];
+	const as = result[1];
+	const target = result[2];
 
 	// Preparing Options
-	let options = {
+	const options = {
 		target: target,
 		as: as,
 		processValue: true
@@ -536,11 +536,11 @@ exports.createFieldRelatedToMultiple = result => {
 
 exports.createFieldRelatedToMultipleUsing = result => {
 
-	let as = result[1];
-	let target = result[2];
-	let usingField = result[3];
+	const as = result[1];
+	const target = result[2];
+	const usingField = result[3];
 
-	let options = {
+	const options = {
 		target: target,
 		as: as,
 		usingField: usingField,
@@ -552,11 +552,11 @@ exports.createFieldRelatedToMultipleUsing = result => {
 
 exports.createFieldRelatedToMultipleCheckbox = result => {
 
-	let as = result[1];
-	let target = result[2];
+	const as = result[1];
+	const target = result[2];
 
 	// Preparing Options
-	let options = {
+	const options = {
 		target: target,
 		isCheckbox: true,
 		as: as,
@@ -568,11 +568,11 @@ exports.createFieldRelatedToMultipleCheckbox = result => {
 
 exports.createFieldRelatedToMultipleCheckboxUsing = result => {
 
-	let as = result[1];
-	let target = result[2];
-	let usingField = result[3];
+	const as = result[1];
+	const target = result[2];
+	const usingField = result[3];
 
-	let options = {
+	const options = {
 		target: target,
 		as: as,
 		usingField: usingField,
@@ -587,10 +587,10 @@ exports.createFieldRelatedToMultipleCheckboxUsing = result => {
 // Tabs in show
 exports.relationshipHasMany = result => {
 
-	let source = result[1];
-	let target = result[2];
+	const source = result[1];
+	const target = result[2];
 
-	let options = {
+	const options = {
 		target: target,
 		source: source,
 		foreignKey: "id_" + source.toLowerCase(),
@@ -603,11 +603,11 @@ exports.relationshipHasMany = result => {
 
 exports.relationshipHasManyWithName = result => {
 
-	let source = result[1];
-	let target = result[2];
-	let as = result[3];
+	const source = result[1];
+	const target = result[2];
+	const as = result[3];
 
-	let options = {
+	const options = {
 		target: target,
 		source: source,
 		foreignKey: "id_" + source.toLowerCase() + "_" + as.toLowerCase(),
@@ -619,8 +619,8 @@ exports.relationshipHasManyWithName = result => {
 };
 
 exports.relationshipHasManyPreset = result => {
-	let source = result[1];
-	let target = result[2];
+	const source = result[1];
+	const target = result[2];
 	let as = target;
 	let foreignKey = "id_" + source.toLowerCase();
 
@@ -628,7 +628,7 @@ exports.relationshipHasManyPreset = result => {
 		as = result[3];
 	foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
-	let options = {
+	const options = {
 		target: target,
 		source: source,
 		foreignKey: foreignKey,
@@ -640,9 +640,9 @@ exports.relationshipHasManyPreset = result => {
 };
 
 exports.relationshipHasManyPresetUsing = result => {
-	let source = result[1];
-	let target = result[2];
-	let usingField = result[3];
+	const source = result[1];
+	const target = result[2];
+	const usingField = result[3];
 	let as = target;
 	let foreignKey = "id_" + source.toLowerCase();
 
@@ -650,7 +650,7 @@ exports.relationshipHasManyPresetUsing = result => {
 		as = result[4];
 	foreignKey = "id_" + source.toLowerCase() + "_" + as.toLowerCase()
 
-	let options = {
+	const options = {
 		target: target,
 		source: source,
 		foreignKey: foreignKey,
@@ -666,7 +666,7 @@ exports.relationshipHasManyPresetUsing = result => {
 
 /* STATUS */
 exports.createNewComponentStatus = result => {
-	let defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
+	const defaultValue = result[0].indexOf("component") != -1 ? "Status" : "Statut";
 	return {
 		function: "createNewComponentStatus",
 		options: {value: defaultValue, processValue: true}
@@ -674,8 +674,8 @@ exports.createNewComponentStatus = result => {
 }
 
 exports.createNewComponentStatusWithName = result => {
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -685,9 +685,9 @@ exports.createNewComponentStatusWithName = result => {
 
 exports.deleteComponentStatus = result => {
 
-	let options = {};
+	const options = {};
 
-	let data = {
+	const data = {
 		function: "deleteComponentStatus",
 		options: options
 	};
@@ -695,8 +695,8 @@ exports.deleteComponentStatus = result => {
 };
 
 exports.deleteComponentStatusWithName = result => {
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -707,9 +707,9 @@ exports.deleteComponentStatusWithName = result => {
 /* LOCAL FILE STORAGE */
 exports.createNewComponentLocalFileStorage = result => {
 
-	let options = {};
+	const options = {};
 
-	let data = {
+	const data = {
 		function: "createNewComponentLocalFileStorage",
 		options: options
 	};
@@ -718,8 +718,8 @@ exports.createNewComponentLocalFileStorage = result => {
 
 exports.createNewComponentLocalFileStorageWithName = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -730,9 +730,9 @@ exports.createNewComponentLocalFileStorageWithName = result => {
 /* CONTACT FORM */
 exports.createNewComponentContactForm = result => {
 
-	let options = {};
+	const options = {};
 
-	let data = {
+	const data = {
 		function: "createNewComponentContactForm",
 		options: options
 	};
@@ -741,8 +741,8 @@ exports.createNewComponentContactForm = result => {
 
 exports.createNewComponentContactFormWithName = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -752,9 +752,9 @@ exports.createNewComponentContactFormWithName = result => {
 
 exports.deleteComponentContactForm = result => {
 
-	let options = {};
+	const options = {};
 
-	let data = {
+	const data = {
 		function: "deleteComponentContactForm",
 		options: options
 	};
@@ -762,8 +762,8 @@ exports.deleteComponentContactForm = result => {
 };
 
 exports.deleteComponentContactFormWithName = result => {
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -774,9 +774,9 @@ exports.deleteComponentContactFormWithName = result => {
 /* AGENDA */
 exports.createNewComponentAgenda = result => {
 
-	let options = {};
+	const options = {};
 
-	let data = {
+	const data = {
 		function: "createNewComponentAgenda",
 		options: options
 	};
@@ -785,8 +785,8 @@ exports.createNewComponentAgenda = result => {
 
 exports.createNewComponentAgendaWithName = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -796,9 +796,9 @@ exports.createNewComponentAgendaWithName = result => {
 
 exports.deleteAgenda = result => {
 
-	let options = {};
+	const options = {};
 
-	let data = {
+	const data = {
 		function: "deleteAgenda",
 		options: options
 	};
@@ -807,8 +807,8 @@ exports.deleteAgenda = result => {
 
 exports.deleteAgendaWithName = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value,
 		processValue: true
 	};
@@ -829,7 +829,7 @@ exports.createNewComponentCra = result => {
  * @returns {function name and user instruction}
  */
 exports.createNewComponentAddress = result => {
-	let options = {
+	const options = {
 		componentName: "Address",
 		instruction: result[0]
 	};
@@ -842,7 +842,7 @@ exports.createNewComponentAddress = result => {
  * @returns {function name and user instruction}
  */
 exports.createNewComponentAddressWithName = result => {
-	let options = {
+	const options = {
 		componentName: result[1],
 		instruction: result[0]
 	};
@@ -870,7 +870,7 @@ exports.createComponentDocumentTemplate = result => {
 };
 
 exports.createComponentDocumentTemplateWithName = result => {
-	let options = {
+	const options = {
 		instruction: result[0],
 		componentName: result[1]
 	};
@@ -895,12 +895,12 @@ exports.createComponentChat = result => {
 
 // ******* INTERFACE Actions ******* //
 exports.setLogo = result => {
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value
 	};
 
-	let data = {
+	const data = {
 		function: "setLogo",
 		options: options
 	};
@@ -908,19 +908,19 @@ exports.setLogo = result => {
 };
 
 exports.removeLogo = result => {
-	let data = {};
+	const data = {};
 	data.function = "removeLogo";
 	return data;
 };
 
 exports.setLayout = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value
 	};
 
-	let data = {
+	const data = {
 		function: "setLayout",
 		options: options
 	};
@@ -929,7 +929,7 @@ exports.setLayout = result => {
 
 exports.listLayout = result => {
 
-	let data = {
+	const data = {
 		function: "listLayout"
 	};
 	return data;
@@ -937,12 +937,12 @@ exports.listLayout = result => {
 
 exports.setTheme = result => {
 
-	let value = result[1];
-	let options = {
+	const value = result[1];
+	const options = {
 		value: value
 	};
 
-	let data = {
+	const data = {
 		function: "setTheme",
 		options: options
 	};
@@ -951,7 +951,7 @@ exports.setTheme = result => {
 
 exports.listTheme = result => {
 
-	let data = {
+	const data = {
 		function: "listTheme"
 	};
 	return data;
@@ -962,7 +962,7 @@ exports.listIcon = result => {
 }
 
 exports.setIcon = result => {
-	let data = {
+	const data = {
 		function: "setIcon",
 		iconValue: result[1],
 		options: {
@@ -994,7 +994,7 @@ function getRightWidgetType(originalType) {
 }
 
 function buildDataForPiechart(result) {
-	let data = {
+	const data = {
 		function: 'createWidgetPiechart',
 		widgetType: 'piechart',
 		widgetInputType: 'Piechart'
@@ -1012,21 +1012,21 @@ function buildDataForPiechart(result) {
 }
 
 exports.createWidgetPiechart = result => {
-	let data = buildDataForPiechart(result);
+	const data = buildDataForPiechart(result);
 	data.legend = true;
 
 	return data;
 }
 
 exports.createWidgetPiechartWithoutLegend = result => {
-	let data = buildDataForPiechart(result);
+	const data = buildDataForPiechart(result);
 	data.legend = false;
 
 	return data;
 }
 
 exports.createWidgetLastRecordsWithLimit = result => {
-	let data = {
+	const data = {
 		function: 'createWidgetLastRecords',
 		widgetType: 'lastrecords',
 		widgetInputType: 'last records'
@@ -1051,7 +1051,7 @@ exports.createWidgetLastRecordsWithLimit = result => {
 }
 
 exports.createWidgetLastRecords = result => {
-	let data = {
+	const data = {
 		function: 'createWidgetLastRecords',
 		widgetType: 'lastrecords',
 		widgetInputType: 'last records',
@@ -1075,8 +1075,8 @@ exports.createWidgetLastRecords = result => {
 }
 
 exports.createWidgetOnEntity = result => {
-	let originalType = result[1];
-	let finalType = getRightWidgetType(originalType);
+	const originalType = result[1];
+	const finalType = getRightWidgetType(originalType);
 
 	if (finalType == -1)
 		return {error: 'error.missingParametersInstruction'};
@@ -1090,8 +1090,8 @@ exports.createWidgetOnEntity = result => {
 }
 
 exports.createWidget = result => {
-	let originalType = result[1];
-	let finalType = getRightWidgetType(originalType);
+	const originalType = result[1];
+	const finalType = getRightWidgetType(originalType);
 
 	if (finalType == -1)
 		return {error: 'error.missingParametersInstruction'};
@@ -1119,7 +1119,7 @@ exports.deleteEntityWidgets = result => {
 }
 
 exports.addTitle = result => {
-	let value = result[1];
+	const value = result[1];
 	let afterField = null;
 	if (typeof result[2] !== "undefined")
 		afterField = result[2];
@@ -1139,7 +1139,7 @@ exports.apero = result => {
 	}
 }
 
-let training = {
+const training = {
 	"apero": [
 		"Apéro !"
 	],
@@ -2551,12 +2551,12 @@ exports.parse = (instruction) => {
 		instructionLength: 0
 	};
 
-	for (let action in training) {
+	for (const action in training) {
 		for (let i = 0; i < training[action].length; i++) {
-			let regStr = training[action][i];
-			let regExp = new RegExp(regStr, "ig");
+			const regStr = training[action][i];
+			const regExp = new RegExp(regStr, "ig");
 
-			let result = regExp.exec(instruction);
+			const result = regExp.exec(instruction);
 			if (result !== null) {
 				/* Get the most complicated instruction found */
 				if (instructionResult.instructionLength < regStr.length) {
@@ -2584,26 +2584,26 @@ exports.parse = (instruction) => {
 // ******* Completion *******
 exports.complete = function (instruction) {
 
-	let answers = [];
-	let p = 0;
+	const answers = [];
+	const p = 0;
 
 	// Check all training key phrases
-	for (let action in training) {
+	for (const action in training) {
 
 		// Check each blocks
 		for (let i = 0; i < training[action].length; i++) {
 
 			// Template to compare to
-			let template = training[action][i].split(" ");
+			const template = training[action][i].split(" ");
 
 			// Split current key phrase and instructions into arrays to loop
-			let instr = instruction.trim().split(" ");
+			const instr = instruction.trim().split(" ");
 
 			let k = 0; // index in template
 			let m = 0; // index in instruction
 
-			let l = instr.length;
-			let n = template.length;
+			const l = instr.length;
+			const n = template.length;
 
 			let answer = " ";
 			let valid = true;
@@ -2615,7 +2615,7 @@ exports.complete = function (instruction) {
 					k++;
 				} else {
 					// Check if beginning of word are the same
-					let sublen = instr[m].length;
+					const sublen = instr[m].length;
 					if (template[k].substring(0, sublen) == instr[m]) {
 						// Do not increment k, we are still on keyword
 						variable = false;

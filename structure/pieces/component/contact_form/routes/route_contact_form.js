@@ -11,7 +11,7 @@ const component_helper = require('../utils/component_helper');
 const globalConfig = require('../config/global');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
-let SELECT_PAGE_SIZE = 10;
+const SELECT_PAGE_SIZE = 10;
 const enums_radios = require('../utils/enum_radio.js');
 
 // Custom component
@@ -269,8 +269,8 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("URL_
 });
 
 router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), (req, res) => {
-	let id_CODE_VALUE_SETTINGS = 1;
-	let data = {
+	const id_CODE_VALUE_SETTINGS = 1;
+	const data = {
 		menu: "CODE_VALUE_SETTINGS",
 		sub_menu: "list_CODE_VALUE_SETTINGS",
 		enum_radio: enums_radios.translated("CODE_VALUE_SETTINGS", req.session.lang_user, options)
@@ -314,14 +314,14 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
 });
 
 router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), (req, res) => {
-	let id_CODE_VALUE_SETTINGS = parseInt(req.body.id);
+	const id_CODE_VALUE_SETTINGS = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
 		req.body.version = parseInt(req.body.version) + 1;
 	else
 		req.body.version = 0;
 
-	let updateObject = model_builder.buildForRoute(attributesSettings, optionsSettings, req.body);
+	const updateObject = model_builder.buildForRoute(attributesSettings, optionsSettings, req.body);
 
 	models.MODEL_VALUE_SETTINGS.findOne({
 		where: {

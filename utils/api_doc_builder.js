@@ -195,13 +195,13 @@ function entityDocumentation(entity, attributes, options) {
 
 async function build(application) {
 
-	let workspacePath = __dirname + '/../workspace/'+application.name;
+	const workspacePath = __dirname + '/../workspace/'+application.name;
 
 	// Fetch all entities from metadata
-	let modules = application.modules;
+	const modules = application.modules;
 
-	let entities = [];
-	let privateEntities = ['api_credentials'];
+	const entities = [];
+	const privateEntities = ['api_credentials'];
 	for (let i = 0; i < modules.length; i++)
 		for (let j = 0; j < modules[i].entities.length; j++)
 			if (privateEntities.indexOf(modules[i].entities[j].name.substring(2)) == -1)
@@ -212,11 +212,11 @@ async function build(application) {
 	// Generate documentation of each entity
 	for (let i = 0; i < entities.length; i++) {
 		try {
-			let attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].name+'.json', 'utf8'));
-			let options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].name+'.json', 'utf8'));
+			const attributes = JSON.parse(fs.readFileSync(workspacePath+'/models/attributes/'+entities[i].name+'.json', 'utf8'));
+			const options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].name+'.json', 'utf8'));
 			documentation += entityDocumentation(entities[i], attributes, options);
 		} catch (e) {
-			; // Status history models can't be loaded
+			 // Status history models can't be loaded
 		}
 	}
 

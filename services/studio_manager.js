@@ -10,15 +10,15 @@ exports.createApplicationDns = async (appName, appID) => {
 	if(typeof globalConfig.server_ip === "undefined" || !globalConfig.server_ip || globalConfig.server_ip == "")
 		throw new Error("Missing server IP in global config.");
 
-	let appDomain = globalConfig.sub_domain + "-" + appName;
-	let tomlFilename = appDomain + ".toml";
-	let serverPort = 9000 + parseInt(appID);
+	const appDomain = globalConfig.sub_domain + "-" + appName;
+	const tomlFilename = appDomain + ".toml";
+	const serverPort = 9000 + parseInt(appID);
 
 	// Checking if a .toml already exist => Conflict
 	if(fs.existsSync(globalConfig.traefik_rules + "/" + tomlFilename))
 		throw new Error("A .toml file with the name "+tomlFilename+" already exist !");
 
-	let tomlContent = '\n\
+	const tomlContent = '\n\
 	[backends]\n\
 		[backends.'+appDomain+']\n\
 			[backends.'+appDomain+'.servers.server1]\n\

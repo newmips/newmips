@@ -30,7 +30,7 @@ function arraySplit(str) {
 		str = str.replace(/\s\s+/g, ' ').trim()
 		str = str.substring(0, str.length - 1)
 		//let arr = str.split(';');
-		let arr = str.split(';').map(v => {
+		const arr = str.split(';').map(v => {
 			return v.replace(/--.*-+/g, ' ').replace(/CREATE TABLE\s/g, 'CREATE TABLE IF NOT EXISTS ').trim()
 				// return v.replace(/.*DROP\s/g, 'DROP ').replace(/--.*/g, ' ').replace(/\n\r/g,'').trim()
 		})

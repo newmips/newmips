@@ -24,7 +24,7 @@ const enums_radios = require('../utils/enum_radio.js');
 // Winston logger
 const logger = require('../utils/logger');
 
-let TARGET_ENTITIES = [];
+const TARGET_ENTITIES = [];
 fs.readdirSync(__dirname+'/../models/attributes/').filter(function(file) {
 	return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_';
 }).forEach(function(file) {

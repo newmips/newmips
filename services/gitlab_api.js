@@ -2,11 +2,11 @@ const globalConf = require('../config/global.js');
 const gitlabConf = require('../config/gitlab.js');
 const request = require('request-promise');
 
-let gitlabURL = gitlabConf.protocol + "://" + gitlabConf.url + "/api/v4";
-let token = gitlabConf.privateToken;
+const gitlabURL = gitlabConf.protocol + "://" + gitlabConf.url + "/api/v4";
+const token = gitlabConf.privateToken;
 
 exports.getUser = async (email) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/users",
 		method: 'GET',
 		headers: {
@@ -22,7 +22,7 @@ exports.getUser = async (email) => {
 	console.log("GITLAB CALL => getUser");
 
 	try {
-		let user = await request(options);
+		const user = await request(options);
 		return user.length == 0 ? false : user[0];
 	} catch(err){
 		console.error(err);
@@ -31,7 +31,7 @@ exports.getUser = async (email) => {
 }
 
 exports.createUser = async (infos) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/users",
 		method: 'POST',
 		headers: {
@@ -53,7 +53,7 @@ exports.createUser = async (infos) => {
 }
 
 exports.updateUser = async (user, obj) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/users/"+user.id,
 		method: 'PUT',
 		headers: {
@@ -67,7 +67,7 @@ exports.updateUser = async (user, obj) => {
 	console.log("GITLAB CALL => updateUser");
 
 	try {
-		let user = await request(options);
+		const user = await request(options);
 		return user.length == 0 ? false : user[0];
 	} catch(err){
 		console.error(err);
@@ -76,7 +76,7 @@ exports.updateUser = async (user, obj) => {
 }
 
 exports.createProjectForUser = async (infos) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects/user/"+infos.user_id,
 		method: 'POST',
 		headers: {
@@ -98,7 +98,7 @@ exports.createProjectForUser = async (infos) => {
 }
 
 exports.addMemberToProject = async (infos) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects/"+infos.id+"/members",
 		method: 'POST',
 		headers: {
@@ -120,7 +120,7 @@ exports.addMemberToProject = async (infos) => {
 }
 
 exports.getAllProjects = async () => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects",
 		method: 'GET',
 		headers: {
@@ -144,7 +144,7 @@ exports.getAllProjects = async () => {
 }
 
 exports.getProject = async (projectName) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects",
 		method: 'GET',
 		headers: {
@@ -160,8 +160,8 @@ exports.getProject = async (projectName) => {
 	console.log("GITLAB CALL => getProject");
 
 	try {
-		let allProjects = await request(options);
-		let project = allProjects.filter(x => {return x.name == projectName});
+		const allProjects = await request(options);
+		const project = allProjects.filter(x => {return x.name == projectName});
 		return project.length == 0 ? false : project[0];
 	} catch(err){
 		console.error(err);
@@ -170,7 +170,7 @@ exports.getProject = async (projectName) => {
 }
 
 exports.getProjectForUser = async (userID) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/users/"+userID+"/projects",
 		method: 'GET',
 		headers: {
@@ -191,7 +191,7 @@ exports.getProjectForUser = async (userID) => {
 }
 
 exports.addUserToProject = async (userID, projectID) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects/"+projectID+"/members",
 		method: 'POST',
 		headers: {
@@ -217,7 +217,7 @@ exports.addUserToProject = async (userID, projectID) => {
 }
 
 exports.removeUserFromProject = async (userID, projectID) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects/"+projectID+"/members/"+userID,
 		method: 'DELETE',
 		headers: {
@@ -238,7 +238,7 @@ exports.removeUserFromProject = async (userID, projectID) => {
 }
 
 exports.deleteProject = async (projectID) => {
-	let options = {
+	const options = {
 		uri: gitlabURL + "/projects/"+projectID,
 		method: 'DELETE',
 		headers: {

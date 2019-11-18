@@ -5,7 +5,7 @@ const helpers = require("../utils/helpers");
 const moment = require("moment");
 
 async function addTab(entity, file, newLi, newTabContent) {
-	let $ = await domHelper.read(file);
+	const $ = await domHelper.read(file);
 
 	// Tabs structure doesn't exist, create it
 	var tabs = '';
@@ -45,9 +45,9 @@ async function addTab(entity, file, newLi, newTabContent) {
 
 function addAccessManagment(appName, urlComponent, urlModule) {
 	// Write new data entity to access.json file, within module's context
-	let accessPath = __dirname + '/../workspace/' + appName + '/config/access.json';
-	let accessLockPath = __dirname + '/../workspace/' + appName + '/config/access.lock.json';
-	let accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+	const accessPath = __dirname + '/../workspace/' + appName + '/config/access.json';
+	const accessLockPath = __dirname + '/../workspace/' + appName + '/config/access.lock.json';
+	const accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
 	accessObject[urlModule.toLowerCase()].entities.push({
 		name: urlComponent,
 		groups: [],
@@ -64,11 +64,11 @@ function addAccessManagment(appName, urlComponent, urlModule) {
 
 function deleteAccessManagment(appName, urlComponent, urlModule) {
 	// Write new data entity to access.json file, within module's context
-	let accessPath = __dirname + '/../workspace/' + appName + '/config/access.json';
-	let accessLockPath = __dirname + '/../workspace/' + appName + '/config/access.lock.json';
-	let accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+	const accessPath = __dirname + '/../workspace/' + appName + '/config/access.json';
+	const accessLockPath = __dirname + '/../workspace/' + appName + '/config/access.lock.json';
+	const accessObject = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
 	if (accessObject[urlModule] && accessObject[urlModule].entities) {
-		let entities = accessObject[urlModule].entities;
+		const entities = accessObject[urlModule].entities;
 		let dataIndexToRemove = -1;
 		for (let i = 0; i < entities.length; i++) {
 			if (entities[i].name === urlComponent) {
@@ -85,18 +85,18 @@ function deleteAccessManagment(appName, urlComponent, urlModule) {
 
 function replaceValuesInFile(filePath, valueToFind, replaceWith) {
 	let fileContent = fs.readFileSync(filePath, 'utf8');
-	let reg = new RegExp(valueToFind, "g");
+	const reg = new RegExp(valueToFind, "g");
 	fileContent = fileContent.replace(reg, replaceWith);
 	fs.writeFileSync(filePath, fileContent);
 }
 
 exports.newLocalFileStorage = async (data) => {
 
-	let componentName = data.options.value;
-	let urlComponent = data.options.urlValue;
-	let showComponentName = data.options.showValue;
-	let source = data.entity.name;
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const componentName = data.options.value;
+	const urlComponent = data.options.urlValue;
+	const showComponentName = data.options.showValue;
+	const source = data.entity.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	// CREATE MODEL FILE
 	let modelTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/models/model_local_file_storage.js', 'utf8');
@@ -106,7 +106,7 @@ exports.newLocalFileStorage = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/' + componentName + '.js', modelTemplate);
 
 	// CREATE MODEL ATTRIBUTES FILE
-	let attributesTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/models/attributes/attributes_local_file_storage.json', 'utf8');
+	const attributesTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/models/attributes/attributes_local_file_storage.json', 'utf8');
 	fs.writeFileSync(workspacePath + '/models/attributes/' + componentName + '.json', attributesTemplate);
 
 	// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
@@ -131,7 +131,7 @@ exports.newLocalFileStorage = async (data) => {
 	await translateHelper.writeLocales(data.application.name, "component", componentName, showComponentName, data.googleTranslate);
 
 	// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
-	let componentPiece = fs.readFileSync('./structure/pieces/component/local_file_storage/views/view_local_file_storage.dust', 'utf8');
+	const componentPiece = fs.readFileSync('./structure/pieces/component/local_file_storage/views/view_local_file_storage.dust', 'utf8');
 
 	let componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, componentName);
 	componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
@@ -139,38 +139,38 @@ exports.newLocalFileStorage = async (data) => {
 	fs.mkdirSync(workspacePath + '/views/' + componentName);
 	fs.writeFileSync(workspacePath + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
 
-	let newLi = '<li><a id="' + componentName + '-click" data-toggle="tab" href="#' + componentName + '"><!--{#__ key="component.' + componentName + '.label_component" /}--></a></li>';
-	let file = workspacePath + '/views/' + source + '/show_fields.dust';
+	const newLi = '<li><a id="' + componentName + '-click" data-toggle="tab" href="#' + componentName + '"><!--{#__ key="component.' + componentName + '.label_component" /}--></a></li>';
+	const file = workspacePath + '/views/' + source + '/show_fields.dust';
 
 	// CREATE THE TAB IN SHOW FIELDS
-	let newTab = '<div id="' + componentName + '" class="ajax-tab tab-pane fade" data-tabtype="localfilestorage" data-asso-flag="{' + source + '.id}" data-asso-alias="' + componentName + '"><div class="ajax-content"></div></div>';
+	const newTab = '<div id="' + componentName + '" class="ajax-tab tab-pane fade" data-tabtype="localfilestorage" data-asso-flag="{' + source + '.id}" data-asso-alias="' + componentName + '"><div class="ajax-content"></div></div>';
 	await addTab(data.entity.name, file, newLi, newTab);
 }
 
 exports.newContactForm = async (data) => {
 
 	// Contact Form entity
-	let codeName = data.options.value;
-	let urlName = data.options.urlValue.toLowerCase();
+	const codeName = data.options.value;
+	const urlName = data.options.urlValue.toLowerCase();
 
 	// Contact Form Settings entity
-	let codeNameSettings = data.options.valueSettings;
-	let urlNameSettings = data.options.urlValueSettings;
+	const codeNameSettings = data.options.valueSettings;
+	const urlNameSettings = data.options.urlValueSettings;
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let piecesPath = __dirname + '/../structure/pieces/component/contact_form';
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const piecesPath = __dirname + '/../structure/pieces/component/contact_form';
 
-	let toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+	const toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
 	if (typeof toSyncObject.queries !== "object")
 		toSyncObject.queries = [];
 	toSyncObject[codeNameSettings] = {};
 
-	let mailConfigPath = workspacePath + "/config/mail.js";
+	const mailConfigPath = workspacePath + "/config/mail.js";
 	delete require.cache[require.resolve(mailConfigPath)];
-	let mailConfig = require(mailConfigPath);
+	const mailConfig = require(mailConfigPath);
 
-	let isSecure = mailConfig.transport.secure ? 1 : 0;
-	let insertSettings = "INSERT INTO `" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
+	const isSecure = mailConfig.transport.secure ? 1 : 0;
+	const insertSettings = "INSERT INTO `" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
 			" VALUES(1,'" + mailConfig.transport.host + "'," +
 			"'" + mailConfig.transport.port + "'," +
 			isSecure + "," +
@@ -193,8 +193,8 @@ exports.newContactForm = async (data) => {
 	fs.unlinkSync(workspacePath + '/routes/' + codeName + '.js');
 	fs.copySync(piecesPath + '/routes/route_contact_form.js', workspacePath + '/routes/' + codeName + '.js');
 
-	let workspaceRoutePath = workspacePath + '/routes/' + codeName + '.js';
-	let workspaceViewPath = workspacePath + '/views/' + codeName;
+	const workspaceRoutePath = workspacePath + '/routes/' + codeName + '.js';
+	const workspaceViewPath = workspacePath + '/views/' + codeName;
 
 	replaceValuesInFile(workspaceRoutePath, "URL_VALUE_CONTACT", urlName);
 	replaceValuesInFile(workspaceRoutePath, "URL_VALUE_SETTINGS", urlNameSettings);
@@ -268,13 +268,13 @@ exports.newContactForm = async (data) => {
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
 
-	let layoutFileName = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module_name + '.dust';
-	let $ = await domHelper.read(layoutFileName);
+	const layoutFileName = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module_name + '.dust';
+	const $ = await domHelper.read(layoutFileName);
 
 	$("#" + urlName + "_menu_item").remove();
 	$("#" + urlNameSettings + "_menu_item").remove();
 
-	let li = '\
+	const li = '\
 	<!--{#entityAccess entity=\"' + urlName + '\"}-->\n\
 		<li id=\"' + urlName + '_menu_item\" style=\"display:block;\" class=\"treeview\">\n\
 			<a href=\"#\">\n\
@@ -327,26 +327,26 @@ exports.newContactForm = async (data) => {
 
 exports.newAgenda = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let piecesPath = __dirname + '/pieces/component/agenda';
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const piecesPath = __dirname + '/pieces/component/agenda';
 
-	let valueComponent = data.options.value;
-	let showComponentName = data.options.showValue;
-	let urlComponent = data.options.urlValue;
+	const valueComponent = data.options.value;
+	const showComponentName = data.options.showValue;
+	const urlComponent = data.options.urlValue;
 
-	let valueEvent = "e_" + urlComponent + "_event";
-	let valueCategory = "e_" + urlComponent + "_category";
+	const valueEvent = "e_" + urlComponent + "_event";
+	const valueCategory = "e_" + urlComponent + "_category";
 
-	let urlEvent = valueEvent.substring(2);
-	let urlCategory = valueCategory.substring(2);
+	const urlEvent = valueEvent.substring(2);
+	const urlCategory = valueCategory.substring(2);
 
 	// Agenda Route
 	{
-		let valueAgendaModel = valueComponent.charAt(0).toUpperCase() + valueComponent.slice(1);
-		let valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.slice(1);
-		let valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.slice(1);
+		const valueAgendaModel = valueComponent.charAt(0).toUpperCase() + valueComponent.slice(1);
+		const valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.slice(1);
+		const valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.slice(1);
 
-		let urlRouteAgenda = valueComponent.substring(2);
+		const urlRouteAgenda = valueComponent.substring(2);
 
 		// CREATE ROUTE FILE
 		let routeTemplate = fs.readFileSync(piecesPath + '/routes/route_agenda.js', 'utf8');
@@ -366,12 +366,12 @@ exports.newAgenda = async (data) => {
 	// Agenda view
 	{
 		// Calendar View
-		let componentViewFolder = piecesPath + '/views';
-		let viewsFolder = workspacePath + '/views/' + valueComponent;
+		const componentViewFolder = piecesPath + '/views';
+		const viewsFolder = workspacePath + '/views/' + valueComponent;
 		fs.copySync(componentViewFolder, viewsFolder);
 
-		let viewFile = workspacePath + '/views/' + valueComponent + '/view_agenda.dust';
-		let urlEvent = valueEvent.substring(2);
+		const viewFile = workspacePath + '/views/' + valueComponent + '/view_agenda.dust';
+		const urlEvent = valueEvent.substring(2);
 
 		let viewTemplate = fs.readFileSync(viewFile, 'utf8');
 		viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, valueComponent);
@@ -386,10 +386,10 @@ exports.newAgenda = async (data) => {
 		fs.copySync(piecesPath + '/views_event', workspacePath + '/views/' + valueEvent);
 
 		// Replace variable in each files
-		let fileToReplace = ["show_fields", "create_fields", "update_fields", "create", "update"];
+		const fileToReplace = ["show_fields", "create_fields", "update_fields", "create", "update"];
 
 		for (let i = 0; i < fileToReplace.length; i++) {
-			let eventFile = workspacePath + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
+			const eventFile = workspacePath + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
 			var eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
 			eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
@@ -421,14 +421,14 @@ exports.newAgenda = async (data) => {
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "f_color"], "Couleur");
 
-	let layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
+	const layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
 
-	let $ = await domHelper.read(layoutFileName);
+	const $ = await domHelper.read(layoutFileName);
 
 	$("#" + urlEvent + "_menu_item").remove();
 	$("#" + urlCategory + "_menu_item").remove();
 
-	let li = "\
+	const li = "\
 	<li id='" + urlComponent + "_menu_item' style='display:block;' class='treeview'>\n\
 		<a href='#'>\n\
 			<i class='fa fa-calendar-o'></i>\n\
@@ -504,8 +504,8 @@ exports.newAgenda = async (data) => {
 
 exports.deleteAgenda = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
 
 	// Remove agenda controller
 	fs.unlinkSync(workspacePath + '/routes/' + data.options.value + '.js');
@@ -513,7 +513,7 @@ exports.deleteAgenda = async (data) => {
 	// Delete views folder
 	helpers.rmdirSyncRecursive(workspacePath + '/views/' + data.options.value);
 
-	let $ = await domHelper.read(layoutFileName);
+	const $ = await domHelper.read(layoutFileName);
 	$("#" + data.options.urlValue + "_menu_item").remove();
 	// Write back to file
 	await domHelper.write(layoutFileName, $)
@@ -529,9 +529,9 @@ exports.deleteAgenda = async (data) => {
 }
 
 exports.newStatus = async (data) => {
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let piecesPath = __dirname + '/../structure/pieces/component/status';
-	let source = data.entity.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const piecesPath = __dirname + '/../structure/pieces/component/status';
+	const source = data.entity.name;
 
 	// Rename history model, options, attributes files and view folder
 	fs.renameSync(workspacePath + '/models/e_' + data.history_table_db_name + '.js', workspacePath + '/models/e_' + data.history_table + '.js');
@@ -551,7 +551,7 @@ exports.newStatus = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/e_' + data.history_table + '.js', historyModel, 'utf8');
 
 	// Add virtual status field to source entity (s_statusName)
-	let attributesObj = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + source + '.json'));
+	const attributesObj = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + source + '.json'));
 	attributesObj[data.options.value] = {
 		type: "VIRTUAL",
 		history_table: 'e_' + data.history_table_db_name,
@@ -560,8 +560,8 @@ exports.newStatus = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/attributes/' + source + '.json', JSON.stringify(attributesObj, null, 4), 'utf8');
 
 	// Replace history table name with history model name in access file
-	let access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-	for (let npsModule in access)
+	const access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
+	for (const npsModule in access)
 		for (let i = 0; i < access[npsModule].entities.length; i++)
 			if (access[npsModule].entities[i].name == data.history_table_db_name)
 				access[npsModule].entities[i].name = data.history_table;
@@ -570,29 +570,29 @@ exports.newStatus = async (data) => {
 	fs.writeFileSync(workspacePath + '/config/access.lock.json', JSON.stringify(access, null, 4), 'utf8');
 
 	// Change target of source entity to match history MODEL name (instead of TABLE name)
-	let optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + source + '.json'));
-	for (let opt in optionsObj)
+	const optionsObj = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + source + '.json'));
+	for (const opt in optionsObj)
 		if (optionsObj[opt].target == 'e_' + data.history_table_db_name)
 			{optionsObj[opt].target = 'e_' + data.history_table;break;}
 	fs.writeFileSync(workspacePath + '/models/options/' + source + '.json', JSON.stringify(optionsObj, null, 4), 'utf8');
 
 	// Remove useless options on e_status
-	let statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
+	const statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
 	for (let i = 0; i < statusModel.length; i++)
 		if (statusModel[i].target == 'e_' + data.history_table_db_name)
 			{statusModel.splice(i, 1);break;}
 	fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
 	// Remove useless options on e_user (association hasMany with history table needs to be removed)
-	let userModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
+	const userModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
 	for (let i = 0; i < userModel.length; i++)
 		if (userModel[i].target == 'e_' + data.history_table_db_name)
 			{userModel.splice(i, 1);break;}
 	fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userModel, null, 4), 'utf8');
 
 	// Remove useless options in toSync
-	let toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
-	for (let prop in toSync) {
+	const toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
+	for (const prop in toSync) {
 		if (prop.indexOf('e_status') != -1)
 			for (let i = 0; i < toSync[prop].options.length; i++)
 				if (toSync[prop].options[i].target.indexOf("_history_") != -1)
@@ -605,7 +605,7 @@ exports.newStatus = async (data) => {
 
 	// Remove useless history tab from Status views
 	let $ = await domHelper.read(workspacePath + "/views/e_status/show_fields.dust")
-	let historyId = 'r_' + data.history_table;
+	const historyId = 'r_' + data.history_table;
 	$("#" + historyId + "-click").parent().remove();
 	$("#" + historyId).remove();
 	await domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $);
@@ -615,9 +615,9 @@ exports.newStatus = async (data) => {
 	let reg = new RegExp(data.history_table_db_name, 'g');
 	show_fieldsFILE = show_fieldsFILE.replace(reg, data.history_table);
 	fs.writeFileSync(workspacePath + "/views/" + source + "/show_fields.dust", show_fieldsFILE, 'utf8');
-	let statusAlias = 'r_' + data.options.value.substring(2);
-	let statusAliasHTML = 'f_' + data.options.value.substring(2);
-	let statusAliasSubstring = statusAlias.substring(2);
+	const statusAlias = 'r_' + data.options.value.substring(2);
+	const statusAliasHTML = 'f_' + data.options.value.substring(2);
+	const statusAliasSubstring = statusAlias.substring(2);
 	// Customize history tab list
 	$ = await domHelper.read(workspacePath + '/views/e_' + data.history_table + '/list_fields.dust');
 
@@ -646,7 +646,7 @@ exports.newStatus = async (data) => {
 	// LOCALS
 	{
 		// Change history tab locales
-		let localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
+		const localesFR = JSON.parse(fs.readFileSync(workspacePath + '/locales/fr-FR.json', 'utf8'));
 		localesFR.entity['e_' + data.history_table_db_name]['as_r_history_' + data.options.urlValue] = "Historique " + data.options.showValue;
 		localesFR.entity['e_' + data.history_table_db_name]['f_comment'] = "Commentaire";
 		localesFR.entity['e_' + data.history_table_db_name]['r_modified_by'] = "Modifié par";
@@ -661,7 +661,7 @@ exports.newStatus = async (data) => {
 		localesFR.entity[source]['r_history_'+data.options.urlValue] = "Historique "+data.options.showValue;
 		fs.writeFileSync(workspacePath + '/locales/fr-FR.json', JSON.stringify(localesFR, null, 4), 'utf8');
 
-		let localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
+		const localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
 		localesEN.entity['e_' + data.history_table_db_name]['as_r_' + data.history_table] = "History " + source.substring(2) + " " + statusAliasSubstring;
 		localesEN.entity['e_' + data.history_table_db_name].label_entity = "History " + source.substring(2) + " " + statusAliasSubstring;
 		localesEN.entity['e_' + data.history_table_db_name].name_entity = "History " + source.substring(2) + " " + statusAliasSubstring;
@@ -683,7 +683,7 @@ exports.newStatus = async (data) => {
 	// Display status as a badge instead of an input
 	// Also add next status buttons after status field
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/show_fields.dust');
-	let statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
+	const statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
 	let nextStatusHtml = '';
 	nextStatusHtml += '<div class="form-group">\n';
 	nextStatusHtml += '	 {#' + statusAlias + '.r_children ' + source.substring(2) + 'id=id}\n';
@@ -697,7 +697,7 @@ exports.newStatus = async (data) => {
 	// Input used for default ordering
 
 	// Remove create button
-	let historyTabId = "#r_history_" + data.options.urlValue;
+	const historyTabId = "#r_history_" + data.options.urlValue;
 	$(historyTabId).find('a.btn-success').remove();
 	await domHelper.write(workspacePath + '/views/' + source + '/show_fields.dust', $);
 
@@ -724,7 +724,7 @@ exports.newStatus = async (data) => {
 
 exports.deleteStatus = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	// Delete history views
 	helpers.rmdirSyncRecursive(workspacePath + '/views/' + data.historyName);
@@ -734,7 +734,7 @@ exports.deleteStatus = async (data) => {
 	fs.unlinkSync(workspacePath + '/models/options/' + data.historyName + '.json');
 
 	// Add DROP TABLE query in toSync.json
-	let toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
+	const toSyncObject = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json', 'utf8'));
 	if (typeof toSyncObject.queries !== "object")
 		toSyncObject.queries = [];
 
@@ -742,9 +742,9 @@ exports.deleteStatus = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSyncObject, null, 4), 'utf8');
 
 	// Clean attribute status field
-	let attributesPath = workspacePath + '/models/attributes/' + data.entity + '.json';
-	let attributes = JSON.parse(fs.readFileSync(attributesPath), 'utf8');
-	for(let attribute in attributes)
+	const attributesPath = workspacePath + '/models/attributes/' + data.entity + '.json';
+	const attributes = JSON.parse(fs.readFileSync(attributesPath), 'utf8');
+	for(const attribute in attributes)
 		if(attribute == data.status_field)
 			delete attributes[attribute];
 	fs.writeFileSync(attributesPath, JSON.stringify(attributes, null, 4), 'utf8');
@@ -776,7 +776,7 @@ exports.deleteStatus = async (data) => {
 		fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
 	});
 
-	let statusName = data.status_field.substring(2);
+	const statusName = data.status_field.substring(2);
 
 	// Remove status from views
 	let $ = await domHelper.read(workspacePath + '/views/' + data.entity + '/show_fields.dust');
@@ -796,9 +796,9 @@ exports.deleteStatus = async (data) => {
 	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "s_" + statusName], _ => {});
 
 	// Clean access
-	let access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.lock.json', 'utf8'));
+	const access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.lock.json', 'utf8'));
 	let idToRemove;
-	for (let npsModule in access){
+	for (const npsModule in access){
 		idToRemove = false;
 		for (let i = 0; i < access[npsModule].entities.length; i++)
 			if (access[npsModule].entities[i].name == data.historyName.substring(2))
@@ -813,8 +813,8 @@ exports.deleteStatus = async (data) => {
 }
 
 exports.setupChat = async (data) => {
-	let workspacePath = __dirname + '/../workspace/' + data.application.name;
-	let piecesPath = __dirname + '/../structure/pieces/component/socket';
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const piecesPath = __dirname + '/../structure/pieces/component/socket';
 
 	// Copy chat files
 	fs.copySync(piecesPath + '/chat/js/chat.js', workspacePath + '/public/js/Newmips/component/chat.js');
@@ -822,7 +822,7 @@ exports.setupChat = async (data) => {
 	fs.copySync(piecesPath + '/chat/routes/chat.js', workspacePath + '/routes/chat.js');
 
 	// Copy chat models
-	let chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
+	const chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
 	for (let i = 0; i < chatModels.length; i++) {
 		fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
 		// let model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
@@ -835,7 +835,7 @@ exports.setupChat = async (data) => {
 	fs.copySync(piecesPath + '/chat/models/options/', workspacePath + '/models/options/');
 
 	// Add belongsToMany with e_channel to e_user, belongsToMany with e_user to e_chat
-	let userOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
+	const userOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
 	userOptions.push({
 		target: 'e_chat',
 		relation: 'belongsToMany',
@@ -855,14 +855,14 @@ exports.setupChat = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8')
 
 	// Set socket and chat config to enabled/true
-	let appConf = JSON.parse(fs.readFileSync(workspacePath + '/config/application.json'));
+	const appConf = JSON.parse(fs.readFileSync(workspacePath + '/config/application.json'));
 	appConf.socket.enabled = true;
 	appConf.socket.chat = true;
 	fs.writeFileSync(workspacePath + '/config/application.json', JSON.stringify(appConf, null, 4), 'utf8');
 
 	// Add custom user_channel/user_chat columns to toSync file
 	// Id will not be used but is required by sequelize to be able to query on the junction table
-	let toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
+	const toSync = JSON.parse(fs.readFileSync(workspacePath + '/models/toSync.json'));
 	toSync['chat_user_channel'] = {
 		attributes: {
 			id_last_seen_message: {type: 'INTEGER', default: 0},
@@ -888,14 +888,14 @@ exports.setupChat = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify(toSync, null, 4), 'utf8');
 
 	// Add chat locales
-	let newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/en-EN.json'));
+	const newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/en-EN.json'));
 	translateHelper.writeTree(data.application.name, newLocalesEN, 'en-EN');
-	let newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/fr-FR.json'));
+	const newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/chat/locales/fr-FR.json'));
 	translateHelper.writeTree(data.application.name, newLocalesFR, 'fr-FR');
 
 	// Add chat dust template to main_layout
-	let $layout = await domHelper.read(workspacePath + '/views/main_layout.dust');
-	let $chat = await domHelper.read(piecesPath + '/chat/views/chat.dust');
+	const $layout = await domHelper.read(workspacePath + '/views/main_layout.dust');
+	const $chat = await domHelper.read(piecesPath + '/chat/views/chat.dust');
 
 	$layout("#chat-placeholder").html($chat("body")[0].innerHTML);
 
@@ -906,33 +906,33 @@ exports.setupChat = async (data) => {
 
 exports.addNewComponentAddress = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
-	let address_path = __dirname + '/pieces/component/address/';
-	let address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
+	const workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+	const address_path = __dirname + '/pieces/component/address/';
+	const address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
 
 	// Models
-	let modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8'));
+	const modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8'));
 
 	// Generate views data
-	let fields = address_utils.generateFields(data.options.showValue, data.options.value);
+	const fields = address_utils.generateFields(data.options.showValue, data.options.value);
 
 	// Update model attributes
-	for (let attribute in fields.db_fields)
+	for (const attribute in fields.db_fields)
 		modelAttributes[attribute] = fields.db_fields[attribute];
 
 	//save new model component attributes file
 	fs.writeFileSync(workspacePath + 'models/attributes/' + data.options.value + '.json', JSON.stringify(modelAttributes, null, 4), 'utf8');
 	fs.copySync(address_path + 'models/options/e_address.json', workspacePath + 'models/options/' + data.options.value + '.json');
 
-	let createFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'create_fields.dust';
-	let updateFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'update_fields.dust';
-	let showFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'show_fields.dust';
+	const createFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'create_fields.dust';
+	const updateFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'update_fields.dust';
+	const showFieldsFile = workspacePath + 'views/' + data.entity.name + '/' + 'show_fields.dust';
 
 	let showHtml = fs.readFileSync(address_path + 'views/show.dust', 'utf8');
 	showHtml = showHtml.replace(/COMPONENT_NAME/g, data.options.value);
 
-	let appendTo = '#fields';
-	let mapsHtml = '<div id="' + data.options.value + '" class="address_maps ' + data.options.value + '" mapsid="' + data.options.value + '" style="margin-top: 25px !important"></div>';
+	const appendTo = '#fields';
+	const mapsHtml = '<div id="' + data.options.value + '" class="address_maps ' + data.options.value + '" mapsid="' + data.options.value + '" style="margin-top: 25px !important"></div>';
 	fs.mkdirpSync(workspacePath + 'views/' + data.options.value);
 	fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/maps.dust', mapsHtml);
 	fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/create_fields.dust', fields.createHtml);
@@ -941,9 +941,9 @@ exports.addNewComponentAddress = async (data) => {
 	fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/show.dust', showHtml);
 	fs.writeFileSync(workspacePath + 'views/' + data.options.value + '/list_fields.dust', fields.headers);
 
-	let $createFieldsFile = await domHelper.read(createFieldsFile);
-	let $updateFieldsFile = await domHelper.read(updateFieldsFile);
-	let $showFieldsFile = await domHelper.read(showFieldsFile);
+	const $createFieldsFile = await domHelper.read(createFieldsFile);
+	const $updateFieldsFile = await domHelper.read(updateFieldsFile);
+	const $showFieldsFile = await domHelper.read(showFieldsFile);
 
 	$createFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/create_fields"/}</div>');
 	$updateFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/update_fields"/}</div>');
@@ -953,7 +953,7 @@ exports.addNewComponentAddress = async (data) => {
 	await domHelper.write(updateFieldsFile, $updateFieldsFile);
 	await domHelper.write(showFieldsFile, $showFieldsFile);
 
-	let parentBaseFile = workspacePath + 'views/' + data.entity.name;
+	const parentBaseFile = workspacePath + 'views/' + data.entity.name;
 
 	await require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body);
 
@@ -975,7 +975,7 @@ exports.addNewComponentAddress = async (data) => {
 	// Check if component config exist, if not we create it
 	let address_settings_config;
 
-	let configPath = workspacePath + 'config/address_settings.json';
+	const configPath = workspacePath + 'config/address_settings.json';
 	if (!fs.existsSync(configPath)) {
 
 		// Files doesn't exist
@@ -1026,11 +1026,11 @@ exports.addNewComponentAddress = async (data) => {
 		addAccessManagment(data.application.name, "address_settings", 'administration');
 
 		// Add new menu in administration for address settings
-		let fileName = workspacePath + 'views/layout_m_administration.dust';
+		const fileName = workspacePath + 'views/layout_m_administration.dust';
 
 		// Read file and get jQuery instance
-		let $ = await domHelper.read(fileName);
-		let li = '\
+		const $ = await domHelper.read(fileName);
+		const li = '\
 		<!--{#entityAccess entity="address_settings"}-->\n\
 			 <!--{#actionAccess entity="address_settings" action="create"}-->\
 				 <li id="e_address_settings_menu_item" style="display:block;">\n\
@@ -1077,7 +1077,7 @@ exports.addNewComponentAddress = async (data) => {
 
 exports.deleteComponentAddress = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+	const workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
 
 	fs.remove(workspacePath + 'views/' + data.options.value);
 	fs.remove(workspacePath + 'models/' + data.options.value + '.js');
@@ -1085,9 +1085,9 @@ exports.deleteComponentAddress = async (data) => {
 	fs.remove(workspacePath + 'models/options/' + data.options.value + '.json');
 
 	// Remove association
-	let relations = JSON.parse(fs.readFileSync(workspacePath + 'models/options/' + data.entity.name + '.json', 'utf8'));
+	const relations = JSON.parse(fs.readFileSync(workspacePath + 'models/options/' + data.entity.name + '.json', 'utf8'));
 	for (let i = 0; i < relations.length; i++) {
-		let relation = relations[i];
+		const relation = relations[i];
 		if (relation.as == 'r_address') {
 			relations.splice(i, 1);
 			break;
@@ -1096,29 +1096,29 @@ exports.deleteComponentAddress = async (data) => {
 	// Update relation file
 	fs.writeFileSync(workspacePath + 'models/options/' + data.entity.name + '.json', JSON.stringify(relations, null, 4), 'utf8');
 
-	let toDoFile = ['create_fields', 'update_fields', 'show_fields'];
+	const toDoFile = ['create_fields', 'update_fields', 'show_fields'];
 	for (var i = 0; i < toDoFile.length; i++) {
-		let $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust');
+		const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust');
 		$('.' + data.options.value).remove();
 		await domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $);
 	}
 
 	// Remove Field In Parent List Field
-	let $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/list_fields.dust');
+	const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/list_fields.dust');
 	$("th[data-field='" + data.entity.name + "']").remove();
 	$("td[data-field='" + data.entity.name + "']").remove();
 	await domHelper.write(workspacePath + 'views/' + data.entity.name + '/list_fields.dust', $)
 
 	// Update locales
-	let langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
-	let langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
+	const langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+	const langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
 	delete langFR.entity[data.options.value];
 	delete langEN.entity[data.options.value];
 
 	// Update address settings file
-	let addressSettingsObj = JSON.parse(fs.readFileSync(workspacePath + 'config/address_settings.json'));
+	const addressSettingsObj = JSON.parse(fs.readFileSync(workspacePath + 'config/address_settings.json'));
 
-	for (let item in addressSettingsObj.entities)
+	for (const item in addressSettingsObj.entities)
 		if (item === data.entity.name)
 			delete addressSettingsObj.entities[item];
 
@@ -1131,7 +1131,7 @@ exports.deleteComponentAddress = async (data) => {
 		deleteAccessManagment(data.application.name, "address_settings", "administration");
 
 		// Read file and get jQuery instance
-		let $ = await domHelper.read(workspacePath + 'views/layout_m_administration.dust');
+		const $ = await domHelper.read(workspacePath + 'views/layout_m_administration.dust');
 		$('#e_address_settings_menu_item').remove();
 		// Write back to file
 		await domHelper.write(workspacePath + 'views/layout_m_administration.dust', $);
@@ -1147,12 +1147,12 @@ exports.deleteComponentAddress = async (data) => {
 
 exports.createComponentDocumentTemplate = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
-	let piecesPath = __dirname + '/pieces/component/document_template/';
+	const workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+	const piecesPath = __dirname + '/pieces/component/document_template/';
 
 	// Update locales
-	let langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
-	let langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
+	const langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
+	const langEN = JSON.parse(fs.readFileSync(workspacePath + 'locales/en-EN.json', 'utf8'));
 
 	// Add administration configuration files
 	if (!data.application.hasDocumentTemplate) {
@@ -1215,10 +1215,10 @@ exports.createComponentDocumentTemplate = async (data) => {
 		};
 
 		// Now new Menu For Entity DocumentTemplate
-		let fileName = workspacePath + '/views/layout_m_administration.dust';
-		let $ = await domHelper.read(fileName);
+		const fileName = workspacePath + '/views/layout_m_administration.dust';
+		const $ = await domHelper.read(fileName);
 
-		let li = "\
+		const li = "\
 		<!--{#entityAccess entity=\"document_template\"}-->\n\
 			<li id='document_template_menu_item' style='display:block;' class='treeview'>\n\
 				<a href='#'>\n\
@@ -1260,7 +1260,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 	fs.writeFileSync(workspacePath + 'locales/en-EN.json', JSON.stringify(langEN, null, 4), 'utf8');
 
 	// New entry for source relation view
-	let newLi = '\
+	const newLi = '\
 	<li>\n\
 		<a id="r_document_template-click" data-toggle="tab" href="#r_document_template">\n\
 			<!--{#__ key="entity.e_document_template.tab_name_' + data.entity.name + '" /}-->\n\
@@ -1276,8 +1276,8 @@ exports.createComponentDocumentTemplate = async (data) => {
 
 exports.deleteComponentDocumentTemplate = async (data) => {
 
-	let workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
-	let $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/show_fields.dust');
+	const workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
+	const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/show_fields.dust');
 
 	$('#r_' + data.options.urlValue + '-click').parent().remove(); //remove li tab
 	$('#r_' + data.options.urlValue).remove(); //remove tab content div

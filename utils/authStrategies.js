@@ -12,7 +12,7 @@ passport.use(new LocalStrategy({
 	},
 	async (req, login, password, done) => {
 
-		let user = await models.User.findOne({
+		const user = await models.User.findOne({
 			where: {
 				login: login.toLowerCase()
 			}
@@ -45,10 +45,10 @@ passport.use(new LocalStrategy({
 			return done(null, false);
 		}
 
-		let dataColumnName = models.sequelize.options.dialect == 'postgres' ? 'sess' : 'data';
-		let sessionIDCol = models.sequelize.options.dialect == 'postgres' ? 'sid' : 'session_id';
+		const dataColumnName = models.sequelize.options.dialect == 'postgres' ? 'sess' : 'data';
+		const sessionIDCol = models.sequelize.options.dialect == 'postgres' ? 'sid' : 'session_id';
 		// Check if current user is already connected
-		let sessions = await models.sequelize.query("SELECT "+sessionIDCol+", "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
+		const sessions = await models.sequelize.query("SELECT "+sessionIDCol+", "+dataColumnName+" FROM sessions", {type: models.sequelize.QueryTypes.SELECT});
 		let currentSession, sessionID;
 		for (var i = 0; i < sessions.length; i++) {
 			sessionID = sessions[i][sessionIDCol];

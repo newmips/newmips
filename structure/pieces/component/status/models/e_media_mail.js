@@ -4,10 +4,10 @@ const mailer = require('../utils/mailer.js');
 const moment = require('moment');
 const globalConf = require('../config/global');
 
-let attributes_origin = require("./attributes/e_media_mail.json");
-let associations = require("./options/e_media_mail.json");
+const attributes_origin = require("./attributes/e_media_mail.json");
+const associations = require("./options/e_media_mail.json");
 
-let INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments'];
+const INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments'];
 
 module.exports = (sequelize, DataTypes) => {
 	var attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -159,10 +159,10 @@ module.exports = (sequelize, DataTypes) => {
 		}
 
 		function getFilePath(filename){
-			let entity = dataInstance.entity_name;
-			let cleanFilename = filename.substring(16);
-			let folderName = filename.split("-")[0];
-			let filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+			const entity = dataInstance.entity_name;
+			const cleanFilename = filename.substring(16);
+			const folderName = filename.split("-")[0];
+			const filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
 			return filePath;
 		}
 
@@ -179,7 +179,7 @@ module.exports = (sequelize, DataTypes) => {
 				data: dataInstance
 			};
 
-			let attachmentsFile = insertVariablesValue('f_attachments');
+			const attachmentsFile = insertVariablesValue('f_attachments');
 
 			// Send mail
 			mailer.sendHtml(insertVariablesValue('f_content'), options, attachmentsFile).then(resolve).catch(reject);

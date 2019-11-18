@@ -33,7 +33,7 @@ router.get('/show/:id', block_access.isAdmin, (req, res) => {
 		},
 		include: [{all: true}]
 	}).then(user => {
-		let idAppUser = [];
+		const idAppUser = [];
 		for (var i = 0; i < user.Applications.length; i++)
 			idAppUser.push(user.Applications[i].id)
 		models.Application.findAll({
@@ -146,8 +146,8 @@ router.post('/delete', block_access.isAdmin, (req, res) => {
 router.post('/assign', block_access.isAdmin, (req, res) => {
 	(async () => {
 		let appID = req.body.app;
-		let userID = req.body.id_user;
-		let user = await models.User.findByPk(userID);
+		const userID = req.body.id_user;
+		const user = await models.User.findByPk(userID);
 
 		if (!user)
 			throw new Error("User not found");
@@ -159,12 +159,12 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 			if(!Array.isArray(appID))
 				appID = [appID];
 
-			let gitlabUser = await gitlab.getUser(user.email);
+			const gitlabUser = await gitlab.getUser(user.email);
 
 			for (let i = 0; i < appID.length; i++) {
-				let application = await models.Application.findByPk(appID[i]);
-				let projectName = globalConf.host + "-" + application.codeName.substring(2);
-				let gitlabProject = await gitlab.getProject(projectName);
+				const application = await models.Application.findByPk(appID[i]);
+				const projectName = globalConf.host + "-" + application.codeName.substring(2);
+				const gitlabProject = await gitlab.getProject(projectName);
 				await gitlab.addUserToProject(gitlabUser.id, gitlabProject.id);
 			}
 		}
@@ -183,15 +183,15 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 router.post('/remove_access', block_access.isAdmin, (req, res) => {
 
 	(async () => {
-		let appID = req.body.id_app;
-		let userID = req.body.id_user;
-		let user = await models.User.findByPk(userID);
+		const appID = req.body.id_app;
+		const userID = req.body.id_user;
+		const user = await models.User.findByPk(userID);
 
-		let data = {};
+		const data = {};
 		if (!user)
 			throw new Error('404 - User not found');
 
-		let applications = await user.getApplications();
+		const applications = await user.getApplications();
 
 		// Remove entity from association array
 		for (var i = 0; i < applications.length; i++)
@@ -204,10 +204,10 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
 
 		// Remove gitlab access
 		if(gitlabConf.doGit){
-			let application = await models.Application.findByPk(appID);
-			let projectName = globalConf.host + "-" + application.codeName.substring(2);
-			let gitlabProject = await gitlab.getProject(projectName);
-			let gitlabUser = await gitlab.getUser(user.email);
+			const application = await models.Application.findByPk(appID);
+			const projectName = globalConf.host + "-" + application.codeName.substring(2);
+			const gitlabProject = await gitlab.getProject(projectName);
+			const gitlabUser = await gitlab.getUser(user.email);
 			await gitlab.removeUserFromProject(gitlabUser.id, gitlabProject.id);
 		}
 

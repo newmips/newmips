@@ -21,7 +21,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 	}
 
 	let initTemplate = false;
-	let templateDir = __dirname + "/../templates";
+	const templateDir = __dirname + "/../templates";
 
 	// Templates folder managment
 	if (!fs.existsSync(templateDir)) {
@@ -31,7 +31,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 
 	const gitTemplate = require('simple-git')(templateDir);
 
-	let gitPromise = new Promise((resolve, reject) => {
+	const gitPromise = new Promise((resolve, reject) => {
 		if(initTemplate){
 			gitTemplate.clone("https://github.com/newmips/templates.git", ".", (err, answer) => {
 				if(err){
@@ -74,8 +74,8 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 	})
 
 	gitPromise.then(() => {
-		let templatesInfos = JSON.parse(fs.readFileSync(templateDir + "/templates.json", "utf8"), null, 4).templates;
-		let templatesNames = [];
+		const templatesInfos = JSON.parse(fs.readFileSync(templateDir + "/templates.json", "utf8"), null, 4).templates;
+		const templatesNames = [];
 		data.templates = [];
 		for(let i=0; i<templatesInfos.length; i++)
 			templatesNames.push(templatesInfos[i].name);

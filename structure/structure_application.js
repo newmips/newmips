@@ -65,14 +65,14 @@ function installAppModules(attr) {
 			});
 		}
 	});
-};
+}
 exports.installAppModules = installAppModules;
 
 // Application
 exports.setupApplication = async (data) => {
 
-	let appName = data.options.value;
-	let appDisplayName = data.options.showValue;
+	const appName = data.options.value;
+	const appDisplayName = data.options.showValue;
 
 	try {
 		await installAppModules();
@@ -86,7 +86,7 @@ exports.setupApplication = async (data) => {
 	await translateHelper.writeLocales(appName, "application", null, appDisplayName, data.googleTranslate);
 
 	// Create database instance for application
-	let db_requests = [
+	const db_requests = [
 		"CREATE DATABASE IF NOT EXISTS `np_" + appName + "` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
 		"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'127.0.0.1' IDENTIFIED BY 'np_" + appName + "';",
 		"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'%' IDENTIFIED BY 'np_" + appName + "';",
@@ -99,7 +99,7 @@ exports.setupApplication = async (data) => {
 		"FLUSH PRIVILEGES;"
 	];
 
-	let conn = await mysql.createConnection({
+	const conn = await mysql.createConnection({
 		host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
 		user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
 		password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
@@ -110,7 +110,7 @@ exports.setupApplication = async (data) => {
 			await conn.query(db_requests[i]);
 	} catch(err) {
 		console.error(err);
-		throw new Error("An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?");;
+		throw new Error("An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?");
 	}
 
 	conn.end();
@@ -127,9 +127,9 @@ exports.setupApplication = async (data) => {
 	if (!data.gitlabUser)
 		data.gitlabUser = await gitlab.getUser(data.currentUser.email);
 
-	let idUserGitlab = data.gitlabUser.id;
+	const idUserGitlab = data.gitlabUser.id;
 
-	let newGitlabProject = {
+	const newGitlabProject = {
 		user_id: idUserGitlab,
 		name: globalConf.host + "-" + appNameWithoutPrefix,
 		description: "A generated Newmips workspace.",
@@ -140,7 +140,7 @@ exports.setupApplication = async (data) => {
 		public: false
 	};
 
-	let newRepo = await gitlab.createProjectForUser(newGitlabProject);
+	const newRepo = await gitlab.createProjectForUser(newGitlabProject);
 	await gitlab.addMemberToProject({
 		id: newRepo.id,
 		user_id: 1, // Admin
@@ -152,13 +152,13 @@ exports.setupApplication = async (data) => {
 
 async function finalizeApplication(application) {
 
-	let piecesPath = __dirname + '/pieces';
-	let workspacePath = __dirname + '/../workspace/' + application.name;
+	const piecesPath = __dirname + '/pieces';
+	const workspacePath = __dirname + '/../workspace/' + application.name;
 
 	// Reset toSync file
 	fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
-	let workspaceSequelize = require(workspacePath + '/models/');
+	const workspaceSequelize = require(workspacePath + '/models/');
 	await workspaceSequelize.sequelize.sync({
 		logging: false,
 		hooks: false
@@ -166,7 +166,7 @@ async function finalizeApplication(application) {
 
 	// Create application's DNS through studio_manager
 	if (globalConf.env == 'cloud'){
-		let appID = await models.Application.findOne({
+		const appID = await models.Application.findOne({
 			name: application.name
 		});
 		await studio_manager.createApplicationDns(application.name, appID);
@@ -174,11 +174,11 @@ async function finalizeApplication(application) {
 }
 
 async function initializeWorkflow(application) {
-	let piecesPath = __dirname + '/pieces/component/status';
-	let workspacePath = __dirname + '/../workspace/' + application.name;
+	const piecesPath = __dirname + '/pieces/component/status';
+	const workspacePath = __dirname + '/../workspace/' + application.name;
 
 	// Remove existing has many from Status, the instruction is only used to generate the tab and views
-	let statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
+	const statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
 	for (let i = 0; i < statusModel.length; i++)
 		if (statusModel[i].target == 'e_status') {
 			statusModel.splice(i, 1);
@@ -214,15 +214,15 @@ async function initializeWorkflow(application) {
 	fs.removeSync(workspacePath+'/views/e_notification');
 
 	// Remove notification from administration sidebar
-	let $ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
+	const $ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
 	$("#notification_menu_item").remove();
 
 	await domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
 	// Write new locales trees
-	let newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
+	const newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
 	translateHelper.writeTree(application.name, newLocalesEN, 'en-EN');
-	let newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_FR.json'));
+	const newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_FR.json'));
 	translateHelper.writeTree(application.name, newLocalesFR, 'fr-FR');
 
 	// Write enum traductions
@@ -233,8 +233,8 @@ async function initializeWorkflow(application) {
 
 exports.initializeApplication = async(application) => {
 
-	let piecesPath = __dirname + '/pieces';
-	let workspacePath = __dirname + '/../workspace/' + application.name;
+	const piecesPath = __dirname + '/pieces';
+	const workspacePath = __dirname + '/../workspace/' + application.name;
 
 	fs.copySync(piecesPath + '/administration/views/e_user/', workspacePath + '/views/e_user/');
 
@@ -247,7 +247,7 @@ exports.initializeApplication = async(application) => {
 	// Clean user show fields and remove tab view
 	$ = await domHelper.read(workspacePath + '/views/e_user/show_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	let homeHtml = $("#home").html();
+	const homeHtml = $("#home").html();
 	$("#home").remove();
 	$("#tabs").removeClass('.nav-tabs-custom').attr('id', 'home');
 	$("#home").html(homeHtml);
@@ -274,7 +274,7 @@ exports.initializeApplication = async(application) => {
 
 	// Make fields unique
 	function uniqueField(entity, field) {
-		let model = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + entity + '.json', 'utf8'));
+		const model = JSON.parse(fs.readFileSync(workspacePath + '/models/attributes/' + entity + '.json', 'utf8'));
 		model[field].unique = true;
 		fs.writeFileSync(workspacePath + '/models/attributes/' + entity + '.json', JSON.stringify(model, null, 4), 'utf8');
 	}
@@ -283,8 +283,8 @@ exports.initializeApplication = async(application) => {
 	uniqueField('e_group', 'f_label');
 
 	// Manualy add custom menus to access file because it's not a real entity
-	let access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
-	let arrayKey = [
+	const access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.json', 'utf8'));
+	const arrayKey = [
 		"access_settings",
 		"db_tool",
 		"import_export",
@@ -474,7 +474,7 @@ exports.initializeApplication = async(application) => {
 	fs.copySync(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js');
 
 	// Delete and copy synchronization files/pieces
-	let synchroViews = fs.readdirSync(workspacePath + '/views/e_synchronization');
+	const synchroViews = fs.readdirSync(workspacePath + '/views/e_synchronization');
 	for (let i = 0; i < synchroViews.length; i++)
 		fs.unlink(workspacePath + '/views/e_synchronization/' + synchroViews[i], (err) => {
 			if (err) console.error(err);
@@ -494,15 +494,15 @@ exports.initializeApplication = async(application) => {
 	await initializeWorkflow(application);
 }
 
-let process_manager = require('../services/process_manager.js');
+const process_manager = require('../services/process_manager.js');
 exports.deleteApplication = async(app_name) => {
 	// Kill spawned child process by preview
-	let process_server = process_manager.process_server;
-	let pathToWorkspace = __dirname + '/../workspace/' + app_name;
-	let pathToAppLogs = __dirname + '/../workspace/logs/app_' + app_name + '.log';
+	const process_server = process_manager.process_server;
+	const pathToWorkspace = __dirname + '/../workspace/' + app_name;
+	const pathToAppLogs = __dirname + '/../workspace/logs/app_' + app_name + '.log';
 
-	let nameAppWithoutPrefix = app_name.substring(2);
-	let nameRepo = globalConf.host + "-" + nameAppWithoutPrefix;
+	const nameAppWithoutPrefix = app_name.substring(2);
+	const nameRepo = globalConf.host + "-" + nameAppWithoutPrefix;
 
 	// Removing .toml file in traefik rules folder
 	if (globalConf.env == "cloud" || globalConf.env == "docker") {
@@ -514,17 +514,17 @@ exports.deleteApplication = async(app_name) => {
 	}
 
 	if (gitlabConf.doGit) {
-		let project = await gitlab.getProject(nameRepo);
+		const project = await gitlab.getProject(nameRepo);
 
 		if (!project)
 			console.error("Unable to find gitlab project to delete.");
 		else {
-			let answer = await gitlab.deleteProject(project.id);
+			const answer = await gitlab.deleteProject(project.id);
 			console.log("Delete Gitlab repository: " + nameRepo + " => " + JSON.stringify(answer));
 		}
 	}
 
-	let conn = await mysql.createConnection({
+	const conn = await mysql.createConnection({
 		host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
 		user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
 		password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password

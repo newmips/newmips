@@ -10,8 +10,8 @@ const ansiToHtml = new AnsiToHTML();
 const moment = require('moment');
 
 let process_server = null;
-let childsUrlsStorage = {};
-let process_server_per_app = new Array();
+const childsUrlsStorage = {};
+const process_server_per_app = new Array();
 
 function setDefaultChildUrl(sessionID, appName){
 	if(typeof childsUrlsStorage[sessionID] === "undefined")
@@ -78,7 +78,7 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 	if (new Date().getTime() - initialTimestamp > timeoutServer)
 		throw new Error('preview.server_timeout');
 
-	let rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
+	const rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
 
 	await new Promise((resolve, reject) => {
 		request({
@@ -124,7 +124,7 @@ exports.killChildProcess = (pid) => {
 		console.log("Killed child process was called : " + pid);
 
 		// OS is Windows
-		let isWin = /^win/.test(process.platform);
+		const isWin = /^win/.test(process.platform);
 		if (isWin) {
 			// **** Commands that works fine on WINDOWS ***
 			cp.exec('taskkill /PID ' + process_server.pid + ' /T /F', function(error, stdout, stderr) {
@@ -134,10 +134,10 @@ exports.killChildProcess = (pid) => {
 			});
 		} else {
 			/* Kill all the differents child process */
-			let killTree = true;
+			const killTree = true;
 			if (killTree) {
 				psTree(pid, function(err, children) {
-					let pidArray = [pid].concat(children.map(function(p) {
+					const pidArray = [pid].concat(children.map(function(p) {
 						return p.PID;
 					}));
 

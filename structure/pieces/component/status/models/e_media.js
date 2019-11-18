@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
 	Model.associate = builder.buildAssociation('E_media', associations);
 
 	Model.prototype.getFieldsToInclude = function() {
-		let self = this;
-		let mediaType = self.f_type.toLowerCase();
+		const self = this;
+		const mediaType = self.f_type.toLowerCase();
 		if (!self['r_media_' + mediaType]) {
 			console.error("No media with type " + mediaType);
 			return null;
@@ -25,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
 	}
 
 	Model.prototype.execute = function(data) {
-		let self = this;
-		let mediaType = self.f_type.toLowerCase();
+		const self = this;
+		const mediaType = self.f_type.toLowerCase();
 		return new Promise(function(resolve, reject) {
 			if (!self['r_media_' + mediaType])
 				return reject("No media with type " + mediaType);
