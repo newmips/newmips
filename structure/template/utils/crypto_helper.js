@@ -20,6 +20,3 @@ const generate_key = function () {
 	return sha.digest('hex');
 };
 exports.generate_key = generate_key;
-//To use it
-//var hw = encrypt("hello newmips");
-//decrypt(hw)

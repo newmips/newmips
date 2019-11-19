@@ -1,12 +1,11 @@
 const models = require('../models/');
-const dbconfig = require('../config/database');
 const fs = require('fs-extra');
 
 // route middleware to make sure
 exports.isLoggedIn = function(req, res, next) {
 	// Autologin for newmips's "iframe" live preview context
-	if (AUTO_LOGIN == true){
-		AUTO_LOGIN = false;
+	if (AUTO_LOGIN == true){ // eslint-disable-line
+		AUTO_LOGIN = false; // eslint-disable-line
 		models.E_user.findOne({
 			where: {
 				id: 1
@@ -18,16 +17,12 @@ exports.isLoggedIn = function(req, res, next) {
 				model: models.E_role,
 				as: 'r_role'
 			}]
-		}).then(function(user) {
-			req.login(user,function() {
-				return next();
-			});
-		});
+		}).then(user => req.login(user, _ => next()));
 	}
 	else if (req.isAuthenticated())
 		return next();
 	else
-		res.redirect('/login?r='+req.originalUrl);
+		res.redirect('/login?r=' + req.originalUrl);
 };
 
 //If the user is already identified, he can't access the login page
@@ -148,6 +143,25 @@ function entityAccess(userGroups, entityName) {
 }
 exports.entityAccess = entityAccess;
 
+// Check if user's role can do `action` on entity
+function actionAccess(userRoles, entityName, action) {
+	try {
+		if(userRoles.length == 0)
+			return false;
+		const access = getAccess();
+		for (const npsModule in access) {
+			const moduleEntities = access[npsModule].entities;
+			for (let i = 0; i < moduleEntities.length; i++)
+				if (moduleEntities[i].name == entityName)
+					return !isInBothArray(moduleEntities[i].actions[action], userRoles)
+		}
+		return false;
+	} catch (e) {
+		return false;
+	}
+}
+exports.actionAccess = actionAccess;
+
 exports.entityAccessMiddleware = function(entityName) {
 	return function(req, res, next) {
 		// Exception for `/search` routes. We only check for 'read' action access.
@@ -168,25 +182,6 @@ exports.entityAccessMiddleware = function(entityName) {
 		return res.redirect('/');
 	}
 }
-
-// Check if user's role can do `action` on entity
-function actionAccess(userRoles, entityName, action) {
-	try {
-		if(userRoles.length == 0)
-			return false;
-		const access = getAccess();
-		for (const npsModule in access) {
-			const moduleEntities = access[npsModule].entities;
-			for (let i = 0; i < moduleEntities.length; i++)
-				if (moduleEntities[i].name == entityName)
-					return !isInBothArray(moduleEntities[i].actions[action], userRoles)
-		}
-		return false;
-	} catch (e) {
-		return false;
-	}
-}
-exports.actionAccess = actionAccess;
 
 exports.actionAccessMiddleware = function(entityName, action) {
 	return function(req, res, next) {
@@ -266,13 +261,12 @@ exports.accessFileManagment = function(){
 			for (let i = 0; i < lockEntities.length; i++){
 				found = false;
 				for (let j = 0; j < accessEntities.length; j++)
-				{if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
-				}
+					if(lockEntities[i].name == accessEntities[j].name){found=true;break;}
 				if(!found){
 					// Add new entity to access
 					emptyEntityContent.name = lockEntities[i].name;
 					accessEntities.push(Object.assign({}, emptyEntityContent));
-					console.log("access.json : NEW ENTITY "+lockEntities[i].name+" IN MODULE "+moduleLock);
+					console.log("access.json : NEW ENTITY " + lockEntities[i].name + " IN MODULE " + moduleLock);
 				}
 			}
 		}
@@ -289,22 +283,23 @@ exports.accessFileManagment = function(){
 			// Loop on entities to remove missing ones
 			lockEntities = accessLock[nps_module].entities;
 			accessEntities = access[nps_module].entities;
-			idxToRemove = [];
-			for (let i = 0; i < accessEntities.length; i++){
+			const idxToRemove = [];
+			for (let i = 0; i < accessEntities.length; i++) {
 				found = false;
-				for (let j = 0; j < lockEntities.length; j++)
-				{if(accessEntities[i].name == lockEntities[j].name){found=true;break;}
+				for (let j = 0; j < lockEntities.length; j++) {
+					if (accessEntities[i].name == lockEntities[j].name) {
+						found = true;
+						break;
+					}
 				}
-				if(!found){
+				if (!found) {
 					// Remove entity from access
 					idxToRemove.push(i);
-					console.log("access.json : REMOVE ENTITY "+accessEntities[i].name+" IN MODULE "+nps_module);
+					console.log("access.json : REMOVE ENTITY " + accessEntities[i].name + " IN MODULE " + nps_module);
 				}
 			}
 
-			access[nps_module].entities = access[nps_module].entities.filter((val, idx, arr) => {
-				return idxToRemove.indexOf(idx) == -1
-			})
+			access[nps_module].entities = access[nps_module].entities.filter((val, idx) => idxToRemove.indexOf(idx) == -1)
 		}
 
 		// Write access.json with new entries

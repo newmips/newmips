@@ -17,7 +17,7 @@ module.exports = {
 		}
 
 		// When user is logged
-		if (req.isAuthenticated() || AUTO_LOGIN) {
+		if (req.isAuthenticated() || AUTO_LOGIN) { // eslint-disable-line
 			// Session
 			locals.session = req.session;
 

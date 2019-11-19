@@ -1,6 +1,4 @@
-const moment = require('moment');
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const block_access = require('../utils/block_access');
 const auth = require('../utils/auth_strategies');
 const bcrypt = require('bcrypt-nodejs');
@@ -9,24 +7,18 @@ const mailer = require('../utils/mailer');
 const svgCaptcha = require('svg-captcha');
 const models = require('../models/');
 
-// =====================================
-// HOME PAGE (with login links) ========
-// =====================================
-
-/* GET home page. */
-router.get('/', function(req, res) {
+// Home
+router.get('/', (req, res) => {
 	res.redirect('/login');
 });
 
 // Route used to redirect to set_status when submitting comment modal
-router.post('/status_comment', block_access.isLoggedIn, function(req, res) {
+router.post('/status_comment', block_access.isLoggedIn, (req, res) => {
 	res.redirect('/'+req.body.parentName+'/set_status/'+req.body.parentId+'/'+req.body.field+'/'+req.body.statusId+'?comment='+encodeURIComponent(req.body.comment));
 });
 
-// =====================================
-// LOGIN ===============================
-// =====================================
-router.get('/login', block_access.loginAccess, function(req, res) {
+// Login
+router.get('/login', block_access.loginAccess, (req, res) => {
 
 	let message, captcha;
 	if(typeof req.session.flash !== "undefined"
@@ -55,7 +47,7 @@ router.get('/login', block_access.loginAccess, function(req, res) {
 	});
 });
 
-router.post('/login', auth.isLoggedIn, function(req, res) {
+router.post('/login', auth.isLoggedIn, (req, res) => {
 
 	if (req.body.remember_me)
 		req.session.cookie.maxAge = 168 * 3600000; // 1 week
@@ -66,7 +58,7 @@ router.post('/login', auth.isLoggedIn, function(req, res) {
 	res.redirect(redirect);
 });
 
-router.get('/refresh_login_captcha', function(req, res) {
+router.get('/refresh_login_captcha', (req, res) => {
 	const captcha = svgCaptcha.create({
 		size: 4,
 		ignoreChars: '0oO1iIlL',
@@ -78,11 +70,11 @@ router.get('/refresh_login_captcha', function(req, res) {
 	res.status(200).send(captcha.data);
 });
 
-router.get('/first_connection', block_access.loginAccess, function(req, res) {
+router.get('/first_connection', block_access.loginAccess, (req, res) => {
 	res.render('login/first_connection');
 });
 
-router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
+router.post('/first_connection', block_access.loginAccess, (req, res) => {
 	const login_user = req.body.login_user;
 
 	models.E_user.findOne({
@@ -91,7 +83,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
 			[models.$or]: [{f_password: ""}, {f_password: null}],
 			f_enabled: 0
 		}
-	}).then(function(user){
+	}).then(user => {
 		if(!user){
 			req.flash('loginMessage', "login.first_connection.userNotExist");
 			res.redirect('/login');
@@ -137,14 +129,14 @@ router.post('/first_connection', block_access.loginAccess, function(req, res, do
 })
 
 // Affichage de la page reset_password
-router.get('/reset_password', block_access.loginAccess, function(req, res) {
+router.get('/reset_password', block_access.loginAccess, (req, res) => {
 	res.render('login/reset_password', {
 		message: req.flash('loginMessage')
 	});
 });
 
 // Reset password, Generate token, insert into DB, send email
-router.post('/reset_password', block_access.loginAccess, function(req, res) {
+router.post('/reset_password', block_access.loginAccess, (req, res) => {
 	const login_user = req.body.login;
 	const given_mail = req.body.mail;
 
@@ -209,7 +201,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 });
 
 // Trigger password reset
-router.get('/reset_password/:token', block_access.loginAccess, function(req, res) {
+router.get('/reset_password/:token', block_access.loginAccess, (req, res) => {
 
 	models.E_user.findOne({
 		where: {
@@ -247,7 +239,7 @@ router.get('/reset_password/:token', block_access.loginAccess, function(req, res
 // =====================================
 // LOGOUT ==============================
 // =====================================
-router.get('/logout', function(req, res) {
+router.get('/logout', (req, res) => {
 	req.session.autologin = false;
 	req.logout();
 	res.redirect('/login');

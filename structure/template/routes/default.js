@@ -1,17 +1,12 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const block_access = require('../utils/block_access');
 const globalConfig = require('../config/global');
 const multer = require('multer');
 const fs = require('fs-extra');
-const crypto = require('../utils/crypto_helper');
 const upload = multer().single('file');
 const models = require('../models/');
 const Jimp = require("jimp");
-const entity_helper = require('../utils/entity_helper');
-const dust = require('dustjs-linkedin');
 const enums_radios = require('../utils/enum_radio.js');
-const component_helper = require('../utils/component_helper');
 
 /* GET status page to check if workspace is ready. */
 router.get('/status', function (req, res) {
@@ -32,134 +27,132 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 		if (!block_access.entityAccess(user.r_group, currentWidget.entity.substring(2)) || !block_access.actionAccess(user.r_role, currentWidget.entity.substring(2), 'read'))
 			continue;
 
-		widgetsPromises.push(((widget, model)=>{
-			return new Promise((resolve, reject)=> {
-				const widgetRes = {type: widget.type};
-				switch (widget.type) {
-					case 'info':
-					case 'stats':
-						models[model].count().then(widgetData => {
-							widgetRes.data = widgetData;
+		widgetsPromises.push(((widget, model) => new Promise(resolve => {
+			const widgetRes = {type: widget.type};
+			switch (widget.type) {
+				case 'info':
+				case 'stats':
+					models[model].count().then(widgetData => {
+						widgetRes.data = widgetData;
+						data[widget.widgetID] = widgetRes;
+						resolve();
+					}).catch(resolve);
+					break;
+
+				case 'piechart':
+					if (!widget.field) {
+						console.error('No field defined for widget piechart')
+						return resolve();
+					}
+					// STATUS PIECHART
+					if (widget.field.indexOf('s_') == 0) {
+						const statusAlias = 'r_' + widget.field.substring(2);
+						models[model].findAll({
+							attributes: [statusAlias + '.f_name', statusAlias + '.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
+							group: [statusAlias + '.f_name', statusAlias + '.f_color', statusAlias + '.id'],
+							include: {model: models.E_status, as: statusAlias},
+							raw: true
+						}).then((piechartData) => {
+							const dataSet = {labels: [], backgroundColor: [], data: []};
+							for (let i = 0; i < piechartData.length; i++) {
+								if (dataSet.labels.indexOf(piechartData[i].f_name) != -1) {
+									dataSet.data[dataSet.labels.indexOf(piechartData[i].f_name)] += piechartData[i].count
+								} else {
+									dataSet.labels.push(piechartData[i].f_name);
+									dataSet.backgroundColor.push(piechartData[i].f_color);
+									dataSet.data.push(piechartData[i].count);
+								}
+							}
+							widgetRes.data = dataSet;
 							data[widget.widgetID] = widgetRes;
 							resolve();
 						}).catch(resolve);
-						break;
-
-					case 'piechart':
-						if (!widget.field) {
-							console.error('No field defined for widget piechart')
+					}
+					// RELATED TO PIECHART
+					else if (widget.field.indexOf('r_') == 0) {
+						// Find option matching wdiget's targeted alias
+						let targetOption;
+						try {
+							const options = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+model.toLowerCase()+'.json'));
+							for (const option of options) {
+								if (option.relation == 'belongsTo' && option.as == widget.field) {
+									targetOption = option;
+									break;
+								}
+							}
+							if (!targetOption)
+								throw new Error();
+						} catch(e) {
+							console.error("Couldn't load piechart for "+model+" on field "+widget.field);
 							return resolve();
 						}
-						// STATUS PIECHART
-						if (widget.field.indexOf('s_') == 0) {
-							const statusAlias = 'r_' + widget.field.substring(2);
-							models[model].findAll({
-								attributes: [statusAlias + '.f_name', statusAlias + '.f_color', [models.sequelize.fn('COUNT', 'id'), 'count']],
-								group: [statusAlias + '.f_name', statusAlias + '.f_color', statusAlias + '.id'],
-								include: {model: models.E_status, as: statusAlias},
-								raw: true
-							}).then((piechartData) => {
-								const dataSet = {labels: [], backgroundColor: [], data: []};
-								for (let i = 0; i < piechartData.length; i++) {
-									if (dataSet.labels.indexOf(piechartData[i].f_name) != -1) {
-										dataSet.data[dataSet.labels.indexOf(piechartData[i].f_name)] += piechartData[i].count
-									} else {
-										dataSet.labels.push(piechartData[i].f_name);
-										dataSet.backgroundColor.push(piechartData[i].f_color);
-										dataSet.data.push(piechartData[i].count);
-									}
-								}
-								widgetRes.data = dataSet;
-								data[widget.widgetID] = widgetRes;
-								resolve();
-							}).catch(resolve);
-						}
-						// RELATED TO PIECHART
-						else if (widget.field.indexOf('r_') == 0) {
-							// Find option matching wdiget's targeted alias
-							let targetOption;
-							try {
-								const options = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+model.toLowerCase()+'.json'));
-								for (const option of options) {
-									if (option.relation == 'belongsTo' && option.as == widget.field) {
-										targetOption = option;
-										break;
-									}
-								}
-								if (!targetOption)
-									throw new Error();
-							} catch(e) {
-								console.error("Couldn't load piechart for "+model+" on field "+widget.field);
-								return resolve();
+
+						// Build all variables required to query piechart data
+						const using = targetOption.usingField ? targetOption.usingField : [{value:'id'}];
+						const selectAttributes = [];
+						for (const attr of using)
+							selectAttributes.push('target.'+attr.value);
+						const foreignKey = targetOption.foreignKey;
+						const target = models['E'+targetOption.target.substring(1)].getTableName();
+						const source = models[model].getTableName();
+
+						models.sequelize.query(`
+							SELECT
+								count(source.id) count, ${selectAttributes.join(', ')}
+							FROM
+								${source} source
+							LEFT JOIN
+								${target} target
+							ON
+								target.id = source.${foreignKey}
+							GROUP BY ${foreignKey}
+						`, {type: models.sequelize.QueryTypes.SELECT}).then(piechartData => {
+							const dataSet = {labels: [], data: []};
+							for (const pie of piechartData) {
+								const labels = [];
+								for (const attr of using)
+									labels.push(pie[attr.value])
+								dataSet.labels.push(labels.join(' - '));
+								dataSet.data.push(pie.count);
 							}
+							widgetRes.data = dataSet;
+							data[widget.widgetID] = widgetRes;
+							resolve();
+						}).catch(resolve);
+					}
+					// FIELD PIECHART
+					else {
+						models[model].findAll({
+							attributes: [widget.field, [models.sequelize.fn('COUNT', 'id'), 'count']],
+							group: [widget.field],
+							raw: true
+						}).then((piechartData) => {
+							const dataSet = {labels: [], data: []};
+							for (let i = 0; i < piechartData.length; i++) {
+								let label = piechartData[i][widget.field];
+								if (widget.fieldType == 'enum')
+									label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
 
-							// Build all variables required to query piechart data
-							const using = targetOption.usingField ? targetOption.usingField : [{value:'id'}];
-							const selectAttributes = [];
-							for (const attr of using)
-								selectAttributes.push('target.'+attr.value);
-							const foreignKey = targetOption.foreignKey;
-							const target = models['E'+targetOption.target.substring(1)].getTableName();
-							const source = models[model].getTableName();
-
-							models.sequelize.query(`
-								SELECT
-									count(source.id) count, ${selectAttributes.join(', ')}
-								FROM
-									${source} source
-								LEFT JOIN
-									${target} target
-								ON
-									target.id = source.${foreignKey}
-								GROUP BY ${foreignKey}
-							`, {type: models.sequelize.QueryTypes.SELECT}).then(piechartData => {
-								const dataSet = {labels: [], data: []};
-								for (const pie of piechartData) {
-									const labels = [];
-									for (const attr of using)
-										labels.push(pie[attr.value])
-									dataSet.labels.push(labels.join(' - '));
-									dataSet.data.push(pie.count);
+								if(dataSet.labels.indexOf(label) != -1)
+									dataSet.data[dataSet.labels.indexOf(label)] += piechartData[i].count
+								else {
+									dataSet.labels.push(label);
+									dataSet.data.push(piechartData[i].count);
 								}
-								widgetRes.data = dataSet;
-								data[widget.widgetID] = widgetRes;
-								resolve();
-							}).catch(resolve);
-						}
-						// FIELD PIECHART
-						else {
-							models[model].findAll({
-								attributes: [widget.field, [models.sequelize.fn('COUNT', 'id'), 'count']],
-								group: [widget.field],
-								raw: true
-							}).then((piechartData) => {
-								const dataSet = {labels: [], data: []};
-								for (let i = 0; i < piechartData.length; i++) {
-									let label = piechartData[i][widget.field];
-									if (widget.fieldType == 'enum')
-										label = enums_radios.translateFieldValue(widget.entity, widget.field, label, req.session.lang_user);
+							}
+							widgetRes.data = dataSet;
+							data[widget.widgetID] = widgetRes;
+							resolve();
+						}).catch(resolve);
+					}
+					break;
 
-									if(dataSet.labels.indexOf(label) != -1)
-										dataSet.data[dataSet.labels.indexOf(label)] += piechartData[i].count
-									else {
-										dataSet.labels.push(label);
-										dataSet.data.push(piechartData[i].count);
-									}
-								}
-								widgetRes.data = dataSet;
-								data[widget.widgetID] = widgetRes;
-								resolve();
-							}).catch(resolve);
-						}
-						break;
-
-					default:
-						console.log("Not found widget type " + widget.type);
-						resolve();
-						break;
-				}
-			})
-		})(currentWidget, modelName));
+				default:
+					console.log("Not found widget type " + widget.type);
+					resolve();
+					break;
+			}
+		}))(currentWidget, modelName));
 	}
 
 	Promise.all(widgetsPromises).then(function () {
@@ -170,64 +163,6 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 });
 
 // *** Dynamic Module | Do not remove ***
-
-router.get('/print/:source/:id', block_access.isLoggedIn, function(req, res) {
-	const source = req.params.source;
-	const id = req.params.id;
-
-	models['E_' + source].findOne({
-		where: {id: id},
-		include: [{all: true, eager: true}]
-	}).then(function (dustData) {
-		let sourceOptions;
-		try {
-			sourceOptions = JSON.parse(fs.readFileSync(__dirname + '/../models/options/e_' + source + '.json', 'utf8'));
-		} catch (e) {
-			res.status(500).end()
-		}
-
-		// Add enum / radio information
-		dustData.enum_radio = enums_radios.translated("e_" + source, req.session.lang_user, sourceOptions);
-
-		imagePromises = [];
-		// Source entity images
-		imagePromises.push(entity_helper.getPicturesBuffers(dustData, 'e_' + source));
-
-		// Relations images
-		for (let i = 0; i < sourceOptions.length; i++) {
-			// Has many/preset
-			if (dustData[sourceOptions[i].as] instanceof Array) {
-				for (let j = 0; j < dustData[sourceOptions[i].as].length; j++)
-					imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as][j], sourceOptions[i].target, true));
-
-			}
-			// Has one
-			else
-				imagePromises.push(entity_helper.getPicturesBuffers(dustData[sourceOptions[i].as], sourceOptions[i].target));
-		}
-
-		// Component address
-		dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists('e_' + source);
-
-		Promise.all(imagePromises).then(function () {
-			// Open and render dust file
-			const file = fs.readFileSync(__dirname + '/../views/e_' + source + '/print_fields.dust', 'utf8');
-			dust.insertLocalsFn(dustData ? dustData : {}, req);
-			dust.renderSource(file, dustData || {}, function (err, rendered) {
-				if (err) {
-					console.error(err);
-					return res.status(500).end();
-				}
-
-				// Send response to ajax request
-				res.json({
-					content: rendered,
-					option: {structureType: 'print'}
-				});
-			});
-		});
-	});
-});
 
 router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
 	res.render('common/unauthorized');
@@ -243,42 +178,41 @@ router.post('/change_language', block_access.isLoggedIn, function (req, res) {
 
 /* Dropzone FIELD ajax upload file */
 router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
-	upload(req, res, function (err) {
+	upload(req, res, err => {
 		if (err) {
 			console.error(err);
 			return res.status(500).end(err);
 		}
+
 		const folder = req.file.originalname.split('-');
-		const dataEntity = req.body.dataEntity;
-		if (folder.length > 1 && !!dataEntity) {
-			let basePath = globalConfig.localstorage + dataEntity + '/' + folder[0] + '/';
-			fs.mkdirs(basePath, function (err) {
+		const entity = req.body.dataEntity;
+
+		if (folder.length > 1 && !!entity) {
+			let basePath = globalConfig.localstorage + entity + '/' + folder[0] + '/';
+			fs.mkdirs(basePath, err => {
 				if (err) {
 					console.error(err);
 					return res.status(500).end(err);
 				}
+
 				const uploadPath = basePath + req.file.originalname;
-				const outStream = fs.createWriteStream(uploadPath);
-				outStream.write(req.file.buffer);
-				outStream.end();
-				outStream.on('finish', function (err) {
-					res.json({
-						success: true
-					});
+				fs.writeFileSync(uploadPath, req.file.buffer)
+				res.json({
+					success: true
 				});
 
 				if (req.body.dataType == 'picture') {
-					//We make thumbnail and reuse it in datalist
-					basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + dataEntity + '/' + folder[0] + '/';
-					fs.mkdirs(basePath, function (err) {
+					// We make thumbnail and reuse it in datalist
+					basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + entity + '/' + folder[0] + '/';
+					fs.mkdirs(basePath, err => {
 						if (err)
 							return console.error(err);
 
-						Jimp.read(uploadPath, function (err, imgThumb) {
+						Jimp.read(uploadPath, (err, imgThumb) => {
 							if (err)
 								return console.error(err);
 
-							imgThumb.resize(globalConfig.thumbnail.height, globalConfig.thumbnail.width)
+							imgThumb.resize(globalConfig.thumbnail.width, globalConfig.thumbnail.height)
 								.quality(globalConfig.thumbnail.quality)
 								.write(basePath + req.file.originalname);
 						});
