@@ -169,7 +169,7 @@ async function finalizeApplication(application) {
 		const appID = await models.Application.findOne({
 			name: application.name
 		});
-		await studio_manager.createApplicationDns(application.name, appID);
+		studio_manager.createApplicationDns(application.name, appID);
 	}
 }
 
