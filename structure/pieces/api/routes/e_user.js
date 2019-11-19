@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const block_access = require('../utils/block_access');
 
 const models = require('../models/');
 const attributes = require('../models/attributes/e_user');
 const options = require('../models/options/e_user');
 const model_builder = require('../utils/model_builder');
-const enums_radios = require('../utils/enum_radio.js');
 
 function capitalizeFirstLetter(word) {
 	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);

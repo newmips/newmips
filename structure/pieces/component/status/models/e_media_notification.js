@@ -1,11 +1,13 @@
 const builder = require('../utils/model_builder');
-const fs = require('fs-extra');
-
 const attributes_origin = require("./attributes/e_media_notification.json");
 const associations = require("./options/e_media_notification.json");
-let socket;
-let models;
 const moment = require('moment');
+
+function socket() {
+	if (!this.socket)
+		this.socket = require('../services/socket')() // eslint-disable-line
+	return this.socket;
+}
 
 module.exports = (sequelize, DataTypes) => {
 	const attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -23,12 +25,12 @@ module.exports = (sequelize, DataTypes) => {
 		const fieldsToParse = ['f_title', 'f_description'];
 		const valuesForInclude = [];
 		for (let i = 0; i < fieldsToParse.length; i++) {
-			var regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 			while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
 				valuesForInclude.push(matches[1]);
 		}
 
-		var regex = new RegExp(/{(user_target\|[^}]*)}/g), matches = null;
+		const regex = new RegExp(/{(user_target\|[^}]*)}/g);let matches = null;
 		while ((matches = regex.exec(this.f_targets)) != null) {
 			const placeholderParts = matches[1].split('|');
 			const userFieldPath = placeholderParts[placeholderParts.length-1];
@@ -39,11 +41,9 @@ module.exports = (sequelize, DataTypes) => {
 
 	Model.prototype.execute = function(resolve, reject, dataInstance) {
 		const self = this;
-		if (!models)
-			models = require('./index');
 
 		async function getGroupAndUserID() {
-			property = 'f_targets';
+			const property = 'f_targets';
 			let userIds = [];
 
 			// EXTRACT GROUP USERS
@@ -51,16 +51,16 @@ module.exports = (sequelize, DataTypes) => {
 			{
 				const groupIds = [];
 				// Exctract all group IDs from property to find them all at once
-				const groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+				const groupRegex = new RegExp(/{(group\|[^}]*)}/g);let match = null;
 				while ((match = groupRegex.exec(self[property])) != null) {
-					var placeholderParts = match[1].split('|');
+					const placeholderParts = match[1].split('|');
 					const groupId = parseInt(placeholderParts[placeholderParts.length-1]);
 					groupIds.push(groupId);
 				}
 
 				// Fetch all groups found and their users
 				const groups = await sequelize.models.E_group.findAll({
-					where: {id: {[models.$in]: groupIds}},
+					where: {id: {[sequelize.models.$in]: groupIds}},
 					include: {model: sequelize.models.E_user, as: 'r_user'}
 				});
 
@@ -75,9 +75,9 @@ module.exports = (sequelize, DataTypes) => {
 			// Placeholder ex: {user|Jeremy|4}
 			{
 				// Exctract all user IDs from property to find them all at once
-				var userRegex = new RegExp(/{(user\|[^}]*)}/g);
+				const userRegex = new RegExp(/{(user\|[^}]*)}/g);let match = null;
 				while ((match = userRegex.exec(self[property])) != null) {
-					var placeholderParts = match[1].split('|');
+					const placeholderParts = match[1].split('|');
 					const userId = parseInt(placeholderParts[placeholderParts.length-1]);
 					userIds.push(userId);
 				}
@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
 			// EXTRACT USER TARGETED THROUGH RELATION
 			// Placeholder ex: {user_target|Enfant|r_parent.r_enfant}
 			{
-				function findAndPushUser(object, path, depth = 0) {
+				function findAndPushUser(object, path, depth = 0) { // eslint-disable-line
 					if (depth < path.length && (!path[depth] || !object[path[depth]]))
 						return;
 					if (depth < path.length)
@@ -100,18 +100,16 @@ module.exports = (sequelize, DataTypes) => {
 						userIds.push(targetedUser.id)
 				}
 
-				var userRegex = new RegExp(/{(user_target\|[^}]*)}/g);
+				const userRegex = new RegExp(/{(user_target\|[^}]*)}/g);let match = null;
 				while ((match = userRegex.exec(self[property])) != null) {
-					var placeholderParts = match[1].split('|');
+					const placeholderParts = match[1].split('|');
 					const userFieldPath = placeholderParts[placeholderParts.length-1];
 					// Dive in dataInstance to find targeted user
 					findAndPushUser(dataInstance, userFieldPath.split('.'));
 				}
 			}
 			// Remove duplicate id from array
-			userIds = userIds.filter(function(item, pos) {
-				return userIds.indexOf(item) == pos;
-			});
+			userIds = userIds.filter((item, pos) => userIds.indexOf(item) == pos);
 
 			return userIds;
 		}
@@ -137,8 +135,7 @@ module.exports = (sequelize, DataTypes) => {
 			}
 
 			let newString = self[property];
-			let regex = new RegExp(/{field\|([^}]*)}/g),
-				matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 			while ((matches = regex.exec(self[property])) != null)
 				newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
@@ -151,12 +148,12 @@ module.exports = (sequelize, DataTypes) => {
 				try {
 					// Build show url of targeted entity
 					const tableName = dataInstance.constructor.getTableName();
-					const prefixIdx = tableName.indexOf('_e_')+('_e_'.length);
+					const prefixIdx = tableName.indexOf('_e_')+'_e_'.length;
 					// Remove table ID and prefix: 10_e_user -> user
 					entityUrl = tableName.substring(prefixIdx);
 					entityUrl = '/' + entityUrl + '/show?id=' + dataInstance.id;
 				} catch(e) {
-					console.log(e);
+					console.error(e);
 					// Will redirect to current page
 					entityUrl = '#';
 				}
@@ -171,11 +168,9 @@ module.exports = (sequelize, DataTypes) => {
 				return reject(e);
 			}
 
-			models.E_notification.create(notificationObj).then(function(notification) {
+			sequelize.models.E_notification.create(notificationObj).then(function(notification) {
 				notification.setR_user(targetIds);
-				if (!socket)
-					socket = require('../services/socket')();
-				socket.sendNotification(notification, targetIds);
+				socket().sendNotification(notification, targetIds);
 				resolve();
 			}).catch(reject);
 		});

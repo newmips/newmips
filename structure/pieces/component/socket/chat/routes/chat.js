@@ -4,8 +4,6 @@ const block_access = require('../utils/block_access');
 
 // Sequelize
 const models = require('../models/');
-// Winston logger
-const logger = require('../utils/logger');
 
 router.post('/user_search', block_access.isLoggedIn, function(req, res) {
 	models.E_user.findAll({

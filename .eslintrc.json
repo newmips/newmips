@@ -6,7 +6,9 @@
 	"extends": "eslint:recommended",
 	"globals": {
 		"Atomics": "readonly",
-		"SharedArrayBuffer": "readonly"
+		"SharedArrayBuffer": "readonly",
+		"$": "readonly",
+		"toastr": "readonly"
 	},
 	"parserOptions": {
 		"ecmaVersion": 2018
@@ -55,7 +57,6 @@
 		"no-inner-declarations": "warn",
 		"no-invalid-this": "error",
 		"no-irregular-whitespace": "error",
-		"no-lone-blocks": "error",
 		"no-lonely-if": "error",
 		"no-multi-spaces": "warn",
 		"no-obj-calls": "error",

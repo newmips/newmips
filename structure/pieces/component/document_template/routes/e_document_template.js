@@ -10,7 +10,6 @@ const attributes = require('../models/attributes/e_document_template');
 const options = require('../models/options/e_document_template');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const globalConfig = require('../config/global');
 const document_template_helper = require('../utils/document_template_helper');
 const status_helper = require('../utils/status_helper.js');
@@ -192,11 +191,8 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 			id: id_e_document_template
 		}
 	}).then(function (e_document_template) {
-		if (!e_document_template) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_document_template)
+			return res.render('common/error', {error: 404});
 
 		e_document_template.update(updateObject).then(function () {
 
@@ -227,6 +223,7 @@ router.get('/set_status/:id_document_template/:status/:id_new_status', block_acc
 	status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(() => {
 		res.redirect('/document_template/show?id=' + req.params.id_document_template);
 	}).catch((err) => {
+		console.error(err);
 		req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
 		res.redirect(req.headers.referer);
 	});
@@ -585,7 +582,7 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
 	where.limit = limit;
 
 	models.E_document_template.findAndCountAll(where).then(function (results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes) {
 			for (let i = 0; i < results.rows.length; i++) {
@@ -597,6 +594,8 @@ router.post('/search', block_access.actionAccessMiddleware('document_template', 
 								break;
 							case "datetime":
 								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 					}

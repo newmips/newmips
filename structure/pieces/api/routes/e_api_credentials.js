@@ -10,13 +10,12 @@ const attributes = require('../models/attributes/e_api_credentials');
 const options = require('../models/options/e_api_credentials');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
 const component_helper = require('../utils/component_helper');
-const globalConfig = require('../config/global');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const randomString = require('randomstring');
+const moment = require('moment');
 
 const SELECT_PAGE_SIZE = 10;
 
@@ -64,12 +63,12 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("api_credentials
 	const doPagination = req.query.paginate;
 
 	// Build array of fields for include and search object
-	const isGlobalSearch = req.body.search.value == "" ? false : true;
+	const isGlobalSearch = req.body.search.value != "";
 	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
-	for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+	for (let i = 0, columns = req.body.columns; i < columns.length; i++) {
 		if (columns[i].searchable == 'false')
 			continue;
 
@@ -85,16 +84,16 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("api_credentials
 		if (isGlobalSearch)
 			search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
 	}
-	for (var i = 0; i < req.body.columns.length; i++)
+	for (let i = 0; i < req.body.columns.length; i++)
 		if (req.body.columns[i].searchable == 'true')
 			toInclude.push(req.body.columns[i].data);
 	// Get sequelize include object
 	const subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
 	// ORDER BY
-	let order, stringOrder = req.body.columns[req.body.order[0].column].data;
+	const stringOrder = req.body.columns[req.body.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
-	order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
+	const order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
 	const include = {
 		model: models[subentityModel],
@@ -112,7 +111,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("api_credentials
 	models.E_api_credentials.findOne({
 		where: {id: parseInt(sourceId)},
 		include: include
-	}).then(function (e_api_credentials) {
+	}).then(e_api_credentials => {
 		if (!e_api_credentials['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
 			console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
 			return res.status(500).end();
@@ -300,11 +299,9 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_api_credentials.findOne({where: {id: id_e_api_credentials}}).then(function (e_api_credentials) {
-		if (!e_api_credentials) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_api_credentials)
+			return res.render('common/error', {error: 404});
+
 		component_helper.address.updateAddressIfComponentExists(e_api_credentials, options, req.body);
 		e_api_credentials.update(updateObject).then(function () {
 
@@ -338,7 +335,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 	// Find tab option
 	let option;
 	for (let i = 0; i < options.length; i++)
-		if (options[i].as == req.params.alias) {
+		if (options[i].as == alias) {
 			option = options[i];
 			break;
 		}
@@ -364,8 +361,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 			return res.status(404).end();
 
 		let dustData = e_api_credentials[option.as] || null;
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0;
+		const promisesData = [];
+		let dustFile, idSubentity, subentityOptions, obj;
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -375,19 +373,18 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 					dustData.hideTab = true;
 					dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-					var subentityOptions = require('../models/options/' + option.target);
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var statusGetterPromise = [], subentityOptions = require('../models/options/' + option.target);
 					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(function (alias) {
-								promisesData.push(new Promise(function (resolve, reject) {
-									dustData[alias].getR_children().then(function (children) {
+							(alias => {
+								promisesData.push(new Promise((resolve, reject) => {
+									dustData[alias].getR_children().then(children => {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}));
 							})(subentityOptions[i].as);
 				}
@@ -412,8 +409,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				if (typeof req.query.associationFlag !== 'undefined')
 				{
@@ -424,15 +420,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 					dustData.associationUrl = req.query.associationUrl;
 				}
 				dustData.for = 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 
 				break;
 
 			case 'localfilestorage':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.sourceId = id;
 				break;
@@ -621,7 +616,7 @@ router.post('/search', block_access.actionAccessMiddleware('api_credentials', 'r
 	where.limit = limit;
 
 	models.E_api_credentials.findAndCountAll(where).then(function (results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes) {
 			for (let i = 0; i < results.rows.length; i++) {
@@ -633,6 +628,8 @@ router.post('/search', block_access.actionAccessMiddleware('api_credentials', 'r
 								break;
 							case "datetime":
 								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 					}

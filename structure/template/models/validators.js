@@ -58,6 +58,7 @@ exports.getValidator = function(attrDef) {
 		case 'code39':
 		case 'picture':
 		case 'password':
+		default:
 			return undefined;
 	}
 }

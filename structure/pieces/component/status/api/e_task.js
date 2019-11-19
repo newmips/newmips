@@ -1,12 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const block_access = require('../utils/block_access');
-
 const models = require('../models/');
 const attributes = require('../models/attributes/e_task');
 const options = require('../models/options/e_task');
 const model_builder = require('../utils/model_builder');
-const enums_radios = require('../utils/enum_radio.js');
 const entity_helper = require('../utils/entity_helper');
 const globalConf = require('../config/global');
 
@@ -49,7 +46,7 @@ router.get('/', function(req, res) {
 
 	const where = {};
 	for (const field in req.query)
-		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
+		if (field.indexOf('fk_id_') == 0 || field.indexOf('f_') == 0 && attributes[field])
 			where[field] = req.query[field];
 	if (Object.keys(where).length)
 		query.where = where;
@@ -93,7 +90,7 @@ router.get('/:id', function(req, res) {
 
 	const where = {id: id_e_task};
 	for (const field in req.query)
-		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
+		if (field.indexOf('fk_id_') == 0 || field.indexOf('f_') == 0 && attributes[field])
 			where[field] = req.query[field];
 	query.where = where;
 
@@ -199,11 +196,13 @@ router.post('/', function(req, res) {
 
 		Promise.all(associationPromises).then(function() {
 			res.status(200).json(answer);
-		}).catch(function(err) {
+		}).catch(err => {
+			console.error(err);
 			answer.error = "Error with associations";
 			res.status(500).json(answer);
 		});
-	}).catch(function(err){
+	}).catch(err => {
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
@@ -242,15 +241,18 @@ router.put('/:id', function(req, res) {
 
 			Promise.all(associationPromises).then(function() {
 				res.status(200).json(answer);
-			}).catch(function(err) {
+			}).catch(err => {
+				console.error(err);
 				answer.error = "Error with associations";
 				res.status(500).json(answer);
 			});
-		}).catch(function(err){
+		}).catch(err =>{
+			console.error(err);
 			answer.error = err;
 			res.status(500).json(answer);
 		});
-	}).catch(function(err){
+	}).catch(err =>{
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});

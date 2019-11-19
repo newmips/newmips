@@ -3,9 +3,7 @@ const router = express.Router();
 const block_access = require('../utils/block_access');
 const component_helper = require('../utils/component_helper');
 const fs = require('fs-extra');
-
-// Winston logger
-const logger = require('../utils/logger');
+const translate = require('../services/language');
 
 router.get('/config', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
 	const tab = req.query.tab;
@@ -46,7 +44,6 @@ router.post('/save', block_access.actionAccessMiddleware("address_settings", "cr
 
 router.get('/info_address_maps_ajax', block_access.actionAccessMiddleware("address_settings", "read"), function (req, res) {
 	try {
-		const translate = require('../services/language');
 		res.status(200).json({message: translate(req.session.lang_user).__("component.address_settings.info_address_maps")});
 	} catch (e) {
 		res.status(500).end();

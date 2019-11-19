@@ -75,13 +75,13 @@ sequelize.customAfterSync = async () => {
 	const toSyncProdObject = JSON.parse(fs.readFileSync(__dirname + '/toSyncProd.json'));
 
 	/* ----------------- Récupération du toSync.json -----------------*/
-	let toSyncObject = JSON.parse(fs.readFileSync(__dirname + '/toSync.json'));
-	let dialect = sequelize.options.dialect;
+	const toSyncObject = JSON.parse(fs.readFileSync(__dirname + '/toSync.json'));
+	const dialect = sequelize.options.dialect;
 
-	for (let entity in toSyncObject) {
+	for (const entity in toSyncObject) {
 		// Sync attributes
 		if (toSyncObject[entity].attributes)
-			for (let attribute in toSyncObject[entity].attributes) {
+			for (const attribute in toSyncObject[entity].attributes) {
 				let type;
 				let request = "";
 				switch (toSyncObject[entity].attributes[attribute].type) {
@@ -105,7 +105,7 @@ sequelize.customAfterSync = async () => {
 						break;
 					case "ENUM":
 						if(dialect == "postgres"){
-							let postgresEnumType = attribute+"_enum_"+moment();
+							const postgresEnumType = attribute+"_enum_"+moment();
 							request += "CREATE TYPE "+postgresEnumType+" as ENUM (";
 							for(let i=0; i<toSyncObject[entity].attributes[attribute].values.length; i++){
 								request += "'"+toSyncObject[entity].attributes[attribute].values[i]+"'";
@@ -153,7 +153,9 @@ sequelize.customAfterSync = async () => {
 				}
 
 				try {
+					/* eslint-disable */
 					await sequelize.query(request)
+					/* eslint-enable */
 				} catch(err) {
 					if(typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701)
 						console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
@@ -168,7 +170,7 @@ sequelize.customAfterSync = async () => {
 			for (let j = 0; j < toSyncObject[entity].options.length; j++) {
 				if(toSyncObject[entity].options[j].relation != "belongsToMany"){
 
-					let option = toSyncObject[entity].options[j];
+					const option = toSyncObject[entity].options[j];
 					let sourceName;
 					try {
 						sourceName = db[entity.charAt(0).toUpperCase() + entity.slice(1)].getTableName();
@@ -180,8 +182,8 @@ sequelize.customAfterSync = async () => {
 					let targetName;
 					// Status specific target. Get real history table name from attributes
 					if (option.target.indexOf('_history_') != -1) {
-						let attris = JSON.parse(fs.readFileSync(__dirname+'/attributes/'+entity.substring(entity.indexOf('e_'), entity.length)+'.json', 'utf8'));
-						for (let attri in attris)
+						const attris = JSON.parse(fs.readFileSync(__dirname+'/attributes/'+entity.substring(entity.indexOf('e_'), entity.length)+'.json', 'utf8'));
+						for (const attri in attris)
 							if (attris[attri].history_table && attris[attri].history_table == option.target){
 								targetName = attris[attri].history_model;
 								break;
@@ -220,7 +222,9 @@ sequelize.customAfterSync = async () => {
 					}
 
 					try {
+						/* eslint-disable */
 						await sequelize.query(request);
+						/* eslint-enable */
 					} catch(err) {
 						if (typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701)
 							console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
@@ -233,8 +237,10 @@ sequelize.customAfterSync = async () => {
 	}
 
 	if (toSyncObject.queries)
-		for (const i = 0; i < toSyncObject.queries.length; i++)
+		for (let i = 0; i < toSyncObject.queries.length; i++)
+			/* eslint-disable */
 			await sequelize.query(toSyncObject.queries[i])
+			/* eslint-enable */
 
 	fs.writeFileSync(__dirname + '/toSyncProd.json', JSON.stringify(toSyncProdObject, null, 4));
 	fs.writeFileSync(__dirname+'/toSync.json', '{}', 'utf8');

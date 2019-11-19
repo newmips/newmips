@@ -1,13 +1,10 @@
 const builder = require('../utils/model_builder');
-const fs = require('fs-extra');
 const mailer = require('../utils/mailer.js');
 const moment = require('moment');
 const globalConf = require('../config/global');
-
 const attributes_origin = require("./attributes/e_media_mail.json");
 const associations = require("./options/e_media_mail.json");
-
-const INSERT_USER_GROUP_FIELDS = ['f_from','f_to','f_cc','f_cci', 'f_attachments'];
+const INSERT_USER_GROUP_FIELDS = ['f_from', 'f_to', 'f_cc', 'f_cci', 'f_attachments'];
 
 module.exports = (sequelize, DataTypes) => {
 	const attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -24,10 +21,10 @@ module.exports = (sequelize, DataTypes) => {
 	// Return an array of all the field that need to be replaced by values. Array used to include what's needed for media execution
 	//	  Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
 	Model.prototype.parseForInclude = function() {
-		const fieldsToParse = ['f_from','f_to','f_cc','f_cci','f_subject', 'f_content', 'f_attachments'];
+		const fieldsToParse = ['f_from', 'f_to', 'f_cc', 'f_cci', 'f_subject', 'f_content', 'f_attachments'];
 		const valuesForInclude = [];
 		for (let i = 0; i < fieldsToParse.length; i++) {
-			let regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 			while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
 				valuesForInclude.push(matches[1]);
 		}
@@ -39,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
 
 		async function insertGroupAndUserEmail() {
 			for (let fieldIdx = 0; fieldIdx < INSERT_USER_GROUP_FIELDS.length; fieldIdx++) {
-				property = INSERT_USER_GROUP_FIELDS[fieldIdx];
+				const property = INSERT_USER_GROUP_FIELDS[fieldIdx];
 				const groupIds = [],
 					userIds = [],
 					userMails = [],
@@ -48,23 +45,25 @@ module.exports = (sequelize, DataTypes) => {
 				// FETCH GROUP EMAIL
 				{
 					// Exctract all group IDs from property to find them all at once
-					const groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+					const groupRegex = new RegExp(/{(group\|[^}]*)}/g);let match = null;
 					while ((match = groupRegex.exec(self[property])) != null) {
-						var placeholderParts = match[1].split('|');
+						const placeholderParts = match[1].split('|');
 						const groupId = parseInt(placeholderParts[placeholderParts.length-1]);
 						intermediateData['group'+groupId] = {placeholder: match[0], emails: []};
 						groupIds.push(groupId);
 					}
 
 					// Fetch all groups found and their users
+					/* eslint-disable */
 					const groups = await sequelize.models.E_group.findAll({
 						where: {id: {[models.$in]: groupIds}},
 						include: {model: sequelize.models.E_user, as: 'r_user'}
 					});
+					/* eslint-enable */
 
 					// Exctract email and build intermediateData object used to replace placeholders
-					for (var i = 0; i < groups.length; i++) {
-						var intermediateKey = 'group'+groups[i].id;
+					for (let i = 0; i < groups.length; i++) {
+						const intermediateKey = 'group'+groups[i].id;
 						for (let j = 0; j < groups[i].r_user.length; j++)
 							if (groups[i].r_user[j].f_email && groups[i].r_user[j].f_email != '') {
 								intermediateData[intermediateKey].emails.push(groups[i].r_user[j].f_email);
@@ -76,22 +75,24 @@ module.exports = (sequelize, DataTypes) => {
 				// FETCH USER EMAIL
 				{
 					// Exctract all user IDs from property to find them all at once
-					const userRegex = new RegExp(/{(user\|[^}]*)}/g);
+					const userRegex = new RegExp(/{(user\|[^}]*)}/g);let match = null;
 					while ((match = userRegex.exec(self[property])) != null) {
-						var placeholderParts = match[1].split('|');
+						const placeholderParts = match[1].split('|');
 						const userId = parseInt(placeholderParts[placeholderParts.length-1]);
 						intermediateData['user'+userId] = {placeholder: match[0], emails: []};
 						userIds.push(userId);
 					}
 
 					// Fetch all users found
+					/* eslint-disable */
 					const users = await sequelize.models.E_user.findAll({
 						where: {id: {[models.$in]: userIds}}
 					});
+					/* eslint-enable */
 
 					// Exctract email and build intermediateData object used to replace placeholders
-					for (var i = 0; i < users.length; i++) {
-						var intermediateKey = 'user'+users[i].id;
+					for (let i = 0; i < users.length; i++) {
+						const intermediateKey = 'user'+users[i].id;
 						if (users[i].f_email && users[i].f_email != '') {
 							intermediateData[intermediateKey].emails.push(users[i].f_email);
 							userMails.push(users[i].f_email);
@@ -108,6 +109,13 @@ module.exports = (sequelize, DataTypes) => {
 					self[property] = self[property].replace(reg, intermediateData[prop].emails.join(', '));
 				}
 			}
+		}
+
+		function getFilePath(filename){
+			const entity = dataInstance.entity_name;
+			const folderName = filename.split("-")[0];
+			const filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
+			return filePath;
 		}
 
 		function insertVariablesValue(property) {
@@ -134,8 +142,8 @@ module.exports = (sequelize, DataTypes) => {
 			}
 
 			let newString = self[property];
-			const regex = new RegExp(/{field\|([^}]*)}/g),
-				matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);
+			let matches = null;
 
 			// Need an array for attachments, not a string
 			if(property == 'f_attachments'){
@@ -155,14 +163,6 @@ module.exports = (sequelize, DataTypes) => {
 			}
 
 			return self[property];
-		}
-
-		function getFilePath(filename){
-			const entity = dataInstance.entity_name;
-			const cleanFilename = filename.substring(16);
-			const folderName = filename.split("-")[0];
-			const filePath = globalConf.localstorage + entity + '/' + folderName + '/' + filename;
-			return filePath;
 		}
 
 		// Replace {group|id} and {user|id} placeholders before inserting variables

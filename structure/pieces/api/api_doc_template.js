@@ -62,5 +62,3 @@
  * Ex:<br>You want to get all blonde users that are children of the same family "Doe", by filtering on <code>f_name</code> (string), <code>f_is_children</code> (boolean) and <code>fk_id_hair_style</code> (foreign key).<br><br>
  * Using <code>get /api/user</code> service, you would do as follow :
  */
-
-
