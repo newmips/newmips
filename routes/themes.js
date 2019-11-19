@@ -15,7 +15,7 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 
 	const themePath = __dirname + '/../structure/template/public/themes';
 	const themeListAvailable = fs.readdirSync(themePath).filter(function(folder) {
-		return (folder.indexOf('.') == -1 && folder != "my-custom-theme");
+		return folder.indexOf('.') == -1 && folder != "my-custom-theme";
 	});
 
 	const availableTheme = [];
@@ -92,6 +92,12 @@ router.post('/default_theme', function(req, res) {
 router.post('/upload_theme', multer({
 	dest: './upload/'
 }).single('themefile'), function(req, res) {
+
+	function notHandlingFile(file, entry){
+		console.log("Not handling this file: "+file);
+		entry.autodrain();
+	}
+
 	if(req.file.size < 15000000){
 		if(req.file.mimetype == "application/zip" || req.file.mimetype == "application/x-zip-compressed"){
 			const checkTheme = {
@@ -110,14 +116,13 @@ router.post('/upload_theme', multer({
 								try{
 									const infoData = JSON.parse(contents);
 									// Create new theme folder
-									//var themeCodeName = req.file.originalname.split(".zip")[0].replace(/ /g, "-") + Date.now();
 									const themeCodeName = dataHelper.clearString(infoData.name);
 
-									if (!fs.existsSync(__dirname + "/../structure/template/public/themes/"+themeCodeName)) {
-										fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName);
-										fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/css");
-										fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js");
-										fs.mkdirSync(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img");
+									if (!fs.existsSync(__dirname + "/../structure/template/public/themes/" + themeCodeName)) {
+										fs.mkdirSync(__dirname + "/../structure/template/public/themes/" + themeCodeName);
+										fs.mkdirSync(__dirname + "/../structure/template/public/themes/" + themeCodeName + "/css");
+										fs.mkdirSync(__dirname + "/../structure/template/public/themes/" + themeCodeName + "/js");
+										fs.mkdirSync(__dirname + "/../structure/template/public/themes/" + themeCodeName + "/img");
 
 										// Unzip
 										fs.createReadStream('./' + req.file.path)
@@ -126,12 +131,6 @@ router.post('/upload_theme', multer({
 												try{
 													const filePath = entry.path;
 													const type = entry.type;
-													const size = entry.size;
-
-													function notHandlingFile(file){
-														console.log("Not handling this file: "+file);
-														entry.autodrain();
-													}
 
 													if(type == "File"){
 														const fileName = entry.path.split("/").pop();
@@ -143,21 +142,21 @@ router.post('/upload_theme', multer({
 																checkTheme.css = true;
 																entry.pipe(writeStream);
 															} else {
-																notHandlingFile(filePath);
+																notHandlingFile(filePath, entry);
 															}
 														} else if(filePath.indexOf("/js/") != -1){
 															if(fileExt == "js"){
 																writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/js/"+fileName);
 																entry.pipe(writeStream);
 															} else {
-																notHandlingFile(filePath);
+																notHandlingFile(filePath, entry);
 															}
 														} else if(filePath.indexOf("/img/") != -1){
-															if(fileExt == "jpg" || fileExt == "jpeg" || fileExt == "png"){
-																writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/"+themeCodeName+"/img/"+fileName);
+															if (fileExt == "jpg" || fileExt == "jpeg" || fileExt == "png") {
+																writeStream = fs.createWriteStream(__dirname + "/../structure/template/public/themes/" + themeCodeName + "/img/" + fileName);
 																entry.pipe(writeStream);
 															} else {
-																notHandlingFile(filePath);
+																notHandlingFile(filePath, entry);
 															}
 														} else if(filePath.indexOf("/infos.json") != -1){
 															if(fileExt == "json"){
@@ -165,7 +164,7 @@ router.post('/upload_theme', multer({
 																checkTheme.info = true;
 																entry.pipe(writeStream);
 															} else {
-																notHandlingFile(filePath);
+																notHandlingFile(filePath, entry);
 															}
 														} else if(filePath.indexOf("/screenshot.png") != -1){
 															if(fileExt == "png"){
@@ -173,10 +172,10 @@ router.post('/upload_theme', multer({
 																checkTheme.screenshot = true;
 																entry.pipe(writeStream);
 															} else {
-																notHandlingFile(filePath);
+																notHandlingFile(filePath, entry);
 															}
 														} else {
-															notHandlingFile(filePath);
+															notHandlingFile(filePath, entry);
 														}
 													}
 												} catch(err){
