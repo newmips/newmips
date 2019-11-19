@@ -14,5 +14,9 @@ test.js
 node_modules
 jspm_packages
 public/
+views/
+sql/
+upload/
+workspace/
 structure/pieces/component/socket/chat/js/chat.js
 structure/pieces/component/socket/notifications/notification.js
