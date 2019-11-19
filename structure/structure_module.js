@@ -111,15 +111,12 @@ exports.deleteModule = async (data) => {
 	fs.writeFileSync(__dirname + '/../workspace/' + data.application.name + '/config/access.json', JSON.stringify(access, null, 4));
 	fs.writeFileSync(__dirname + '/../workspace/' + data.application.name + '/config/access.lock.json', JSON.stringify(access, null, 4));
 
-	const cpt = 0;
-	const layoutFiles = fs.readdirSync(layoutsPath).filter(file => {
-		return file.indexOf('.') !== 0 && file.indexOf('layout_') === 0;
-	});
+	const layoutFiles = fs.readdirSync(layoutsPath).filter(file => file.indexOf('.') !== 0 && file.indexOf('layout_') === 0);
 
 	for (let i = 0; i < layoutFiles.length; i++) {
-		const $ = await domHelper.read(layoutsPath + layoutFiles[i]);
+		const $ = await domHelper.read(layoutsPath + layoutFiles[i]); // eslint-disable-line
 		$("option[data-module='" + data.module_name + "']").remove();
-		await domHelper.write(layoutsPath + layoutFiles[i], $);
+		await domHelper.write(layoutsPath + layoutFiles[i], $); // eslint-disable-line
 	}
 
 	translateHelper.removeLocales(data.application.name, "module", data.module_name);

@@ -1,5 +1,4 @@
 const fs = require("fs-extra");
-const spawn = require('cross-spawn');
 const helpers = require('../utils/helpers');
 const domHelper = require('../utils/jsDomHelper');
 const translateHelper = require("../utils/translate");
@@ -16,8 +15,8 @@ const studio_manager = require('../services/studio_manager');
 const models = require('../models/');
 const exec = require('child_process').exec;
 
-function installAppModules(attr) {
-	return new Promise(function(resolve, reject) {
+function installAppModules(data) {
+	return new Promise((resolve, reject) => {
 		const dir = __dirname;
 
 		// Mandatory workspace folder
@@ -27,22 +26,21 @@ function installAppModules(attr) {
 		if (fs.existsSync(dir + '/../workspace/node_modules')) {
 			console.log("Everything's ok about global workspaces node modules.");
 
-			if(typeof attr !== "undefined"){
+			if (typeof data !== "undefined") {
 				/* When we are in the "npm install" instruction from preview */
 				let command = "npm install";
-				console.log(attr.specificModule)
-				if(attr.specificModule)
-					command += " "+attr.specificModule;
+				console.log(data.specificModule)
+				if (data.specificModule)
+					command += " " + data.specificModule;
 
-				console.log("Executing "+command+" in application: "+attr.id_application+"...");
+				console.log("Executing " + command + " in application: " + data.application.name + "...");
 
 				exec(command, {
-					cwd: dir + '/../workspace/'+attr.id_application+'/'
-				}, function(error, stdout, stderr) {
-					if (error) {
-						reject(error);
-					}
-					console.log('Application '+attr.id_application+' node modules successfully installed !');
+					cwd: dir + '/../workspace/' + data.application.name + '/'
+				}, err => {
+					if (err)
+						return reject(err);
+					console.log('Application ' + data.application.name + ' node modules successfully installed !');
 					resolve();
 				});
 			} else {
@@ -53,13 +51,11 @@ function installAppModules(attr) {
 			console.log("Workspaces node modules initialization...");
 			fs.copySync(path.join(dir, 'template', 'package.json'), path.join(dir, '..', 'workspace', 'package.json'))
 
-			cmd = 'npm -s install';
-			exec(cmd, {
+			exec('npm -s install', {
 				cwd: dir + '/../workspace/'
-			}, function(error, stdout, stderr) {
-				if (error) {
-					reject(error);
-				}
+			}, err => {
+				if (err)
+					return reject(err);
 				console.log('Workspaces node modules successfuly initialized.');
 				resolve();
 			});
@@ -107,7 +103,7 @@ exports.setupApplication = async (data) => {
 
 	try {
 		for (let i = 0; i < db_requests.length; i++)
-			await conn.query(db_requests[i]);
+			await conn.query(db_requests[i]); // eslint-disable-line
 	} catch(err) {
 		console.error(err);
 		throw new Error("An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?");
@@ -131,7 +127,7 @@ exports.setupApplication = async (data) => {
 
 	const newGitlabProject = {
 		user_id: idUserGitlab,
-		name: globalConf.host + "-" + appNameWithoutPrefix,
+		name: globalConf.host + "-" + appName.substring(2),
 		description: "A generated Newmips workspace.",
 		issues_enabled: false,
 		merge_requests_enabled: false,
@@ -152,13 +148,12 @@ exports.setupApplication = async (data) => {
 
 async function finalizeApplication(application) {
 
-	const piecesPath = __dirname + '/pieces';
 	const workspacePath = __dirname + '/../workspace/' + application.name;
 
 	// Reset toSync file
 	fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
-	const workspaceSequelize = require(workspacePath + '/models/');
+	const workspaceSequelize = require(workspacePath + '/models/'); // eslint-disable-line
 	await workspaceSequelize.sequelize.sync({
 		logging: false,
 		hooks: false
@@ -201,9 +196,9 @@ async function initializeWorkflow(application) {
 	fs.copySync(piecesPath + '/models/e_status.js', workspacePath + '/models/e_status.js');
 
 	// Copy views pieces
-	const toCopyViewFolders = ['e_status','e_media','e_media_mail','e_media_notification','e_media_sms','e_media_task','e_translation','e_action'];
+	const toCopyViewFolders = ['e_status', 'e_media', 'e_media_mail', 'e_media_notification', 'e_media_sms', 'e_media_task', 'e_translation', 'e_action'];
 	for (const folder of toCopyViewFolders)
-		fs.copySync(`${piecesPath}/views/${folder}`, `${workspacePath}/views/${folder}`);
+		fs.copySync(piecesPath + '/views/' + folder, workspacePath + '/views/' + folder);
 
 	// Copy routes
 	fs.copySync(piecesPath + '/routes/', workspacePath + '/routes/');

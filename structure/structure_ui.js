@@ -65,13 +65,13 @@ exports.setLogo = async (data) => {
 	const loginFiles = ["login.dust", "first_connection.dust", "reset_password.dust"];
 
 	for (let i = 0; i < loginFiles.length; i++) {
-		const $ = await domHelper.read(loginPath + loginFiles[i]);
+		const $ = await domHelper.read(loginPath + loginFiles[i]); // eslint-disable-line
 
 		if ($("form .body center img").length > 0)
 			$("form .body center img").remove();
 
 		$("form .body center").prepend("<img src='/img/logo/" + data.options.value + "' alt='Login logo' width=\"50%\" height=\"50%\">");
-		await domHelper.write(loginPath + loginFiles[i], $);
+		await domHelper.write(loginPath + loginFiles[i], $); // eslint-disable-line
 	}
 
 	// Main Layout
@@ -99,11 +99,11 @@ exports.removeLogo = async (data) => {
 	const loginPath = workspacePath + '/views/login/';
 	const loginFiles = ["login.dust", "first_connection.dust", "reset_password.dust"];
 	for (let i = 0; i < loginFiles.length; i++) {
-		const $ = await domHelper.read(loginPath + loginFiles[i]);
+		const $ = await domHelper.read(loginPath + loginFiles[i]); // eslint-disable-line
 		if ($("form .body center img").length > 0)
 			$("form .body center img").remove();
 		$("form .body center").prepend("<img src='/img/logo_newmips.png' alt='Login logo' width='50%' height='50%'>");
-		await domHelper.write(loginPath + loginFiles[i], $);
+		await domHelper.write(loginPath + loginFiles[i], $); // eslint-disable-line
 	}
 
 	// Main Layout
@@ -129,9 +129,7 @@ exports.setLayout = async (data) => {
 	const layoutPath = workspacePath + '/public/css/AdminLteV2/layouts';
 	const askedLayout = data.options.value.toLowerCase().trim().replace(/ /g, "-");
 
-	const layoutsDir = fs.readdirSync(layoutPath).filter(file => {
-		return (file.indexOf('.') !== 0) && (file.slice(-4) === '.css' && (file.slice(0, 1) !== '_'));
-	});
+	const layoutsDir = fs.readdirSync(layoutPath).filter(file => file.indexOf('.') !== 0 && (file.slice(-4) === '.css' && file.slice(0, 1) !== '_'));
 
 	const layoutListAvailable = [];
 
@@ -142,9 +140,9 @@ exports.setLayout = async (data) => {
 	if (layoutListAvailable.indexOf(askedLayout) != -1) {
 
 		const moduleLayout = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
+		const $ = await domHelper.read(moduleLayout);
 
-		const $ = await domHelper.read(moduleLayout)
-		const oldLayout = $("link[data-type='layout']").data("data-layout");
+		// const oldLayout = $("link[data-type='layout']").data("data-layout");
 		$("link[data-type='layout']").replaceWith("<link href='/css/AdminLteV2/layouts/layout-" + askedLayout + ".css' rel='stylesheet' type='text/css' data-type='layout' data-layout='" + askedLayout + "'>\n");
 
 		await domHelper.write(moduleLayout, $)
@@ -164,14 +162,12 @@ exports.setLayout = async (data) => {
 
 }
 
-exports.listLayout = async (data) => {
+exports.listLayout = (data) => {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	const layoutPath = workspacePath + '/public/css/AdminLteV2/layouts';
-	const layoutsDir = fs.readdirSync(layoutPath).filter(file => {
-		return (file.indexOf('.') !== 0) && (file.slice(-4) === '.css' && (file.slice(0, 1) !== '_'));
-	});
+	const layoutsDir = fs.readdirSync(layoutPath).filter(file => file.indexOf('.') !== 0 && (file.slice(-4) === '.css' && file.slice(0, 1) !== '_'));
 
 	const layoutListAvailable = [];
 
@@ -198,16 +194,11 @@ exports.setTheme = async (data) => {
 	askedTheme = askedTheme.trim().replace(/ /g, "-");
 
 	function retrieveTheme(themePath) {
-		const themesDir = fs.readdirSync(themePath).filter(folder => {
-			return (folder.indexOf('.') == -1);
-		});
-
+		const themesDir = fs.readdirSync(themePath).filter(folder => folder.indexOf('.') == -1);
 		const themeListAvailable = [];
-
 		themesDir.forEach(theme => {
 			themeListAvailable.push(theme);
 		});
-
 		return themeListAvailable;
 	}
 
@@ -239,7 +230,7 @@ exports.setTheme = async (data) => {
 		promises.push((async() => {
 			const layoutPath = workspacePath + '/views/' + layoutToWrite[i] + '.dust';
 			const $ = await domHelper.read(layoutPath);
-			const oldTheme = $("link[data-type='theme']").attr("data-theme");
+			// const oldTheme = $("link[data-type='theme']").attr("data-theme");
 			$("link[data-type='theme']").replaceWith("<link href='/themes/" + askedTheme + "/css/style.css' rel='stylesheet' type='text/css' data-type='theme' data-theme='" + askedTheme + "'>");
 
 			if (typeof themeInformation.js !== "undefined") {
@@ -259,14 +250,11 @@ exports.setTheme = async (data) => {
 	return;
 }
 
-exports.listTheme = async (data) => {
+exports.listTheme = (data) => {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const themePath = workspacePath + '/public/themes';
-
-	const themesDir = fs.readdirSync(themePath).filter(folder => {
-		return (folder.indexOf('.') == -1);
-	});
+	const themesDir = fs.readdirSync(themePath).filter(folder => folder.indexOf('.') == -1);
 
 	const themeListAvailable = [];
 	themesDir.forEach(theme => {
@@ -347,7 +335,7 @@ exports.createWidget = async (data) => {
 
 	// Add widget to module's layout
 	$ = await domHelper.read(layout_view_filename);
-	$2 = await domHelper.read(piecesPath + '/views/widget/' + data.widgetType + '.dust');
+	const $2 = await domHelper.read(piecesPath + '/views/widget/' + data.widgetType + '.dust');
 	const widgetElemId = data.widgetType + '_' + data.entity.name + '_widget';
 
 	// Create widget's html
@@ -400,6 +388,7 @@ exports.createWidgetPiechart = async (data) => {
 	const widgetElemId = data.widgetType + '_' + data.entity.name + '_' + data.field.name + '_widget';
 	// Widget box title traduction
 	$2(".box-title").html(`<!--{#__ key="defaults.widgets.piechart.distribution" /}-->&nbsp;<!--{#__ key="entity.${data.entity.name}.label_entity" /}-->&nbsp;-&nbsp;<!--{#__ key="entity.${data.entity.name}.${data.field.name}" /}-->`);
+
 	// Create widget's html
 	let newHtml = "";
 	newHtml += '<!--{#entityAccess entity="' + data.entity.name.substring(2) + '" }-->';
