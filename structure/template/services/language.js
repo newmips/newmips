@@ -1,4 +1,3 @@
-
 const languages = [];
 
 function fetchText(key, params, lang) {
@@ -13,7 +12,7 @@ function fetchText(key, params, lang) {
 
 	if (typeof languages[lang] === 'undefined') {
 		try {
-			languages[lang] = require(__dirname + '/../locales/'+lang);
+			languages[lang] = require(__dirname + '/../locales/' + lang); // eslint-disable-line
 		} catch (e) {
 			console.log(e);
 			return key;
@@ -39,16 +38,16 @@ function fetchText(key, params, lang) {
 
 function capitalizeFirstLetters(key, params, lang) {
 	const msg = fetchText(key, params, lang);
-	words = msg.split(' ');
+	const words = msg.split(' ');
 	let res = '';
-	for (let i =0; i < words.length; i++) {
+	for (let i = 0; i < words.length; i++) {
 		const word = words[i];
 		const wordParts = word.split('\'');
 		if (wordParts.length > 1)
-			// d'information -> d'Information
+		// d'information -> d'Information
 			res += wordParts[0] + '\'' + wordParts[1].charAt(0).toUpperCase() + word.slice(3);
 		else
-			// information -> Information
+		// information -> Information
 			res += word.charAt(0).toUpperCase() + word.slice(1);
 		if (i < words.length)
 			res += ' ';

@@ -3,7 +3,7 @@ let io;
 
 let chat = false;
 if (globalConf.socket.chat)
-	chat = require('../utils/chat');
+	chat = require('../utils/chat'); // eslint-disable-line
 
 const connectedUsers = {};
 

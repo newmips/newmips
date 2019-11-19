@@ -308,17 +308,6 @@ function initLocalFileStorage(tab, data) {
     simpleTable(tab.find('table'));
 }
 
-// PRINT
-function initPrintTab(tab, data) {
-    tab.find('.ajax-content').html(data.content);
-    tab.find('.filters').remove();
-    tab.find('table').each(function(){
-        $(this).attr('id', $(this).attr('id')+'_print');
-        simpleTable($(this));
-    });
-    initPrint();
-}
-
 // INITIALIZE
 $(function() {
     // Tab click, load and bind tab content
@@ -338,10 +327,8 @@ $(function() {
         var source = $("input[name=sourceName]").val().substring(2);
         var subentityAlias = tab.prop('id');
 
-        // Build url. Special url for print tab
-        var url = tab.data('tabtype') == 'print'
-            ? '/default/print/'+source+'/'+id
-            : '/'+source+'/loadtab/'+id+'/'+subentityAlias+buildAssociationHref(tab);
+        // Build url.
+        var url = '/' + source + '/loadtab/' + id + '/' + subentityAlias + buildAssociationHref(tab);
 
         // Loading icon until ajax callback
         tab.find('.ajax-content').html('<div style="width:100%;text-align:center;"><i class="fa fa-circle-o-notch fa-spin fa-3x" style="color:#ABABAB;margin-top: 100px;margin-bottom: 100px;"></i></div>');
@@ -369,8 +356,6 @@ $(function() {
                     initHasManyPreset(tab, data);
                 else if (data.option.structureType == 'localfilestorage')
                     initLocalFileStorage(tab, data);
-                else if (data.option.structureType == 'print')
-                    initPrintTab(tab, data);
                 else
                     return console.error("Bad structureType in option");
 

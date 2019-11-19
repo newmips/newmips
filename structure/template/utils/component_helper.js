@@ -5,48 +5,33 @@ const fs = require('fs-extra');
 
 module.exports = {
 	address: {
-		setAddressIfComponentExists: function (entityObject, options, data/*req.body*/) {
-			return new Promise(function (resolve, reject) {
-				const option = entity_helper.findInclude(options, 'as', "r_address");
-				if (option && option.targetType === "component") {
-					const componentAttributes = require('../models/attributes/' + option.target + '.json');
-					const componentOptions = require('../models/options/' + option.target + '.json');
-					const objectToCreate = model_builder.buildForRoute(componentAttributes, componentOptions, data);
-					const componentModelName = option.target.charAt(0).toUpperCase() + option.target.slice(1);
-					models[componentModelName].create(objectToCreate).then(function (e_created) {
-						const func = 'set' + option.as.charAt(0).toUpperCase() + option.as.slice(1);
-						entityObject[func](e_created).then(function () {
-						}).catch(function () {
-						}).then(function () {
-							resolve();
-						});
-					}).catch(function (e) {
-						resolve();
-					});
-				} else
-					resolve();
-			});
+		setAddressIfComponentExists: async (entityObject, options, data) => {
+			const option = entity_helper.findInclude(options, 'as', "r_address");
+			if (!option || option.targetType != "component")
+				return;
+
+			const componentAttributes = require('../models/attributes/' + option.target + '.json'); // eslint-disable-line
+			const componentOptions = require('../models/options/' + option.target + '.json'); // eslint-disable-line
+			const objectToCreate = model_builder.buildForRoute(componentAttributes, componentOptions, data);
+			const componentModelName = option.target.charAt(0).toUpperCase() + option.target.slice(1);
+			const e_created = await models[componentModelName].create(objectToCreate);
+			const func = 'set' + option.as.charAt(0).toUpperCase() + option.as.slice(1);
+			await entityObject[func](e_created);
 		},
-		updateAddressIfComponentExists: function (entityObject, options, data/*req.body*/) {
-			if (entityObject.fk_id_address) {
-				return new Promise(function (resolve, reject) {
-					const option = entity_helper.findInclude(options, 'as', "r_address");
-					if (option && option.targetType === "component" && data.address_id) {
-						const componentAttributes = require('../models/attributes/' + option.target + '.json');
-						const componentOptions = require('../models/options/' + option.target + '.json');
-						const objectToCreate = model_builder.buildForRoute(componentAttributes, componentOptions, data || {});
-						const componentModelName = option.target.charAt(0).toUpperCase() + option.target.slice(1);
-						models[componentModelName].update(objectToCreate, {where: {id: data.address_id}}).then(function (e_created) {
-							resolve();
-						}).catch(function (e) {
-							resolve();
-						});
-					} else
-						resolve();
-				});
-			} return this.setAddressIfComponentExists(entityObject, options, data);
+		updateAddressIfComponentExists: async (entityObject, options, data) => {
+			if (!entityObject.fk_id_address)
+				return this.setAddressIfComponentExists(entityObject, options, data);
+
+			const option = entity_helper.findInclude(options, 'as', "r_address");
+			if (option && option.targetType === "component" && data.address_id) {
+				const componentAttributes = require('../models/attributes/' + option.target + '.json'); // eslint-disable-line
+				const componentOptions = require('../models/options/' + option.target + '.json'); // eslint-disable-line
+				const objectToCreate = model_builder.buildForRoute(componentAttributes, componentOptions, data || {});
+				const componentModelName = option.target.charAt(0).toUpperCase() + option.target.slice(1);
+				await models[componentModelName].update(objectToCreate, {where: {id: data.address_id}});
+			}
 		},
-		buildComponentAddressConfig: function () {
+		buildComponentAddressConfig: _ => {
 			const result = [];
 			try {
 				const config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
@@ -63,7 +48,7 @@ module.exports = {
 				return result;
 			}
 		},
-		getMapsConfigIfComponentAddressExists: function (entity) {
+		getMapsConfigIfComponentAddressExists: entity => {
 			let result = {enableMaps: false};
 			try {
 				const config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));

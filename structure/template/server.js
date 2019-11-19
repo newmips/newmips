@@ -1,47 +1,36 @@
-// server.js
-
 // Set UTC
 process.env.TZ = 'UTC';
 
 const path = require('path');
 const fs = require('fs-extra');
-
 const express = require('express');
 const app = express();
 const session = require('express-session');
-
 const globalConf = require('./config/global');
 const dbConf = require('./config/database');
 const appConf = require('./config/application');
-// const appConf = JSON.parse(fs.readFileSync(__dirname + '/config/application.json'));
 
+let SessionStore, pg;
 // MySql
 if(dbConf.dialect == "mysql")
-	var SessionStore = require('express-mysql-session');
-
+	SessionStore = require('express-mysql-session'); // eslint-disable-line
 // Postgres
 if(dbConf.dialect == "postgres"){
-	var pg = require('pg');
-	var SessionStore = require('connect-pg-simple')(session);
+	pg = require('pg'); // eslint-disable-line
+	SessionStore = require('connect-pg-simple')(session); // eslint-disable-line
 }
 
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-
 const passport = require('passport');
 const flash = require('connect-flash');
 const block_access = require('./utils/block_access');
 const models = require('./models/');
 const moment = require('moment');
 const language = require('./services/language');
-
-const extend = require('util')._extend;
 const https = require('https');
 const http = require('http');
-
-// Winston logger
-const logger = require('./utils/logger');
 
 // DustJs
 const dust = require('dustjs-linkedin');
@@ -53,10 +42,10 @@ require('./utils/auth_strategies');
 // Autologin for newmips's "iframe" live preview context
 let startedFromGenerator = false;
 // Global var used in block_access
-AUTO_LOGIN = false;
+AUTO_LOGIN = false; // eslint-disable-line
 if (process.argv[2] == 'autologin') {
 	startedFromGenerator = true;
-	AUTO_LOGIN = true;
+	AUTO_LOGIN = true; // eslint-disable-line
 }
 
 // Set up public files access (js/css...)
@@ -68,19 +57,18 @@ app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
 
 // Log every request (not /) to the console
 const morganConf = {
-	skip: function(req, res) {
+	skip: req => {
 		if(req.url == "/")
 			return true;
 	}
 }
-if (!startedFromGenerator)
-	morganConf.stream = require('split')().on('data', function(line) {
-		process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n");
-	})
-app.use(morgan('dev', morganConf));
 
+if (!startedFromGenerator)
+	morganConf.stream = require('split')().on('data', line => process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n"));  // eslint-disable-line
+
+app.use(morgan('dev', morganConf));
 if (!startedFromGenerator) {
-	require('console-stamp')(console, {
+	require('console-stamp')(console, { // eslint-disable-line
 		formatter: function() {
 			return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
 		},
@@ -90,8 +78,8 @@ if (!startedFromGenerator) {
 	});
 }
 
-// Overide console.warn & console.error to file+line
-['warn', 'error'].forEach((methodName) => {
+// Overide console.warn & console.error to file + line
+['warn', 'error'].forEach(methodName => {
 	const originalMethod = console[methodName];
 	console[methodName] = (...args) => {
 		let initiator = 'unknown place';
@@ -146,23 +134,24 @@ const options = {
 	database: dbConf.database
 };
 
+let sessionStore;
 if(dbConf.dialect == "mysql")
-	var sessionStore = new SessionStore(options);
+	sessionStore = new SessionStore(options);
 
 if(dbConf.dialect == "postgres"){
 	const pgPool = new pg.Pool(options);
-	pgPool.connect((err, client, done) => {
+	pgPool.connect((err, client) => {
 		if (err) {console.error(err);}
 		client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
 			if (err) {console.error(err.stack)} else if(!res.rows[0].exists) {
 				// Postgres sessions table do not exist, creating it...
-				client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), (err, res) => {
+				client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), err => {
 					if (err) {console.error(err)} else {console.log("Postgres sessions table created !");}
 				});
 			}
 		})
 	})
-	var sessionStore = new SessionStore({
+	sessionStore = new SessionStore({
 		pool: pgPool,
 		tableName: 'sessions'
 	});
@@ -195,7 +184,7 @@ app.locals.moment = require('moment');
 // When application process is a child of generator process, log each routes for the generator
 // to keep track of it, and redirect after server restart
 if (startedFromGenerator) {
-	app.get('/*', function(req, res, next) {
+	app.get('/*', (req, res, next) => {
 		const url = req.originalUrl;
 		// Do not remove this comment
 		if(url.indexOf("/inline_help/") != -1 || url.indexOf('/loadtab/') != -1 || req.query.ajax)
@@ -208,7 +197,7 @@ if (startedFromGenerator) {
 }
 
 //------------------------------ LOCALS ------------------------------ //
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 
 	// If not a person (healthcheck service or other spamming services)
 	if(typeof req.session.passport === "undefined" && Object.keys(req.headers).length == 0){return res.sendStatus(200);}
@@ -225,22 +214,23 @@ app.use(function(req, res, next) {
 	res.locals.lang_user = lang;
 	res.locals.config = globalConf;
 
+	const dustFn = require("./utils/dust_fn"); // eslint-disable-line
 	// To use before calling renderSource function
 	// Insert locals function in dustData
-	dust.insertLocalsFn = function(locals, request){
-		require("./utils/dust_fn").getLocals(locals, request, language(request.session.lang_user), block_access);
+	dust.insertLocalsFn = (locals, request) => {
+		dustFn.getLocals(locals, request, language(request.session.lang_user), block_access);
 	}
 
 	// Helpers / Locals / Filters
-	require("./utils/dust_fn").getHelpers(dust);
-	require("./utils/dust_fn").getLocals(res.locals, req, language(lang), block_access);
-	require("./utils/dust_fn").getFilters(dust, lang);
+	dustFn.getHelpers(dust);
+	dustFn.getLocals(res.locals, req, language(lang), block_access);
+	dustFn.getFilters(dust, lang);
 	next();
 });
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 	const redirect = res.redirect;
-	res.redirect = function(view) {
+	res.redirect = view => {
 		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
 		if (req.query.ajax) {
 			// Check role access error in toastr. Send 403 if found, {refresh: true} will force reload of the page (behavior comes from public/newmips/show.js)
@@ -257,7 +247,7 @@ app.use(function(req, res, next) {
 
 	// Overload res.render to always get and reset toastr, load notifications and inline-help helper
 	const render = res.render;
-	res.render = function(view, locals, cb) {
+	res.render = (view, locals, cb) => {
 		if(typeof locals === "undefined")
 			locals = {};
 		if (req.session.toastr && req.session.toastr.length > 0) {
@@ -282,7 +272,7 @@ app.use(function(req, res, next) {
 			order: [["createdAt", "DESC"]],
 			offset: 0,
 			limit: 10
-		}).then(function(notifications) {
+		}).then(notifications => {
 			locals.notificationsCount = notifications.count;
 			locals.notifications = notifications.rows;
 
@@ -294,7 +284,7 @@ app.use(function(req, res, next) {
 					options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
 				} catch(e) {
 					// No options file, always return false
-					dust.helpers.inline_help = function(){return false;}
+					dust.helpers.inline_help = () => false;
 					return render.call(res, view, locals, cb);
 				}
 				const entityList = [entityName];
@@ -302,7 +292,7 @@ app.use(function(req, res, next) {
 					entityList.push(options[i].target);
 
 				models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
-					dust.helpers.inline_help = function(ch, con, bod, params){
+					dust.helpers.inline_help = (ch, con, bod, params) => {
 						for (let i = 0; i < helps.length; i++) {
 							if (params.field == helps[i].f_field)
 								return true;
@@ -326,7 +316,7 @@ require('./routes/')(app);
 // Api routes ==================================================================
 require('./api/')(app);
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
@@ -380,11 +370,12 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 		else
 			server = http.createServer(app);
 
+		const io = false;
 		if (globalConf.socket.enabled) {
-			io = require('socket.io')(server);
+			io = require('socket.io')(server); // eslint-disable-line
 			// Provide shared express session to sockets
 			io.use(socketSession(sessionInstance));
-			require('./services/socket')(io);
+			require('./services/socket')(io); // eslint-disable-line
 		}
 
 		// Handle access.json file for various situation
@@ -393,18 +384,16 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 		server.listen(globalConf.port);
 		if (globalConf.env == 'tablet') {
 			try {
-				const cordova = require('cordova-bridge');
+				const cordova = require('cordova-bridge'); // eslint-disable-line
 				cordova.channel.send('STARTED');
 			} catch(e) {console.error("Couldn't require 'cordova-bridge'");}
 		}
 		console.log("Started " + globalConf.protocol + " on " + globalConf.port + " !");
 	}).catch(err => {
 		console.error(err);
-		logger.silly(err);
 	})
-}).catch(function(err) {
+}).catch(err => {
 	console.error(err);
-	logger.silly(err);
 })
 
 module.exports = app;

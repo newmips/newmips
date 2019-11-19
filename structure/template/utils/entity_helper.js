@@ -1,8 +1,6 @@
-const file_helper = require('./file_helper');
-const status_helper = require('./status_helper');
-const model_builder = require('./model_builder');
-const logger = require('./logger');
 const fs = require('fs-extra');
+const file_helper = require('./file_helper');
+const logger = require('./logger');
 const language = require('../services/language');
 const models = require('../models/');
 const enums_radios = require('../utils/enum_radio.js');
@@ -13,8 +11,8 @@ const funcs = {
 		return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 	},
 	prepareDatalistResult: async function (entityName, data, lang_user) {
-		const attributes = require('../models/attributes/' + entityName);
-		const options = require('../models/options/' + entityName);
+		const attributes = require('../models/attributes/' + entityName); // eslint-disable-line
+		const options = require('../models/options/' + entityName); // eslint-disable-line
 		const thumbnailFolder = globalConfig.thumbnail.folder;
 		const thumbnailPromises = [];
 

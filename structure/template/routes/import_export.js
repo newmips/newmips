@@ -20,11 +20,7 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
 	const entities = [];
 	const through = [];
 
-	fs.readdirSync(__dirname + '/../models/options/').filter(function(file) {
-		return file.indexOf('.') !== 0 &&
-			file.slice(-5) === '.json' &&
-			file.substring(0, 2) == 'e_';
-	}).forEach(function(file) {
+	fs.readdirSync(__dirname + '/../models/options/').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_').forEach(file => {
 		// Get primary tables
 		const entityName = file.substring(0, file.length - 5);
 		const modelName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
@@ -95,7 +91,7 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 		return new Promise((resolve, reject) => {
 			// Create and open file writeStream
 			const fileStream = fs.createWriteStream(filePath);
-			fileStream.on('open', function(fd) {
+			fileStream.on('open', _ => {
 
 				// Exec instruction
 				const childProcess = exec.spawn(cmd, args);
@@ -103,11 +99,11 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 				childProcess.stderr.setEncoding('utf8');
 
 				// Child Success output
-				childProcess.stdout.on('data', function(stdout) {
+				childProcess.stdout.on('data', stdout => {
 					fileStream.write(stdout);
 				})
 				// Child Error output
-				childProcess.stderr.on('data', function(stderr) {
+				childProcess.stderr.on('data', stderr => {
 					// Avoid reject if only warning
 					if (stderr.toLowerCase().indexOf("warning") != -1) {
 						console.log("!! mysqldump ignored warning !!: " + stderr)
@@ -119,14 +115,14 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 				})
 
 				// Child error
-				childProcess.on('error', function(error) {
-					console.error(error);
+				childProcess.on('error', err => {
 					fileStream.end();
 					childProcess.kill();
-					reject(error);
+					console.error(err);
+					reject(err);
 				})
 				// Child close
-				childProcess.on('close', function(code) {
+				childProcess.on('close', _ => {
 					fileStream.end();
 					resolve();
 				})
@@ -137,13 +133,13 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 	const dumpName = 'dump_db_data_' + moment().format("YYYYMMDD-HHmmss") + '.sql';
 	const dumpPath = __dirname + '/../' + dumpName;
 
-	fullStdoutToFile(cmd, cmdArgs, dumpPath).then(function() {
-		res.download(dumpPath, dumpName, function(err) {
+	fullStdoutToFile(cmd, cmdArgs, dumpPath).then(_ => {
+		res.download(dumpPath, dumpName, err => {
 			if (err)
 				console.error(err);
 			fs.unlinkSync(dumpPath);
 		})
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 	})
 })
@@ -195,12 +191,12 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 			childProcess.stderr.setEncoding('utf8');
 
 			// Child Success output
-			childProcess.stdout.on('data', function(stdout) {
+			childProcess.stdout.on('data', stdout => {
 				console.log(stdout)
 			})
 
 			// Child Error output
-			childProcess.stderr.on('data', function(stderr) {
+			childProcess.stderr.on('data', stderr => {
 				// Avoid reject if only warning
 				if (stderr.toLowerCase().indexOf("warning") != -1) {
 					console.log("!! mysql ignored warning !!: " + stderr)
@@ -211,26 +207,26 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 			})
 
 			// Child error
-			childProcess.on('error', function(error) {
+			childProcess.on('error', error => {
 				childProcess.kill();
 				reject(error);
 			})
 
 			// Child close
-			childProcess.on('close', function(code) {
+			childProcess.on('close', _ => {
 				resolve();
 			})
 		})
 	}
 
-	handleExecStdout(cmd, cmdArgs).then(function() {
+	handleExecStdout(cmd, cmdArgs).then(_ => {
 		fs.unlinkSync(completeFilePath);
 		req.session.toastr = [{
 			message: 'settings.db_tool.import_success',
 			level: "success"
 		}];
 		res.redirect("/import_export/db_show")
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 		req.session.toastr = [{
 			message: "settings.db_tool.import_error",
@@ -246,7 +242,7 @@ router.get('/access_show', block_access.isLoggedIn, block_access.actionAccessMid
 
 router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
 	const dumpPath = __dirname + '/../config/access.json';
-	res.download(dumpPath, "access_conf_" + moment().format("YYYYMMDD-HHmmss") + ".json", function(err) {
+	res.download(dumpPath, "access_conf_" + moment().format("YYYYMMDD-HHmmss") + ".json", err => {
 		if (err) {
 			console.error(err);
 			req.session.toastr.push({
