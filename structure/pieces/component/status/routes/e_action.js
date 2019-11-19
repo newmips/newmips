@@ -1,28 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
 const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_action');
 const options = require('../models/options/e_action');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
-const globalConfig = require('../config/global');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
+const moment = require('moment');
 
 // Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
 
-// Winston logger
-const logger = require('../utils/logger');
-
-router.get('/list', block_access.actionAccessMiddleware("action", "read"), function (req, res) {
+router.get('/list', block_access.actionAccessMiddleware("action", "read"), (req, res) => {
 	const data = {
 		"menu": "e_action",
 		"sub_menu": "list_e_action"
@@ -34,19 +27,18 @@ router.get('/list', block_access.actionAccessMiddleware("action", "read"), funct
 	res.render('e_action/list', data);
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("action", "read"), function (req, res) {
-	filterDataTable("E_action", req.body).then(function (data) {
-		entity_helper.prepareDatalistResult('e_action', rawData, req.session.lang_user).then(function(preparedData) {
+router.post('/datalist', block_access.actionAccessMiddleware("action", "read"), (req, res) => {
+	filterDataTable("E_action", req.body).then(rawData => {
+		entity_helper.prepareDatalistResult('e_action', rawData, req.session.lang_user).then(preparedData => {
 			res.send(preparedData).end();
 		});
 	}).catch(function (err) {
 		console.error(err);
-		logger.debug(err);
 		res.end();
 	});
 });
 
-router.get('/show', block_access.actionAccessMiddleware("action", "read"), function (req, res) {
+router.get('/show', block_access.actionAccessMiddleware("action", "read"), (req, res) => {
 	const id_e_action = req.query.id;
 	const tab = req.query.tab;
 	const data = {
@@ -60,17 +52,14 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
 	if (typeof req.query.hideButton !== 'undefined')
 		data.hideButton = req.query.hideButton;
 
-	entity_helper.optimizedFindOne('E_action', id_e_action, options).then(function(e_action){
-		if (!e_action) {
-			data.error = 404;
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+	entity_helper.optimizedFindOne('E_action', id_e_action, options).then(e_action => {
+		if (!e_action)
+			return res.render('common/error', {error: 404});
 
 		/* Update local e_action data before show */
 		data.e_action = e_action;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(e_action, "e_action").then(function() {
+		entity_helper.getPicturesBuffers(e_action, "e_action").then(_ => {
 			status_helper.translate(e_action, attributes, req.session.lang_user);
 			res.render('e_action/show', data);
 		}).catch(function (err) {
@@ -81,7 +70,7 @@ router.get('/show', block_access.actionAccessMiddleware("action", "read"), funct
 	});
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("action", "create"), function (req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("action", "create"), (req, res) => {
 	const data = {
 		menu: "e_action",
 		sub_menu: "create_e_action",
@@ -97,22 +86,21 @@ router.get('/create_form', block_access.actionAccessMiddleware("action", "create
 	}
 
 	const view = req.query.ajax ? 'e_action/create_fields' : 'e_action/create';
-	if (req.query.associationSource == 'e_status')
-		models.E_status.findOne({where: {id: data.associationFlag}}).then(function(status) {
-			models.E_action.findAll({
-				where: {
-					fk_id_status_actions: status.id
-				},
-				order: [["f_order", "DESC"]],
-				limit: 1
-			}).then(function(actionMax) {
-				data.max = (actionMax && actionMax[0] && actionMax[0].f_order) ? actionMax[0].f_order+1 : 1;
-				data.status_target = status.f_entity;
-				res.render(view, data);
-			});
+	if (req.query.associationSource != 'e_status')
+		return res.render(view, data);
+	models.E_status.findOne({where: {id: data.associationFlag}}).then(status => {
+		models.E_action.findAll({
+			where: {
+				fk_id_status_actions: status.id
+			},
+			order: [["f_order", "DESC"]],
+			limit: 1
+		}).then(actionMax => {
+			data.max = actionMax && actionMax[0] && actionMax[0].f_order ? actionMax[0].f_order+1 : 1;
+			data.status_target = status.f_entity;
+			res.render(view, data);
 		});
-	else
-		res.render(view, data);
+	});
 });
 
 router.post('/create', block_access.actionAccessMiddleware("action", "create"), function (req, res) {
@@ -219,11 +207,8 @@ router.post('/update', block_access.actionAccessMiddleware("action", "update"), 
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_action.findOne({where: {id: id_e_action}}).then(function (e_action) {
-		if (!e_action) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_action)
+			return res.render('common/error', {error: 404});
 
 		e_action.update(updateObject).then(function () {
 
@@ -257,7 +242,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 	// Find tab option
 	let option;
 	for (let i = 0; i < options.length; i++)
-		if (options[i].as == req.params.alias)
+		if (options[i].as == alias)
 		{option = options[i]; break;}
 	if (!option)
 		return res.status(404).end();
@@ -278,9 +263,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 		if (!e_action)
 			return res.status(404).end();
 
-		let dustData = e_action[option.as];
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
+		let dustData = e_action[option.as], dustFile, idSubentity, obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0;
+		const promisesData = [];
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -292,15 +277,15 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					const statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					const subentityOptions = require('../models/options/'+option.target); // eslint-disable-line
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(function(alias) {
-								promisesData.push(new Promise(function(resolve, reject) {
-									dustData[alias].getR_children().then(function(children) {
+							(alias => {
+								promisesData.push(new Promise((resolve, reject) => {
+									dustData[alias].getR_children().then(children => {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}))
 							})(subentityOptions[i].as);
 				}
@@ -317,11 +302,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 						if (attributes[attr].history_table && attributes[attr].history_model == option.target)
 							dustFile = attributes[attr].history_table+'/list_fields';
 				}
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.for = option.structureType == 'hasMany' ? 'hasMany' : 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 				if (typeof req.query.associationFlag !== 'undefined')
 				{dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
@@ -329,8 +313,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 
 			case 'localfilestorage':
 				dustFile = option.target+'/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.sourceId = id;
 				break;
@@ -340,11 +323,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('action', 
 		}
 
 		// Image buffer promise
-		Promise.all(promisesData).then(function() {
+		Promise.all(promisesData).then(_ => {
 			// Open and render dust file
 			const file = fs.readFileSync(__dirname+'/../views/'+dustFile+'.dust', 'utf8');
 			dust.insertLocalsFn(dustData ? dustData : {}, req);
-			dust.renderSource(file, dustData || {}, function(err, rendered) {
+			dust.renderSource(file, dustData || {}, (err, rendered) => {
 				if (err) {
 					console.error(err);
 					return res.status(500).end();
@@ -372,6 +355,7 @@ router.get('/set_status/:id_action/:status/:id_new_status', block_access.actionA
 	status_helper.setStatus('e_action', req.params.id_action, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
 		res.redirect('/action/show?id=' + req.params.id_action)
 	}).catch((err)=> {
+		console.error(err);
 		req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
 		res.redirect(req.headers.referer);
 	});
@@ -417,8 +401,8 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
 	where.offset = offset;
 	where.limit = limit;
 
-	models.E_action.findAndCountAll(where).then(function (results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+	models.E_action.findAndCountAll(where).then(results => {
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes) {
 			for (let i = 0; i < results.rows.length; i++) {
@@ -430,6 +414,8 @@ router.post('/search', block_access.actionAccessMiddleware('action', 'read'), fu
 								break;
 							case "datetime":
 								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 					}
@@ -478,11 +464,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("action"
 	const alias = req.params.alias;
 	const idEntity = req.body.idEntity;
 	models.E_action.findOne({where: {id: idEntity}}).then(function (e_action) {
-		if (!e_action) {
-			const data = {error: 404};
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_action)
+			return res.render('common/error', {error: 404});
 
 		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {

@@ -11,20 +11,11 @@ const exec = require('child_process');
 const entity_helper = require('../utils/entity_helper');
 const model_builder = require('../utils/model_builder');
 const language = require('../services/language');
-
-// Mysql Dump & Import functions
-// var mysqlDump = require('mysqldump-with-drop');
-// var mysqlImporter = require('node-mysql-importer');
 const sqliteImporter = require('../utils/sqlite_importer');
-
-// Datalist
 const filterDataTable = require('../utils/filter_datatable');
-
-// Winston logger
-const logger = require('../utils/logger');
+const syncOpts = require(__dirname+'/../models/options/e_synchronization');
 
 router.get('/show', block_access.actionAccessMiddleware("synchronization", "read"), (req, res) => {
-	const id_e_user = req.query.id;
 	const tab = req.query.tab;
 	const data = {
 		menu: "e_synchronization",
@@ -70,18 +61,16 @@ router.get('/list_dump', block_access.actionAccessMiddleware('synchronization', 
 });
 
 router.post('/datalist', block_access.actionAccessMiddleware('synchronization', 'read'), (req, res) => {
-	const include = model_builder.getDatalistInclude(models, require(__dirname+'/../models/options/e_synchronization'), req.body.columns);
-	filterDataTable("E_synchronization", req.body, include).then(function (rawData) {
+	const include = model_builder.getDatalistInclude(models, syncOpts, req.body.columns);
+	filterDataTable("E_synchronization", req.body, include).then(rawData => {
 		entity_helper.prepareDatalistResult('e_synchronization', rawData, req.session.lang_user).then(function (preparedData) {
 			res.send(preparedData).end();
 		}).catch(function (err) {
 			console.log(err);
-			logger.debug(err);
 			res.end();
 		});
 	}).catch(function (err) {
 		console.log(err);
-		logger.debug(err);
 		res.end();
 	});
 });
@@ -89,23 +78,18 @@ router.post('/datalist', block_access.actionAccessMiddleware('synchronization', 
 router.post('/delete', block_access.actionAccessMiddleware("synchronization", "delete"), function (req, res) {
 	const id = parseInt(req.body.id);
 
-	models.E_synchronization.findOne({where: {id: id}}).then(function (deleteObject) {
-		models.E_synchronization.destroy({
-			where: {
-				id: id
-			}
-		}).then(function () {
+	models.E_synchronization.findOne({where: {id: id}}).then(deleteObject => {
+		deleteObject.destroy().then(function () {
 			req.session.toastr = [{
 				message: 'message.delete.success',
 				level: "success"
 			}];
 
-			const redirect = '/synchronization/list_dump';
-			res.redirect(redirect);
-		}).catch(function (err) {
+			res.redirect('/synchronization/list_dump');
+		}).catch(err => {
 			entity_helper.error500(err, req, res, '/synchronization/list_dump');
 		});
-	}).catch(function (err) {
+	}).catch(err => {
 		entity_helper.error500(err, req, res, '/synchronization/list_dump');
 	});
 });
@@ -116,7 +100,7 @@ function fullStdoutToFile(cmd, args, filePath) {
 	return new Promise((resolve, reject) => {
 		// Create and open file writeStream
 		const fileStream = fs.createWriteStream(filePath);
-		fileStream.on('open', function(fd) {
+		fileStream.on('open', _ => {
 
 			// Exec instruction
 			const childProcess = exec.spawn(cmd, args);
@@ -147,7 +131,7 @@ function fullStdoutToFile(cmd, args, filePath) {
 				reject(error);
 			});
 			// Child close
-			childProcess.on('close', function(code) {
+			childProcess.on('close', _ => {
 				fileStream.end();
 				resolve();
 			});
@@ -198,11 +182,10 @@ router.post('/generate', block_access.actionAccessMiddleware("synchronization", 
 		// Write entity dump list to config file
 		fs.writeFileSync(__dirname+'/../config/synchro_dump.json', JSON.stringify(entityList, null, 4), 'utf8');
 
-		const exec = require('child_process').exec;
 		const cwd = globalConf.syncfolder;
 
 		// Check if windows of linux for exec syntax
-		exec('./mysql2sqlite.sh ' + cwd + '/dump_mysql_data.sql > ' + cwd + '/dump_cloud_data.sql', {cwd: cwd}, (error, stdout, stderr) => {
+		exec.exec('./mysql2sqlite.sh ' + cwd + '/dump_mysql_data.sql > ' + cwd + '/dump_cloud_data.sql', {cwd: cwd}, error => {
 			// work with result
 			if (error)
 				console.log(error);
@@ -234,7 +217,6 @@ router.get('/synchronize', block_access.actionAccessMiddleware("synchronization"
 	// End request right away to monitor synchro through `/check_state`
 	res.end();
 
-	const data = {};
 	SYNCHRO_STATE = {done: false, error: null};
 
 	// Récupération du token
@@ -242,7 +224,7 @@ router.get('/synchronize', block_access.actionAccessMiddleware("synchronization"
 	models.E_synchro_credentials.findAll().then((credentials) => {
 
 		// API credentials
-		let cloudHost = "", clientKey =  "", clientSecret = "";
+		let cloudHost = "", clientKey = "", clientSecret = "";
 		if (!credentials || credentials.length == 0) {
 			SYNCHRO_STATE.error = language(req.session.lang_user).__("synchro.process.no_credentials");
 			return console.error("Synchronize: No Synchro credentials found");
@@ -270,7 +252,7 @@ router.get('/synchronize', block_access.actionAccessMiddleware("synchronization"
 			// Send journal file to cloud
 			const requestCall = request.post({
 				url: apiBaseUrl+'/synchronization/situation?token='+token
-			}, function(err, response, body) {
+			}, (err, response) => {
 				if (err || response.statusCode != 200) {
 					SYNCHRO_STATE.error = "Couldn't send `journal.json` to API";
 					return console.error(err);
@@ -281,7 +263,7 @@ router.get('/synchronize', block_access.actionAccessMiddleware("synchronization"
 				fs.copySync(globalConf.syncfolder + '/journal.json', globalConf.syncfolder + '/journal' + current_date + '.json');
 
 				// Empty journal
-				fs.writeFile(globalConf.syncfolder + '/journal.json', '{"transactions":[]}', (err) => {
+				fs.writeFile(globalConf.syncfolder + '/journal.json', '{"transactions":[]}', (error) => {
 					if (error) {
 						console.log('Synchronize: Journal couldn\'t be emptied');
 						console.error(error);
@@ -308,9 +290,9 @@ router.get('/synchronize', block_access.actionAccessMiddleware("synchronization"
 						const daysFoldersPath = [];
 						try {
 							// Recusively parse upload folder to get all files URI
-							fs.readdirSync(globalConf.localstorage).filter((entityFolder) => {
-								return entityFolder != 'thumbnail';
-							}).forEach(function(entityFolder) {
+							fs.readdirSync(globalConf.localstorage).filter((entityFolder) =>
+								entityFolder != 'thumbnail'
+							).forEach(function(entityFolder) {
 								if (!fs.statSync(globalConf.localstorage+entityFolder).isDirectory())
 									return;
 								fs.readdirSync(globalConf.localstorage+entityFolder).forEach((dayFolder) => {
@@ -324,18 +306,18 @@ router.get('/synchronize', block_access.actionAccessMiddleware("synchronization"
 
 						// Build object with URI/entityName
 						const fullPathFiles = [];
-						for (var i = 0; i < daysFoldersPath.length; i++) {
+						for (let i = 0; i < daysFoldersPath.length; i++) {
 							fs.readdirSync(daysFoldersPath[i].URI).forEach((file) => {
 								fullPathFiles.push({URI: daysFoldersPath[i].URI+'/'+file, entity: daysFoldersPath[i].entity});
 							});
 						}
 						// Send each file and delete it when done
 						if (fullPathFiles.length > 0) {
-							function sendFile(fileList, idx) {
+							function sendFile(fileList, idx) { // eslint-disable-line
 								const current = fileList[idx];
 								const requestCall = request.post({
 									url: apiBaseUrl+'/synchronization/file_upload?token='+token+'&entity='+current.entity,
-								}, function(err, resp, body) {
+								}, err => {
 									if (err) {
 										console.error(err);
 										console.error("Synchronize: Couldn't send file "+current.URI);

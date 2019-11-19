@@ -20,3 +20,4 @@ upload/
 workspace/
 structure/pieces/component/socket/chat/js/chat.js
 structure/pieces/component/socket/notifications/notification.js
+structure/pieces/component/status/routes/e_translation.js

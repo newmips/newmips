@@ -5,7 +5,12 @@ const attributes_origin = require("./attributes/e_media_task.json");
 const associations = require("./options/e_media_task.json");
 const globalConf = require('../config/global');
 const moment = require('moment');
-let models;
+
+function models() {
+	if (!this.models)
+		this.models = require('../models'); // eslint-disable-line
+	return this.models;
+}
 
 module.exports = (sequelize, DataTypes) => {
 	const attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -24,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
 		const fieldsToParse = ['f_task_name'];
 		const valuesForInclude = [];
 		for (let i = 0; i < fieldsToParse.length; i++) {
-			let regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 			while ((matches = regex.exec(this[fieldsToParse[i]])) != null)
 				valuesForInclude.push(matches[1]);
 		}
@@ -33,8 +38,6 @@ module.exports = (sequelize, DataTypes) => {
 
 	Model.prototype.execute = function(resolve, reject, dataInstance) {
 		const self = this;
-		if (!models)
-			models = require('./index');
 
 		function insertVariablesValue(property) {
 			function diveData(object, depths, idx) {
@@ -57,8 +60,7 @@ module.exports = (sequelize, DataTypes) => {
 			}
 
 			let newString = self[property];
-			const regex = new RegExp(/{field\|([^}]*)}/g),
-				matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 			while ((matches = regex.exec(self[property])) != null)
 				newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 
@@ -91,7 +93,7 @@ module.exports = (sequelize, DataTypes) => {
 		}
 
 		duplicateFile(self.f_program_file).then(program_file => {
-			models.E_task.create({
+			models().E_task.create({
 				f_title: insertVariablesValue('f_task_name'),
 				f_type: self.f_task_type,
 				f_data_flow: insertVariablesValue('f_data_flow'),
