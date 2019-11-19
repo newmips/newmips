@@ -11,19 +11,19 @@ function clearString(string){
 	string = string.replace(/\s\s+/g, ' ');
 	string = string.replace(/é/g, "e");
 	string = string.replace(/è/g, "e");
-	string = string.replace(/\ê/g, "e");
-	string = string.replace(/\ë/g, "e");
-	string = string.replace(/\È/g, "e");
-	string = string.replace(/\É/g, "e");
-	string = string.replace(/\Ê/g, "e");
-	string = string.replace(/\Ë/g, "e");
+	string = string.replace(/ê/g, "e");
+	string = string.replace(/ë/g, "e");
+	string = string.replace(/È/g, "e");
+	string = string.replace(/É/g, "e");
+	string = string.replace(/Ê/g, "e");
+	string = string.replace(/Ë/g, "e");
 
 	string = string.replace(/à/g, "a");
 	string = string.replace(/â/g, "a");
 	string = string.replace(/ä/g, "a");
-	string = string.replace(/\À/g, "a");
-	string = string.replace(/\Â/g, "a");
-	string = string.replace(/\Ä/g, "a");
+	string = string.replace(/À/g, "a");
+	string = string.replace(/Â/g, "a");
+	string = string.replace(/Ä/g, "a");
 
 	string = string.replace(/ô/g, "o");
 	string = string.replace(/ö/g, "o");
@@ -36,14 +36,14 @@ function clearString(string){
 	string = string.replace(/û/g, "u");
 	string = string.replace(/ù/g, "u");
 	string = string.replace(/ü/g, "u");
-	string = string.replace(/\Ù/g, "u");
-	string = string.replace(/\Ü/g, "u");
-	string = string.replace(/\Û/g, "u");
+	string = string.replace(/Ù/g, "u");
+	string = string.replace(/Ü/g, "u");
+	string = string.replace(/Û/g, "u");
 
 	string = string.replace(/ç/g, "c");
 	string = string.replace(/ĉ/g, "c");
-	string = string.replace(/\Ç/g, "c");
-	string = string.replace(/\Ĉ/g, "c");
+	string = string.replace(/Ç/g, "c");
+	string = string.replace(/Ĉ/g, "c");
 
 	string = string.replace(/'/g, "_");
 	string = string.replace(/,/g, "_");
@@ -56,34 +56,34 @@ function clearString(string){
 	string = string.replace(/\//g, "_");
 	string = string.replace(/\\/g, "_");
 	string = string.replace(/\./g, "_");
-	string = string.replace(/\;/g, "_");
+	string = string.replace(/;/g, "_");
 	string = string.replace(/\?/g, "_");
-	string = string.replace(/\"/g, "_");
-	string = string.replace(/\&/g, "_");
+	string = string.replace(/"/g, "_");
+	string = string.replace(/&/g, "_");
 	string = string.replace(/\*/g, "_");
 	string = string.replace(/\$/g, "_");
-	string = string.replace(/\%/g, "_");
-	string = string.replace(/\£/g, "_");
-	string = string.replace(/\€/g, "_");
-	string = string.replace(/\µ/g, "_");
-	string = string.replace(/\°/g, "_");
-	string = string.replace(/\=/g, "_");
+	string = string.replace(/%/g, "_");
+	string = string.replace(/£/g, "_");
+	string = string.replace(/€/g, "_");
+	string = string.replace(/µ/g, "_");
+	string = string.replace(/°/g, "_");
+	string = string.replace(/=/g, "_");
 	string = string.replace(/\+/g, "_");
 	string = string.replace(/\}/g, "_");
 	string = string.replace(/\{/g, "_");
-	string = string.replace(/\#/g, "_");
-	string = string.replace(/\`/g, "_");
+	string = string.replace(/#/g, "_");
+	string = string.replace(/`/g, "_");
 	string = string.replace(/\|/g, "_");
-	string = string.replace(/\@/g, "_");
+	string = string.replace(/@/g, "_");
 	string = string.replace(/\^/g, "_");
 	string = string.replace(/\]/g, "_");
 	string = string.replace(/\[/g, "_");
-	string = string.replace(/\~/g, "_");
-	string = string.replace(/\:/g, "_");
-	string = string.replace(/\×/g, "_");
-	string = string.replace(/\¿/g, "_");
-	string = string.replace(/\¡/g, "_");
-	string = string.replace(/\÷/g, "_");
+	string = string.replace(/~/g, "_");
+	string = string.replace(/:/g, "_");
+	string = string.replace(/×/g, "_");
+	string = string.replace(/¿/g, "_");
+	string = string.replace(/¡/g, "_");
+	string = string.replace(/÷/g, "_");
 
 	string = string.replace(String.fromCharCode(65533), "e");
 	string = string.replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -97,21 +97,15 @@ function lowerFirstWord(instruction){
 	return instructions.join(' ');
 }
 
-function addPrefix(string, instructionFunction){
-	switch(instructionFunction){
-		case 'createNewProject':
-		case 'deleteProject':
-			return "p_"+string;
-			break;
+function addPrefix(string, instructionFunction) {
+	switch (instructionFunction) {
 		case 'createNewApplication':
 		case 'deleteApplication':
-			return "a_"+string;
-			break;
+			return "a_" + string;
 		case 'createNewModule':
 		case 'deleteModule':
 		case 'selectModule':
-			return "m_"+string;
-			break;
+			return "m_" + string;
 		case 'createNewEntity':
 		case 'selectEntity':
 		case 'deleteDataEntity':
@@ -123,8 +117,7 @@ function addPrefix(string, instructionFunction){
 		case 'createNewComponentContactForm':
 		case 'deleteComponentContactForm':
 		case 'setIcon':
-			return "e_"+string;
-			break;
+			return "e_" + string;
 		case 'createNewDataField':
 		case 'deleteField':
 		case 'deleteTab':
@@ -134,64 +127,59 @@ function addPrefix(string, instructionFunction){
 		case 'setColumnVisibility':
 			if (string == 'id')
 				return string;
-			return "f_"+string;
-			break;
+			return "f_" + string;
 		case 'foreignKey':
-			return "fk_"+string;
-			break;
+			return "fk_" + string;
 		case 'alias':
 			/* R for Relation */
-			return "r_"+string;
-			break;
+			return "r_" + string;
 		case 'createNewComponentLocalFileStorage':
 		case 'createNewComponentAgenda':
 		case 'deleteAgenda':
-		case 'createNewComponentCra':
-		case 'createNewComponentPrint':
 		case 'deleteComponentPrint':
-			return "c_"+string;
-			break;
+			return "c_" + string;
 		case 'createNewComponentStatus':
 		case 'deleteComponentStatus':
-			return "s_"+string;
+			return "s_" + string;
 		default:
-			return "u_"+string;
+			return "u_" + string;
 	}
 }
 
-function removePrefix(string, type){
+function removePrefix(string, type) {
 	const stringLower = string.toLowerCase();
-	switch(type){
+	switch (type) {
 		case 'project':
-			if(stringLower.substring(0,2) == "p_")
+			if (stringLower.substring(0, 2) == "p_")
 				return string.substring(2);
 			break;
 		case 'application':
-			if(stringLower.substring(0,2) == "a_")
+			if (stringLower.substring(0, 2) == "a_")
 				return string.substring(2);
 			break;
 		case 'module':
-			if(stringLower.substring(0,2) == "m_")
+			if (stringLower.substring(0, 2) == "m_")
 				return string.substring(2);
 			break;
 		case 'entity':
-			if(stringLower.substring(0,2) == "e_")
+			if (stringLower.substring(0, 2) == "e_")
 				return string.substring(2);
 			break;
 		case 'field':
-			if(stringLower.substring(0,2) == "f_")
+			if (stringLower.substring(0, 2) == "f_")
 				return string.substring(2);
 			break;
 		case 'component':
-			if(stringLower.substring(0,2) == "c_")
+			if (stringLower.substring(0, 2) == "c_")
 				return string.substring(2);
 			break;
 		case 'relation':
-			if(stringLower.substring(0,2) == "r_")
+			if (stringLower.substring(0, 2) == "r_")
 				return string.substring(2);
 			break;
+		default:
+			return string;
 	}
-
 	return string;
 }
 

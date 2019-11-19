@@ -69,7 +69,7 @@ exports.setupModule = async (data) => {
 				option += '<!--{/moduleAccess}-->\n';
 			}
 			$("#dynamic_select").append(option);
-			await domHelper.write(fileName, $);
+			domHelper.write(fileName, $);
 		})());
 	}
 
@@ -116,7 +116,7 @@ exports.deleteModule = async (data) => {
 	for (let i = 0; i < layoutFiles.length; i++) {
 		const $ = await domHelper.read(layoutsPath + layoutFiles[i]); // eslint-disable-line
 		$("option[data-module='" + data.module_name + "']").remove();
-		await domHelper.write(layoutsPath + layoutFiles[i], $); // eslint-disable-line
+		domHelper.write(layoutsPath + layoutFiles[i], $); // eslint-disable-line
 	}
 
 	translateHelper.removeLocales(data.application.name, "module", data.module_name);

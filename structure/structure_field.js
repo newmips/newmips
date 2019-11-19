@@ -470,7 +470,7 @@ async function updateFile(fileBase, file, string) {
 	const fileToWrite = fileBase + '/' + file + '.dust';
 	const $ = await domHelper.read(fileToWrite);
 	$("#fields").append(string);
-	await domHelper.write(fileToWrite, $);
+	domHelper.write(fileToWrite, $);
 	return;
 }
 
@@ -486,7 +486,7 @@ async function updateListFile(fileBase, file, thString) {
 	});
 
 	// Write back to file
-	await domHelper.write(fileToWrite, $);
+	domHelper.write(fileToWrite, $);
 	return;
 }
 
@@ -886,7 +886,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
-	await domHelper.write(pathToViews + '/create_fields.dust', $);
+	domHelper.write(pathToViews + '/create_fields.dust', $);
 
 	// Update update_fields.dust file
 	$ = await domHelper.read(pathToViews + '/update_fields.dust');
@@ -902,7 +902,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
-	await domHelper.write(pathToViews + '/update_fields.dust', $);
+	domHelper.write(pathToViews + '/update_fields.dust', $);
 
 	// Update the Sequelize attributes.json to set allowNull
 	const pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
@@ -1028,7 +1028,7 @@ exports.setFieldAttribute = async (data) => {
 		$("*[data-field='" + targetField + "']").find('input').attr(word, attributeValue);
 		$("*[data-field='" + targetField + "']").find('select').attr(word, attributeValue);
 
-		await domHelper.write(pathToViews + '/create_fields.dust', $);
+		domHelper.write(pathToViews + '/create_fields.dust', $);
 
 		// Update update_fields.dust file
 		$ = await domHelper.read(pathToViews + '/update_fields.dust');
@@ -1036,7 +1036,7 @@ exports.setFieldAttribute = async (data) => {
 		$("*[data-field='" + targetField + "']").find('input').attr(word, attributeValue);
 		$("*[data-field='" + targetField + "']").find('select').attr(word, attributeValue);
 
-		await domHelper.write(pathToViews + '/update_fields.dust', $);
+		domHelper.write(pathToViews + '/update_fields.dust', $);
 	} else {
 		const err = new Error('structure.field.attributes.fieldNoFound');
 		err.messageParams = [data.options.showValue];
@@ -1123,7 +1123,7 @@ exports.setupRelatedToField = async (data) => {
 	const $ = await domHelper.read(file);
 	$("#fields").append(str);
 
-	await domHelper.write(file, $)
+	domHelper.write(file, $)
 
 	for (let i = 0; i < usingField.length; i++) {
 		const targetField = usingField[i].value == "id" ? "id_entity" : usingField[i].value;
@@ -1252,7 +1252,7 @@ exports.setupRelatedToMultipleField = async (data) => {
 	const file = fileBase + '/show_fields.dust';
 	const $ = await domHelper.read(file);
 	$("#fields").append(head + select);
-	await domHelper.write(file, $);
+	domHelper.write(file, $);
 	await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
 	return;
 }
@@ -1335,7 +1335,7 @@ exports.deleteField = async (data) => {
 			$('*[data-field="' + field + '"]').remove();
 			// In case of related to
 			$('*[data-field="r_' + field.substring(2) + '"]').remove();
-			await domHelper.write(viewsPath + '/' + fieldsFiles[i] + '.dust', $);
+			domHelper.write(viewsPath + '/' + fieldsFiles[i] + '.dust', $);
 		})());
 
 	// Remove field from list view file
@@ -1344,7 +1344,7 @@ exports.deleteField = async (data) => {
 		$("th[data-field='" + field + "']").remove();
 		// In case of related to
 		$("th[data-col^='r_" + field.substring(2) + ".']").remove();
-		await domHelper.write(viewsPath + '/list_fields.dust', $);
+		domHelper.write(viewsPath + '/list_fields.dust', $);
 	})());
 
 	const optionsPath = workspacePath + '/models/options/';
@@ -1394,7 +1394,7 @@ exports.deleteField = async (data) => {
 							el.attr("data-using", using.join())
 						}
 						el.html(el.html().replace(new RegExp(field, "g"), "id"))
-						await domHelper.write(otherViewsPath + currentEntity + '/' + file + '.dust', $);
+						domHelper.write(otherViewsPath + currentEntity + '/' + file + '.dust', $);
 					})());
 				}
 

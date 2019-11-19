@@ -64,7 +64,7 @@ async (req, login, password, done) => {
 				&& currentSession.passport.user.id == user.id
 				&& currentSession.isgenerator){
 			console.log("USER ALREADY LOGGED IN:", currentSession.passport.user.login);
-			await models.sequelize.query("DELETE FROM sessions WHERE "+sessionIDCol+" = '"+sessionID+"';", {type: models.sequelize.QueryTypes.DELETE});
+			await models.sequelize.query("DELETE FROM sessions WHERE "+sessionIDCol+" = '"+sessionID+"';", {type: models.sequelize.QueryTypes.DELETE}); // eslint-disable-line
 		}
 	}
 
