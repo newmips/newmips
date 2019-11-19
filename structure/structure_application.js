@@ -212,7 +212,7 @@ async function initializeWorkflow(application) {
 	const $ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
 	$("#notification_menu_item").remove();
 
-	await domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
+	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
 	// Write new locales trees
 	const newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
@@ -238,7 +238,7 @@ exports.initializeApplication = async(application) => {
 
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
 
-	await domHelper.write(workspacePath + '/views/e_user/list_fields.dust', $);
+	domHelper.write(workspacePath + '/views/e_user/list_fields.dust', $);
 	// Clean user show fields and remove tab view
 	$ = await domHelper.read(workspacePath + '/views/e_user/show_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
@@ -246,16 +246,16 @@ exports.initializeApplication = async(application) => {
 	$("#home").remove();
 	$("#tabs").removeClass('.nav-tabs-custom').attr('id', 'home');
 	$("#home").html(homeHtml);
-	await domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $);
+	domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $);
 	// Clean user create fields
 	$ = await domHelper.read(workspacePath + '/views/e_user/create_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	await domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $)
+	domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $)
 
 	// Clean user update fields
 	$ = await domHelper.read(workspacePath + '/views/e_user/update_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	await domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $)
+	domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $)
 	// Copy inline-help route and views
 	fs.copySync(piecesPath + '/routes/e_inline_help.js', workspacePath + '/routes/e_inline_help.js');
 	fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
@@ -457,7 +457,7 @@ exports.initializeApplication = async(application) => {
 	$("#sortable").append(li);
 
 	// Add settings entry into authentication module layout
-	await domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
+	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
 	// Copy routes settings pieces
 	fs.copySync(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js');

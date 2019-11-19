@@ -40,7 +40,7 @@ async function addTab(entity, file, newLi, newTabContent) {
 	$(".tab-content", context).append('<!--{/hideTab}-->');
 	$('body').empty().append(context);
 
-	return await domHelper.write(file, $);
+	return domHelper.write(file, $);
 }
 
 function addAccessManagment(appName, urlComponent, urlModule) {
@@ -315,7 +315,7 @@ exports.newContactForm = async (data) => {
 	$('#sortable').append(li);
 
 	// Write back to file
-	await domHelper.write(layoutFileName, $);
+	domHelper.write(layoutFileName, $);
 	// Clean empty and useless dust helper created by removing <li>
 	let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
 
@@ -489,7 +489,7 @@ exports.newAgenda = async (data) => {
 	$('#sortable').append(li);
 
 	// Write back to file
-	await domHelper.write(layoutFileName, $);
+	domHelper.write(layoutFileName, $);
 
 	// Clean empty and useless dust helper created by removing <li>
 	let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
@@ -515,7 +515,7 @@ exports.deleteAgenda = async (data) => {
 	const $ = await domHelper.read(layoutFileName);
 	$("#" + data.options.urlValue + "_menu_item").remove();
 	// Write back to file
-	await domHelper.write(layoutFileName, $)
+	domHelper.write(layoutFileName, $)
 
 	// Clean empty and useless dust helper created by removing <li>
 	let layoutContent = fs.readFileSync(layoutFileName, 'utf8');
@@ -606,7 +606,7 @@ exports.newStatus = async (data) => {
 	const historyId = 'r_' + data.history_table;
 	$("#" + historyId + "-click").parent().remove();
 	$("#" + historyId).remove();
-	await domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $);
+	domHelper.write(workspacePath + "/views/e_status/show_fields.dust", $);
 
 	// Replace traduction keys in show_fields
 	let show_fieldsFILE = fs.readFileSync(workspacePath + "/views/" + source + "/show_fields.dust", 'utf8');
@@ -670,7 +670,7 @@ exports.newStatus = async (data) => {
 		fs.writeFileSync(workspacePath + '/locales/en-EN.json', JSON.stringify(localesEN, null, 4), 'utf8');
 	}
 
-	await domHelper.write(workspacePath + '/views/e_' + data.history_table + '/list_fields.dust', $);
+	domHelper.write(workspacePath + '/views/e_' + data.history_table + '/list_fields.dust', $);
 
 	// Replace history traductions with history_table key
 	let listFields = fs.readFileSync(workspacePath + '/views/e_' + data.history_table + '/list_fields.dust', 'utf8');
@@ -697,16 +697,16 @@ exports.newStatus = async (data) => {
 	// Remove create button
 	const historyTabId = "#r_history_" + data.options.urlValue;
 	$(historyTabId).find('a.btn-success').remove();
-	await domHelper.write(workspacePath + '/views/' + source + '/show_fields.dust', $);
+	domHelper.write(workspacePath + '/views/' + source + '/show_fields.dust', $);
 
 	// Remove status field from update_fields and create_fields
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/create_fields.dust');
 	$("div[data-field='" + statusAliasHTML + "']").remove();
-	await domHelper.write(workspacePath + '/views/' + source + '/create_fields.dust', $);
+	domHelper.write(workspacePath + '/views/' + source + '/create_fields.dust', $);
 
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/update_fields.dust');
 	$("div[data-field='" + statusAliasHTML + "']").remove();
-	await domHelper.write(workspacePath + '/views/' + source + '/update_fields.dust', $);
+	domHelper.write(workspacePath + '/views/' + source + '/update_fields.dust', $);
 
 	// Update list field to show status color in datalist
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/list_fields.dust');
@@ -715,7 +715,7 @@ exports.newStatus = async (data) => {
 	});
 	$("td[data-field='" + statusAlias + "']").data("data-type", "status");
 	$("td[data-field='" + statusAlias + "']").data("data-color", "{" + statusAlias + ".f_color}");
-	await domHelper.write(workspacePath + '/views/' + source + '/list_fields.dust', $)
+	domHelper.write(workspacePath + '/views/' + source + '/list_fields.dust', $)
 
 	return await translateHelper.writeLocales(data.application.name, 'field', source, [data.options.value, data.options.showValue], false)
 }
@@ -776,11 +776,11 @@ exports.deleteStatus = async (data) => {
 	$("div[data-field='f_" + statusName + "']").remove();
 	$("a#r_history_" + statusName + "-click").parent().remove();
 	$("div#r_history_" + statusName).remove();
-	await domHelper.write(workspacePath + '/views/' + data.entity + '/show_fields.dust', $);
+	domHelper.write(workspacePath + '/views/' + data.entity + '/show_fields.dust', $);
 
 	$ = await domHelper.read(workspacePath + '/views/' + data.entity + '/list_fields.dust');
 	$("th[data-field='r_" + statusName + "']").remove();
-	await domHelper.write(workspacePath + '/views/' + data.entity + '/list_fields.dust', $);
+	domHelper.write(workspacePath + '/views/' + data.entity + '/list_fields.dust', $);
 
 	// Clean locales
 	translateHelper.removeLocales(data.application.name, 'entity', data.historyName);
@@ -892,7 +892,7 @@ exports.setupChat = async (data) => {
 
 	$layout("#chat-placeholder").html($chat("body")[0].innerHTML);
 
-	await domHelper.writeMainLayout(workspacePath + '/views/main_layout.dust', $layout);
+	domHelper.writeMainLayout(workspacePath + '/views/main_layout.dust', $layout);
 
 	return true;
 };
@@ -942,9 +942,9 @@ exports.addNewComponentAddress = async (data) => {
 	$updateFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/update_fields"/}</div>');
 	$showFieldsFile(appendTo).append('<div data-field="' + data.options.value + '" class="' + data.options.value + ' fieldLineHeight col-xs-12">{>"' + data.options.value + '/show"/}</div>');
 
-	await domHelper.write(createFieldsFile, $createFieldsFile);
-	await domHelper.write(updateFieldsFile, $updateFieldsFile);
-	await domHelper.write(showFieldsFile, $showFieldsFile);
+	domHelper.write(createFieldsFile, $createFieldsFile);
+	domHelper.write(updateFieldsFile, $updateFieldsFile);
+	domHelper.write(showFieldsFile, $showFieldsFile);
 
 	const parentBaseFile = workspacePath + 'views/' + data.entity.name;
 
@@ -1040,7 +1040,7 @@ exports.addNewComponentAddress = async (data) => {
 		$('#sortable').append(li);
 
 		// Write back to file
-		await domHelper.write(fileName, $)
+		domHelper.write(fileName, $)
 	} else {
 		address_settings_config = JSON.parse(fs.readFileSync(configPath));
 	}
@@ -1093,14 +1093,14 @@ exports.deleteComponentAddress = async (data) => {
 	for (let i = 0; i < toDoFile.length; i++) {
 		const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust'); // eslint-disable-line
 		$('.' + data.options.value).remove();
-		await domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $); // eslint-disable-line
+		domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $); // eslint-disable-line
 	}
 
 	// Remove Field In Parent List Field
 	const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/list_fields.dust');
 	$("th[data-field='" + data.entity.name + "']").remove();
 	$("td[data-field='" + data.entity.name + "']").remove();
-	await domHelper.write(workspacePath + 'views/' + data.entity.name + '/list_fields.dust', $)
+	domHelper.write(workspacePath + 'views/' + data.entity.name + '/list_fields.dust', $)
 
 	// Update locales
 	const langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
@@ -1127,7 +1127,7 @@ exports.deleteComponentAddress = async (data) => {
 		const $ = await domHelper.read(workspacePath + 'views/layout_m_administration.dust');
 		$('#e_address_settings_menu_item').remove();
 		// Write back to file
-		await domHelper.write(workspacePath + 'views/layout_m_administration.dust', $);
+		domHelper.write(workspacePath + 'views/layout_m_administration.dust', $);
 
 	} else {
 		fs.writeFileSync(workspacePath + 'config/address_settings.json', JSON.stringify(addressSettingsObj, null, 4), 'utf8');
@@ -1244,7 +1244,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 		$('#sortable').append(li);
 
 		// Write back to file
-		await domHelper.write(fileName, $);
+		domHelper.write(fileName, $);
 	}
 
 	langFR.entity.e_document_template["tab_name_" + data.entity.name] = data.options.showValue == 'Document template' ? 'Modèle de document' : data.options.showValue;
@@ -1279,6 +1279,6 @@ exports.deleteComponentDocumentTemplate = async (data) => {
 	if ($(".tab-content .tab-pane").length == 1)
 		$("#tabs").replaceWith($("#home").html());
 
-	await domHelper.write(workspacePath + 'views/' + data.entity.name + '/show_fields.dust', $);
+	domHelper.write(workspacePath + 'views/' + data.entity.name + '/show_fields.dust', $);
 	return true;
 }

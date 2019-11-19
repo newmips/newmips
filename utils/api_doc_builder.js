@@ -1,4 +1,3 @@
-const models = require('../models/');
 const fs = require('fs-extra');
 const exec = require('child_process').exec;
 const path = require("path");
@@ -107,14 +106,14 @@ function routePost(entity, attributes, options) {
 	doc.push(' * @apiDescription Create a record of <code>'+name+'</code> using values defined in request\'s <code>body</code>');
 	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
-	for (var attr in attributes)
+	for (const attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
 			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} ['+attr+'] <code>'+attr+'</code> of '+name);
 	for (let i = 0; i < options.length; i++)
 		if (options[i].relation != 'belongsToMany')
 			doc.push(' * @apiParam (Body parameters) {Integer} ['+options[i].foreignKey+'] <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
 	doc.push(' * @apiSuccess {Object} '+name+' Created '+name);
-	for (var attr in attributes)
+	for (const attr in attributes)
 		if (privateFields.indexOf(attr) == -1)
 			doc.push(' * @apiSuccess {'+capitalizeFirstLetter(attributes[attr].type)+'} '+name+'.'+attr+' <code>'+attr+'</code> of '+name);
 
@@ -135,7 +134,7 @@ function routePut(entity, attributes, options) {
 	doc.push(' * @apiGroup '+entity.codeName);
 	doc.push(' * @apiUse token');
 	doc.push(' * @apiParam (Params parameters) {Integer} id <code>id</code> of the '+name+' to update');
-	for (var attr in attributes)
+	for (const attr in attributes)
 		if (privateFields.indexOf(attr) == -1 && attr != 'id')
 			doc.push(' * @apiParam (Body parameters) {'+capitalizeFirstLetter(attributes[attr].type)+'} ['+attr+'] New value of <code>'+attr+'</code> for '+name);
 	for (let i = 0; i < options.length; i++)
@@ -143,7 +142,7 @@ function routePut(entity, attributes, options) {
 			doc.push(' * @apiParam (Body parameters) {Integer} ['+options[i].foreignKey+'] <code>id</code> of entity '+options[i].target.substring(2)+' to associate');
 
 	doc.push(' * @apiSuccess {Object} '+name+' Updated '+name);
-	for (var attr in attributes)
+	for (const attr in attributes)
 		if (privateFields.indexOf(attr) == -1)
 			doc.push(' * @apiSuccess {'+capitalizeFirstLetter(attributes[attr].type)+'} '+name+'.'+attr+' <code>'+attr+'</code> of '+name);
 
@@ -216,20 +215,21 @@ async function build(application) {
 			const options = JSON.parse(fs.readFileSync(workspacePath+'/models/options/'+entities[i].name+'.json', 'utf8'));
 			documentation += entityDocumentation(entities[i], attributes, options);
 		} catch (e) {
-			 // Status history models can't be loaded
+			// Status history models can't be loaded
 		}
 	}
 
 	// Write file to workspace's api folder
 	fs.writeFileSync(workspacePath+'/api/doc/doc_descriptor.js', documentation, 'utf8');
-	let isWin = /^win/.test(process.platform), cmd;
+	const isWin = /^win/.test(process.platform);
+	let cmd;
 	if (isWin || process.platform == "win32")
 		cmd = 'node "' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
 	else
 		cmd = '"' + path.join(__dirname, '..', 'node_modules', 'apidoc', 'bin', 'apidoc') + '" -i "' + path.join(workspacePath, 'api', 'doc') + '" -o "' + path.join(workspacePath, 'api', 'doc', 'website') + '"';
 
-	await new Promise((resolve, reject) => {
-		exec(cmd, (err, stdout, stderr) => {
+	await new Promise(resolve => {
+		exec(cmd, err => {
 			if (err)
 				console.error(err);
 			resolve();

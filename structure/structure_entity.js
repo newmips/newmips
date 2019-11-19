@@ -41,7 +41,7 @@ async function addTab(data, file, newLi, newTabContent, target) {
 
 	$('body').empty().append(context);
 
-	return await domHelper.write(file, $);
+	return domHelper.write(file, $);
 }
 
 // Create entity associations between the models
@@ -236,7 +236,7 @@ exports.setupEntity = async (data) => {
 		$('#sortable').append(li);
 
 		// Write back to file
-		await domHelper.write(fileName, $);
+		domHelper.write(fileName, $);
 	}
 
 	// Copy CRUD view folder and customize them according to data entity properties
@@ -329,7 +329,7 @@ exports.deleteDataEntity = async (data) => {
 
 	$("#" + data.entity.name.substring(2) + '_menu_item').remove();
 
-	await domHelper.write(filePath, $);
+	domHelper.write(filePath, $);
 
 	translateHelper.removeLocales(data.application.name, "entity", data.entity.name)
 	return true;
@@ -531,7 +531,7 @@ exports.deleteTab = async (data) => {
 	if ($(".tab-content .tab-pane").length == 1)
 		$("#tabs").replaceWith($("#home").html());
 
-	await domHelper.write(showFile, $);
+	domHelper.write(showFile, $);
 
 	return {
 		fk: option.foreignKey,
