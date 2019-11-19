@@ -1,24 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
-const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_media_notification');
 const options = require('../models/options/e_media_notification');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
-const globalConfig = require('../config/global');
-
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
-const logger = require('../utils/logger');
-
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 
@@ -122,11 +110,8 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_notification.findOne({where: {id: id_e_media_notification}}).then(function (e_media_notification) {
-		if (!e_media_notification) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_media_notification)
+			return res.render('common/error', {error: 404});
 
 		e_media_notification.update(updateObject).then(function () {
 
@@ -176,10 +161,8 @@ router.get('/set_status/:id_media_notification/:status/:id_new_status', block_ac
 			all: true, nested: true
 		}]
 	}).then(function(e_media_notification) {
-		if (!e_media_notification || !e_media_notification[historyAlias] || !e_media_notification[historyAlias][0][statusAlias]){
-			logger.debug("Not found - Set status");
+		if (!e_media_notification || !e_media_notification[historyAlias] || !e_media_notification[historyAlias][0][statusAlias])
 			return res.render('common/error', {error: 404});
-		}
 
 		// Find the children of the current status
 		models.E_status.findOne({
@@ -199,10 +182,8 @@ router.get('/set_status/:id_media_notification/:status/:id_new_status', block_ac
 				}]
 			}]
 		}).then(function(current_status) {
-			if (!current_status || !current_status.r_children){
-				logger.debug("Not found - Set status");
+			if (!current_status || !current_status.r_children)
 				return res.render('common/error', {error: 404});
-			}
 
 			// Check if new status is actualy the current status's children
 			const children = current_status.r_children;
@@ -271,11 +252,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_n
 	const alias = req.params.alias;
 	const idEntity = req.body.idEntity;
 	models.E_media_notification.findOne({where: {id: idEntity}}).then(function (e_media_notification) {
-		if (!e_media_notification) {
-			const data = {error: 404};
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_media_notification)
+			return res.render('common/error', {error: 404});
 
 		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {

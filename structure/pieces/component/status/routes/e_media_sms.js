@@ -1,28 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
-const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_media_sms');
 const options = require('../models/options/e_media_sms');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
 const component_helper = require('../utils/component_helper');
-const globalConfig = require('../config/global');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const SELECT_PAGE_SIZE = 10;
-
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
-const logger = require('../utils/logger');
+const moment = require('moment');
 
 router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"), function(req, res) {
 
@@ -155,11 +145,9 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 			id: id_e_media_sms
 		}
 	}).then(function(e_media_sms) {
-		if (!e_media_sms) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_media_sms)
+			return res.render('common/error', {error: 404});
+
 		component_helper.address.updateAddressIfComponentExists(e_media_sms, options, req.body);
 		e_media_sms.update(updateObject).then(function() {
 
@@ -195,7 +183,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 	// Find tab option
 	let option;
 	for (let i = 0; i < options.length; i++)
-		if (options[i].as == req.params.alias) {
+		if (options[i].as == alias) {
 			option = options[i];
 			break;
 		}
@@ -226,10 +214,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 		if (!e_media_sms)
 			return res.status(404).end();
 
-		let dustData = e_media_sms[option.as] || null;
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
-		var subentityOptions = [];
+		let dustData = e_media_sms[option.as] || null, dustFile, idSubentity, subentityOptions = [], obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0;
+		const promisesData = [];
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -239,20 +226,19 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 					dustData.hideTab = true;
 					dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-					subentityOptions = require('../models/options/' + option.target);
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var statusGetterPromise = [],
-						subentityOptions = require('../models/options/' + option.target);
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(function(alias) {
-								promisesData.push(new Promise(function(resolve, reject) {
-									dustData[alias].getR_children().then(function(children) {
+							(alias => {
+								promisesData.push(new Promise((resolve, reject) => {
+									dustData[alias].getR_children().then(children => {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}));
 							})(subentityOptions[i].as);
 				}
@@ -278,8 +264,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
@@ -289,15 +274,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 					dustData.associationUrl = req.query.associationUrl;
 				}
 				dustData.for = 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 
 				break;
 
 			case 'localfilestorage':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.sourceId = id;
 				break;
@@ -343,9 +327,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('media_sms
 
 router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.actionAccessMiddleware("media_sms", "update"), function(req, res) {
 	const historyModel = 'E_history_e_media_sms_' + req.params.status;
-	const historyAlias = 'r_history_' + req.params.status.substring(2);
 	const statusAlias = 'r_' + req.params.status.substring(2);
-
 	const errorRedirect = '/media_sms/show?id=' + req.params.id_media_sms;
 
 	const includeTree = status_helper.generateEntityInclude(models, 'e_media_sms');
@@ -354,7 +336,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 			id: req.params.id_media_sms
 		},
 		include: includeTree
-	}).then(function(e_media_sms) {
+	}).then(e_media_sms => {
 		// Find the children of the current status
 		models.E_status.findOne({
 			where: {
@@ -377,13 +359,9 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 					}]
 				}]
 			}]
-		}).then(function(current_status) {
-			if (!current_status || !current_status.r_children) {
-				logger.debug("Not found - Set status");
-				return res.render('common/error', {
-					error: 404
-				});
-			}
+		}).then(current_status => {
+			if (!current_status || !current_status.r_children)
+				return res.render('common/error', {error: 404});
 
 			// Check if new status is actualy the current status's children
 			const children = current_status.r_children;
@@ -404,7 +382,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 			}
 
 			// Execute newStatus actions
-			nextStatus.executeActions(e_media_sms).then(function() {
+			nextStatus.executeActions(e_media_sms).then(_ => {
 				// Create history record for this status field
 				// Beeing the most recent history for media_sms it will now be its current status
 				const createObject = {}
@@ -412,11 +390,11 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 					createObject.f_comment = req.query.comment;
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_media_sms_history_" + req.params.status.substring(2)] = req.params.id_media_sms;
-				models[historyModel].create(createObject).then(function() {
+				models[historyModel].create(createObject).then(_ => {
 					e_media_sms['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/media_sms/show?id=' + req.params.id_media_sms)
 				});
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
 				req.session.toastr = [{
 					level: 'warning',
@@ -487,7 +465,7 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
 	where.limit = limit;
 
 	models.E_media_sms.findAndCountAll(where).then(function(results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes) {
 			for (let i = 0; i < results.rows.length; i++) {
@@ -499,6 +477,8 @@ router.post('/search', block_access.actionAccessMiddleware('media_sms', 'read'),
 								break;
 							case "datetime":
 								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 					}
@@ -557,13 +537,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("media_s
 			id: idEntity
 		}
 	}).then(function(e_media_sms) {
-		if (!e_media_sms) {
-			const data = {
-				error: 404
-			};
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_media_sms)
+			return res.render('common/error', {error: 404});
 
 		let toAdd;
 		if (typeof(toAdd = req.body.ids) === 'undefined') {

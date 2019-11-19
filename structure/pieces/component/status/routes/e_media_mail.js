@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
-const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_media_mail');
 const options = require('../models/options/e_media_mail');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
 
 // Enum and radio managment
@@ -111,11 +106,8 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_mail.findOne({where: {id: id_e_media_mail}}).then(function (e_media_mail) {
-		if (!e_media_mail) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_media_mail)
+			return res.render('common/error', {error: 404});
 
 		e_media_mail.update(updateObject, {where: {id: id_e_media_mail}}).then(function () {
 

@@ -1,22 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
-const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_media_task');
 const options = require('../models/options/e_media_task');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
-
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
 const logger = require('../utils/logger');
 
 router.get('/entityTree', function(req, res) {
@@ -111,11 +102,8 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_task.findOne({where: {id: id_e_media_task}}).then(function (e_media_task) {
-		if (!e_media_task) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_media_task)
+			return res.render('common/error', {error: 404});
 
 		e_media_task.update(updateObject, {where: {id: id_e_media_task}}).then(function () {
 
@@ -271,7 +259,7 @@ router.post('/delete', block_access.actionAccessMiddleware("media", "delete"), f
 	const id_e_media_task = parseInt(req.body.id);
 
 	models.E_media_task.findOne({where: {id: id_e_media_task}}).then(function (deleteObject) {
-		 if (!deleteObject) {
+		if (!deleteObject) {
 			req.session.toastr = [{level: 'error', message: 'error.404.title'}];
 			return res.redirect('/media/list');
 		}
