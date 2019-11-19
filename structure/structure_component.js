@@ -167,7 +167,7 @@ exports.newContactForm = async (data) => {
 
 	const mailConfigPath = workspacePath + "/config/mail.js";
 	delete require.cache[require.resolve(mailConfigPath)];
-	const mailConfig = require(mailConfigPath);
+	const mailConfig = require(mailConfigPath); // eslint-disable-line
 
 	const isSecure = mailConfig.transport.secure ? 1 : 0;
 	const insertSettings = "INSERT INTO `" + codeNameSettings + "`(`version`, `f_transport_host`, `f_port`, `f_secure`, `f_user`, `f_pass`, `f_form_recipient`, `createdAt`, `updatedAt`)" +
@@ -275,35 +275,35 @@ exports.newContactForm = async (data) => {
 	$("#" + urlNameSettings + "_menu_item").remove();
 
 	const li = '\
-	<!--{#entityAccess entity=\"' + urlName + '\"}-->\n\
-		<li id=\"' + urlName + '_menu_item\" style=\"display:block;\" class=\"treeview\">\n\
-			<a href=\"#\">\n\
-				<i class=\"fa fa-envelope\"></i>\n\
-				<span><!--{#__ key=\"entity.' + codeName + '.label_entity\" /}--></span>\n\
-				<i class=\"fa fa-angle-left pull-right\"></i>\n\
+	<!--{#entityAccess entity="' + urlName + '"}-->\n\
+		<li id="' + urlName + '_menu_item" style="display:block;" class="treeview">\n\
+			<a href="#">\n\
+				<i class="fa fa-envelope"></i>\n\
+				<span><!--{#__ key="entity.' + codeName + '.label_entity" /}--></span>\n\
+				<i class="fa fa-angle-left pull-right"></i>\n\
 			</a>\n\
-			<ul class=\"treeview-menu\">\n\
-				<!--{#actionAccess entity=\"' + urlName + '\" action=\"create\"}-->\n\
+			<ul class="treeview-menu">\n\
+				<!--{#actionAccess entity="' + urlName + '" action="create"}-->\n\
 				<li>\n\
-					<a href=\"/' + urlName + '/create_form\">\n\
-						<i class=\"fa fa-paper-plane\"></i>\n\
-						<!--{#__ key=\"entity.' + codeName + '.sendMail\" /}-->\n\
+					<a href="/' + urlName + '/create_form">\n\
+						<i class="fa fa-paper-plane"></i>\n\
+						<!--{#__ key="entity.' + codeName + '.sendMail" /}-->\n\
 					</a>\n\
 				</li>\n\
 				<!--{/actionAccess}-->\n\
-				<!--{#actionAccess entity=\"' + urlName + '\" action=\"read\"}-->\n\
+				<!--{#actionAccess entity="' + urlName + '" action="read"}-->\n\
 				<li>\n\
-					<a href=\"/' + urlName + '/list\">\n\
-						<i class=\"fa fa-inbox\"></i>\n\
-						<!--{#__ key=\"entity.' + codeName + '.inbox\" /}-->\n\
+					<a href="/' + urlName + '/list">\n\
+						<i class="fa fa-inbox"></i>\n\
+						<!--{#__ key="entity.' + codeName + '.inbox" /}-->\n\
 					</a>\n\
 				</li>\n\
 				<!--{/actionAccess}-->\n\
-				<!--{#actionAccess entity=\"' + urlNameSettings + '\" action=\"create\"}-->\n\
+				<!--{#actionAccess entity="' + urlNameSettings + '" action="create"}-->\n\
 				<li>\n\
-					<a href=\"/' + urlName + '/settings\">\n\
-						<i class=\"fa fa-cog\"></i>\n\
-						<!--{#__ key=\"entity.' + codeName + '.settings\" /}-->\n\
+					<a href="/' + urlName + '/settings">\n\
+						<i class="fa fa-cog"></i>\n\
+						<!--{#__ key="entity.' + codeName + '.settings" /}-->\n\
 					</a>\n\
 				</li>\n\
 				<!--{/actionAccess}-->\n\
@@ -342,7 +342,6 @@ exports.newAgenda = async (data) => {
 
 	// Agenda Route
 	{
-		const valueAgendaModel = valueComponent.charAt(0).toUpperCase() + valueComponent.slice(1);
 		const valueEventModel = valueEvent.charAt(0).toUpperCase() + valueEvent.slice(1);
 		const valueCategoryModel = valueCategory.charAt(0).toUpperCase() + valueCategory.slice(1);
 
@@ -530,7 +529,6 @@ exports.deleteAgenda = async (data) => {
 
 exports.newStatus = async (data) => {
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
-	const piecesPath = __dirname + '/../structure/pieces/component/status';
 	const source = data.entity.name;
 
 	// Rename history model, options, attributes files and view folder
@@ -750,11 +748,8 @@ exports.deleteStatus = async (data) => {
 	fs.writeFileSync(attributesPath, JSON.stringify(attributes, null, 4), 'utf8');
 
 	// Clean options
-	let source, options, idxToRemove;
-	fs.readdirSync(workspacePath + '/models/options/').filter(file => {
-		return file.indexOf('.') !== 0 && file.slice(-5) === '.json';
-	}).forEach(file => {
-		source = file.slice(0, -5);
+	let options, idxToRemove;
+	fs.readdirSync(workspacePath + '/models/options/').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json').forEach(file => {
 		options = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + file));
 		idxToRemove = [];
 
@@ -769,9 +764,7 @@ exports.deleteStatus = async (data) => {
 			}
 		}
 
-		options = options.filter((val, idx, arr) => {
-			return idxToRemove.indexOf(idx) == -1
-		});
+		options = options.filter((val, idx) => idxToRemove.indexOf(idx) == -1);
 
 		fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
 	});
@@ -790,10 +783,10 @@ exports.deleteStatus = async (data) => {
 	await domHelper.write(workspacePath + '/views/' + data.entity + '/list_fields.dust', $);
 
 	// Clean locales
-	translateHelper.removeLocales(data.application.name, 'entity', data.historyName, _ => {});
-	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "r_history_" + statusName], _ => {});
-	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "r_" + statusName], _ => {});
-	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "s_" + statusName], _ => {});
+	translateHelper.removeLocales(data.application.name, 'entity', data.historyName);
+	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "r_history_" + statusName]);
+	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "r_" + statusName]);
+	translateHelper.removeLocales(data.application.name, 'field', [data.entity, "s_" + statusName]);
 
 	// Clean access
 	const access = JSON.parse(fs.readFileSync(workspacePath + '/config/access.lock.json', 'utf8'));
@@ -908,10 +901,10 @@ exports.addNewComponentAddress = async (data) => {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name + '/';
 	const address_path = __dirname + '/pieces/component/address/';
-	const address_utils = require(__dirname + '/pieces/component/address/utils/address_utils');
+	const address_utils = require(__dirname + '/pieces/component/address/utils/address_utils'); // eslint-disable-line
 
 	// Models
-	const modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8'));
+	const modelAttributes = JSON.parse(fs.readFileSync(address_path + 'models/attributes/e_address.json', 'utf8')); // eslint-disable-line
 
 	// Generate views data
 	const fields = address_utils.generateFields(data.options.showValue, data.options.value);
@@ -955,7 +948,7 @@ exports.addNewComponentAddress = async (data) => {
 
 	const parentBaseFile = workspacePath + 'views/' + data.entity.name;
 
-	await require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body);
+	await require('./structure_field').updateListFile(parentBaseFile, 'list_fields', fields.singleAddressTableDFields.header, fields.singleAddressTableDFields.body); // eslint-disable-line
 
 	// Update locales
 	const langFR = JSON.parse(fs.readFileSync(workspacePath + 'locales/fr-FR.json', 'utf8'));
@@ -1032,15 +1025,15 @@ exports.addNewComponentAddress = async (data) => {
 		const $ = await domHelper.read(fileName);
 		const li = '\
 		<!--{#entityAccess entity="address_settings"}-->\n\
-			 <!--{#actionAccess entity="address_settings" action="create"}-->\
-				 <li id="e_address_settings_menu_item" style="display:block;">\n\
-					 <a href="/address_settings/config">\n\
-						 <i class="fa fa-map-marker"></i>\n\
-						 <span><!--{#__ key="component.address_settings.label_component" /}--></span>\n\
-						 <i class="fa fa-angle-right pull-right"></i>\n\
-					 </a>\n\
-				 </li>\n\
-			 <!--{/actionAccess}-->\n\
+			<!--{#actionAccess entity="address_settings" action="create"}-->\
+				<li id="e_address_settings_menu_item" style="display:block;">\n\
+					<a href="/address_settings/config">\n\
+						<i class="fa fa-map-marker"></i>\n\
+							<span><!--{#__ key="component.address_settings.label_component" /}--></span>\n\
+						<i class="fa fa-angle-right pull-right"></i>\n\
+					</a>\n\
+				</li>\n\
+			<!--{/actionAccess}-->\n\
 		<!--{/entityAccess}-->\n';
 
 		// Add new html to document
@@ -1098,9 +1091,9 @@ exports.deleteComponentAddress = async (data) => {
 
 	const toDoFile = ['create_fields', 'update_fields', 'show_fields'];
 	for (let i = 0; i < toDoFile.length; i++) {
-		const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust');
+		const $ = await domHelper.read(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust'); // eslint-disable-line
 		$('.' + data.options.value).remove();
-		await domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $);
+		await domHelper.write(workspacePath + 'views/' + data.entity.name + '/' + toDoFile[i] + '.dust', $); // eslint-disable-line
 	}
 
 	// Remove Field In Parent List Field
