@@ -1954,7 +1954,7 @@ exports.setLayout = async (data) => {
 	return await structure_ui.setLayout(data);
 }
 
-exports.listLayout = async (data) => structure_ui.listLayout(data);
+exports.listLayout = async (data) => structure_ui.listLayout(data); // eslint-disable-line
 
 exports.setTheme = async (data) => {
 	await structure_ui.setTheme(data);
@@ -1965,7 +1965,7 @@ exports.setTheme = async (data) => {
 	}
 }
 
-exports.listTheme = async (data) => structure_ui.listTheme(data);
+exports.listTheme = async (data) => structure_ui.listTheme(data); // eslint-disable-line
 
 exports.listIcon = async _ => { // eslint-disable-line
 	return {

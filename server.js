@@ -206,13 +206,9 @@ app.use(function(req, res, next) {
 	};
 
 	// Locals
-	res.locals.__ = (ch, con, bo, params) => {
-		return ch.write(language(lang).__(params.key, params.params));
-	};
+	res.locals.__ = (ch, con, bo, params) => ch.write(language(lang).__(params.key, params.params));
 
-	res.locals.M_ = (ch, con, bo, params) => {
-		return ch.write(language(lang).M_(params.key, params.params));
-	};
+	res.locals.M_ = (ch, con, bo, params) => ch.write(language(lang).M_(params.key, params.params));
 
 	res.locals.isAdmin = () => {
 		if(req.isAuthenticated() && req.session.passport && req.session.passport.user.id_role == 1)
@@ -224,9 +220,7 @@ app.use(function(req, res, next) {
 	res.locals.globalConf = globalConf;
 
 	// Filters
-	dust.filters.stringify = value => {
-		return JSON.stringify(value);
-	};
+	dust.filters.stringify = value => JSON.stringify(value);
 
 	next();
 });
