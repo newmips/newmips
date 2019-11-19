@@ -1,27 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
 const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_status');
 const options = require('../models/options/e_status');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
-const globalConfig = require('../config/global');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const language = require('../services/language');
-
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
-const logger = require('../utils/logger');
+const moment = require('moment');
 
 router.get('/diagram', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
 	res.render('e_status/diagram', {statuses: status_helper.entityStatusFieldList()});
@@ -100,10 +91,8 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
 			}]
 		}]
 	}).then(function(status) {
-		if (!status) {
-			logger.debug("No data entity found.");
+		if (!status)
 			return res.render('common/error', {error: 404});
-		}
 
 		// Find all entities without status
 		const entityModel = entity_helper.capitalizeFirstLetter(status.f_entity);
@@ -168,7 +157,6 @@ router.post('/datalist', block_access.actionAccessMiddleware("status", "read"), 
 		});
 	}).catch(function (err) {
 		console.error(err);
-		logger.debug(err);
 		res.end();
 	});
 });
@@ -183,12 +171,12 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
 	const doPagination = req.query.paginate;
 
 	// Build array of fields for include and search object
-	const isGlobalSearch = req.body.search.value == "" ? false : true;
+	const isGlobalSearch = req.body.search.value != "";
 	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
-	for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+	for (let i = 0, columns = req.body.columns; i < columns.length; i++) {
 		if (columns[i].searchable == 'false')
 			continue;
 
@@ -204,16 +192,16 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
 		if (isGlobalSearch)
 			search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
 	}
-	for (var i = 0; i < req.body.columns.length; i++)
+	for (let i = 0; i < req.body.columns.length; i++)
 		if (req.body.columns[i].searchable == 'true')
 			toInclude.push(req.body.columns[i].data);
 	// Get sequelize include object
 	const subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
 	// ORDER BY
-	let order, stringOrder = req.body.columns[req.body.order[0].column].data;
+	const stringOrder = req.body.columns[req.body.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
-	order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
+	const order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
 	const include = {
 		model: models[subentityModel],
@@ -253,7 +241,6 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
 				res.send(preparedData).end();
 			}).catch(function(err) {
 				console.error(err);
-				logger.debug(err);
 				res.end();
 			});
 		});
@@ -278,11 +265,8 @@ router.get('/show', block_access.actionAccessMiddleware("status", "read"), funct
 		model: models.E_status,
 		as: 'r_children'
 	}]).then(function(e_status){
-		if (!e_status) {
-			data.error = 404;
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_status)
+			return res.render('common/error', {error: 404});
 
 		data.e_status = e_status;
 
@@ -345,9 +329,9 @@ router.get('/create_form', block_access.actionAccessMiddleware("status", "create
 			data.entityTrad = 'entity.'+data.f_entity+'.label_entity';
 			data.fieldTrad = 'entity.'+data.f_entity+'.'+data.f_field;
 			res.render('e_status/create', data);
-		}).catch(function(err) {
-			data.error = 404;
-			res.render('common/error', data);
+		}).catch(err => {
+			console.error(err);
+			res.render('common/error', {error: 404});
 		});
 	}
 	else
@@ -472,11 +456,8 @@ router.post('/update', block_access.actionAccessMiddleware("status", "update"), 
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_status.findOne({where: {id: id_e_status}}).then(function (e_status) {
-		if (!e_status) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_status)
+			return res.render('common/error', {error: 404});
 
 		e_status.update(updateObject).then(function () {
 
@@ -519,7 +500,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 	// Find tab option
 	let option;
 	for (let i = 0; i < options.length; i++)
-		if (options[i].as == req.params.alias)
+		if (options[i].as == alias)
 		{option = options[i]; break;}
 	if (!option)
 		return res.status(404).end();
@@ -540,9 +521,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 		if (!e_status)
 			return res.status(404).end();
 
-		let dustData = e_status[option.as];
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
+		let dustData = e_status[option.as], dustFile, idSubentity, obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -554,15 +534,15 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					const statusGetterPromise = [], subentityOptions = require('../models/options/'+option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					const subentityOptions = require('../models/options/'+option.target); // eslint-disable-line
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(function(alias) {
-								promisesData.push(new Promise(function(resolve, reject) {
-									dustData[alias].getR_children().then(function(children) {
+							(alias => {
+								promisesData.push(new Promise((resolve, reject) => {
+									dustData[alias].getR_children().then(children => {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}))
 							})(subentityOptions[i].as);
 				}
@@ -579,11 +559,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 						if (attributes[attr].history_table && attributes[attr].history_model == option.target)
 							dustFile = attributes[attr].history_table+'/list_fields';
 				}
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.for = option.structureType == 'hasMany' ? 'hasMany' : 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 				if (typeof req.query.associationFlag !== 'undefined')
 				{dustData.associationFlag = req.query.associationFlag;dustData.associationSource = req.query.associationSource;dustData.associationForeignKey = req.query.associationForeignKey;dustData.associationAlias = req.query.associationAlias;dustData.associationUrl = req.query.associationUrl;}
@@ -591,8 +570,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 
 			case 'localfilestorage':
 				dustFile = option.target+'/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.sourceId = id;
 				break;
@@ -654,10 +632,8 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 		where: {id: req.params.id_status},
 		include: includeTree
 	}).then(function(e_status) {
-		if (!e_status || !e_status[historyAlias] || !e_status[historyAlias][0][statusAlias]){
-			logger.debug("Not found - Set status");
+		if (!e_status || !e_status[historyAlias] || !e_status[historyAlias][0][statusAlias])
 			return res.render('common/error', {error: 404});
-		}
 
 		// Find the children of the current status
 		models.E_status.findOne({
@@ -677,10 +653,8 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 				}]
 			}]
 		}).then(function(current_status) {
-			if (!current_status || !current_status.r_children){
-				logger.debug("Not found - Set status");
+			if (!current_status || !current_status.r_children)
 				return res.render('common/error', {error: 404});
-			}
 
 			// Check if new status is actualy the current status's children
 			const children = current_status.r_children;
@@ -769,7 +743,7 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
 	where.limit = limit;
 
 	models.E_status.findAndCountAll(where).then(function (results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes) {
 			for (let i = 0; i < results.rows.length; i++) {
@@ -781,6 +755,8 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
 								break;
 							case "datetime":
 								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 					}
@@ -830,11 +806,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("status"
 	const alias = req.params.alias;
 	const idEntity = req.body.idEntity;
 	models.E_status.findOne({where: {id: idEntity}}).then(function (e_status) {
-		if (!e_status) {
-			const data = {error: 404};
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_status)
+			return res.render('common/error', {error: 404});
 
 		let toAdd;
 		if (typeof (toAdd = req.body.ids) === 'undefined') {

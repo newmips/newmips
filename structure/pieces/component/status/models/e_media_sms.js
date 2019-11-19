@@ -3,6 +3,7 @@ const builder = require('../utils/model_builder');
 const sms = require('../utils/sms_helper');
 const attributes_origin = require("./attributes/e_media_sms.json");
 const associations = require("./options/e_media_sms.json");
+const moment = require('moment');
 
 module.exports = (sequelize, DataTypes) => {
 	const attributes = builder.buildForModel(attributes_origin, DataTypes);
@@ -19,11 +20,11 @@ module.exports = (sequelize, DataTypes) => {
 	//	  Ex: ['r_project.r_ticket.f_name', 'r_user.r_children.r_parent.f_name', 'r_user.r_children.r_grandparent']
 	Model.prototype.parseForInclude = function() {
 		const valuesForInclude = [];
-		let regex = new RegExp(/{field\|([^}]*)}/g), matches = null;
+		const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 		while ((matches = regex.exec(this.f_message)) != null)
 			valuesForInclude.push(matches[1]);
 
-		const userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);
+		const userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);let match = null;
 		while ((match = userRegex.exec(this.f_targets)) != null) {
 			const placeholderParts = match[1].split('|');
 			const fieldPath = placeholderParts[placeholderParts.length-1];
@@ -37,30 +38,29 @@ module.exports = (sequelize, DataTypes) => {
 		const self = this;
 
 		async function getGroupAndUserID() {
-			property = 'f_phone_numbers';
-			let userIds = [],
-				phoneNumbers = [];
+			const property = 'f_phone_numbers';
+			let userIds = [];const phoneNumbers = [];
 
 			// EXTRACT GROUP USERS
 			// Placeholder ex: {group|Admin|1}
 			{
 				const groupIds = [];
 				// Exctract all group IDs from property to find them all at once
-				const groupRegex = new RegExp(/{(group\|[^}]*)}/g);
+				const groupRegex = new RegExp(/{(group\|[^}]*)}/g);let match = null;
 				while ((match = groupRegex.exec(self[property])) != null) {
-					var placeholderParts = match[1].split('|');
+					const placeholderParts = match[1].split('|');
 					const groupId = parseInt(placeholderParts[placeholderParts.length-1]);
 					groupIds.push(groupId);
 				}
 
 				// Fetch all groups found and their users
 				const groups = await sequelize.models.E_group.findAll({
-					where: {id: {[models.$in]: groupIds}},
+					where: {id: {[sequelize.models.$in]: groupIds}},
 					include: {model: sequelize.models.E_user, as: 'r_user'}
 				});
 
 				// Exctract email and build intermediateData object used to replace placeholders
-				for (var i = 0; i < groups.length; i++)
+				for (let i = 0; i < groups.length; i++)
 					for (let j = 0; j < groups[i].r_user.length; j++) {
 						// Push user contact phone field. This is defined in conf/application.json
 						phoneNumbers.push(groups[i].r_user[j][globalConf.contact_field_for_sms]);
@@ -71,9 +71,9 @@ module.exports = (sequelize, DataTypes) => {
 			// Placeholder ex: {user|Jeremy|4}
 			{
 				// Exctract all user IDs from property to find them all at once
-				var userRegex = new RegExp(/{(user\|[^}]*)}/g);
+				const userRegex = new RegExp(/{(user\|[^}]*)}/g);let match = null;
 				while ((match = userRegex.exec(self[property])) != null) {
-					var placeholderParts = match[1].split('|');
+					const placeholderParts = match[1].split('|');
 					const userId = parseInt(placeholderParts[placeholderParts.length-1]);
 					userIds.push(userId);
 				}
@@ -82,7 +82,7 @@ module.exports = (sequelize, DataTypes) => {
 			// EXTRACT PHONE NUMBERS FROM PHONE FIELD TARGETED THROUGH RELATION
 			// Placeholder ex: {phone_field|Field Label|r_parent.f_phone}
 			{
-				function findAndPushUserPhone(object, path, depth = 0) {
+				function findAndPushUserPhone(object, path, depth = 0) { // eslint-disable-line
 					if (depth < path.length-1 && (!path[depth] || !object[path[depth]]))
 						return;
 					if (depth < path.length - 1)
@@ -97,9 +97,9 @@ module.exports = (sequelize, DataTypes) => {
 						phoneNumbers.push(targetedEntity[path[depth]])
 				}
 
-				var userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);
+				const userRegex = new RegExp(/{(phone_field\|[^}]*)}/g);let match = null;
 				while ((match = userRegex.exec(self[property])) != null) {
-					var placeholderParts = match[1].split('|');
+					const placeholderParts = match[1].split('|');
 					const fieldPath = placeholderParts[placeholderParts.length-1];
 					// Dive in dataInstance to find targeted field
 					findAndPushUserPhone(dataInstance, fieldPath.split('.'));
@@ -107,19 +107,16 @@ module.exports = (sequelize, DataTypes) => {
 			}
 
 			// Remove duplicate id from array
-			userIds = userIds.filter(function(item, pos) {
-				return userIds.indexOf(item) == pos;
-			});
+			userIds = userIds.filter((item, pos) => userIds.indexOf(item) == pos);
+
 			// FETCH USERS
 			// Push their contact phone field. This is defined in conf/application.json
-			const users = await sequelize.models.E_user.findAll({where: {id: {[models.$in]: userIds}}});
-			for (var i = 0; i < users.length; i++)
+			const users = await sequelize.models.E_user.findAll({where: {id: {[sequelize.models.$in]: userIds}}});
+			for (let i = 0; i < users.length; i++)
 				phoneNumbers.push(users[i][globalConf.contact_field_for_sms]);
 
 			// Remove duplicate numbers and return
-			return phoneNumbers.filter(function(item, pos) {
-				return phoneNumbers.indexOf(item) == pos;
-			});
+			return phoneNumbers.filter((item, pos) => phoneNumbers.indexOf(item) == pos)
 		}
 
 		function insertVariablesValue(property) {
@@ -136,8 +133,7 @@ module.exports = (sequelize, DataTypes) => {
 			}
 
 			let newString = self[property];
-			let regex = new RegExp(/{field\|([^}]*)}/g),
-				matches = null;
+			const regex = new RegExp(/{field\|([^}]*)}/g);let matches = null;
 			while ((matches = regex.exec(self[property])) != null)
 				newString = newString.replace(matches[0], diveData(dataInstance, matches[1].split('.'), 0));
 

@@ -1,19 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const block_access = require('../utils/block_access');
 const fs = require("fs-extra");
-const request = require('request');
 const models = require('../models/');
-const model_builder = require('../utils/model_builder');
-const enums_radios = require('../utils/enum_radio.js');
 const entity_helper = require('../utils/entity_helper');
 const upload = require('multer')().single('file');
 const moment = require('moment');
 const globalConf = require('../config/global');
-
-function capitalizeFirstLetter(word) {
-	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
-}
 
 // *********** Cloud function *************
 // This method receives and processes situation and send the dump of Cloud DB to the tablet
@@ -32,7 +24,7 @@ router.post('/situation', function(req, res) {
 			// Execute each line of sync journal one after the other
 			// If a record is created, change occurence of it's original ID in what's left of the journal
 			function execQuery(items, idx) {
-				return new Promise(function(resolve, reject) {
+				return new Promise(function(resolve) {
 					if (!items[idx])
 						return resolve();
 					const item = items[idx];
@@ -67,10 +59,10 @@ router.post('/situation', function(req, res) {
 										continue;
 									// Load entity's options only once
 									if (!entitiesOptions[line.entityName])
-										entitiesOptions[line.entityName] = require('../models/options/'+line.entityName);
+										entitiesOptions[line.entityName] = require('../models/options/'+line.entityName); // eslint-disable-line
 
 									// Check if the foreign key and entity name match and replace if true
-									for (var i = 0; i < entitiesOptions[line.entityName].length; i++) {
+									for (let i = 0; i < entitiesOptions[line.entityName].length; i++) {
 										if (entitiesOptions[line.entityName][i].foreignKey
 											&& entitiesOptions[line.entityName][i].foreignKey == field
 											&& entitiesOptions[line.entityName][i].target == entity)
@@ -80,7 +72,7 @@ router.post('/situation', function(req, res) {
 
 								// If association's target is the same as the created entity, check for association ids match and replace
 								if (line.verb == "associate" && line.target == entity)
-									for (var i = 0; i < line.ids.length; i++)
+									for (let i = 0; i < line.ids.length; i++)
 										if (line.ids[i] == originId)
 											line.ids[i] = entityInstance.id;
 							}
@@ -88,7 +80,7 @@ router.post('/situation', function(req, res) {
 						}));
 					}
 					else if (item.verb == 'update') {
-						return resolve(models[modelName].update(item, {where: {id: originId},transaction: transac}).then(function() {
+						return resolve(models[modelName].update(item, {where: {id: originId}, transaction: transac}).then(function() {
 							return execQuery(items, idx+1);
 						}));
 					}
@@ -112,7 +104,11 @@ router.post('/situation', function(req, res) {
 	}
 
 	// Get journal from request
-	upload(req, res, function(err) {
+	upload(req, res, err => {
+		if (!err) {
+			console.error(err);
+			return res.status(500).end();
+		}
 
 		// Load Journal of transactions
 		const journal = JSON.parse(req.file.buffer.toString('utf-8'));
@@ -121,7 +117,7 @@ router.post('/situation', function(req, res) {
 		return executeJournal(journal.transactions).then(function() {
 			// Create journal backup folder
 			const backupPath = globalConf.syncfolder+'journal_backups';
-			const backupFilename = 'journal-CRED-'+req.apiCredentials.id+'-'+(new moment().format("DDMMYYYYHHmmssSSS"))+'.json';
+			const backupFilename = 'journal-CRED-'+req.apiCredentials.id+'-'+ new moment().format("DDMMYYYYHHmmssSSS") +'.json';
 			fs.mkdirs(backupPath, function (err) {
 				if (err) {
 					console.log(err);
@@ -131,8 +127,7 @@ router.post('/situation', function(req, res) {
 				const outStream = fs.createWriteStream(backupPath+'/'+backupFilename);
 				outStream.write(req.file.buffer);
 				outStream.end();
-				outStream.on('finish', function (err) {
-
+				outStream.on('finish', _ => {
 					// Read Mysql Dump and send it to the tablet
 					fs.readFile(globalConf.syncfolder+'dump_cloud_data.sql', (err, data) => {
 						if (err) {
@@ -150,8 +145,8 @@ router.post('/situation', function(req, res) {
 					});
 				});
 			});
-		}).catch(function(err){
-			console.log(err);
+		}).catch(err => {
+			console.error(err);
 			res.status(500).send({});
 		});
 	});
@@ -176,7 +171,7 @@ router.post('/file_upload', function(req, res) {
 			const outStream = fs.createWriteStream(filePath);
 			outStream.write(req.file.buffer);
 			outStream.end();
-			outStream.on('finish', function (err) {
+			outStream.on('finish', _ => {
 				res.status(200).end();
 			});
 		});
