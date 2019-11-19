@@ -8,101 +8,9 @@ const math = require('math');
 const gitHelper = require("../utils/git_helper");
 let token = "";
 
-exports.deploy = async (data) => {
-
-	console.log("STARTING DEPLOY");
-
-	const appName = data.application.name;
-
-	// If local/develop environnement, then just give the generated application url
-	if (globalConfig.env != 'cloud') {
-		const port = math.add(9000, data.appID);
-		const url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
-		return {
-			message: "botresponse.applicationavailable",
-			messageParams: [url, url]
-		};
-	}
-
-	// Get and increment application's version
-	const applicationPath = 'workspace/' + appName;
-	const applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
-	applicationConf.version++;
-	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
-
-	// Create toSyncProd.lock file
-	if (fs.existsSync(applicationPath +'/models/toSyncProd.lock.json'))
-		fs.unlinkSync(applicationPath +'/models/toSyncProd.lock.json');
-	fs.copySync(applicationPath + '/models/toSyncProd.json', applicationPath + '/models/toSyncProd.lock.json');
-
-	// Clear toSyncProd (not locked) file
-	fs.writeFileSync(applicationPath+'/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
-
-	// Create deploy.txt file to trigger cloud deploy actions
-	fs.writeFileSync(applicationPath + '/deploy.txt', applicationConf.version, 'utf8');
-
-	// Push on git before deploy
-	await gitHelper.gitCommit(data);
-	await gitHelper.gitTag(appName, applicationConf.version, applicationPath);
-	await gitHelper.gitPush(data);
-
-	const appNameWithoutPrefix = data.application.name.substring(2);
-	const nameRepo = globalConfig.host + '-' + appNameWithoutPrefix;
-	const subdomain = globalConfig.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConfig.dns_cloud.replace('.', '-');
-
-	const remotes = await gitHelper.gitRemotes(data);
-
-	// Gitlab url handling
-	let gitlabUrl = "";
-	if(remotes.length > 0 && remotes[0].refs && remotes[0].refs.fetch)
-		gitlabUrl = remotes[0].refs.fetch; // Getting actuel .git fetch remote
-	else
-		gitlabUrl = gitlabConfig.sshUrl + ":" + data.gitlabUser.username + "/" + repoName + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
-
-	console.log('Cloning in cloud: ' + gitlabUrl);
-	data = await portainerDeploy(nameRepo, subdomain, appNameWithoutPrefix, gitlabUrl);
-	return {
-		message: "botresponse.deployment",
-		messageParams: [data.url, data.url]
-	};
-}
-
-async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
-	// Preparing all needed values
-	let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
-	const cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
-
-	// Cloud db conf
-	const cloudDbConf = {
-		dbName: "np_" + appName,
-		dbUser: "np_" + appName,
-		dbPwd: "np_" + appName,
-		dbRootPwd: "p@ssw0rd"
-	};
-
-	// Portainer fix #2020
-	stackName = clearStackname(stackName);
-
-	// Authenticate in portainer API
-	token = await authenticate();
-
-	// Trying to get if exist the current stack in cloud portainer
-	let currentStack = await getStack(stackName);
-
-	// Generate new cloud stack
-	if(!currentStack){
-		console.log("NO STACK FOUND => GENERATING IT...")
-		currentStack = await generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudUrl);
-	} else {
-		console.log("STACK ALREADY EXIST => UPDATING IT...")
-		// Updating a stack
-		currentStack = await updateStack(currentStack, cloudUrl);
-	}
-
-	console.log("DEPLOY DONE");
-	return {
-		url: "/waiting?redirect=https://" + globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud
-	};
+// Portainer do not like camelCase and - , _ cf https://github.com/portainer/portainer/issues/2020
+function clearStackname(stackName){
+	return stackName.replace(/[-_.]/g, "").toLowerCase();
 }
 
 // Getting authentication token from portainer with login and pwd
@@ -149,6 +57,57 @@ async function getStack(stackName) {
 
 	// Return found stack
 	return callResults[0];
+}
+
+async function updateStack(currentStack, cloudUrl) {
+
+	console.log("updateStack");
+
+	let options = {
+		uri: portainerConfig.url + "/endpoints/1/docker/containers/json",
+		method: "GET",
+		headers: {
+			'Content-Type': 'multipart/form-data',
+			'Authorization': token
+		},
+		json: true
+	};
+
+	console.log("CALL => Docker container list");
+	const allContainers = await request(options);
+
+	// Looking for our container ID
+	let ourContainerID = null;
+	for (let i = 0; i < allContainers.length; i++) {
+		for(const item in allContainers[i].Labels){
+			// Matching on traefik labels for cloud application DNS
+			if(item.indexOf("traefik.frontend.rule") != -1 && allContainers[i].Labels[item].indexOf(cloudUrl) != -1){
+				ourContainerID = allContainers[i].Id;
+				break;
+			}
+		}
+	}
+
+	if(!ourContainerID)
+		throw new Error("Cannot find the container to update.");
+
+	console.log("Current container ID: "+ourContainerID);
+
+	options = {
+		uri: portainerConfig.url + "/endpoints/1/docker/containers/"+ourContainerID+"/restart",
+		method: "POST",
+		headers: {
+			'Content-Type': 'multipart/form-data',
+			'Authorization': token
+		},
+		json: true
+	};
+
+	console.log("CALL => Docker container restart");
+	await request(options);
+
+	// Return generated stack
+	return currentStack;
 }
 
 async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudUrl) {
@@ -231,58 +190,99 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 	return callResults;
 }
 
-async function updateStack(currentStack, cloudUrl) {
+async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
+	// Preparing all needed values
+	let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
+	const cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
 
-	console.log("updateStack");
-
-	let options = {
-		uri: portainerConfig.url + "/endpoints/1/docker/containers/json",
-		method: "GET",
-		headers: {
-			'Content-Type': 'multipart/form-data',
-			'Authorization': token
-		},
-		json: true
+	// Cloud db conf
+	const cloudDbConf = {
+		dbName: "np_" + appName,
+		dbUser: "np_" + appName,
+		dbPwd: "np_" + appName,
+		dbRootPwd: "p@ssw0rd"
 	};
 
-	console.log("CALL => Docker container list");
-	const allContainers = await request(options);
+	// Portainer fix #2020
+	stackName = clearStackname(stackName);
 
-	// Looking for our container ID
-	let ourContainerID = null;
-	for (let i = 0; i < allContainers.length; i++) {
-		for(const item in allContainers[i].Labels){
-			// Matching on traefik labels for cloud application DNS
-			if(item.indexOf("traefik.frontend.rule") != -1 && allContainers[i].Labels[item].indexOf(cloudUrl) != -1){
-				ourContainerID = allContainers[i].Id;
-				break;
-			}
-		}
+	// Authenticate in portainer API
+	token = await authenticate();
+
+	// Trying to get if exist the current stack in cloud portainer
+	let currentStack = await getStack(stackName);
+
+	// Generate new cloud stack
+	if(!currentStack){
+		console.log("NO STACK FOUND => GENERATING IT...")
+		currentStack = await generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudUrl);
+	} else {
+		console.log("STACK ALREADY EXIST => UPDATING IT...")
+		// Updating a stack
+		currentStack = await updateStack(currentStack, cloudUrl);
 	}
 
-	if(!ourContainerID)
-		throw new Error("Cannot find the container to update.");
-
-	console.log("Current container ID: "+ourContainerID);
-
-	options = {
-		uri: portainerConfig.url + "/endpoints/1/docker/containers/"+ourContainerID+"/restart",
-		method: "POST",
-		headers: {
-			'Content-Type': 'multipart/form-data',
-			'Authorization': token
-		},
-		json: true
+	console.log("DEPLOY DONE");
+	return {
+		url: "/waiting?redirect=https://" + globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud
 	};
-
-	console.log("CALL => Docker container restart");
-	await request(options);
-
-	// Return generated stack
-	return currentStack;
 }
 
-// Portainer do not like camelCase and - , _ cf https://github.com/portainer/portainer/issues/2020
-function clearStackname(stackName){
-	return stackName.replace(/[-_.]/g, "").toLowerCase();
+exports.deploy = async (data) => {
+
+	console.log("STARTING DEPLOY");
+
+	const appName = data.application.name;
+
+	// If local/develop environnement, then just give the generated application url
+	if (globalConfig.env != 'cloud') {
+		const port = math.add(9000, data.appID);
+		const url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
+		return {
+			message: "botresponse.applicationavailable",
+			messageParams: [url, url]
+		};
+	}
+
+	// Get and increment application's version
+	const applicationPath = 'workspace/' + appName;
+	const applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
+	applicationConf.version++;
+	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
+
+	// Create toSyncProd.lock file
+	if (fs.existsSync(applicationPath +'/models/toSyncProd.lock.json'))
+		fs.unlinkSync(applicationPath +'/models/toSyncProd.lock.json');
+	fs.copySync(applicationPath + '/models/toSyncProd.json', applicationPath + '/models/toSyncProd.lock.json');
+
+	// Clear toSyncProd (not locked) file
+	fs.writeFileSync(applicationPath+'/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
+
+	// Create deploy.txt file to trigger cloud deploy actions
+	fs.writeFileSync(applicationPath + '/deploy.txt', applicationConf.version, 'utf8');
+
+	// Push on git before deploy
+	await gitHelper.gitCommit(data);
+	await gitHelper.gitTag(appName, applicationConf.version, applicationPath);
+	await gitHelper.gitPush(data);
+
+	const appNameWithoutPrefix = data.application.name.substring(2);
+	const nameRepo = globalConfig.host + '-' + appNameWithoutPrefix;
+	const subdomain = globalConfig.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConfig.dns_cloud.replace('.', '-');
+
+	const remotes = await gitHelper.gitRemotes(data);
+
+	// Gitlab url handling
+	let gitlabUrl = "";
+	if(remotes.length > 0 && remotes[0].refs && remotes[0].refs.fetch)
+		gitlabUrl = remotes[0].refs.fetch; // Getting actuel .git fetch remote
+	else
+		gitlabUrl = gitlabConfig.sshUrl + ":" + data.gitlabUser.username + "/" + nameRepo + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
+
+	console.log('Cloning in cloud: ' + gitlabUrl);
+	data = await portainerDeploy(nameRepo, subdomain, appNameWithoutPrefix, gitlabUrl);
+	return {
+		message: "botresponse.deployment",
+		messageParams: [data.url, data.url]
+	};
 }

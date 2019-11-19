@@ -19,28 +19,27 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 }
 
 // ******* BASIC Actions ******* //
-exports.showSession = result => {
-
+exports.showSession = _ => {
 	const data = {};
 	data.function = "showSession";
 	return data;
 };
 
-exports.help = result => {
+exports.help = _ => {
 
 	const data = {};
 	data.function = "help";
 	return data;
 };
 
-exports.deploy = result => {
+exports.deploy = _ => {
 
 	const data = {};
 	data.function = "deploy";
 	return data;
 };
 
-exports.restart = result => {
+exports.restart = _ => {
 	const data = {};
 	data.function = "restart";
 	return data;
@@ -59,25 +58,25 @@ exports.installNodePackage = result => {
 	return data;
 };
 
-exports.gitPush = result => {
+exports.gitPush = _ => {
 	const data = {};
 	data.function = "gitPush";
 	return data;
 };
 
-exports.gitPull = result => {
+exports.gitPull = _ => {
 	const data = {};
 	data.function = "gitPull";
 	return data;
 };
 
-exports.gitCommit = result => {
+exports.gitCommit = _ => {
 	const data = {};
 	data.function = "gitCommit";
 	return data;
 };
 
-exports.gitStatus = result => {
+exports.gitStatus = _ => {
 	const data = {};
 	data.function = "gitStatus";
 	return data;
@@ -416,7 +415,7 @@ exports.deleteTab = result => {
 };
 
 // ******* LIST Actions ******* //
-exports.listApplication = result => {
+exports.listApplication = _ => {
 
 	const data = {
 		function: "listApplication"
@@ -424,7 +423,7 @@ exports.listApplication = result => {
 	return data;
 };
 
-exports.listModule = result => {
+exports.listModule = _ => {
 
 	const data = {
 		function: "listModule"
@@ -432,7 +431,7 @@ exports.listModule = result => {
 	return data;
 };
 
-exports.listEntity = result => {
+exports.listEntity = _ => {
 
 	const data = {
 		function: "listEntity"
@@ -440,7 +439,7 @@ exports.listEntity = result => {
 	return data;
 };
 
-exports.listField = result => {
+exports.listField = _ => {
 
 	const data = {
 		function: "listField"
@@ -683,13 +682,10 @@ exports.createNewComponentStatusWithName = result => {
 	return checkAndCreateAttr("createNewComponentStatus", options, value);
 }
 
-exports.deleteComponentStatus = result => {
-
-	const options = {};
-
+exports.deleteComponentStatus = _ => {
 	const data = {
 		function: "deleteComponentStatus",
-		options: options
+		options: {}
 	};
 	return data;
 };
@@ -705,19 +701,15 @@ exports.deleteComponentStatusWithName = result => {
 };
 
 /* LOCAL FILE STORAGE */
-exports.createNewComponentLocalFileStorage = result => {
-
-	const options = {};
-
+exports.createNewComponentLocalFileStorage = _ => {
 	const data = {
 		function: "createNewComponentLocalFileStorage",
-		options: options
+		options: {}
 	};
 	return data;
 };
 
 exports.createNewComponentLocalFileStorageWithName = result => {
-
 	const value = result[1];
 	const options = {
 		value: value,
@@ -728,19 +720,15 @@ exports.createNewComponentLocalFileStorageWithName = result => {
 };
 
 /* CONTACT FORM */
-exports.createNewComponentContactForm = result => {
-
-	const options = {};
-
+exports.createNewComponentContactForm = _ => {
 	const data = {
 		function: "createNewComponentContactForm",
-		options: options
+		options: {}
 	};
 	return data;
 };
 
 exports.createNewComponentContactFormWithName = result => {
-
 	const value = result[1];
 	const options = {
 		value: value,
@@ -750,13 +738,10 @@ exports.createNewComponentContactFormWithName = result => {
 	return checkAndCreateAttr("createNewComponentContactForm", options, value);
 };
 
-exports.deleteComponentContactForm = result => {
-
-	const options = {};
-
+exports.deleteComponentContactForm = _ => {
 	const data = {
 		function: "deleteComponentContactForm",
-		options: options
+		options: {}
 	};
 	return data;
 };
@@ -772,19 +757,15 @@ exports.deleteComponentContactFormWithName = result => {
 };
 
 /* AGENDA */
-exports.createNewComponentAgenda = result => {
-
-	const options = {};
-
+exports.createNewComponentAgenda = _ => {
 	const data = {
 		function: "createNewComponentAgenda",
-		options: options
+		options: {}
 	};
 	return data;
 };
 
 exports.createNewComponentAgendaWithName = result => {
-
 	const value = result[1];
 	const options = {
 		value: value,
@@ -794,19 +775,15 @@ exports.createNewComponentAgendaWithName = result => {
 	return checkAndCreateAttr("createNewComponentAgenda", options, value);
 };
 
-exports.deleteAgenda = result => {
-
-	const options = {};
-
+exports.deleteAgenda = _ => {
 	const data = {
 		function: "deleteAgenda",
-		options: options
+		options: {}
 	};
 	return data;
 };
 
 exports.deleteAgendaWithName = result => {
-
 	const value = result[1];
 	const options = {
 		value: value,
@@ -814,13 +791,6 @@ exports.deleteAgendaWithName = result => {
 	};
 
 	return checkAndCreateAttr("deleteAgenda", options, value);
-};
-
-/* CRA */
-exports.createNewComponentCra = result => {
-	return {
-		function: "createNewComponentCra"
-	};
 };
 
 /**
@@ -887,7 +857,7 @@ exports.deleteComponentDocumentTemplate = result => {
 };
 
 /* CHAT */
-exports.createComponentChat = result => {
+exports.createComponentChat = _ => {
 	return {
 		function: "createComponentChat"
 	}
@@ -907,7 +877,7 @@ exports.setLogo = result => {
 	return data;
 };
 
-exports.removeLogo = result => {
+exports.removeLogo = _ => {
 	const data = {};
 	data.function = "removeLogo";
 	return data;
@@ -927,16 +897,13 @@ exports.setLayout = result => {
 	return data;
 };
 
-exports.listLayout = result => {
-
-	const data = {
+exports.listLayout = _ => {
+	return {
 		function: "listLayout"
 	};
-	return data;
 };
 
 exports.setTheme = result => {
-
 	const value = result[1];
 	const options = {
 		value: value
@@ -949,16 +916,16 @@ exports.setTheme = result => {
 	return data;
 };
 
-exports.listTheme = result => {
-
-	const data = {
+exports.listTheme = _ => {
+	return {
 		function: "listTheme"
 	};
-	return data;
 };
 
-exports.listIcon = result => {
-	return {function: 'listIcon'};
+exports.listIcon = _ => {
+	return {
+		function: 'listIcon'
+	};
 }
 
 exports.setIcon = result => {
@@ -1133,7 +1100,7 @@ exports.addTitle = result => {
 }
 
 // --- FUN --- //
-exports.apero = result => {
+exports.apero = _ => {
 	return {
 		function: "apero"
 	}
@@ -2422,7 +2389,7 @@ const training = {
 		"add widget piechart for field (.*)",
 		"create widget piechart for (.*)",
 		"add widget piechart for (.*)",
-		"ajouter widget piechart sur l\’entité (.*) pour le champ (.*)",
+		"ajouter widget piechart sur l'entité (.*) pour le champ (.*)",
 		"ajouter widget piechart sur entité (.*) pour le champ (.*)",
 		"ajouter widget piechart pour le champ (.*)"
 	],
@@ -2436,7 +2403,7 @@ const training = {
 		"add widget piechart for field (.*) without legend",
 		"add widget piechart for (.*) without legend",
 		"ajouter widget piechart pour le champ (.*) sans légende",
-		"ajouter widget piechart sur l\’entité (.*) pour le champ (.*) sans légende",
+		"ajouter widget piechart sur l'entité (.*) pour le champ (.*) sans légende",
 		"ajouter widget piechart sur entité (.*) pour le champ (.*) sans légende"
 	],
 	"createWidgetLastRecordsWithLimit": [
@@ -2585,7 +2552,6 @@ exports.parse = (instruction) => {
 exports.complete = function (instruction) {
 
 	const answers = [];
-	const p = 0;
 
 	// Check all training key phrases
 	for (const action in training) {
@@ -2608,7 +2574,7 @@ exports.complete = function (instruction) {
 			let answer = " ";
 			let valid = true;
 			let variable = false;
-			while ((m < l) && (k < n) && (valid)) {
+			while (m < l && k < n && valid) {
 				// Check if words are the same, goto next word
 				if (template[k] == "(.*)" || template[k] == instr[m]) {
 					variable = false;
@@ -2619,31 +2585,24 @@ exports.complete = function (instruction) {
 					if (template[k].substring(0, sublen) == instr[m]) {
 						// Do not increment k, we are still on keyword
 						variable = false;
-					} else {
-						// If we parse the variable value
-						if (template[k] == "(.*)") {
-							// Check next word
-							if (template[k + 1]) {
-								k++;
-								variable = true;
-							}
-						} else {
-							// If we are not parsing a variable, it means template is not appropriate => Exit
-							if (!variable)
-								valid = false;
-						}
+					} else if (template[k] == "(.*)" && template[k + 1]) { // If we parse the variable value
+						// Check next word
+						k++;
+						variable = true;
+					} else if (!variable) {
+						// If we are not parsing a variable, it means template is not appropriate => Exit
+						valid = false;
 					}
 				}
-
 				m++;
 			}
 
 			// Instruction has respected template, so send next keyword if any
-			if ((valid) && (m == l)) {
+			if (valid && m == l) {
 				let found = false;
 				let firstLoop = true;
 
-				while ((k < n) && !found) {
+				while (k < n && !found) {
 					// Return next keyword
 					if (template[k] != "(.*)")
 						answer = answer + template[k] + " ";
@@ -2701,12 +2660,10 @@ exports.complete = function (instruction) {
 	}
 
 	// Filter array of results (remove double values)
-	let i, j, len = answers.length,
-		out = [],
-		obj = {};
-	for (i = 0; i < len; i++)
+	const out = [], obj = {}, len = answers.length;
+	for (let i = 0; i < len; i++)
 		obj[answers[i]] = 0;
-	for (j in obj)
+	for (const j in obj)
 		out.push(j);
 
 	// Sort array of results
