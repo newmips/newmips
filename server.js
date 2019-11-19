@@ -5,14 +5,14 @@ const express = require('express');
 const session = require('express-session');
 const dbConfig = require('./config/database');
 
+let SessionStore, pg;
 // MySql
 if(dbConfig.dialect == "mysql")
-	var SessionStore = require('express-mysql-session');
-
+	SessionStore = require('express-mysql-session'); // eslint-disable-line
 // Postgres
 if(dbConfig.dialect == "postgres"){
-	var pg = require('pg');
-	var SessionStore = require('connect-pg-simple')(session);
+	pg = require('pg'); // eslint-disable-line
+	SessionStore = require('connect-pg-simple')(session); // eslint-disable-line
 }
 
 const cookieParser = require('cookie-parser');
@@ -25,11 +25,8 @@ const port = globalConf.port;
 const passport = require('passport');
 const flash = require('connect-flash');
 const language = require('./services/language');
-const extend = require('util')._extend;
 const https = require('https');
-const fs = require('fs');
-const helper = require('./utils/helpers');
-const logger = require('./utils/logger');
+const fs = require('fs-extra');
 const split = require('split');
 const AnsiToHTML = require('ansi-to-html');
 const ansiToHtml = new AnsiToHTML();
@@ -48,7 +45,7 @@ const allLogStream = fs.createWriteStream(path.join(__dirname, 'all.log'), {
 });
 
 app.use(morgan('dev', {
-	skip: function(req, res) {
+	skip: function(req) {
 		// Remove spamming useless logs
 		const skipArray = ["/update_logs", "/get_pourcent_generation", "/status", "/completion", "/watch", "/"];
 		let currentURL = req.originalUrl;
@@ -77,19 +74,8 @@ app.use(morgan('dev', {
 	})
 }));
 
-if(globalConf.env != "develop"){
-	// require('console-stamp')(console, {
-	//	 formatter: function() {
-	//		 return moment().format('MM-DD HH:mm:ss');
-	//	 },
-	//	 label: false,
-	//	 datePrefix: "",
-	//	 dateSuffix: ""
-	// });
-}
-
 // Overide console.warn & console.error to file+line
-['warn', 'error'].forEach((methodName) => {
+['warn', 'error'].forEach(methodName => {
 	const originalMethod = console[methodName];
 	console[methodName] = (...args) => {
 		let initiator = 'unknown place';
@@ -129,7 +115,6 @@ app.use(bodyParser.json({
 	limit: '50mb'
 }));
 
-// Template rendering
 //------------------------------ DUST.JS ------------------------------ //
 const dust = require('dustjs-linkedin');
 const cons = require('consolidate');
@@ -148,22 +133,23 @@ const options = {
 	database: dbConfig.database
 };
 
+let sessionStore;
 if(dbConfig.dialect == "mysql")
-	var sessionStore = new SessionStore(options);
+	sessionStore = new SessionStore(options);
 if(dbConfig.dialect == "postgres"){
 	const pgPool = new pg.Pool(options);
-	pgPool.connect((err, client, done) => {
+	pgPool.connect((err, client) => {
 		if (err) {console.error(err);}
 		client.query('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_catalog = \''+options.database+'\' AND table_name = \'sessions\');', (err, res) => {
 			if (err) {console.error(err.stack)} else if(!res.rows[0].exists) {
 				// Postgres sessions table do not exist, creating it...
-				client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), (err, res) => {
+				client.query(fs.readFileSync(__dirname + "/sql/sessions-for-postgres.sql", "utf8"), err => {
 					if (err) {console.error(err)} else {console.log("Postgres sessions table created !");}
 				});
 			}
 		})
 	})
-	var sessionStore = new SessionStore({
+	sessionStore = new SessionStore({
 		pool: pgPool,
 		tableName: 'sessions'
 	});
@@ -197,12 +183,12 @@ app.use(function(req, res, next) {
 			req.session.lang_user = lang;
 	}
 
-	req.moment = require('moment');
+	req.moment = require('moment'); // eslint-disable-line
 	if(lang == "fr-FR")
 		req.moment.locale('fr');
 
 	// Helpers
-	dust.helpers.ifTrue = function(chunk, context, bodies, params) {
+	dust.helpers.ifTrue = (chunk, context, bodies, params) => {
 		const value = params.key;
 
 		if(value == true || value == "true" || value == 1){
@@ -212,7 +198,7 @@ app.use(function(req, res, next) {
 
 	};
 
-	dust.helpers.in = function(chunk, context, bodies, params) {
+	dust.helpers.in = (chunk, context, bodies, params) => {
 		const paramsArray = params.value.split(",");
 		if(paramsArray.indexOf(params.key) != -1)
 			return true;
@@ -220,15 +206,15 @@ app.use(function(req, res, next) {
 	};
 
 	// Locals
-	res.locals.__ = function(ch, con, bo, params) {
+	res.locals.__ = (ch, con, bo, params) => {
 		return ch.write(language(lang).__(params.key, params.params));
 	};
 
-	res.locals.M_ = function(ch, con, bo, params) {
+	res.locals.M_ = (ch, con, bo, params) => {
 		return ch.write(language(lang).M_(params.key, params.params));
 	};
 
-	res.locals.isAdmin = function(chunk, context, bodies, params) {
+	res.locals.isAdmin = () => {
 		if(req.isAuthenticated() && req.session.passport && req.session.passport.user.id_role == 1)
 			return true;
 		return false;
@@ -238,7 +224,7 @@ app.use(function(req, res, next) {
 	res.locals.globalConf = globalConf;
 
 	// Filters
-	dust.filters.stringify = function(value) {
+	dust.filters.stringify = value => {
 		return JSON.stringify(value);
 	};
 
@@ -246,9 +232,9 @@ app.use(function(req, res, next) {
 });
 
 // Overload res.render to always get and reset toastr
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 	const render = res.render;
-	res.render = function(view, locals, cb) {
+	res.render = (view, locals, cb) => {
 		if (typeof locals === "undefined")
 			locals = {};
 		if (req.session.toastr && req.session.toastr.length > 0) {
@@ -273,7 +259,7 @@ app.use(function(req, res, next) {
 require('./routes/')(app);
 
 // Handle 404
-app.use(function(req, res) {
+app.use((req, res) => {
 	res.status(404);
 	res.render('common/404');
 });
@@ -283,19 +269,19 @@ app.use(function(req, res) {
 models.sequelize.sync({
 	logging: false,
 	hooks: false
-}).then(function() {
-	models.User.findAll().then(function(users) {
+}).then(_ => {
+	models.User.findAll().then(users => {
 		if (!users || users.length == 0) {
 			models.Role.create({
 				id: 1,
 				name: 'admin',
 				version: 1
-			}).then(function() {
+			}).then(_ => {
 				models.Role.create({
 					id: 2,
 					name: 'user',
 					version: 1
-				}).then(function() {
+				}).then(_ => {
 					models.User.create({
 						id: 1,
 						email: null,
@@ -306,7 +292,7 @@ models.sequelize.sync({
 						password: null,
 						phone: null,
 						version: 1
-					}).then(function(user) {
+					}).then(user => {
 						user.setRole(1);
 					})
 				})
@@ -322,13 +308,12 @@ models.sequelize.sync({
 		app.listen(port);
 		console.log("Started on " + port);
 	}
-}).catch(function(err) {
+}).catch(err => {
 	console.log("ERROR - SYNC");
-	logger.silly(err);
 	console.error(err);
 });
 
-process.on('SIGINT', function() {
+process.on('SIGINT', _ => {
 	process.exit(1);
 });
 
