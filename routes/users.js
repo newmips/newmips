@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
 const models = require('../models/');
-const fs = require('fs-extra');
-const moment = require("moment");
 
 // Gitlab API
 const gitlab = require('../services/gitlab_api');
@@ -11,7 +9,7 @@ const gitlabConf = require('../config/gitlab.js');
 const globalConf = require('../config/global.js');
 
 router.get('/', block_access.isAdmin, (req, res) => {
-	data = {};
+	const data = {};
 	models.User.findAll({
 		where: {
 			id: {
@@ -162,10 +160,10 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 			const gitlabUser = await gitlab.getUser(user.email);
 
 			for (let i = 0; i < appID.length; i++) {
-				const application = await models.Application.findByPk(appID[i]);
+				const application = await models.Application.findByPk(appID[i]); // eslint-disable-line
 				const projectName = globalConf.host + "-" + application.codeName.substring(2);
-				const gitlabProject = await gitlab.getProject(projectName);
-				await gitlab.addUserToProject(gitlabUser.id, gitlabProject.id);
+				const gitlabProject = await gitlab.getProject(projectName); // eslint-disable-line
+				await gitlab.addUserToProject(gitlabUser.id, gitlabProject.id); // eslint-disable-line
 			}
 		}
 
@@ -186,8 +184,6 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
 		const appID = req.body.id_app;
 		const userID = req.body.id_user;
 		const user = await models.User.findByPk(userID);
-
-		const data = {};
 		if (!user)
 			throw new Error('404 - User not found');
 

@@ -19,7 +19,7 @@ function fetchText(key, params, lang) {
 	const keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {
 		try {
-			languages[lang] = require(__dirname + '/../locales/'+lang);
+			languages[lang] = require(__dirname + '/../locales/'+lang); // eslint-disable-line
 		} catch (e) {
 			console.log(e);
 			return key;
@@ -71,12 +71,12 @@ module.exports = function(lang) {
 	return {
 		__: function (key, params) {
 			if(typeof params === "undefined")
-				var params = [];
+				params = [];
 			return fetchText(key, params, lang);
 		},
 		M_: function(key, params) {
 			if(typeof params === "undefined")
-				var params = [];
+				params = [];
 			return capitalizeFirstLetters(key, params, lang);
 		},
 		getLang: function(){

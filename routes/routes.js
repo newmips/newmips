@@ -224,7 +224,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 			}
 		}).then(function(){
 			// Send email with generated token
-			mail.sendMail_Reset_Password({
+			mail.sendMailResetPassword({
 				mail_user: user.email,
 				token: token
 			}).then(_ => {

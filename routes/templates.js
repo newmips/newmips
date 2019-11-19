@@ -29,43 +29,44 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 		initTemplate = true;
 	}
 
-	const gitTemplate = require('simple-git')(templateDir);
+	const gitTemplate = require('simple-git')(templateDir); // eslint-disable-line
 
 	const gitPromise = new Promise((resolve, reject) => {
 		if(initTemplate){
-			gitTemplate.clone("https://github.com/newmips/templates.git", ".", (err, answer) => {
+			gitTemplate.clone("https://github.com/newmips/templates.git", ".", err => {
 				if(err){
 					req.session.toastr = [{
 						message: "template.no_clone",
 						level: "error"
 					}];
 					helpers.rmdirSyncRecursive(templateDir);
-					return res.redirect("/default/home");
+					return reject(err);
 				}
 
 				console.log("TEMPLATE GIT CLONE DONE");
-				gitTemplate.checkout(version, (err, answer) => {
+				gitTemplate.checkout(version, err => {
 					if(err){
 						req.session.toastr = [{
 							message: "template.no_checkout",
 							level: "error"
 						}];
 						helpers.rmdirSyncRecursive(templateDir);
-						return res.redirect("/default/home");
+						return reject(err);
 					}
 
 					console.log("TEMPLATE GIT CHECKOUT VERSION "+version+" DONE");
 					resolve();
-				 })
+				})
 			})
 		} else {
-			gitTemplate.pull("origin", version, "-f", (err, answer) => {
+			gitTemplate.pull("origin", version, "-f", err => {
 				if(err){
 					console.error(err);
 					req.session.toastr = [{
 						message: "template.no_pull",
 						level: "warning"
 					}];
+					return reject(err);
 				}
 				console.log("TEMPLATE GIT PULL DONE");
 				resolve();
@@ -91,6 +92,9 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 					});
 
 		res.render('front/templates', data);
+	}).catch(err => {
+		console.error(err);
+		res.redirect("/default/home");
 	})
 })
 

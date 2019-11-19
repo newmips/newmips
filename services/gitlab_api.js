@@ -1,7 +1,6 @@
 const globalConf = require('../config/global.js');
 const gitlabConf = require('../config/gitlab.js');
 const request = require('request-promise');
-
 const gitlabURL = gitlabConf.protocol + "://" + gitlabConf.url + "/api/v4";
 const token = gitlabConf.privateToken;
 
@@ -161,7 +160,7 @@ exports.getProject = async (projectName) => {
 
 	try {
 		const allProjects = await request(options);
-		const project = allProjects.filter(x => {return x.name == projectName});
+		const project = allProjects.filter(x => x.name == projectName);
 		return project.length == 0 ? false : project[0];
 	} catch(err){
 		console.error(err);
