@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
 const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/ENTITY_NAME');
 const options = require('../models/options/ENTITY_NAME');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
 const component_helper = require('../utils/component_helper');
 const globalConfig = require('../config/global');
@@ -18,12 +14,7 @@ const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const moment = require("moment");
 const SELECT_PAGE_SIZE = 10;
-
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
-const logger = require('../utils/logger');
 
 router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
 	res.render('ENTITY_NAME/list');
@@ -35,12 +26,10 @@ router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", 
 			res.send(preparedData).end();
 		}).catch(function(err) {
 			console.error(err);
-			logger.debug(err);
 			res.end();
 		});
 	}).catch(function(err) {
 		console.error(err);
-		logger.debug(err);
 		res.end();
 	});
 });
@@ -55,12 +44,12 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 	const doPagination = req.query.paginate;
 
 	// Build array of fields for include and search object
-	const isGlobalSearch = req.body.search.value == "" ? false : true;
+	const isGlobalSearch = req.body.search.value != "";
 	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
-	for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+	for (let i = 0, columns = req.body.columns; i < columns.length; i++) {
 		if (columns[i].searchable == 'false')
 			continue;
 
@@ -76,16 +65,16 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 		if (isGlobalSearch)
 			search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
 	}
-	for (var i = 0; i < req.body.columns.length; i++)
+	for (let i = 0; i < req.body.columns.length; i++)
 		if (req.body.columns[i].searchable == 'true')
 			toInclude.push(req.body.columns[i].data);
 	// Get sequelize include object
 	const subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
 	// ORDER BY
-	let order, stringOrder = req.body.columns[req.body.order[0].column].data;
+	const stringOrder = req.body.columns[req.body.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
-	order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
+	const order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
 	const include = {
 		model: models[subentityModel],
@@ -130,7 +119,6 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 				res.send(preparedData).end();
 			}).catch(function(err) {
 				console.error(err);
-				logger.debug(err);
 				res.end();
 			});
 		});
@@ -150,11 +138,8 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 		data.hideButton = req.query.hideButton;
 
 	entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function(ENTITY_NAME) {
-		if (!ENTITY_NAME) {
-			data.error = 404;
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!ENTITY_NAME)
+			return res.render('common/error', {error: 404});
 
 		/* Update local ENTITY_NAME data before show */
 		data.ENTITY_NAME = ENTITY_NAME;
@@ -330,11 +315,9 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 			id: id_ENTITY_NAME
 		}
 	}).then(function(ENTITY_NAME) {
-		if (!ENTITY_NAME) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!ENTITY_NAME)
+			return res.render('common/error', {error: 404});
+
 		component_helper.address.updateAddressIfComponentExists(ENTITY_NAME, options, req.body);
 		ENTITY_NAME.update(updateObject).then(function() {
 
@@ -399,10 +382,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		if (!ENTITY_NAME)
 			return res.status(404).end();
 
-		let dustData = ENTITY_NAME[option.as] || null;
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
-		var subentityOptions = [];
+		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
 
 		// Default value
 		option.noCreateBtn = false;
@@ -417,21 +398,21 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var subentityOptions = require('../models/options/' + option.target);
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(function(alias) {
-								promisesData.push(new Promise(function(resolve, reject) {
+							(alias => {
+								promisesData.push(new Promise((resolve, reject) => {
 									dustData[alias].getR_children({
 										include: [{
 											model: models.E_group,
 											as: "r_accepted_group"
 										}]
-									}).then(function(children) {
+									}).then(children => {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}));
 							})(subentityOptions[i].as);
 				}
@@ -457,8 +438,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
@@ -468,15 +448,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 					dustData.associationUrl = req.query.associationUrl;
 				}
 				dustData.for = 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 
 				break;
 
 			case 'localfilestorage':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.sourceId = id;
 				break;
@@ -524,12 +503,13 @@ router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_acces
 	status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
 		res.redirect(req.headers.referer);
 	}).catch(err => {
+		console.error(err);
 		req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
 		res.redirect(req.headers.referer);
 	});
 });
 
-router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function(req, res) {
+router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), (req, res) => {
 	const search = '%' + (req.body.search || '') + '%';
 	const limit = SELECT_PAGE_SIZE;
 	const offset = (req.body.page - 1) * limit;
@@ -574,31 +554,27 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 	// Notice that customwhere feature do not work with related to many field if the field is a foreignKey !
 
 	// Possibility to add custom where in select2 ajax instanciation
-	if (typeof req.body.customwhere !== "undefined"){
+	if (typeof req.body.customwhere !== "undefined") {
 		// If customwhere from select HTML attribute, we need to parse to object
 		if(typeof req.body.customwhere === "string")
 			req.body.customwhere = JSON.parse(req.body.customwhere);
 		for (const param in req.body.customwhere) {
 			// If the custom where is on a foreign key
-			if (param.indexOf("fk_") != -1) {
+			if (param.indexOf("fk_") != -1)
 				for (const option in options) {
 					// We only add where condition on key that are standard hasMany relation, not belongsToMany association
 					if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany"){
 						// Where on include managment if fk
-						if(param.indexOf(".") != -1){
+						if(param.indexOf(".") != -1)
 							where.where["$"+param+"$"] = req.body.customwhere[param];
-						} else {
+						else
 							where.where[param] = req.body.customwhere[param];
-						}
 					}
 				}
-			} else {
-				if(param.indexOf(".") != -1){
-					where.where["$"+param+"$"] = req.body.customwhere[param];
-				} else {
-					where.where[param] = req.body.customwhere[param];
-				}
-			}
+			else if (param.indexOf(".") != -1)
+				where.where["$"+param+"$"] = req.body.customwhere[param];
+			else
+				where.where[param] = req.body.customwhere[param];
 		}
 	}
 
@@ -609,8 +585,8 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 	// You have to include those entity here
 	// where.include = [{model: models.E_myentity, as: "r_myentity"}]
 
-	models.MODEL_NAME.findAndCountAll(where).then(function(results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+	models.MODEL_NAME.findAndCountAll(where).then(results => {
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes)
 			for (let i = 0; i < results.rows.length; i++)
@@ -625,12 +601,14 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 								if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
 									results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
 								break;
+							default:
+								break;
 						}
 
 		res.json(results);
-	}).catch(function(e) {
-		console.error(e);
-		res.status(500).json(e);
+	}).catch(err => {
+		console.error(err);
+		res.status(500).json(err);
 	});
 });
 
@@ -651,8 +629,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
 		}
 
 		// Get all associations
-		ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(aliasEntities => {
-
+		ENTITY_NAME['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(_ => {
 			if(globalConfig.env == "tablet"){
 				let target = "";
 				for (let i = 0; i < options.length; i++)
@@ -685,13 +662,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
 			id: idEntity
 		}
 	}).then(function(ENTITY_NAME) {
-		if (!ENTITY_NAME) {
-			const data = {
-				error: 404
-			};
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!ENTITY_NAME)
+			return res.render('common/error', {error: 404});
 
 		let toAdd;
 		if (typeof(toAdd = req.body.ids) === 'undefined') {
@@ -720,11 +692,9 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
 			id: id_ENTITY_NAME
 		}
 	}).then(function(deleteObject) {
-		if (!deleteObject) {
-			data.error = 404;
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!deleteObject)
+			return res.render('common/error', {error: 404});
+
 		deleteObject.destroy().then(function() {
 			req.session.toastr = [{
 				message: 'message.delete.success',

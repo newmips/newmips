@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-// Datalist
 const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_inline_help');
 const options = require('../models/options/e_inline_help');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
 const component_helper = require('../utils/component_helper');
 const globalConfig = require('../config/global');
@@ -18,12 +14,7 @@ const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const moment = require("moment");
 const SELECT_PAGE_SIZE = 10;
-
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
-// Winston logger
-const logger = require('../utils/logger');
 
 router.get('/help/:entity/:field', function(req, res) {
 	models.E_inline_help.findOne({
@@ -45,7 +36,7 @@ router.get('/list', block_access.actionAccessMiddleware("inline_help", "read"), 
 router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
 	filterDataTable("E_inline_help", req.body).then(function(rawData) {
 		entity_helper.prepareDatalistResult('e_inline_help', rawData, req.session.lang_user).then(function(preparedData) {
-			const language = require('../services/language')(req.session.lang_user);
+			const language = require('../services/language')(req.session.lang_user); // eslint-disable-line
 
 			for (let i = 0; i < preparedData.data.length; i++) {
 				const row = preparedData.data[i];
@@ -58,12 +49,10 @@ router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "rea
 			res.send(preparedData).end();
 		}).catch(function(err) {
 			console.error(err);
-			logger.debug(err);
 			res.end();
 		});
 	}).catch(function(err) {
 		console.error(err);
-		logger.debug(err);
 		res.end();
 	});
 });
@@ -78,12 +67,12 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "
 	const doPagination = req.query.paginate;
 
 	// Build array of fields for include and search object
-	const isGlobalSearch = req.body.search.value == "" ? false : true;
+	const isGlobalSearch = req.body.search.value != "";
 	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
-	for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+	for (let i = 0, columns = req.body.columns; i < columns.length; i++) {
 		if (columns[i].searchable == 'false')
 			continue;
 
@@ -99,16 +88,16 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "
 		if (isGlobalSearch)
 			search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
 	}
-	for (var i = 0; i < req.body.columns.length; i++)
+	for (let i = 0; i < req.body.columns.length; i++)
 		if (req.body.columns[i].searchable == 'true')
 			toInclude.push(req.body.columns[i].data);
 	// Get sequelize include object
 	const subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
 	// ORDER BY
-	let order, stringOrder = req.body.columns[req.body.order[0].column].data;
+	const stringOrder = req.body.columns[req.body.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
-	order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
+	const order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
 	const include = {
 		model: models[subentityModel],
@@ -153,7 +142,6 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "
 				res.send(preparedData).end();
 			}).catch(function(err) {
 				console.error(err);
-				logger.debug(err);
 				res.end();
 			});
 		});
@@ -173,11 +161,8 @@ router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), 
 		data.hideButton = req.query.hideButton;
 
 	entity_helper.optimizedFindOne('E_inline_help', id_e_inline_help, options).then(function(e_inline_help) {
-		if (!e_inline_help) {
-			data.error = 404;
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_inline_help)
+			return res.render('common/error', {error: 404});
 
 		/* Update local e_inline_help data before show */
 		const entity = e_inline_help.f_entity;
@@ -384,11 +369,9 @@ router.post('/update', block_access.actionAccessMiddleware("inline_help", "updat
 			id: id_e_inline_help
 		}
 	}).then(function(e_inline_help) {
-		if (!e_inline_help) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_inline_help)
+			return res.render('common/error', {error: 404});
+
 		component_helper.address.updateAddressIfComponentExists(e_inline_help, options, req.body);
 		e_inline_help.update(updateObject).then(function() {
 
@@ -424,7 +407,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 	// Find tab option
 	let option;
 	for (let i = 0; i < options.length; i++)
-		if (options[i].as == req.params.alias) {
+		if (options[i].as == alias) {
 			option = options[i];
 			break;
 		}
@@ -455,10 +438,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 		if (!e_inline_help)
 			return res.status(404).end();
 
-		let dustData = e_inline_help[option.as] || null;
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
-		var subentityOptions = [];
+		let dustData = e_inline_help[option.as] || null, dustFile, idSubentity, subentityOptions = [], obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
 
 		// Default value
 		option.noCreateBtn = false;
@@ -473,12 +454,12 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var subentityOptions = require('../models/options/' + option.target);
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
 							(function(alias) {
-								promisesData.push(new Promise(function(resolve, reject) {
+								promisesData.push(new Promise((resolve, reject) => {
 									dustData[alias].getR_children({
 										include: [{
 											model: models.E_group,
@@ -487,7 +468,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 									}).then(function(children) {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}));
 							})(subentityOptions[i].as);
 				}
@@ -513,8 +494,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
@@ -524,15 +504,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 					dustData.associationUrl = req.query.associationUrl;
 				}
 				dustData.for = 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 
 				break;
 
 			case 'localfilestorage':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
+				obj = {[option.target]: dustData};
 				dustData = obj;
 				dustData.sourceId = id;
 				break;
@@ -542,13 +521,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData) {
+		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
 			// Image buffer promise
-			Promise.all(promisesData).then(function() {
+			Promise.all(promisesData).then(_ => {
 				// Open and render dust file
 				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
 				dust.insertLocalsFn(dustData ? dustData : {}, req);
-				dust.renderSource(file, dustData || {}, function(err, rendered) {
+				dust.renderSource(file, dustData || {}, (err, rendered) => {
 					if (err) {
 						console.error(err);
 						return res.status(500).end();
@@ -579,7 +558,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 router.get('/set_status/:id_inline_help/:status/:id_new_status', block_access.actionAccessMiddleware("inline_help", "read"), block_access.statusGroupAccess, function(req, res) {
 	status_helper.setStatus('e_inline_help', req.params.id_inline_help, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
 		res.redirect(req.headers.referer);
-	}).catch((err)=> {
+	}).catch(err => {
+		console.error(err);
 		entity_helper.error(err, req, res, '/inline_help/show?id=' + req.params.id_inline_help, "e_inline_help");
 	});
 });
@@ -640,20 +620,17 @@ router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'
 					// We only add where condition on key that are standard hasMany relation, not belongsToMany association
 					if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany"){
 						// Where on include managment if fk
-						if(param.indexOf(".") != -1){
+						if(param.indexOf(".") != -1)
 							where.where["$"+param+"$"] = req.body.customwhere[param];
-						} else {
+						else
 							where.where[param] = req.body.customwhere[param];
-						}
 					}
 				}
-			} else {
-				if(param.indexOf(".") != -1){
-					where.where["$"+param+"$"] = req.body.customwhere[param];
-				} else {
-					where.where[param] = req.body.customwhere[param];
-				}
 			}
+			else if (param.indexOf(".") != -1)
+				where.where["$"+param+"$"] = req.body.customwhere[param];
+			else
+				where.where[param] = req.body.customwhere[param];
 		}
 	}
 
@@ -665,7 +642,7 @@ router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'
 	// where.include = [{model: models.E_myentity, as: "r_myentity"}]
 
 	models.E_inline_help.findAndCountAll(where).then(function(results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes)
 			for (let i = 0; i < results.rows.length; i++)
@@ -679,6 +656,8 @@ router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'
 							case "datetime":
 								if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
 									results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 
@@ -697,16 +676,12 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inli
 		where: {
 			id: idEntity
 		}
-	}).then(function(e_inline_help) {
-		if (!e_inline_help) {
-			const data = {
-				error: 404
-			};
-			return res.render('common/error', data);
-		}
+	}).then(e_inline_help => {
+		if (!e_inline_help)
+			return res.render('common/error', {error: 404});
 
 		// Get all associations
-		e_inline_help['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(aliasEntities => {
+		e_inline_help['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(_ => {
 
 			if(globalConfig.env == "tablet"){
 				let target = "";
@@ -740,13 +715,8 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_
 			id: idEntity
 		}
 	}).then(function(e_inline_help) {
-		if (!e_inline_help) {
-			const data = {
-				error: 404
-			};
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!e_inline_help)
+			return res.render('common/error', {error: 404});
 
 		let toAdd;
 		if (typeof(toAdd = req.body.ids) === 'undefined') {
@@ -775,11 +745,9 @@ router.post('/delete', block_access.actionAccessMiddleware("inline_help", "delet
 			id: id_e_inline_help
 		}
 	}).then(function(deleteObject) {
-		if (!deleteObject) {
-			data.error = 404;
-			logger.debug("No data entity found.");
-			return res.render('common/error', data);
-		}
+		if (!deleteObject)
+			return res.render('common/error', {error: 404});
+
 		deleteObject.destroy().then(function() {
 			req.session.toastr = [{
 				message: 'message.delete.success',

@@ -69,7 +69,7 @@
 	"scripts": {
 		"test": "mocha",
 		"start": "node ./server",
-		"lint": "reset;eslint ./;"
+        "lint": "reset;eslint ./;"
 	},
 	"devDependencies": {
 		"eslint": "^6.6.0"
