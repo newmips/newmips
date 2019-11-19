@@ -80,7 +80,7 @@ exports.dropFKMultipleDataField = async (data) => {
 
 exports.dropTable = async (appName, table_name) => {
 	delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
-	const workspaceModels = require('../workspace/' + appName + '/models/').sequelize;
+	const workspaceModels = require('../workspace/' + appName + '/models/').sequelize; // eslint-disable-line
 
 	return await workspaceModels.query(`DROP TABLE ${table_name};`);
 }
@@ -111,7 +111,7 @@ exports.getDatabaseSQLType = async(params) => {
 
 exports.retrieveWorkspaceHasManyData = async (appName, entity, foreignKey) => {
 	delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
-	const workspaceModels = require('../workspace/' + appName + '/models/');
+	const workspaceModels = require('../workspace/' + appName + '/models/'); // eslint-disable-line
 	const where = {};
 	where[foreignKey] = {
 		[workspaceModels.$ne]: null
