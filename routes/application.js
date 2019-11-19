@@ -249,7 +249,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		/* Add instruction in chat */
 		setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
 
-		const {__} = require("../services/language")(req.session.lang_user);
+		const {__} = require("../services/language")(req.session.lang_user); // eslint-disable-line
 
 		// Executing instruction
 		data = await execute(req, instruction, __, data);
@@ -473,7 +473,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 });
 
 router.post('/delete', block_access.isLoggedIn, (req, res) => {
-	const {__} = require("../services/language")(req.session.lang_user);
+	const {__} = require("../services/language")(req.session.lang_user); // eslint-disable-line
 	execute(req, "delete application " + req.body.appName, __).then(_ => {
 		res.status(200).send(true);
 	}).catch(err => {
@@ -645,11 +645,11 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 	instructions.push("select module home");
 
 	// Needed for translation purpose
-	const {__} = require("../services/language")(req.session.lang_user);
+	const {__} = require("../services/language")(req.session.lang_user); // eslint-disable-line
 
 	(async () => {
 		for (let i = 0; i < instructions.length; i++) {
-			await execute(req, instructions[i], __, {}, false);
+			await execute(req, instructions[i], __, {}, false); // eslint-disable-line
 			pourcent_generation[req.session.passport.user.id] = i == 0 ? 1 : Math.floor(i * 100 / instructions.length);
 		}
 		metadata.getApplication(req.session.app_name).save();
@@ -694,7 +694,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 		let infoText = '';
 
 		(async() => {
-			const {__} = require("../services/language")(req.session.lang_user);
+			const {__} = require("../services/language")(req.session.lang_user); // eslint-disable-line
 
 			// Generate standard app
 			const data = await execute(req, "add application " + req.body.appName, __);
@@ -713,7 +713,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			// Looping first time to find metadata.json to get old app name
 			for (const item in zip.files)
 				if(item.indexOf('metadata.json') != -1) {
-					let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer');
+					let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer'); // eslint-disable-line
 					metadataContent = JSON.parse(metadataContent);
 					oldAppName = Object.keys(metadataContent)[0];
 					appRegex = new RegExp(oldAppName, 'g');
@@ -772,7 +772,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			fs.writeFileSync(sqlFilePath, req.files['sqlfile'][0].buffer);
 
 			// Getting workspace DB conf
-			const dbConfig = require(workspacePath + '/config/database');
+			const dbConfig = require(workspacePath + '/config/database'); // eslint-disable-line
 
 			const cmd = "mysql";
 			const cmdArgs = [

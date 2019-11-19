@@ -41,7 +41,7 @@ async function addTab(data, file, newLi, newTabContent, target) {
 
 	$('body').empty().append(context);
 
-	return await domHelper.write(file, $);
+	return domHelper.write(file, $);
 }
 
 // Create entity associations between the models
@@ -144,7 +144,7 @@ exports.setupEntity = async (data) => {
 	const piecesPath = __dirname + "/pieces";
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
-	let entity_name, entity_url;
+	let entity_name, entity_url, entity_display_name;
 	if (data.function === "createNewHasOne" || data.function === 'createNewHasMany') {
 		// Sub entity generation
 		entity_name = data.options.target;
@@ -236,40 +236,33 @@ exports.setupEntity = async (data) => {
 		$('#sortable').append(li);
 
 		// Write back to file
-		await domHelper.write(fileName, $);
+		domHelper.write(fileName, $);
 	}
 
 	// Copy CRUD view folder and customize them according to data entity properties
 	fs.copySync(piecesPath + '/views/entity', workspacePath + '/views/' + entity_name);
 	const fileBase = workspacePath + '/views/' + entity_name;
-
 	const dustFiles = ["create", "create_fields", "show", "show_fields", "update", "update_fields", "list", "list_fields"];
-	const dustPromises = [];
 
 	for (let i = 0; i < dustFiles.length; i++) {
-		dustPromises.push((async () => {
-			const fileToWrite = fileBase + '/' + dustFiles[i] + ".dust";
-			let dustContent = fs.readFileSync(fileToWrite, 'utf8');
-			dustContent = dustContent.replace(/custom_module/g, module_name);
-			dustContent = dustContent.replace(/custom_data_entity/g, entity_name);
-			dustContent = dustContent.replace(/custom_url_data_entity/g, entity_url);
+		const fileToWrite = fileBase + '/' + dustFiles[i] + ".dust";
+		let dustContent = fs.readFileSync(fileToWrite, 'utf8');
+		dustContent = dustContent.replace(/custom_module/g, module_name);
+		dustContent = dustContent.replace(/custom_data_entity/g, entity_name);
+		dustContent = dustContent.replace(/custom_url_data_entity/g, entity_url);
 
-			if (module_name != "m_home") {
-				const htmlToAdd = "" +
-					"<li>" +
-					"   <a class='sub-module-arianne' href='/default/" + module_name.substring(2) + "'>" +
-					"	   <!--{#__ key=\"module." + module_name + "\"/}-->" +
-					"   </a>" +
-					"</li>";
+		if (module_name != "m_home") {
+			const htmlToAdd = "" +
+				"<li>" +
+				"   <a class='sub-module-arianne' href='/default/" + module_name.substring(2) + "'>" +
+				"	   <!--{#__ key=\"module." + module_name + "\"/}-->" +
+				"   </a>" +
+				"</li>";
 
-				dustContent = dustContent.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
-			}
-
-			return fs.writeFileSync(fileToWrite, dustContent, "utf8");
-		})())
+			dustContent = dustContent.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
+		}
+		return fs.writeFileSync(fileToWrite, dustContent, "utf8");
 	}
-
-	await Promise.all(dustPromises);
 
 	// Write new data entity to access.json file, within module's context
 	const accessPath = workspacePath + '/config/access.json';
@@ -336,7 +329,7 @@ exports.deleteDataEntity = async (data) => {
 
 	$("#" + data.entity.name.substring(2) + '_menu_item').remove();
 
-	await domHelper.write(filePath, $);
+	domHelper.write(filePath, $);
 
 	translateHelper.removeLocales(data.application.name, "entity", data.entity.name)
 	return true;
@@ -382,7 +375,6 @@ exports.setupHasManyTab = async (data) => {
 
 exports.setupHasManyPresetTab = async (data) => {
 
-	const target = data.options.target;
 	const source = data.options.source;
 	const urlSource = data.options.urlSource;
 	const foreignKey = data.options.foreignKey;
@@ -475,7 +467,7 @@ exports.deleteTab = async (data) => {
 	const tabNameWithoutPrefix = data.options.urlValue;
 	let target;
 
-	const workspacePath =  __dirname + '/../workspace/' + data.application.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
 
 	const options = JSON.parse(fs.readFileSync(jsonPath));
@@ -539,7 +531,7 @@ exports.deleteTab = async (data) => {
 	if ($(".tab-content .tab-pane").length == 1)
 		$("#tabs").replaceWith($("#home").html());
 
-	await domHelper.write(showFile, $);
+	domHelper.write(showFile, $);
 
 	return {
 		fk: option.foreignKey,

@@ -1,14 +1,10 @@
 const fs = require('fs-extra');
 const crypto = require("crypto");
-const models = require('../models/');
-const admzip = require('adm-zip');
-const moment = require('moment');
-const exec = require('child_process').exec;
 const path = require('path');
 
 function rmdirSyncRecursive(path) {
 	if (fs.existsSync(path)) {
-		fs.readdirSync(path).forEach(function (file, index) {
+		fs.readdirSync(path).forEach(file => {
 			const curPath = path + "/" + file;
 			if (fs.lstatSync(curPath).isDirectory()) {
 				// recurse
@@ -31,15 +27,13 @@ function compare(a, b) {
 }
 
 function sortEditorFolder(workspaceFolder) {
-	//console.log(workspaceFolder);
-
 	const underArray = [];
 	const fileArray = [];
-	const answer = [];
 
 	if (!workspaceFolder)
 		return [];
-	workspaceFolder.forEach(function (file, index) {
+
+	workspaceFolder.forEach(file => {
 		if (typeof file.under !== "undefined") {
 			file.under = sortEditorFolder(file.under);
 			underArray.push(file);
@@ -50,7 +44,6 @@ function sortEditorFolder(workspaceFolder) {
 
 	underArray.sort(compare);
 	fileArray.sort(compare);
-
 	return underArray.concat(fileArray);
 }
 
@@ -60,63 +53,29 @@ function readdirSyncRecursive(path, excludeFolder, excludeFile) {
 		if (path.substr(path.length - 1) == "/") {
 			path = path.slice(0, -1);
 		}
-		fs.readdirSync(path).forEach(function (file, index) {
+		let obj;
+		fs.readdirSync(path).forEach(file => {
 			const curPath = path + "/" + file;
 			const splitPath = curPath.split("/");
 			if (excludeFolder.indexOf(file) == -1) {
 				if (fs.lstatSync(curPath).isDirectory()) {
-					var obj = {
+					obj = {
 						title: splitPath[splitPath.length - 1],
 						under: readdirSyncRecursive(curPath, excludeFolder, excludeFile)
 					}
 					workspace.push(obj);
-				} else {
-					if (excludeFile.indexOf(splitPath[splitPath.length - 1]) == -1) {
-						var obj = {
-							title: splitPath[splitPath.length - 1],
-							path: curPath
-						}
-						workspace.push(obj);
+				} else if (excludeFile.indexOf(splitPath[splitPath.length - 1]) == -1) {
+					obj = {
+						title: splitPath[splitPath.length - 1],
+						path: curPath
 					}
+					workspace.push(obj);
 				}
 			}
 		});
 
 		return workspace;
 	}
-}
-
-function unzipSync(url, folder, entry) {
-	const tmpFilename = moment().format('YY-MM-DD-HH_mm_ss')+"_template_archive.zip";
-	const tmpPath = __dirname+'/../upload/'+tmpFilename;
-	const file = fs.createWriteStream(tmpPath);
-
-	const cmd = 'wget -O ' + tmpPath + ' ' + url;
-	exec(cmd, function (error, stdout, stderr) {
-
-		if (error !== null) {
-			console.log('exec error: ' + error);
-		}
-		const zip = new admzip(tmpPath);
-		zip.extractAllTo(folder);
-		// zip.extractEntryTo(entry, folder, /*maintainEntryPath*/false, /*overwrite*/true);
-
-		const cmd1 = 'cp -r ' + folder + entry + '-master/* ' + folder;
-		exec(cmd1, function (err, stdo, stde) {
-			if (err !== null) {
-				console.log('exec error: ' + err);
-			}
-
-			const cmd2 = 'rm -r ' + folder + entry + '-master';
-			exec(cmd2, function (err2, stdo2, stde2) {
-				if (err2 !== null) {
-					console.log('exec error: ' + err2);
-				}
-				return true;
-			});
-		});
-
-	});
 }
 
 // Returns a flat array of absolute paths of all files recursively contained in the dir
@@ -137,23 +96,6 @@ function buildZipFromDirectory(dir, zip, root) {
 }
 
 module.exports = {
-	queuedPromises: function queuedAll(headPromises) {
-		return new Promise(function(headResolve, headReject) {
-			const returnedValues = [];
-			function execPromise(promises, idx) {
-				if (!promises[idx])
-					return headResolve(returnedValues);
-				promises[idx].then(function(returnedValue) {
-					returnedValues.push({done: true, value: returnedValue});
-					execPromise(promises, idx+1);
-				}).catch(function(err) {
-					returnedValues.push({done: false, value: err});
-					execPromise(promises, idx+1);
-				});
-			}
-			execPromise(headPromises, 0);
-		})
-	},
 	encrypt: function (text) {
 		const cipher = crypto.createCipher('aes-256-cbc', 'd6F3Efeq');
 		let crypted = cipher.update(text, 'utf8', 'hex');
@@ -188,8 +130,7 @@ module.exports = {
 			return fs.readFileSync(path, 'utf8');
 		} catch (err) {
 			console.error(err);
-			error = new Error();
-			error.message = "Sorry, file not found";
+			throw new Error('Sorry, file not found');
 		}
 	},
 	getDatalistStructure: function (options, attributes, mainEntity, idApplication) {
@@ -209,7 +150,7 @@ module.exports = {
 		/* Then get attributes from other entity associated to main entity */
 		for (let j = 0; j < options.length; j++) {
 			if (options[j].relation.toLowerCase() == "hasone" || options[j].relation.toLowerCase() == "belongsto") {
-				const currentAttributes = require(__dirname + '/../workspace/' + idApplication + '/models/attributes/' + options[j].target);
+				const currentAttributes = require(__dirname + '/../workspace/' + idApplication + '/models/attributes/' + options[j].target); // eslint-disable-line
 				for (const currentAttr in currentAttributes) {
 					structureDatalist.push({
 						field: currentAttr,
@@ -239,6 +180,5 @@ module.exports = {
 	rmdirSyncRecursive: rmdirSyncRecursive,
 	readdirSyncRecursive: readdirSyncRecursive,
 	sortEditorFolder: sortEditorFolder,
-	unzipSync: unzipSync,
 	buildZipFromDirectory: buildZipFromDirectory
 }

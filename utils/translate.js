@@ -1,6 +1,7 @@
 const fs = require('fs');
 const helpers = require("./helpers");
-// Google translation
+
+// Google translate
 const translateKey = require("../config/googleAPI").translate;
 const googleTranslate = require('google-translate')(translateKey);
 
@@ -70,9 +71,7 @@ module.exports = {
 		const appLang4Google = appLang.slice(0, -3);
 
 		// Get all the differents languages to handle
-		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(function(file) {
-			return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
-		});
+		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file != "enum_radio.json");
 
 		function addLocal(type, data, lang, value) {
 			switch(type) {
@@ -94,6 +93,8 @@ module.exports = {
 							break;
 						case 'group':
 							value = lang == 'fr-FR' ? 'Groupe' : 'Group';
+							break;
+						default:
 							break;
 					}
 					data.entity[keyValue] = {
@@ -127,6 +128,8 @@ module.exports = {
 						case 'label':
 							value = lang == "fr-FR" ? "Libellé" : "Label";
 							break;
+						default:
+							break;
 					}
 					data.entity[keyValue][keyValueField] = value;
 					break;
@@ -147,8 +150,12 @@ module.exports = {
 						case 'label':
 							value = lang == "fr-FR" ? "Libellé" : "Label";
 							break;
+						default:
+							break;
 					}
 					data.entity[keyValue][alias] = value;
+					break;
+				default:
 					break;
 			}
 			return data;
@@ -156,7 +163,7 @@ module.exports = {
 
 		const promises = [];
 		for (let i = 0; i < localesDir.length; i++) {
-			promises.push(new Promise((resolve, reject) => {
+			promises.push(new Promise(resolve => {
 				const file = localesDir[i];
 				const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
 				let dataLocales;
@@ -203,14 +210,12 @@ module.exports = {
 	},
 	removeLocales: (appName, type, value) => {
 		// Get all the differents languages to handle
-		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => {
-			return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
-		});
+		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file != "enum_radio.json");
 
 		localesDir.forEach(file => {
 			const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
 			delete require.cache[require.resolve(urlFile)];
-			const dataLocales = require(urlFile);
+			const dataLocales = require(urlFile); // eslint-disable-line
 
 			if (type == "field")
 				delete dataLocales.entity[value[0]][value[1]];
@@ -235,10 +240,8 @@ module.exports = {
 					depth[keys[i]] = value;
 				else
 					depth = depth[keys[i]];
-			} else {
-				if (i + 1 == keys.length)
-					depth[keys[i]] = value;
-			}
+			} else if (i + 1 == keys.length)
+				depth[keys[i]] = value;
 		}
 		fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
 	}

@@ -71,7 +71,7 @@ router.post('/reset_password', block_access.isLoggedIn, function(req, res) {
 			}
 		}).then(_ => {
 			// Send email with generated token
-			mail.sendMail_Reset_Password({
+			mail.sendMailResetPassword({
 				mail_user: email,
 				token: token
 			}).then(_ => {

@@ -4,21 +4,18 @@ const psTree = require('ps-tree');
 const fs = require("fs-extra");
 const path = require('path');
 const request = require('request');
-
 const AnsiToHTML = require('ansi-to-html');
 const ansiToHtml = new AnsiToHTML();
 const moment = require('moment');
-
-let process_server = null;
 const childsUrlsStorage = {};
-const process_server_per_app = new Array();
+const process_server_per_app = [];
+let process_server = null;
 
 function setDefaultChildUrl(sessionID, appName){
 	if(typeof childsUrlsStorage[sessionID] === "undefined")
 		childsUrlsStorage[sessionID] = {};
-
 	if(typeof childsUrlsStorage[sessionID][appName] === "undefined")
-		url = "";
+		childsUrlsStorage[sessionID][appName] = "";
 }
 
 function setChildUrl(sessionID, appName, url){
@@ -64,7 +61,7 @@ exports.launchChildProcess = function(req, appName, env) {
 		console.log('\x1b[31m%s\x1b[0m', 'Err '+appName+' '+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+': ' + data.replace(/(.*)\n*$/, '$1'));
 	});
 
-	process_server.on('close', function(code) {
+	process_server.on('close', _ => {
 		console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
 	});
 
@@ -78,14 +75,14 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 	if (new Date().getTime() - initialTimestamp > timeoutServer)
 		throw new Error('preview.server_timeout');
 
-	const rejectUnauthorized = globalConf.env == 'cloud' ? true : false;
+	const rejectUnauthorized = globalConf.env == 'cloud';
 
-	await new Promise((resolve, reject) => {
+	await new Promise((resolve) => {
 		request({
 			rejectUnauthorized: rejectUnauthorized,
 			url: iframe_url,
 			method: "GET"
-		}, (err, response, body) => {
+		}, (err, response) => {
 			// Check for error
 			if (err && err.code == 'ECONNREFUSED')
 				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
@@ -104,11 +101,11 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 }
 exports.checkServer = checkServer;
 
-exports.childUrl = function(req, appID) {
+exports.childUrl = (req, appID) => {
 
 	setDefaultChildUrl(req.sessionID, req.session.app_name);
 
-	let url =  globalConf.protocol_iframe + '://';
+	let url = globalConf.protocol_iframe + '://';
 	if (globalConf.env == 'cloud')
 		url += globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.app_name];
 	else
@@ -118,50 +115,49 @@ exports.childUrl = function(req, appID) {
 }
 
 const cp = require('child_process');
-exports.killChildProcess = (pid) => {
-	return new Promise((resolve, reject) => {
+exports.killChildProcess = (pid) => new Promise(resolve => {
+	console.log("Killed child process was called : " + pid);
+	// OS is Windows
+	const isWin = /^win/.test(process.platform);
+	if (isWin) {
+		// **** Commands that works fine on WINDOWS ***
+		cp.exec('taskkill /PID ' + process_server.pid + ' /T /F', err => {
+			if(err)
+				console.error(err);
+			console.log("Killed child process");
+			exports.process_server = null;
+			resolve();
+		});
+	} else {
+		/* Kill all the differents child process */
+		const killTree = true;
+		if (killTree) {
+			psTree(pid, function(err, children) {
+				if(err)
+					console.error(err);
 
-		console.log("Killed child process was called : " + pid);
+				const pidArray = [pid].concat(children.map(p => p.PID));
 
-		// OS is Windows
-		const isWin = /^win/.test(process.platform);
-		if (isWin) {
-			// **** Commands that works fine on WINDOWS ***
-			cp.exec('taskkill /PID ' + process_server.pid + ' /T /F', function(error, stdout, stderr) {
-				console.log("Killed child process");
-				exports.process_server = null;
+				for (let i = 0; i < pidArray.length; i++) {
+					try {
+						console.log("TPID : " + pidArray[i]);
+						process.kill(pidArray[i], 'SIGKILL');
+					} catch(err) {
+						console.error("Cannot kill process with pid " + pidArray[i]);
+					}
+				}
 				resolve();
 			});
 		} else {
-			/* Kill all the differents child process */
-			const killTree = true;
-			if (killTree) {
-				psTree(pid, function(err, children) {
-					const pidArray = [pid].concat(children.map(function(p) {
-						return p.PID;
-					}));
-
-					for (let i = 0; i < pidArray.length; i++) {
-						try {
-							console.log("TPID : " + pidArray[i]);
-							process.kill(pidArray[i], 'SIGKILL');
-						} catch(err) {
-							console.error("Cannot kill process with pid " + pidArray[i]);
-						}
-					}
-					resolve();
-				});
-			} else {
-				try {
-					/* Kill just one child */
-					process.kill(pid, 'SIGKILL');
-				} catch(err) {
-					console.error("Cannot kill process with pid " + pid);
-				}
-				resolve();
+			try {
+				/* Kill just one child */
+				process.kill(pid, 'SIGKILL');
+			} catch(err) {
+				console.error("Cannot kill process with pid " + pid);
 			}
+			resolve();
 		}
-	})
-}
+	}
+})
 
 module.exports = exports;

@@ -1,10 +1,7 @@
 const globalConfig = require('../config/global.js');
-const gitlabConfig = require('../config/gitlab.js');
-
-const request = require('request');
 const fs = require("fs-extra");
 
-exports.createApplicationDns = async (appName, appID) => {
+exports.createApplicationDns = (appName, appID) => {
 
 	// Checking if traefik rules folder config exist
 	if(typeof globalConfig.server_ip === "undefined" || !globalConfig.server_ip || globalConfig.server_ip == "")

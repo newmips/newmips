@@ -390,7 +390,7 @@ function executeFile(req, userID, __) {
 
 			// Mandatory instructions are done, then init application before continuing
 			if(i == mandatoryInstructions.length + 1) {
-				await structure_application.initializeApplication(data.application);
+				await structure_application.initializeApplication(data.application); // eslint-disable-line
 				// Write source script in generated workspace
 				const historyPath = __dirname + '/../workspace/' + data.application.name + "/history_script.nps";
 				let instructionsToWrite = fileLines.slice().splice(mandatoryInstructions.length + 2).join("\n");
@@ -399,7 +399,7 @@ function executeFile(req, userID, __) {
 			}
 
 			try {
-				data = await execute(req, fileLines[i], __, data, false);
+				data = await execute(req, fileLines[i], __, data, false); // eslint-disable-line
 			} catch(err) {
 				// Update script logs
 				scriptData[userID].answers.unshift({
@@ -420,8 +420,8 @@ function executeFile(req, userID, __) {
 		}
 
 		// Workspace sequelize instance
-		delete require.cache[require.resolve(__dirname + '/../workspace/' + data.application.name + '/models/')];
-		const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/');
+		delete require.cache[require.resolve(__dirname + '/../workspace/' + data.application.name + '/models/')]; // eslint-disable-line
+		const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/'); // eslint-disable-line
 
 		// We need to clear toSync.json
 		const toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
@@ -473,7 +473,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
 }).single('instructions'), (req, res) => {
 
 	const userID = req.session.passport.user.id;
-	const __ = require("../services/language")(req.session.lang_user).__;
+	const __ = require("../services/language")(req.session.lang_user).__; // eslint-disable-line
 
 	// Init scriptData object for user. (session simulation)
 	scriptData[userID] = {
@@ -523,7 +523,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
 router.post('/execute_alt', block_access.isLoggedIn, function(req, res) {
 
 	const userID = req.session.passport.user.id;
-	const __ = require("../services/language")(req.session.lang_user).__;
+	const __ = require("../services/language")(req.session.lang_user).__; // eslint-disable-line
 
 	// Init scriptData object for user. (session simulation)
 	scriptData[userID] = {

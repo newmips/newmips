@@ -15,7 +15,7 @@
 	},
 	"rules": {
 		"array-callback-return": "error",
-		"arrow-body-style": ["error", "as-needed"],
+		"arrow-body-style": ["error", "as-needed", { "requireReturnForObjectLiteral": true }],
 		"block-scoped-var": "error",
 		"brace-style": 0,
 		"comma-spacing": ["error", {

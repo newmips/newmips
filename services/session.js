@@ -1,14 +1,11 @@
-const fs = require('fs-extra');
-const globalConf = require("../config/global.js");
-const gitHelper = require("../utils/git_helper");
 const language = require("../services/language");
 const metadata = require('../database/metadata')();
 
 // Get
-exports.getSession = (req) => {
-	let application, np_module, entity;
-	application = metadata.getApplication(req.session.app_name);
-	np_module = application.getModule(req.session.module_name);
+exports.getSession = req => {
+	let entity;
+	const application = metadata.getApplication(req.session.app_name);
+	const np_module = application.getModule(req.session.module_name);
 	if(req.session.entity_name)
 		entity = np_module.getEntity(req.session.entity_name);
 	return {
@@ -28,7 +25,7 @@ exports.getSession = (req) => {
 }
 
 // Set session in POST application
-exports.setSession = function(npFunction, req, info, data) {
+exports.setSession = (npFunction, req, info, data) => {
 
 	let iframeUrl;
 	switch(npFunction){
@@ -89,66 +86,17 @@ exports.setSession = function(npFunction, req, info, data) {
 			if(req.session.entity_name == info.entity.name)
 				req.session.entity_name = null;
 			break;
+		default:
+			req.session.app_name = null;
+			req.session.module_name = null;
+			req.session.entity_name = null;
+			break;
 	}
 	return data;
 }
 
-// Set session for the instruction script
-exports.setSessionForInstructionScript = function(attrFunction, userArray, info) {
-
-	switch(attrFunction){
-		case "selectProject":
-		case "createNewProject":
-			userArray.ids.id_project = info.insertId;
-			userArray.ids.id_application = null;
-			userArray.ids.id_module = null;
-			userArray.ids.id_data_entity = null;
-			break;
-		case "selectApplication":
-		case "createNewApplication":
-			userArray.ids.id_application = info.insertId;
-			userArray.name_application = info.name_application;
-			userArray.ids.id_module = null;
-			userArray.ids.id_data_entity = null;
-			break;
-		case "selectModule":
-		case "createNewModule":
-			userArray.ids.id_module = info.insertId;
-			userArray.ids.id_data_entity = null;
-			break;
-		case "selectEntity":
-			userArray.ids.id_data_entity = info.insertId;
-			userArray.ids.id_module = info.moduleId;
-			break;
-		case "createNewEntity":
-		case "selectEntity":
-		case "createNewEntityWithBelongsTo":
-		case "createNewEntityWithHasMany":
-		case "createNewBelongsTo":
-		case "createNewHasMany":
-		case "createNewFieldRelatedTo":
-			userArray.ids.id_data_entity = info.insertId;
-			break;
-		case "deleteProject":
-			userArray.ids.id_project = null;
-			userArray.ids.id_application = null;
-			userArray.ids.id_module = null;
-			userArray.ids.id_data_entity = null;
-			break;
-		case "deleteApplication":
-			userArray.ids.id_application = null;
-			userArray.ids.id_module = null;
-			userArray.ids.id_data_entity = null;
-			break;
-		case "deleteModule":
-			userArray.ids.id_module = info.homeID;
-			userArray.ids.id_data_entity = null;
-			break;
-	}
-}
-
 // Set session only in a given obj
-exports.setSessionObj = function(data, info) {
+exports.setSessionObj = (data, info) => {
 
 	switch(data.function){
 		case "selectApplication":
@@ -178,6 +126,11 @@ exports.setSessionObj = function(data, info) {
 			break;
 		case "deleteModule":
 			data.module_name = info.homeID;
+			data.entity_name = null;
+			break;
+		default:
+			data.app_name = null;
+			data.module_name = null;
 			data.entity_name = null;
 			break;
 	}

@@ -10,7 +10,6 @@ const structure_component = require("../structure/structure_component");
 const structure_ui = require("../structure/structure_ui");
 
 // Utils
-const helpers = require("../utils/helpers");
 const dataHelper = require("../utils/data_helper");
 const gitHelper = require("../utils/git_helper");
 
@@ -33,12 +32,12 @@ const Application = require('../database/application');
 // Execute an array of newmips instructions
 exports.recursiveInstructionExecute = async (recursiveData, instructions, idx) => {
 	const exportsContext = this;
-	// Create the attr obj
+	// Create the data obj
 	let data = bot.parse(instructions[idx]);
 	if (data.error)
 		throw data.error;
 
-	// Rework the attr obj
+	// Rework the data obj
 	data = dataHelper.reworkData(data);
 
 	data.application = recursiveData.application;
@@ -56,7 +55,7 @@ exports.recursiveInstructionExecute = async (recursiveData, instructions, idx) =
 	return await exportsContext.recursiveInstructionExecute(data, instructions, idx);
 }
 
-exports.help = async (data) => {
+exports.help = async _ => { // eslint-disable-line
 	return {
 		message: "botresponse.help",
 		restartServer: false
@@ -75,14 +74,14 @@ exports.deploy = async (data) => {
 	return await cloud_manager.deploy(data);
 }
 
-exports.restart = async (data) => {
+exports.restart = async _ => { // eslint-disable-line
 	return {
 		message: "structure.global.restart.success"
 	};
 }
 
 exports.installNodePackage = async (data) => {
-	await structure_application.installAppModules(attr);
+	await structure_application.installAppModules(data);
 	return {
 		message: "structure.global.npmInstall.success"
 	};
@@ -109,7 +108,7 @@ exports.gitPull = async (data) => {
 }
 
 exports.gitCommit = async (data) => {
-	await gitHelper.gitCommit(attr);
+	await gitHelper.gitCommit(data);
 	return {
 		message: "structure.global.gitCommit.success",
 		restartServer: false
@@ -117,7 +116,7 @@ exports.gitCommit = async (data) => {
 }
 
 exports.gitStatus = async (data) => {
-	await gitHelper.gitStatus(data);
+	const infoGit = await gitHelper.gitStatus(data);
 	return {
 		message: JSON.stringify(infoGit).replace(/,/g, ",<br>"),
 		restartServer: false
@@ -208,18 +207,9 @@ exports.deleteApplication = async (data) => {
 	if(sequelize.options.dialect == "mysql")
 		request = "SHOW TABLES LIKE '" + data.options.value + "_%';";
 	else if(sequelize.options.dialect == "postgres")
-		request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + id_application + "_%'";
+		request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + data.options.value + "_%'";
 
-	const results = await sequelize.query(request)
-
-	/* Calculate the length of table to drop */
-	let resultLength = 0;
-
-	for (let i = 0; i < results.length; i++) {
-		for (const prop in results[i]) {
-			resultLength++;
-		}
-	}
+	const results = await sequelize.query(request);
 
 	/* Function when all query are done */
 	request = "";
@@ -228,15 +218,12 @@ exports.deleteApplication = async (data) => {
 
 	for (let i = 0; i < results.length; i++) {
 		for (const prop in results[i]) {
-			// Postgres additionnal check
-			if(typeof results[i][prop] == "string" && results[i][prop].indexOf(id_application + "_") != -1){
-				// For each request disable foreign key checks, drop table. Foreign key check
-				// last only for the time of the request
-				if(sequelize.options.dialect == "mysql")
-					request += "DROP TABLE " + results[i][prop] + ";";
-				if(sequelize.options.dialect == "postgres")
-					request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
-			}
+			// For each request disable foreign key checks, drop table. Foreign key check
+			// last only for the time of the request
+			if(sequelize.options.dialect == "mysql")
+				request += "DROP TABLE " + results[i][prop] + ";";
+			if(sequelize.options.dialect == "postgres")
+				request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
 		}
 	}
 
@@ -262,7 +249,7 @@ exports.deleteApplication = async (data) => {
 /* --------------------------------------------------------------- */
 /* ------------------------- Module ------------------------------ */
 /* --------------------------------------------------------------- */
-exports.selectModule = async (data) => {
+exports.selectModule = async (data) => { // eslint-disable-line
 	data.module = data.application.getModule(data.options.value, true);
 	return {
 		module: data.module,
@@ -296,11 +283,10 @@ exports.createNewModule = async (data) => {
 	};
 }
 
-exports.listModule = async (data) => {
-	const info = {};
+exports.listModule = async (data) => { // eslint-disable-line
 	let listing = "<br><ul>";
 	for (let i = 0; i < data.application.modules.length; i++) {
-		listing += "<li>" + modules[i].displayName + "(" + modules[i].name + ")</li>";
+		listing += "<li>" + data.application.modules[i].displayName + "(" + data.application.modules[i].name + ")</li>";
 	}
 	listing += "</ul>";
 	return {
@@ -319,7 +305,7 @@ exports.deleteModule = async (data) => {
 
 	const promises = [];
 	for (let i = 0; i < entities.length; i++) {
-		const tmpAttr = {
+		const tmpData = {
 			application: data.application,
 			module_name: data.np_module.name,
 			options: {
@@ -328,7 +314,7 @@ exports.deleteModule = async (data) => {
 			}
 		}
 
-		promises.push(deleteDataEntity(tmpAttr));
+		promises.push(deleteDataEntity(tmpData)); // eslint-disable-line
 	}
 
 	await Promise.all(promises);
@@ -380,8 +366,7 @@ exports.createNewEntity = async (data) => {
 	};
 }
 
-exports.listEntity = async (data) => {
-	const info = {};
+exports.listEntity = async (data) => { // eslint-disable-line
 	let listing = "<br><ul>";
 	for (let i = 0; i < data.application.modules.length; i++) {
 		listing += "<li>" + data.application.modules[i].displayName + "</li>";
@@ -422,7 +407,7 @@ async function deleteDataEntity(data) {
 			if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
 				if(tmpData.options && tmpData.options.value != '' && tmpData.options.value.indexOf('r_history_') != -1){
 					const statusName = tmpData.options.value.split('r_history_')[1];
-					await deleteComponentStatus({
+					await deleteComponentStatus({ // eslint-disable-line
 						application: tmpData.application,
 						entity_name: tmpData.entity_name,
 						options: {
@@ -432,21 +417,19 @@ async function deleteDataEntity(data) {
 						}
 					})
 				} else {
-					await deleteTab(tmpData);
+					await deleteTab(tmpData); // eslint-disable-line
 				}
 			} else {
 				console.warn("WARNING - Unknown option to delete !");
 				console.warn(entityOptions[i]);
 			}
 		} else if (entityOptions[i].relation == 'belongsToMany') {
-			await database.dropTable(data.application.name, entityOptions[i].through);
+			await database.dropTable(data.application.name, entityOptions[i].through); // eslint-disable-line
 		}
 	}
 
 	// Delete relation comming from other entities
-	const files = fs.readdirSync(workspacePath + '/models/options/').filter(file => {
-		return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != data.entity.name;
-	});
+	const files = fs.readdirSync(workspacePath + '/models/options/').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.slice(0, -5) != data.entity.name);
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
@@ -462,9 +445,7 @@ async function deleteDataEntity(data) {
 				idxToRemove.push(i);
 		}
 
-		options = options.filter((val, idx, arr) => {
-			return idxToRemove.indexOf(idx) == -1
-		});
+		options = options.filter((val, idx) => idxToRemove.indexOf(idx) == -1);
 		fs.writeFileSync(workspacePath + '/models/options/' + file, JSON.stringify(options, null, 4), 'utf8')
 
 		// Loop on entity options
@@ -472,8 +453,7 @@ async function deleteDataEntity(data) {
 			if (options[i].target != data.entity.name)
 				continue;
 
-
-			const tmpAttr = {
+			const tmpData = {
 				options: {
 					value: options[i].as,
 					urlValue: options[i].as.substring(2)
@@ -483,34 +463,34 @@ async function deleteDataEntity(data) {
 				structureType: options[i].structureType
 			};
 
-			tmpAttr.entity_name = source;
+			tmpData.entity_name = source;
 			if (options[i].relation == 'hasMany') {
-				if (tmpAttr.structureType == "hasMany" || tmpAttr.structureType == "hasManyPreset") {
-					await deleteTab(tmpAttr);
+				if (tmpData.structureType == "hasMany" || tmpData.structureType == "hasManyPreset") {
+					await deleteTab(tmpData); // eslint-disable-line
 				} else {
 					console.warn("WARNING - Unknown option to delete !");
-					console.warn(tmpAttr);
+					console.warn(tmpData);
 				}
 			} else if (options[i].relation == 'belongsTo') {
-				if (tmpAttr.structureType == "relatedTo") {
-					tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-					await deleteField(tmpAttr);
-				} else if (tmpAttr.structureType == "hasOne") {
-					await deleteTab(tmpAttr);
+				if (tmpData.structureType == "relatedTo") {
+					tmpData.options.value = "f_" + tmpData.options.value.substring(2);
+					await deleteField(tmpData); // eslint-disable-line
+				} else if (tmpData.structureType == "hasOne") {
+					await deleteTab(tmpData); // eslint-disable-line
 				} else {
 					console.warn("WARNING - Unknown option to delete !");
-					console.warn(tmpAttr);
+					console.warn(tmpData);
 				}
-			} else if(options[i].relation == 'belongsToMany' && tmpAttr.structureType == "relatedToMultiple" || tmpAttr.structureType == "relatedToMultipleCheck") {
-				tmpAttr.options.value = "f_" + tmpAttr.options.value.substring(2);
-				await deleteField(tmpAttr);
+			} else if(options[i].relation == 'belongsToMany' && tmpData.structureType == "relatedToMultiple" || tmpData.structureType == "relatedToMultipleCheck") {
+				tmpData.options.value = "f_" + tmpData.options.value.substring(2);
+				await deleteField(tmpData); // eslint-disable-line
 			}
 		}
 	}
 
 	// Fake session for delete widget
 	data.entity_name = data.entity.name;
-	await deleteEntityWidgets(data);
+	await deleteEntityWidgets(data); // eslint-disable-line
 
 	database.dropDataEntity(data.application, data.entity.name);
 	data.np_module.deleteEntity(data.entity.name);
@@ -597,8 +577,7 @@ async function deleteField(data) {
 }
 exports.deleteField = deleteField;
 
-exports.listField = async (data) => {
-	const info = {};
+exports.listField = async (data) => { // eslint-disable-line
 	let listing = "<br><ul>";
 	for (let i = 0; i < data.application.modules.length; i++) {
 		listing += "<li>" + data.application.modules[i].displayName + "<ul>";
@@ -678,7 +657,7 @@ exports.setFieldKnownAttribute = async (data) => {
 		let request = "";
 
 		// Get application database, it won't be newmips if seperate DB
-		const appDBConf = require(__dirname+'/../workspace/' + data.application.name + '/config/database.js');
+		const appDBConf = require(__dirname+'/../workspace/' + data.application.name + '/config/database.js'); // eslint-disable-line
 
 		// Add or remove the unique constraint ?
 		if(sequelize.options.dialect == "mysql"){
@@ -826,14 +805,14 @@ exports.createNewHasOne = async (data) => {
 			constraints = false;
 		} else if (data.options.source != data.options.target
 				&& (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation == "hasMany")
-				&& (targetOptionsObject[i].foreignKey == data.options.foreignKey)) {
+				&& targetOptionsObject[i].foreignKey == data.options.foreignKey) {
 			// We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
 			toSync = false;
 		}
 
 		if (data.options.source != data.options.target
 				&& (targetOptionsObject[i].target == data.options.source && targetOptionsObject[i].relation == "hasMany")
-				&& (targetOptionsObject[i].foreignKey == data.options.foreignKey)) {
+				&& targetOptionsObject[i].foreignKey == data.options.foreignKey) {
 			// We avoid the toSync to append because the already existing has many relation has already created the foreing key in BDD
 			toSync = false;
 		}
@@ -955,7 +934,7 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 	structure_entity.setupAssociation(associationOptionTwo);
 
 	await structure_entity[setupFunction](data);
-	const reversedAttr = {
+	const reversedData = {
 		options: {
 			target: data.options.source,
 			source: data.options.target,
@@ -975,21 +954,21 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 	};
 
 	if (data.targetType == "hasMany") {
-		await structure_entity.setupHasManyTab(reversedAttr);
+		await structure_entity.setupHasManyTab(reversedData);
 	} else if (data.targetType == "hasManyPreset") {
-		await structure_entity.setupHasManyPresetTab(reversedAttr);
+		await structure_entity.setupHasManyPresetTab(reversedData);
 	} else if (data.targetType == "relatedToMultiple" || data.targetType == "relatedToMultipleCheckbox") {
 
 		if (typeof optionObj.usingField !== "undefined")
-			reversedAttr.options.usingField = optionObj.usingField;
+			reversedData.options.usingField = optionObj.usingField;
 
-		await structure_field.setupRelatedToMultipleField(reversedAttr);
+		await structure_field.setupRelatedToMultipleField(reversedData);
 
 		if(setRequired){
-			reversedAttr.name_data_entity = reversedAttr.options.source;
-			reversedAttr.options.value = "f_"+reversedAttr.options.urlAs;
-			reversedAttr.options.word = "required";
-			await structure_field.setRequiredAttribute(reversedAttr);
+			reversedData.name_data_entity = reversedData.options.source;
+			reversedData.options.value = "f_"+reversedData.options.urlAs;
+			reversedData.options.word = "required";
+			await structure_field.setRequiredAttribute(reversedData);
 		}
 	} else {
 		throw new Error('Unknown target type for belongsToMany generation.')
@@ -1074,7 +1053,7 @@ exports.createNewHasMany = async (data) => {
 			&& optionsObject[i].structureType != "auto_generate") {
 
 			/* Then lets create the belongs to many association */
-			await belongsToMany(data, optionsObject[i], "setupHasManyTab", exportsContext);
+			await belongsToMany(data, optionsObject[i], "setupHasManyTab", exportsContext); // eslint-disable-line
 
 			return {
 				entity: data.source_entity,
@@ -1084,7 +1063,7 @@ exports.createNewHasMany = async (data) => {
 
 		} else if (data.options.source.toLowerCase() != data.options.target.toLowerCase()
 				&& (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
-				&& (optionsObject[i].foreignKey == data.options.foreignKey)) {
+				&& optionsObject[i].foreignKey == data.options.foreignKey) {
 			// We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
 			toSync = false;
 		}
@@ -1159,7 +1138,6 @@ exports.createNewHasManyPreset = async (data) => {
 		}
 	}
 
-	const targetEntity = data.application.findEntity(data.options.target);
 	const sourceOptionsPath = workspacePath + '/models/options/' + data.options.source + '.json';
 	const optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
 
@@ -1225,7 +1203,7 @@ exports.createNewHasManyPreset = async (data) => {
 			&& targetOptions[i].structureType != "auto_generate") {
 
 			/* Then lets create the belongs to many association */
-			await belongsToMany(data, targetOptions[i], "setupHasManyPresetTab", exportsContext);
+			await belongsToMany(data, targetOptions[i], "setupHasManyPresetTab", exportsContext); // eslint-disable-line
 
 			return {
 				message: "structure.association.hasManyExisting.success",
@@ -1339,7 +1317,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 			constraints = false;
 		} else if (data.source_entity.name != data.options.target
 				&& (optionsObject[i].target == data.source_entity.name && optionsObject[i].relation == "hasMany")
-				&& (optionsObject[i].foreignKey == data.options.foreignKey)) {
+				&& optionsObject[i].foreignKey == data.options.foreignKey) {
 			// We avoid the toSync to append because the already existing has many relation has already created the foreign key in BDD
 			toSync = false;
 		}
@@ -1355,7 +1333,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 		showAs: data.options.showAs,
 		relation: "belongsTo",
 		through: null,
-		toSync: true,
+		toSync: toSync,
 		type: "relatedTo",
 		constraints: constraints
 	};
@@ -1368,7 +1346,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 		source: data.options.target,
 		target: data.source_entity.name,
 		foreignKey: data.options.foreignKey,
-		as: "r_"+data.source_entity.name.substring(2),
+		as: "r_" + data.source_entity.name.substring(2),
 		relation: "hasMany",
 		type: "auto_generate",
 		constraints: constraints
@@ -1392,7 +1370,6 @@ exports.createNewFieldRelatedTo = async (data) => {
 // Select multiple in create/show/update related to target entity
 exports.createNewFieldRelatedToMultiple = async (data) => {
 
-	const exportsContext = this;
 	const alias = data.options.as;
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
@@ -1443,7 +1420,7 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
 		if (optionsSourceObject[i].target.toLowerCase() == data.options.target.toLowerCase()) {
 			if (data.options.as == optionsSourceObject[i].as)
 				throw new Error("structure.association.error.alreadySameAlias");
-		} else if (optionsSourceObject[i].relation == "belongsToMany" && (data.options.as == optionsSourceObject[i].as)) {
+		} else if (optionsSourceObject[i].relation == "belongsToMany" && data.options.as == optionsSourceObject[i].as) {
 			throw new Error("structure.association.error.alreadySameAlias");
 		} else if(data.options.as == optionsSourceObject[i].as){
 			const err = new Error('database.field.error.alreadyExist');
@@ -1470,8 +1447,8 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
 				&& (optionsObject[i].target == data.source_entity.name
 					&& optionsObject[i].relation == "belongsTo")) {
 			// Temporary solution ! TODO: Mispy should ask if we want to link the already existing 1,1 with this new 1,n
-			if ((data.options.target.substring(2) == data.options.as.substring(2))
-					&& (optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2))) {
+			if (data.options.target.substring(2) == data.options.as.substring(2)
+					&& optionsObject[i].target.substring(2) == optionsObject[i].as.substring(2)) {
 				//&& (optionsObject[i].foreignKey == data.options.foreignKey)
 				// If alias both side are the same that their own target then it trigger the 1,1 / 1,n generation
 				data.options.foreignKey = optionsObject[i].foreignKey;
@@ -1561,8 +1538,6 @@ exports.createNewComponentStatus = async (data) => {
 
 const workspacesModels = {};
 async function deleteComponentStatus(data) {
-
-	const self = this;
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	/* If there is no defined name for the module, set the default */
@@ -1592,7 +1567,7 @@ async function deleteComponentStatus(data) {
 	const modelsPath = workspacePath + '/models/';
 	if(typeof workspacesModels[data.application.name] === 'undefined'){
 		delete require.cache[require.resolve(modelsPath)];
-		workspacesModels[data.application.name] = require(modelsPath);
+		workspacesModels[data.application.name] = require(modelsPath); // eslint-disable-line
 	}
 	const historyTableName = workspacesModels[data.application.name]['E_' + historyInfo.target.substring(2)].getTableName();
 
@@ -1765,9 +1740,6 @@ exports.createNewComponentAgenda = async (data) => {
 
 	if(data.np_module.getComponent(data.options.value, 'agenda'))
 		throw new Error("structure.component.error.alreadyExistOnModule");
-
-	const valueEvent = "e_" + data.options.urlValue + "_event";
-	const valueCategory = "e_" + data.options.urlValue + "_category";
 
 	const showValueEvent = data.options.showValue + " Event";
 	const showValueCategory = data.options.showValue + " Category";
@@ -1982,9 +1954,7 @@ exports.setLayout = async (data) => {
 	return await structure_ui.setLayout(data);
 }
 
-exports.listLayout = async (data) => {
-	return await structure_ui.listLayout(data);
-}
+exports.listLayout = async (data) => structure_ui.listLayout(data);
 
 exports.setTheme = async (data) => {
 	await structure_ui.setTheme(data);
@@ -1995,11 +1965,9 @@ exports.setTheme = async (data) => {
 	}
 }
 
-exports.listTheme = async (data) => {
-	return await structure_ui.listTheme(data);
-}
+exports.listTheme = async (data) => structure_ui.listTheme(data);
 
-exports.listIcon = async (data) => {
+exports.listIcon = async _ => { // eslint-disable-line
 	return {
 		message: "structure.ui.icon.list",
 		messageParams: ['https://fontawesome.com/v4.7.0/icons/'],
@@ -2025,11 +1993,11 @@ exports.setIcon = async (data) => {
 exports.addTitle = async (data) => {
 
 	if(data.options.afterField) {
-		const field = "f_" + dataHelper.clearString(attr.options.afterField);
+		const field = "f_" + dataHelper.clearString(data.options.afterField);
 		data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(field, true);
 	}
 
-	await structure_ui.addTitle(attr);
+	await structure_ui.addTitle(data);
 	return {
 		message: 'structure.ui.title.success'
 	}
@@ -2108,7 +2076,7 @@ exports.createWidgetLastRecords = async (data) => {
 
 exports.createWidgetOnEntity = async (data) => {
 	data.entity_name = data.application.findEntity(data.entityTarget, true).entity.name;
-	return await createWidget(data);
+	return await createWidget(data); // eslint-disable-line
 }
 
 async function createWidget(data) {

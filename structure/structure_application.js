@@ -1,5 +1,4 @@
 const fs = require("fs-extra");
-const spawn = require('cross-spawn');
 const helpers = require('../utils/helpers');
 const domHelper = require('../utils/jsDomHelper');
 const translateHelper = require("../utils/translate");
@@ -16,8 +15,8 @@ const studio_manager = require('../services/studio_manager');
 const models = require('../models/');
 const exec = require('child_process').exec;
 
-function installAppModules(attr) {
-	return new Promise(function(resolve, reject) {
+function installAppModules(data) {
+	return new Promise((resolve, reject) => {
 		const dir = __dirname;
 
 		// Mandatory workspace folder
@@ -27,22 +26,21 @@ function installAppModules(attr) {
 		if (fs.existsSync(dir + '/../workspace/node_modules')) {
 			console.log("Everything's ok about global workspaces node modules.");
 
-			if(typeof attr !== "undefined"){
+			if (typeof data !== "undefined") {
 				/* When we are in the "npm install" instruction from preview */
 				let command = "npm install";
-				console.log(attr.specificModule)
-				if(attr.specificModule)
-					command += " "+attr.specificModule;
+				console.log(data.specificModule)
+				if (data.specificModule)
+					command += " " + data.specificModule;
 
-				console.log("Executing "+command+" in application: "+attr.id_application+"...");
+				console.log("Executing " + command + " in application: " + data.application.name + "...");
 
 				exec(command, {
-					cwd: dir + '/../workspace/'+attr.id_application+'/'
-				}, function(error, stdout, stderr) {
-					if (error) {
-						reject(error);
-					}
-					console.log('Application '+attr.id_application+' node modules successfully installed !');
+					cwd: dir + '/../workspace/' + data.application.name + '/'
+				}, err => {
+					if (err)
+						return reject(err);
+					console.log('Application ' + data.application.name + ' node modules successfully installed !');
 					resolve();
 				});
 			} else {
@@ -53,13 +51,11 @@ function installAppModules(attr) {
 			console.log("Workspaces node modules initialization...");
 			fs.copySync(path.join(dir, 'template', 'package.json'), path.join(dir, '..', 'workspace', 'package.json'))
 
-			cmd = 'npm -s install';
-			exec(cmd, {
+			exec('npm -s install', {
 				cwd: dir + '/../workspace/'
-			}, function(error, stdout, stderr) {
-				if (error) {
-					reject(error);
-				}
+			}, err => {
+				if (err)
+					return reject(err);
 				console.log('Workspaces node modules successfuly initialized.');
 				resolve();
 			});
@@ -107,7 +103,7 @@ exports.setupApplication = async (data) => {
 
 	try {
 		for (let i = 0; i < db_requests.length; i++)
-			await conn.query(db_requests[i]);
+			await conn.query(db_requests[i]); // eslint-disable-line
 	} catch(err) {
 		console.error(err);
 		throw new Error("An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?");
@@ -131,7 +127,7 @@ exports.setupApplication = async (data) => {
 
 	const newGitlabProject = {
 		user_id: idUserGitlab,
-		name: globalConf.host + "-" + appNameWithoutPrefix,
+		name: globalConf.host + "-" + appName.substring(2),
 		description: "A generated Newmips workspace.",
 		issues_enabled: false,
 		merge_requests_enabled: false,
@@ -152,13 +148,12 @@ exports.setupApplication = async (data) => {
 
 async function finalizeApplication(application) {
 
-	const piecesPath = __dirname + '/pieces';
 	const workspacePath = __dirname + '/../workspace/' + application.name;
 
 	// Reset toSync file
 	fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
-	const workspaceSequelize = require(workspacePath + '/models/');
+	const workspaceSequelize = require(workspacePath + '/models/'); // eslint-disable-line
 	await workspaceSequelize.sequelize.sync({
 		logging: false,
 		hooks: false
@@ -169,7 +164,7 @@ async function finalizeApplication(application) {
 		const appID = await models.Application.findOne({
 			name: application.name
 		});
-		await studio_manager.createApplicationDns(application.name, appID);
+		studio_manager.createApplicationDns(application.name, appID);
 	}
 }
 
@@ -201,9 +196,9 @@ async function initializeWorkflow(application) {
 	fs.copySync(piecesPath + '/models/e_status.js', workspacePath + '/models/e_status.js');
 
 	// Copy views pieces
-	const toCopyViewFolders = ['e_status','e_media','e_media_mail','e_media_notification','e_media_sms','e_media_task','e_translation','e_action'];
+	const toCopyViewFolders = ['e_status', 'e_media', 'e_media_mail', 'e_media_notification', 'e_media_sms', 'e_media_task', 'e_translation', 'e_action'];
 	for (const folder of toCopyViewFolders)
-		fs.copySync(`${piecesPath}/views/${folder}`, `${workspacePath}/views/${folder}`);
+		fs.copySync(piecesPath + '/views/' + folder, workspacePath + '/views/' + folder);
 
 	// Copy routes
 	fs.copySync(piecesPath + '/routes/', workspacePath + '/routes/');
@@ -217,7 +212,7 @@ async function initializeWorkflow(application) {
 	const $ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
 	$("#notification_menu_item").remove();
 
-	await domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
+	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
 	// Write new locales trees
 	const newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
@@ -243,7 +238,7 @@ exports.initializeApplication = async(application) => {
 
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
 
-	await domHelper.write(workspacePath + '/views/e_user/list_fields.dust', $);
+	domHelper.write(workspacePath + '/views/e_user/list_fields.dust', $);
 	// Clean user show fields and remove tab view
 	$ = await domHelper.read(workspacePath + '/views/e_user/show_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
@@ -251,16 +246,16 @@ exports.initializeApplication = async(application) => {
 	$("#home").remove();
 	$("#tabs").removeClass('.nav-tabs-custom').attr('id', 'home');
 	$("#home").html(homeHtml);
-	await domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $);
+	domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $);
 	// Clean user create fields
 	$ = await domHelper.read(workspacePath + '/views/e_user/create_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	await domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $)
+	domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $)
 
 	// Clean user update fields
 	$ = await domHelper.read(workspacePath + '/views/e_user/update_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	await domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $)
+	domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $)
 	// Copy inline-help route and views
 	fs.copySync(piecesPath + '/routes/e_inline_help.js', workspacePath + '/routes/e_inline_help.js');
 	fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
@@ -462,7 +457,7 @@ exports.initializeApplication = async(application) => {
 	$("#sortable").append(li);
 
 	// Add settings entry into authentication module layout
-	await domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
+	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
 	// Copy routes settings pieces
 	fs.copySync(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js');

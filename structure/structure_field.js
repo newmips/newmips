@@ -16,7 +16,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			case "nombre" :
 			case "int" :
 			case "integer" :
-				defaultValue = defaultValue.replace(/\.|\,/g, "");
+				defaultValue = defaultValue.replace(/\.|,/g, "");
 				if (!isNaN(defaultValue))
 					value = defaultValue;
 				else
@@ -26,7 +26,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			case "double" :
 			case "float" :
 			case "figures" :
-				defaultValue = defaultValue.replace(/\,/g, ".");
+				defaultValue = defaultValue.replace(/,/g, ".");
 				if (!isNaN(defaultValue))
 					value = defaultValue;
 				else
@@ -65,12 +65,15 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 	<div data-field='${field}' class='fieldLineHeight col-xs-12'>\n\
 		<div class='form-group'>\n\
 			<label for='${field}'>\n\
-				<!--{#__ key=\"entity.${entity}.${field}"/}-->&nbsp;\n\
+				<!--{#__ key="entity.${entity}.${field}"/}-->&nbsp;\n\
 				<!--{@inline_help field="${field}"}-->\n\
 					<i data-field="${field}" class="inline-help fa fa-info-circle" style="color: #1085EE;"></i>\n\
 				<!--{/inline_help}-->\n\
 			</label>\n`;
 
+	let inputType;
+	const clearValues = [];
+	let clearDefaultValue = "";
 	// Check type of field
 	switch (type) {
 		case "string" :
@@ -120,7 +123,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 		case "upc":
 		case "code39":
 		case "code128":
-			var inputType = 'number';
+			inputType = 'number';
 			if (type === "code39" || type === "code128")
 				inputType = 'text';
 			str += "	<div class='input-group'>\n";
@@ -273,8 +276,6 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			break;
 		case "radio" :
 		case "case à sélectionner" :
-			var clearValues = [];
-			var clearDefaultValue = "";
 			for (let i = 0; i < values.length; i++)
 				clearValues[i] = dataHelper.clearString(values[i]);
 
@@ -469,12 +470,12 @@ async function updateFile(fileBase, file, string) {
 	const fileToWrite = fileBase + '/' + file + '.dust';
 	const $ = await domHelper.read(fileToWrite);
 	$("#fields").append(string);
-	await domHelper.write(fileToWrite, $);
+	domHelper.write(fileToWrite, $);
 	return;
 }
 
 async function updateListFile(fileBase, file, thString) {
-	fileToWrite = fileBase + '/' + file + '.dust';
+	const fileToWrite = fileBase + '/' + file + '.dust';
 	const $ = await domHelper.read(fileToWrite)
 
 	// Count th to know where to insert new th (-4 because of actions th + id, show/update/delete)
@@ -485,7 +486,7 @@ async function updateListFile(fileBase, file, thString) {
 	});
 
 	// Write back to file
-	await domHelper.write(fileToWrite, $);
+	domHelper.write(fileToWrite, $);
 	return;
 }
 
@@ -854,8 +855,7 @@ exports.setRequiredAttribute = async (data) => {
 	const possibilityOptionnal = ["optionnel", "non-obligatoire", "optional"];
 
 	const attribute = data.options.word.toLowerCase();
-	let set = null;
-
+	let set = false;
 	if (possibilityRequired.indexOf(attribute) != -1)
 		set = true;
 	else if (possibilityOptionnal.indexOf(attribute) != -1)
@@ -886,7 +886,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
-	await domHelper.write(pathToViews + '/create_fields.dust', $);
+	domHelper.write(pathToViews + '/create_fields.dust', $);
 
 	// Update update_fields.dust file
 	$ = await domHelper.read(pathToViews + '/update_fields.dust');
@@ -902,7 +902,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
-	await domHelper.write(pathToViews + '/update_fields.dust', $);
+	domHelper.write(pathToViews + '/update_fields.dust', $);
 
 	// Update the Sequelize attributes.json to set allowNull
 	const pathToAttributesJson = __dirname + '/../workspace/' + data.application.name + '/models/attributes/' + data.entity_name + ".json";
@@ -913,7 +913,7 @@ exports.setRequiredAttribute = async (data) => {
 		// In script you can set required a field in user, role or group but it crash the user admin autogeneration
 		// becaude the required field is not given during the creation
 		if (data.entity_name != "e_user" && data.entity_name != "e_role" && data.entity_name != "e_group")
-			attributesObj[data.options.value].allowNull = set ? false : true;
+			attributesObj[data.options.value].allowNull = set;
 		// Alter column to set default value in DB if models already exist
 		const jsonPath = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
 		const toSync = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
@@ -978,7 +978,7 @@ exports.setRequiredAttribute = async (data) => {
 		const aliasValue = "r_" + data.options.value.substring(2);
 		for (let i = 0; i < optionsObj.length; i++)
 			if (optionsObj[i].as == aliasValue)
-				optionsObj[i].allowNull = set ? false : true;
+				optionsObj[i].allowNull = set;
 
 		// Set option allowNull
 		fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
@@ -993,8 +993,7 @@ exports.setUniqueField = (data) => {
 	const possibilityNotUnique = ["not-unique", "non-unique"];
 
 	const attribute = data.options.word.toLowerCase();
-	let set = null;
-
+	let set = false;
 	if (possibilityUnique.indexOf(attribute) != -1)
 		set = true;
 	else if (possibilityNotUnique.indexOf(attribute) != -1)
@@ -1009,7 +1008,7 @@ exports.setUniqueField = (data) => {
 
 	// If the current field is an fk field then we won't find it in attributes.json
 	if (typeof attributesObj[data.options.value] !== "undefined")
-		attributesObj[data.options.value].unique = set ? true : false;
+		attributesObj[data.options.value].unique = set;
 	fs.writeFileSync(pathToAttributesJson, JSON.stringify(attributesObj, null, 4));
 
 	return;
@@ -1029,7 +1028,7 @@ exports.setFieldAttribute = async (data) => {
 		$("*[data-field='" + targetField + "']").find('input').attr(word, attributeValue);
 		$("*[data-field='" + targetField + "']").find('select').attr(word, attributeValue);
 
-		await domHelper.write(pathToViews + '/create_fields.dust', $);
+		domHelper.write(pathToViews + '/create_fields.dust', $);
 
 		// Update update_fields.dust file
 		$ = await domHelper.read(pathToViews + '/update_fields.dust');
@@ -1037,7 +1036,7 @@ exports.setFieldAttribute = async (data) => {
 		$("*[data-field='" + targetField + "']").find('input').attr(word, attributeValue);
 		$("*[data-field='" + targetField + "']").find('select').attr(word, attributeValue);
 
-		await domHelper.write(pathToViews + '/update_fields.dust', $);
+		domHelper.write(pathToViews + '/update_fields.dust', $);
 	} else {
 		const err = new Error('structure.field.attributes.fieldNoFound');
 		err.messageParams = [data.options.showValue];
@@ -1055,12 +1054,9 @@ exports.setupRelatedToField = async (data) => {
 
 	// Check if field is used in select, default to id
 	let usingField = [{value: "id", type: "string"}];
-	let showUsingField = ["ID"];
 
 	if (typeof data.options.usingField !== "undefined")
 		usingField = data.options.usingField;
-	if (typeof data.options.showUsingField !== "undefined")
-		showUsingField = data.options.showUsingField;
 
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
@@ -1127,10 +1123,10 @@ exports.setupRelatedToField = async (data) => {
 	const $ = await domHelper.read(file);
 	$("#fields").append(str);
 
-	await domHelper.write(file, $)
+	domHelper.write(file, $)
 
 	for (let i = 0; i < usingField.length; i++) {
-		const targetField = (usingField[i].value == "id") ? "id_entity" : usingField[i].value;
+		const targetField = usingField[i].value == "id" ? "id_entity" : usingField[i].value;
 
 		// Add <th> in list_field
 		const toAddInList = {headers: '', body: ''};
@@ -1149,7 +1145,7 @@ exports.setupRelatedToField = async (data) => {
 		str += ' >{' + alias + '.' + usingField[i].value + '}</td>';
 		toAddInList.body = str;
 
-		await updateListFile(fileBase, "list_fields", toAddInList.headers);
+		await updateListFile(fileBase, "list_fields", toAddInList.headers); // eslint-disable-line
 	}
 
 	await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
@@ -1166,12 +1162,9 @@ exports.setupRelatedToMultipleField = async (data) => {
 
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
 	let usingField = [{value: "id", type: "string"}];
-	let showUsingField = ["ID"];
 
 	if (typeof data.options.usingField !== "undefined")
 		usingField = data.options.usingField;
-	if (typeof data.options.showUsingField !== "undefined")
-		showUsingField = data.options.showUsingField;
 
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
@@ -1256,10 +1249,10 @@ exports.setupRelatedToMultipleField = async (data) => {
 	}
 	select += '</div>\n';
 
-	file = fileBase + '/show_fields.dust';
+	const file = fileBase + '/show_fields.dust';
 	const $ = await domHelper.read(file);
 	$("#fields").append(head + select);
-	await domHelper.write(file, $);
+	domHelper.write(file, $);
 	await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
 	return;
 }
@@ -1315,7 +1308,7 @@ exports.deleteField = async (data) => {
 
 	// Look in option file for all concerned target to destroy auto_generate key no longer needed
 	let targetOption, autoGenerateFound, targetJsonPath;
-	for (var i = 0; i < deletedOptionsTarget.length; i++) {
+	for (let i = 0; i < deletedOptionsTarget.length; i++) {
 		autoGenerateFound = false;
 		targetJsonPath = workspacePath + '/models/options/' + deletedOptionsTarget[i].target + '.json';
 		targetOption = JSON.parse(fs.readFileSync(targetJsonPath));
@@ -1336,89 +1329,79 @@ exports.deleteField = async (data) => {
 	const viewsPath = workspacePath + '/views/' + data.entity.name + '/';
 	const fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
 	const promises = [];
-	for (var i = 0; i < fieldsFiles.length; i++)
-		promises.push(new Promise((resolve, reject) => {
-			(function (file) {
-				domHelper.read(file).then(function ($) {
-					$('*[data-field="' + field + '"]').remove();
-					// In case of related to
-					$('*[data-field="r_' + field.substring(2) + '"]').remove();
-					domHelper.write(file, $).then(function () {
-						resolve();
-					});
-				});
-			})(viewsPath + '/' + fieldsFiles[i] + '.dust');
-		}));
+	for (let i = 0; i < fieldsFiles.length; i++)
+		promises.push((async () => {
+			const $ = await domHelper.read(viewsPath + '/' + fieldsFiles[i] + '.dust');
+			$('*[data-field="' + field + '"]').remove();
+			// In case of related to
+			$('*[data-field="r_' + field.substring(2) + '"]').remove();
+			domHelper.write(viewsPath + '/' + fieldsFiles[i] + '.dust', $);
+		})());
 
 	// Remove field from list view file
-	promises.push(new Promise((resolve, reject) => {
-		domHelper.read(viewsPath + '/list_fields.dust').then($ => {
-			$("th[data-field='" + field + "']").remove();
-
-			// In case of related to
-			$("th[data-col^='r_" + field.substring(2) + ".']").remove();
-			domHelper.write(viewsPath + '/list_fields.dust', $).then(_ => {
-				resolve();
-			});
-		});
-	}));
+	promises.push((async () => {
+		const $ = await domHelper.read(viewsPath + '/list_fields.dust');
+		$("th[data-field='" + field + "']").remove();
+		// In case of related to
+		$("th[data-col^='r_" + field.substring(2) + ".']").remove();
+		domHelper.write(viewsPath + '/list_fields.dust', $);
+	})());
 
 	const optionsPath = workspacePath + '/models/options/';
 	const otherViewsPath = workspacePath + '/views/';
 	const structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
 	fieldsFiles.push("list_fields");
 	// Looking for association with using of the deleted field
-	fs.readdirSync(optionsPath).filter(function (file) {
-		return (file.indexOf('.json') != -1);
-	}).forEach(function (file) {
+	fs.readdirSync(optionsPath).filter(file => file.indexOf('.json') != -1).forEach(file => {
 		const currentOption = JSON.parse(fs.readFileSync(optionsPath + file, "utf8"));
 		const currentEntity = file.split(".json")[0];
 		let toSave = false;
-		for (var i = 0; i < currentOption.length; i++) {
+		for (let i = 0; i < currentOption.length; i++) {
 			// If the option match with our source entity
-			if (structureTypeWithUsing.indexOf(currentOption[i].structureType) != -1 &&
-					currentOption[i].target == data.entity.name &&
-					typeof currentOption[i].usingField !== "undefined") {
-				// Check if our deleted field is in the using fields
-				for (let j = 0; j < currentOption[i].usingField.length; j++) {
-					if (currentOption[i].usingField[j].value == field) {
-						for (var k = 0; k < fieldsFiles.length; k++) {
-							// Clean file
-							let content = fs.readFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', "utf8")
-							content = content.replace(new RegExp(currentOption[i].as + "." + field, "g"), currentOption[i].as + ".id");
-							content = content.replace(new RegExp(currentOption[i].target + "." + field, "g"), currentOption[i].target + ".id_entity");
-							fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
-							// Looking for select in create / update / show
-							promises.push(new Promise((resolve, reject)=> {
-								(function (file, option, entity) {
-									domHelper.read(otherViewsPath + entity + '/' + file + '.dust').then(function ($) {
-										const el = $("select[name='" + option.as + "'][data-source='" + option.target.substring(2) + "']");
-										if (el.length > 0) {
-											const using = el.attr("data-using").split(",");
-											if (using.indexOf(field) != -1) {
-												// If using is alone, then replace with id, or keep just other using
-												if (using.length == 1) {
-													el.attr("data-using", "id")
-												} else {
-													using.splice(using.indexOf(field), 1)
-													el.attr("data-using", using.join())
-												}
-												el.html(el.html().replace(new RegExp(field, "g"), "id"))
-											}
-										}
-										domHelper.write(otherViewsPath + entity + '/' + file + '.dust', $).then(function () {
-											resolve();
-										})
-									})
-								})(fieldsFiles[k], currentOption[i], currentEntity)
-							}))
+			if (structureTypeWithUsing.indexOf(currentOption[i].structureType) == -1 ||
+				currentOption[i].target != data.entity.name ||
+				typeof currentOption[i].usingField === "undefined")
+				continue;
+
+			// Check if our deleted field is in the using fields
+			for (let j = 0; j < currentOption[i].usingField.length; j++) {
+				if (currentOption[i].usingField[j].value != field)
+					continue;
+
+				for (let k = 0; k < fieldsFiles.length; k++) {
+					// Clean file
+					let content = fs.readFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', "utf8")
+					content = content.replace(new RegExp(currentOption[i].as + "." + field, "g"), currentOption[i].as + ".id");
+					content = content.replace(new RegExp(currentOption[i].target + "." + field, "g"), currentOption[i].target + ".id_entity");
+					fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
+					// Looking for select in create / update / show
+					promises.push((async () => {
+						const $ = await domHelper.read(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust');
+						const el = $("select[name='" + currentOption[i].as + "'][data-source='" + currentOption[i].target.substring(2) + "']");
+						if (el.length == 0)
+							return;
+
+						const using = el.attr("data-using").split(",");
+
+						if (using.indexOf(field) == -1)
+							return;
+
+						// If using is alone, then replace with id, or keep just other using
+						if (using.length == 1) {
+							el.attr("data-using", "id")
+						} else {
+							using.splice(using.indexOf(field), 1)
+							el.attr("data-using", using.join())
 						}
-						// Clean using
-						currentOption[i].usingField.splice(j, 1);
-						toSave = true;
-						break;
-					}
+						el.html(el.html().replace(new RegExp(field, "g"), "id"))
+						domHelper.write(otherViewsPath + currentEntity + '/' + file + '.dust', $);
+					})());
 				}
+
+				// Clean using
+				currentOption[i].usingField.splice(j, 1);
+				toSave = true;
+				break;
 			}
 		}
 		if (toSave)
