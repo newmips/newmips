@@ -98,11 +98,10 @@ exports.generateFields = function (componentName, componentCodeName) {
 			};
 
 			const required = attribute.required === true ? 'required' : '';
-			const readonly = (attribute.readonly === false || typeof addressConf.endpoint === 'undefined' || addressConf.endpoint.enable === false) ? '' : 'readonly';
-			const max = (typeof attribute.maxLength !== 'undefined' && attribute.maxLength !== '') ? 'maxlength="' + attribute.maxLength + '"' : '';
-			const min = (typeof attribute.minLength !== 'undefined' && attribute.minLength !== '') ? 'minlength="' + attribute.minLength + '"' : '';
+			const max = typeof attribute.maxLength !== 'undefined' && attribute.maxLength !== '' ? 'maxlength="' + attribute.maxLength + '"' : '';
+			const min = typeof attribute.minLength !== 'undefined' && attribute.minLength !== '' ? 'minlength="' + attribute.minLength + '"' : '';
 
-			const pattern = (typeof attribute.pattern !== 'undefined' && attribute.pattern !== '') ? 'pattern="' + attribute.pattern + '"' : '';
+			const pattern = typeof attribute.pattern !== 'undefined' && attribute.pattern !== '' ? 'pattern="' + attribute.pattern + '"' : '';
 			const defaultValue = typeof attribute.defaultValue !== 'undefined' && attribute.defaultValue != '' ? 'value=' + attribute.defaultValue : '';
 
 			let type = 'text';

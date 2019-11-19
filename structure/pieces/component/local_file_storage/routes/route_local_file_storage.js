@@ -11,14 +11,11 @@ const entity_helper = require('../utils/entity_helper');
 const multer = require('multer');
 const fs = require('fs');
 const fse = require('fs-extra');
-const moment = require("moment");
 const upload = multer().single('file');
 
 const config = require('../config/global');
 
 router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
-
-	const version = parseInt(req.body.version) + 1;
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 	const redirect = '/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.SOURCE_ENTITY_LOWER+'#COMPONENT_NAME_LOWER';
 
@@ -82,11 +79,10 @@ router.post('/file_upload', block_access.actionAccessMiddleware("COMPONENT_NAME_
 		}
 		fse.mkdirsSync(config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent);
 		const uploadPath = config.localstorage+req.body.dataSource+"/"+req.body.dataSourceID+"/"+req.body.dataComponent+"/"+req.file.originalname;
-		let byte;
 		const outStream = fs.createWriteStream(uploadPath);
 		outStream.write(req.file.buffer);
 		outStream.end();
-		outStream.on('finish', function(err){
+		outStream.on('finish', _ => {
 			res.json({
 				success: true
 			});
@@ -104,8 +100,6 @@ router.post('/file_download', block_access.actionAccessMiddleware("COMPONENT_NAM
 });
 
 router.post('/delete', block_access.actionAccessMiddleware("COMPONENT_NAME_URL", "create"), function(req, res) {
-	const id_COMPONENT_NAME = req.body.id;
-
 	models.COMPONENT_NAME.findOne({
 		where:{
 			id: req.body.idRemove

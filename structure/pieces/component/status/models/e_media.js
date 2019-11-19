@@ -1,6 +1,4 @@
 const builder = require('../utils/model_builder');
-const fs = require('fs-extra');
-
 const attributes_origin = require("./attributes/e_media.json");
 const associations = require("./options/e_media.json");
 

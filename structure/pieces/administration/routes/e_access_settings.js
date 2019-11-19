@@ -11,7 +11,8 @@ const ignoreEntityList = ['notification'];
 
 router.get('/show_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
 	const data = {};
-	data.api_enabled = require('../config/application.json').api_enabled;
+	const appConf = JSON.parse(fs.readFileSync('../config/application.json', 'utf8'));
+	data.api_enabled = appConf.api_enabled;
 	res.render('e_access_settings/show_api', data);
 });
 
@@ -90,8 +91,8 @@ router.get('/show_role', block_access.isLoggedIn, block_access.actionAccessMiddl
 
 router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
 	const enable = req.body.enable;
-	const applicationConfig = require(__dirname+'/../config/application.json');
-	applicationConfig.api_enabled = enable == 'true' ? true : false;
+	const applicationConfig = JSON.parse(fs.readFileSync('../config/application.json', 'utf8'));
+	applicationConfig.api_enabled = enable == 'true';
 	fs.writeFileSync(__dirname+'/../config/application.json', JSON.stringify(applicationConfig, null, 4), 'utf8');
 	res.status(200).end();
 });

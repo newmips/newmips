@@ -1,5 +1,4 @@
 const models = require('../models/');
-const sequelize = models.sequelize;
 
 function sendChatChannelList(user, socket) {
 	return new Promise(function(resolve, reject) {
@@ -20,7 +19,7 @@ function sendChatChannelList(user, socket) {
 			}]
 		}).then(function(chatAndChannel) {
 			const lastSeenChatPromises = [];
-			for (var i = 0; i < chatAndChannel.r_chat.length; i++) {
+			for (let i = 0; i < chatAndChannel.r_chat.length; i++) {
 				// Build promise array that count the number of not seen messages for each chat
 				lastSeenChatPromises.push(new Promise(function(resolve, reject) {
 					models.E_user_chat.findOne({
@@ -36,13 +35,13 @@ function sendChatChannelList(user, socket) {
 							}
 						}).then(function(notSeen) {
 							resolve({id_chat: userChat.id_chat, notSeen: notSeen});
-						});
+						}).catch(reject);
 					});
 				}));
 			}
 
 			const lastSeenChannelPromises = [];
-			for (var i = 0; i < chatAndChannel.r_user_channel.length; i++) {
+			for (let i = 0; i < chatAndChannel.r_user_channel.length; i++) {
 				lastSeenChannelPromises.push(new Promise(function(resolve, reject) {
 					models.E_user_channel.findOne({
 						where: {id_channel: chatAndChannel.r_user_channel[i].id, id_user: user.id}
@@ -57,7 +56,7 @@ function sendChatChannelList(user, socket) {
 							}
 						}).then(function(notSeen) {
 							resolve({id_channel: userChannel.id_channel, notSeen: notSeen});
-						});
+						}).catch(reject);
 					});
 				}));
 			}
@@ -81,9 +80,9 @@ function sendChatChannelList(user, socket) {
 						chatAndChannel.r_user_channel[i].dataValues.notSeen = notSeens[i].notSeen;
 					socket.emit('contacts', chatAndChannel);
 				});
-
+				resolve();
 			});
-		});
+		}).catch(reject);
 	});
 }
 
@@ -138,7 +137,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 				attributes: ['id_chat', 'id_user', 'id_last_seen_message', 'id']
 			}).then(function(userChat) {
 				const notificationsPromises = [];
-				for (var i = 0; i < userChat.length; i++) {
+				for (let i = 0; i < userChat.length; i++) {
 					notificationsPromises.push(new Promise(function(resolve, reject) {
 						if (userChat[i].id_last_seen_message == null)
 							userChat[i].id_last_seen_message = 0;
@@ -150,7 +149,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 							}
 						}).then(function(notSeen) {
 							resolve(notSeen);
-						});
+						}).catch(reject);
 					}));
 				}
 
@@ -158,7 +157,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					where: {id_user: user.id},
 					attributes: ['id_channel', 'id_user', 'id_last_seen_message', 'id']
 				}).then(function(userChannels) {
-					for (var i = 0; i < userChannels.length; i++)
+					for (let i = 0; i < userChannels.length; i++)
 						notificationsPromises.push(new Promise(function(resolve, reject) {
 							if (userChannels[i].id_last_seen_message == null)
 								userChannels[i].id_last_seen_message = 0;
@@ -170,10 +169,10 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 								}
 							}).then(function(notSeen) {
 								resolve(notSeen);
-							});
+							}).catch(reject);
 						}));
 
-					Promise.all(notificationsPromises).then(function(notSeens) {
+					Promise.all(notificationsPromises).then(notSeens => {
 						let total = 0;
 						for (let i = 0; i < notSeens.length; i++)
 							total += notSeens[i];
@@ -181,9 +180,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					});
 				});
 
-			}).catch(function(e) {
-				console.log(e);
-			});
+			}).catch(console.log);
 		});
 	}
 
@@ -308,10 +305,8 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					}]
 				}]
 			}).then(function(channel) {
-				socket.emit('channel-messages', {contacts: channel.r_user_channel ,id_channel: data.id_channel, id_self: user.id, messages: channel.r_channelmessage});
-			}).catch(function(e) {
-				console.log(e);
-			});
+				socket.emit('channel-messages', {contacts: channel.r_user_channel, id_channel: data.id_channel, id_self: user.id, messages: channel.r_channelmessage});
+			}).catch(console.log);
 		});
 
 		// Update notifications

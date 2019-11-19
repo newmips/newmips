@@ -1,12 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const block_access = require('../utils/block_access');
-
 const models = require('../models/');
 const attributes = require('../models/attributes/ENTITY_NAME');
 const options = require('../models/options/ENTITY_NAME');
 const model_builder = require('../utils/model_builder');
-const enums_radios = require('../utils/enum_radio.js');
 const entity_helper = require('../utils/entity_helper');
 
 //
@@ -37,7 +34,7 @@ router.get('/', function(req, res) {
 
 	const where = {};
 	for (const field in req.query)
-		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
+		if (field.indexOf('fk_id_') == 0 || field.indexOf('f_') == 0 && attributes[field])
 			where[field] = req.query[field];
 	if (Object.keys(where).length)
 		query.where = where;
@@ -81,7 +78,7 @@ router.get('/:id', function(req, res) {
 
 	const where = {id: id_ENTITY_NAME};
 	for (const field in req.query)
-		if ((field.indexOf('f_') == 0 && attributes[field]) || field.indexOf('fk_id_') == 0)
+		if (field.indexOf('fk_id_') == 0 || field.indexOf('f_') == 0 && attributes[field])
 			where[field] = req.query[field];
 	query.where = where;
 
@@ -188,10 +185,12 @@ router.post('/', function(req, res) {
 		Promise.all(associationPromises).then(function() {
 			res.status(200).json(answer);
 		}).catch(function(err) {
+			console.error(err);
 			answer.error = "Error with associations";
 			res.status(500).json(answer);
 		});
 	}).catch(function(err){
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
@@ -231,6 +230,7 @@ router.put('/:id', function(req, res) {
 			Promise.all(associationPromises).then(function() {
 				res.status(200).json(answer);
 			}).catch(function(err) {
+				console.error(err);
 				answer.error = "Error with associations";
 				res.status(500).json(answer);
 			});

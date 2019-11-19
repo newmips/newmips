@@ -1,8 +1,6 @@
 const globalConf = require('../config/global');
 const builder = require('../utils/model_builder');
 const sms = require('../utils/sms_helper');
-const fs = require('fs-extra');
-
 const attributes_origin = require("./attributes/e_media_sms.json");
 const associations = require("./options/e_media_sms.json");
 

@@ -10,7 +10,6 @@ const attributes = require('../models/attributes/e_user');
 const options = require('../models/options/e_user');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
 const status_helper = require('../utils/status_helper');
 const component_helper = require('../utils/component_helper');
 const globalConfig = require('../config/global');
@@ -62,12 +61,12 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 	const doPagination = req.query.paginate;
 
 	// Build array of fields for include and search object
-	const isGlobalSearch = req.body.search.value == "" ? false : true;
+	const isGlobalSearch = req.body.search.value != "";
 	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
-	for (var i = 0, columns = req.body.columns; i < columns.length; i++) {
+	for (let i = 0, columns = req.body.columns; i < columns.length; i++) {
 		if (columns[i].searchable == 'false')
 			continue;
 
@@ -83,16 +82,16 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 		if (isGlobalSearch)
 			search[searchTerm].push(model_builder.formatSearch(columns[i].data, req.body.search.value, req.body.columnsTypes[columns[i].data]));
 	}
-	for (var i = 0; i < req.body.columns.length; i++)
+	for (let i = 0; i < req.body.columns.length; i++)
 		if (req.body.columns[i].searchable == 'true')
 			toInclude.push(req.body.columns[i].data);
 	// Get sequelize include object
 	const subentityInclude = model_builder.getIncludeFromFields(models, subentityName, toInclude);
 
 	// ORDER BY
-	let order, stringOrder = req.body.columns[req.body.order[0].column].data;
+	const stringOrder = req.body.columns[req.body.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
-	order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
+	const order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), req.body.order[0].dir]] : [[stringOrder, req.body.order[0].dir]];
 
 	const include = {
 		model: models[subentityModel],
@@ -309,6 +308,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
 
 router.post('/update', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
 	const id_e_user = parseInt(req.body.id);
+	const data = {};
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
@@ -374,7 +374,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 	// Find tab option
 	let option;
 	for (let i = 0; i < options.length; i++)
-		if (options[i].as == req.params.alias) {
+		if (options[i].as == alias) {
 			option = options[i];
 			break;
 		}
@@ -401,14 +401,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 		}
 
 	// Fetch tab data
-	models.E_user.findOne(queryOpts).then(function(e_user) {
+	models.E_user.findOne(queryOpts).then(e_user => {
 		if (!e_user)
 			return res.status(404).end();
 
-		let dustData = e_user[option.as] || null;
-		const empty = !dustData || (dustData instanceof Array && dustData.length == 0) ? true : false;
-		let dustFile, idSubentity, promisesData = [];
-		var subentityOptions = [];
+		let dustData = e_user[option.as] || null, dustFile, idSubentity, subentityOptions = [];
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0;
+		const promisesData = [];
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -420,16 +419,16 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
-					var subentityOptions = require('../models/options/' + option.target);
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (var i = 0; i < subentityOptions.length; i++)
+					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(function(alias) {
+							(alias => {
 								promisesData.push(new Promise(function(resolve, reject) {
 									dustData[alias].getR_children().then(function(children) {
 										dustData[alias].r_children = children;
 										resolve();
-									});
+									}).catch(reject);
 								}));
 							})(subentityOptions[i].as);
 				}
@@ -455,9 +454,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
-				dustData = obj;
+				dustData = {[option.target]: dustData};
 				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
 					dustData.associationSource = req.query.associationSource;
@@ -466,16 +463,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 					dustData.associationUrl = req.query.associationUrl;
 				}
 				dustData.for = 'fieldset';
-				for (var i = 0; i < dustData[option.target].length; i++)
+				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 
 				break;
 
 			case 'localfilestorage':
 				dustFile = option.target + '/list_fields';
-				var obj = {};
-				obj[option.target] = dustData;
-				dustData = obj;
+				dustData = {[option.target]: dustData};
 				dustData.sourceId = id;
 				break;
 
@@ -521,7 +516,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
 	status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
 		res.redirect(req.headers.referer);
-	}).catch((err)=> {
+	}).catch(err => {
+		console.error(err);
 		req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
 		res.redirect(req.headers.referer);
 	});
@@ -575,7 +571,7 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 	// You have to include those entity here
 	// where.include = [{model: models.E_myentity, as: "r_myentity"}]
 	models.E_user.findAndCountAll(where).then(function(results) {
-		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
+		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes)
 			for (let i = 0; i < results.rows.length; i++)
@@ -587,6 +583,8 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 								break;
 							case "datetime":
 								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							default:
 								break;
 						}
 					}
@@ -606,20 +604,16 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("user
 			id: idEntity
 		}
 	}).then(function(e_user) {
-		if (!e_user) {
-			const data = {
-				error: 404
-			};
-			return res.render('common/error', data);
-		}
+		if (!e_user)
+			return res.render('common/error', {error: 404});
 
 		// Get all associations
-		e_user['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(function(aliasEntities) {
+		e_user['remove' + entity_helper.capitalizeFirstLetter(alias)](idToRemove).then(_ => {
 			res.sendStatus(200).end();
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "e_user");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "e_user");
 	});
 });

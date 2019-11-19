@@ -7,11 +7,8 @@ const attributes = require('../models/attributes/CODE_VALUE_CONTACT');
 const options = require('../models/options/CODE_VALUE_CONTACT');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
+const status_helper = require('../utils/status_helper');
 const component_helper = require('../utils/component_helper');
-const globalConfig = require('../config/global');
-const fs = require('fs-extra');
-const dust = require('dustjs-linkedin');
-const SELECT_PAGE_SIZE = 10;
 const enums_radios = require('../utils/enum_radio.js');
 
 // Custom component
@@ -120,7 +117,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 			expediteur: settings.f_expediteur,
 			administrateur: settings.f_form_recipient
 		};
-		mailer_helper.sendMailAsyncCustomTransport(mailOptions, mailSettings).then(function(success) {
+		mailer_helper.sendMailAsyncCustomTransport(mailOptions, mailSettings).then(_ => {
 			const createObject = model_builder.buildForRoute(attributes, options, req.body);
 			//createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
 			createObject.fk_id_user_user = req.session.passport.user.id;
@@ -328,10 +325,8 @@ router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS
 			id: id_CODE_VALUE_SETTINGS
 		}
 	}).then(CODE_VALUE_SETTINGS => {
-		if (!CODE_VALUE_SETTINGS) {
-			data.error = 404;
-			return res.render('common/error', data);
-		}
+		if (!CODE_VALUE_SETTINGS)
+			return res.render('common/error', {error: 404});
 
 		CODE_VALUE_SETTINGS.update(updateObject, {
 			where: {

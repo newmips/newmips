@@ -3,7 +3,6 @@ const router = express.Router();
 const block_access = require('../utils/block_access');
 const models = require('../models/');
 const model_builder = require('../utils/model_builder');
-const moment = require("moment");
 const attributes = require('../models/attributes/e_URL_ROUTE_event');
 const options = require('../models/options/e_URL_ROUTE_event');
 const entity_helper = require('../utils/entity_helper');
@@ -94,7 +93,7 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 		f_end_date: req.body.end
 	};
 
-	models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}).then(function(updatedEvent){
+	models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}).then(_ => {
 		res.json({
 			success: true
 		});
@@ -116,11 +115,8 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 			id: id_e_URL_ROUTE_event
 		}
 	}).then(function(e_URL_ROUTE_event) {
-		if (!e_URL_ROUTE_event) {
-			data.error = 404;
-			logger.debug("Not found - Update");
-			return res.render('common/error', data);
-		}
+		if (!e_URL_ROUTE_event)
+			return res.render('common/error', {erro: 404});
 
 		e_URL_ROUTE_event.update(updateObject).then(function(updatedObject) {
 
@@ -146,13 +142,12 @@ router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_ev
 	};
 
 	models.E_agenda_event.findByPk(req.body.eventId).then(function(currentEvent){
-		currentEvent.update(updateObj, {where: {id: req.body.eventId}}).then(function(updateEvent){
+		currentEvent.update(updateObj, {where: {id: req.body.eventId}}).then(_ => {
 			let users = [];
-			if(req.body.idUsers != null){
+			if(req.body.idUsers != null)
 				users = req.body.idUsers;
-			} else if (req.body.idUser != null){
+			else if (req.body.idUser != null)
 				users.push(req.body.idUser);
-			}
 			currentEvent.setR_users(users).then(function(){
 				res.json({
 					success: true
