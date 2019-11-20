@@ -19,9 +19,10 @@ module.exports = {
 				children: []
 			}
 
+			let entityFields, entityAssociations;
 			try {
-				var entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
-				var entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
+				entityFields = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+entity+'.json'));
+				entityAssociations = JSON.parse(fs.readFileSync(__dirname+'/../models/options/'+entity+'.json'));
 			} catch (e) {
 				console.error(e);
 				return fieldTree;
@@ -133,9 +134,9 @@ module.exports = {
 					codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
 					traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
 					target: obj.entity,
-					isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
-					isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false,
-					isFile: obj.file_fields.indexOf(obj.fields[j]) != -1 ? true : false
+					isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1,
+					isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1,
+					isFile: obj.file_fields.indexOf(obj.fields[j]) != -1
 				});
 			}
 
@@ -239,100 +240,10 @@ module.exports = {
 		dive(entityTree);
 		return userList;
 	},
-	// Build array of fields for media sms/notification/email insertion <select>
-	entityFieldForSelect: function(entityTree, lang) {
-		const __ = language(lang).__;
-		const separator = ' > ';
-		const options = [];
-		function dive(obj, codename, parent, parentTraduction = "") {
-			let traduction;
-			// Top level. Entity traduction Ex: 'Ticket'
-			if (!parent)
-				traduction = __('entity.'+obj.entity+'.label_entity');
-			// Child level. Parent traduction with child entity alias Ex: 'Ticket > Participants' OR 'Ticket > Participants > Adresse'
-			else
-				traduction = parentTraduction + separator + __('entity.'+parent.entity+'.'+obj.alias);
-
-			for (let j = 0; j < obj.fields.length; j++) {
-				if (obj.fields[j].indexOf('f_') != 0)
-					continue;
-				options.push({
-					codename: !codename ? obj.fields[j] : codename+'.'+obj.fields[j],
-					traduction: traduction + separator + __('entity.'+obj.entity+'.'+obj.fields[j]), // Append field to traduction Ex: 'Ticket > Participants > Adresse > Ville'
-					target: obj.entity,
-					isEmail: obj.email_fields.indexOf(obj.fields[j]) != -1 ? true : false,
-					isPhone: obj.phone_fields.indexOf(obj.fields[j]) != -1 ? true : false,
-					isFile: obj.file_fields.indexOf(obj.fields[j]) != -1 ? true : false
-				});
-			}
-
-			for (let i = 0; i < obj.children.length; i++)
-				dive(obj.children[i], !codename ? obj.children[i].alias : codename+'.'+obj.children[i].alias, obj, traduction);
-		}
-
-		// Build options array
-		dive(entityTree);
-
-		// Sort options array
-		// loopCount is used to avoid "Maximum call stack exedeed" error with large arrays.
-		// Using setTimeout (even with 0 milliseconds) will end the current call stack and create a new one.
-		// Even with 0 milliseconds timeout execution can be realy slower, so we reset call stack once every 1000 lap
-		function stackProtectedRecursion(sortFunc, ...args) {
-			if (!this.loopCount)
-				this.loopCount = 0;
-			this.loopCount++;
-			if (this.loopCount % 1000 === 0) {
-				this.loopCount = 0;
-				return setTimeout(() => {sortFunc(...args);}, 0);
-			}
-			return sortFunc(...args);
-		}
-		function swap(arr, i, j) {
-			const tmp = arr[j];
-			arr[j] = arr[i];
-			arr[i] = tmp;
-		}
-		function sort(array, idx = 0) {
-			if (idx < 0) idx = 0;
-			if (!array || !array[idx+1])
-				return;
-
-			const first = array[idx].traduction.split(separator);
-			const second = array[idx+1].traduction.split(separator);
-
-			// Swap because of depth difference
-			if (first.length > second.length) {
-				swap(array, idx, idx+1);
-				idx--;
-			}
-			else if (first.length == second.length)
-				// Dive depth until mismatch
-				for (let i = 0; i < first.length; i++) {
-					if (first[i] > second[i]) {
-						swap(array, idx, idx+1);
-						idx--;
-						break;
-					}
-					else if (first[i] < second[i]) {
-						idx++;
-						break;
-					}
-				}
-			else
-				idx++;
-
-			stackProtectedRecursion(sort, array, idx);
-		}
-		sort(options);
-
-		return options;
-	},
 	entityStatusFieldList: function() {
 		const self = this;
 		const entities = [];
-		fs.readdirSync(__dirname+'/../models/attributes').filter(function(file){
-			return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json');
-		}).forEach(function(file){
+		fs.readdirSync(__dirname+'/../models/attributes').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json').forEach(file => {
 			const entityName = file.slice(0, -5);
 			const attributesObj = JSON.parse(fs.readFileSync(__dirname+'/../models/attributes/'+file));
 			const statuses = self.statusFieldList(attributesObj);
@@ -377,9 +288,7 @@ module.exports = {
 		}
 	},
 	setStatus: async function (entityName, entityID, statusName, statusId, userID = null, comment = "") {
-		const self = this;
 		const historyModel = 'E_history_' + entityName.substring(2) + '_' + statusName.substring(2);
-		const historyAlias = 'r_history_' + statusName.substring(2);
 		const statusAlias = 'r_' + statusName.substring(2);
 
 		// Fetch entity to get its current status's children and their media
@@ -420,9 +329,8 @@ module.exports = {
 		})
 
 		const current_status = entity[statusAlias];
-		if (!current_status || !current_status.r_children) {
-			return reject("Not found - Set status");
-		}
+		if (!current_status || !current_status.r_children)
+			throw new Error('Not found - Set status');
 
 		// Check if new status is actualy the current status's children
 		let nextStatus = false;
@@ -433,12 +341,8 @@ module.exports = {
 			}
 		}
 		// Unauthorized
-		if (nextStatus === false) {
-			return reject({
-				level: 'error',
-				message: 'component.status.error.illegal_status'
-			});
-		}
+		if (nextStatus === false)
+			throw new Error('component.status.error.illegal_status');
 
 		// For each action, get the fields we need to execute the media. r_media.getFieldsToInclude() -> ['r_user.r_address.f_email', 'r_help.f_field']
 		let fieldsToInclude = [];
