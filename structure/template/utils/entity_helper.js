@@ -1,9 +1,14 @@
 const fs = require('fs-extra');
 const file_helper = require('./file_helper');
 const language = require('../services/language');
-const models = require('../models/');
 const enums_radios = require('../utils/enum_radio.js');
 const globalConfig = require('../config/global');
+
+function models(){
+	if (!this.models)
+		this.models = require('../models');
+	return this.models;
+}
 
 const funcs = {
 	capitalizeFirstLetter: function (word) {
@@ -78,23 +83,23 @@ const funcs = {
 		for (let i = 0; i < options.length; i++)
 			if (options[i].structureType == 'relatedTo' || options[i].structureType == 'relatedToMultiple' || options[i].structureType == 'relatedToMultipleCheckbox') {
 				const opt = {
-					model: models[funcs.capitalizeFirstLetter(options[i].target)],
+					model: models()[funcs.capitalizeFirstLetter(options[i].target)],
 					as: options[i].as
 				};
 				// Include status children
 				if (options[i].target == 'e_status')
-					opt.include = {model: models.E_status, as: 'r_children', include: [{model: models.E_group, as: "r_accepted_group"}]};
+					opt.include = {model: models().E_status, as: 'r_children', include: [{model: models().E_group, as: "r_accepted_group"}]};
 				includes.push(opt);
 			}
 
 		// Do a first query to get entity with all its fields and first `includeMaxLength`'nth includes
-		includePromises.push(models[modelName].findOne({where: {id: idObj}, include: includes.splice(0, includeMaxlength)}));
+		includePromises.push(models()[modelName].findOne({where: {id: idObj}, include: includes.splice(0, includeMaxlength)}));
 
 		// While `includes` array isn't empty, query for `includeMaxLength` and delete from array
 		// Fetch only attribute `id` since attributes doesn't change from one query to another
 		while (includes.length > 0) {
 			const limitedInclude = includes.splice(0, includeMaxlength);
-			includePromises.push(models[modelName].findOne({where: {id: idObj}, attributes: ['id'], include: limitedInclude}));
+			includePromises.push(models()[modelName].findOne({where: {id: idObj}, attributes: ['id'], include: limitedInclude}));
 		}
 
 		const resolvedData = await Promise.all(includePromises);
@@ -116,7 +121,7 @@ const funcs = {
 			if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart) {
 				(alias => {
 					todoPromises.push(new Promise(function (resolve, reject) {
-						models[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw: true}).then(function (results) {
+						models()[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw: true}).then(function (results) {
 							// Change alias name to avoid conflict
 							data[alias + "_all"] = results;
 							resolve();
