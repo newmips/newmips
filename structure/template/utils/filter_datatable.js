@@ -12,7 +12,7 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 	const length = params.length ? parseInt(params.length) : 10;
 
 	const toInclude = speInclude || [];
-	const isGlobalSearch = params.search.value == "";
+	const isGlobalSearch = params.search.value != "";
 	const search = {}, searchTerm = isGlobalSearch ? models.$or : models.$and;
 	search[searchTerm] = [];
 
