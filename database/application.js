@@ -5,13 +5,12 @@ const Module = require('./module');
 const Component = require('./component');
 
 class Application {
-	constructor(name, displayName, gitlabID) {
+	constructor(name, displayName) {
 		this._name = name;
 		this._displayName = displayName;
-		this._gitlabID = gitlabID;
+		this._gitlabID = null;
 		this._associationSeq = 1; // Used for unique generation of workspace assocation table
 		this._hasDocumentTemplate = 0;
-
 		this._modules = [];
 		this._components = [];
 	}
@@ -25,6 +24,7 @@ class Application {
 
 			app.associationSeq = metadata[name].associationSeq;
 			app.displayName = metadata[name].displayName;
+			app.gitlabID = metadata[name].gitlabID;
 
 			// Modules loading
 			const modules = [];
@@ -196,10 +196,6 @@ class Application {
 		console.log('Saving application ' + this._name + '...');
 		const newMetadata = {};
 		const appName = this._name;
-
-		if (this._gitlabID)
-			newMetadata.gitlabID = this._gitlabID;
-
 		const actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
 
 		// Getting old application specific properties
@@ -208,6 +204,7 @@ class Application {
 			newMetadata[appName] = actualMetadata[appName];
 
 		newMetadata[appName].associationSeq = this._associationSeq;
+		newMetadata[appName].gitlabID = this._gitlabID;
 		newMetadata[appName].hasDocumentTemplate = this._hasDocumentTemplate;
 		newMetadata[appName].displayName = this._displayName;
 		newMetadata[appName].modules = {};
