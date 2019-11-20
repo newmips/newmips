@@ -13,7 +13,7 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 
 	const toInclude = speInclude || [];
 	const isGlobalSearch = params.search.value == "";
-	const search = {}, searchTerm = isGlobalSearch ? '$or' : '$and';
+	const search = {}, searchTerm = isGlobalSearch ? models.$or : models.$and;
 	search[searchTerm] = [];
 
 	// Loop over columns array
@@ -59,14 +59,13 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 	// queryObject.attributes = attributes;
 
 	// If postgres, then we have to parse all value to text, postgres cannot compare varchar with integer for example
-	if(models.sequelize.options.dialect == "postgres" && typeof queryObject.where !== "undefined"){
+	if (models.sequelize.options.dialect == "postgres" && typeof queryObject.where !== "undefined")
 		for(const item in queryObject.where[searchTerm]){
 			const attribute = Object.keys(queryObject.where[searchTerm][item])[0]
 			queryObject.where[searchTerm][item][attribute] = models.sequelize.where(
 				models.sequelize.cast(models.sequelize.col(modelName+'.'+attribute), 'text'),
 				queryObject.where[searchTerm][item][attribute])
 		}
-	}
 
 	// Build include from field array
 	// At the moment queryObject.include = [ 'id', 'r_user.f_nom', 'r_user.r_parent.f_email']
@@ -76,10 +75,7 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 
 	// Execute query with filters and get total count
 	const result = await models[modelName].findAndCountAll(queryObject);
-
-	const lightRows = [];
-	for (let i = 0; i < result.rows.length; i++)
-		lightRows.push(result.rows[i].get({plain: true}));
+	const lightRows = result.rows.map(elem => elem.get({plain: true}));
 
 	return {
 		recordsTotal: result.count,
