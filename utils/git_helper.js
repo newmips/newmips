@@ -45,79 +45,76 @@ module.exports = {
 	}),
 	doGit: (data) => {
 		// We push code on gitlab only in our cloud env
-		if(gitlabConf.doGit){
-			const appName = data.application.name;
+		if(!gitlabConf.doGit)
+			return;
 
-			// Workspace path
-			const workspacePath = __dirname + '/../workspace/' + appName;
+		const appName = data.application.name;
 
-			// Init simple-git in the workspace path
-			const simpleGit = require('simple-git')(workspacePath); // eslint-disable-line
+		// Workspace path
+		const workspacePath = __dirname + '/../workspace/' + appName;
 
-			// . becomes -
-			const cleanHost = globalConf.host.replace(/\./g, "-");
+		// Init simple-git in the workspace path
+		const simpleGit = require('simple-git')(workspacePath); // eslint-disable-line
 
-			// Remove prefix
-			const nameApp = appName.substring(2);
-			const nameRepo = cleanHost + "-" + nameApp;
-			const originName = "origin-" + cleanHost + "-" + nameApp;
-			let repoUrl = "";
+		// . becomes -
+		const cleanHost = globalConf.host.replace(/\./g, "-");
 
-			if(data.gitlabUser != null){
-				const usernameGitlab = data.gitlabUser.username;
+		// Remove prefix
+		const nameApp = appName.substring(2);
+		const nameRepo = cleanHost + "-" + nameApp;
+		const originName = "origin-" + cleanHost + "-" + nameApp;
+		let repoUrl = "";
 
-				if (!gitlabConf.useSSH) {
-					repoUrl = gitlabConf.protocol + "://" + gitlabConf.url + "/" + usernameGitlab + "/" + nameRepo + ".git";
-				} else {
-					repoUrl = gitlabConf.sshUrl + ":" + usernameGitlab + "/" + nameRepo + ".git";
-				}
+		if(!data.gitlabUser)
+			throw new Error("Missing gitlab user in server session.");
 
-				if(typeof gitProcesses[originName] === "undefined")
-					gitProcesses[originName] = false;
+		const usernameGitlab = data.gitlabUser.username;
 
-				const err = null;
+		if (!gitlabConf.useSSH) {
+			repoUrl = gitlabConf.protocol + "://" + gitlabConf.url + "/" + usernameGitlab + "/" + nameRepo + ".git";
+		} else {
+			repoUrl = gitlabConf.sshUrl + ":" + usernameGitlab + "/" + nameRepo + ".git";
+		}
 
-				// Is the workspace already git init ?
-				if(!checkAlreadyInit(appName)){
-					console.log("GIT: Git init in new workspace directory.");
-					console.log(repoUrl);
+		if(typeof gitProcesses[originName] === "undefined")
+			gitProcesses[originName] = false;
 
-					if(!gitProcesses[originName]){
-						// Set gitProcesses to prevent any other git command during this process
-						gitProcesses[originName] = true;
+		// Is the workspace already git init ?
+		if(!checkAlreadyInit(appName)){
+			console.log("GIT: Git init in new workspace directory.");
+			console.log(repoUrl);
 
-						simpleGit.init()
-							.add('.')
-							.commit("First commit!")
-							.addRemote(originName, repoUrl)
-							.push(['-u', originName, 'master'], function(err, answer){
-								gitProcesses[originName] = false;
-								if(err)
-									console.error(err);
-								console.log(answer);
-								writeAllLogs("Git first commit / push", answer, err);
-							});
-					} else {
-						throw new Error("structure.global.error.alreadyInProcess");
-					}
-				} else if(typeof data.function !== "undefined" && data.function != "gitPull" && data.function != "restart"){
-					// We are just after a new instruction
-					console.log("GIT: Git commit after new instruction.");
-					console.log(repoUrl);
+			if(!gitProcesses[originName]){
+				// Set gitProcesses to prevent any other git command during this process
+				gitProcesses[originName] = true;
 
-					const commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
-					simpleGit.add('.')
-						.commit(commitMsg, function(err, answer){
-							if(err)
-								console.error(err);
-							console.log(answer);
-							writeAllLogs("Git commit", answer, err);
-						});
-				}
-				throw err;
-			} else{
-				throw new Error("Missing gitlab user in server session.");
+				simpleGit.init()
+					.add('.')
+					.commit("First commit!")
+					.addRemote(originName, repoUrl)
+					.push(['-u', originName, 'master'], function(err, answer){
+						gitProcesses[originName] = false;
+						if(err)
+							console.error(err);
+						console.log(answer);
+						writeAllLogs("Git first commit / push", answer, err);
+					});
+			} else {
+				throw new Error("structure.global.error.alreadyInProcess");
 			}
+		} else if(typeof data.function !== "undefined" && data.function != "gitPull" && data.function != "restart"){
+			// We are just after a new instruction
+			console.log("GIT: Git commit after new instruction.");
+			console.log(repoUrl);
+
+			const commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
+			simpleGit.add('.')
+				.commit(commitMsg, function(err, answer){
+					if(err)
+						console.error(err);
+					console.log(answer);
+					writeAllLogs("Git commit", answer, err);
+				});
 		}
 	},
 	gitPush: (data) => new Promise((resolve, reject) => {

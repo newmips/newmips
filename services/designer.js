@@ -158,6 +158,7 @@ exports.createNewApplication = async (data) => {
 
 	// Metadata
 	const newApp = new Application(data.options.value, data.options.showValue);
+	data.application = newApp;
 
 	// If connected user is admin, then add only him. If not, add admin and current user
 	const userToAdd = data.currentUser.id == 1 ? 1 : [1, data.currentUser.id];
