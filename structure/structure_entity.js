@@ -261,7 +261,7 @@ exports.setupEntity = async (data) => {
 
 			dustContent = dustContent.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
 		}
-		return fs.writeFileSync(fileToWrite, dustContent, "utf8");
+		fs.writeFileSync(fileToWrite, dustContent, "utf8");
 	}
 
 	// Write new data entity to access.json file, within module's context

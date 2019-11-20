@@ -87,9 +87,6 @@ exports.setSession = (npFunction, req, info, data) => {
 				req.session.entity_name = null;
 			break;
 		default:
-			req.session.app_name = null;
-			req.session.module_name = null;
-			req.session.entity_name = null;
 			break;
 	}
 	return data;
@@ -129,9 +126,6 @@ exports.setSessionObj = (data, info) => {
 			data.entity_name = null;
 			break;
 		default:
-			data.app_name = null;
-			data.module_name = null;
-			data.entity_name = null;
 			break;
 	}
 

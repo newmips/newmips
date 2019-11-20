@@ -401,6 +401,7 @@ function executeFile(req, userID, __) {
 			try {
 				data = await execute(req, fileLines[i], __, data, false); // eslint-disable-line
 			} catch(err) {
+				console.trace(err);
 				// Update script logs
 				scriptData[userID].answers.unshift({
 					instruction: fileLines[i],

@@ -1,10 +1,6 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const block_access = require('../utils/block_access');
-// Datalist
 const filterDataTable = require('../utils/filter_datatable');
-
-// Sequelize
 const models = require('../models/');
 const attributes = require('../models/attributes/e_document_template');
 const options = require('../models/options/e_document_template');
@@ -13,16 +9,11 @@ const entity_helper = require('../utils/entity_helper');
 const globalConfig = require('../config/global');
 const document_template_helper = require('../utils/document_template_helper');
 const status_helper = require('../utils/status_helper.js');
-// Enum and radio managment
 const enums_radios = require('../utils/enum_radio.js');
-
 const moment = require('moment');
-// Winston logger
-const logger = require('../utils/logger');
 const mimeTypes = require('mime-types');
 
 const SELECT_PAGE_SIZE = 10;
-
 
 router.get('/list', block_access.actionAccessMiddleware("document_template", "read"), function (req, res) {
 	res.render('e_document_template/list');
@@ -35,7 +26,6 @@ router.post('/datalist', block_access.actionAccessMiddleware("document_template"
 		});
 	}).catch(function (err) {
 		console.error(err);
-		logger.debug(err);
 		res.end();
 	});
 });
@@ -63,7 +53,6 @@ router.get('/show', block_access.actionAccessMiddleware("document_template", "re
 	}).then(function (e_document_template) {
 		if (!e_document_template) {
 			data.error = 404;
-			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 
@@ -276,7 +265,6 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("documen
 			const data = {
 				error: 404
 			};
-			logger.debug("No data entity found.");
 			return res.render('common/error', data);
 		}
 

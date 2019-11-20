@@ -370,7 +370,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(() => {
 		else
 			server = http.createServer(app);
 
-		const io = false;
+		let io = false;
 		if (globalConf.socket.enabled) {
 			io = require('socket.io')(server); // eslint-disable-line
 			// Provide shared express session to sockets
