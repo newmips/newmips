@@ -141,7 +141,10 @@ exports.setupApplication = async (data) => {
 		id: newRepo.id,
 		user_id: 1, // Admin
 		access_level: 40
-	})
+	});
+
+	// Adding gitlab repo ID to metadata
+	data.application.gitlabID = newRepo.id;
 
 	return newRepo;
 }

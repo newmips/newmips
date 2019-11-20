@@ -201,6 +201,10 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 			res.render('front/preview', data);
 		}).catch(err => {
 			console.error(err);
+
+			if(!err)
+				err = new Error('An error occured');
+
 			let chatKey = err.message;
 			let chatParams = err.messageParams;
 			let lastError = helpers.getLastLoggedError(appName);
