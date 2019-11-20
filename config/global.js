@@ -68,6 +68,6 @@ const config = {
 }
 
 const fullConfig = config[env];
-fullConfig.version = "2.8";
+fullConfig.version = "2.9";
 
 module.exports = fullConfig;
