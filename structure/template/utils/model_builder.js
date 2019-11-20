@@ -3,14 +3,14 @@ const fs = require('fs-extra');
 const Sequelize = require('sequelize');
 const dbConfig = require('../config/database');
 const validators = require('../models/validators')
-let entity_helper;
+const entity_helper = require('./entity_helper');
 
 function capitalizeFirstLetter(word) {
 	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
 }
 
 exports.addHooks = function (Model, model_name, attributes) {
-	const hooks = require('../models/hooks')(model_name, attributes);
+	const hooks = require('../models/hooks')(model_name, attributes); // eslint-disable-line
 	for (const hookType in hooks) {
 		for (let i = 0; i < hooks[hookType].length; i++) {
 			const hook = hooks[hookType][i];
@@ -49,7 +49,7 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 	function buildInclude(currentEntity, includeObject, depths, idx = 0) {
 		if (depths.length-1 == idx)
 			return ;
-		const entityOptions = require('../models/options/'+currentEntity);
+		const entityOptions = require('../models/options/'+currentEntity); // eslint-disable-line
 
 		for (let j = 0; j < entityOptions.length; j++) {
 			if (entityOptions[j].as == depths[idx]) {
@@ -82,7 +82,7 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 // Used by filter_datatable and `/subdatalist` to build search query object
 exports.formatSearch = (column, searchValue, type) => {
 	let formatedSearch = {};
-	const models = require('../models');
+	const models = require('../models'); // eslint-disable-line
 
 	switch(type){
 		case 'datetime':
@@ -105,6 +105,9 @@ exports.formatSearch = (column, searchValue, type) => {
 				case 'unchecked':
 					formatedSearch = false;
 					break;
+				default:
+					formatedSearch = null;
+					break;
 			}
 			break;
 		case 'currency':
@@ -119,7 +122,8 @@ exports.formatSearch = (column, searchValue, type) => {
 			break;
 	}
 
-	let field = column, searchLine = {};
+	let field = column;
+	const searchLine = {};
 	if (field.indexOf('.') != -1)
 		field = `$${field}$`;
 
@@ -224,80 +228,71 @@ exports.buildAssociation = function buildAssociation(selfModel, associations) {
 }
 
 // Check for value in req.body corresponding to hasMany or belongsToMany association in create or update form of an entity
-exports.setAssocationManyValues = function setAssocationManyValues(model, body, buildForRouteObj, options) {
-	return new Promise(function(resolve, reject) {
-		// We have to find value in req.body that are linked to an hasMany or belongsToMany association
-		// because those values are not updated yet
+exports.setAssocationManyValues = (model, body, buildForRouteObj, options) => new Promise(function(resolve, reject) {
+	// We have to find value in req.body that are linked to an hasMany or belongsToMany association
+	// because those values are not updated yet
 
-		const unusedValueFromReqBody = [];
-		for(const propBody in body){
-			let toAdd = true;
-			for(const propObj in buildForRouteObj){
-				if(propBody == "id" || propBody == propObj)
-					toAdd = false;
-			}
-			if(toAdd)
-				unusedValueFromReqBody.push(propBody);
+	const unusedValueFromReqBody = [];
+	for(const propBody in body){
+		let toAdd = true;
+		for(const propObj in buildForRouteObj){
+			if(propBody == "id" || propBody == propObj)
+				toAdd = false;
 		}
+		if(toAdd)
+			unusedValueFromReqBody.push(propBody);
+	}
 
-		const cpt = 0;
-		if(unusedValueFromReqBody.length == 0)
-			return resolve();
+	if(unusedValueFromReqBody.length == 0)
+		return resolve();
 
-		async function setAssociationMany(){
-			// Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
-			for (let i=0; i<options.length; i++) {
-				// Loop on the unused (for now) values in body
-				for (let j=0; j<unusedValueFromReqBody.length; j++) {
-					// If the alias match between the option and the body
-					if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
-						// BelongsTo association have been already done before
-						if(options[i].relation != "belongsTo"){
-							const target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-							const value = [];
+	async function setAssociationMany(){
+		// Loop on option to match the alias and to verify alias that are linked to hasMany or belongsToMany association
+		for (let i=0; i<options.length; i++) {
+			// Loop on the unused (for now) values in body
+			for (let j=0; j<unusedValueFromReqBody.length; j++) {
+				// If the alias match between the option and the body
+				if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
+					// BelongsTo association have been already done before
+					if(options[i].relation != "belongsTo"){
+						const target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+						const value = [];
 
-							// Empty string is not accepted by postgres, clean array to avoid error
-							if(body[unusedValueFromReqBody[j]].length > 0){
-								// If just one value in select2, then it give a string, not an array
-								if(typeof body[unusedValueFromReqBody[j]] == "string"){
-									if(body[unusedValueFromReqBody[j]] != "")
-										value.push(parseInt(body[unusedValueFromReqBody[j]]))
-								} else if(typeof body[unusedValueFromReqBody[j]] == "object") {
-									for(const val in body[unusedValueFromReqBody[j]])
-										if(body[unusedValueFromReqBody[j]][val] != "")
-											value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
-								}
-							}
-							try {
-								await model['set' + target](value);
-								if (!entity_helper)
-									entity_helper = require('./entity_helper');
-
-								// Log association in Journal
-								entity_helper.synchro.writeJournal({
-									verb: "associate",
-									id: model.id,
-									target: options[i].target,
-									entityName: model._modelOptions.name.singular.toLowerCase(),
-									func: 'set' + target,
-									ids: value
-								});
-							} catch(err){
-								throw err
+						// Empty string is not accepted by postgres, clean array to avoid error
+						if(body[unusedValueFromReqBody[j]].length > 0){
+							// If just one value in select2, then it give a string, not an array
+							if(typeof body[unusedValueFromReqBody[j]] == "string"){
+								if(body[unusedValueFromReqBody[j]] != "")
+									value.push(parseInt(body[unusedValueFromReqBody[j]]))
+							} else if(typeof body[unusedValueFromReqBody[j]] == "object") {
+								for(const val in body[unusedValueFromReqBody[j]])
+									if(body[unusedValueFromReqBody[j]][val] != "")
+										value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
 							}
 						}
+
+						await model['set' + target](value); // eslint-disable-line
+						// Log association in Journal
+						entity_helper.synchro.writeJournal({
+							verb: "associate",
+							id: model.id,
+							target: options[i].target,
+							entityName: model._modelOptions.name.singular.toLowerCase(),
+							func: 'set' + target,
+							ids: value
+						});
 					}
 				}
 			}
 		}
+	}
 
-		setAssociationMany().then(function(){
-			resolve();
-		}).catch(function(err){
-			reject(err);
-		})
+	setAssociationMany().then(_ => {
+		resolve();
+	}).catch(err => {
+		reject(err);
 	})
-}
+})
 
 exports.getTwoLevelIncludeAll = function getTwoLevelIncludeAll(models, options) {
 	const structureDatalist = [];

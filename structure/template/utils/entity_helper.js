@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
 const file_helper = require('./file_helper');
-const logger = require('./logger');
 const language = require('../services/language');
 const models = require('../models/');
 const enums_radios = require('../utils/enum_radio.js');
@@ -40,14 +39,15 @@ const funcs = {
 					if (partOfFile.length > 1) {
 						const filePath = `${thumbnailFolder}${entityName}/${partOfFile[0]}/${value}`;
 						(thumbnailTask => {
-							thumbnailPromises.push(new Promise((resolve, reject) => {
+							thumbnailPromises.push(new Promise((resolve) => {
 								file_helper.getFileBuffer(thumbnailTask.file).then(buffer => {
 									data.data[thumbnailTask.i][thumbnailTask.field] = {
 										value: thumbnailTask.value,
 										buffer: buffer
 									};
-								}).catch(e => {
-								}).then(s => {
+								}).catch(err => {
+									console.error(err)
+								}).then(_ => {
 									resolve();
 								});
 							}));
@@ -66,7 +66,7 @@ const funcs = {
 			if (globalConfig.env != "tablet")
 				return;
 			const journal = JSON.parse(fs.readFileSync(__dirname + '/../sync/journal.json', 'utf8'));
-			if (!journal.transactions instanceof Array)
+			if (!Array.isArray(journal.transactions))
 				journal.transactions = [];
 			journal.transactions.push(line);
 			fs.writeFileSync(__dirname + '/../sync/journal.json', JSON.stringify(journal, null, 4), 'utf8');
@@ -112,7 +112,7 @@ const funcs = {
 	getLoadOnStartData: async function (data, options) {
 		// Check in given options if there is associations data (loadOnStart param) that we need to push in our data object
 		const todoPromises = [];
-		for (var i = 0; i < options.length; i++) {
+		for (let i = 0; i < options.length; i++) {
 			if (typeof options[i].loadOnStart !== "undefined" && options[i].loadOnStart) {
 				(alias => {
 					todoPromises.push(new Promise(function (resolve, reject) {
@@ -164,33 +164,33 @@ const funcs = {
 			}
 
 		} finally {
-			if (ajax) {
-				return res.status(data.code).send(req.session.toastr);
+			if (ajax)
+				res.status(data.code).send(req.session.toastr);
+			else if (isKnownError)
+				res.redirect(redirect || '/');
+			else {
+				console.error(err);
+				res.status(data.code).render('common/error', data);
 			}
-			if (isKnownError) {
-				return res.redirect(redirect || '/');
-			} console.error(err);
-
-			logger.debug(err);
-			res.status(data.code).render('common/error', data);
 		}
 	},
-	getPicturesBuffers: function (entity, modelName, isThumbnail)  {
-		return new Promise(function (resolve, reject) {
+	getPicturesBuffers: function (entity, modelName, isThumbnail) {
+		return new Promise((resolve) => {
 			if (!entity)
-				resolve();
+				return resolve();
+
 			let attributes;
 			try {
 				attributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + modelName + '.json'));
 			} catch (e) {
-				resolve();
+				return resolve();
 			}
 
 			const bufferPromises = [];
 			for (const key in entity.dataValues)
 				if (attributes[key] && attributes[key].newmipsType == 'picture') {
 					(function (keyCopy) {
-						bufferPromises.push(new Promise(function (resolveBuf, rejectBuf) {
+						bufferPromises.push(new Promise((resolveBuf) => {
 							const value = entity.dataValues[keyCopy] || '';
 							const partOfValue = value.split('-');
 							if (partOfValue.length <= 1)
@@ -204,14 +204,15 @@ const funcs = {
 									buffer: buffer
 								};
 							}).catch(e => {
-							}).then(s => {
+								console.error(e);
+							}).then(_ => {
 								resolveBuf();
 							});
 						}));
 					}(key));
 				}
 
-			Promise.all(bufferPromises).then(function () {
+			Promise.all(bufferPromises).then(_ => {
 				resolve();
 			});
 		});
@@ -220,7 +221,6 @@ const funcs = {
 		for (const key in entity.dataValues) {
 			for (const attribute in attributes) {
 				if ((attributes[attribute].newmipsType === 'file' ||
-						attributes[attribute].newmipsType === "cloudfile" ||
 						attributes[attribute].newmipsType === "picture") &&
 						attribute == key) {
 					const value = entity.dataValues[key];
@@ -252,10 +252,9 @@ const funcs = {
 		}
 		for (let i = 0; i < includes.length; i++) {
 			const include = includes[i];
-			const name = (type == 'model' ? include[type].name : include.as);
-			if (name == toFind) {
+			const name = type == 'model' ? include[type].name : include.as;
+			if (name == toFind)
 				return include;
-			}
 		}
 	}
 };
