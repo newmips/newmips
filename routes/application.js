@@ -663,7 +663,6 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 		}
 		metadata.getApplication(req.session.app_name).save();
 		await structure_application.initializeApplication(metadata.getApplication(req.session.app_name));
-		return;
 	})().then(_ => {
 		// Build API documentation
 		docBuilder.build(metadata.getApplication(req.session.app_name));
