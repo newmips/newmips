@@ -5,7 +5,7 @@ const models = require('../models/');
 const model_builder = require('../utils/model_builder');
 const attributes = require('../models/attributes/e_URL_ROUTE_event');
 const options = require('../models/options/e_URL_ROUTE_event');
-const entity_helper = require('../utils/entity_helper');
+const entity_helper = require('../helpers/entity');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
 	const data = {};

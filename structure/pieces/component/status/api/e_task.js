@@ -4,7 +4,7 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_task');
 const options = require('../models/options/e_task');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
+const entity_helper = require('../helpers/entity');
 const globalConf = require('../config/global');
 
 router.get('/:id/downloadProgram', function(req, res) {

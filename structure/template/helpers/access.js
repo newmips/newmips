@@ -1,6 +1,6 @@
 const models = require('../models/');
 const fs = require('fs-extra');
-const block_access = require('./block_access');
+const block_access = require('../utils/block_access');
 
 // Get workspace modules and entities list
 // Also get workspace's groups and roles

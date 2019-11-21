@@ -5,11 +5,11 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_media_mail');
 const options = require('../models/options/e_media_mail');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
-const status_helper = require('../utils/status_helper');
+const entity_helper = require('../helpers/entity');
+const status_helper = require('../helpers/status');
 
 // Enum and radio managment
-const enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../helpers/enum_radio.js');
 
 // Winston logger
 const logger = require('../utils/logger');

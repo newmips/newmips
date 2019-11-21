@@ -9,9 +9,9 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_api_credentials');
 const options = require('../models/options/e_api_credentials');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
-const status_helper = require('../utils/status_helper');
-const component_helper = require('../utils/component_helper');
+const entity_helper = require('../helpers/entity');
+const status_helper = require('../helpers/status');
+const component_helper = require('../helpers/component');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const randomString = require('randomstring');
@@ -20,7 +20,7 @@ const moment = require('moment');
 const SELECT_PAGE_SIZE = 10;
 
 // Enum and radio managment
-const enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../helpers/enum_radio.js');
 
 // Winston logger
 const logger = require('../utils/logger');

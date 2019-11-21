@@ -9,15 +9,15 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_translation');
 const options = require('../models/options/e_translation');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
-const file_helper = require('../utils/file_helper');
-const status_helper = require('../utils/status_helper');
+const entity_helper = require('../helpers/entity');
+const file_helper = require('../helpers/file');
+const status_helper = require('../helpers/status');
 const globalConfig = require('../config/global');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 
 // Enum and radio managment
-const enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../helpers/enum_radio.js');
 
 // Winston logger
 const logger = require('../utils/logger');

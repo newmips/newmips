@@ -1,5 +1,5 @@
 const models = require('../models/');
-const entity_helper = require('../utils/entity_helper');
+const entity_helper = require('../helpers/entity');
 const model_builder = require('../utils/model_builder');
 const fs = require('fs-extra');
 
