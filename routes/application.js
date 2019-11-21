@@ -735,31 +735,28 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			for (let item in zip.files) {
 				item = zip.files[item];
 
-				promises.push(new Promise((resolve, reject) => {
+				// promises.push(new Promise((resolve, reject) => {
 					const currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
 
 					// Directory
-					if (item.dir) {
-						try {
-							fs.mkdirsSync(currentPath);
-						} catch (err) {
-							console.error(err);
-						}
-						return resolve();
+					if (item.dir){
+						fs.mkdirsSync(currentPath);
+						continue;
 					}
 
 					// File
-					zip.file(item.name).async('nodebuffer').then(content => {
+					const content = await zip.file(item.name).async('nodebuffer')
+					// .then(content => {
 						fs.writeFileSync(currentPath, content);
-						resolve();
-					}).catch(err => {
-						console.error(err);
-						reject(err);
-					});
-				}));
+						// resolve();
+					// }).catch(err => {
+					// 	console.error(err);
+					// 	reject(err);
+					// });
+				// }));
 			}
 
-			await Promise.all(promises);
+			// await Promise.all(promises);
 
 			// Need to modify so file content to change appName in it
 			const fileToReplace = ['/config/metadata.json', '/config/database.js'];
