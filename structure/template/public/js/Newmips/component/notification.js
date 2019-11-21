@@ -2,8 +2,7 @@
 function formatDate(value) {
     if (lang_user == "fr-FR")
         return moment(new Date(value)).format("DD/MM/YYYY");
-    else
-        return moment(new Date(value)).format("YYYY-MM-DD");
+    return moment(new Date(value)).format("YYYY-MM-DD");
 }
 
 // Prepend notification to notification list
@@ -43,6 +42,9 @@ $(function() {
     // Load new notifications on scroll
     var lastNotifReached = false;
     $("#notification-wrapper").scroll(function() {
+        if (lastNotifReached)
+            return;
+
         var wrapper = $(this);
 
         // Scrollbar reached bottom
@@ -50,8 +52,6 @@ $(function() {
             var notificationOffset = wrapper.children('li').length;
 
             // Stop ajax calls if there is no more notification to load
-            if (lastNotifReached)
-                return;
             $.ajax({
                 url: '/notification/load/'+notificationOffset,
                 success: function(notifications) {
