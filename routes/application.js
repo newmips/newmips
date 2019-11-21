@@ -444,7 +444,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 		for (let i = 0; i < applications.length; i++) {
 			promises.push((async () => {
 				const port = 9000 + parseInt(applications[i].id);
-				const app_url = globalConf.protocol_iframe + '://' + host + ":" + port + "/";
+				let app_url = globalConf.protocol_iframe + '://' + host + ":" + port + "/";
 
 				const appName = applications[i].name.substring(2);
 				if (globalConf.env == 'cloud')
