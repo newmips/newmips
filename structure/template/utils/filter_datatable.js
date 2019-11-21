@@ -7,7 +7,6 @@ const model_builder = require('./model_builder');
 //  - speInclude - optional: ['r_inclusion.r_specific.id',] - array of field path used to build query's include
 //  - speWhere - optional: {id: 1, property: 'value'}
 module.exports = async (modelName, params, speInclude, speWhere) => {
-
 	const start = params.start ? parseInt(params.start) : 1;
 	const length = params.length ? parseInt(params.length) : 10;
 
