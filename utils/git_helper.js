@@ -227,12 +227,12 @@ module.exports = {
 	gitCommit: (data) => new Promise((resolve, reject) => {
 
 		if(!gitlabConf.doGit)
-			return reject(new Error('structure.global.error.notDoGit'));
+			return resolve();
 
 		// We push code on gitlab only in our cloud env
 		const appName = data.application.name;
 		// Workspace path
-		const workspacePath = __dirname+'/../workspace/'+appName;
+		const workspacePath = __dirname + '/../workspace/' + appName;
 		// Init simple-git in the workspace path
 		const simpleGit = require('simple-git')(workspacePath); // eslint-disable-line
 		// . becomes -

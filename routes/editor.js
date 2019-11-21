@@ -41,13 +41,12 @@ router.post('/update_file', block_access.hasAccessApplication, function(req, res
 
 	fs.writeFileSync(req.body.path, req.body.content);
 
-	const data = {};
-	data.function = "Saved a file from editor: " + req.body.path;
-	data.app_name = req.session.app_name;
-
 	res.json(true);
 
-	gitHelper.gitCommit(data).catch(err => {
+	gitHelper.gitCommit({
+		function: "Saved a file from editor: " + req.body.path,
+		app_name: req.session.app_name
+	}).catch(err => {
 		console.error(err);
 	})
 });
