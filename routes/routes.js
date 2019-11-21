@@ -127,6 +127,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res) {
 		const user = await models.User.findOne({
 			where: {
 				login: login_user,
+				email: email_user,
 				[models.$or]: [{password: ""}, {password: null}],
 				enabled: false
 			}
