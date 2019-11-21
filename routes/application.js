@@ -429,14 +429,10 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 				},
 				required: true
 			}],
-			order: [
-				['id', 'DESC']
-			]
+			order: [['id', 'DESC']]
 		});
 
-		const data = {
-			gitlabUser: null
-		};
+		const data = {gitlabUser: null};
 		const host = globalConf.host;
 
 		// Get user project for clone url generation
@@ -446,19 +442,18 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 		let promises = [];
 		for (let i = 0; i < applications.length; i++) {
 			promises.push((async () => {
-
 				const port = 9000 + parseInt(applications[i].id);
 				const app_url = globalConf.protocol_iframe + '://' + host + ":" + port + "/";
 
 				if (globalConf.env == 'cloud')
 					app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
-				const metadataApp = metadata.getApplication(applications[i].name);
 				const appName = applications[i].name.substring(2);
 
-				if(gitlabConf.doGit && data.gitlabUser){
-					const project = await gitlab.getProjectByID(metadataApp.gitlabID).then()
-					if(project)
+				if (gitlabConf.doGit && data.gitlabUser) {
+					const metadataApp = metadata.getApplication(applications[i].name);
+					const project = await gitlab.getProjectByID(metadataApp.gitlabID).then();
+					if (project)
 						applications[i].dataValues.repo_url = project.http_url_to_repo;
 					else
 						console.warn("Cannot find gitlab project: " + metadataApp.name);
@@ -502,149 +497,150 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 		return res.redirect('/default/home');
 	}
 
-	const instructions = [];
-	instructions.push("create application " + req.body.application);
-	instructions.push("create module home");
+	const instructions = [
+		"create application " + req.body.application,
+		"create module home",
 
-	// Authentication module
-	instructions.push("create module Administration");
-	instructions.push("create entity User");
-	instructions.push("add field login");
-	instructions.push("set field login required");
-	instructions.push("set field login unique");
-	instructions.push("add field password");
-	instructions.push("add field email with type email");
-	instructions.push("add field token_password_reset");
-	instructions.push("add field enabled with type number");
-	instructions.push("set icon user");
-	instructions.push("create entity Role");
-	instructions.push("add field label");
-	instructions.push("set field label required");
-	instructions.push("set field label unique");
-	instructions.push("set icon asterisk");
-	instructions.push("create entity Group");
-	instructions.push("add field label");
-	instructions.push("set field label required");
-	instructions.push("set field label unique");
-	instructions.push("set icon users");
-	instructions.push("select entity User");
-	instructions.push("add field Role related to many Role using label");
-	instructions.push("add field Group related to many Group using label");
-	instructions.push("set field Role required");
-	instructions.push("set field Group required");
-	instructions.push("entity Role has many user");
-	instructions.push("entity Group has many user");
-	instructions.push("add entity API credentials");
-	instructions.push("add field Client Name");
-	instructions.push("add field Client Key");
-	instructions.push("add field Client Secret");
-	instructions.push("set icon key");
-	instructions.push("add field role related to many Role using label");
-	instructions.push("add field group related to many Group using label");
-	instructions.push("add field Token");
-	instructions.push("add field Token timeout TMSP");
-	instructions.push("add entity Synchronization");
-	instructions.push("entity Synchronization has one API credentials");
-	instructions.push("add field Journal backup file");
-	instructions.push("add entity Synchro credentials");
-	instructions.push("add field Cloud host with type url");
-	instructions.push("add field Client key");
-	instructions.push("add field Client secret");
-	instructions.push("set icon unlink");
-	instructions.push("add widget stat on entity User");
+		// Authentication module
+		"create module Administration",
+		"create entity User",
+		"add field login",
+		"set field login required",
+		"set field login unique",
+		"add field password",
+		"add field email with type email",
+		"add field token_password_reset",
+		"add field enabled with type number",
+		"set icon user",
+		"create entity Role",
+		"add field label",
+		"set field label required",
+		"set field label unique",
+		"set icon asterisk",
+		"create entity Group",
+		"add field label",
+		"set field label required",
+		"set field label unique",
+		"set icon users",
+		"select entity User",
+		"add field Role related to many Role using label",
+		"add field Group related to many Group using label",
+		"set field Role required",
+		"set field Group required",
+		"entity Role has many user",
+		"entity Group has many user",
+		"add entity API credentials",
+		"add field Client Name",
+		"add field Client Key",
+		"add field Client Secret",
+		"set icon key",
+		"add field role related to many Role using label",
+		"add field group related to many Group using label",
+		"add field Token",
+		"add field Token timeout TMSP",
+		"add entity Synchronization",
+		"entity Synchronization has one API credentials",
+		"add field Journal backup file",
+		"add entity Synchro credentials",
+		"add field Cloud host with type url",
+		"add field Client key",
+		"add field Client secret",
+		"set icon unlink",
+		"add widget stat on entity User",
 
-	// Component status base
-	instructions.push("add entity Status");
-	instructions.push("set icon tags");
-	instructions.push("add field Entity");
-	instructions.push("add field Field");
-	instructions.push("add field Name");
-	instructions.push("add field Color with type color");
-	instructions.push("add field Accepted group related to many Group using Label");
-	instructions.push("add field Button label");
-	instructions.push("add field Position with type number");
-	instructions.push("add field Default with type boolean");
-	instructions.push("add field Comment with type boolean");
-	instructions.push("entity Status has many Status called Children");
-	instructions.push("entity status has many Translation called Translations");
-	instructions.push("select entity translation");
-	instructions.push("add field Language");
-	instructions.push("add field Value");
-	instructions.push("create entity Robot");
-	instructions.push("set icon android");
-	instructions.push("add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING");
-	instructions.push("add field Name");
-	instructions.push("add field Api credentials related to api credentials using client name");
-	instructions.push("add field Comment with type regular text");
-	instructions.push("create entity Task");
-	instructions.push("set icon cogs");
-	instructions.push("add component status with name State");
-	instructions.push("add field Title");
-	instructions.push("set field Title required");
-	instructions.push("add field Type with type enum and values Manual, Automatic and default value Manual");
-	instructions.push("add field Planned date with type date");
-	instructions.push("add field Execution start date with type date");
-	instructions.push("add field Execution finish date with type date");
-	instructions.push("add field Duration with type decimal");
-	instructions.push("add field Data flow with type regular text");
-	instructions.push("add field Robot related to Robot using Name");
-	instructions.push("add field Program file with type file");
-	instructions.push("add field Procedure with type regular text");
-	instructions.push("add component localfilestorage with name Documents");
-	instructions.push("create entity Media");
-	instructions.push("set icon envelope");
-	instructions.push("add field Type with type enum and values Mail, Notification, SMS, Task");
-	instructions.push("add field Name");
-	instructions.push("set field Name required");
-	instructions.push("add field Target entity");
-	instructions.push("entity Media has one Media Mail");
-	instructions.push("entity Media has one Media Notification");
-	instructions.push("entity Media has one Media SMS");
-	instructions.push("entity Media has one Media Task");
-	instructions.push("select entity media task");
-	instructions.push("add field Task name");
-	instructions.push("add field Task type with type enum and values Manual, Automatic and default value Manual");
-	instructions.push("add field Assignment logic");
-	instructions.push("add field Program file with type file");
-	instructions.push("add field Data flow with type text");
+		// Component status base
+		"add entity Status",
+		"set icon tags",
+		"add field Entity",
+		"add field Field",
+		"add field Name",
+		"add field Color with type color",
+		"add field Accepted group related to many Group using Label",
+		"add field Button label",
+		"add field Position with type number",
+		"add field Default with type boolean",
+		"add field Comment with type boolean",
+		"entity Status has many Status called Children",
+		"entity status has many Translation called Translations",
+		"select entity translation",
+		"add field Language",
+		"add field Value",
+		"create entity Robot",
+		"set icon android",
+		"add field Current status with type enum and values CONNECTED, DISCONNECTED, WORKING",
+		"add field Name",
+		"add field Api credentials related to api credentials using client name",
+		"add field Comment with type regular text",
+		"create entity Task",
+		"set icon cogs",
+		"add component status with name State",
+		"add field Title",
+		"set field Title required",
+		"add field Type with type enum and values Manual, Automatic and default value Manual",
+		"add field Planned date with type date",
+		"add field Execution start date with type date",
+		"add field Execution finish date with type date",
+		"add field Duration with type decimal",
+		"add field Data flow with type regular text",
+		"add field Robot related to Robot using Name",
+		"add field Program file with type file",
+		"add field Procedure with type regular text",
+		"add component localfilestorage with name Documents",
+		"create entity Media",
+		"set icon envelope",
+		"add field Type with type enum and values Mail, Notification, SMS, Task",
+		"add field Name",
+		"set field Name required",
+		"add field Target entity",
+		"entity Media has one Media Mail",
+		"entity Media has one Media Notification",
+		"entity Media has one Media SMS",
+		"entity Media has one Media Task",
+		"select entity media task",
+		"add field Task name",
+		"add field Task type with type enum and values Manual, Automatic and default value Manual",
+		"add field Assignment logic",
+		"add field Program file with type file",
+		"add field Data flow with type text",
 
-	instructions.push("entity status has many Action called Actions");
-	instructions.push("select entity action");
-	instructions.push("add field Media related to Media using name");
-	instructions.push("add field Order with type number");
-	instructions.push("add field Execution with type enum and values Immédiate, Différée with default value Immédiate");
-	instructions.push("select entity media mail");
-	instructions.push("add field To");
-	instructions.push("add field Cc");
-	instructions.push("add field Cci");
-	instructions.push("add field From");
-	instructions.push("add field Attachments");
-	instructions.push("add field Subject");
-	instructions.push("add field Content with type text");
-	instructions.push("select entity media notification");
-	instructions.push("add field Title");
-	instructions.push("add field Description");
-	instructions.push("add field Icon");
-	instructions.push("add field Color with type color");
-	instructions.push("add field targets");
-	instructions.push("add entity Notification");
-	instructions.push("add field Title");
-	instructions.push("add field Description");
-	instructions.push("add field URL");
-	instructions.push("add field Color with type color");
-	instructions.push("add field Icon");
-	instructions.push("select entity media SMS");
-	instructions.push("add field Message with type text");
-	instructions.push("add field Phone numbers");
-	instructions.push("entity user has many notification");
-	instructions.push("entity notification has many user");
+		"entity status has many Action called Actions",
+		"select entity action",
+		"add field Media related to Media using name",
+		"add field Order with type number",
+		"add field Execution with type enum and values Immédiate, Différée with default value Immédiate",
+		"select entity media mail",
+		"add field To",
+		"add field Cc",
+		"add field Cci",
+		"add field From",
+		"add field Attachments",
+		"add field Subject",
+		"add field Content with type text",
+		"select entity media notification",
+		"add field Title",
+		"add field Description",
+		"add field Icon",
+		"add field Color with type color",
+		"add field targets",
+		"add entity Notification",
+		"add field Title",
+		"add field Description",
+		"add field URL",
+		"add field Color with type color",
+		"add field Icon",
+		"select entity media SMS",
+		"add field Message with type text",
+		"add field Phone numbers",
+		"entity user has many notification",
+		"entity notification has many user",
 
-	// Inline help
-	instructions.push("add entity Inline Help");
-	instructions.push("set icon question-circle-o");
-	instructions.push("add field Entity");
-	instructions.push("add field Field");
-	instructions.push("add field Content with type text");
+		// Inline help
+		"add entity Inline Help",
+		"set icon question-circle-o",
+		"add field Entity",
+		"add field Field",
+		"add field Content with type text"
+	];
 
 	// Set default theme if different than blue-light
 	if(typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")

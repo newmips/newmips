@@ -216,7 +216,8 @@
 		"selectExisting": "Select an existing application",
 		"plural": "Applications",
 		"not_started": "There is no application running. Select one in the list.",
-		"no_access": "You have no access to this application."
+		"no_access": "You have no access to this application.",
+		"couldnt_load": "Couldn't load application"
 	},
 	"select": {
 		"default": "-- Choose --"

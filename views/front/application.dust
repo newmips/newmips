@@ -133,6 +133,7 @@
 			$(document).on('click', '.deleteAppForm', function() {
 				if(!window.confirm(sureToDelete))
 					return;
+				var originHtml = $(this).html();
 				$(this).html(loading);
 				$(this).prop("disabled", true);
 				$(document.body).css({cursor: 'wait'});
@@ -157,6 +158,8 @@
 							toastr.error(err.messageText);
 						else if(err.responseText)
 							toastr.error(err.responseText);
+						$(this).html(originHtml);
+						$(document.body).css({cursor: 'auto'});
 					}
 				});
 
