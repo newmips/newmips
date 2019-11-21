@@ -20,17 +20,14 @@ class Metadata {
 	}
 
 	deleteApplication(name) {
-		if(this._applications.filter(x => x.name == name).length == 0)
-			throw new Error('database.application.notFound.withThisName');
-
 		for (let i = 0; i < this._applications.length; i++)
 			if(this._applications[i].name == name) {
 				delete this._applications[i];
 				this._applications.splice(i, 1);
-				break;
+				return true;
 			}
 
-		return true;
+		throw new Error('database.application.notFound.withThisName');
 	}
 }
 
