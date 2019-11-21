@@ -20,7 +20,6 @@ class Metadata {
 	}
 
 	deleteApplication(name) {
-
 		if(this._applications.filter(x => x.name == name).length == 0)
 			throw new Error('database.application.notFound.withThisName');
 
