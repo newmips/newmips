@@ -75,6 +75,10 @@ class Application {
 		return this._displayName;
 	}
 
+	get gitlabID() {
+		return this._gitlabID;
+	}
+
 	get modules() {
 		return this._modules;
 	}
