@@ -441,7 +441,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 		const host = globalConf.host;
 
 		// Get user project for clone url generation
-		if(req.session.gitlab.user)
+		if(req.session.gitlab && req.session.gitlab.user)
 			data.gitlabUser = req.session.gitlab.user;
 
 		let promises = [];
@@ -724,13 +724,11 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			// Delete temporary zip file
 			fs.unlinkSync('importArchive.zip');
 
-			// const promises = [];
-			let oldAppName = false,
-				appRegex;
+			let oldAppName = false;
 
 			let metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
 			oldAppName = Object.keys(metadataContent)[0];
-			appRegex = new RegExp(oldAppName, 'g');
+			const appRegex = new RegExp(oldAppName, 'g');
 			if(!oldAppName) {
 				infoText += '- Unable to find metadata.json in .zip.<br>';
 				return null;
