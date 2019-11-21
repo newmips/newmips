@@ -493,7 +493,8 @@ exports.initializeApplication = async(application) => {
 }
 
 const process_manager = require('../services/process_manager.js');
-exports.deleteApplication = async(app_name) => {
+exports.deleteApplication = async(data) => {
+	const app_name = data.application.name;
 	// Kill spawned child process by preview
 	const process_server = process_manager.process_server;
 	const pathToWorkspace = __dirname + '/../workspace/' + app_name;
@@ -512,8 +513,7 @@ exports.deleteApplication = async(app_name) => {
 	}
 
 	if (gitlabConf.doGit) {
-		const project = await gitlab.getProject(nameRepo);
-
+		const project = await gitlab.getProjectByID(data.application.gitlabID);
 		if (!project)
 			console.error("Unable to find gitlab project to delete.");
 		else {

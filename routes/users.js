@@ -8,6 +8,8 @@ const gitlab = require('../services/gitlab_api');
 const gitlabConf = require('../config/gitlab.js');
 const globalConf = require('../config/global.js');
 
+const metadata = require('../database/metadata')();
+
 router.get('/', block_access.isAdmin, (req, res) => {
 	const data = {};
 	models.User.findAll({
@@ -148,9 +150,10 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 		const user = await models.User.findByPk(userID);
 
 		if (!user)
-			throw new Error("User not found");
+			throw new Error("Newmips user not found in database.");
 
-		await user.addApplication(appID);
+		if(!user.enabled)
+			throw new Error("This newmips user is not activated yet.");
 
 		// Add user to gitlab project too
 		if(gitlabConf.doGit){
@@ -159,22 +162,28 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 
 			const gitlabUser = await gitlab.getUser(user.email);
 
+			if(!gitlabUser)
+				throw new Error('Cannot find gitlab user with email: ' + user.email);
+
 			for (let i = 0; i < appID.length; i++) {
 				const application = await models.Application.findByPk(appID[i]); // eslint-disable-line
-				const projectName = globalConf.host + "-" + application.codeName.substring(2);
-				const gitlabProject = await gitlab.getProject(projectName); // eslint-disable-line
-				await gitlab.addUserToProject(gitlabUser.id, gitlabProject.id); // eslint-disable-line
+				const metadataApp = metadata.getApplication(application.name)
+				await gitlab.addUserToProject(gitlabUser.id, metadataApp.gitlabID); // eslint-disable-line
 			}
 		}
 
+		await user.addApplication(appID);
+
 		return userID;
 	})().then(userID => {
-		res.redirect('/users/show/'+userID+"#applications");
+		res.redirect('/users/show/' + userID + "#applications");
 	}).catch(err => {
 		console.error(err);
-		return res.render('common/error', {
-			code: 500
-		});
+		req.session.toastr = [{
+			message: err.message,
+			level: 'error'
+		}]
+		return res.redirect('/users');
 	})
 })
 
@@ -185,7 +194,10 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
 		const userID = req.body.id_user;
 		const user = await models.User.findByPk(userID);
 		if (!user)
-			throw new Error('404 - User not found');
+			throw new Error("Newmips user not found in database.");
+
+		if(!user.enabled)
+			throw new Error("This newmips user is not activated yet.");
 
 		const applications = await user.getApplications();
 
@@ -196,16 +208,17 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
 				break;
 			}
 
-		await user.setApplications(applications);
-
 		// Remove gitlab access
 		if(gitlabConf.doGit){
 			const application = await models.Application.findByPk(appID);
-			const projectName = globalConf.host + "-" + application.codeName.substring(2);
-			const gitlabProject = await gitlab.getProject(projectName);
 			const gitlabUser = await gitlab.getUser(user.email);
-			await gitlab.removeUserFromProject(gitlabUser.id, gitlabProject.id);
+			if(!gitlabUser)
+				throw new Error('Cannot find gitlab user with email: ' + user.email);
+			const metadataApp = metadata.getApplication(application.name);
+			await gitlab.removeUserFromProject(gitlabUser.id, metadataApp.gitlabID);
 		}
+
+		await user.setApplications(applications);
 
 		return user.id;
 	})().then(userID => {

@@ -184,7 +184,7 @@ exports.createNewApplication = async (data) => {
 exports.deleteApplication = async (data) => {
 
 	// Load app before deleting it
-	metadata.getApplication(data.options.value);
+	data.application = metadata.getApplication(data.options.value);
 
 	const hasAccess = await models.User.findOne({
 		where: {
@@ -202,7 +202,7 @@ exports.deleteApplication = async (data) => {
 	if(!hasAccess)
 		throw new Error("You do not have access to this application, you cannot delete it.");
 
-	await structure_application.deleteApplication(data.options.value);
+	await structure_application.deleteApplication(data);
 
 	let request = "";
 	if(sequelize.options.dialect == "mysql")

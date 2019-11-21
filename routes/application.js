@@ -434,35 +434,40 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 			]
 		});
 
-		let app_url, port, appName;
-		const data = {};
-		const {host} = globalConf;
+		const data = {
+			gitlabUser: null
+		};
+		const host = globalConf.host;
 
 		// Get user project for clone url generation
-		let gitlabProjects = [];
-		if(gitlabConf.doGit && req.session.gitlab && req.session.gitlab.user)
-			gitlabProjects = await gitlab.getAllProjects(req.session.gitlab.user.id);
+		if(req.session.gitlab.user)
+			data.gitlabUser = req.session.gitlab.user;
 
+		let promises = [];
 		for (let i = 0; i < applications.length; i++) {
+			promises.push((async () => {
 
-			app_url = globalConf.protocol_iframe + '://';
-			port = 9000 + parseInt(applications[i].id);
-			appName = applications[i].name.substring(2);
-			app_url += host + ":" + port + "/";
+				const port = 9000 + parseInt(applications[i].id);
+				const app_url = globalConf.protocol_iframe + '://' + host + ":" + port + "/";
 
-			if (globalConf.env == 'cloud')
-				app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+				if (globalConf.env == 'cloud')
+					app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
-			if(gitlabConf.doGit){
-				const project = gitlabProjects.filter(x => x.name == globalConf.host + "-" + appName)[0];
-				if(project) {
-					// applications[i].dataValues.repo_url = gitlabConf.protocol + "://" + gitlabConf.url + "/" + req.session.gitlab.user.username + "/" + globalConf.host.replace(/\./g, "-") + "-" + appName + ".git"
-					applications[i].dataValues.repo_url = project.http_url_to_repo;
-					data.gitlabUser = req.session.gitlab.user;
+				const metadataApp = metadata.getApplication(applications[i].name);
+				const appName = applications[i].name.substring(2);
+
+				if(gitlabConf.doGit && data.gitlabUser){
+					const project = await gitlab.getProjectByID(metadataApp.gitlabID).then()
+					if(project)
+						applications[i].dataValues.repo_url = project.http_url_to_repo;
+					else
+						console.warn("Cannot find gitlab project: " + metadataApp.name);
 				}
-			}
-			applications[i].dataValues.url = app_url;
+				applications[i].dataValues.url = app_url;
+			})())
 		}
+
+		await Promise.all(promises);
 
 		data.applications = applications
 		return data;
