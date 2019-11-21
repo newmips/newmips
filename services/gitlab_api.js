@@ -126,9 +126,6 @@ exports.getAllProjects = async () => {
 			'Content-Type': 'application/json',
 			'Private-Token': token
 		},
-		qs: {
-			search: globalConf.host // Reduce search on current generator repository
-		},
 		json: true // Automatically stringifies the body to JSON
 	};
 
@@ -142,26 +139,22 @@ exports.getAllProjects = async () => {
 	}
 }
 
-exports.getProject = async (projectName) => {
+exports.getProjectByID = async (projectID) => {
 	const options = {
-		uri: gitlabURL + "/projects",
+		uri: gitlabURL + "/projects/" + projectID,
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
 			'Private-Token': token
 		},
 		qs: {
-			search: globalConf.host // Reduce search on current generator repository
+			per_page: 100
 		},
 		json: true // Automatically stringifies the body to JSON
 	};
 
-	console.log("GITLAB CALL => getProject");
-
 	try {
-		const allProjects = await request(options);
-		const project = allProjects.filter(x => x.name == projectName);
-		return project.length == 0 ? false : project[0];
+		return await request(options);
 	} catch(err){
 		console.error(err);
 		throw new Error("An error occured while getting gitlab project.");
