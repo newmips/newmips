@@ -57,7 +57,7 @@
 																</a>
 															</td>
 															<td class="text-center">
-																<a class="btn btn-primary" href="/application/export/{name}">
+																<a class="btn btn-primary export-btn" href="/application/export/{name}">
 																	<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
 																	<span>{#__ key="button.export"/}</span>
 																</a>
@@ -127,6 +127,25 @@
 		var loading = '{#__ key="listApplication.loading"/}';
 		var projectDelete = '{#__ key="listApplication.projectDelete"/}';
 		var appDelete = '{#__ key="listApplication.appDelete"/}';
+
+		$(document).on('click', '.export-btn', function(){
+			var context = this;
+	        $(this).prop("readOnly", true);
+	        $(this).css("cursor", "wait");
+	        var tmpText = $(this).html();
+	        if ($(this).hasClass("btn-confirm")) {
+	            if (!isChrome) {
+	                $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+	            }
+	        } else {
+	            $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+	        }
+	        setTimeout(function () {
+	            $(context).prop("readOnly", false);
+	            $(context).css("cursor", "pointer");
+	            $(context).html(tmpText);
+	        }, 1000);
+		});
 
 		$(document).ready(function() {
 			/* --- Delete application --- */
