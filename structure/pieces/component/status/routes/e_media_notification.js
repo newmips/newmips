@@ -5,8 +5,8 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_media_notification');
 const options = require('../models/options/e_media_notification');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
-const enums_radios = require('../utils/enum_radio.js');
+const entity_helper = require('../helpers/entity');
+const enums_radios = require('../helpers/enum_radio.js');
 
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 

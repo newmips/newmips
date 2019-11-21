@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const Sequelize = require('sequelize');
 const dbConfig = require('../config/database');
 const validators = require('../models/validators')
-const entity_helper = require('./entity_helper');
+const entity_helper = require('../helpers/entity');
 
 function capitalizeFirstLetter(word) {
 	return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);

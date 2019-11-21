@@ -1,5 +1,5 @@
 const builder = require('../utils/model_builder');
-const mailer = require('../utils/mailer.js');
+const mailer = require('../helpers/mailer.js');
 const moment = require('moment');
 const globalConf = require('../config/global');
 const attributes_origin = require("./attributes/e_media_mail.json");

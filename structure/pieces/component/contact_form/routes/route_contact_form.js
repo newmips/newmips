@@ -6,13 +6,13 @@ const models = require('../models/');
 const attributes = require('../models/attributes/CODE_VALUE_CONTACT');
 const options = require('../models/options/CODE_VALUE_CONTACT');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
-const status_helper = require('../utils/status_helper');
-const component_helper = require('../utils/component_helper');
-const enums_radios = require('../utils/enum_radio.js');
+const entity_helper = require('../helpers/entity');
+const status_helper = require('../helpers/status');
+const component_helper = require('../helpers/component');
+const enums_radios = require('../helpers/enum_radio.js');
 
 // Custom component
-const mailer_helper = require('../utils/mailer');
+const mailer_helper = require('../helpers/mailer');
 const attributesSettings = require('../models/attributes/CODE_VALUE_SETTINGS');
 const optionsSettings = require('../models/options/CODE_VALUE_SETTINGS');
 

@@ -6,12 +6,12 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_media');
 const options = require('../models/options/e_media');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
-const status_helper = require('../utils/status_helper');
+const entity_helper = require('../helpers/entity');
+const status_helper = require('../helpers/status');
 const fs = require('fs-extra');
 const language = require('../services/language');
 const icon_list = require('../config/icon_list');
-const enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../helpers/enum_radio.js');
 const moment = require('moment');
 
 const TARGET_ENTITIES = [];

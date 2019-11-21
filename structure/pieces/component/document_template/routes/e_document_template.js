@@ -5,11 +5,11 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_document_template');
 const options = require('../models/options/e_document_template');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
+const entity_helper = require('../helpers/entity');
 const globalConfig = require('../config/global');
 const document_template_helper = require('../utils/document_template_helper');
 const status_helper = require('../utils/status_helper.js');
-const enums_radios = require('../utils/enum_radio.js');
+const enums_radios = require('../helpers/enum_radio.js');
 const moment = require('moment');
 const mimeTypes = require('mime-types');
 

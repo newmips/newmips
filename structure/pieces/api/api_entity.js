@@ -4,7 +4,7 @@ const models = require('../models/');
 const attributes = require('../models/attributes/ENTITY_NAME');
 const options = require('../models/options/ENTITY_NAME');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../utils/entity_helper');
+const entity_helper = require('../helpers/entity');
 
 //
 // FIND ALL
