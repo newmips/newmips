@@ -6,7 +6,6 @@ const models = require('../models/');
 // Gitlab API
 const gitlab = require('../services/gitlab_api');
 const gitlabConf = require('../config/gitlab.js');
-const globalConf = require('../config/global.js');
 
 const metadata = require('../database/metadata')();
 
