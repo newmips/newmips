@@ -138,7 +138,6 @@ class Application {
 	}
 
 	getComponent(component_name, type, required) {
-
 		if (this._components.filter(x => x.name == component_name && x.type == type).length > 0)
 			return this._components.filter(x => x.name == component_name && x.type == type)[0];
 
@@ -179,7 +178,6 @@ class Application {
 	}
 
 	deleteModule(name) {
-
 		if (this._modules.filter(x => x.name == name).length == 0) {
 			const err = new Error('database.module.notFound.notFound');
 			err.messageParams = [name]
@@ -198,103 +196,96 @@ class Application {
 
 	save() {
 		console.log('Saving application ' + this._name + '...');
-		const newMetadata = {};
 		const appName = this._name;
 		const actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		let newMetadata = {};
 
 		// Getting old application specific properties
-		newMetadata[appName] = {};
 		if (actualMetadata[appName])
-			newMetadata[appName] = actualMetadata[appName];
+			newMetadata = actualMetadata[appName];
 
-		newMetadata[appName].associationSeq = this._associationSeq;
-		newMetadata[appName].gitlabID = this._gitlabID;
-		newMetadata[appName].hasDocumentTemplate = this._hasDocumentTemplate;
-		newMetadata[appName].displayName = this._displayName;
-		newMetadata[appName].modules = {};
-		newMetadata[appName].components = {};
+		newMetadata.associationSeq = this._associationSeq;
+		newMetadata.gitlabID = this._gitlabID;
+		newMetadata.hasDocumentTemplate = this._hasDocumentTemplate;
+		newMetadata.displayName = this._displayName;
+		newMetadata.modules = {};
+		newMetadata.components = {};
 
 		// Loop on application modules
 		for (const np_module of this._modules) {
-
-			newMetadata[appName].modules[np_module.name] = {};
+			newMetadata.modules[np_module.name] = {};
 
 			// If the module already exist in metadata, then retrieve all potential specific properties
 			if (actualMetadata[appName][np_module.name])
-				newMetadata[appName].modules[np_module.name] = actualMetadata[appName].modules[np_module.name];
+				newMetadata.modules[np_module.name] = actualMetadata[appName].modules[np_module.name];
 
-			newMetadata[appName].modules[np_module.name].displayName = np_module.displayName;
-			newMetadata[appName].modules[np_module.name].entities = {};
-			newMetadata[appName].modules[np_module.name].components = {};
+			newMetadata.modules[np_module.name].displayName = np_module.displayName;
+			newMetadata.modules[np_module.name].entities = {};
+			newMetadata.modules[np_module.name].components = {};
 
 			// Loop on module entities
 			for (const entity of np_module.entities) {
-
-				newMetadata[appName].modules[np_module.name].entities[entity.name] = {};
+				newMetadata.modules[np_module.name].entities[entity.name] = {};
 
 				if (actualMetadata[appName].modules[np_module.name].entities[entity.name])
-					newMetadata[appName].modules[np_module.name].entities[entity.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name];
+					newMetadata.modules[np_module.name].entities[entity.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name];
 
-				newMetadata[appName].modules[np_module.name].entities[entity.name].displayName = entity.displayName;
-				newMetadata[appName].modules[np_module.name].entities[entity.name].components = {};
-				newMetadata[appName].modules[np_module.name].entities[entity.name].fields = {};
+				newMetadata.modules[np_module.name].entities[entity.name].displayName = entity.displayName;
+				newMetadata.modules[np_module.name].entities[entity.name].components = {};
+				newMetadata.modules[np_module.name].entities[entity.name].fields = {};
 
 				// Loop on entity fields
 				for (const field of entity.fields) {
+					newMetadata.modules[np_module.name].entities[entity.name].fields[field.name] = {};
 
-					newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = {};
+					if (newMetadata.modules[np_module.name].entities[entity.name].fields[field.name])
+						newMetadata.modules[np_module.name].entities[entity.name].fields[field.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name];
 
-					if (newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name])
-						newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name];
-
-					newMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name].displayName = field.displayName;
+					newMetadata.modules[np_module.name].entities[entity.name].fields[field.name].displayName = field.displayName;
 				}
 
 				// Loop on entity components
 				for (const component of entity.components) {
+					if (!newMetadata.modules[np_module.name].entities[entity.name].components[component.type])
+						newMetadata.modules[np_module.name].entities[entity.name].components[component.type] = {};
 
-					if (!newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type])
-						newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type] = {};
+					newMetadata.modules[np_module.name].entities[entity.name].components[component.type][component.name] = {};
 
-					newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = {};
+					if (newMetadata.modules[np_module.name].entities[entity.name].components[component.type][component.name])
+						newMetadata.modules[np_module.name].entities[entity.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name];
 
-					if (newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name])
-						newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name];
-
-					newMetadata[appName].modules[np_module.name].entities[entity.name].components[component.type][component.name].displayName = component.displayName;
+					newMetadata.modules[np_module.name].entities[entity.name].components[component.type][component.name].displayName = component.displayName;
 				}
 			}
 
 			// Loop on module components
 			for (const component of np_module.components) {
+				if (!newMetadata.modules[np_module.name].components[component.type])
+					newMetadata.modules[np_module.name].components[component.type] = {};
 
-				if (!newMetadata[appName].modules[np_module.name].components[component.type])
-					newMetadata[appName].modules[np_module.name].components[component.type] = {};
+				newMetadata.modules[np_module.name].components[component.type][component.name] = {};
 
-				newMetadata[appName].modules[np_module.name].components[component.type][component.name] = {};
+				if (newMetadata.modules[np_module.name].components[component.type][component.name])
+					newMetadata.modules[np_module.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].components[component.type][component.name];
 
-				if (newMetadata[appName].modules[np_module.name].components[component.type][component.name])
-					newMetadata[appName].modules[np_module.name].components[component.type][component.name] = actualMetadata[appName].modules[np_module.name].components[component.type][component.name];
-
-				newMetadata[appName].modules[np_module.name].components[component.type][component.name].displayName = component.displayName;
+				newMetadata.modules[np_module.name].components[component.type][component.name].displayName = component.displayName;
 			}
 		}
 
 		// Loop on application components
 		for (const component of this._components) {
+			if (!newMetadata.components[component.type])
+				newMetadata.components[component.type] = {};
 
-			if (!newMetadata[appName].components[component.type])
-				newMetadata[appName].components[component.type] = {};
+			newMetadata.components[component.type][component.name] = {};
 
-			newMetadata[appName].components[component.type][component.name] = {};
+			if (newMetadata.components[component.type][component.name])
+				newMetadata.components[component.type][component.name] = actualMetadata[appName].components[component.type][component.name];
 
-			if (newMetadata[appName].components[component.type][component.name])
-				newMetadata[appName].components[component.type][component.name] = actualMetadata[appName].components[component.type][component.name];
-
-			newMetadata[appName].components[component.type][component.name].displayName = component.displayName;
+			newMetadata.components[component.type][component.name].displayName = component.displayName;
 		}
 
-		fs.writeFileSync(workspacePath + appName + '/config/metadata.json', JSON.stringify(newMetadata, null, 4))
+		fs.writeFileSync(workspacePath + appName + '/config/metadata.json', JSON.stringify({[appName]: newMetadata}, null, 4))
 	}
 }
 
