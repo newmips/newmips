@@ -446,10 +446,9 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 				const port = 9000 + parseInt(applications[i].id);
 				const app_url = globalConf.protocol_iframe + '://' + host + ":" + port + "/";
 
+				const appName = applications[i].name.substring(2);
 				if (globalConf.env == 'cloud')
 					app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
-
-				const appName = applications[i].name.substring(2);
 
 				if (gitlabConf.doGit && data.gitlabUser) {
 					const metadataApp = metadata.getApplication(applications[i].name);
