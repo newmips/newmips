@@ -5,6 +5,7 @@ const multer = require('multer');
 const Jimp = require('jimp');
 const math = require('math');
 const unzip = require('unzip-stream');
+const JSZip = require('jszip');
 
 // Config
 const globalConf = require('../config/global.js');
