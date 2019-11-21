@@ -717,11 +717,8 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			// Extract zip file content
 			await new Promise((resolve, reject) => {
 				fs.createReadStream('./importArchive.zip')
-					.pipe(unzip.Extract({
-						path: workspacePath
-					}))
-					.on('close', resolve)
-					.on('error', reject);
+					.pipe(unzip.Extract({path: workspacePath}))
+					.on('close', resolve).on('error', reject);
 			});
 			// Delete temporary zip file
 			fs.unlinkSync('importArchive.zip');
