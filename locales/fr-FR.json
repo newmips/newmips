@@ -216,7 +216,8 @@
 		"selectExisting": "Sélectionner une application existante",
 		"plural": "Applications",
 		"not_started": "Aucune application n'est lancée. Sélectionnez-en une dans la liste.",
-		"no_access": "Vous n'avez pas accès à cette application."
+		"no_access": "Vous n'avez pas accès à cette application.",
+		"couldnt_load": "Impossible de charger l'application"
 	},
 	"select": {
 		"default": "-- Choisir --"

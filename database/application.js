@@ -62,7 +62,7 @@ class Application {
 			return app;
 		} catch (err) {
 			console.error(err);
-			return null;
+			throw new Error("application.couldnt_load");
 		}
 	}
 
