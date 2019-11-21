@@ -4,7 +4,7 @@ const models = require('../models/');
 const multer = require('multer');
 const Jimp = require('jimp');
 const math = require('math');
-const JSZip = require('jszip');
+const unzip = require('unzip-stream');
 
 // Config
 const globalConf = require('../config/global.js');
@@ -712,54 +712,31 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			helpers.rmdirSyncRecursive(workspacePath);
 			fs.mkdirsSync(workspacePath);
 
-			const zip = await JSZip.loadAsync(req.files['zipfile'][0].buffer);
+			// Write zip file to system
+			fs.writeFileSync('importArchive.zip', req.files['zipfile'][0].buffer);
+			// Extract zip file content
+			await new Promise((resolve, reject) => {
+				fs.createReadStream('./importArchive.zip')
+					.pipe(unzip.Extract({
+						path: workspacePath
+					}))
+					.on('close', resolve)
+					.on('error', reject);
+			});
+			// Delete temporary zip file
+			fs.unlinkSync('importArchive.zip');
 
-			const promises = [];
+			// const promises = [];
 			let oldAppName = false,
 				appRegex;
 
-			// Looping first time to find metadata.json to get old app name
-			for (const item in zip.files)
-				if(item.indexOf('metadata.json') != -1) {
-					let metadataContent = await zip.file(zip.files[item].name).async('nodebuffer'); // eslint-disable-line
-					metadataContent = JSON.parse(metadataContent);
-					oldAppName = Object.keys(metadataContent)[0];
-					appRegex = new RegExp(oldAppName, 'g');
-				}
-
+			let metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
+			oldAppName = Object.keys(metadataContent)[0];
+			appRegex = new RegExp(oldAppName, 'g');
 			if(!oldAppName) {
 				infoText += '- Unable to find metadata.json in .zip.<br>';
 				return null;
 			}
-
-			for (let item in zip.files) {
-				item = zip.files[item];
-
-				promises.push(new Promise((resolve, reject) => {
-					const currentPath = workspacePath + '/' + item.name.replace(oldAppName, '');
-
-					// Directory
-					if (item.dir) {
-						try {
-							fs.mkdirsSync(currentPath);
-						} catch (err) {
-							console.error(err);
-						}
-						return resolve();
-					}
-
-					// File
-					zip.file(item.name).async('nodebuffer').then(content => {
-						fs.writeFileSync(currentPath, content);
-						resolve();
-					}).catch(err => {
-						console.error(err);
-						reject(err);
-					});
-				}));
-			}
-
-			await Promise.all(promises);
 
 			// Need to modify so file content to change appName in it
 			const fileToReplace = ['/config/metadata.json', '/config/database.js'];
@@ -796,7 +773,6 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 
 			function handleExecStdout(cmd, args) {
 				return new Promise((resolve, reject) => {
-
 					// Exec instruction
 					const childProcess = exec.spawn(cmd, args, {shell: true, detached: true});
 					childProcess.stdout.setEncoding('utf8');
