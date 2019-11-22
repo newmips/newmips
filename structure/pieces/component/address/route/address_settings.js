@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-const component_helper = require('../helpers/component');
+const component_helper = require('../utils/component_helper');
 const fs = require('fs-extra');
 const translate = require('../services/language');
 
