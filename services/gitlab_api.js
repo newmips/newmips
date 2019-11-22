@@ -161,6 +161,32 @@ exports.getProjectByID = async (projectID) => {
 	}
 }
 
+exports.getProjectByName = async (projectName) => {
+    let options = {
+        uri: gitlabURL + "/projects",
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Private-Token': token
+        },
+        qs: {
+            search: globalConf.host // Reduce search on current generator repository
+        },
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    console.log("GITLAB CALL => getProjectByName");
+
+    try {
+    	let allProjects = await request(options);
+    	let project = allProjects.filter(x => x.name == projectName);
+    	return project.length == 0 ? false : project[0];
+    } catch(err){
+    	console.error(err);
+    	throw new Error("An error occured while getting gitlab project.");
+    }
+}
+
 exports.getProjectForUser = async (userID) => {
 	const options = {
 		uri: gitlabURL + "/users/"+userID+"/projects",
