@@ -1,6 +1,6 @@
 const globalConf = require('../config/global');
 const builder = require('../utils/model_builder');
-const sms = require('../helpers/sms');
+const sms = require('../utils/sms_helper');
 const attributes_origin = require("./attributes/e_media_sms.json");
 const associations = require("./options/e_media_sms.json");
 const moment = require('moment');

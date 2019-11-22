@@ -3,7 +3,7 @@ const block_access = require('../utils/block_access');
 const auth = require('../utils/auth_strategies');
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
-const mailer = require('../helpers/mailer');
+const mailer = require('../utils/mailer');
 const svgCaptcha = require('svg-captcha');
 const models = require('../models/');
 
