@@ -179,7 +179,7 @@ exports.getProjectByName = async (projectName) => {
 
     try {
     	let allProjects = await request(options);
-    	let project = allProjects.filter(x => {return x.name == projectName});
+    	let project = allProjects.filter(x => x.name == projectName);
     	return project.length == 0 ? false : project[0];
     } catch(err){
     	console.error(err);
