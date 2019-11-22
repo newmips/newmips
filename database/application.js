@@ -20,7 +20,14 @@ class Application {
 		try {
 			console.log('Loading application ' + name + '...');
 			const app = new Application(name);
-			const metadata = JSON.parse(fs.readFileSync(workspacePath + name + '/config/metadata.json'));
+			const metadataPath = workspacePath + name + '/config/metadata.json';
+
+			const metadata = {
+				[name]: {}
+			};
+
+			if (fs.existsSync(metadataPath))
+				metadata = JSON.parse(fs.readFileSync(metadataPath));
 
 			app.associationSeq = metadata[name].associationSeq;
 			app.displayName = metadata[name].displayName;
