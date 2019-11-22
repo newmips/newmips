@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const models = require('../../models/')
 const workspacePath = __dirname + '/../../workspace/';
 const dataHelper = require('../../utils/data_helper');
+const helper = require('../../utils/helpers');
 
 (async () => {
 
@@ -27,6 +28,12 @@ const dataHelper = require('../../utils/data_helper');
 
 			// Getting appName
 			const app = await models.Application.findByPk(folder);
+
+			if(!app){
+				helper.rmdirSyncRecursive(workspacePath + folder);
+				return;
+			}
+
 			const name = 'a_' + dataHelper.clearString(app.displayName);
 			console.log('Patching application: ' + name + ' (' + folder + ')');
 
