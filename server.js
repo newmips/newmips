@@ -292,13 +292,27 @@ models.sequelize.sync({
 				})
 			})
 		}
-	})
+	});
+
+	if (globalConf.env == 'cloud') {
+		console.log('Start toml cleaning...');
+		models.Application.findAll().then(apps => {
+			const applications = apps.maps(x => x.name);
+			fs.readdirSync(__dirname + '/workspaces/rules/').filter(x => x.indexOf('.toml') != -1).forEach(file => {
+				if(applications.filter(x => file.indexOf(x) != -1).length == 0){
+					console.log('Cleaning toml => ' + file);
+					fs.unlinkSync(__dirname + '/workspaces/rules/' + file);
+				}
+			});
+			console.log('Cleaning toml done');
+		})
+	}
+
 	if (protocol == 'https') {
 		const server = https.createServer(globalConf.ssl, app);
 		server.listen(port);
 		console.log("Started https on " + port);
 	} else {
-
 		app.listen(port);
 		console.log("Started on " + port);
 	}
