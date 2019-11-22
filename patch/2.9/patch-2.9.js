@@ -2,13 +2,18 @@ console.log('Executing 2.9 js patch...');
 const fs = require('fs-extra');
 const models = require('../../models/')
 const workspacePath = __dirname + '/../../workspace/';
-const promises = [];
 
 (async () => {
-	// Executing SQL file
-	await models.sequelize.query('ALTER TABLE application DROP COLUMN name;');
-	await models.sequelize.query('ALTER TABLE application CHANGE codeName name varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;');
+	try {
+		// Executing SQL file
+		await models.sequelize.query('ALTER TABLE application DROP COLUMN name;');
+		await models.sequelize.query('ALTER TABLE application CHANGE codeName name varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;');
+	} catch(err) {
+		console.error(err);
+	}
 })().then(_ => {
+	const promises = [];
+
 	fs.readdirSync(workspacePath).filter(x => !isNaN(x) && fs.lstatSync(workspacePath + x).isDirectory()).forEach((folder) => {
 		promises.push((async () => {
 
