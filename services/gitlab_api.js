@@ -156,8 +156,7 @@ exports.getProjectByID = async (projectID) => {
 	try {
 		return await request(options);
 	} catch(err){
-		console.error(err);
-		throw new Error("An error occured while getting gitlab project.");
+		throw new Error("An error occured while getting gitlab project: " + projectID);
 	}
 }
 
