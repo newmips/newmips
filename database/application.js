@@ -204,7 +204,12 @@ class Application {
 	save() {
 		console.log('Saving application ' + this._name + '...');
 		const appName = this._name;
-		const actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		let actualMetadata = {};
+		try {
+			actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		} catch(err) {
+			console.error('Missing metadata.json for application ' + appName + ', generating it...');
+		}
 		let newMetadata = {};
 
 		// Getting old application specific properties

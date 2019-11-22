@@ -453,11 +453,10 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 				if (gitlabConf.doGit && data.gitlabUser) {
 					const metadataApp = metadata.getApplication(applications[i].name);
 
+					// Missing metadata gitlab info
 					if(!metadataApp.gitlabID) {
-						console.log("LOOKING FOR: " + globalConf.host + "-" + applications[i].name.substring(2));
-						let test = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2))
-						console.log(test.id);
-						metadataApp.gitlabID = test.id;
+						metadataApp.gitlabID = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2)).id;
+						metadataApp.save();
 					}
 
 					let project = null;
