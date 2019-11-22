@@ -5,9 +5,9 @@ const models = require('../models/');
 const attributes = require('../models/attributes/e_media_task');
 const options = require('../models/options/e_media_task');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../helpers/entity');
-const status_helper = require('../helpers/status');
-const enums_radios = require('../helpers/enum_radio.js');
+const entity_helper = require('../utils/entity_helper');
+const status_helper = require('../utils/status_helper');
+const enums_radios = require('../utils/enum_radio.js');
 const logger = require('../utils/logger');
 
 router.get('/entityTree', function(req, res) {

@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
-const file_helper = require('../helpers/file');
+const file_helper = require('./file_helper');
 const language = require('../services/language');
-const enums_radios = require('../helpers/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 const globalConfig = require('../config/global');
 
 function models(){

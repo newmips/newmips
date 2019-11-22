@@ -27,6 +27,9 @@
 			}
 	  },
 	  "entity": {
+	  		"e_user": {
+	  			"r_group": "Groupe"
+	  		},
 			"e_status": {
 				  "label_entity": "Statut",
 				  "name_entity": "Statut",

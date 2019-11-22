@@ -24,6 +24,9 @@
 		}
 	},
 	"entity": {
+		"e_user": {
+			"r_group": "Group"
+		},
 		"e_status": {
 			"as_r_children": "Next status",
 			"apply_default": "Apply this status to entities without status",
