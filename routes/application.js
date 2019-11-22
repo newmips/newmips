@@ -452,7 +452,11 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 
 				if (gitlabConf.doGit && data.gitlabUser) {
 					const metadataApp = metadata.getApplication(applications[i].name);
-					const project = await gitlab.getProjectByID(metadataApp.gitlabID).then();
+
+					if(!metadataApp.gitlabID)
+						metadataApp.gitlabID = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2)).id;
+
+					const project = await gitlab.getProjectByID(metadataApp.gitlabID);
 					if (project)
 						applications[i].dataValues.repo_url = project.http_url_to_repo;
 					else
