@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const upload = multer().single('file');
 const models = require('../models/');
 const Jimp = require("jimp");
-const enums_radios = require('../helpers/enum_radio.js');
+const enums_radios = require('../utils/enum_radio.js');
 
 /* GET status page to check if workspace is ready. */
 router.get('/status', function (req, res) {
