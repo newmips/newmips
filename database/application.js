@@ -20,7 +20,14 @@ class Application {
 		try {
 			console.log('Loading application ' + name + '...');
 			const app = new Application(name);
-			const metadata = JSON.parse(fs.readFileSync(workspacePath + name + '/config/metadata.json'));
+			const metadataPath = workspacePath + name + '/config/metadata.json';
+
+			const metadata = {
+				[name]: {}
+			};
+
+			if (fs.existsSync(metadataPath))
+				metadata = JSON.parse(fs.readFileSync(metadataPath));
 
 			app.associationSeq = metadata[name].associationSeq;
 			app.displayName = metadata[name].displayName;
@@ -197,7 +204,12 @@ class Application {
 	save() {
 		console.log('Saving application ' + this._name + '...');
 		const appName = this._name;
-		const actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		let actualMetadata = {};
+		try {
+			actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		} catch(err) {
+			console.error('Missing metadata.json for application ' + appName + ', generating it...');
+		}
 		let newMetadata = {};
 
 		// Getting old application specific properties
