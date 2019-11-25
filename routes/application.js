@@ -263,9 +263,13 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		// Executing instruction
 		data = await execute(req, instruction, __, data);
 
+		let appBaseUrl = protocol_iframe + '://' + host + ":" + port;
+		if(globalConf.env == 'cloud')
+			appBaseUrl = globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns;
+
 		// On entity delete, reset child_url to avoid 404
 		if (data.function == 'deleteDataEntity') {
-			data.iframe_url = protocol_iframe + '://' + host + ":" + port + "/default/home";
+			data.iframe_url = appBaseUrl + "/default/home";
 			process_manager.setChildUrl(req.sessionID, appName, "/default/home");
 		}
 
@@ -296,20 +300,11 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		if(data.restartServer) {
 			// Kill server first
 			await process_manager.killChildProcess(process_server_per_app[appName].pid)
-
 			// Launch a new server instance to reload resources
 			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
-
 			const initialTimestamp = new Date().getTime();
-			let iframe_url = protocol_iframe + '://';
-
-			if (globalConf.env == 'cloud')
-				iframe_url += globalConf.sub_domain + '-' + req.session.app_name + "." + globalConf.dns + '/default/status';
-			else
-				iframe_url += host + ":" + port + "/default/status";
-
 			console.log('Starting server...');
-			await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
+			await process_manager.checkServer(appBaseUrl + '/default/status', initialTimestamp, timeoutServer);
 		}
 
 		data.session = session_manager.getSession(req);
