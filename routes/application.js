@@ -250,7 +250,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 		const {protocol_iframe} = globalConf;
 		const {host} = globalConf;
-		const timeoutServer = 30000;
+		const timeoutServer = 30000; // 30 sec
 
 		// Current application url
 		data.iframe_url = process_manager.childUrl(req, db_app.id);
@@ -449,19 +449,21 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 				if (globalConf.env == 'cloud')
 					app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
+				applications[i].dataValues.url = app_url;
+
 				if (gitlabConf.doGit && data.gitlabUser) {
 					const metadataApp = metadata.getApplication(applications[i].name);
 					let gitlabProject = null;
 
 					// Missing metadata gitlab info
 					if(!metadataApp.gitlabID) {
-						const gitlabProject = await gitlab.getgitlabProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
+						gitlabProject = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
 						metadataApp.gitlabID = gitlabProject.id;
 						metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
 						metadataApp.save();
 					} else if(!metadataApp.gitlabRepo) {
 						try {
-							gitlabProject = await gitlab.getgitlabProjectByID(metadataApp.gitlabID);
+							gitlabProject = await gitlab.getProjectByID(metadataApp.gitlabID);
 						} catch(err){
 							console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
 						}
@@ -476,12 +478,10 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 					else
 						console.warn("Cannot find gitlab project: " + metadataApp.name);
 				}
-				applications[i].dataValues.url = app_url;
 			})())
 		}
 
 		await Promise.all(promises);
-
 		data.applications = applications
 		return data;
 	})().then(data => {

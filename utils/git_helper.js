@@ -250,7 +250,15 @@ module.exports = {
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[originName] = true;
-		const commitMsg = data.function+" -> App:" + appName + " Module:" + data.module_name + " Entity:" + data.entity_name;
+
+		let commitMsg = data.function;
+		commitMsg += "(App: " + appName;
+		if(typeof data.module_name !== 'undefined')
+			commitMsg += " Module: " + data.module_name;
+		if(typeof data.entity_name !== 'undefined')
+			commitMsg += " Entity: " + data.entity_name;
+		commitMsg += ")";
+
 		simpleGit.add('.').commit(commitMsg, (err, answer) => {
 			gitProcesses[originName] = false;
 			console.log(answer);
