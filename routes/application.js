@@ -451,22 +451,28 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 
 				if (gitlabConf.doGit && data.gitlabUser) {
 					const metadataApp = metadata.getApplication(applications[i].name);
+					let gitlabProject = null;
 
 					// Missing metadata gitlab info
 					if(!metadataApp.gitlabID) {
-						const gitlabProject = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
+						const gitlabProject = await gitlab.getgitlabProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
 						metadataApp.gitlabID = gitlabProject.id;
+						metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
 						metadataApp.save();
+					} else if(!metadataApp.gitlabRepo) {
+						try {
+							gitlabProject = await gitlab.getgitlabProjectByID(metadataApp.gitlabID);
+						} catch(err){
+							console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
+						}
+					} else {
+						gitlabProject = {
+							http_url_to_repo: metadataApp.gitlabRepo
+						};
 					}
 
-					let project = null;
-					try {
-						project = await gitlab.getProjectByID(metadataApp.gitlabID);
-					} catch(err){
-						console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
-					}
-					if (project)
-						applications[i].dataValues.repo_url = project.http_url_to_repo;
+					if (gitlabProject)
+						applications[i].dataValues.repo_url = gitlabProject.http_url_to_repo;
 					else
 						console.warn("Cannot find gitlab project: " + metadataApp.name);
 				}
