@@ -36,7 +36,9 @@ exports.launchChildProcess = function(req, appName, env) {
 
 	/* Generate app logs in /workspace/logs folder */
 	fs.mkdirsSync(__dirname + "/../workspace/logs/");
-	const allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_'+appName+'.log'), {flags: 'a'});
+	const allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_' + appName + '.log'), {
+		flags: 'a'
+	});
 
 	process_server.stdout.on('data', function(data) {
 		data = data.toString();
