@@ -63,20 +63,13 @@ exports.help = async _ => { // eslint-disable-line
 }
 
 exports.deploy = async (data) => {
-
 	// Generator DB
 	const dbApp = await models.Application.findOne({
 		name: data.application.name
 	});
 
 	data.appID = dbApp.id;
-
-	let url = await cloud_manager.deploy(data);
-
-	return {
-		message: "botresponse.deployment",
-		messageParams: [url, url]
-	};
+	return await cloud_manager.deploy(data);
 }
 
 exports.restart = async _ => { // eslint-disable-line
