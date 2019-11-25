@@ -19,6 +19,7 @@ const session_manager = require('../services/session.js');
 const designer = require('../services/designer.js');
 const parser = require('../services/bot.js');
 const gitlab = require('../services/gitlab_api');
+const studio_manager = require('../services/studio_manager');
 
 // Utils
 const block_access = require('../utils/block_access');
@@ -185,8 +186,11 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		const initialTimestamp = new Date().getTime();
 		let iframe_url = globalConf.protocol_iframe + '://';
 
-		if (globalConf.env == 'cloud')
+		if (globalConf.env == 'cloud'){
 			iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
+			// Checking .toml file existence, creating it if necessary
+			studio_manager.createApplicationDns(appName.substring(2), db_app.id)
+		}
 		else
 			iframe_url += globalConf.host + ":" + port + "/default/status";
 
@@ -196,7 +200,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		// Check server has started every 50 ms
 		console.log('Starting server...');
 		process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
-			data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
+			data.iframe_url = iframe_url.split("/default/status")[0] + "/default/home";
 			// Let's do git init or commit depending the env (only on cloud env for now)
 			gitHelper.doGit(data);
 			res.render('front/preview', data);
@@ -455,7 +459,8 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 
 					// Missing metadata gitlab info
 					if(!metadataApp.gitlabID) {
-						metadataApp.gitlabID = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2)).id;
+						const gitlabProject = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
+						metadataApp.gitlabID = gitlabProject.id;
 						metadataApp.save();
 					}
 

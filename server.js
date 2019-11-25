@@ -259,7 +259,6 @@ app.use((req, res) => {
 });
 
 // Launch ======================================================================
-
 models.sequelize.sync({
 	logging: false,
 	hooks: false
@@ -280,6 +279,7 @@ models.sequelize.sync({
 						id: 1,
 						email: null,
 						enabled: 0,
+						email: globalConf.env == 'cloud' ? globalConf.sub_domain + '-admin@newmips.com' : 'admin@admin.fr',
 						first_name: "admin",
 						last_name: "NEWMIPS",
 						login: "admin",
@@ -292,13 +292,13 @@ models.sequelize.sync({
 				})
 			})
 		}
-	})
+	});
+
 	if (protocol == 'https') {
 		const server = https.createServer(globalConf.ssl, app);
 		server.listen(port);
 		console.log("Started https on " + port);
 	} else {
-
 		app.listen(port);
 		console.log("Started on " + port);
 	}

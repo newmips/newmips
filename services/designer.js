@@ -71,7 +71,12 @@ exports.deploy = async (data) => {
 
 	data.appID = dbApp.id;
 
-	return await cloud_manager.deploy(data);
+	let url = await cloud_manager.deploy(data);
+
+	return {
+		message: "botresponse.deployment",
+		messageParams: [url, url]
+	};
 }
 
 exports.restart = async _ => { // eslint-disable-line

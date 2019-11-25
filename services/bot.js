@@ -26,14 +26,12 @@ exports.showSession = _ => {
 };
 
 exports.help = _ => {
-
 	const data = {};
 	data.function = "help";
 	return data;
 };
 
 exports.deploy = _ => {
-
 	const data = {};
 	data.function = "deploy";
 	return data;

@@ -126,6 +126,9 @@ exports.getAllProjects = async () => {
 			'Content-Type': 'application/json',
 			'Private-Token': token
 		},
+		qs: {
+			per_page: 100 // Max limit
+		},
 		json: true // Automatically stringifies the body to JSON
 	};
 
@@ -147,17 +150,13 @@ exports.getProjectByID = async (projectID) => {
 			'Content-Type': 'application/json',
 			'Private-Token': token
 		},
-		qs: {
-			per_page: 100
-		},
 		json: true // Automatically stringifies the body to JSON
 	};
 
 	try {
 		return await request(options);
 	} catch(err){
-		console.error(err);
-		throw new Error("An error occured while getting gitlab project.");
+		throw new Error("An error occured while getting gitlab project: " + projectID);
 	}
 }
 
@@ -170,12 +169,13 @@ exports.getProjectByName = async (projectName) => {
             'Private-Token': token
         },
         qs: {
-            search: globalConf.host // Reduce search on current generator repository
+            search: globalConf.host, // Reduce search on current generator repository
+            per_page: 100 // Max limit
         },
         json: true // Automatically stringifies the body to JSON
     };
 
-    console.log("GITLAB CALL => getProjectByName");
+    console.log("GITLAB CALL => getProjectByName => " + projectName);
 
     try {
     	let allProjects = await request(options);
