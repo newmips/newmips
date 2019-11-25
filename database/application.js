@@ -22,7 +22,7 @@ class Application {
 			const app = new Application(name);
 			const metadataPath = workspacePath + name + '/config/metadata.json';
 
-			const metadata = {
+			let metadata = {
 				[name]: {}
 			};
 
