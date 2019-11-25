@@ -91,6 +91,11 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 			if (err && err.code == 'ECONNREFUSED')
 				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
 
+			if(typeof response === 'undefined') {
+				console.error(err);
+				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
+			}
+
 			// Check for right status code
 			if (response.statusCode !== 200) {
 				console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
