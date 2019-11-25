@@ -189,7 +189,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		if (globalConf.env == 'cloud'){
 			iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
 			// Checking .toml file existence, creating it if necessary
-			studio_manager.createApplicationDns(appName, db_app.id)
+			studio_manager.createApplicationDns(appName.substring(2), db_app.id)
 		}
 		else
 			iframe_url += globalConf.host + ":" + port + "/default/status";
