@@ -818,9 +818,6 @@ exports.setupChat = async (data) => {
 	const chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
 	for (let i = 0; i < chatModels.length; i++) {
 		fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
-		// let model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
-		// model = model.replace(/ID_APPLICATION/g, attr.id_application);
-		// fs.writeFileSync(workspacePath + '/models/' + chatModels[i] + '.js', model, 'utf8');
 	}
 	// Copy attributes
 	fs.copySync(piecesPath + '/chat/models/attributes/', workspacePath + '/models/attributes/');

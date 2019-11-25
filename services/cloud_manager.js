@@ -197,9 +197,9 @@ async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 
 	// Cloud db conf
 	const cloudDbConf = {
-		dbName: "np_" + appName,
-		dbUser: "np_" + appName,
-		dbPwd: "np_" + appName,
+		dbName: "np_" + appName.substring(2),
+		dbUser: "np_" + appName.substring(2),
+		dbPwd: "np_" + appName.substring(2),
 		dbRootPwd: "p@ssw0rd"
 	};
 
