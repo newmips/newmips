@@ -46,7 +46,7 @@
 							<td data-field="role" data-type="string">{Role.name}</td>
 							<td data-field="applications" data-type="string">
 								{#Applications}
-									<b><a href="application/preview?id_application={id}" target="_blank">{displayName}</a></b><br>
+									<b><a href="application/preview/{name}" target="_blank">{displayName}</a></b><br>
 								{/Applications}
 							</td>
 							<td>
