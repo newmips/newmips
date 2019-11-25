@@ -259,7 +259,6 @@ app.use((req, res) => {
 });
 
 // Launch ======================================================================
-
 models.sequelize.sync({
 	logging: false,
 	hooks: false
@@ -280,6 +279,7 @@ models.sequelize.sync({
 						id: 1,
 						email: null,
 						enabled: 0,
+						email: globalConf.env == 'cloud' ? globalConf.sub_domain + '-admin@newmips.com' : 'admin@admin.fr',
 						first_name: "admin",
 						last_name: "NEWMIPS",
 						login: "admin",

@@ -34,7 +34,7 @@ module.exports = {
 			const cleanHost = globalConf.host.replace(/\./g, "-");
 
 			// Remove prefix
-			const nameApp = application.codeName.substring(2);
+			const nameApp = application.name.substring(2);
 			const originName = "origin-" + cleanHost + "-" + nameApp;
 			simpleGit.addAnnotatedTag(tagName, 'Tagging ' + tagName).pushTags(['-u', originName, 'master'], err => {
 				if (err)
