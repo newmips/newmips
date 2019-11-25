@@ -12,8 +12,8 @@ exports.createApplicationDns = (appName, appID) => {
 	const serverPort = 9000 + parseInt(appID);
 
 	// Checking if a .toml already exist => Conflict
-	if(fs.existsSync(globalConf.traefik_rules + "/" + tomlFilename))
-		throw new Error("A .toml file with the name "+tomlFilename+" already exist !");
+	if (fs.existsSync(globalConf.traefik_rules + "/" + tomlFilename))
+		return;
 
 	const tomlContent = '\n\
 	[backends]\n\
