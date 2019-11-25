@@ -265,7 +265,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 		let appBaseUrl = protocol_iframe + '://' + host + ":" + port;
 		if(globalConf.env == 'cloud')
-			appBaseUrl = globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns;
+			appBaseUrl = protocol_iframe + '://' + globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns;
 
 		// On entity delete, reset child_url to avoid 404
 		if (data.function == 'deleteDataEntity') {
