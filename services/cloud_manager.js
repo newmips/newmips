@@ -281,8 +281,5 @@ exports.deploy = async (data) => {
 
 	console.log('Cloning in cloud: ' + gitlabUrl);
 	data = await portainerDeploy(nameRepo, subdomain, appNameWithoutPrefix, gitlabUrl);
-	return {
-		message: "botresponse.deployment",
-		messageParams: [data.url, data.url]
-	};
+	return data.url;
 }
