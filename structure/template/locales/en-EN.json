@@ -32,7 +32,8 @@
 		"confirm_password": "Confirm password",
 		"mail": "Email",
 		"remember_me": "Remember me",
-		"submit": "Submit"
+		"submit": "Submit",
+		"missing_infos": "Please fill all the input."
 	},
 	"settings": {
 		"title": "Access managment",
