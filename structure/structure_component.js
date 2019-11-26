@@ -622,23 +622,21 @@ exports.newStatus = async (data) => {
 	// History list
 	{
 		// Remove buttons i.e last two th/td
-		$("tbody tr td").slice(5, 7).remove();
 		$("thead").each(function () {
 			$(this).find("tr th").slice(5, 7).remove();
 		});
+
 		// Remove id column
 		$("[data-field=id]").remove();
 		// Add createdAt column in thead/tbody
-		let newTh = '';
-		newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
-		newTh += '	<!--{#__ key="defaults.createdAt"/}-->\n';
-		newTh += '</th>\n';
+		let newTh = '\
+		<th data-field="createdAt" data-col="createdAt" data-type="datetime">\n\
+			<!--{#__ key="defaults.createdAt"/}-->\n\
+		</th>\n';
+
 		$(".fields").each(function () {
 			$(this).find("th:eq(0)").before(newTh);
 		});
-		$("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
-		// Remove delete button
-		$("#bodyTR td:last").remove();
 	}
 
 	// LOCALS
@@ -682,14 +680,17 @@ exports.newStatus = async (data) => {
 	// Also add next status buttons after status field
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/show_fields.dust');
 	const statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
-	let nextStatusHtml = '';
-	nextStatusHtml += '<div class="form-group">\n';
-	nextStatusHtml += '	 {#' + statusAlias + '.r_children ' + source.substring(2) + 'id=id}\n';
-	nextStatusHtml += '		 {#checkStatusPermission status=.}\n';
-	nextStatusHtml += '			 <a data-href="/' + source.substring(2) + '/set_status/{' + source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;"><!--{^f_button_label}{f_name}{:else}{f_button_label}{/f_button_label}--></a>\n';
-	nextStatusHtml += '		 {/checkStatusPermission}\n';
-	nextStatusHtml += '	 {/' + statusAlias + '.r_children}\n';
-	nextStatusHtml += '</div>\n';
+	let nextStatusHtml = '\
+	<div class="form-group">\n\
+		{#' + statusAlias + '.r_children ' + source.substring(2) + 'id=id}\n\
+			{#checkStatusPermission status=.}\n\
+				<a data-href="/' + source.substring(2) + '/set_status/{' + source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">\n\
+					<!--{^f_button_label}{f_name}{:else}{f_button_label}{/f_button_label}-->\n\
+				</a>\n\
+			{/checkStatusPermission}\n\
+		{/' + statusAlias + '.r_children}\n\
+	</div>\n';
+
 	$("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
 	$("div[data-field='" + statusAliasHTML + "']").append(nextStatusHtml);
 	// Input used for default ordering
