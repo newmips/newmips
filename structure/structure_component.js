@@ -414,6 +414,8 @@ exports.newAgenda = async (data) => {
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_end_date"], "Date de fin");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_all_day"], "Toute la journée");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
+	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
+	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_users"], "Utilisateurs");
 
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie");
