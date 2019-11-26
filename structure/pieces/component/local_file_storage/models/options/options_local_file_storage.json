@@ -1,9 +1,9 @@
 [
-    {
-        "target": "SOURCE_ENTITY_LOWER",
-        "relation": "belongsTo",
-        "foreignKey": "fk_id_SOURCE_ENTITY_LOWER",
-        "as": "SOURCE_ENTITY_LOWER",
-        "structureType": "localfilestorage"
-    }
+	{
+		"target": "SOURCE_ENTITY_LOWER",
+		"relation": "belongsTo",
+		"foreignKey": "fk_id_SOURCE_ENTITY_LOWER",
+		"as": "SOURCE_ENTITY_LOWER",
+		"structureType": "localfilestorage"
+	}
 ]

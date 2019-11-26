@@ -247,6 +247,28 @@ function getValue(cellArrayKeyValue, row) {
     return row;
 }
 
+function currencyFormat(num) {
+    if(num != null)
+        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+    else
+        return "";
+}
+
+// Dive trough the object to find the key we are looking for
+function diveObj(obj, idx, keys){
+    if(!obj)
+        return '-';
+
+    if(Array.isArray(obj[keys[idx]]) && obj[keys[idx]].length > 0)
+        return diveObj(obj[keys[idx]][0], ++idx, keys);
+    else if(typeof obj[keys[idx]] === 'object')
+        return diveObj(obj[keys[idx]], ++idx, keys);
+    else if(obj[keys[idx]] && typeof obj[keys[idx]] !== undefined)
+        return obj;
+    else
+        return '-';
+}
+
 // Bind search fields
 function saveFilter(value, el, tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
@@ -280,7 +302,7 @@ var delay = (function() {
 function generateColumnSelector(tableID, columns) {
     var storageColumnsShow = JSON.parse(localStorage.getItem("newmips_shown_columns_save_" + tableID.substring(1)));
     var tableHeight = $(tableID).height();
-    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
+    var columnsSelectorDiv = $('<div id="columnSelector" style="height:'+tableHeight+'px;width:100%;overflow:auto;position:absolute;background: white;border: 1px solid grey;border-radius:5px;padding:10px;z-index:1000;"><h4 style="text-align:center;">'+STR_LANGUAGE.display+'</h4></div>');
 
     var columnsToShow = {columns: []};
     // Loop over the <th> available on page load
@@ -303,7 +325,7 @@ function generateColumnSelector(tableID, columns) {
             if (show)
                 columnsToShow.columns.push(element.data('col'));
 
-            var columnDiv = $('<div style="width:100%;"><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
+            var columnDiv = $('<div><label><input class="form-control input" name="'+element.data('col')+'" type="checkbox" data-col="'+element.data('col')+'" '+(show ? 'checked': '')+'>&nbsp;'+element.text()+'</label></div>');
             // Initialize column checkbox
             var checkbox = columnDiv.find('input[type=checkbox]').icheck({checkboxClass: 'icheckbox_flat-blue',radioClass: 'iradio_flat-blue'});
 
@@ -393,80 +415,47 @@ function init_datatable(tableID, doPagination, context) {
         objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
-                var cellValue;
+                var cellValue, keys;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    let entityRelation = columns[meta.col].data.split(".")[0];
-                    let attributeRelation = columns[meta.col].data.split(".")[1];
-                    let valueFromArray = "";
-                    if (row[entityRelation] != null) {
-                        if(Array.isArray(row[entityRelation])){
-                            // In case of related to many / has many values, it's an array
-                            if(row[entityRelation].length == 1){
-                                valueFromArray = row[entityRelation][0][attributeRelation];
-                            } else {
-                                for (let attr in row[entityRelation]) {
-                                    valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
-                                }
-                            }
-                        } else if(typeof row[entityRelation] === "object") {
-                            // In this case it's a belongsTo
-                            for (let attr in row[entityRelation]) {
-                                let parts = columns[meta.col].data.split('.');
-                                valueFromArray = getValue(parts, row);
-                            }
-                        } else {
-                            // Has one sur une sous entité
-                            let parts = columns[meta.col].data.split('.');
-                            valueFromArray = getValue(parts, row);
-                        }
-                        cellValue = valueFromArray;
-                    } else {
-                        cellValue = "-";
-                    }
+                    keys = columns[meta.col].data.split(".");
+                    cellValue = diveObj(row, 0, keys);
+
+                    if(typeof cellValue === 'object')
+                        cellValue = cellValue[keys.slice(-1)[0]];
                 }
                 // Regular value
                 else
                     cellValue = row[columns[meta.col].data];
 
-                function currencyFormat(num) {
-                    if(num != null)
-                        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-                    else
-                        return "";
-                }
-
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
-                    // Date
-                    if (columns[meta.col].type == 'date') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD");
-                        } else
-                            cellValue = "-";
-                    }
-                    // Datetime
-                    else if (columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm");
-                        } else
+                    // date / datetime
+                    if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
+                        if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
+                            var tmpDate = moment(new Date(cellValue));
+                            if (!tmpDate.isValid())
+                                cellValue = '-';
+                            else {
+                                var format;
+                                if (columns[meta.col].type == 'date')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY" : "YYYY-MM-DD";
+                                else if (columns[meta.col].type == 'datetime')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm";
+
+                                cellValue = tmpDate.format(format || "YYYY-MM-DD");
+                            }
+                        }
+                        else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
                         cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"><span style="visibility: hidden;">1</span></i>' : '<i class="fa fa-square-o fa-lg"><span style="visibility: hidden;">0</span></i>';
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
-                        var statusObj = row[columns[meta.col].data.split(".")[0]];
-                        if(statusObj != null)
-                            cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
-                        else
-                            cellValue = "-";
+                        keys = columns[meta.col].data.split(".");
+                        var statusObj = diveObj(row, 0, keys);
+                        cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
@@ -485,7 +474,10 @@ function init_datatable(tableID, doPagination, context) {
                             // Get current entity by splitting current table id
                             var currentEntity = tableID.split("#table_")[1];
                             var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
-                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURI(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                            // Remove uuid
+                            if(justFilename[32] == '_')
+                                justFilename = justFilename.substring(33);
+                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
                         } else
                             cellValue = '';
                     }
@@ -497,8 +489,10 @@ function init_datatable(tableID, doPagination, context) {
                     } else if (columns[meta.col].type == 'password'){
                         cellValue = '●●●●●●●●●';
                     } else if(columns[meta.col].type == 'text'){
-                        if(cellValue && cellValue.length > 75)
-                            cellValue = cellValue.slice(0, 75) + "...";
+                        if(cellValue && cellValue.length > 75){
+                            var shortText = $.parseHTML(cellValue.slice(0, 75))[0].data ? $.parseHTML(cellValue.slice(0, 75))[0].data : $.parseHTML(cellValue.slice(0, 75))[0].innerHTML;
+                            cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + shortText + "...<span style='display: none;'>" + cellValue + "</span></span>";
+                        }
                     }
                 }
                 return cellValue;
@@ -545,7 +539,22 @@ function init_datatable(tableID, doPagination, context) {
         "columnDefs": columnDefs,
         "language": STR_LANGUAGE,
         "paging": doPagination,
-        "dom": 'lBfrtip',
+        "dom": 'RlBfrtip',
+        "stateSave": true,
+        stateSaveCallback: function(settings, data) {
+            var sizes = [];
+            for (var i = 0; i < settings.aoColumns.length; i++)
+                sizes.push($(settings.aoColumns[i].nTh).width()+'px');
+            localStorage.setItem(tableID+'_columns_sizes', JSON.stringify(sizes));
+        },
+        stateLoadCallback: function(settings) {
+            var sizes = JSON.parse(localStorage.getItem(tableID+'_columns_sizes'));
+            if (!sizes)
+                return;
+            for (var i = 0; i < settings.aoColumns.length; i++)
+                if (sizes[i])
+                    $(settings.aoColumns[i].nTh).width(sizes[i]);
+        },
         "bLengthChange": true,
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
@@ -610,7 +619,6 @@ function init_datatable(tableID, doPagination, context) {
             }
         ]
     }
-    // Global search
     table = $(tableID, context).DataTable(tableOptions);
 
     //modal on click on picture cell
@@ -651,7 +659,6 @@ function init_datatable(tableID, doPagination, context) {
         var mainTh = $(this);
         var title = $(this).text();
 
-        // Custom
         var currentField = mainTh.data('field');
         var val = getFilter(tableID.substring(1), currentField);
         var search = '<input type="text" class="form-control input" value="' + val + '" placeholder="' + title + '" />';
@@ -766,5 +773,48 @@ function init_datatable(tableID, doPagination, context) {
 $(function () {
     $(".dataTable").each(function () {
         init_datatable('#' + $(this).attr('id'));
+    });
+
+    // Datalist JS
+
+    /* Make the table horizontaly scrollable with mouse drag on it */
+    var x,y,top,left = 0,down;
+    /* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
+    var scrolling = false;
+
+    $("tbody").css("cursor", "pointer");
+
+    $("tbody").mousedown(function(e){
+        if(!e.ctrlKey){
+            e.preventDefault();
+            down=true;
+            x=e.pageX;
+            left=$(".table-responsive").scrollLeft();
+        }
+    });
+
+    $("tbody").mousemove(function(e){
+        if(down){
+            scrolling = true;
+            var newX=e.pageX;
+            $(".table-responsive").scrollLeft(left-newX+x);
+        }
+    });
+
+    $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+    $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+
+    $('tbody').on('click', 'tr', function (e) {
+        if(!e.ctrlKey){
+            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).hasClass("np_text_modal") || $(e.target).parents("button.btn-danger").length != 0 || $(e.target).is("img"))
+                return;
+            if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
+                window.location = $(this).find('td > a.btn-show:first').attr('href');
+        }
+    });
+
+    // Text modal in datalist
+    $(document).on('click', '.np_text_modal', function(){
+        doModal('Contenu', $(this).find('span').html());
     });
 });

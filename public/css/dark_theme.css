@@ -1,0 +1,99 @@
+html, body {
+	background: #2A2A2A;
+	color: #E5E5E5;
+}
+
+.right-side {
+	background-color: #2A2A2A;
+}
+
+.skin-blue .right-side > .content-header {
+	background: #2A2A2A;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+	color: #E5E5E5;
+}
+
+.content {
+	background: #2A2A2A;
+}
+
+.box {
+	background: #171717;
+	color: #E5E5E5;
+	box-shadow: 0px 1px 3px rgba(255, 255, 255, 0);
+}
+
+.btn.btn-app {
+	background: #333;
+	color: #E5E5E5;
+	border-color: #aaa;
+}
+
+.btn.btn-app:hover {
+	background: #222;
+	color: #E5E5E5;
+}
+
+.btn.btn-default {
+	background-color: #333 !important;
+	color: #E5E5E5;
+}
+
+.btn.btn-default:hover {
+	background-color: #222 !important;
+}
+
+input, textarea {
+	background-color: #333333 !important;
+}
+
+.form-control {
+	color: #E5E5E5;
+	background-color: #333333 !important;
+}
+
+legend {
+	color: #E5E5E5;
+}
+
+.nav-tabs-custom {
+	background: #242424;
+	color: #E5E5E5;
+}
+
+.nav-tabs-custom > .tab-content {
+	background: #242424;
+}
+
+.callout.callout-info {
+	background-color: #393939;
+}
+
+.box .box-footer {
+	background-color: #393939;
+}
+
+.nav-tabs-custom > .nav-tabs > li.active > a, .nav-tabs-custom > .nav-tabs > li.active:hover > a {
+	background-color: #242424;
+	color: #E5E5E5;
+}
+
+hr {
+	border-top: 1px solid #242424;
+}
+
+.ui-autocomplete {
+	background-color: #242424;
+}
+
+.modal-content {
+	background-color: #242424;
+	color: #E5E5E5;
+}
+
+.dropzone {
+	background-color: #242424 !important;
+	color: #E5E5E5 !important;
+}

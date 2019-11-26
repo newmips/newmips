@@ -1,44 +1,44 @@
 <table id="table_e_inline_help" data-url="/inline_help/datalist" class="dataTable table table-bordered table-striped">
-    <thead class="main">
-        <tr class="fields">
-            <th data-field="id" data-col="id">
-                {#__ key="entity.e_inline_help.id_entity"/}&nbsp;
-                {#__ key="entity.e_inline_help.label_entity"/}
-            </th>
-            <th data-field="f_entity" data-col="f_entity" data-type="string">
-                {#__ key="entity.e_inline_help.f_entity"/}
-            </th>
-            <th data-field="f_field" data-col="f_field" data-type="string">
-                {#__ key="entity.e_inline_help.f_field"/}
-            </th>
-            <th data-field="f_content" data-col="f_content" data-type="text">
-                {#__ key="entity.e_inline_help.f_content"/}
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <thead class="filters">
-        <tr class="fields">
-            <th data-field="id" data-col="id">
-                {#__ key="entity.e_inline_help.id_entity"/}&nbsp;
-                {#__ key="entity.e_inline_help.label_entity"/}
-            </th>
-            <th data-field="f_entity" data-col="f_entity" data-type="string">
-                {#__ key="entity.e_inline_help.f_entity"/}
-            </th>
-            <th data-field="f_field" data-col="f_field" data-type="string">
-                {#__ key="entity.e_inline_help.f_field"/}
-            </th>
-            <th data-field="f_content" data-col="f_content" data-type="text">
-                {#__ key="entity.e_inline_help.f_content"/}
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
+	<thead class="main">
+		<tr class="fields">
+			<th data-field="id" data-col="id">
+				{#__ key="entity.e_inline_help.id_entity"/}&nbsp;
+				{#__ key="entity.e_inline_help.label_entity"/}
+			</th>
+			<th data-field="f_entity" data-col="f_entity" data-type="string">
+				{#__ key="entity.e_inline_help.f_entity"/}
+			</th>
+			<th data-field="f_field" data-col="f_field" data-type="string">
+				{#__ key="entity.e_inline_help.f_field"/}
+			</th>
+			<th data-field="f_content" data-col="f_content" data-type="text">
+				{#__ key="entity.e_inline_help.f_content"/}
+			</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<thead class="filters">
+		<tr class="fields">
+			<th data-field="id" data-col="id">
+				{#__ key="entity.e_inline_help.id_entity"/}&nbsp;
+				{#__ key="entity.e_inline_help.label_entity"/}
+			</th>
+			<th data-field="f_entity" data-col="f_entity" data-type="string">
+				{#__ key="entity.e_inline_help.f_entity"/}
+			</th>
+			<th data-field="f_field" data-col="f_field" data-type="string">
+				{#__ key="entity.e_inline_help.f_field"/}
+			</th>
+			<th data-field="f_content" data-col="f_content" data-type="text">
+				{#__ key="entity.e_inline_help.f_content"/}
+			</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
 </table>

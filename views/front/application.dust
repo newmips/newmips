@@ -11,26 +11,24 @@
 		<div class="col-xs-12">
 			<div class="box-body">
 				<br>
-
-				{^projects}
-				<div class="row">
-					<div class="col-xs-12 col-sm-5">
-						<img src="/img/mipsy.png" class="img-responsive pull-right" style="width:300px;"/>
-					</div>
-					<div class="col-xs-12 col-sm-7" style="padding-top: 100px;">
-						<h2 class="headline">{#__ key="listApplication.no_project_1"/}</h2>
-						<div class="error-content">
-							<h3>{#__ key="listApplication.no_project_2"/}</h3>
+				{^applications}
+					<div class="row">
+						<div class="col-xs-12 col-sm-5">
+							<img src="/img/mipsy.png" class="img-responsive pull-right" style="width:300px;"/>
+						</div>
+						<div class="col-xs-12 col-sm-7" style="padding-top: 100px;">
+							<h2 class="headline">{#__ key="listApplication.no_project_1"/}</h2>
+							<div class="error-content">
+								<h3>{#__ key="listApplication.no_project_2"/}</h3>
+							</div>
 						</div>
 					</div>
-				</div>
-				{/projects}
-				{#projects}
+				{:else}
 					<div class="col-lg-offset-2 col-lg-8">
 						<div class="box box-solid box-default">
 							<div class="box-header bg-primary">
 								<h3 class="box-title" style="color: #fff;">
-									{#__ key="project.label"/}: {displayName}
+									Applications
 								</h3>
 							</div>
 							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;">
@@ -47,54 +45,51 @@
 													</tr>
 												</thead>
 												<tbody>
-													{#Applications}
+													{#applications}
 														<tr>
 															<td>{id}</td>
 															<td>{displayName}</td>
-															<td><a href='{dataValues.url}' target='_blank'>{dataValues.url}</a></td>
+															<td><a href='{url}' target='_blank'>{url}</a></td>
 															<td class="text-center">
-																<a class="btn btn-info" href="/application/preview?id_application={id}">
+																<a class="btn btn-info" href="/application/preview/{name}">
 																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
 																	<span>{#__ key="button.preview"/}</span>
 																</a>
 															</td>
-															{?gitlabUser}
 															<td class="text-center">
-																<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
-																	<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
-																	<span>{#__ key="button.clone"/}</span>
-																</button>
+																<a class="btn btn-primary export-btn" href="/application/export/{name}">
+																	<i class="fa fa-download fa-md">&nbsp;&nbsp;</i>
+																	<span>{#__ key="button.export"/}</span>
+																</a>
 															</td>
+															{?gitlabUser}
+																{?dataValues.repo_url}
+																	<td class="text-center">
+																		<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
+																			<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
+																			<span>{#__ key="button.clone"/}</span>
+																		</button>
+																	</td>
+																{/dataValues.repo_url}
 															{/gitlabUser}
 															<td class="text-center">
-																<form class="deleteAppForm">
-																	<button class="btn btn-danger">
-																		<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-																		<span>{#__ key="button.delete"/}</span>
-																	</button>
-																	<input type="hidden" name="instruction" value="delete application {id}" />
-																</form>
+																<button type='button' class="btn btn-danger deleteAppForm" data-name='{displayName}'>
+																	<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+																	<span>{#__ key="button.delete"/}</span>
+																</button>
 															</td>
 														</tr>
-													{/Applications}
+													{/applications}
 												</tbody>
 											</table>
 										</div>
 									</div>
 								</div>
 							</div>
-							<div class="box-footer">
-								<form class="deleteProjectForm">
-									<button class="btn btn-danger">
-										<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-										<span>{#__ key="button.delete"/}</span>
-									</button>
-									<input type="hidden" name="instruction" value="delete project {id}" />
-								</form>
-							</div>
 						</div>
 					</div>
-				{/projects}
+				{/applications}
+
 			</div>
 		</div>
 	</div>
@@ -114,7 +109,8 @@
 						<i><b>git clone <span id="gitlab_repo_url"></span></b></i><br><br>
 						{#__ key="listApplication.gitlab.text2" /}<br><br>
 						<i><b>{gitlabUser.name}</b></i><br><br>
-						{#__ key="listApplication.gitlab.text3" /} <i class="fa fa-smile-o"></i>
+						{#__ key="listApplication.gitlab.text3" /}&nbsp;<i class="fa fa-smile-o"></i><br><br>
+						<i>{#__ key="listApplication.gitlab.text4" /}</i>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" data-dismiss="modal">{#__ key="button.understand"/}</button>
@@ -132,83 +128,63 @@
 		var projectDelete = '{#__ key="listApplication.projectDelete"/}';
 		var appDelete = '{#__ key="listApplication.appDelete"/}';
 
-		function deleteApplication(formArray, index) {
-			return new Promise(function(resolve, reject) {
-				(function(arr, idx){
-					$(document.body).css({cursor: 'wait'});
-					var tr = $(arr[idx]).parents('tr');
-					$.ajax({
-						url: '/application/execute',
-						method: 'post',
-						data: {instruction: $(arr[idx]).find('input[name="instruction"]').val()},
-						success: function() {
-							$(tr).remove();
-							$(".deleteProjectForm").children("button").prop("disabled", false);
-							$(".deleteAppForm").children("button").prop("disabled", false);
-						},
-						complete: function() {
-							$(document.body).css({cursor: 'default'});
-							if (arr.length == 1) {
-								toastr.success(appDelete);
-								return resolve();
-							}
-							return (arr[++idx]) ? resolve(deleteApplication(arr, idx)) : resolve();
-						}
-					});
-				})(formArray, index);
-			});
-		}
+		$(document).on('click', '.export-btn', function(){
+			var context = this;
+	        $(this).prop("readOnly", true);
+	        $(this).css("cursor", "wait");
+	        var tmpText = $(this).html();
+	        if ($(this).hasClass("btn-confirm")) {
+	            if (!isChrome) {
+	                $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+	            }
+	        } else {
+	            $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+	        }
+	        setTimeout(function () {
+	            $(context).prop("readOnly", false);
+	            $(context).css("cursor", "pointer");
+	            $(context).html(tmpText);
+	        }, 1000);
+		});
 
-		$(function() {
-			/* Delete Project */
-			$(".deleteProjectForm").submit(function() {
-				var confirm = window.confirm(sureToDelete);
-				if(confirm){
-					var self = this;
-					/* Get all application delete form */
-					var appForms = $(self).parents('.box').find("tbody tr form");
-					$(this).children("button").html(loading);
+		
 
-					/* Disabled all button to prevent mutli click that may cause issue */
-					$(".deleteProjectForm").children("button").prop("disabled", true);
-					$(".deleteAppForm").children("button").prop("disabled", true);
-
-					$(document.body).css({cursor: 'wait'});
-					$.ajax({
-						url: '/application/execute',
-						method: 'post',
-						data: {instruction: $(self).find("input[name='instruction']").val()},
-						context: this,
-						success: function() {
-							toastr.success(projectDelete);
-							$(self).parents('.col-lg-8').remove();
-							$(document.body).css({cursor: 'default'});
-							$(".deleteProjectForm").children("button").prop("disabled", false);
-							$(".deleteAppForm").children("button").prop("disabled", false);
-						},
-						error: function(err){
+		$(document).ready(function() {
+			/* --- Delete application --- */
+			$(document).on('click', '.deleteAppForm', function() {
+				if(!window.confirm(sureToDelete))
+					return;
+				var originHtml = $(this).html();
+				$(this).html(loading);
+				$(this).prop("disabled", true);
+				$(document.body).css({cursor: 'wait'});
+				$.ajax({
+					url: '/application/delete',
+					method: 'POST',
+					context: this,
+					data: {
+						appName: $(this).attr('data-name')
+					},
+					success: function() {
+						$(this).parents('tr').remove();
+						$(this).prop("disabled", false);
+						$(document.body).css({cursor: 'default'});
+						toastr.success(appDelete);
+					},
+					error: function(err) {
+						console.log(err);
+						if(err.message)
+							toastr.error(err.message);
+						else if(err.messageText)
+							toastr.error(err.messageText);
+						else if(err.responseText)
 							toastr.error(err.responseText);
-							$(document.body).css({cursor: 'default'});
-							$(".deleteProjectForm").children("button").prop("disabled", false);
-							$(".deleteAppForm").children("button").prop("disabled", false);
-							$(this).children("button").remove();
-						}
-					});
+						$(this).html(originHtml);
+						$(document.body).css({cursor: 'auto'});
+					}
+				});
 
-					return false;
-				}
-			});
-
-			/* Delete application */
-			$(".deleteAppForm").submit(function(){
-				var confirm = window.confirm(sureToDelete);
-				if(confirm){
-					$(this).children("button").html(loading);
-					$(".deleteProjectForm").children("button").prop("disabled", true);
-					$(".deleteAppForm").children("button").prop("disabled", true);
-					deleteApplication([$(this)], 0);
-					return false;
-				}
+				return false;
 			});
 
 			$(document).on("click", ".gitlab-button", function(){

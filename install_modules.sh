@@ -6,9 +6,9 @@ npm install
 
 #Create workspace dir
 if [ ! -d "$workspace" ]; then
-        echo "GENERATE WORKSPACE DIRECTORY..."
-        mkdir workspace
-        chmod 755 -R workspace
+	echo "GENERATE WORKSPACE DIRECTORY..."
+	mkdir workspace
+	chmod 755 -R workspace
 fi
 
 #Install Newmips structure template

@@ -1,131 +1,174 @@
-var process_server = null;
-var process_server_per_app = new Array();
-var spawn = require('cross-spawn');
-var psTree = require('ps-tree');
-var globalConf = require('../config/global.js');
-var fs = require("fs-extra");
-var path = require('path');
+const globalConf = require('../config/global.js');
+const spawn = require('cross-spawn');
+const psTree = require('ps-tree');
+const fs = require("fs-extra");
+const path = require('path');
+const request = require('request');
+const AnsiToHTML = require('ansi-to-html');
+const ansiToHtml = new AnsiToHTML();
+const moment = require('moment');
+const childsUrlsStorage = {};
+const process_server_per_app = [];
+let process_server = null;
 
-var AnsiToHTML = require('ansi-to-html');
-var ansiToHtml = new AnsiToHTML();
-var moment = require('moment');
-
-let childsUrlsStorage = {};
-
-function setDefaultChildUrl(sessionID, idApp){
-    if(typeof childsUrlsStorage[sessionID] === "undefined")
-        childsUrlsStorage[sessionID] = {};
-
-    if(typeof childsUrlsStorage[sessionID][idApp] === "undefined")
-        childsUrlsStorage[sessionID][idApp] = "";
+function setDefaultChildUrl(sessionID, appName){
+	if(typeof childsUrlsStorage[sessionID] === "undefined")
+		childsUrlsStorage[sessionID] = {};
+	if(typeof childsUrlsStorage[sessionID][appName] === "undefined")
+		childsUrlsStorage[sessionID][appName] = "";
 }
+
+function setChildUrl(sessionID, appName, url){
+	setDefaultChildUrl(sessionID, appName);
+	childsUrlsStorage[sessionID][appName] = url;
+}
+exports.setChildUrl = setChildUrl;
 
 exports.process_server_per_app = process_server_per_app;
-exports.launchChildProcess = function(req, idApp, env) {
+exports.launchChildProcess = function(req, appName, env) {
 
-    setDefaultChildUrl(req.sessionID, idApp);
+	setDefaultChildUrl(req.sessionID, appName);
 
-    process_server = spawn('node', [__dirname + "/../workspace/" + idApp + "/server.js", 'autologin'], {
-        CREATE_NO_WINDOW: true,
-        env: env
-    });
+	process_server = spawn('node', [__dirname + "/../workspace/" + appName + "/server.js", 'autologin'], {
+		CREATE_NO_WINDOW: true,
+		env: env
+	});
 
-    /* Generate app logs in /workspace/logs folder */
-    fs.mkdirsSync(__dirname + "/../workspace/logs/");
-    var allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_'+idApp+'.log'), {flags: 'a'});
+	/* Generate app logs in /workspace/logs folder */
+	fs.mkdirsSync(__dirname + "/../workspace/logs/");
+	const allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_' + appName + '.log'), {
+		flags: 'a'
+	});
 
-    process_server.stdout.on('data', function(data) {
-        // Check for child process log specifying current url. child_url will then be used to redirect
-        // child process after restart
-        if ((data + '').indexOf("IFRAME_URL") != -1) {
-            if ((data + '').indexOf("/status") == -1){
-                childsUrlsStorage[req.sessionID][idApp] = (data + '').split('::')[1];
-            }
-        } else if(data.toString().length > 15) { // Not just the date, mean avoid empty logs
-            allLogStream.write('<span style="color:#00ffff;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
-            console.log('\x1b[36m%s\x1b[0m', 'Log '+idApp+': ' + data);
-        }
-    });
+	process_server.stdout.on('data', function(data) {
+		data = data.toString();
+		// Check for child process log specifying current url. child_url will then be used to redirect
+		// child process after restart
+		if (data.indexOf("IFRAME_URL") != -1) {
+			if (data.indexOf("/status") == -1){
+				childsUrlsStorage[req.sessionID][appName] = data.split('::')[1];
+			}
+		} else {
+			const cleaned = data.replace(/(.*)\n*$/, '$1');
+			if (!cleaned.length)
+				return;
+			allLogStream.write('<span style="color:#00ffff;">'+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+':</span>  ' + ansiToHtml.toHtml(cleaned) + '\n');
+			console.log('\x1b[36m%s\x1b[0m', appName+' '+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+': ' + cleaned);
+		}
+	});
 
-    process_server.stderr.on('data', function(data) {
-        allLogStream.write('<span style="color: red;">'+moment().format("YY-MM-DD HH:mm:ss")+':</span>  ' + ansiToHtml.toHtml(data.toString()) + '\n');
-        console.log('\x1b[31m%s\x1b[0m', 'Err '+idApp+': ' + data);
-    });
+	process_server.stderr.on('data', function(data) {
+		data = data.toString();
+		allLogStream.write('<span style="color: red;">'+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+':</span>  ' + ansiToHtml.toHtml(data) + '\n');
+		console.log('\x1b[31m%s\x1b[0m', 'Err '+appName+' '+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+': ' + data.replace(/(.*)\n*$/, '$1'));
+	});
 
-    process_server.on('close', function(code) {
-        console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
-    });
+	process_server.on('close', _ => {
+		console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
+	});
 
-    exports.process_server = process_server;
-    return process_server;
+	exports.process_server = process_server;
+	return process_server;
 }
 
-exports.childUrl = function(req, instruction) {
+async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 
-    setDefaultChildUrl(req.sessionID, req.session.id_application);
+	// Server Timeout
+	if (new Date().getTime() - initialTimestamp > timeoutServer) {
+		console.error('Timeout server on url => ' + iframe_url);
+		throw new Error('preview.server_timeout');
+	}
 
-    // On entity delete, reset child_url to avoid 404
-    if (instruction == 'deleteDataEntity')
-        childsUrlsStorage[req.sessionID][req.session.id_application] = "/default/home";
+	const rejectUnauthorized = globalConf.env == 'cloud';
 
-    let url =  globalConf.protocol_iframe + '://';
-    if (globalConf.env == 'cloud')
-        url += globalConf.sub_domain + '-' + req.session.name_application + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.id_application];
-    else
-        url += globalConf.host + ':' + (9000 + parseInt(req.session.id_application)) + childsUrlsStorage[req.sessionID][req.session.id_application];
+	await new Promise((resolve) => {
+		request({
+			rejectUnauthorized: rejectUnauthorized,
+			url: iframe_url,
+			method: "GET"
+		}, (err, response) => {
+			// Check for error
+			if (err && err.code == 'ECONNREFUSED')
+				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
 
-    return url;
+			if(typeof response === 'undefined') {
+				console.error(err);
+				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
+			}
+
+			// Check for right status code
+			if (response.statusCode !== 200) {
+				console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
+				if(response.statusCode == 500)
+					console.error(response);
+				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
+			}
+
+			// Everything's ok
+			console.log("Server status is OK");
+			resolve();
+		});
+	})
+}
+exports.checkServer = checkServer;
+
+exports.childUrl = (req, appID) => {
+
+	setDefaultChildUrl(req.sessionID, req.session.app_name);
+
+	let url = globalConf.protocol_iframe + '://';
+	if (globalConf.env == 'cloud')
+		url += globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.app_name];
+	else
+		url += globalConf.host + ':' + (9000 + parseInt(appID)) + childsUrlsStorage[req.sessionID][req.session.app_name];
+
+	return url;
 }
 
-exports.killChildProcess = function(pid, callback) {
+const cp = require('child_process');
+exports.killChildProcess = (pid) => new Promise(resolve => {
+	console.log("Killed child process was called : " + pid);
+	// OS is Windows
+	const isWin = /^win/.test(process.platform);
+	if (isWin) {
+		// **** Commands that works fine on WINDOWS ***
+		cp.exec('taskkill /PID ' + process_server.pid + ' /T /F', err => {
+			if(err)
+				console.error(err);
+			console.log("Killed child process");
+			exports.process_server = null;
+			resolve();
+		});
+	} else {
+		/* Kill all the differents child process */
+		const killTree = true;
+		if (killTree) {
+			psTree(pid, function(err, children) {
+				if(err)
+					console.error(err);
 
-    var cp = require('child_process');
+				const pidArray = [pid].concat(children.map(p => p.PID));
 
-    console.log("Killed child process was called : " + pid);
-
-    // OS is Windows
-    var isWin = /^win/.test(process.platform);
-
-    if(isWin){
-        // **** Commands that works fine on WINDOWS ***
-        cp.exec('taskkill /PID ' + process_server.pid + ' /T /F', function(error, stdout, stderr) {
-            console.log("Killed child process");
-            exports.process_server = null;
-            callback();
-        });
-    } else {
-        // **** Commands that works fine on UNIX ***
-        var signal = 'SIGKILL';
-
-        /* Kill all the differents child process */
-        var killTree = true;
-        if (killTree) {
-            psTree(pid, function(err, children) {
-                var pidArray = [pid].concat(children.map(function(p) {
-                    return p.PID;
-                }));
-
-                try {
-                    for(var i=0; i<pidArray.length; i++){
-                        process.kill(pidArray[i], signal);
-                        console.log("TPID : " + pidArray[i]);
-                    }
-                } catch(err){
-                    return callback(err);
-                }
-
-                callback();
-            });
-        } else {
-            /* Kill just one child */
-            try {
-                process.kill(pid, signal);
-                callback();
-            } catch (err) {
-                return callback(err);
-            }
-        }
-    }
-}
+				for (let i = 0; i < pidArray.length; i++) {
+					try {
+						console.log("TPID : " + pidArray[i]);
+						process.kill(pidArray[i], 'SIGKILL');
+					} catch(err) {
+						console.error("Cannot kill process with pid " + pidArray[i]);
+					}
+				}
+				resolve();
+			});
+		} else {
+			try {
+				/* Kill just one child */
+				process.kill(pid, 'SIGKILL');
+			} catch(err) {
+				console.error("Cannot kill process with pid " + pid);
+			}
+			resolve();
+		}
+	}
+})
 
 module.exports = exports;

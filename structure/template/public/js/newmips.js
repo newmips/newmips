@@ -13,13 +13,13 @@ function select2_ajaxsearch(select, placeholder) {
     var url = select.data('href') ? select.data('href') : select.data('url') ? select.data('url') : '/' + select.data('source') + '/search';
     select.select2({
         placeholder: placeholder,
+        allowClear: true,
         ajax: {
             url: url,
             dataType: 'json',
             method: 'POST',
             delay: 250,
             contentType: "application/json",
-            allowClear: true,
             data: function (params) {
                 var ajaxdata = {
                     search: params.term,
@@ -43,7 +43,7 @@ function select2_ajaxsearch(select, placeholder) {
                     return {results: []};
                 var results = [];
                 if (select.attr("multiple") != "multiple" && !params.page)
-                    results.push({id: "", text: placeholder});
+                    results.push({id: "nps_clear_select", text: placeholder});
                 for (var i = 0; i < dataResults.length; i++) {
                     var text = [];
                     for (var field in dataResults[i]) {
@@ -74,6 +74,13 @@ function select2_ajaxsearch(select, placeholder) {
             return data.text;
         }
     });
+
+    // Clear select if default option is chosen, do not work natively with select2
+    if (select.attr("multiple") != "multiple")
+        select.on('change', function () {
+            if ($(this).val() == 'nps_clear_select')
+                $(this).val(null).trigger('change');
+        });
 }
 
 // INIT FORM
@@ -131,7 +138,7 @@ function initForm(context) {
     });
 
     /* --------------- Regex on decimal input --------------- */
-    var reg = new RegExp("^[0-9]+([\.\,][0-9]*)?$");
+    var reg = new RegExp("^-?[0-9]+([\.\,][0-9]*)?$");
     $("input[data-custom-type='decimal']", context).keyup(function () {
         while ($(this).val() != "" && !reg.test($(this).val()))
             $(this).val($(this).val().substring(0, $(this).val().length - 1))
@@ -383,19 +390,17 @@ function initForm(context) {
             uploadMultiple: false,
             dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
             dictRemoveFile: "Supprimer",
+            dictRemoveFileConfirmation: "Êtes-vous sur de vouloir supprimer ce fichier ?",
             dictCancelUpload: "Annuler",
             dictInvalidFileType: "Vous ne pouvez pas uploader un fichier de ce type.",
             autoDiscover: false,
             thumbnailWidth: 500,
             thumbnailHeight: 500,
             init: function () {
-                this.on("addedfile", function () {
+                this.on("addedfile", function (files) {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else if (!this.files[0].default) {
-                        $("#" + that.attr("id") + "_hidden_name").val(clearString(this.files[0].name));
-                        $("#" + that.attr("id") + "_hidden").val(clearString(this.files[0].name));
                     }
                 });
 
@@ -407,20 +412,27 @@ function initForm(context) {
                     formData.append("dataEntity", dataEntity);
                     formData.append("dataType", dataType);
                 });
+
                 this.on("maxfilesexceeded", function () {
                     this.removeFile(this.files[1]);
                     toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                 });
+
                 this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
+
+                this.on("complete", function (file, xhr, formData) {
+                    /* Add possibility to download the uploaded file in the dropzone */
+                    $(file.previewTemplate).find('a.dz-remove').after(
+                        '<a style="text-align: center;cursor: pointer;display: block;" href="/default/download?entity='+that.attr("data-entity")+'&f='+$("#" + that.attr("id") + "_hidden").val()+'">Télécharger</a>');
+                });
+
                 this.on('removedfile', function (file) {
                     if (file.status != "error") {
                         var dropzone = this;
-                        if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?'))
-                            return false;
                         $.ajax({
                             url: '/default/delete_file',
                             type: 'post',
@@ -431,6 +443,7 @@ function initForm(context) {
                             },
                             success: function (success) {
                                 $("#" + that.attr("id") + "_hidden").val('');
+                                $("#" + that.attr("id") + "_hidden_name").val('');
                                 if (dropzone.files.length) {
                                     dropzone.removeAllFiles(true);
                                 }
@@ -439,41 +452,39 @@ function initForm(context) {
                     }
                 });
             },
-             renameFilename: function (filename) {
-                /*get file extension before clean*/
-                var fileExt = '';
-                if (filename.indexOf('.') >= 0)
-                    fileExt = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
-                filename = clearString(filename);
-                if (filename.indexOf("dfltImg_") != -1)
-                    return filename.replace("dfltImg_", "");
-                if ($("#" + that.attr("id") + "_hidden").val() != '') {
+            renameFile: function (file) {
+                var filename = file.name;
+                var value = $('#' + dropzoneId + '_hidden').val();
+                if (!value) {
+                    var uuid = uuidv4().replace(/-/g, '');
+                    var filenameCleanedAndRenamed = clearString(filename);
                     var timeFile = moment().format("YYYYMMDD-HHmmss");
-                    /*remove file extension starts With _*/
-                    if (fileExt)
-                        filename = filename.substring(0, filename.lastIndexOf('_'));
-                    
-                    var completeFileName = timeFile + '_' + filename + '.' + fileExt;
-                    
-                    $("#" + that.attr("id") + "_hidden").val(completeFileName);
-                    
-                    return completeFileName;
+                    filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
+                    $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
+                    $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
                 }
+                return filenameCleanedAndRenamed;
             }
         });
+
         if (type == 'picture')
-            dropzoneInit.options.acceptedFiles = 'image/gif, image/png, image/jpeg';
+            dropzoneInit.options.acceptedFiles = 'image/gif,image/png,image/jpeg';
         else if (type === "docx/pdf")
             dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
         var dropzoneId = $(this).attr('id') + '';
-        if ($('#' + dropzoneId + '_hidden').val() != '') {
+        if ($('#' + dropzoneId + '_hidden').val()) {
             var mockFile = {
-                name: "dfltImg_" + $('#' + dropzoneId + '_hidden').val(),
+                name: $('#' + dropzoneId + '_hidden').val(),
                 type: 'mockfile',
                 default: true
             };
             dropzoneInit.files.push(mockFile);
             dropzoneInit.emit('addedfile', mockFile);
+            if(typeof $('#' + dropzoneId + '_hidden').data('buffer') === undefined)
+                dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
+            else
+                dropzoneInit.emit('thumbnail', mockFile, "https://newmips.com/wp-content/uploads/2019/09/download-file.png");
             dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
             dropzoneInit.emit('complete', mockFile);
         }
@@ -483,7 +494,7 @@ function initForm(context) {
 
     // Component address
     if (typeof context.data === "undefined" || context.data("tabtype") != "print")
-        initComponentAddress();
+        initComponentAddress(context);
 
     // Input group addons click
     $(document).on("click", ".input-group-addon", function () {
@@ -532,9 +543,10 @@ function initDropZone(context) {
         context = document;
 
     /* File Storage Component */
-    $('.dropzone_local_file_component', context).each(function (index) {
+  $('.dropzone_local_file_component', context).each(function (index) {
         var that = $(this);
-        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
+        var dropzoneId = $(this).attr("id");
+        var dropzoneInit = new Dropzone("#" + dropzoneId, {
             url: "/" + that.attr("data-component") + "/file_upload",
             autoProcessQueue: true,
             maxFilesize: 10,
@@ -548,9 +560,6 @@ function initDropZone(context) {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    } else {
-                        $("#" + that.attr("id") + "_hidden_name").val(clearString(this.files[0].name));
-                        $("#" + that.attr("id") + "_hidden").val(clearString(this.files[0].name));
                     }
                 });
                 this.on("sending", function (file, xhr, formData) {
@@ -574,11 +583,18 @@ function initDropZone(context) {
                     $("#" + that.attr("id") + "_hidden").removeAttr('value');
                 });
             },
-            renameFilename: function (filename) {
-                filename = clearString(filename);
-                var timeFile = moment().format("YYYYMMDD-HHmmss");
-                $("#" + that.attr("id") + "_hidden").val(timeFile + "_" + filename);
-                return timeFile + '_' + filename;
+            renameFile: function (file) {
+                var filename = file.name;
+                var value = $('#' + dropzoneId + '_hidden').val();
+                if (!value) {
+                    var uuid = uuidv4().replace(/-/g, '');
+                    var filenameCleanedAndRenamed = clearString(filename);
+                    var timeFile = moment().format("YYYYMMDD-HHmmss");
+                    filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
+                    $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
+                    $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
+                }
+                return filenameCleanedAndRenamed;
             }
         });
 
@@ -723,6 +739,7 @@ function validateForm(form) {
         }
         return false;
     }
+
     // If there are files to upload, block submition until files are uploaded
     if (isFileProcessing()) {
         toastr.warning(WAIT_UPLOAD_TEXT);
@@ -790,6 +807,26 @@ function validateForm(form) {
             form.append($(input));
         }
     });
+
+    var checkedFound = true;
+    form.find(".relatedtomany-checkbox").each(function () {
+        if ($(this).attr('required') == 'required') {
+            checkedFound = false;
+            $(this).find('input[type="checkbox"]').each(function () {
+                if ($(this).icheck('update')[0].checked) {
+                    checkedFound = true;
+                    return false; // Break
+                }
+            });
+            if (!checkedFound)
+                return false;  // Break
+        }
+    });
+
+    if (!checkedFound) {
+        toastr.error(REQUIRED_RELATEDTOMANYCHECKBOX);
+        return false;
+    }
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
     form.find("input[type='checkbox']").each(function () {
@@ -986,6 +1023,14 @@ $(document).ready(function () {
         return true;
     });
 
+    // Splitting display in col-xs-3 related to many checkbox
+    $('.relatedtomany-checkbox').each(function () {
+        var checkboxes = $(this).find('wrap');
+        for (var i = 0; i < checkboxes.length; i += 3) {
+            checkboxes.slice(i, i + 3).wrapAll("<div class='col-xs-3' style='margin-bottom: 15px;'></div>");
+        }
+    });
+
     /* --------------- Inline Help --------------- */
     var currentHelp, modalOpen = false;
     $(document).delegate(".inline-help", 'click', function () {
@@ -1159,9 +1204,9 @@ $(document).ready(function () {
     $(document).on("click", ".component-print-button", function () {
         // Clear component address
         $(".print-tab .section_address_fields .address_maps").replaceWith(
-                "<div style='position:relative;height:450px;overflow:hidden;'>" +
-                $(".print-tab .section_address_fields .address_maps").find(".olLayerGrid").parent().html() +
-                "</div>");
+            "<div style='position:relative;height:450px;overflow:hidden;'>" +
+            $(".print-tab .section_address_fields .address_maps").find(".olLayerGrid").parent().html() +
+            "</div>");
         window.print();
         return true;
     });
@@ -1182,13 +1227,13 @@ function initComponentAddress(context) {
             $('.address_field').on('keyup', function () {
                 $(this).val($(this).val().toUpperCase());
             });
-            $("#address_search_area", context).each(function () {
+            $("#address_search_input", context).each(function () {
                 var result;
                 var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
                 $(this).autocomplete({
                     minLength: 1,
                     source: function (req, res) {
-                        var val = $('#address_search_area').val();
+                        var val = $('#address_search_input').val();
                         var data = {limit: 10};
                         data[componentAddressConf.query_parm] = val;
                         $.ajax({
@@ -1267,13 +1312,16 @@ function initComponentAddress(context) {
     }, 500);
 }
 
-
 function initDocumentTemplateHelper() {
 
     function onClickDocumentTemplateHelper() {
-        var select = $('#document_template_select_entity').val();
-        var onclick = "window.open('/document_template/readme/" + select + "', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500')";
-        $('#document_template_helper').attr('onclick', onclick);
+        $('#document_template_helper').click(function (e) {
+            e.preventDefault();
+            var select = $('#document_template_select_entity').val();
+            if (select)
+                window.open("/document_template/readme/" + select, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=500");
+            return false;
+        });
     }
 
     function updateDocumentTemplateSubEntities(entity) {
@@ -1292,8 +1340,6 @@ function initDocumentTemplateHelper() {
             });
         }
     }
-
-//    updateDocumentTemplateSubEntities($('#document_template_select_entity').val());
 
     $('#document_template_select_entity').on('change', function () {
         onClickDocumentTemplateHelper();
@@ -1344,9 +1390,9 @@ function initMapsIfComponentAddressExists(context) {
             initComponentAddressMaps(f_address_lat, f_address_lon, address_context);
         } else if ((!f_address_lat || !f_address_lon) && f_address_enableMaps) {
             var info = '<div class="alert bg-gray alert-dismissible " >'
-                    + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
-                    + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_address_notValid').val() + '</h4>'
-                    + '</div>';
+                + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true" id="btnDismissInfoInvalidAddress">×</button>'
+                + '<h4><i class="icon fa fa-exclamation-triangle"></i> ' + $('#f_address_notValid').val() + '</h4>'
+                + '</div>';
             $('.address_maps', address_context).append(info);
             $('#btnDismissInfoInvalidAddress', address_context).on('click', function () {
                 $('.address_maps', address_context).parent().remove();
@@ -1354,32 +1400,77 @@ function initMapsIfComponentAddressExists(context) {
             });
         }
     });
+
     function initComponentAddressMaps(lat, lon, mapsContext) {
         try {
             $(mapsContext).find('.address_maps').each(function () {
+                var that = $(this);
                 $(this).empty();
+                var control = ol.control.defaults();
                 var options = {
                     controls: []
                 };
-                if ($('.f_address_navigation', mapsContext).val() === 'true')
-                    options.controls.push(new OpenLayers.Control.Navigation());
-                if ($('.f_address_zoomBar', mapsContext).val() === 'true')
-                    options.controls.push(new OpenLayers.Control.PanZoomBar());
-                if ($('.f_address_mousePosition', mapsContext).val() === 'true')
-                    options.controls.push(new OpenLayers.Control.MousePosition());
+                lon = parseFloat(lon);
+                lat = parseFloat(lat);
 
-                var map = new OpenLayers.Map($(this).attr('mapsid'), options);
-                var mapnik = new OpenLayers.Layer.OSM();
-                var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
-                var toProjection = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-                var position = new OpenLayers.LonLat(lon, lat).transform(fromProjection, toProjection);
-                var zoom = 15;
-                var markers = new OpenLayers.Layer.Markers("Markers");
+                const markerSource = new ol.source.Vector();
+                var markerStyle = new ol.style.Style({
+                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                        anchor: [0.5, 46],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'pixels',
+                        opacity: 0.75,
+                        src: '../img/address_map_marker.png'
+                    }))
+                });
+                var iconFeature = new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326',
+                        'EPSG:3857')),
+                    name: '',
+                    population: 4000,
+                    rainfall: 500
+                });
 
-                map.addLayer(markers);
-                markers.addMarker(new OpenLayers.Marker(position));
-                map.addLayer(mapnik);
-                map.setCenter(position, zoom);
+                markerSource.addFeature(iconFeature);
+                if ($('.f_address_zoomBar', mapsContext).val() === 'true') {
+                    var zoomSlider = new ol.control.ZoomSlider();
+                    options.controls.push(zoomSlider)
+                }
+                if ($('.f_address_mousePosition', mapsContext).val() === 'true') {
+                    var mousePositionControl = new ol.control.MousePosition({
+                        coordinateFormat: ol.coordinate.createStringXY(4),
+                        projection: 'EPSG:4326',
+                        // comment the following two lines to have the mouse position
+                        // be placed within the map.
+                        className: 'custom-mouse-position',
+                        // target: document.getElementById('mouse-position'),
+                        undefinedHTML: '&nbsp;'
+                    });
+                    options.controls.push(mousePositionControl);
+                }
+                var mapConfig = {
+                    controls: control.extend(options.controls),
+                    target: that.attr('id'),
+                    layers: [
+                        new ol.layer.Tile({
+                            source: new ol.source.OSM()
+                        }),
+                        new ol.layer.Vector({
+                            source: markerSource,
+                            style: markerStyle,
+                        })
+                    ],
+                    view: new ol.View({
+                        center: ol.proj.fromLonLat([lon, lat]),
+                        zoom: 17
+                    })
+                };
+                if ($('.f_address_navigation', mapsContext).val() === 'false') {
+                    mapConfig.interactions = [];
+                    mapConfig.controls = [];
+                }
+                var map = new ol.Map(mapConfig);
+
             });
         } catch (e) {
             console.log(e);
@@ -1387,11 +1478,9 @@ function initMapsIfComponentAddressExists(context) {
     }
 }
 
+// Clear string from every special char
 function clearString(string) {
-
-    // Remove space before and after
     string = string.trim();
-    // Remove multipe spaces
     string = string.replace(/\s\s+/g, ' ');
     string = string.replace(/é/g, "e");
     string = string.replace(/è/g, "e");
@@ -1401,34 +1490,28 @@ function clearString(string) {
     string = string.replace(/\É/g, "e");
     string = string.replace(/\Ê/g, "e");
     string = string.replace(/\Ë/g, "e");
-
     string = string.replace(/à/g, "a");
     string = string.replace(/â/g, "a");
     string = string.replace(/ä/g, "a");
     string = string.replace(/\À/g, "a");
     string = string.replace(/\Â/g, "a");
     string = string.replace(/\Ä/g, "a");
-
     string = string.replace(/ô/g, "o");
     string = string.replace(/ö/g, "o");
-
     string = string.replace(/î/g, "i");
     string = string.replace(/ï/g, "i");
     string = string.replace(/Î/g, "i");
     string = string.replace(/Ï/g, "i");
-
     string = string.replace(/û/g, "u");
     string = string.replace(/ù/g, "u");
     string = string.replace(/ü/g, "u");
     string = string.replace(/\Ù/g, "u");
     string = string.replace(/\Ü/g, "u");
     string = string.replace(/\Û/g, "u");
-
     string = string.replace(/ç/g, "c");
     string = string.replace(/ĉ/g, "c");
     string = string.replace(/\Ç/g, "c");
     string = string.replace(/\Ĉ/g, "c");
-
     string = string.replace(/'/g, "_");
     string = string.replace(/,/g, "_");
     string = string.replace(/ /g, "_");
@@ -1439,7 +1522,6 @@ function clearString(string) {
     string = string.replace(/\)/g, "_");
     string = string.replace(/\//g, "_");
     string = string.replace(/\\/g, "_");
-    string = string.replace(/\./g, "_");
     string = string.replace(/\;/g, "_");
     string = string.replace(/\?/g, "_");
     string = string.replace(/\"/g, "_");
@@ -1468,9 +1550,35 @@ function clearString(string) {
     string = string.replace(/\¿/g, "_");
     string = string.replace(/\¡/g, "_");
     string = string.replace(/\÷/g, "_");
-
+    string = string.replace(/\²/g, "_");
     string = string.replace(String.fromCharCode(65533), "e");
-    string = string.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
+    string = string.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
+    string = string.toLowerCase();
     return string;
+}
+
+// Generate and open a modal
+function doModal(title, content) {
+    $('#tmp_text_modal').remove();
+    var modal_html = '\
+    <div id="tmp_text_modal" class="modal fade" tabindex="-1" role="dialog">\
+        <div class="modal-dialog" role="document">\
+            <div class="modal-content">\
+                <div class="modal-header">\
+                    <a class="close" data-dismiss="modal">×</a>\
+                    <h4>' + title + '</h4>\
+                </div>\
+                <div class="modal-body">\
+                    <p>' + content.replace(/(?:\r\n|\r|\n)/g, '<br>') + '</p>\
+                </div>\
+                <div class="modal-footer">\
+                    <span class="btn btn-default" data-dismiss="modal">\
+                        Fermer\
+                    </span>\
+                </div>\
+            </div>\
+        </div>\
+    </div>';
+    $("body").append(modal_html);
+    $("#tmp_text_modal").modal();
 }

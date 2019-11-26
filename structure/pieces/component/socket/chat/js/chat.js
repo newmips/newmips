@@ -1,12 +1,12 @@
 // Utils
 {
 	function toastIt(msgID, level) {
-		var msg =  $('#'+msgID).text();
+		const msg =  $('#'+msgID).text();
 		toastr[level](msg);
 	}
 	function formatDate(d) {
 		return ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
-		    d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
+			d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
 	}
 
 	function sortMessages(messages, idx) {
@@ -14,133 +14,133 @@
 			return messages;
 		if (messages[idx].id > messages[idx+1].id)
 			return sortMessages(messages, idx+1);
-		var tmp = messages[idx];
+		const tmp = messages[idx];
 		messages[idx] = messages[idx+1];
 		messages[idx+1] = tmp;
 		return sortMessages(messages, idx-1 <= 0 ? 0 : idx-1);
 	}
 
 	function userSelect() {
-	    $("#createChatId, #inviteUserChannel").select2({
-	        ajax: {
-	            url: '/chat/user_search',
-	            dataType: 'json',
-	            method: 'POST',
-	            delay: 250,
-	            contentType: "application/json",
-	            context: this,
-	            data: function (params) {
-	                return JSON.stringify({
-	                    search: params.term,
-	                });
-	            },
-	            processResults: function (data, params) {
-	                return {
-	                    results: data
-	                };
-	            },
-	            cache: true
-	        },
-	        minimumInputLength: 1,
-	        escapeMarkup: function (markup) {
-	            return markup;
-	        },
-	        templateResult: function (data) {
-	            return data.text;
-	        }
-	    });
+		$("#createChatId, #inviteUserChannel").select2({
+			ajax: {
+				url: '/chat/user_search',
+				dataType: 'json',
+				method: 'POST',
+				delay: 250,
+				contentType: "application/json",
+				context: this,
+				data: function (params) {
+					return JSON.stringify({
+						search: params.term,
+					});
+				},
+				processResults: function (data, params) {
+					return {
+						results: data
+					};
+				},
+				cache: true
+			},
+			minimumInputLength: 1,
+			escapeMarkup: function (markup) {
+				return markup;
+			},
+			templateResult: function (data) {
+				return data.text;
+			}
+		});
 	}
 	function channelSelect() {
-	    $("#joinChannel").select2({
-	        ajax: {
-	            url: '/chat/channel_search',
-	            dataType: 'json',
-	            method: 'POST',
-	            delay: 250,
-	            contentType: "application/json",
-	            context: this,
-	            data: function (params) {
-	                return JSON.stringify({
-	                    search: params.term,
-	                });
-	            },
-	            processResults: function (data, params) {
-	                return {
-	                    results: data
-	                };
-	            },
-	            cache: true
-	        },
-	        minimumInputLength: 1,
-	        escapeMarkup: function (markup) {
-	            return markup;
-	        },
-	        templateResult: function (data) {
-	            return data.text;
-	        }
-	    });
+		$("#joinChannel").select2({
+			ajax: {
+				url: '/chat/channel_search',
+				dataType: 'json',
+				method: 'POST',
+				delay: 250,
+				contentType: "application/json",
+				context: this,
+				data: function (params) {
+					return JSON.stringify({
+						search: params.term,
+					});
+				},
+				processResults: function (data, params) {
+					return {
+						results: data
+					};
+				},
+				cache: true
+			},
+			minimumInputLength: 1,
+			escapeMarkup: function (markup) {
+				return markup;
+			},
+			templateResult: function (data) {
+				return data.text;
+			}
+		});
 	}
 }
 
 // Html templates
 {
 	function contactChannel(channelObj) {
-		var channel = '';
-	    channel += '<li data-id-channel="'+channelObj.id+'" data-type="channel">';
-	    channel += '    <a href="#">';
-	    channel += '        <img class="contacts-list-img">';
-	    channel += '        <div class="contacts-list-info">';
-	    channel += '            <span class="contacts-list-name"><i class="fa fa-plus"></i>&nbsp;&nbsp;';
-	    channel += '                '+channelObj.f_name;
+		let channel = '';
+		channel += '<li data-id-channel="'+channelObj.id+'" data-type="channel">';
+		channel += '	<a href="#">';
+		channel += '		<img class="contacts-list-img">';
+		channel += '		<div class="contacts-list-info">';
+		channel += '			<span class="contacts-list-name"><i class="fa fa-plus"></i>&nbsp;&nbsp;';
+		channel += '				'+channelObj.f_name;
 		channel += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((channelObj.notSeen && channelObj.notSeen > 0) ? '' : 'display:none;')+'">'+channelObj.notSeen+'</span>'
-	    channel += '            </span>';
-	    channel += '            <span class="contacts-list-msg"><!-- INSERT LAST MESSAGE --></span>';
-	    channel += '        </div>';
-	    channel += '    </a>';
-	    channel += '</li>';
+		channel += '			</span>';
+		channel += '			<span class="contacts-list-msg"><!-- INSERT LAST MESSAGE --></span>';
+		channel += '		</div>';
+		channel += '	</a>';
+		channel += '</li>';
 
-	    return channel;
+		return channel;
 	}
 	function contactChat(chatObj) {
-		var chat = '';
+		let chat = '';
 		chat += '<li data-id-chat="'+chatObj.id+'" data-id-contact="'+chatObj.contact.id+'" data-type="chat">';
-		chat += '    <a href="#">';
-		chat += '        <img class="contacts-list-img">';
-		chat += '        <div class="contacts-list-info">';
-		chat += '            <span class="contacts-list-name"><i class="fa fa-user"></i>&nbsp;&nbsp;';
-		chat += '                '+chatObj.contact.f_login;
-		chat += '                <small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
+		chat += '	<a href="#">';
+		chat += '		<img class="contacts-list-img">';
+		chat += '		<div class="contacts-list-info">';
+		chat += '			<span class="contacts-list-name"><i class="fa fa-user"></i>&nbsp;&nbsp;';
+		chat += '				'+chatObj.contact.f_login;
+		chat += '				<small class="contacts-list-date pull-right">'+ formatDate(new Date(chatObj.updatedAt))+'</small>';
 		chat += '		 		 <span class="contactNotifications badge bg-light-blue" data-toggle="tooltip" style="margin-left:10px;'+((chatObj.notSeen && chatObj.notSeen > 0) ? '' : 'display:none;')+'">'+chatObj.notSeen+'</span>'
-		chat += '            </span>';
-		chat += '        </div>';
-		chat += '    </a>';
+		chat += '			</span>';
+		chat += '		</div>';
+		chat += '	</a>';
 		chat += '</li>';
 
 		return chat;
 	}
 	function discussionMessage(messageObj, owned) {
-		var nameClass = owned ? 'pull-left' : 'pull-right';
-		var dateClass = owned ? 'pull-right' : 'pull-left';
-		var sideClass = owned ? '' : 'right';
-		var floatStyle = !owned ? 'float:right;' : 'float: left;';
-		var message = '';
+		const nameClass = owned ? 'pull-left' : 'pull-right';
+		const dateClass = owned ? 'pull-right' : 'pull-left';
+		const sideClass = owned ? '' : 'right';
+		const floatStyle = !owned ? 'float:right;' : 'float: left;';
+		let message = '';
 		message += '<div class="direct-chat-msg '+sideClass+'">';
-		message += '    <div class="direct-chat-info clearfix">';
-		message += '        <span class="direct-chat-name '+nameClass+'">'+messageObj.r_sender.f_login+'</span>';
-		message += '        <span class="direct-chat-timestamp '+dateClass+'">'+formatDate(new Date(messageObj.createdAt))+'</span>';
-		message += '    </div>';
-		message += '    <div class="direct-chat-text" style="word-wrap:break-word;width:50%;'+floatStyle+'">';
-		message += '        '+messageObj.f_message;
-		message += '    </div>';
+		message += '	<div class="direct-chat-info clearfix">';
+		message += '		<span class="direct-chat-name '+nameClass+'">'+messageObj.r_sender.f_login+'</span>';
+		message += '		<span class="direct-chat-timestamp '+dateClass+'">'+formatDate(new Date(messageObj.createdAt))+'</span>';
+		message += '	</div>';
+		message += '	<div class="direct-chat-text" style="word-wrap:break-word;width:50%;'+floatStyle+'">';
+		message += '		'+messageObj.f_message;
+		message += '	</div>';
 		message += '</div>';
 
 		return message;
 	}
 	function channelContacts(contacts) {
-		var contactsHtml = '';
+		let contactsHtml = '';
 		contactsHtml += '<h4 class="contacts-list-name">'+$("#msg-channel_members").text()+'</h4>';
 		contactsHtml += '<ul class="contacts-list">';
-		for (var i = 0; i < contacts.length; i++)
+		for (let i = 0; i < contacts.length; i++)
 			contactsHtml += '<li>'+contacts[i].f_login+'</li>';
 		contactsHtml += '</ul><br>';
 		$("#channelUsersList").html(contactsHtml);
@@ -210,7 +210,7 @@
 	function createContactList(data) {
 		if (!data)
 			return;
-		var totalNotSeen = 0;
+		let totalNotSeen = 0;
 		$("#channelsList").html('');
 		$("#chatsList").html('');
 		for (var i = 0; i < data.r_user_channel.length; i++) {
@@ -243,17 +243,17 @@
 
 		// Sort messages by ID (createdAt can be at the same second)
 		data.messages = sortMessages(data.messages, 0);
-		for (var i = 0; i < data.messages.length; i++) {
-			var messageSide = (discussion.type == 'chat')
-								? data.messages[i].r_sender.id == discussion.id_contact
-								: data.messages[i].r_sender.id != data.id_self;
-			var msgTemplate = discussionMessage(data.messages[i], messageSide);
+		for (let i = 0; i < data.messages.length; i++) {
+			const messageSide = (discussion.type == 'chat')
+				? data.messages[i].r_sender.id == discussion.id_contact
+				: data.messages[i].r_sender.id != data.id_self;
+			const msgTemplate = discussionMessage(data.messages[i], messageSide);
 			$("#discussion").prepend(msgTemplate);
 		}
 	}
 
 	function appendToDiscussion(data) {
-		var messageSide;
+		let messageSide;
 		if (discussion.type == 'chat') {
 			socket.emit('chat-update_last_seen', {id_chat: discussion.id});
 			messageSide = data.r_sender.id == discussion.id_contact;
@@ -262,7 +262,7 @@
 			socket.emit('channel-update_last_seen', {id_channel: discussion.id});
 			messageSide = data.r_sender.id != data.id_self;
 		}
-		var msgTemplate = discussionMessage(data, messageSide);
+		const msgTemplate = discussionMessage(data, messageSide);
 		$("#discussion").append(msgTemplate);
 		scroll(true);
 	}
@@ -275,13 +275,13 @@
 	}
 
 	function incrementNotifications(id, type) {
-		var selector = (type == 'chat') ? "*[data-id-chat='"+id+"']" : "*[data-id-channel='"+id+"']";
+		const selector = (type == 'chat') ? "*[data-id-chat='"+id+"']" : "*[data-id-channel='"+id+"']";
 		// Increment contact notif
-		var currentNotifForContact = parseInt($(selector).find('.contactNotifications').text()) || 0;
+		const currentNotifForContact = parseInt($(selector).find('.contactNotifications').text()) || 0;
 		$(selector).find('.contactNotifications').text(currentNotifForContact+1).show();
 
 		// Increment total notif
-		var currentTotalNotif = parseInt($("#totalNotSeen").text()) || 0;
+		const currentTotalNotif = parseInt($("#totalNotSeen").text()) || 0;
 		$("#totalNotSeen").text(currentTotalNotif+1).show();
 	}
 }
@@ -290,7 +290,7 @@ $(function() {
 	// Initialize only global notifications to ease server load when discussion collapsed
 	socket.emit('notifications-total');
 
-	var beforeLoadHeight;
+	let beforeLoadHeight;
 
 	// Socket input bidings
 	{
@@ -323,7 +323,7 @@ $(function() {
 		});
 
 		socket.on('channel-messages', function(data) {
-			var baseMessagesLength = channels[data.id_channel].messages.length;
+			const baseMessagesLength = channels[data.id_channel].messages.length;
 
 			channels[data.id_channel].messages = data.messages.concat(channels[data.id_channel].messages);
 			channels[data.id_channel].contacts = data.contacts;
@@ -336,7 +336,7 @@ $(function() {
 				// Scroll to position before new messages loaded to make the load visible
 				// `beforeLoadHeight` is set on the scroll event binding
 				if (beforeLoadHeight) {
-					var newScrollTop = $("#discussion").prop('scrollHeight') - beforeLoadHeight;
+					const newScrollTop = $("#discussion").prop('scrollHeight') - beforeLoadHeight;
 					$("#discussion").scrollTop(newScrollTop);
 					beforeLoadHeight = undefined;
 				}
@@ -356,7 +356,7 @@ $(function() {
 		});
 
 		socket.on('chat-messages', function(data) {
-			var baseMessagesLength = chats[data.id_chat].messages.length;
+			const baseMessagesLength = chats[data.id_chat].messages.length;
 
 			chats[data.id_chat].messages = data.messages.concat(chats[data.id_chat].messages);
 			prependToDiscussion(data);
@@ -366,7 +366,7 @@ $(function() {
 				// Scroll to position before new messages loaded to make the load visible
 				// `beforeLoadHeight` is set on the scroll event binding
 				if (beforeLoadHeight) {
-					var newScrollTop = $("#discussion").prop('scrollHeight') - beforeLoadHeight;
+					const newScrollTop = $("#discussion").prop('scrollHeight') - beforeLoadHeight;
 					$("#discussion").scrollTop(newScrollTop);
 					beforeLoadHeight = undefined;
 				}
@@ -377,7 +377,7 @@ $(function() {
 	// UI bindings
 	{
 		// On first chat expand, initialize contacts
-		var initialized = false;
+		let initialized = false;
 		$("#collapseChat").click(function() {
 			localStorage.chatCollapsed = ""+(!JSON.parse(localStorage.chatCollapsed));
 			if (initialized)
@@ -410,7 +410,7 @@ $(function() {
 
 		// Send message
 		$("#messageForm").submit(function() {
-			var msg = $("input[name='discussion-message']").val();
+			const msg = $("input[name='discussion-message']").val();
 			if (!msg || msg == '' || !discussion || (!discussion.id && !discussion.id_contact))
 				return false;
 			if (discussion.type == 'chat')
@@ -437,7 +437,7 @@ $(function() {
 		$("#doCreateChannel").click(function() {
 			if ($("#createChannelName").val() == '')
 				return;
-			var type = $("input[name='channelType']:checked").val() || 'public';
+			const type = $("input[name='channelType']:checked").val() || 'public';
 			socket.emit('channel-create', {name: $("#createChannelName").val(), type: type});
 			toastIt('msg-channel_created', 'success');
 			$("#createChannelBtn").click();

@@ -1,16 +1,16 @@
 const globalConf = require('./global');
 
-let config = {
+const config = {
 	docker: {
-    	url: "",
-    	login: "",
-    	password: ""
-    },
-    cloud: {
-    	url: "",
-    	login: "",
-    	password: ""
-    }
+		url: "",
+		login: "",
+		password: ""
+	},
+	cloud: {
+		url: "",
+		login: "",
+		password: ""
+	}
 }
 
 module.exports = config[globalConf.env];

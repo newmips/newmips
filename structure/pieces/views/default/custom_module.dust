@@ -11,16 +11,12 @@
 				{#__ key="module.home"/}
 			</a>
 		</li>
-        <!-- NEW MODULE -->
+		<!-- NEW MODULE -->
 	</ol>
 {/header}
 
 {<content}
-	<div id="widgets" class='row'>
-	<table>
-
-	</table>
-	</div>
+	<div id="widgets" class='row'></div>
 {/content}
 
 {<custom_js}
@@ -30,8 +26,8 @@
 <script src="/js/plugins/palettes/palettes.js" type="text/javascript"></script>
 <script type="text/javascript" src="/js/Newmips/widgets.js"></script>
 <script type="text/javascript">
-    $(function() {
-        initWidgets();
-    });
+	$(function() {
+		initWidgets();
+	});
 </script>
 {/custom_js}
