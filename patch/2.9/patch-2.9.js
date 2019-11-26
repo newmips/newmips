@@ -14,9 +14,9 @@ const helper = require('../../utils/helpers');
 	]
 
 	// Executing SQL file
-	for (var i = 0; i < queries.length; i++) {
+	for (let i = 0; i < queries.length; i++) {
 		try {
-			await models.sequelize.query(queries[i]);
+			await models.sequelize.query(queries[i]); // eslint-disable-line
 		} catch(err) {
 			console.error("Error occured while executing SQL patch: " + queries[i]);
 		}
@@ -51,10 +51,9 @@ const helper = require('../../utils/helpers');
 			};
 
 			// Loop on module based on access.lock file
-			let appAccessLock = JSON.parse(fs.readFileSync(newWorkspacePath + '/config/access.lock.json'));
+			const appAccessLock = JSON.parse(fs.readFileSync(newWorkspacePath + '/config/access.lock.json'));
 
-			let currentModule;
-			for (let np_module in appAccessLock) {
+			for (const np_module in appAccessLock) {
 
 				metadataObj[name].modules['m_' + np_module] = {
 					displayName: np_module,
@@ -63,8 +62,7 @@ const helper = require('../../utils/helpers');
 				};
 
 				// Loop on entities
-				let entityPromises = [];
-				for (let entity of appAccessLock[np_module].entities){
+				for (const entity of appAccessLock[np_module].entities){
 
 					metadataObj[name].modules['m_' + np_module].entities['e_' + entity.name] = {
 						displayName: entity.name,
@@ -73,7 +71,9 @@ const helper = require('../../utils/helpers');
 					};
 
 					// Attributes
-					let entityAttributes, attributesPath = newWorkspacePath + '/models/attributes';;
+					let entityAttributes;
+					const attributesPath = newWorkspacePath + '/models/attributes';
+
 					if (fs.existsSync(attributesPath + '/e_' + entity.name + '.json'))
 						entityAttributes = JSON.parse(fs.readFileSync(attributesPath + '/e_' + entity.name + '.json'));
 					else if(fs.existsSync(attributesPath + '/c_' + entity.name + '.json'))
@@ -81,7 +81,7 @@ const helper = require('../../utils/helpers');
 					else
 						continue;
 
-					for(let field in entityAttributes){
+					for(const field in entityAttributes){
 						if(field == 'id' || field == 'version')
 							continue;
 

@@ -629,7 +629,7 @@ exports.newStatus = async (data) => {
 		// Remove id column
 		$("[data-field=id]").remove();
 		// Add createdAt column in thead/tbody
-		let newTh = '\
+		const newTh = '\
 		<th data-field="createdAt" data-col="createdAt" data-type="datetime">\n\
 			<!--{#__ key="defaults.createdAt"/}-->\n\
 		</th>\n';
@@ -680,7 +680,7 @@ exports.newStatus = async (data) => {
 	// Also add next status buttons after status field
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/show_fields.dust');
 	const statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
-	let nextStatusHtml = '\
+	const nextStatusHtml = '\
 	<div class="form-group">\n\
 		{#' + statusAlias + '.r_children ' + source.substring(2) + 'id=id}\n\
 			{#checkStatusPermission status=.}\n\
