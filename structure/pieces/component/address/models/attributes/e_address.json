@@ -1,10 +1,10 @@
 {
-    "id": {
-        "type": "INTEGER",
-        "autoIncrement": true,
-        "primaryKey": true
-    },
-    "version": {
-        "type": "INTEGER"
-    }
+	"id": {
+		"type": "INTEGER",
+		"autoIncrement": true,
+		"primaryKey": true
+	},
+	"version": {
+		"type": "INTEGER"
+	}
 }

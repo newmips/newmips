@@ -1,113 +1,113 @@
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>{#__ key="app.name" /}</title>
-        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
-        <!-- Bootstrap 3.0.2-->
-        <link href="/css/Bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <!-- Font Awesome-->
-        <link href="/css/Fonts/font-awesome.min.css" rel="stylesheet" type="text/css" />
-        <!-- Admin LTE Skin-->
-        <link href="/css/AdminLteV2/skins/skin-blue-light.min.css" rel="stylesheet" type="text/css" data-type="skin" data-skin="blue-light" />
-        <!-- Toastr-->
-        <link href="/css/toastr/toastr.min.css" rel="stylesheet" type="text/css" />
-        <!-- Bootstrap Datepicker-->
-        <link href="/css/datepicker/datepicker3.css" rel="stylesheet" type="text/css" />
-        <!-- Bootstrap Timepicker-->
-        <link href="/css/timepicker/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
-        <!-- Bootstrap DateTimepicker-->
-        <link href="/css/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-        <!-- iCheck for checkboxes and radio inputs-->
-        <link href="/css/iCheck/all.css" rel="stylesheet" type="text/css" />
-        <!-- select2-->
-        <link href="/css/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-        <!-- Dropzone-->
-        <link href="/css/dropzone/dropzone.min.css" rel="stylesheet" type="text/css" />
-        <!-- Newmips-->
-        <link href="/css/newmips.css" rel="stylesheet" type="text/css" />
-        <link href="/css/animate.min.css" rel="stylesheet" type="text/css" />
-        <link href="/css/waiting_room.css" rel="stylesheet" type="text/css" />
-        <script src="/js/Newmips/navigation.js" type="text/javascript"></script>
-    </head>
-    <body id="top">
-        <header>
-            <div class="header-sunrise">
-                <div class="header-content">
-                    <div class="logo"><a href="/"><img alt="Newmips Logo" src="/img/LOGO-BLANC-01-ROGNER.png" /></a></div>
-                    <div class="header-center"><br />
-                        <div class="col-xs-12 logo-center"><img class="img-responsive animated pulse infinite" id="pulse-newmips" alt="Newmips Logo" src="/img/LOGO-PNG-01.png" style="width:350px;" /></div>
-                        <div class="col-xs-12 first-title text-center">
-                            <h1>{#__ key="deploy.deploying" /}</h1>
-                        </div>
-                        <div class="col-xs-12 second-title text-center">
-                            <h2>{#__ key="deploy.please_wait" /}</h2>
-                        </div><br />
-                        <div class="col-xs-12"><a id="scroll-to-trigger" style="display:none;" href="#down-arrow-scroll-to"><img class="animated pulse infinite" id="down-arrow" alt="Flèche vers le bas" src="/img/ICONE-FLECHE-BAS-01.png" /></a></div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <div id="body-content">
-            <section id="down-arrow-scroll-to" style="padding-top:250px;display:none;height:850px;">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xs-12 text-center">
-                            <div>
-                                <h1>{#__ key="deploy.ready" /}</h1><br /><a class="btn-fill sign-up-btn hover" id="goto" href="{redirect}/first_connection" target="_blank" style="padding: 15px;width: 30%;">{#__ key="deploy.goto" /}</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </body>
-    <script src="/js/jQuery/jquery.min.js"></script>
-    <script>
-        var redirect = "{redirect}";
-        var checkLeaving = true;
-        var messageStayOnPage = '#{#__ key="deploy.stayonpage" /}';
-        function checkDeployStatus() {
-            $.ajax({
-                url: '/waiting',
-                method: 'post',
-                data: {redirect: redirect},
-                success: function(data) {
-                    setTimeout(function() {
-                        $("#pulse-newmips").removeClass("infinite");
-                        $(".second-title h2").remove();
-                        $("#scroll-to-trigger").show();
-                        $("#down-arrow-scroll-to").show();
-                        $("#goto").show();
-                        $("#scroll-to-trigger").trigger("click");
-                        checkLeaving = false;
-                    }, 10000);
-                },
-                error: function(par1, par2, par3) {
-                    setTimeout(function() {
-                        checkDeployStatus();
-                    }, 500);
-                }
-            });
-        }
-        $(document).ready(function() {
-            $('a[href*=\\#]:not([href=\\#])').click(function() {
-                if (location.pathname.replace(/^\//, '') === this.pathname.replace(/^\//, '') && location.hostname === this.hostname){
-                    var target = $(this.hash);
-                    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-                    if (target.length) {
-                        $('html,body').animate({
-                            scrollTop: target.offset().top
-                        }, 2000);
-                        return false;
-                    }
-                }
-            });
+	<head>
+		<meta charset="UTF-8" />
+		<title>{#__ key="app.name" /}</title>
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+		<!-- Bootstrap 3.0.2-->
+		<link href="/css/Bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<!-- Font Awesome-->
+		<link href="/css/Fonts/font-awesome.min.css" rel="stylesheet" type="text/css" />
+		<!-- Admin LTE Skin-->
+		<link href="/css/AdminLteV2/skins/skin-blue-light.min.css" rel="stylesheet" type="text/css" data-type="skin" data-skin="blue-light" />
+		<!-- Toastr-->
+		<link href="/css/toastr/toastr.min.css" rel="stylesheet" type="text/css" />
+		<!-- Bootstrap Datepicker-->
+		<link href="/css/datepicker/datepicker3.css" rel="stylesheet" type="text/css" />
+		<!-- Bootstrap Timepicker-->
+		<link href="/css/timepicker/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
+		<!-- Bootstrap DateTimepicker-->
+		<link href="/css/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+		<!-- iCheck for checkboxes and radio inputs-->
+		<link href="/css/iCheck/all.css" rel="stylesheet" type="text/css" />
+		<!-- select2-->
+		<link href="/css/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+		<!-- Dropzone-->
+		<link href="/css/dropzone/dropzone.min.css" rel="stylesheet" type="text/css" />
+		<!-- Newmips-->
+		<link href="/css/newmips.css" rel="stylesheet" type="text/css" />
+		<link href="/css/animate.min.css" rel="stylesheet" type="text/css" />
+		<link href="/css/waiting_room.css" rel="stylesheet" type="text/css" />
+		<script src="/js/Newmips/navigation.js" type="text/javascript"></script>
+	</head>
+	<body id="top">
+		<header>
+			<div class="header-sunrise">
+				<div class="header-content">
+					<div class="logo"><a href="/"><img alt="Newmips Logo" src="/img/LOGO-BLANC-01-ROGNER.png" /></a></div>
+					<div class="header-center"><br />
+						<div class="col-xs-12 logo-center"><img class="img-responsive animated pulse infinite" id="pulse-newmips" alt="Newmips Logo" src="/img/LOGO-PNG-01.png" style="width:350px;" /></div>
+						<div class="col-xs-12 first-title text-center">
+							<h1>{#__ key="deploy.deploying" /}</h1>
+						</div>
+						<div class="col-xs-12 second-title text-center">
+							<h2>{#__ key="deploy.please_wait" /}</h2>
+						</div><br />
+						<div class="col-xs-12"><a id="scroll-to-trigger" style="display:none;" href="#down-arrow-scroll-to"><img class="animated pulse infinite" id="down-arrow" alt="Flèche vers le bas" src="/img/ICONE-FLECHE-BAS-01.png" /></a></div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<div id="body-content">
+			<section id="down-arrow-scroll-to" style="padding-top:250px;display:none;height:850px;">
+				<div class="container">
+					<div class="row">
+						<div class="col-xs-12 text-center">
+							<div>
+								<h1>{#__ key="deploy.ready" /}</h1><br /><a class="btn-fill sign-up-btn hover" id="goto" href="{redirect}/first_connection" target="_blank" style="padding: 15px;width: 30%;">{#__ key="deploy.goto" /}</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</body>
+	<script src="/js/jQuery/jquery.min.js"></script>
+	<script>
+		var redirect = "{redirect}";
+		var checkLeaving = true;
+		var messageStayOnPage = '#{#__ key="deploy.stayonpage" /}';
+		function checkDeployStatus() {
+			$.ajax({
+				url: '/waiting',
+				method: 'post',
+				data: {redirect: redirect},
+				success: function(data) {
+					setTimeout(function() {
+						$("#pulse-newmips").removeClass("infinite");
+						$(".second-title h2").remove();
+						$("#scroll-to-trigger").show();
+						$("#down-arrow-scroll-to").show();
+						$("#goto").show();
+						$("#scroll-to-trigger").trigger("click");
+						checkLeaving = false;
+					}, 10000);
+				},
+				error: function(par1, par2, par3) {
+					setTimeout(function() {
+						checkDeployStatus();
+					}, 500);
+				}
+			});
+		}
+		$(document).ready(function() {
+			$('a[href*=\\#]:not([href=\\#])').click(function() {
+				if (location.pathname.replace(/^\//, '') === this.pathname.replace(/^\//, '') && location.hostname === this.hostname){
+					var target = $(this.hash);
+					target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+					if (target.length) {
+						$('html,body').animate({
+							scrollTop: target.offset().top
+						}, 2000);
+						return false;
+					}
+				}
+			});
 
-            checkDeployStatus();
-            $(window).bind('beforeunload', function(){
-                if(checkLeaving)
-                    return messageStayOnPage;
-            });
-        });
-    </script>
+			checkDeployStatus();
+			$(window).bind('beforeunload', function(){
+				if(checkLeaving)
+					return messageStayOnPage;
+			});
+		});
+	</script>
 </html>

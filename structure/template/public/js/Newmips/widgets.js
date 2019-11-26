@@ -194,7 +194,7 @@ function widgetDataTable(table) {
     }
 
     // Init DataTable
-    var tableUrl = '/'+table.data('entity').substring(2)+'/datalist';
+    var tableUrl = table.data('url') ? table.data('url') : '/'+table.data('entity').substring(2)+'/datalist';
     var tableLength = parseInt(table.data('limit'));
     var tableOptions = {
         "serverSide": true,

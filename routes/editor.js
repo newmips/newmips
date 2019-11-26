@@ -1,70 +1,54 @@
-// router/routes.js
-var express = require('express');
-var router = express.Router();
-var block_access = require('../utils/block_access');
-
-var fs = require('fs');
-var helpers = require('../utils/helpers');
-var gitHelper = require('../utils/git_helper');
-
-//Sequelize
-var models = require('../models/');
+const express = require('express');
+const router = express.Router();
+const block_access = require('../utils/block_access');
+const fs = require('fs-extra');
+const helpers = require('../utils/helpers');
+const gitHelper = require('../utils/git_helper');
 
 // Check file to edit extension
-var re = /(?:\.([^.]+))?$/;
+const fileExtRegex = /(?:\.([^.]+))?$/;
 
 // Exclude folder from editor
-var excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
-var excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
+const excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
+const excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
 router.post('/load_file', block_access.hasAccessApplication, function(req, res) {
-	if(!req.body.path.includes("/../workspace/"+req.session.id_application)){
+	if (!req.body.path.includes("/../workspace/" + req.session.app_name))
 		return res.status(403).send("You won't have the death star plans ! You rebel scum !");
-	}
 
-	var data = {};
-	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
+	let splitPath = req.body.path.split("/workspace/" + req.session.app_name + "/");
 	splitPath = splitPath[1].split("/");
-	if(excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1){
-		return res.status(403).send("You won't have the death star plans ! You rebel scum !");
-	}
 
+	if (excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1)
+		return res.status(403).send("You won't have the death star plans ! You rebel scum !");
+
+	const data = {};
 	data.html = helpers.readFileSyncWithCatch(req.body.path);
 	data.path = req.body.path;
-	data.extension = re.exec(req.body.path)[1];
+	data.extension = fileExtRegex.exec(req.body.path)[1];
 	res.json(data);
 });
 
 router.post('/update_file', block_access.hasAccessApplication, function(req, res) {
-	if(!req.body.path.includes("/../workspace/"+req.session.id_application)){
+	if (!req.body.path.includes("/../workspace/" + req.session.app_name))
 		return res.status(403).send("You won't have the death star plans ! You rebel scum !");
-	}
 
-	var splitPath = req.body.path.split("/workspace/"+req.session.id_application+"/");
+	let splitPath = req.body.path.split("/workspace/" + req.session.app_name + "/");
 	splitPath = splitPath[1].split("/");
-	if(excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1){
+
+	if (excludeFolder.indexOf(splitPath[0]) != -1 || excludeFile.indexOf(splitPath[splitPath.length - 1]) != -1)
 		return res.status(403).send("You won't update the death star plans ! You rebel scum !");
-	}
 
-	var writeStream = fs.createWriteStream(req.body.path);
-	writeStream.write(req.body.content);
-	writeStream.end();
-	writeStream.on('finish', function() {
-		var attr = {};
+	fs.writeFileSync(req.body.path, req.body.content);
 
-        // We simply add session values in attributes array
-        attr.function = "Saved a file from editor: "+req.body.path;
-        attr.id_project = req.session.id_project;
-        attr.id_application = req.session.id_application;
-        attr.id_module = "-";
-        attr.id_data_entity = "-";
+	res.json(true);
 
-		gitHelper.gitCommit(attr, function(err, infoGit){
-	        if(err)
-	        	console.error(err);
-	        res.json(true);
-	    });
-	});
+	gitHelper.gitCommit({
+		function: "Saved a file from editor: " + req.body.path,
+		app_name: req.session.app_name
+	}).catch(err => {
+		console.error(err);
+	})
 });
 
 module.exports = router;
