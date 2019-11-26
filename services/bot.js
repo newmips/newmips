@@ -1097,6 +1097,16 @@ exports.addTitle = result => {
 	};
 }
 
+exports.removeTitle = result => {
+	const value = result[1];
+	return {
+		function: "removeTitle",
+		options: {
+			value: value
+		}
+	};
+}
+
 // --- FUN --- //
 exports.apero = _ => {
 	return {
@@ -2506,6 +2516,12 @@ const training = {
 		"ajouter un titre (.*)",
 		"ajouter un titre (.*) après (.*)",
 		"ajouter un titre (.*) après le champ (.*)"
+	],
+	"removeTitle": [
+		"remove title (.*)",
+		"delete title (.*)",
+		"supprimer  titre (.*)",
+		"supprimer le titre (.*)"
 	]
 };
 

@@ -322,6 +322,33 @@ exports.addTitle = async (data) => {
 	return true;
 }
 
+exports.removeTitle = async (data) => {
+	const pathToViews = __dirname + '/../workspace/' + data.application.name + '/views/' + data.entity.name;
+	const viewsToProcess = ["create_fields", "update_fields", "show_fields"];
+	const processPromises = [];
+	let titleFound = false;
+	for (let i = 0; i < viewsToProcess.length; i++) {
+		processPromises.push((async() => {
+			const currentView = viewsToProcess[i];
+			const $ = await domHelper.read(pathToViews + '/' + currentView + '.dust');
+			$("#fields").find('.form-title').each(function() {
+				if($(this).find('h3').text() == data.options.value) {
+					$(this).parent().remove();
+					titleFound = true;
+				}
+			});
+			domHelper.write(pathToViews + '/' + currentView + '.dust', $);
+		})());
+	}
+
+	await Promise.all(processPromises);
+
+	if(!titleFound)
+		throw new Error('structure.ui.title.not_found');
+
+	return true;
+}
+
 exports.createWidget = async (data) => {
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const piecesPath = __dirname + '/pieces/';
