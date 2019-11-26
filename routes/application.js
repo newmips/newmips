@@ -439,7 +439,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 		if(req.session.gitlab && req.session.gitlab.user)
 			data.gitlabUser = req.session.gitlab.user;
 
-		let promises = [];
+		const promises = [];
 		for (let i = 0; i < applications.length; i++) {
 			promises.push((async () => {
 				const port = 9000 + parseInt(applications[i].id);
@@ -739,7 +739,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 
 			let oldAppName = false;
 
-			let metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
+			const metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
 			oldAppName = Object.keys(metadataContent)[0];
 			const appRegex = new RegExp(oldAppName, 'g');
 			if(!oldAppName) {

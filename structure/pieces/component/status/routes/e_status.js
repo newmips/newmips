@@ -70,7 +70,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
 	const id_status = req.params.id;
 
 	(async () => {
-		let status = await models.E_status.findOne({
+		const status = await models.E_status.findOne({
 			where: {
 				id: id_status
 			},
@@ -106,7 +106,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
 			where: {}
 		};
 		where.where['fk_id_status_' + status.f_field.substring(2)] = null;
-		let no_statuses = await models[entityModel].findAll(where);
+		const no_statuses = await models[entityModel].findAll(where);
 
 		// Build ID array of entities that need to be updated
 		// Build history creation array

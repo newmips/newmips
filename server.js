@@ -277,7 +277,6 @@ models.sequelize.sync({
 				}).then(_ => {
 					models.User.create({
 						id: 1,
-						email: null,
 						enabled: 0,
 						email: globalConf.env == 'cloud' ? globalConf.sub_domain + '-admin@newmips.com' : 'admin@admin.fr',
 						first_name: "admin",

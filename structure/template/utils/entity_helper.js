@@ -6,7 +6,7 @@ const globalConfig = require('../config/global');
 
 function models(){
 	if (!this.models)
-		this.models = require('../models');
+		this.models = require('../models'); // eslint-disable-line
 	return this.models;
 }
 
