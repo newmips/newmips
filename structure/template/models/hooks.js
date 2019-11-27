@@ -163,10 +163,13 @@ module.exports = function(model_name, attributes) {
 		beforeUpdate: [{
 			name: 'insertUpdatedBy',
 			func: (model, args) => new Promise((resolve, reject) => {
-				if(args.user)
-					model.updatedBy = args.user.f_login;
-				else
+				try {
+					if(!args.req)
+						throw 'Missing req';
+					model.updatedBy = args.req.session.passport.user.f_login;
+				} catch (err) {
 					console.warn('Missing user for updatedBy on table -> ' + model.constructor.tableName)
+				}
 				resolve();
 			})
 		}],
