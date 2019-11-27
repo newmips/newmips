@@ -494,12 +494,12 @@ router.post('/search', block_access.actionAccessMiddleware('translation', 'read'
 		if (req.body.searchField.length == 1) {
 			where.where[req.body.searchField[0]] = {$like: search};
 		} else {
-			where.where.$or = [];
+			where.where[models.$or] = [];
 			for (let i = 0; i < req.body.searchField.length; i++) {
 				if (req.body.searchField[i] != "id") {
 					const currentOrObj = {};
 					currentOrObj[req.body.searchField[i]] = {$like: search}
-					where.where.$or.push(currentOrObj);
+					where.where[models.$or].push(currentOrObj);
 				}
 			}
 		}
