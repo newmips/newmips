@@ -8,7 +8,7 @@ router.post('/init', block_access.isLoggedIn, async (req, res) => {
 	try {
 		const currentApp = await models.Application.findOne({
 			where: {
-				id: req.session.id_application
+				name: req.session.app_name
 			}
 		});
 		await mattermost.init(currentApp.name);
@@ -28,7 +28,7 @@ router.post('/send', block_access.isLoggedIn, async (req, res) => {
 	try {
 		const currentApp = await models.Application.findOne({
 			where: {
-				id: req.session.id_application
+				name: req.session.app_name
 			}
 		});
 		const newPost = await mattermost.send(currentApp.name, req.session.passport.user.login + ": " + req.body.text);
@@ -49,7 +49,7 @@ router.post('/watch', block_access.isLoggedIn, async (req, res) => {
 	try {
 		const currentApp = await models.Application.findOne({
 			where: {
-				id: req.session.id_application
+				name: req.session.app_name
 			}
 		});
 		const results = await mattermost.watch(currentApp.name);

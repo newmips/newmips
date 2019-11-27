@@ -9,6 +9,7 @@ class Application {
 		this._name = name;
 		this._displayName = displayName;
 		this._gitlabID = null;
+		this._gitlabRepo = null;
 		this._associationSeq = 1; // Used for unique generation of workspace assocation table
 		this._hasDocumentTemplate = 0;
 		this._modules = [];
@@ -22,7 +23,7 @@ class Application {
 			const app = new Application(name);
 			const metadataPath = workspacePath + name + '/config/metadata.json';
 
-			const metadata = {
+			let metadata = {
 				[name]: {}
 			};
 
@@ -32,6 +33,7 @@ class Application {
 			app.associationSeq = metadata[name].associationSeq;
 			app.displayName = metadata[name].displayName;
 			app.gitlabID = metadata[name].gitlabID;
+			app.gitlabRepo = metadata[name].gitlabRepo;
 
 			// Modules loading
 			const modules = [];
@@ -86,6 +88,10 @@ class Application {
 		return this._gitlabID;
 	}
 
+	get gitlabRepo() {
+		return this._gitlabRepo;
+	}
+
 	get modules() {
 		return this._modules;
 	}
@@ -105,6 +111,10 @@ class Application {
 
 	set gitlabID(id) {
 		this._gitlabID = id;
+	}
+
+	set gitlabRepo(repo) {
+		this._gitlabRepo = repo;
 	}
 
 	set modules(modules) {
@@ -204,7 +214,12 @@ class Application {
 	save() {
 		console.log('Saving application ' + this._name + '...');
 		const appName = this._name;
-		const actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		let actualMetadata = {};
+		try {
+			actualMetadata = JSON.parse(fs.readFileSync(workspacePath + appName + '/config/metadata.json'));
+		} catch(err) {
+			console.error('Missing metadata.json for application ' + appName + ', generating it...');
+		}
 		let newMetadata = {};
 
 		// Getting old application specific properties
@@ -213,6 +228,7 @@ class Application {
 
 		newMetadata.associationSeq = this._associationSeq;
 		newMetadata.gitlabID = this._gitlabID;
+		newMetadata.gitlabRepo = this._gitlabRepo;
 		newMetadata.hasDocumentTemplate = this._hasDocumentTemplate;
 		newMetadata.displayName = this._displayName;
 		newMetadata.modules = {};

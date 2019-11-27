@@ -12,7 +12,7 @@ async function applyToAllEntity(currentHtml, notPage, entity, appName) {
 			continue;
 
 		const pageUri = __dirname + '/../workspace/' + appName + '/views/' + entity + '/' + pageFiles[i];
-		const $ = await domHelper.read(pageUri);
+		const $ = await domHelper.read(pageUri); // eslint-disable-line
 		const saveDataField = {};
 
 		// Save current state of fields in the current working page
@@ -46,13 +46,13 @@ async function applyToAllEntity(currentHtml, notPage, entity, appName) {
 			if (currentHtml("body").children('.row').eq(i).html() != "")
 				packedRow += currentHtml("body").children('.row').eq(i).html();
 
-		await domHelper.insertHtml(pageUri, "#fields", packedRow);
+		await domHelper.insertHtml(pageUri, "#fields", packedRow); // eslint-disable-line
 	}
 }
 
 router.get('/getPage/:entity/:page', block_access.hasAccessApplication, (req, res) => {
+	const generatorLanguage = language(req.session.lang_user);
 	(async () => {
-		const generatorLanguage = language(req.session.lang_user);
 		let page = req.params.page;
 
 		if (!page || page != 'create' && page != 'update' && page != 'show')
@@ -63,7 +63,7 @@ router.get('/getPage/:entity/:page', block_access.hasAccessApplication, (req, re
 		const workspaceLanguage = require(__dirname + '/../workspace/' + req.session.app_name + '/services/language')(req.session.lang_user); // eslint-disable-line
 		const pageUri = __dirname + '/../workspace/' + req.session.app_name + '/views/' + entity + '/' + page;
 
-		let $ = await domHelper.read(pageUri);
+		const $ = await domHelper.read(pageUri);
 
 		// Encapsulate traduction with span to be able to translate, keep comment for later use
 		const tradRegex = new RegExp(/(<!--{#__ key="(.*)" ?\/}-->)/g);
