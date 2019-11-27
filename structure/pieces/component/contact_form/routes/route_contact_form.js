@@ -122,7 +122,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 			//createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
 			createObject.fk_id_user_user = req.session.passport.user.id;
 			createObject.f_recipient = settings.f_form_recipient;
-			models.MODEL_VALUE_CONTACT.create(createObject).then((CODE_VALUE_CONTACT) => {
+			models.MODEL_VALUE_CONTACT.create(createObject, {req: req}).then((CODE_VALUE_CONTACT) => {
 				let redirect = '/URL_VALUE_CONTACT/create_form';
 				req.session.toastr = [{
 					message: "entity.CODE_VALUE_CONTACT.successSendMail",
@@ -149,7 +149,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 						else {
 							const obj = {};
 							obj[req.body.associationForeignKey] = CODE_VALUE_CONTACT.id;
-							association.update(obj);
+							association.update(obj, {req: req});
 						}
 					});
 				}
@@ -297,7 +297,7 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
 				f_user: "",
 				f_pass: "",
 				f_form_recipient: ""
-			}).then(createdSettings => {
+			}, {req: req}).then(createdSettings => {
 				data.CODE_VALUE_SETTINGS = createdSettings;
 				res.render('CODE_VALUE_CONTACT/settings', data);
 			});
@@ -312,12 +312,6 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
 
 router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS", "create"), (req, res) => {
 	const id_CODE_VALUE_SETTINGS = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version))
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributesSettings, optionsSettings, req.body);
 
 	models.MODEL_VALUE_SETTINGS.findOne({
@@ -328,11 +322,15 @@ router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS
 		if (!CODE_VALUE_SETTINGS)
 			return res.render('common/error', {error: 404});
 
+		if(typeof CODE_VALUE_SETTINGS.version === 'undefined' || !CODE_VALUE_SETTINGS.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
 		CODE_VALUE_SETTINGS.update(updateObject, {
 			where: {
 				id: id_CODE_VALUE_SETTINGS
 			}
-		}).then(_ => {
+		}, {req: req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

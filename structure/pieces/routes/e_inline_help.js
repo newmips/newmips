@@ -16,26 +16,26 @@ const moment = require("moment");
 const SELECT_PAGE_SIZE = 10;
 const enums_radios = require('../utils/enum_radio.js');
 
-router.get('/help/:entity/:field', function(req, res) {
+router.get('/help/:entity/:field', (req, res) => {
 	models.E_inline_help.findOne({
 		where: {
 			f_entity: 'e_' + req.params.entity,
 			f_field: req.params.field
 		}
-	}).then(function(help) {
+	}).then(help => {
 		if (!help)
 			res.status(404).end();
 		res.send(help.f_content);
 	});
 });
 
-router.get('/list', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
+router.get('/list', block_access.actionAccessMiddleware("inline_help", "read"), (req, res) => {
 	res.render('e_inline_help/list');
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
-	filterDataTable("E_inline_help", req.body).then(function(rawData) {
-		entity_helper.prepareDatalistResult('e_inline_help', rawData, req.session.lang_user).then(function(preparedData) {
+router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "read"), (req, res) => {
+	filterDataTable("E_inline_help", req.body).then(rawData => {
+		entity_helper.prepareDatalistResult('e_inline_help', rawData, req.session.lang_user).then(preparedData => {
 			const language = require('../services/language')(req.session.lang_user); // eslint-disable-line
 
 			for (let i = 0; i < preparedData.data.length; i++) {
@@ -47,17 +47,17 @@ router.post('/datalist', block_access.actionAccessMiddleware("inline_help", "rea
 			}
 
 			res.send(preparedData).end();
-		}).catch(function(err) {
+		}).catch(err => {
 			console.error(err);
 			res.end();
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 		res.end();
 	});
 });
 
-router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
+router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "read"), (req, res) => {
 	const start = parseInt(req.body.start || 0);
 	const length = parseInt(req.body.length || 10);
 
@@ -123,13 +123,13 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "
 			id: parseInt(sourceId)
 		},
 		include: include
-	}).then(function(e_inline_help) {
+	}).then(e_inline_help => {
 		if (!e_inline_help['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
 			console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
 			return res.status(500).end();
 		}
 
-		e_inline_help['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+		e_inline_help['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(count => {
 			const rawData = {
 				recordsTotal: count,
 				recordsFiltered: count,
@@ -138,9 +138,9 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "
 			for (let i = 0; i < e_inline_help[subentityAlias].length; i++)
 				rawData.data.push(e_inline_help[subentityAlias][i].get({plain: true}));
 
-			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
+			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(preparedData => {
 				res.send(preparedData).end();
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
 				res.end();
 			});
@@ -148,7 +148,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("inline_help", "
 	});
 });
 
-router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), function(req, res) {
+router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), (req, res) => {
 	const id_e_inline_help = req.query.id;
 	const tab = req.query.tab;
 	const data = {
@@ -160,7 +160,7 @@ router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), 
 	if (typeof req.query.hideButton !== 'undefined')
 		data.hideButton = req.query.hideButton;
 
-	entity_helper.optimizedFindOne('E_inline_help', id_e_inline_help, options).then(function(e_inline_help) {
+	entity_helper.optimizedFindOne('E_inline_help', id_e_inline_help, options).then(e_inline_help => {
 		if (!e_inline_help)
 			return res.render('common/error', {error: 404});
 
@@ -170,24 +170,24 @@ router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), 
 		e_inline_help.f_field = 'entity.' + entity + '.' + e_inline_help.f_field;
 		data.e_inline_help = e_inline_help;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(e_inline_help, "e_inline_help").then(function() {
+		entity_helper.getPicturesBuffers(e_inline_help, "e_inline_help").then(_ => {
 			status_helper.translate(e_inline_help, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_inline_help");
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-			entity_helper.getLoadOnStartData(data, options).then(function(data) {
+			entity_helper.getLoadOnStartData(data, options).then(data => {
 				res.render('e_inline_help/show', data);
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, "/", "e_inline_help");
 			})
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "e_inline_help");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "e_inline_help");
 	});
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "create"), function(req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "create"), (req, res) => {
 	const data = {
 		enum_radio: enums_radios.translated("e_inline_help", req.session.lang_user, options)
 	};
@@ -201,9 +201,9 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "c
 	}
 
 	const entities = [];
-	fs.readdirSync(__dirname + '/../models/attributes/').filter(function(file) {
+	fs.readdirSync(__dirname + '/../models/attributes/').filter(file => {
 		return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_';
-	}).forEach(function(file) {
+	}).forEach(file => {
 		const fields = [];
 		const attributesObj = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + file));
 		const optionsObj = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + file));
@@ -231,7 +231,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "c
 	res.render('e_inline_help/create', data);
 });
 
-router.post('/create', block_access.actionAccessMiddleware("inline_help", "create"), function(req, res) {
+router.post('/create', block_access.actionAccessMiddleware("inline_help", "create"), (req, res) => {
 
 	const createObject = {
 		f_entity: req.body.f_entity,
@@ -239,7 +239,7 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 		f_content: req.body.f_content
 	};
 
-	models.E_inline_help.create(createObject).then(function(e_inline_help) {
+	models.E_inline_help.create(createObject, {req: req}).then(e_inline_help => {
 		let redirect = '/inline_help/show?id=' + e_inline_help.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -250,12 +250,12 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 
 		if (typeof req.body.associationFlag !== 'undefined') {
 			redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-			promises.push(new Promise(function(resolve, reject) {
+			promises.push(new Promise((resolve, reject) => {
 				models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({
 					where: {
 						id: req.body.associationFlag
 					}
-				}).then(function(association) {
+				}).then(association => {
 					if (!association) {
 						e_inline_help.destroy();
 						const err = new Error();
@@ -278,13 +278,13 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 								});
 							}
 							resolve();
-						}).catch(function(err) {
+						}).catch(err => {
 							reject(err);
 						});
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_inline_help.id;
-						association.update(obj).then(resolve).catch(function(err) {
+						association.update(obj, {req: req}).then(resolve).catch(err => {
 							reject(err);
 						});
 					}
@@ -296,17 +296,17 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 		// because those values are not updated for now
 		promises.push(model_builder.setAssocationManyValues(e_inline_help, req.body, createObject, options));
 
-		Promise.all(promises).then(function() {
+		Promise.all(promises).then(_ => {
 			res.redirect(redirect);
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, '/inline_help/create_form', "e_inline_help");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/inline_help/create_form', "e_inline_help");
 	});
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "update"), function(req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "update"), (req, res) => {
 	const id_e_inline_help = req.query.id;
 	const data = {
 		enum_radio: enums_radios.translated("e_inline_help", req.session.lang_user, options)
@@ -320,7 +320,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "u
 		data.associationUrl = req.query.associationUrl;
 	}
 
-	entity_helper.optimizedFindOne('E_inline_help', id_e_inline_help, options).then(function(e_inline_help) {
+	entity_helper.optimizedFindOne('E_inline_help', id_e_inline_help, options).then(e_inline_help => {
 		if (!e_inline_help) {
 			data.error = 404;
 			return res.render('common/error', data);
@@ -333,9 +333,9 @@ router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "u
 		e_inline_help.f_field = 'entity.' + entity + '.' + e_inline_help.f_field;
 		data.e_inline_help = e_inline_help;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(e_inline_help, "e_inline_help", true).then(function() {
+		entity_helper.getPicturesBuffers(e_inline_help, "e_inline_help", true).then(_ => {
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-			entity_helper.getLoadOnStartData(req.query.ajax ? e_inline_help.dataValues : data, options).then(function(data) {
+			entity_helper.getLoadOnStartData(req.query.ajax ? e_inline_help.dataValues : data, options).then(data => {
 				if (req.query.ajax) {
 					e_inline_help.dataValues = data;
 					res.render('e_inline_help/update_fields', e_inline_help.get({
@@ -343,41 +343,40 @@ router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "u
 					}));
 				} else
 					res.render('e_inline_help/update', data);
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, "/", "e_inline_help");
 			})
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "e_inline_help");
 		})
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "e_inline_help");
 	})
 });
 
-router.post('/update', block_access.actionAccessMiddleware("inline_help", "update"), function(req, res) {
+router.post('/update', block_access.actionAccessMiddleware("inline_help", "update"), (req, res) => {
 	const id_e_inline_help = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_inline_help.findOne({
 		where: {
 			id: id_e_inline_help
 		}
-	}).then(function(e_inline_help) {
+	}).then(e_inline_help => {
 		if (!e_inline_help)
 			return res.render('common/error', {error: 404});
 
 		component_helper.address.updateAddressIfComponentExists(e_inline_help, options, req.body);
-		e_inline_help.update(updateObject).then(function() {
+
+		if(typeof e_inline_help.version === 'undefined' || !e_inline_help.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_inline_help.update(updateObject, {req: req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
-			model_builder.setAssocationManyValues(e_inline_help, req.body, updateObject, options).then(function() {
+			model_builder.setAssocationManyValues(e_inline_help, req.body, updateObject, options).then(_ => {
 
 				let redirect = '/inline_help/show?id=' + id_e_inline_help;
 				if (typeof req.body.associationFlag !== 'undefined')
@@ -389,18 +388,18 @@ router.post('/update', block_access.actionAccessMiddleware("inline_help", "updat
 				}];
 
 				res.redirect(redirect);
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help, "e_inline_help");
 			});
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help, "e_inline_help");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/inline_help/update_form?id=' + id_e_inline_help, "e_inline_help");
 	});
 });
 
-router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_help', 'read'), function(req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_help', 'read'), (req, res) => {
 	const alias = req.params.alias;
 	const id = req.params.id;
 
@@ -434,7 +433,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 		}
 
 	// Fetch tab data
-	models.E_inline_help.findOne(queryOpts).then(function(e_inline_help) {
+	models.E_inline_help.findOne(queryOpts).then(e_inline_help => {
 		if (!e_inline_help)
 			return res.status(404).end();
 
@@ -465,7 +464,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 											model: models.E_group,
 											as: "r_accepted_group"
 										}]
-									}).then(function(children) {
+									}).then(children => {
 										dustData[alias].r_children = children;
 										resolve();
 									}).catch(reject);
@@ -541,21 +540,21 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 						option: option
 					});
 				});
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
 				res.status(500).send(err);
 			});
-		}).catch(function(err) {
+		}).catch(err => {
 			console.error(err);
 			res.status(500).send(err);
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 		res.status(500).send(err);
 	});
 });
 
-router.get('/set_status/:id_inline_help/:status/:id_new_status', block_access.actionAccessMiddleware("inline_help", "read"), block_access.statusGroupAccess, function(req, res) {
+router.get('/set_status/:id_inline_help/:status/:id_new_status', block_access.actionAccessMiddleware("inline_help", "read"), block_access.statusGroupAccess, (req, res) => {
 	status_helper.setStatus('e_inline_help', req.params.id_inline_help, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
 		res.redirect(req.headers.referer);
 	}).catch(err => {
@@ -564,7 +563,7 @@ router.get('/set_status/:id_inline_help/:status/:id_new_status', block_access.ac
 	});
 });
 
-router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'), function(req, res) {
+router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'), (req, res) => {
 	const search = '%' + (req.body.search || '') + '%';
 	const limit = SELECT_PAGE_SIZE;
 	const offset = (req.body.page - 1) * limit;
@@ -641,7 +640,7 @@ router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'
 	// You have to include those entity here
 	// where.include = [{model: models.E_myentity, as: "r_myentity"}]
 
-	models.E_inline_help.findAndCountAll(where).then(function(results) {
+	models.E_inline_help.findAndCountAll(where).then(results => {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes)
@@ -662,13 +661,13 @@ router.post('/search', block_access.actionAccessMiddleware('inline_help', 'read'
 						}
 
 		res.json(results);
-	}).catch(function(e) {
-		console.error(e);
-		res.status(500).json(e);
+	}).catch(err => {
+		console.error(err);
+		res.status(500).json(err);
 	});
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inline_help", "update"), function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inline_help", "update"), (req, res) => {
 	const alias = req.params.alias;
 	const idToRemove = req.body.idRemove;
 	const idEntity = req.body.idEntity;
@@ -699,22 +698,22 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("inli
 			}
 
 			res.sendStatus(200).end();
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "e_inline_help");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "e_inline_help");
 	});
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_help", "create"), function(req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_help", "create"), (req, res) => {
 	const alias = req.params.alias;
 	const idEntity = req.body.idEntity;
 	models.E_inline_help.findOne({
 		where: {
 			id: idEntity
 		}
-	}).then(function(e_inline_help) {
+	}).then(e_inline_help => {
 		if (!e_inline_help)
 			return res.render('common/error', {error: 404});
 
@@ -727,28 +726,28 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("inline_
 			return res.redirect('/inline_help/show?id=' + idEntity + "#" + alias);
 		}
 
-		e_inline_help['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
+		e_inline_help['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(_ => {
 			res.redirect('/inline_help/show?id=' + idEntity + "#" + alias);
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "e_inline_help");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "e_inline_help");
 	});
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("inline_help", "delete"), function(req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("inline_help", "delete"), (req, res) => {
 	const id_e_inline_help = parseInt(req.body.id);
 
 	models.E_inline_help.findOne({
 		where: {
 			id: id_e_inline_help
 		}
-	}).then(function(deleteObject) {
+	}).then(deleteObject => {
 		if (!deleteObject)
 			return res.render('common/error', {error: 404});
 
-		deleteObject.destroy().then(function() {
+		deleteObject.destroy().then(_ => {
 			req.session.toastr = [{
 				message: 'message.delete.success',
 				level: "success"
@@ -759,10 +758,10 @@ router.post('/delete', block_access.actionAccessMiddleware("inline_help", "delet
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);
 			entity_helper.removeFiles("e_inline_help", deleteObject, attributes);
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, '/inline_help/list', "e_inline_help");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/inline_help/list', "e_inline_help");
 	});
 });

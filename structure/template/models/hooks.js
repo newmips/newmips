@@ -28,6 +28,19 @@ module.exports = function(model_name, attributes) {
 
 	return {
 		// CREATE HOOKS
+		beforeCreate: [{
+			name: 'insertCreatedBy',
+			func: (model, args) => new Promise((resolve, reject) => {
+				try {
+					if(!args.req)
+						throw 'Missing req';
+					model.createdBy = args.req.session.passport.user.f_login;
+				} catch (err) {
+					console.warn('Missing user for createdBy on table -> ' + model.constructor.tableName)
+				}
+				resolve();
+			})
+		}],
 		afterCreate: [{
 			name: 'initializeEntityStatus',
 			func: model => new Promise((finalResolve, finalReject) => {
@@ -147,6 +160,19 @@ module.exports = function(model_name, attributes) {
 			}
 		}],
 		// UPDATE HOOKS
+		beforeUpdate: [{
+			name: 'insertUpdatedBy',
+			func: (model, args) => new Promise((resolve, reject) => {
+				try {
+					if(!args.req)
+						throw 'Missing req';
+					model.updatedBy = args.req.session.passport.user.f_login;
+				} catch (err) {
+					console.warn('Missing user for updatedBy on table -> ' + model.constructor.tableName)
+				}
+				resolve();
+			})
+		}],
 		afterUpdate: [{
 			name: 'synchroJournalUpdate',
 			func: function(model) {
