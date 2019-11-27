@@ -190,7 +190,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("status", "read"
 
 	// Build array of fields for include and search object
 	const isGlobalSearch = req.body.search.value != "";
-	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
+	const search = {}, searchTerm = isGlobalSearch ? models.$or : models.$and;
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
