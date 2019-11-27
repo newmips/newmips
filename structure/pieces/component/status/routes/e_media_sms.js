@@ -131,7 +131,8 @@ router.get('/update_form', block_access.actionAccessMiddleware("media_sms", "upd
 });
 
 router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"), function(req, res) {
-	const id_e_media_sms = parseInt(req.body.id);
+	const id_e_media_sms = parseInt(req.body.id_media_sms);
+	const id_e_media = parseInt(req.body.id);
 
 	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
 		req.body.version = parseInt(req.body.version) + 1;
@@ -155,7 +156,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 			// because those values are not updated for now
 			model_builder.setAssocationManyValues(e_media_sms, req.body, updateObject, options).then(function() {
 
-				let redirect = '/media/show?id=' + id_e_media_sms;
+				let redirect = '/media/show?id=' + id_e_media;
 				if (typeof req.body.associationFlag !== 'undefined')
 					redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 
@@ -166,13 +167,13 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 
 				res.redirect(redirect);
 			}).catch(function(err) {
-				entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_sms);
+				entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
 			});
 		}).catch(function(err) {
-			entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_sms);
+			entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
 		});
 	}).catch(function(err) {
-		entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media_sms);
+		entity_helper.error(err, req, res, '/media/update_form?id=' + id_e_media);
 	});
 });
 
