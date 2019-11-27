@@ -144,7 +144,7 @@
 												<td data-field="id" data-type="string">{id}</td>
 												<td data-field="login" data-type="string">{displayName}</td>
 												<td>
-													<a class="pull-left" href="/application/preview?id_application={id}" target="_blank">
+													<a class="pull-left" href="/application/preview/{name}" target="_blank">
 														<button class="btn btn-info">
 															<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
 															<span>{#__ key="button.show"/}</span>

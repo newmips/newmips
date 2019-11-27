@@ -1,5 +1,5 @@
 /*!
- * Newmips v2.5
+ * Newmips v2.9
  * Copyright 2016
  * Licensed under GPLV3.0 https://www.gnu.org/licenses/gpl.html
  */
@@ -32,10 +32,9 @@ function fetchStatus() {
                 if (!data.over)
                     setTimeout(fetchStatus, 500);
                 else if (percent >= 100) {
-                    window.location.href = "/application/preview/" + data.data.app_name + "?timeout=50000";
+                    window.location.href = "/application/preview/" + data.data.app_name + "?timeout=75000";
                     $("#goTo").show();
                     $("#scriptSubmit").prop('disabled', false);
-                    $("#goTo").prop('disabled', false);
                     $("#progressbarcontent").hide();
                 } else {
                     // Wait 2 sec before let user click again on button
@@ -76,9 +75,9 @@ $(function() {
                     $("#scriptSubmit").hide();
                     $("#progressbarcontent").show();
                     if (user_lang == 'en-EN')
-                        $("#filename").text('Executing instructions from file "' + filename + '".');
+                        $("#filename").text('Executing instructions...');
                     else if (user_lang == 'fr-FR')
-                        $("#filename").text('Executions des instructions du fichier "' + filename + '".');
+                        $("#filename").text('Exécution des instructions du fichier...');
                     setTimeout(fetchStatus, 50);
                 },
                 error: function(err) {
@@ -92,7 +91,7 @@ $(function() {
                 text: $("#createScriptTextarea").val()
             };
             $.ajax({
-                url: $(this).attr('action')+"_alt",
+                url: $(this).attr('action') + "_alt",
                 method: 'post',
                 data: JSON.stringify(ajaxData),
                 contentType: "application/json",
@@ -101,9 +100,9 @@ $(function() {
                     $("#scriptSubmit").prop('disabled', true);
                     $("#progressbarcontent").show();
                     if (user_lang == 'en-EN')
-                        $("#filename").text('Executing instructions from written script.');
+                        $("#filename").text('Executing instructions...');
                     else if (user_lang == 'fr-FR')
-                        $("#filename").text('Executions des instructions du script écrit.');
+                        $("#filename").text('Exécution des instructions....');
                     setTimeout(fetchStatus, 50);
                 },
                 error: function(err) {

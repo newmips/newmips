@@ -69,67 +69,85 @@ router.post('/set_children', block_access.actionAccessMiddleware("status", "read
 router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
 	const id_status = req.params.id;
 
-	models.E_status.findOne({
-		where: {id: id_status},
-		include: [{
-			model: models.E_action,
-			as: 'r_actions',
-			order: ["f_position", "ASC"],
+	(async () => {
+		const status = await models.E_status.findOne({
+			where: {
+				id: id_status
+			},
 			include: [{
-				model: models.E_media,
-				as: 'r_media',
+				model: models.E_action,
+				as: 'r_actions',
+				order: ["f_position", "ASC"],
 				include: [{
-					model: models.E_media_mail,
-					as: 'r_media_mail'
-				}, {
-					model: models.E_media_notification,
-					as: 'r_media_notification'
-				}, {
-					model: models.E_media_sms,
-					as: 'r_media_sms'
+					model: models.E_media,
+					as: 'r_media',
+					include: [{
+						model: models.E_media_mail,
+						as: 'r_media_mail'
+					}, {
+						model: models.E_media_notification,
+						as: 'r_media_notification'
+					}, {
+						model: models.E_media_sms,
+						as: 'r_media_sms'
+					}]
 				}]
 			}]
-		}]
-	}).then(function(status) {
+		});
+
 		if (!status)
-			return res.render('common/error', {error: 404});
+			return res.render('common/error', {
+				error: 404
+			});
 
 		// Find all entities without status
 		const entityModel = entity_helper.capitalizeFirstLetter(status.f_entity);
-		const where = {where: {}};
-		where.where['fk_id_status_'+status.f_field.substring(2)] = null;
-		models[entityModel].findAll(where).then(function(no_statuses) {
-			// Build ID array of entities that need to be updated
-			// Build history creation array
-			const historyModel = 'E_history_'+status.f_entity+'_'+status.f_field;
-			const historyCreateObj = [], toUpdateIds = [];
-			for (let i = 0; i < no_statuses.length; i++) {
-				toUpdateIds.push(no_statuses[i].id);
-				const createObj = {};
-				createObj['fk_id_status_'+status.f_field.substring(2)] = status.id;
-				createObj['fk_id_'+status.f_entity.substring(2)+'_history_'+status.f_field.substring(2)] = no_statuses[i].id;
-				historyCreateObj.push(createObj);
+		const where = {
+			where: {}
+		};
+		where.where['fk_id_status_' + status.f_field.substring(2)] = null;
+		const no_statuses = await models[entityModel].findAll(where);
 
-				// Execute actions for each entity instance
-				status.executeActions(no_statuses[i]).catch(function(err) {
-					console.error("Status action error on /set_default :");
-					console.error(err);
-				});
+		// Build ID array of entities that need to be updated
+		// Build history creation array
+		const historyModel = 'E_history_' + status.f_entity.substring(2) + '_' + status.f_field.substring(2);
+		const historyCreateObj = [],
+			toUpdateIds = [];
+
+		for (let i = 0; i < no_statuses.length; i++) {
+			toUpdateIds.push(no_statuses[i].id);
+			const createObj = {};
+			createObj['fk_id_status_' + status.f_field.substring(2)] = status.id;
+			createObj['fk_id_' + status.f_entity.substring(2) + '_history_' + status.f_field.substring(2)] = no_statuses[i].id;
+			historyCreateObj.push(createObj);
+
+			// Execute actions for each entity instance
+			status.executeActions(no_statuses[i]).catch(err => {
+				console.error("Status action error on /set_default :");
+				console.error(err);
+			});
+		}
+
+		// Update entities to add status
+		const updateObj = {};
+		updateObj['fk_id_status_' + status.f_field.substring(2)] = status.id;
+		await models[entityModel].update(updateObj, {
+			where: {
+				id: {
+					[models.$in]: toUpdateIds
+				}
 			}
+		});
 
-			// Update entities to add status
-			const updateObj = {};
-			updateObj['fk_id_status_'+status.f_field.substring(2)] = status.id;
-			models[entityModel].update(updateObj, {
-				where: {id: {[models.$in]: toUpdateIds}}
-			}).then(function() {
-				// Bulk create history for updated entities
-				models[historyModel].bulkCreate(historyCreateObj).then(function() {
-					res.redirect('/status/show?id='+status.id);
-				}).catch(function(err) {entity_helper.error(err, req, res, "/");});
-			}).catch(function(err) {entity_helper.error(err, req, res, "/");});
-		}).catch(function(err) {entity_helper.error(err, req, res, "/");});
-	}).catch(function(err) {entity_helper.error(err, req, res, "/");});
+		// Bulk create history for updated entities
+		await models[historyModel].bulkCreate(historyCreateObj);
+
+		return status;
+	})().then(status => {
+		res.redirect('/status/show?id=' + status.id);
+	}).catch(err => {
+		entity_helper.error(err, req, res, "/");
+	});
 });
 
 router.get('/list', block_access.actionAccessMiddleware("status", "read"), function (req, res) {
@@ -609,11 +627,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('status', 
 });
 
 router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
-	const historyModel = 'E_history_e_status_'+req.params.status;
-	const historyAlias = 'r_history_'+req.params.status.substring(2);
-	const statusAlias = 'r_'+req.params.status.substring(2);
+	const historyModel = 'E_history_status_' + req.params.status.substring(2);
+	const historyAlias = 'r_history_' + req.params.status.substring(2);
+	const statusAlias = 'r_' + req.params.status.substring(2);
 
-	const errorRedirect = '/status/show?id='+req.params.id_status;
+	const errorRedirect = '/status/show?id=' + req.params.id_status;
 
 	const includeTree = status_helper.generateEntityInclude(models, 'e_status');
 
@@ -622,22 +640,30 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 		model: models[historyModel],
 		as: historyAlias,
 		limit: 1,
-		order: [["createdAt", "DESC"]],
+		order: [
+			["createdAt", "DESC"]
+		],
 		include: [{
 			model: models.E_status,
 			as: statusAlias
 		}]
 	});
 	models.E_status.findOne({
-		where: {id: req.params.id_status},
+		where: {
+			id: req.params.id_status
+		},
 		include: includeTree
 	}).then(function(e_status) {
 		if (!e_status || !e_status[historyAlias] || !e_status[historyAlias][0][statusAlias])
-			return res.render('common/error', {error: 404});
+			return res.render('common/error', {
+				error: 404
+			});
 
 		// Find the children of the current status
 		models.E_status.findOne({
-			where: {id: e_status[historyAlias][0][statusAlias].id},
+			where: {
+				id: e_status[historyAlias][0][statusAlias].id
+			},
 			include: [{
 				model: models.E_status,
 				as: 'r_children',
@@ -648,23 +674,30 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 					include: [{
 						model: models.E_media,
 						as: 'r_media',
-						include: {all: true, nested: true}
+						include: {
+							all: true,
+							nested: true
+						}
 					}]
 				}]
 			}]
 		}).then(function(current_status) {
 			if (!current_status || !current_status.r_children)
-				return res.render('common/error', {error: 404});
+				return res.render('common/error', {
+					error: 404
+				});
 
 			// Check if new status is actualy the current status's children
 			const children = current_status.r_children;
 			let nextStatus = false;
 			for (let i = 0; i < children.length; i++) {
-				if (children[i].id == req.params.id_new_status)
-				{nextStatus = children[i]; break;}
+				if (children[i].id == req.params.id_new_status) {
+					nextStatus = children[i];
+					break;
+				}
 			}
 			// Unautorized
-			if (nextStatus === false){
+			if (nextStatus === false) {
 				req.session.toastr = [{
 					level: 'error',
 					message: 'component.status.error.illegal_status'
@@ -677,11 +710,11 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 				// Create history record for this status field
 				// Beeing the most recent history for status it will now be its current status
 				const createObject = {}
-				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-				createObject["fk_id_status_history_"+req.params.status.substring(2)] = req.params.id_status;
+				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+				createObject["fk_id_status_history_" + req.params.status.substring(2)] = req.params.id_status;
 				models[historyModel].create(createObject).then(function() {
-					e_status['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-					res.redirect('/status/show?id='+req.params.id_status)
+					e_status['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+					res.redirect('/status/show?id=' + req.params.id_status)
 				});
 			}).catch(function(err) {
 				console.error(err);
@@ -690,11 +723,11 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 					message: 'component.status.error.action_error'
 				}]
 				const createObject = {}
-				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
-				createObject["fk_id_status_history_"+req.params.status.substring(2)] = req.params.id_status;
+				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
+				createObject["fk_id_status_history_" + req.params.status.substring(2)] = req.params.id_status;
 				models[historyModel].create(createObject).then(function() {
-					e_status['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
-					res.redirect('/status/show?id='+req.params.id_status)
+					e_status['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
+					res.redirect('/status/show?id=' + req.params.id_status)
 				});
 			});
 		});

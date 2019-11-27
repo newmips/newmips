@@ -465,7 +465,9 @@
 			},
 			"title": {
 				"success": "Le titre a bien été ajouté !",
-				"missingField": "Le champ %s n'existe pas dans cette entité."
+				"missingField": "Le champ %s n'existe pas dans cette entité.",
+				"remove_success": "Le titre a bien été supprimé !",
+				"not_found": "Impossible de trouver le titre à supprimer !"
 			}
 		}
 	},
