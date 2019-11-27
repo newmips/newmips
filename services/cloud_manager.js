@@ -1,7 +1,7 @@
 const request = require('request-promise');
 const json2yaml = require('json2yaml');
 const fs = require('fs-extra');
-const globalConfig = require('../config/global.js');
+const globalConf = require('../config/global.js');
 const portainerConfig = require('../config/portainer.js');
 const gitlabConfig = require('../config/gitlab.js');
 const math = require('math');
@@ -192,8 +192,8 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 
 async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 	// Preparing all needed values
-	let stackName = globalConfig.sub_domain + "-" + appName + "-" + globalConfig.dns_cloud.replace(".", "-");
-	const cloudUrl = globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud;
+	let stackName = globalConf.sub_domain + "-" + appName.substring(2) + "-" + globalConf.dns_cloud.replace(".", "-");
+	const cloudUrl = globalConf.sub_domain + "-" + appName.substring(2) + "." + globalConf.dns_cloud;
 
 	// Cloud db conf
 	const cloudDbConf = {
@@ -224,7 +224,7 @@ async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 
 	console.log("DEPLOY DONE");
 	return {
-		url: "/waiting?redirect=https://" + globalConfig.sub_domain + "-" + appName + "." + globalConfig.dns_cloud
+		url: "/waiting?redirect=https://" + globalConf.sub_domain + "-" + appName.substring(2) + "." + globalConf.dns_cloud
 	};
 }
 
@@ -235,9 +235,9 @@ exports.deploy = async (data) => {
 	const appName = data.application.name;
 
 	// If local/develop environnement, then just give the generated application url
-	if (globalConfig.env != 'cloud') {
+	if (globalConf.env != 'cloud') {
 		const port = math.add(9000, data.appID);
-		const url = globalConfig.protocol + "://" + globalConfig.host + ":" + port;
+		const url = globalConf.protocol + "://" + globalConf.host + ":" + port;
 		return {
 			message: "botresponse.applicationavailable",
 			messageParams: [url, url]
@@ -251,12 +251,12 @@ exports.deploy = async (data) => {
 	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
 	// Create toSyncProd.lock file
-	if (fs.existsSync(applicationPath +'/models/toSyncProd.lock.json'))
-		fs.unlinkSync(applicationPath +'/models/toSyncProd.lock.json');
+	if (fs.existsSync(applicationPath + '/models/toSyncProd.lock.json'))
+		fs.unlinkSync(applicationPath + '/models/toSyncProd.lock.json');
 	fs.copySync(applicationPath + '/models/toSyncProd.json', applicationPath + '/models/toSyncProd.lock.json');
 
 	// Clear toSyncProd (not locked) file
-	fs.writeFileSync(applicationPath+'/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
+	fs.writeFileSync(applicationPath + '/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
 
 	// Create deploy.txt file to trigger cloud deploy actions
 	fs.writeFileSync(applicationPath + '/deploy.txt', applicationConf.version, 'utf8');
@@ -267,8 +267,8 @@ exports.deploy = async (data) => {
 	await gitHelper.gitPush(data);
 
 	const appNameWithoutPrefix = data.application.name.substring(2);
-	const nameRepo = globalConfig.host + '-' + appNameWithoutPrefix;
-	const subdomain = globalConfig.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConfig.dns_cloud.replace('.', '-');
+	const nameRepo = globalConf.host + '-' + appNameWithoutPrefix;
+	const subdomain = globalConf.sub_domain + '-' + appNameWithoutPrefix + '-' + globalConf.dns_cloud.replace('.', '-');
 
 	const remotes = await gitHelper.gitRemotes(data);
 
@@ -280,6 +280,9 @@ exports.deploy = async (data) => {
 		gitlabUrl = gitlabConfig.sshUrl + ":" + data.gitlabUser.username + "/" + nameRepo + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
 
 	console.log('Cloning in cloud: ' + gitlabUrl);
-	data = await portainerDeploy(nameRepo, subdomain, appNameWithoutPrefix, gitlabUrl);
-	return data.url;
+	const {url} = await portainerDeploy(nameRepo, subdomain, data.application.name, gitlabUrl);
+	return {
+		message: "botresponse.deployment",
+		messageParams: [url, url]
+	};
 }

@@ -30,7 +30,7 @@
 										<label for="selectApplication">{#M_ key="application.label"/}</label>
 										<select class="form-control select" id="select_application" name="selectApplication" style='width: 100%;'>
 											{#applications}
-												<option value="{codeName}">{displayName}</option>
+												<option value="{name}">{displayName}</option>
 											{/applications}
 										</select>
 										<a id="create_new_application" href="#">
@@ -301,7 +301,7 @@
 			$("select").select2();
 
 			$(document).on("change", "#select_application", function(){
-				$("#btn-preview").attr("href", "/application/preview?id_application="+$(this).val());
+				$("#btn-preview").attr("href", "/application/preview/" + $(this).val());
 			});
 
 			$(document).on("click", "#create_new_application", function(){

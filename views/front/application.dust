@@ -147,6 +147,8 @@
 	        }, 1000);
 		});
 
+		
+
 		$(document).ready(function() {
 			/* --- Delete application --- */
 			$(document).on('click', '.deleteAppForm', function() {

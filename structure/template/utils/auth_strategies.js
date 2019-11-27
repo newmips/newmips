@@ -70,7 +70,7 @@ passport.deserializeUser(function(user_id, done) {
 
 exports.isLoggedIn = passport.authenticate('local', {
 	failureRedirect: '/login',
-	badRequestMessage: "Des informations sont manquantes.",
+	badRequestMessage: "login.missing_infos",
 	failureFlash: true
 });
 
