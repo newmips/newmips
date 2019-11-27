@@ -1,5 +1,4 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const block_access = require('../utils/block_access');
 const filterDataTable = require('../utils/filter_datatable');
 const models = require('../models/');
@@ -16,25 +15,25 @@ const moment = require("moment");
 const SELECT_PAGE_SIZE = 10;
 const enums_radios = require('../utils/enum_radio.js');
 
-router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
+router.get('/list', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), (req, res) => {
 	res.render('ENTITY_NAME/list');
 });
 
-router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
-	filterDataTable("MODEL_NAME", req.body).then(function(rawData) {
-		entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(function(preparedData) {
+router.post('/datalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), (req, res) => {
+	filterDataTable("MODEL_NAME", req.body).then(rawData => {
+		entity_helper.prepareDatalistResult('ENTITY_NAME', rawData, req.session.lang_user).then(preparedData => {
 			res.send(preparedData).end();
-		}).catch(function(err) {
+		}).catch(err => {
 			console.error(err);
 			res.end();
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 		res.end();
 	});
 });
 
-router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
+router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), (req, res) => {
 	const start = parseInt(req.body.start || 0);
 	const length = parseInt(req.body.length || 10);
 
@@ -100,13 +99,13 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 			id: parseInt(sourceId)
 		},
 		include: include
-	}).then(function(ENTITY_NAME) {
+	}).then(ENTITY_NAME => {
 		if (!ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
 			console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
 			return res.status(500).end();
 		}
 
-		ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(function(count) {
+		ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(count => {
 			const rawData = {
 				recordsTotal: count,
 				recordsFiltered: count,
@@ -115,9 +114,9 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 			for (let i = 0; i < ENTITY_NAME[subentityAlias].length; i++)
 				rawData.data.push(ENTITY_NAME[subentityAlias][i].get({plain: true}));
 
-			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
+			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(preparedData => {
 				res.send(preparedData).end();
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
 				res.end();
 			});
@@ -125,7 +124,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 	});
 });
 
-router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), function(req, res) {
+router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), (req, res) => {
 	const id_ENTITY_NAME = req.query.id;
 	const tab = req.query.tab;
 	const data = {
@@ -137,31 +136,31 @@ router.get('/show', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read
 	if (typeof req.query.hideButton !== 'undefined')
 		data.hideButton = req.query.hideButton;
 
-	entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function(ENTITY_NAME) {
+	entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(ENTITY_NAME => {
 		if (!ENTITY_NAME)
 			return res.render('common/error', {error: 404});
 
 		/* Update local ENTITY_NAME data before show */
 		data.ENTITY_NAME = ENTITY_NAME;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(function() {
+		entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME").then(_ => {
 			status_helper.translate(ENTITY_NAME, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("ENTITY_NAME");
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-			entity_helper.getLoadOnStartData(data, options).then(function(data) {
+			entity_helper.getLoadOnStartData(data, options).then(data => {
 				res.render('ENTITY_NAME/show', data);
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 			})
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 	});
 });
 
-router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
+router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), (req, res) => {
 	const data = {
 		enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
 	};
@@ -175,19 +174,19 @@ router.get('/create_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 	}
 
 	// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-	entity_helper.getLoadOnStartData(data, options).then(function(data) {
+	entity_helper.getLoadOnStartData(data, options).then(data => {
 		const view = req.query.ajax ? 'ENTITY_NAME/create_fields' : 'ENTITY_NAME/create';
 		res.render(view, data);
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
 	})
 });
 
-router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
+router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), (req, res) => {
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.MODEL_NAME.create(createObject).then(function(ENTITY_NAME) {
+	models.MODEL_NAME.create(createObject, {req: req}).then(ENTITY_NAME => {
 		let redirect = '/ENTITY_URL_NAME/show?id=' + ENTITY_NAME.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -198,12 +197,12 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
 		if (typeof req.body.associationFlag !== 'undefined') {
 			redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
-			promises.push(new Promise(function(resolve, reject) {
+			promises.push(new Promise((resolve, reject) => {
 				models[entity_helper.capitalizeFirstLetter(req.body.associationSource)].findOne({
 					where: {
 						id: req.body.associationFlag
 					}
-				}).then(function(association) {
+				}).then(association => {
 					if (!association) {
 						ENTITY_NAME.destroy();
 						const err = new Error();
@@ -226,13 +225,13 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 								});
 							}
 							resolve();
-						}).catch(function(err) {
+						}).catch(err => {
 							reject(err);
 						});
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = ENTITY_NAME.id;
-						association.update(obj).then(resolve).catch(function(err) {
+						association.update(obj, {req: req}).then(resolve).catch(err => {
 							reject(err);
 						});
 					}
@@ -242,21 +241,21 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 
 		// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 		// because those values are not updated for now
-		model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(function() {
-			Promise.all(promises).then(function() {
-				component_helper.address.setAddressIfComponentExists(ENTITY_NAME, options, req.body).then(function() {
+		model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(_ => {
+			Promise.all(promises).then(_ => {
+				component_helper.address.setAddressIfComponentExists(ENTITY_NAME, options, req.body).then(_ => {
 					res.redirect(redirect);
 				});
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
 			});
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");
 	});
 });
 
-router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
+router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), (req, res) => {
 	const id_ENTITY_NAME = req.query.id;
 	const data = {
 		enum_radio: enums_radios.translated("ENTITY_NAME", req.session.lang_user, options)
@@ -270,7 +269,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 		data.associationUrl = req.query.associationUrl;
 	}
 
-	entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(function(ENTITY_NAME) {
+	entity_helper.optimizedFindOne('MODEL_NAME', id_ENTITY_NAME, options).then(ENTITY_NAME => {
 		if (!ENTITY_NAME) {
 			data.error = 404;
 			return res.render('common/error', data);
@@ -279,9 +278,9 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 		ENTITY_NAME.dataValues.enum_radio = data.enum_radio;
 		data.ENTITY_NAME = ENTITY_NAME;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", false).then(function() {
+		entity_helper.getPicturesBuffers(ENTITY_NAME, "ENTITY_NAME", false).then(_ => {
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-			entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(function(data) {
+			entity_helper.getLoadOnStartData(req.query.ajax ? ENTITY_NAME.dataValues : data, options).then(data => {
 				if (req.query.ajax) {
 					ENTITY_NAME.dataValues = data;
 					res.render('ENTITY_NAME/update_fields', ENTITY_NAME.get({
@@ -289,41 +288,40 @@ router.get('/update_form', block_access.actionAccessMiddleware("ENTITY_URL_NAME"
 					}));
 				} else
 					res.render('ENTITY_NAME/update', data);
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 			})
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 		})
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 	})
 });
 
-router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
+router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), (req, res) => {
 	const id_ENTITY_NAME = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.MODEL_NAME.findOne({
 		where: {
 			id: id_ENTITY_NAME
 		}
-	}).then(function(ENTITY_NAME) {
+	}).then(ENTITY_NAME => {
 		if (!ENTITY_NAME)
 			return res.render('common/error', {error: 404});
 
 		component_helper.address.updateAddressIfComponentExists(ENTITY_NAME, options, req.body);
-		ENTITY_NAME.update(updateObject).then(function() {
+
+		if(typeof ENTITY_NAME.version === 'undefined' || !ENTITY_NAME.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		ENTITY_NAME.update(updateObject, {req: req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
-			model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options).then(function() {
+			model_builder.setAssocationManyValues(ENTITY_NAME, req.body, updateObject, options).then(_ => {
 
 				let redirect = '/ENTITY_URL_NAME/show?id=' + id_ENTITY_NAME;
 				if (typeof req.body.associationFlag !== 'undefined')
@@ -335,18 +333,18 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 				}];
 
 				res.redirect(redirect);
-			}).catch(function(err) {
+			}).catch(err => {
 				entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
 			});
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/ENTITY_URL_NAME/update_form?id=' + id_ENTITY_NAME, "ENTITY_NAME");
 	});
 });
 
-router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), function(req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), (req, res) => {
 	const alias = req.params.alias;
 	const id = req.params.id;
 
@@ -378,7 +376,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		}
 
 	// Fetch tab data
-	models.MODEL_NAME.findOne(queryOpts).then(function(ENTITY_NAME) {
+	models.MODEL_NAME.findOne(queryOpts).then(ENTITY_NAME => {
 		if (!ENTITY_NAME)
 			return res.status(404).end();
 
@@ -465,13 +463,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData) {
+		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
 			// Image buffer promise
-			Promise.all(promisesData).then(function() {
+			Promise.all(promisesData).then(_ => {
 				// Open and render dust file
 				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
 				dust.insertLocalsFn(dustData ? dustData : {}, req);
-				dust.renderSource(file, dustData || {}, function(err, rendered) {
+				dust.renderSource(file, dustData || {}, (err, rendered) => {
 					if (err) {
 						console.error(err);
 						return res.status(500).end();
@@ -485,22 +483,22 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 						option: option
 					});
 				});
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
 				res.status(500).send(err);
 			});
-		}).catch(function(err) {
+		}).catch(err => {
 			console.error(err);
 			res.status(500).send(err);
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 		res.status(500).send(err);
 	});
 });
 
-router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), block_access.statusGroupAccess, function(req, res) {
-	status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
+router.get('/set_status/:id_ENTITY_URL_NAME/:status/:id_new_status', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "read"), block_access.statusGroupAccess, (req, res) => {
+	status_helper.setStatus('ENTITY_NAME', req.params.id_ENTITY_URL_NAME, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(_ => {
 		res.redirect(req.headers.referer);
 	}).catch(err => {
 		console.error(err);
@@ -612,7 +610,7 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 	});
 });
 
-router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), function(req, res) {
+router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "update"), (req, res) => {
 	const alias = req.params.alias;
 	const idToRemove = req.body.idRemove;
 	const idEntity = req.body.idEntity;
@@ -620,7 +618,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
 		where: {
 			id: idEntity
 		}
-	}).then(function(ENTITY_NAME) {
+	}).then(ENTITY_NAME => {
 		if (!ENTITY_NAME) {
 			const data = {
 				error: 404
@@ -646,22 +644,22 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("ENTI
 			}
 
 			res.sendStatus(200).end();
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 	});
 });
 
-router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), function(req, res) {
+router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "create"), (req, res) => {
 	const alias = req.params.alias;
 	const idEntity = req.body.idEntity;
 	models.MODEL_NAME.findOne({
 		where: {
 			id: idEntity
 		}
-	}).then(function(ENTITY_NAME) {
+	}).then(ENTITY_NAME => {
 		if (!ENTITY_NAME)
 			return res.render('common/error', {error: 404});
 
@@ -674,28 +672,28 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("ENTITY_
 			return res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
 		}
 
-		ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function() {
+		ENTITY_NAME['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(_ => {
 			res.redirect('/ENTITY_URL_NAME/show?id=' + idEntity + "#" + alias);
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, "/", "ENTITY_NAME");
 	});
 });
 
-router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), function(req, res) {
+router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "delete"), (req, res) => {
 	const id_ENTITY_NAME = parseInt(req.body.id);
 
 	models.MODEL_NAME.findOne({
 		where: {
 			id: id_ENTITY_NAME
 		}
-	}).then(function(deleteObject) {
+	}).then(deleteObject => {
 		if (!deleteObject)
 			return res.render('common/error', {error: 404});
 
-		deleteObject.destroy().then(function() {
+		deleteObject.destroy().then(_ => {
 			req.session.toastr = [{
 				message: 'message.delete.success',
 				level: "success"
@@ -706,10 +704,10 @@ router.post('/delete', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "d
 				redirect = '/' + req.body.associationUrl + '/show?id=' + req.body.associationFlag + '#' + req.body.associationAlias;
 			res.redirect(redirect);
 			entity_helper.removeFiles("ENTITY_NAME", deleteObject, attributes);
-		}).catch(function(err) {
+		}).catch(err => {
 			entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list', "ENTITY_NAME");
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		entity_helper.error(err, req, res, '/ENTITY_URL_NAME/list', "ENTITY_NAME");
 	});
 });

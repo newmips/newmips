@@ -107,7 +107,7 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_action.create(createObject).then(function (e_action) {
+	models.E_action.create(createObject, {req: req}).then(function (e_action) {
 		let redirect = '/action/show?id='+e_action.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -135,7 +135,7 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_action.id;
-						association.update(obj).then(resolve).catch(function(err){
+						association.update(obj, {req: req}).then(resolve).catch(function(err){
 							reject(err);
 						});
 					}
@@ -198,19 +198,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("action", "update
 
 router.post('/update', block_access.actionAccessMiddleware("action", "update"), function (req, res) {
 	const id_e_action = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_action.findOne({where: {id: id_e_action}}).then(function (e_action) {
 		if (!e_action)
 			return res.render('common/error', {error: 404});
 
-		e_action.update(updateObject).then(function () {
+		if(typeof e_action.version === 'undefined' || !e_action.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_action.update(updateObject, {req: req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

@@ -19,7 +19,7 @@ router.post('/create', block_access.actionAccessMiddleware("COMPONENT_NAME_URL",
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 	const redirect = '/SOURCE_URL_ENTITY_LOWER/show?id='+req.body.SOURCE_ENTITY_LOWER+'#COMPONENT_NAME_LOWER';
 
-	models.COMPONENT_NAME.create(createObject).then(function(COMPONENT_NAME_LOWER) {
+	models.COMPONENT_NAME.create(createObject, {req: req}).then(function(COMPONENT_NAME_LOWER) {
 		req.session.toastr = [{
 			message: 'message.create.success',
 			level: "success"

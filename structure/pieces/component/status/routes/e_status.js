@@ -137,7 +137,7 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
 					[models.$in]: toUpdateIds
 				}
 			}
-		});
+		}, {req: req});
 
 		// Bulk create history for updated entities
 		await models[historyModel].bulkCreate(historyCreateObj);
@@ -362,7 +362,7 @@ router.post('/create', block_access.actionAccessMiddleware("status", "create"), 
 	createObject.f_entity = entity;
 	createObject.f_field = field;
 
-	models.E_status.create(createObject).then(function (e_status) {
+	models.E_status.create(createObject, {req: req}).then(function (e_status) {
 		let redirect = '/status/show?id='+e_status.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -390,7 +390,7 @@ router.post('/create', block_access.actionAccessMiddleware("status", "create"), 
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_status.id;
-						association.update(obj).then(resolve).catch(function(err){
+						association.update(obj, {req: req}).then(resolve).catch(function(err){
 							reject(err);
 						});
 					}
@@ -406,7 +406,8 @@ router.post('/create', block_access.actionAccessMiddleware("status", "create"), 
 				if (createObject.f_default && createObject.f_default == 'true')
 					models.E_status.update(
 						{f_default: false},
-						{where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {[models.$not]: e_status.id}}}
+						{where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {[models.$not]: e_status.id}}},
+						{req: req}
 					).then(function() {
 						res.redirect(redirect);
 					});
@@ -465,19 +466,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("status", "update
 
 router.post('/update', block_access.actionAccessMiddleware("status", "update"), function (req, res) {
 	const id_e_status = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_status.findOne({where: {id: id_e_status}}).then(function (e_status) {
 		if (!e_status)
 			return res.render('common/error', {error: 404});
 
-		e_status.update(updateObject).then(function () {
+		if(typeof e_status.version === 'undefined' || !e_status.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_status.update(updateObject, {req: req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -496,7 +495,8 @@ router.post('/update', block_access.actionAccessMiddleware("status", "update"), 
 				if (updateObject.f_default && updateObject.f_default == 'true')
 					models.E_status.update(
 						{f_default: false},
-						{where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {[models.$not]: e_status.id}}}
+						{where: {f_entity: e_status.f_entity, f_field: e_status.f_field, id: {[models.$not]: e_status.id}}},
+						{req: req}
 					).then(function() {
 						res.redirect(redirect);
 					});
@@ -712,7 +712,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_status_history_" + req.params.status.substring(2)] = req.params.id_status;
-				models[historyModel].create(createObject).then(function() {
+				models[historyModel].create(createObject, {req: req}).then(function() {
 					e_status['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/status/show?id=' + req.params.id_status)
 				});
@@ -725,7 +725,7 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_status_history_" + req.params.status.substring(2)] = req.params.id_status;
-				models[historyModel].create(createObject).then(function() {
+				models[historyModel].create(createObject, {req: req}).then(function() {
 					e_status['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/status/show?id=' + req.params.id_status)
 				});

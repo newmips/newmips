@@ -131,7 +131,7 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_translation.create(createObject).then(function (e_translation) {
+	models.E_translation.create(createObject, {req: req}).then(function (e_translation) {
 		let redirect = '/translation/show?id='+e_translation.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -159,7 +159,7 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_translation.id;
-						association.update(obj).then(resolve).catch(function(err){
+						association.update(obj, {req: req}).then(resolve).catch(function(err){
 							reject(err);
 						});
 					}
@@ -222,12 +222,6 @@ router.get('/update_form', block_access.actionAccessMiddleware("translation", "u
 
 router.post('/update', block_access.actionAccessMiddleware("translation", "update"), function (req, res) {
 	const id_e_translation = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_translation.findOne({where: {id: id_e_translation}}).then(function (e_translation) {
@@ -237,7 +231,11 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
 			return res.render('common/error', data);
 		}
 
-		e_translation.update(updateObject).then(function () {
+		if(typeof e_translation.version === 'undefined' || !e_translation.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_translation.update(updateObject, {req: req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -455,7 +453,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 				const createObject = {}
 				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_translation_history_"+req.params.status.substring(2)] = req.params.id_translation;
-				models[historyModel].create(createObject).then(function() {
+				models[historyModel].create(createObject, {req: req}).then(function() {
 					e_translation['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/translation/show?id='+req.params.id_translation)
 				});
@@ -468,7 +466,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 				const createObject = {}
 				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_translation_history_"+req.params.status.substring(2)] = req.params.id_translation;
-				models[historyModel].create(createObject).then(function() {
+				models[historyModel].create(createObject, {req: req}).then(function() {
 					e_translation['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/translation/show?id='+req.params.id_translation)
 				});

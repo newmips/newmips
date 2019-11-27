@@ -119,9 +119,8 @@ router.post('/', function(req, res) {
 			publicFields[field] = req.body[field];
 	}
 	const createObject = model_builder.buildForRoute(attributes, options, publicFields);
-	//createObject = enums.values("e_user", createObject, req.body)
 
-	models.E_user.create(createObject).then(function(e_user) {
+	models.E_user.create(createObject, {req: req}).then(function(e_user) {
 		answer["e_user".substring(2)] = e_user;
 
 		res.status(200).json(answer);
@@ -153,7 +152,7 @@ router.put('/:id', function(req, res) {
 			return res.status(404).json(answer);
 		}
 
-		e_user.update(updateObject, {where: {id: id_e_user}}).then(function() {
+		e_user.update(updateObject, {where: {id: id_e_user}}, {req: req}).then(_ => {
 			answer["e_user".substring(2)] = e_user;
 
 			res.status(200).json(answer);
@@ -176,7 +175,7 @@ router.delete('/:id', function(req, res) {
 	}
 	const id_e_user = req.params.id;
 
-	models.E_user.destroy({where: {id: id_e_user}}).then(function() {
+	models.E_user.destroy({where: {id: id_e_user}}).then(_ => {
 		res.status(200).end();
 	}).catch(function(err){
 		answer.error = err;
