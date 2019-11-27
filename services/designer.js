@@ -63,14 +63,12 @@ exports.help = async _ => { // eslint-disable-line
 }
 
 exports.deploy = async (data) => {
-
 	// Generator DB
 	const dbApp = await models.Application.findOne({
 		name: data.application.name
 	});
 
 	data.appID = dbApp.id;
-
 	return await cloud_manager.deploy(data);
 }
 
@@ -1993,14 +1991,24 @@ exports.setIcon = async (data) => {
 
 exports.addTitle = async (data) => {
 
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
 	if(data.options.afterField) {
 		const field = "f_" + dataHelper.clearString(data.options.afterField);
-		data.field = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true).getField(field, true);
+		data.field = data.entity.getField(field, true);
 	}
 
 	await structure_ui.addTitle(data);
 	return {
 		message: 'structure.ui.title.success'
+	}
+}
+
+exports.removeTitle = async (data) => {
+	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	await structure_ui.removeTitle(data);
+	return {
+		message: 'structure.ui.title.remove_success'
 	}
 }
 

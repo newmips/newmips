@@ -1,11 +1,11 @@
 const models = require('../models/');
-const entity_helper = require('../helpers/entity');
+const entity_helper = require('../utils/entity_helper');
 const model_builder = require('../utils/model_builder');
 const fs = require('fs-extra');
 
 module.exports = {
 	address: {
-		setAddressIfComponentExists: async (entityObject, options, data) => {
+		setAddressIfComponentExists: async function(entityObject, options, data) {
 			const option = entity_helper.findInclude(options, 'as', "r_address");
 			if (!option || option.targetType != "component")
 				return;
@@ -18,7 +18,7 @@ module.exports = {
 			const func = 'set' + option.as.charAt(0).toUpperCase() + option.as.slice(1);
 			await entityObject[func](e_created);
 		},
-		updateAddressIfComponentExists: async (entityObject, options, data) => {
+		updateAddressIfComponentExists: async function(entityObject, options, data) {
 			if (!entityObject.fk_id_address)
 				return this.setAddressIfComponentExists(entityObject, options, data);
 

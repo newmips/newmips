@@ -126,6 +126,9 @@ exports.getAllProjects = async () => {
 			'Content-Type': 'application/json',
 			'Private-Token': token
 		},
+		qs: {
+			per_page: 100 // Max limit
+		},
 		json: true // Automatically stringifies the body to JSON
 	};
 
@@ -147,15 +150,38 @@ exports.getProjectByID = async (projectID) => {
 			'Content-Type': 'application/json',
 			'Private-Token': token
 		},
-		qs: {
-			per_page: 100
-		},
 		json: true // Automatically stringifies the body to JSON
 	};
 
 	try {
 		return await request(options);
 	} catch(err){
+		throw new Error("An error occured while getting gitlab project: " + projectID);
+	}
+}
+
+exports.getProjectByName = async(projectName) => {
+	const options = {
+		uri: gitlabURL + "/projects",
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Private-Token': token
+		},
+		qs: {
+			search: globalConf.host, // Reduce search on current generator repository
+			per_page: 100 // Max limit
+		},
+		json: true // Automatically stringifies the body to JSON
+	};
+
+	console.log("GITLAB CALL => getProjectByName => " + projectName);
+
+	try {
+		const allProjects = await request(options);
+		const project = allProjects.filter(x => x.name == projectName);
+		return project.length == 0 ? false : project[0];
+	} catch (err) {
 		console.error(err);
 		throw new Error("An error occured while getting gitlab project.");
 	}

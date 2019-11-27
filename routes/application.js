@@ -19,6 +19,7 @@ const session_manager = require('../services/session.js');
 const designer = require('../services/designer.js');
 const parser = require('../services/bot.js');
 const gitlab = require('../services/gitlab_api');
+const studio_manager = require('../services/studio_manager');
 
 // Utils
 const block_access = require('../utils/block_access');
@@ -185,8 +186,11 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		const initialTimestamp = new Date().getTime();
 		let iframe_url = globalConf.protocol_iframe + '://';
 
-		if (globalConf.env == 'cloud')
+		if (globalConf.env == 'cloud'){
 			iframe_url += globalConf.sub_domain + '-' + data.application.name.substring(2) + "." + globalConf.dns + '/default/status';
+			// Checking .toml file existence, creating it if necessary
+			studio_manager.createApplicationDns(appName.substring(2), db_app.id)
+		}
 		else
 			iframe_url += globalConf.host + ":" + port + "/default/status";
 
@@ -196,7 +200,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		// Check server has started every 50 ms
 		console.log('Starting server...');
 		process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
-			data.iframe_url = iframe_url.split("/default/status")[0]+"/default/home";
+			data.iframe_url = iframe_url.split("/default/status")[0] + "/default/home";
 			// Let's do git init or commit depending the env (only on cloud env for now)
 			gitHelper.doGit(data);
 			res.render('front/preview', data);
@@ -246,7 +250,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 		const {protocol_iframe} = globalConf;
 		const {host} = globalConf;
-		const timeoutServer = 30000;
+		const timeoutServer = 30000; // 30 sec
 
 		// Current application url
 		data.iframe_url = process_manager.childUrl(req, db_app.id);
@@ -259,9 +263,13 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		// Executing instruction
 		data = await execute(req, instruction, __, data);
 
+		let appBaseUrl = protocol_iframe + '://' + host + ":" + port;
+		if(globalConf.env == 'cloud')
+			appBaseUrl = protocol_iframe + '://' + globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns;
+
 		// On entity delete, reset child_url to avoid 404
 		if (data.function == 'deleteDataEntity') {
-			data.iframe_url = protocol_iframe + '://' + host + ":" + port + "/default/home";
+			data.iframe_url = appBaseUrl + "/default/home";
 			process_manager.setChildUrl(req.sessionID, appName, "/default/home");
 		}
 
@@ -292,20 +300,11 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		if(data.restartServer) {
 			// Kill server first
 			await process_manager.killChildProcess(process_server_per_app[appName].pid)
-
 			// Launch a new server instance to reload resources
 			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
-
 			const initialTimestamp = new Date().getTime();
-			let iframe_url = protocol_iframe + '://';
-
-			if (globalConf.env == 'cloud')
-				iframe_url += globalConf.sub_domain + '-' + req.session.app_name + "." + globalConf.dns + '/default/status';
-			else
-				iframe_url += host + ":" + port + "/default/status";
-
 			console.log('Starting server...');
-			await process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer);
+			await process_manager.checkServer(appBaseUrl + '/default/status', initialTimestamp, timeoutServer);
 		}
 
 		data.session = session_manager.getSession(req);
@@ -440,7 +439,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 		if(req.session.gitlab && req.session.gitlab.user)
 			data.gitlabUser = req.session.gitlab.user;
 
-		let promises = [];
+		const promises = [];
 		for (let i = 0; i < applications.length; i++) {
 			promises.push((async () => {
 				const port = 9000 + parseInt(applications[i].id);
@@ -450,20 +449,39 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 				if (globalConf.env == 'cloud')
 					app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
+				applications[i].dataValues.url = app_url;
+
 				if (gitlabConf.doGit && data.gitlabUser) {
 					const metadataApp = metadata.getApplication(applications[i].name);
-					const project = await gitlab.getProjectByID(metadataApp.gitlabID).then();
-					if (project)
-						applications[i].dataValues.repo_url = project.http_url_to_repo;
+					let gitlabProject = null;
+
+					// Missing metadata gitlab info
+					if(!metadataApp.gitlabID) {
+						gitlabProject = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
+						metadataApp.gitlabID = gitlabProject.id;
+						metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
+						metadataApp.save();
+					} else if(!metadataApp.gitlabRepo) {
+						try {
+							gitlabProject = await gitlab.getProjectByID(metadataApp.gitlabID);
+						} catch(err){
+							console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
+						}
+					} else {
+						gitlabProject = {
+							http_url_to_repo: metadataApp.gitlabRepo
+						};
+					}
+
+					if (gitlabProject)
+						applications[i].dataValues.repo_url = gitlabProject.http_url_to_repo;
 					else
 						console.warn("Cannot find gitlab project: " + metadataApp.name);
 				}
-				applications[i].dataValues.url = app_url;
 			})())
 		}
 
 		await Promise.all(promises);
-
 		data.applications = applications
 		return data;
 	})().then(data => {
@@ -721,7 +739,7 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 
 			let oldAppName = false;
 
-			let metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
+			const metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
 			oldAppName = Object.keys(metadataContent)[0];
 			const appRegex = new RegExp(oldAppName, 'g');
 			if(!oldAppName) {

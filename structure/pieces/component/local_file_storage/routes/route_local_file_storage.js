@@ -6,7 +6,7 @@ const models = require('../models/');
 const attributes = require('../models/attributes/COMPONENT_NAME_LOWER');
 const options = require('../models/options/COMPONENT_NAME_LOWER');
 const model_builder = require('../utils/model_builder');
-const entity_helper = require('../helpers/entity');
+const entity_helper = require('../utils/entity_helper');
 
 const multer = require('multer');
 const fs = require('fs');

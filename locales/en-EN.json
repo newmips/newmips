@@ -468,7 +468,9 @@
 			},
 			"title": {
 				"success": "The title has been successfully added !",
-				"missingField": "The field %s do not exist in this entity."
+				"missingField": "The field %s do not exist in this entity.",
+				"remove_success": "The title has been successfully removed !",
+				"not_found": "Unable to find the title to delete !"
 			}
 		}
 	},

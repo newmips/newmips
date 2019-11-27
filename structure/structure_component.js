@@ -414,6 +414,8 @@ exports.newAgenda = async (data) => {
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_end_date"], "Date de fin");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_all_day"], "Toute la journée");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
+	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_category"], "Catégorie");
+	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_users"], "Utilisateurs");
 
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie");
@@ -622,23 +624,21 @@ exports.newStatus = async (data) => {
 	// History list
 	{
 		// Remove buttons i.e last two th/td
-		$("tbody tr td").slice(5, 7).remove();
 		$("thead").each(function () {
 			$(this).find("tr th").slice(5, 7).remove();
 		});
+
 		// Remove id column
 		$("[data-field=id]").remove();
 		// Add createdAt column in thead/tbody
-		let newTh = '';
-		newTh += '<th data-field="createdAt" data-col="createdAt" data-type="date">\n';
-		newTh += '	<!--{#__ key="defaults.createdAt"/}-->\n';
-		newTh += '</th>\n';
+		const newTh = '\
+		<th data-field="createdAt" data-col="createdAt" data-type="datetime">\n\
+			<!--{#__ key="defaults.createdAt"/}-->\n\
+		</th>\n';
+
 		$(".fields").each(function () {
 			$(this).find("th:eq(0)").before(newTh);
 		});
-		$("#bodyTR td:eq(2)").after('<td data-field="createdAt" data-type="text">{createdAt|datetime}</td>');
-		// Remove delete button
-		$("#bodyTR td:last").remove();
 	}
 
 	// LOCALS
@@ -682,14 +682,17 @@ exports.newStatus = async (data) => {
 	// Also add next status buttons after status field
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/show_fields.dust');
 	const statusBadgeHtml = '<br>\n<span class="badge" style="background: {' + statusAlias + '.f_color};">{' + statusAlias + '.f_name}</span>';
-	let nextStatusHtml = '';
-	nextStatusHtml += '<div class="form-group">\n';
-	nextStatusHtml += '	 {#' + statusAlias + '.r_children ' + source.substring(2) + 'id=id}\n';
-	nextStatusHtml += '		 {#checkStatusPermission status=.}\n';
-	nextStatusHtml += '			 <a data-href="/' + source.substring(2) + '/set_status/{' + source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;"><!--{^f_button_label}{f_name}{:else}{f_button_label}{/f_button_label}--></a>\n';
-	nextStatusHtml += '		 {/checkStatusPermission}\n';
-	nextStatusHtml += '	 {/' + statusAlias + '.r_children}\n';
-	nextStatusHtml += '</div>\n';
+	const nextStatusHtml = '\
+	<div class="form-group">\n\
+		{#' + statusAlias + '.r_children ' + source.substring(2) + 'id=id}\n\
+			{#checkStatusPermission status=.}\n\
+				<a data-href="/' + source.substring(2) + '/set_status/{' + source.substring(2) + 'id}/{f_field}/{id}" data-comment="{f_comment}" class="status btn btn-info" style="margin-right: 5px;">\n\
+					<!--{^f_button_label}{f_name}{:else}{f_button_label}{/f_button_label}-->\n\
+				</a>\n\
+			{/checkStatusPermission}\n\
+		{/' + statusAlias + '.r_children}\n\
+	</div>\n';
+
 	$("div[data-field='" + statusAliasHTML + "']").find('input').replaceWith(statusBadgeHtml);
 	$("div[data-field='" + statusAliasHTML + "']").append(nextStatusHtml);
 	// Input used for default ordering
@@ -818,9 +821,6 @@ exports.setupChat = async (data) => {
 	const chatModels = ['e_channel', 'e_channelmessage', 'e_chatmessage', 'e_user_channel', 'e_user_chat', 'e_chat'];
 	for (let i = 0; i < chatModels.length; i++) {
 		fs.copySync(piecesPath + '/chat/models/' + chatModels[i] + '.js', workspacePath + '/models/' + chatModels[i] + '.js');
-		// let model = fs.readFileSync(workspacePath + '/models/' + chatModels[i] + '.js', 'utf8');
-		// model = model.replace(/ID_APPLICATION/g, attr.id_application);
-		// fs.writeFileSync(workspacePath + '/models/' + chatModels[i] + '.js', model, 'utf8');
 	}
 	// Copy attributes
 	fs.copySync(piecesPath + '/chat/models/attributes/', workspacePath + '/models/attributes/');

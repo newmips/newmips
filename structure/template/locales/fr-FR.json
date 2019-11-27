@@ -32,7 +32,8 @@
 		"confirm_password": "Confirmation du mot de passe",
 		"mail": "Mail",
 		"remember_me": "Se souvenir de moi",
-		"submit": "Soumettre"
+		"submit": "Soumettre",
+		"missing_infos": "Merci de renseigner l'ensemble des champs."
 	},
 	"settings": {
 		"title": "Gestion des accès",

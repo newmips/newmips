@@ -36,7 +36,9 @@ exports.launchChildProcess = function(req, appName, env) {
 
 	/* Generate app logs in /workspace/logs folder */
 	fs.mkdirsSync(__dirname + "/../workspace/logs/");
-	const allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_'+appName+'.log'), {flags: 'a'});
+	const allLogStream = fs.createWriteStream(path.join(__dirname + "/../workspace/logs/", 'app_' + appName + '.log'), {
+		flags: 'a'
+	});
 
 	process_server.stdout.on('data', function(data) {
 		data = data.toString();
@@ -72,8 +74,10 @@ exports.launchChildProcess = function(req, appName, env) {
 async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 
 	// Server Timeout
-	if (new Date().getTime() - initialTimestamp > timeoutServer)
+	if (new Date().getTime() - initialTimestamp > timeoutServer) {
+		console.error('Timeout server on url => ' + iframe_url);
 		throw new Error('preview.server_timeout');
+	}
 
 	const rejectUnauthorized = globalConf.env == 'cloud';
 
@@ -87,9 +91,16 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 			if (err && err.code == 'ECONNREFUSED')
 				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
 
+			if(typeof response === 'undefined') {
+				console.error(err);
+				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
+			}
+
 			// Check for right status code
 			if (response.statusCode !== 200) {
 				console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
+				if(response.statusCode == 500)
+					console.error(response);
 				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
 			}
 

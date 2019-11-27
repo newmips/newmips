@@ -26,14 +26,12 @@ exports.showSession = _ => {
 };
 
 exports.help = _ => {
-
 	const data = {};
 	data.function = "help";
 	return data;
 };
 
 exports.deploy = _ => {
-
 	const data = {};
 	data.function = "deploy";
 	return data;
@@ -1095,6 +1093,16 @@ exports.addTitle = result => {
 		options: {
 			value: value,
 			afterField: afterField
+		}
+	};
+}
+
+exports.removeTitle = result => {
+	const value = result[1];
+	return {
+		function: "removeTitle",
+		options: {
+			value: value
 		}
 	};
 }
@@ -2508,6 +2516,12 @@ const training = {
 		"ajouter un titre (.*)",
 		"ajouter un titre (.*) après (.*)",
 		"ajouter un titre (.*) après le champ (.*)"
+	],
+	"removeTitle": [
+		"remove title (.*)",
+		"delete title (.*)",
+		"supprimer  titre (.*)",
+		"supprimer le titre (.*)"
 	]
 };
 
