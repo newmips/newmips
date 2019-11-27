@@ -9,11 +9,11 @@ const Jimp = require("jimp");
 const enums_radios = require('../utils/enum_radio.js');
 
 /* GET status page to check if workspace is ready. */
-router.get('/status', function (req, res) {
+router.get('/status', (req, res) => {
 	res.sendStatus(200);
 });
 
-router.post('/widgets', block_access.isLoggedIn, function (req, res) {
+router.post('/widgets', block_access.isLoggedIn, (req, res) => {
 	const user = req.session.passport.user;
 	const widgetsInfo = req.body.widgets;
 	const widgetsPromises = [];
@@ -164,11 +164,11 @@ router.post('/widgets', block_access.isLoggedIn, function (req, res) {
 
 // *** Dynamic Module | Do not remove ***
 
-router.get('/unauthorized', block_access.isLoggedIn, function (req, res) {
+router.get('/unauthorized', block_access.isLoggedIn, (req, res) => {
 	res.render('common/unauthorized');
 });
 
-router.post('/change_language', block_access.isLoggedIn, function (req, res) {
+router.post('/change_language', block_access.isLoggedIn, (req, res) => {
 	req.session.lang_user = req.body.lang;
 	res.locals.lang_user = req.body.lang;
 	res.json({
@@ -177,7 +177,7 @@ router.post('/change_language', block_access.isLoggedIn, function (req, res) {
 });
 
 /* Dropzone FIELD ajax upload file */
-router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
+router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 	upload(req, res, err => {
 		if (err) {
 			console.error(err);
@@ -223,7 +223,7 @@ router.post('/file_upload', block_access.isLoggedIn, function (req, res) {
 	});
 });
 
-router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
+router.get('/get_picture', block_access.isLoggedIn, (req, res) => {
 	try {
 		const entity = req.query.entity;
 		const filename = req.query.src;
@@ -256,7 +256,7 @@ router.get('/get_picture', block_access.isLoggedIn, function (req, res) {
 	}
 });
 
-router.get('/download', block_access.isLoggedIn, function (req, res) {
+router.get('/download', block_access.isLoggedIn, (req, res) => {
 	try {
 		const entity = req.query.entity;
 		const filename = req.query.f;
@@ -289,7 +289,7 @@ router.get('/download', block_access.isLoggedIn, function (req, res) {
 	}
 });
 
-router.post('/delete_file', block_access.isLoggedIn, function (req, res) {
+router.post('/delete_file', block_access.isLoggedIn, (req, res) => {
 	try {
 
 		const entity = req.body.entity;

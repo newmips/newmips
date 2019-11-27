@@ -217,6 +217,18 @@ async function initializeWorkflow(application) {
 
 	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
+	let mediaModels = [
+		'e_media.js',
+		'e_media_mail.js',
+		'e_media_notification.js',
+		'e_media_sms.js',
+		'e_media_task.js',
+		'e_task.js'
+	];
+
+	for (let i = 0; i < mediaModels.length; i++)
+		fs.copySync(piecesPath + '/models/' + mediaModels[i], workspacePath + '/models/' + mediaModels[i]);
+
 	// Write new locales trees
 	const newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
 	translateHelper.writeTree(application.name, newLocalesEN, 'en-EN');
