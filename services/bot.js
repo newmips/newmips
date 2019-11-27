@@ -2565,7 +2565,7 @@ exports.parse = (instruction) => {
 // ******* Completion *******
 exports.complete = function (instruction) {
 
-	const answers = [];
+	let answers = [];
 
 	// Check all training key phrases
 	for (const action in training) {
@@ -2624,6 +2624,8 @@ exports.complete = function (instruction) {
 						if (template[k - 1] == "type")
 							answer = answer + "[type] ";
 						// Return [variable] to explain this is something dynamic
+						else if (template[k - 1] == 'widget')
+							answer = answer + '[widget] ';
 						else
 							answer = answer + "[variable] ";
 
@@ -2637,35 +2639,11 @@ exports.complete = function (instruction) {
 					k++;
 				}
 
-				if (answer.trim() == "[type]") {
-
-					// Add list of types to answer
-					answers.push("string");
-					answers.push("text");
-					answers.push("regular text");
-					answers.push("number");
-					answers.push("big number");
-					answers.push("decimal");
-					answers.push("date");
-					answers.push("datetime");
-					answers.push("time");
-					answers.push("boolean");
-					answers.push("email");
-					answers.push("tel");
-					answers.push("fax");
-					answers.push("money");
-					answers.push("euro");
-					answers.push("qrcode");
-					answers.push("ean8");
-					answers.push("ean13");
-					answers.push("upc");
-					answers.push("code39");
-					answers.push("code128");
-					answers.push("url");
-					answers.push("password");
-					answers.push("color");
-					answers.push("file");
-				}
+				// Add list of types to answer
+				if (answer.trim() == "[type]")
+					answers = [...answers, "string", "text", "regular text", "number", "big number", "decimal", "date", "datetime", "time", "boolean", "email", "tel", "fax", "money", "euro", "qrcode", "ean8", "ean13", "upc", "code39", "code128", "url", "password", "color"];
+				else if (answer.trim() == '[widget]')
+					answers = [...answers, 'info', 'stat', 'statistique', 'piechart']
 				// Build array of string answers
 				else
 					answers.push(answer.trim());
