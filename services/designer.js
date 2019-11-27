@@ -866,8 +866,10 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 		const workspaceData = await database.retrieveWorkspaceHasManyData(data.application.name, dataHelper.capitalizeFirstLetter(data.options.source), optionObj.foreignKey);
 		structure_entity.saveHasManyData(data, workspaceData, optionObj.foreignKey);
 	} catch (err) {
-		if(err.original && err.original.code == 'ER_NO_SUCH_TABLE')
-			console.warn('BelongsToMany generation => Cannot retrieve already existing data, the table do no exist.');
+		if (err.original && err.original.code == 'ER_NO_SUCH_TABLE') {
+			if (!data.isGeneration)
+				console.warn('BelongsToMany generation => Cannot retrieve already existing data, the table do no exist.');
+		}
 		else
 			throw err;
 	}
@@ -878,7 +880,6 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 	];
 
 	let setRequired = false;
-
 	if (optionObj.structureType == "relatedToMultiple" || optionObj.structureType == "relatedToMultipleCheckbox") {
 		instructions.push("delete field " + optionObj.as.substring(2));
 		// If related to is required, then rebuilt it required

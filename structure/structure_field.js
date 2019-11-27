@@ -1198,9 +1198,10 @@ exports.setupRelatedToMultipleField = async (data) => {
 		</div>\n';
 	} else {
 		select = '\
-		<select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
+		<select multiple="multiple" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
 		</select>\n';
 	}
+	select += '</div>\n</div>';
 	await updateFile(fileBase, 'create_fields', head + select);
 
 	// UPDATE_FIELD

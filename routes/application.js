@@ -111,6 +111,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	data.lang_user = req.session.lang_user;
 	data.currentUser = req.session.passport.user;
 	data.gitlabUser = null;
+	data.isGeneration = true;
 
 	if(typeof req.session.gitlab !== 'undefined'
 		&& typeof req.session.gitlab.user !== 'undefined'

@@ -60,13 +60,6 @@ exports.setSession = (npFunction, req, info, data) => {
 				data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/" + info.entity.name.substring(2) + "/create_form";
 			}
 			break;
-		case "createNewEntityWithBelongsTo":
-		case "createNewEntityWithHasMany":
-		case "createNewBelongsTo":
-		case "createNewHasMany":
-		case "createNewFieldRelatedTo":
-			req.session.entity_name = info.entity.name;
-			break;
 		case "deleteApplication":
 			req.session.app_name = null;
 			req.session.module_name = null;
@@ -109,11 +102,6 @@ exports.setSessionObj = (data, info) => {
 			break;
 		case "createNewEntity":
 		case "selectEntity":
-		case "createNewEntityWithBelongsTo":
-		case "createNewEntityWithHasMany":
-		case "createNewBelongsTo":
-		case "createNewHasMany":
-		case "createNewFieldRelatedTo":
 			data.entity_name = info.entity.name;
 			break;
 		case "deleteApplication":

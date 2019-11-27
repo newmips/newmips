@@ -191,7 +191,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.create({
 				f_name: data.name,
 				f_type: data.type
-			}).then(function(channel) {
+			}, {req: req}).then(function(channel) {
 				models.E_user.findByPk(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel).then(function() {
 						// Refresh contact list
@@ -260,7 +260,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					f_message: data.message,
 					fk_id_user_sender: user.id,
 					fk_id_channel: data.id_channel
-				}).then(function(channelmessage) {
+				}, {req: req}).then(function(channelmessage) {
 					models.E_channelmessage.findOne({
 						where: {id: channelmessage.id},
 						include: [{
@@ -319,9 +319,11 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			}).then(function(newLastSeenId) {
 				if (isNaN(newLastSeenId))
 					newLastSeenId = 0;
-				models.E_user_channel.update({id_last_seen_message: newLastSeenId}, {
+				models.E_user_channel.update({
+					id_last_seen_message: newLastSeenId
+				}, {
 					where: {id_channel: data.id_channel, id_user: user.id}
-				}).then(function() {
+				}, {req: req}).then(function() {
 					sendChatChannelList(user, socket);
 				});
 			});
@@ -369,14 +371,14 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					fk_id_user_sender: user.id,
 					fk_id_user_receiver: data.id_contact,
 					fk_id_chat: data.id_chat
-				}).then(function(chatmessage) {
+				}, {req: req}).then(chatmessage => {
 					models.E_chatmessage.findOne({
 						where: {id: chatmessage.id},
 						include: [{
 							model: models.E_user,
 							as: 'r_sender'
 						}]
-					}).then(function(chatmessage) {
+					}).then(chatmessage => {
 						chatmessage.id_contact = chatmessage.fk_id_user_sender;
 						// Send message to receiver if connected
 						if (connectedUsers[data.id_contact])
@@ -425,7 +427,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					newLastSeenId = 0;
 				models.E_user_chat.update({id_last_seen_message: newLastSeenId}, {
 					where: {id_chat: data.id_chat, id_user: user.id}
-				}).then(function() {
+				}, {req: req}).then(function() {
 					sendChatChannelList(user, socket);
 				});
 			});

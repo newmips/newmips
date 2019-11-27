@@ -90,24 +90,29 @@ router.get('/create_form', block_access.actionAccessMiddleware("document_templat
 	res.render('e_document_template/create', data);
 });
 
-router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function (req, res) {
+router.post('/create', block_access.actionAccessMiddleware("document_template", "create"), function(req, res) {
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 	const relations = document_template_helper.getRelations(req.body.f_entity);
 	const f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
 	const exclude_relations = [];
+
 	for (let i = 0; i < relations.length; i++)
 		if (f_exclude_relations.indexOf(relations[i].value) < 0)
 			exclude_relations.push(relations[i].value);
+
 	createObject.f_exclude_relations = exclude_relations.join(',');
-	models.E_document_template.create(createObject).then(function (e_document_template) {
+
+	models.E_document_template.create(createObject, {
+		req: req
+	}).then(e_document_template => {
 		const redirect = '/document_template/show?id=' + e_document_template.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
 			level: "success"
 		}];
 		res.redirect(redirect);
-	}).catch(function (err) {
+	}).catch(function(err) {
 		entity_helper.error(err, req, res, '/document_template/create_form');
 	});
 });
@@ -160,20 +165,16 @@ router.get('/update_form', block_access.actionAccessMiddleware("document_templat
 
 router.post('/update', block_access.actionAccessMiddleware("document_template", "update"), function (req, res) {
 	const id_e_document_template = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	const relations = document_template_helper.getRelations(req.body.f_entity);
 	const f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
 	const exclude_relations = [];
+
 	for (let i = 0; i < relations.length; i++)
 		if (f_exclude_relations.indexOf(relations[i].value) < 0)
 			exclude_relations.push(relations[i].value);
+
 	updateObject.f_exclude_relations = exclude_relations.join(',');
 	models.E_document_template.findOne({
 		where: {
@@ -183,7 +184,11 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 		if (!e_document_template)
 			return res.render('common/error', {error: 404});
 
-		e_document_template.update(updateObject).then(function () {
+		if(typeof e_document_template.version === 'undefined' || !e_document_template.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_document_template.update(updateObject, {req: req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

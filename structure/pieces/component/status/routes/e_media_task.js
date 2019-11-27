@@ -17,13 +17,13 @@ router.get('/entityTree', function(req, res) {
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_media_task.create(createObject).then(function (e_media_task) {
+	models.E_media_task.create(createObject, {req: req}).then(function (e_media_task) {
 		models.E_media.create({
 			f_type: 'task',
 			f_name: req.body.f_name,
 			f_target_entity: req.body.f_target_entity,
 			fk_id_media_task: e_media_task.id
-		}).then(function(e_media) {
+		}, {req: req}).then(function(e_media) {
 			let redirect = '/media/show?id='+e_media.id;
 			req.session.toastr = [{
 				message: 'message.create.success',
@@ -46,7 +46,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 					else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_media.id;
-						association.update(obj);
+						association.update(obj, {req: req});
 					}
 				});
 			}
@@ -93,19 +93,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 
 router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
 	const id_e_media_task = parseInt(req.body.id_media_task);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media_task.findOne({where: {id: id_e_media_task}}).then(function (e_media_task) {
 		if (!e_media_task)
 			return res.render('common/error', {error: 404});
 
-		e_media_task.update(updateObject, {where: {id: id_e_media_task}}).then(function () {
+		if(typeof e_media_task.version === 'undefined' || !e_media_task.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_media_task.update(updateObject, {where: {id: id_e_media_task}}, {req: req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -189,7 +187,7 @@ router.get('/set_status/:id_media_task/:status/:id_new_status', block_access.act
 			// Beeing the most recent history for media_task it will now be its current status
 			const createObject = {fk_id_status_status: req.params.id_new_status};
 			createObject["fk_id_media_task_history_"+req.params.status.substring(2)] = req.params.id_media_task;
-			models[historyModel].create(createObject).then(function() {
+			models[historyModel].create(createObject, {req: req}).then(function() {
 				res.redirect('/media_task/show?id='+req.params.id_media_task)
 			}).catch(function(err) {
 				entity_helper.error(err, req, res, errorRedirect);

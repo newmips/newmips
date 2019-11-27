@@ -40,7 +40,7 @@ router.get('/getToken', function(req, res) {
 		const token = hat();
 		// timeout is one day (86400000)
 		const token_timeout_tmsp = new Date().getTime() + 86400000;
-		credentialsObj.update({f_token_timeout_tmsp: token_timeout_tmsp, f_token: token}).then(function() {
+		credentialsObj.update({f_token_timeout_tmsp: token_timeout_tmsp, f_token: token}, {req: req}).then(function() {
 			// Send back new token
 			res.status(200).json({token: credentialsObj.f_token});
 		}).catch(function(err) {

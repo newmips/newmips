@@ -36,7 +36,7 @@ router.post('/situation', function(req, res) {
 					delete item.id;
 
 					if (item.verb == 'create') {
-						return resolve(models[modelName].create(item, {transaction: transac}).then(function(entityInstance) {
+						return resolve(models[modelName].create(item, {transaction: transac, req: req}).then(function(entityInstance) {
 
 							// Loop over lines left to replace ID with the created row's ID
 							for (let j = idx; j < items.length; j++) {
@@ -136,7 +136,7 @@ router.post('/situation', function(req, res) {
 						}
 						res.status(200).send(data);
 
-						models.E_synchronization.create({f_journal_backup_file: backupFilename}).then(function(synchronize) {
+						models.E_synchronization.create({f_journal_backup_file: backupFilename}, {req: req}).then(function(synchronize) {
 							synchronize.setR_api_credentials(req.apiCredentials.id);
 						}).catch(function(err) {
 							console.error("ERROR: Couldn't create e_synchronization in DB");
