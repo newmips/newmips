@@ -161,7 +161,7 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
 		/* Update local e_api_credentials data before show */
 		data.e_api_credentials = e_api_credentials;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(function () {
+		entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(_ => {
 			status_helper.translate(e_api_credentials, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_api_credentials");
 			res.render('e_api_credentials/show', data);
@@ -198,7 +198,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
 
 	createObject.f_client_key = randomString.generate(15);
 	createObject.f_client_secret = randomString.generate(15);
-	models.E_api_credentials.create(createObject).then(function (e_api_credentials) {
+	models.E_api_credentials.create(createObject, {req: req}).then(function (e_api_credentials) {
 		let redirect = '/api_credentials/show?id=' + e_api_credentials.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -226,7 +226,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_api_credentials.id;
-						association.update(obj).then(resolve).catch(function (err) {
+						association.update(obj, {req: req}).then(resolve).catch(function (err) {
 							reject(err);
 						});
 					}
@@ -236,9 +236,9 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
 
 		// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 		// because those values are not updated for now
-		model_builder.setAssocationManyValues(e_api_credentials, req.body, createObject, options).then(function () {
-			Promise.all(promises).then(function () {
-				component_helper.address.setAddressIfComponentExists(e_api_credentials, options, req.body).then(function () {
+		model_builder.setAssocationManyValues(e_api_credentials, req.body, createObject, options).then(_ => {
+			Promise.all(promises).then(_ => {
+				component_helper.address.setAddressIfComponentExists(e_api_credentials, options, req.body).then(_ => {
 					res.redirect(redirect);
 				});
 			}).catch(function (err) {
@@ -274,7 +274,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
 
 		data.e_api_credentials = e_api_credentials;
 		// Update some data before show, e.g get picture binary
-		entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials", true).then(function () {
+		entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials", true).then(_ => {
 			if (req.query.ajax) {
 				e_api_credentials.dataValues.enum_radio = data.enum_radio;
 				res.render('e_api_credentials/update_fields', e_api_credentials.get({plain: true}));
@@ -290,12 +290,6 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
 
 router.post('/update', block_access.actionAccessMiddleware("api_credentials", "update"), function (req, res) {
 	const id_e_api_credentials = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_api_credentials.findOne({where: {id: id_e_api_credentials}}).then(function (e_api_credentials) {
@@ -303,11 +297,16 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
 			return res.render('common/error', {error: 404});
 
 		component_helper.address.updateAddressIfComponentExists(e_api_credentials, options, req.body);
-		e_api_credentials.update(updateObject).then(function () {
+
+		if(typeof e_api_credentials.version === 'undefined' || !e_api_credentials.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_api_credentials.update(updateObject, {req: req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
-			model_builder.setAssocationManyValues(e_api_credentials, req.body, updateObject, options).then(function () {
+			model_builder.setAssocationManyValues(e_api_credentials, req.body, updateObject, options).then(_ => {
 
 				let redirect = '/api_credentials/show?id=' + id_e_api_credentials;
 				if (typeof req.body.associationFlag !== 'undefined')
@@ -437,7 +436,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 		}
 
 		// Image buffer promise
-		Promise.all(promisesData).then(function () {
+		Promise.all(promisesData).then(_ => {
 			// Open and render dust file
 			const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
 			dust.insertLocalsFn(dustData ? dustData : {}, req);
@@ -543,13 +542,13 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 			}
 
 			// Execute newStatus actions
-			nextStatus.executeActions(e_api_credentials).then(function () {
+			nextStatus.executeActions(e_api_credentials).then(_ => {
 				// Create history record for this status field
 				// Beeing the most recent history for api_credentials it will now be its current status
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_api_credentials_history_" + req.params.status.substring(2)] = req.params.id_api_credentials;
-				models[historyModel].create(createObject).then(function () {
+				models[historyModel].create(createObject, {req: req}).then(_ => {
 					e_api_credentials['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/api_credentials/show?id=' + req.params.id_api_credentials)
 				});
@@ -562,7 +561,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_api_credentials_history_" + req.params.status.substring(2)] = req.params.id_api_credentials;
-				models[historyModel].create(createObject).then(function () {
+				models[historyModel].create(createObject, {req: req}).then(_ => {
 					e_api_credentials['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/api_credentials/show?id=' + req.params.id_api_credentials)
 				});
@@ -663,7 +662,7 @@ router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("api_
 				}
 
 			// Set back associations without removed entity
-			e_api_credentials['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(function () {
+			e_api_credentials['set' + entity_helper.capitalizeFirstLetter(alias)](aliasEntities).then(_ => {
 				res.sendStatus(200).end();
 			}).catch(function (err) {
 				entity_helper.error(err, req, res, "/", "e_user");
@@ -693,7 +692,7 @@ router.post('/fieldset/:alias/add', block_access.actionAccessMiddleware("api_cre
 			return res.redirect('/api_credentials/show?id=' + idEntity + "#" + alias);
 		}
 
-		e_api_credentials['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(function () {
+		e_api_credentials['add' + entity_helper.capitalizeFirstLetter(alias)](toAdd).then(_ => {
 			res.redirect('/api_credentials/show?id=' + idEntity + "#" + alias);
 		}).catch(function (err) {
 			entity_helper.error(err, req, res, "/", "e_user");
@@ -711,7 +710,7 @@ router.post('/delete', block_access.actionAccessMiddleware("api_credentials", "d
 			where: {
 				id: id_e_api_credentials
 			}
-		}).then(function () {
+		}).then(_ => {
 			req.session.toastr = [{
 				message: 'message.delete.success',
 				level: "success"

@@ -177,6 +177,16 @@ exports.setupEntity = async (data) => {
 		"version": {
 			"type": "INTEGER",
 			"defaultValue": 1
+		},
+		"createdBy": {
+			"type": "STRING",
+			"defaultValue": null,
+			"validate": false
+		},
+		"updatedBy": {
+			"type": "STRING",
+			"defaultValue": null,
+			"validate": false
 		}
 	};
 	fs.writeFileSync(workspacePath + '/models/attributes/' + entity_name + '.json', JSON.stringify(baseAttributes, null, 4));

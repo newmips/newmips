@@ -149,7 +149,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_media.create(createObject).then(function (e_media) {
+	models.E_media.create(createObject, {req: req}).then(function (e_media) {
 		let redirect = '/media/show?id='+e_media.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -172,7 +172,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 				else {
 					const obj = {};
 					obj[req.body.associationForeignKey] = e_media.id;
-					association.update(obj);
+					association.update(obj, {req: req});
 				}
 			});
 		}
@@ -221,19 +221,17 @@ router.get('/update_form', block_access.actionAccessMiddleware("media", 'update'
 
 router.post('/update', block_access.actionAccessMiddleware("media", 'update'), function (req, res) {
 	const id_e_media = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.E_media.findOne({where: {id: id_e_media}}).then(function (e_media) {
 		if (!e_media)
 			return res.render('common/error', {error: 404});
 
-		e_media.update(updateObject).then(function () {
+		if(typeof e_media.version === 'undefined' || !e_media.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_media.update(updateObject, {req: req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

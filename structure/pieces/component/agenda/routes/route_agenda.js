@@ -73,7 +73,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event",
 		fk_id_CODE_NAME_CATEGORY_URL_category: req.body.idCategory
 	};
 
-	models.CODE_NAME_EVENT_MODEL.create(createObj).then(function(createdEvent){
+	models.CODE_NAME_EVENT_MODEL.create(createObj, {req: req}).then(function(createdEvent){
 		const users = [];
 		if(req.body.idUser != null)
 			users.push(req.body.idUser);
@@ -93,7 +93,7 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 		f_end_date: req.body.end
 	};
 
-	models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}).then(_ => {
+	models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}, {req: req}).then(_ => {
 		res.json({
 			success: true
 		});
@@ -102,12 +102,6 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 
 router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "update"), function(req, res) {
 	const id_e_URL_ROUTE_event = parseInt(req.body.id);
-
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
 	models.CODE_NAME_EVENT_MODEL.findOne({
@@ -118,7 +112,11 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 		if (!e_URL_ROUTE_event)
 			return res.render('common/error', {erro: 404});
 
-		e_URL_ROUTE_event.update(updateObject).then(function(updatedObject) {
+		if(typeof e_URL_ROUTE_event.version === 'undefined' || !e_URL_ROUTE_event.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_URL_ROUTE_event.update(updateObject, {req: req}).then(function(updatedObject) {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -142,7 +140,7 @@ router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_ev
 	};
 
 	models.E_agenda_event.findByPk(req.body.eventId).then(function(currentEvent){
-		currentEvent.update(updateObj, {where: {id: req.body.eventId}}).then(_ => {
+		currentEvent.update(updateObj, {where: {id: req.body.eventId}}, {req: req}).then(_ => {
 			let users = [];
 			if(req.body.idUsers != null)
 				users = req.body.idUsers;

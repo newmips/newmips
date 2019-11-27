@@ -206,7 +206,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
 	createObject.f_enabled = 0;
 	createObject.f_password = undefined;
 
-	models.E_user.create(createObject).then(function(e_user) {
+	models.E_user.create(createObject, {req: req}).then(function(e_user) {
 		let redirect = '/user/show?id=' + e_user.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -238,7 +238,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_user.id;
-						association.update(obj).then(resolve).catch(function(err) {
+						association.update(obj, {req: req}).then(resolve).catch(function(err) {
 							reject(err);
 						});
 					}
@@ -310,11 +310,6 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 	const id_e_user = parseInt(req.body.id);
 	const data = {};
 
-	if (typeof req.body.version !== "undefined" && req.body.version != null && !isNaN(req.body.version) && req.body.version != '')
-		req.body.version = parseInt(req.body.version) + 1;
-	else
-		req.body.version = 0;
-
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 	// Make sure it's impossible to set sensitive information through update form
 	updateObject.f_token_password_reset = undefined;
@@ -342,7 +337,11 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 			redirect = '/user/settings';
 		}
 
-		e_user.update(updateObject).then(function() {
+		if(typeof e_user.version === 'undefined' || !e_user.version)
+			updateObject.version = 0;
+		updateObject.version++;
+
+		e_user.update(updateObject, {req: req}).then(function() {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -748,7 +747,7 @@ router.post('/settings', block_access.isLoggedIn, function(req, res) {
 		})
 
 		newPassword.then(updateObject => {
-			user.update(updateObject).then(() => {
+			user.update(updateObject, {req: req}).then(() => {
 				req.session.toastr = [{
 					message: "settings.success",
 					level: "success"
