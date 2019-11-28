@@ -133,6 +133,7 @@ function select2_fieldset(select, data) {
 // Handle form submition and tab reload
 function ajaxForm(form, tab) {
     form.on('submit', function(e) {
+        var tmpTextSave = form.find("button[type='submit']").text();
         form.find("button[type='submit']").text(LOADING_TEXT).attr("disabled", true);
 
         // Prevent multiple submittion (double click)
@@ -141,6 +142,7 @@ function ajaxForm(form, tab) {
         form.data('submitting', true);
         if (!validateForm(form)) {
             form.data('submitting', false);
+            form.find("button[type='submit']").text(tmpTextSave).attr("disabled", false);
             return false;
         }
         $.ajax({
@@ -152,7 +154,11 @@ function ajaxForm(form, tab) {
                 tab.find('.ajax-content').show();
                 reloadTab(tab);
             },
-            error: handleError,
+            error: function(err) {
+                handleError(err);
+                form.data('submitting', false);
+                form.find("button[type='submit']").text(tmpTextSave).attr("disabled", false);
+            },
             timeout: 15000
         });
         return false;
