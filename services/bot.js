@@ -1174,18 +1174,24 @@ const training = {
 	"selectApplication": [
 		"select application (.*)",
 		"select the application (.*)",
+		"use application (.*)",
+		"use the application (.*)",
 		"sélectionner l'application (.*)",
 		"sélectionner application (.*)"
 	],
 	"selectModule": [
 		"select module (.*)",
 		"select the module (.*)",
+		"use module (.*)",
+		"use the module (.*)",
 		"sélectionner le module (.*)",
 		"sélectionner module (.*)"
 	],
 	"selectEntity": [
 		"select entity (.*)",
 		"select data entity (.*)",
+		"use entity (.*)",
+		"use data entity (.*)",
 		"sélectionner l'entité (.*)",
 		"sélectionner entité (.*)"
 	],
