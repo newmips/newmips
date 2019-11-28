@@ -114,6 +114,8 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 
 	console.log("generateStack");
 
+	const dbImage = cloudDbConf.dialect == 'postgres' ? 'dockside/newmips-postgres:latest' : 'dockside/newmips-mysql:latest';
+
 	// CLOUD APP COMPOSE CONTENT
 	const composeContent = json2yaml.stringify({
 		"version": "2",
@@ -140,12 +142,17 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 				]
 			},
 			"database": {
-				"image": "dockside/newmips-mysql:latest",
+				"image": dbImage,
 				"environment": {
 					"MYSQL_DATABASE": cloudDbConf.dbName,
 					"MYSQL_USER": cloudDbConf.dbUser,
 					"MYSQL_PASSWORD": cloudDbConf.dbPwd,
-					"MYSQL_ROOT_PASSWORD": cloudDbConf.dbRootPwd
+					"MYSQL_ROOT_PASSWORD": cloudDbConf.dbRootPwd,
+                    "PG_DATA": "/var/lib/postgresql/data/pgdata",
+                    "POSTGRES_DB": cloudDbConf.dbName,
+                    "POSTGRES_USER": cloudDbConf.dbUser,
+                    "POSTGRES_PASSWORD": cloudDbConf.dbPwd,
+                    "POSTGRES_ROOT_PASSWORD": cloudDbConf.dbRootPwd
 				},
 				"networks": [
 					"proxy"
@@ -190,7 +197,7 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 	return callResults;
 }
 
-async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
+async function portainerDeploy(repoName, subdomain, appName, gitlabUrl, appDialect){
 	// Preparing all needed values
 	let stackName = globalConf.sub_domain + "-" + appName.substring(2) + "-" + globalConf.dns_cloud.replace(".", "-");
 	const cloudUrl = globalConf.sub_domain + "-" + appName.substring(2) + "." + globalConf.dns_cloud;
@@ -200,7 +207,8 @@ async function portainerDeploy(repoName, subdomain, appName, gitlabUrl){
 		dbName: "np_" + appName,
 		dbUser: "np_" + appName,
 		dbPwd: "np_" + appName,
-		dbRootPwd: "p@ssw0rd"
+		dbRootPwd: "p@ssw0rd",
+		dialect: appDialect
 	};
 
 	// Portainer fix #2020
@@ -250,6 +258,12 @@ exports.deploy = async (data) => {
 	applicationConf.version++;
 	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
+	// Workspace database dialect
+	const appDialect = require(applicationPath +'/config/database').dialect;
+
+	console.log("appDialect");
+	console.log(appDialect);
+
 	// Create toSyncProd.lock file
 	if (fs.existsSync(applicationPath + '/models/toSyncProd.lock.json'))
 		fs.unlinkSync(applicationPath + '/models/toSyncProd.lock.json');
@@ -280,7 +294,7 @@ exports.deploy = async (data) => {
 		gitlabUrl = gitlabConfig.sshUrl + ":" + data.gitlabUser.username + "/" + nameRepo + ".git"; // Generating manually the remote, can generate clone error if the connected user is note the owning user of the gitlab repo
 
 	console.log('Cloning in cloud: ' + gitlabUrl);
-	const {url} = await portainerDeploy(nameRepo, subdomain, data.application.name, gitlabUrl);
+	const {url} = await portainerDeploy(nameRepo, subdomain, data.application.name, gitlabUrl, appDialect);
 	return {
 		message: "botresponse.deployment",
 		messageParams: [url, url]
