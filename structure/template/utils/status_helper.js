@@ -375,5 +375,94 @@ module.exports = {
 			history['setR_modified_by'](userID);
 
 		return await nextStatus.executeActions(entity);
+	},
+	setInitialStatus: async (model, modelName, attributes) => {
+		// Look for s_status fields
+		const statusFields = [];
+		for (const field in attributes)
+			if (field.indexOf('s_') == 0)
+				statusFields.push(field);
+		if (statusFields.length == 0)
+			return;
+		// Special object, no status available
+		if (!models['E_' + modelName.substring(2)])
+			return;
+
+		const initStatusPromise = [];
+		let field;
+		for (let i = 0; i < statusFields.length; i++) {
+			field = statusFields[i];
+
+			initStatusPromise.push((async (fieldIn) => {
+				const historyModel = 'E_history_' + modelName.substring(2) + '_' + fieldIn.substring(2);
+				const [status, created] = await models.E_status.findOrCreate({
+					where: {
+						f_entity: modelName,
+						f_field: fieldIn,
+						f_default: true
+					},
+					defaults: {
+						f_entity: modelName,
+						f_field: fieldIn,
+						f_name: 'Initial',
+						f_default: true,
+						f_color: '#999999'
+					},
+					include: [{
+						model: models.E_action,
+						as: 'r_actions',
+						include: [{
+							model: models.E_media,
+							as: 'r_media',
+							include: [{
+								model: models.E_media_mail,
+								as: 'r_media_mail'
+							}, {
+								model: models.E_media_notification,
+								as: 'r_media_notification'
+							}, {
+								model: models.E_media_sms,
+								as: 'r_media_sms'
+							}, {
+								model: models.E_media_task,
+								as: 'r_media_task'
+							}]
+						}]
+					}]
+				});
+				let includeArray = [];
+				if (!created) {
+					let fieldsToInclude = [];
+					for (let i = 0; i < status.r_actions.length; i++)
+						fieldsToInclude = [...fieldsToInclude, ...status.r_actions[i].r_media.getFieldsToInclude()];
+					includeArray = model_builder.getIncludeFromFields(models, modelName, fieldsToInclude);
+				}
+
+				const modelWithRelations = await models['E_' + modelName.substring(2)].findOne({
+					where: {id: model.id},
+					include: includeArray
+				});
+				// Create history object with initial status related to new entity
+				const historyObject = {
+					version: 1,
+					f_comment: ''
+				};
+				historyObject["fk_id_status_" + fieldIn.substring(2)] = status.id;
+				historyObject["fk_id_" + modelName.substring(2) + "_history_" + fieldIn.substring(2)] = modelWithRelations.id;
+
+				await models[historyModel].create(historyObject);
+				await modelWithRelations['setR_' + fieldIn.substring(2)](status.id)
+
+				if (!created)
+					try {
+						await status.executeActions(modelWithRelations);
+					} catch(err) {
+						console.error("Unable to execute actions");
+						console.error(err);
+					};
+			})(field));
+		}
+
+		return await Promise.all(initStatusPromise);
 	}
 }
