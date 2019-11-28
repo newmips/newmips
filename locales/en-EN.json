@@ -142,7 +142,8 @@
 		"redirecting": "Redirecting...",
 		"createScript": "Write a script",
 		"fromFile": "Upload a script",
-		"alreadyProcessing": "Another user is already running a script, please try again in a few moments."
+		"alreadyProcessing": "Another user is already running a script, please try again in a few moments.",
+		"lastWrittentScript": "Your last written scripts"
 	},
 	"template": {
 		"label": "Template",
