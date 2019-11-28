@@ -389,7 +389,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 		case "fichier":
 		case "file":
 			if (file != 'show') {
-				str += "	<div class='dropzone dropzone-field' id='" + field + "_dropzone' data-storage='local' data-entity='" + entity + "' ></div>\n";
+				str += "	<div class='dropzone dropzone-field' id='" + field + "_dropzone' data-entity='" + entity + "' ></div>\n";
 				str += "	<input type='hidden' name='" + field + "' id='" + field + "_dropzone_hidden' value='" + value + "'/>\n";
 			} else {
 				str += "	<div class='input-group'>\n";
@@ -409,7 +409,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 		case "image":
 		case "photo":
 			if (file != 'show') {
-				str += "	<div class='dropzone dropzone-field' id='" + field + "_dropzone' data-storage='local' data-type='picture' data-entity='" + entity + "' ></div>\n";
+				str += "	<div class='dropzone dropzone-field' id='" + field + "_dropzone' data-type='picture' data-entity='" + entity + "' ></div>\n";
 				str += "	<input type='hidden' name='" + field + "' id='" + field + "_dropzone_hidden' value=\"{" + value2 + ".value}\" data-buffer=\"{" + value2 + ".buffer}\"/>\n";
 			} else {
 				str += "	<div class='input-group'>\n";

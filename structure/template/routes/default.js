@@ -179,46 +179,49 @@ router.post('/change_language', block_access.isLoggedIn, (req, res) => {
 /* Dropzone FIELD ajax upload file */
 router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 	upload(req, res, err => {
-		if (err) {
-			console.error(err);
-			return res.status(500).end(err);
-		}
+		try {
+			if (err)
+				throw err;
 
-		const folder = req.file.originalname.split('-');
-		const entity = req.body.dataEntity;
+			const folder = req.file.originalname.split('-');
+			const entity = req.body.entity;
 
-		if (folder.length > 1 && !!entity) {
+			if (typeof entity === 'undefined' || !entity || folder.length == 0)
+				throw new Error("500 - Missing correct entity or folder for upload");
+
+			if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
+				throw new Error("403 - Access forbidden");
+
 			let basePath = globalConfig.localstorage + entity + '/' + folder[0] + '/';
-			fs.mkdirs(basePath, err => {
-				if (err) {
-					console.error(err);
-					return res.status(500).end(err);
-				}
+			fs.mkdirsSync(basePath);
 
-				const uploadPath = basePath + req.file.originalname;
-				fs.writeFileSync(uploadPath, req.file.buffer)
-				res.json({
-					success: true
-				});
+			const uploadPath = basePath + req.file.originalname;
+			fs.writeFileSync(uploadPath, req.file.buffer);
 
-				if (req.body.dataType == 'picture') {
-					// We make thumbnail and reuse it in datalist
-					basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + entity + '/' + folder[0] + '/';
-					fs.mkdirs(basePath, err => {
-						if (err)
-							return console.error(err);
-
-						Jimp.read(uploadPath, (err, imgThumb) => {
-							if (err)
-								return console.error(err);
-
-							imgThumb.resize(globalConfig.thumbnail.width, globalConfig.thumbnail.height)
-								.quality(globalConfig.thumbnail.quality)
-								.write(basePath + req.file.originalname);
-						});
-					});
-				}
+			// Returning to client
+			res.json({
+				success: true
 			});
+
+			// We make image thumbnail for datalist
+			if (req.body.dataType == 'picture') {
+				basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + entity + '/' + folder[0] + '/';
+				fs.mkdirsSync(basePath);
+
+				Jimp.read(uploadPath, (err, imgThumb) => {
+					if (err)
+						return console.error(err);
+
+					const thumbnailWidth = globalConfig.thumbnail.width;
+					const thumbnailHeight = globalConfig.thumbnail.height;
+					const thumbnailQuality = globalConfig.thumbnail.quality;
+					const thumbnailPath = basePath + req.file.originalname;
+					imgThumb.resize(thumbnailWidth, thumbnailHeight).quality(thumbnailQuality).write(thumbnailPath);
+				});
+			}
+		} catch (err) {
+			console.error(err);
+			res.status(500).send(err);
 		}
 	});
 });
@@ -315,11 +318,6 @@ router.post('/delete_file', block_access.isLoggedIn, (req, res) => {
 
 	} catch (err) {
 		console.error(err);
-		req.session.toastr.push({
-			level: 'error',
-			message: "error.500.file"
-		});
-
 		res.status(500).send(err);
 	}
 });
