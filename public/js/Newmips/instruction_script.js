@@ -57,6 +57,26 @@ function fetchStatus() {
 }
 
 $(function() {
+
+    // Get last written script
+    var lastWrittenScript = JSON.parse(localStorage.getItem("newmips_last_written_script"));
+    if(!lastWrittenScript)
+        lastWrittenScript = [];
+
+    for (var i = 0; i < 10; i++) {
+        $('#last_written_script').append('\
+            <div>\
+                <b>' + lastWrittenScript[i].date + '</b> - \
+                <span>' + lastWrittenScript[i].content.substring(0, 60) + '... - </span>\
+                <a href="#" class="use-last-script" data-index=' + i + '>&nbsp;<i class="fa fa-clipboard"></i></a>\
+            </div>\
+        ');
+    }
+
+    $(document).on('click', '.use-last-script', function(){
+        $("#createScriptTextarea").val(lastWrittenScript[$(this).attr('data-index')].content)
+    })
+
     $("#instructionsScript").submit(function() {
         $("#goTo").hide();
 
@@ -84,7 +104,13 @@ $(function() {
                     console.error(err);
                 }
             });
-        } else{
+        } else {
+
+            lastWrittenScript.unshift({
+                date: moment().format("DD MMM, HH:mm"),
+                content: $("#createScriptTextarea").val()
+            });
+            localStorage.setItem("newmips_last_written_script", JSON.stringify(lastWrittenScript));
 
             var ajaxData = {
                 template_entry: $("#template_entry").val(),
@@ -119,12 +145,14 @@ $(function() {
         $("#addScriptInput").prop("required", false);
         $("#createScriptTextarea").prop("required", true);
         $("#createScriptTextarea").show();
+        $("#last_written_script").show();
         $("#addScript").show();
     });
 
     $(document).on("click", "#addScript", function(){
         $(this).hide();
         $("#createScriptTextarea").hide();
+        $("#last_written_script").hide();
         $("#createScriptTextarea").prop("required", false);
         $("#addScriptInput").prop("required", true);
         $("#addScriptInput").show();
