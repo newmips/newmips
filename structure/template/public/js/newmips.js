@@ -405,12 +405,8 @@ function initForm(context) {
                 });
 
                 this.on("sending", function (file, xhr, formData) {
-                    var storageType = that.attr("data-storage");
-                    var dataEntity = that.attr("data-entity");
-                    var dataType = that.attr("data-type") || '';
-                    formData.append("storageType", storageType);
-                    formData.append("dataEntity", dataEntity);
-                    formData.append("dataType", dataType);
+                    formData.append("entity", that.attr("data-entity"));
+                    formData.append("dataType", that.attr("data-type") || '');
                 });
 
                 this.on("maxfilesexceeded", function () {
@@ -437,8 +433,7 @@ function initForm(context) {
                             url: '/default/delete_file',
                             type: 'post',
                             data: {
-                                dataEntity: that.attr("data-entity"),
-                                dataStorage: that.attr("data-storage"),
+                                entity: that.attr("data-entity"),
                                 filename: $("#" + that.attr("id") + "_hidden").val()
                             },
                             success: function (success) {
