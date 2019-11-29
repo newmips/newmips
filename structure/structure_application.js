@@ -83,7 +83,7 @@ exports.setupApplication = async (data) => {
 	await translateHelper.writeLocales(appName, "application", null, appDisplayName, data.googleTranslate);
 
 	// Create database instance for application
-	let conn, db_requests = [];;
+	let conn, db_requests = [];
 	if(dbConf.dialect == 'mysql') {
 		db_requests = [
 			"CREATE DATABASE IF NOT EXISTS `np_" + appName + "` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
@@ -112,8 +112,8 @@ exports.setupApplication = async (data) => {
 		];
 		conn = new Client({
 			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "newmips" : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "newmips" : dbConf.password,
 			database: dbConf.database,
 			port: dbConf.port
 		});
