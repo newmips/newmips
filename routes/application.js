@@ -125,6 +125,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	try {
 		info = await designer[data.function](data);
 	} catch (err) {
+		console.error('Error on function: ' + data.function);
 		console.error(err);
 		throw __(err.message ? err.message : err, err.messageParams || []);
 	}
