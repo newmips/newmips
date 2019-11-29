@@ -168,6 +168,7 @@ exports.createNewApplication = async (data) => {
 	if(gitlabRepo)
 		newApp.gitlabID = gitlabRepo.id;
 
+	newApp.createdBy = data.currentUser.login;
 	// Save metadata in application
 	newApp.save();
 

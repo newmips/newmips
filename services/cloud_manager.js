@@ -253,7 +253,7 @@ exports.deploy = async (data) => {
 	}
 
 	// Get and increment application's version
-	const applicationPath = 'workspace/' + appName;
+	const applicationPath = __dirname + '/../workspace/' + appName;
 	const applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
 	applicationConf.version++;
 	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');

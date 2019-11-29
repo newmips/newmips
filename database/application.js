@@ -10,6 +10,7 @@ class Application {
 		this._displayName = displayName;
 		this._gitlabID = null;
 		this._gitlabRepo = null;
+		this._createdBy = null;
 		this._associationSeq = 1; // Used for unique generation of workspace assocation table
 		this._hasDocumentTemplate = 0;
 		this._modules = [];
@@ -34,6 +35,7 @@ class Application {
 			app.displayName = metadata[name].displayName;
 			app.gitlabID = metadata[name].gitlabID;
 			app.gitlabRepo = metadata[name].gitlabRepo;
+			app.createdBy = metadata[name].createdBy;
 
 			// Modules loading
 			const modules = [];
@@ -92,6 +94,10 @@ class Application {
 		return this._gitlabRepo;
 	}
 
+	get createdBy() {
+		return this._createdBy;
+	}
+
 	get modules() {
 		return this._modules;
 	}
@@ -115,6 +121,10 @@ class Application {
 
 	set gitlabRepo(repo) {
 		this._gitlabRepo = repo;
+	}
+
+	set createdBy(login) {
+		this._createdBy = login;
 	}
 
 	set modules(modules) {
@@ -229,6 +239,7 @@ class Application {
 		newMetadata.associationSeq = this._associationSeq;
 		newMetadata.gitlabID = this._gitlabID;
 		newMetadata.gitlabRepo = this._gitlabRepo;
+		newMetadata.createdBy = this._createdBy;
 		newMetadata.hasDocumentTemplate = this._hasDocumentTemplate;
 		newMetadata.displayName = this._displayName;
 		newMetadata.modules = {};

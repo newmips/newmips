@@ -41,6 +41,7 @@
 														<th>{#__ key="listApplication.id"/}</th>
 														<th>{#__ key="listApplication.name"/}</th>
 														<th>URL</th>
+														<th>{#__ key="listApplication.createdBy"/}</th>
 														<th colspan="2" class="text-center">{#__ key="listApplication.action"/}</th>
 													</tr>
 												</thead>
@@ -50,6 +51,7 @@
 															<td>{id}</td>
 															<td>{displayName}</td>
 															<td><a href='{url}' target='_blank'>{url}</a></td>
+															<td>{dataValues.createdBy}</td>
 															<td class="text-center">
 																<a class="btn btn-info" href="/application/preview/{name}">
 																	<i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>
