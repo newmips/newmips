@@ -1107,17 +1107,7 @@ exports.removeTitle = result => {
 	};
 }
 
-// --- FUN --- //
-exports.apero = _ => {
-	return {
-		function: "apero"
-	}
-}
-
 const training = {
-	"apero": [
-		"Apéro !"
-	],
 	"help": [
 		"how could you assist me",
 		"help",
