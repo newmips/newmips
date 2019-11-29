@@ -4,6 +4,7 @@ const domHelper = require('../utils/jsDomHelper');
 const translateHelper = require("../utils/translate");
 const path = require("path");
 const mysql = require('promise-mysql');
+const { Pool, Client } = require('pg');
 
 // Gitlab
 const globalConf = require('../config/global.js');
@@ -82,31 +83,52 @@ exports.setupApplication = async (data) => {
 	await translateHelper.writeLocales(appName, "application", null, appDisplayName, data.googleTranslate);
 
 	// Create database instance for application
-	const db_requests = [
-		"CREATE DATABASE IF NOT EXISTS `np_" + appName + "` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
-		"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'127.0.0.1' IDENTIFIED BY 'np_" + appName + "';",
-		"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'%' IDENTIFIED BY 'np_" + appName + "';",
-		"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'127.0.0.1';",
-		"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'%';",
-		"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'127.0.0.1';",
-		"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'%';",
-		"ALTER USER 'np_" + appName + "'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
-		"ALTER USER 'np_" + appName + "'@'%' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
-		"FLUSH PRIVILEGES;"
-	];
+	let conn, db_requests = [];;
+	if(dbConf.dialect == 'mysql') {
+		db_requests = [
+			"CREATE DATABASE IF NOT EXISTS `np_" + appName + "` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
+			"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'127.0.0.1' IDENTIFIED BY 'np_" + appName + "';",
+			"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'%' IDENTIFIED BY 'np_" + appName + "';",
+			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'127.0.0.1';",
+			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'%';",
+			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'127.0.0.1';",
+			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'%';",
+			"ALTER USER 'np_" + appName + "'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
+			"ALTER USER 'np_" + appName + "'@'%' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
+			"FLUSH PRIVILEGES;"
+		];
+		conn = await mysql.createConnection({
+			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			port: dbConf.port
+		});
+	} else if(dbConf.dialect == 'postgres') {
+		db_requests = [
+			"CREATE DATABASE np_" + appName + " ENCODING 'UTF8';",
+			"CREATE USER np_" + appName + " WITH PASSWORD 'np_" + appName + "';",
+			"GRANT ALL PRIVILEGES ON DATABASE np_" + appName + " TO np_" + appName + ";",
+			"GRANT ALL PRIVILEGES ON DATABASE np_" + appName + " TO " + dbConf.user + ";"
+		];
+		conn = new Client({
+			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			database: dbConf.database,
+			port: dbConf.port
+		});
+		conn.connect();
+	}
 
-	const conn = await mysql.createConnection({
-		host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-		user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-		password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
-	});
-
-	try {
-		for (let i = 0; i < db_requests.length; i++)
+	for (let i = 0; i < db_requests.length; i++) {
+		try {
 			await conn.query(db_requests[i]); // eslint-disable-line
-	} catch(err) {
-		console.error(err);
-		throw new Error("An error occurred while initializing the workspace database. Does the mysql user have the privileges to create a database ?");
+		} catch(err) {
+			console.error(err);
+			// Postgres error about db user that already exist, indeed postgres do not handle the 'IF NOT EXISTS' syntax...
+			if(dbConf.dialect != 'postgres' || err.code != '42710')
+				throw new Error("An error occurred while initializing the workspace database.");
+		}
 	}
 
 	conn.end();
@@ -534,12 +556,29 @@ exports.deleteApplication = async(data) => {
 		}
 	}
 
-	const conn = await mysql.createConnection({
-		host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-		user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-		password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password
-	});
-	await conn.query("DROP DATABASE IF EXISTS `np_" + app_name + "`;");
+	let conn;
+	if(dbConf.dialect == 'mysql') {
+		conn = await mysql.createConnection({
+			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			port: dbConf.port
+		});
+		await conn.query("DROP DATABASE IF EXISTS `np_" + app_name + "`;");
+	} else if(dbConf.dialect == 'postgres') {
+		conn = new Client({
+			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			database: dbConf.database,
+			port: dbConf.port
+		});
+		conn.connect();
+		await conn.query("REVOKE CONNECT ON DATABASE np_" + app_name + " FROM public;");
+		await conn.query("SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'np_" + app_name + "' AND pid <> pg_backend_pid();");
+		await conn.query("DROP DATABASE np_" + app_name + ";");
+	}
+
 	conn.end();
 
 	if (process_server != null)

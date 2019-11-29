@@ -182,62 +182,55 @@ exports.createNewApplication = async (data) => {
 exports.deleteApplication = async (data) => {
 
 	// Load app before deleting it
-	data.application = metadata.getApplication(data.options.value);
-
-	const hasAccess = await models.User.findOne({
-		where: {
-			id: data.currentUser.id
-		},
-		include: [{
-			model: models.Application,
-			required: true,
-			where: {
-				name: data.options.value
-			}
-		}]
-	});
-
-	if(!hasAccess)
-		throw new Error("You do not have access to this application, you cannot delete it.");
-
-	await structure_application.deleteApplication(data);
-
-	let request = "";
-	if(sequelize.options.dialect == "mysql")
-		request = "SHOW TABLES LIKE '" + data.options.value + "_%';";
-	else if(sequelize.options.dialect == "postgres")
-		request = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' AND tablename LIKE '" + data.options.value + "_%'";
-
-	const results = await sequelize.query(request);
-
-	/* Function when all query are done */
-	request = "";
-	if(sequelize.options.dialect == "mysql")
-		request += "SET FOREIGN_KEY_CHECKS=0;";
-
-	for (let i = 0; i < results.length; i++) {
-		for (const prop in results[i]) {
-			// For each request disable foreign key checks, drop table. Foreign key check
-			// last only for the time of the request
-			if(sequelize.options.dialect == "mysql")
-				request += "DROP TABLE " + results[i][prop] + ";";
-			if(sequelize.options.dialect == "postgres")
-				request += "DROP TABLE \"" + results[i][prop] + "\" CASCADE;";
-		}
+	try {
+		data.application = metadata.getApplication(data.options.value);
+	} catch(err) {
+		console.error("Unable to load application metadata, workspace is maybe broken. Trying deleting after all...");
+		// Faking metadata
+		data.application = {
+			name: data.options.value
+		};
 	}
 
-	if(sequelize.options.dialect == "mysql")
-		request += "SET FOREIGN_KEY_CHECKS=1;";
-
-	await sequelize.query(request);
-
-	await models.Application.destroy({
+	// Database deleting
+	const appExistInDB = await models.Application.findOne({
 		where: {
 			name: data.options.value
 		}
 	});
 
-	metadata.deleteApplication(data.options.value);
+	if(appExistInDB) {
+		const hasAccess = await models.User.findOne({
+			where: {
+				id: data.currentUser.id
+			},
+			include: [{
+				model: models.Application,
+				required: true,
+				where: {
+					name: data.options.value
+				}
+			}]
+		});
+
+		if(!hasAccess)
+			throw new Error("You do not have access to this application, you cannot delete it.");
+
+		await models.Application.destroy({
+			where: {
+				name: data.options.value
+			}
+		});
+	} else {
+		console.error('Application to delete do not exist in database, trying deleting it after all...')
+	}
+
+	try {
+		await structure_application.deleteApplication(data);
+		metadata.deleteApplication(data.options.value);
+	} catch(err) {
+		console.error(err);
+	}
 
 	return {
 		message: 'database.application.delete.deleted',
@@ -863,7 +856,7 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 
 	try {
 		/* First we have to save the already existing data to put them in the new relation */
-		const workspaceData = await database.retrieveWorkspaceHasManyData(data.application.name, dataHelper.capitalizeFirstLetter(data.options.source), optionObj.foreignKey);
+		const workspaceData = await database.retrieveWorkspaceHasManyData(data, dataHelper.capitalizeFirstLetter(data.options.source), optionObj.foreignKey);
 		structure_entity.saveHasManyData(data, workspaceData, optionObj.foreignKey);
 	} catch (err) {
 		if (err.original && err.original.code == 'ER_NO_SUCH_TABLE') {

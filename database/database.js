@@ -109,16 +109,22 @@ exports.getDatabaseSQLType = async(params) => {
 	}
 }
 
-exports.retrieveWorkspaceHasManyData = async (appName, entity, foreignKey) => {
-	delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
-	const workspaceModels = require('../workspace/' + appName + '/models/'); // eslint-disable-line
+exports.retrieveWorkspaceHasManyData = async (data, entity, foreignKey) => {
+	delete require.cache[require.resolve('../workspace/' + data.application.name + '/models/')];
+	const workspaceModels = require('../workspace/' + data.application.name + '/models/'); // eslint-disable-line
 	const where = {};
 	where[foreignKey] = {
 		[workspaceModels.$ne]: null
 	};
 
-	return await workspaceModels[entity.charAt(0).toUpperCase() + entity.toLowerCase().slice(1)].findAll({
-		attributes: ["id", foreignKey],
-		where: where
-	});
+	try {
+		return await workspaceModels[entity.charAt(0).toUpperCase() + entity.toLowerCase().slice(1)].findAll({
+			attributes: ["id", foreignKey],
+			where: where
+		});
+	} catch(err) {
+		if(!data.isGeneration)
+			console.error(err);
+		return null;
+	}
 }
