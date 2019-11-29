@@ -63,7 +63,9 @@ $(function() {
     if(!lastWrittenScript)
         lastWrittenScript = [];
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < lastWrittenScript.length; i++) {
+        if(i == 10)
+            break;
         $('#last_written_script').append('\
             <div>\
                 <b>' + lastWrittenScript[i].date + '</b> - \
