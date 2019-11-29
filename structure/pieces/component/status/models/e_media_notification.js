@@ -168,7 +168,7 @@ module.exports = (sequelize, DataTypes) => {
 				return reject(e);
 			}
 
-			sequelize.models.E_notification.create(notificationObj, {req: req}).then(function(notification) {
+			sequelize.models.E_notification.create(notificationObj).then(function(notification) {
 				notification.setR_user(targetIds);
 				socket().sendNotification(notification, targetIds);
 				resolve();
