@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Template</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<style>
+			html {
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+
+			/* Checkbox style */
+			input[type=checkbox] + label {display: block;margin: 0.2em;cursor: pointer;padding: 0.2em;}input[type=checkbox] {display: none;}input[type=checkbox] + label:before {content: "\2714";border: 0.1em solid #000;border-radius: 0.2em;display: inline-block;width: 1em;height: 1em;padding-left: 0.2em;padding-bottom: 0.3em;margin-right: 0.2em;vertical-align: bottom;color: transparent;transition: .2s;}input[type=checkbox] + label:active:before {transform: scale(0);}input[type=checkbox]:checked + label:before {background-color: #3c8dbc;border-color: #3c8dbc;color: #fff;}input[type=checkbox]:disabled + label:before {transform: scale(1);border-color: #aaa;}input[type=checkbox]:checked:disabled + label:before {transform: scale(1);background-color: #bfb;border-color: #bfb;}
+		</style>
+	</head>
+	<body>
+		<!--HEADER-->
+			Page Header Content
+		<!--HEADER-->
+		VARCHAR -> {f_name}<br>
+		NUMBER -> {f_number}<br>
+		BIG NUMBER -> {f_big_number}<br>
+		TEXT -> {f_text|s}<br>
+		REGULAR TEXT -> {f_regular_text}<br>
+		DECIMAL -> {f_decimal}<br>
+		DATE -> {f_date}<br>
+		DATETIME -> {f_datetime}<br>
+		TIME -> {f_time}<br>
+		BOOLEAN -> {f_boolean} -> {f_boolean_translation} ->
+		<input type='checkbox' value='f_boolean' {?f_boolean}checked{/f_boolean}>
+ 		<label for='f_boolean'>f_boolean</label>
+ 		<br>
+		EMAIL -> {f_email}<br>
+		TEL -> {f_tel}<br>
+		FAX -> {f_fax}<br>
+		MONEY -> {f_money}<br>
+		EURO -> {f_euro}<br>
+		QRCODE -> {f_qrcode}<br>
+		EAN -> {f_ean8}<br>
+		CODE39 -> {f_code39}<br>
+		URL -> {f_url}<br>
+		PASSWORD -> {f_password}<br>
+		COLOR -> {f_color}<br>
+		FILE -> {f_localfile|filename}<br>
+		IMAGE -> {?f_image}<img src="{f_image}" height="150" width="150">{/f_image}<br>
+		ENUM -> {f_enum} -> {f_enum_translation}<br>
+		RADIO -> {f_radio} -> {f_radio_translation}
+		<!--FOOTER-->
+			Page Footer Content
+		<!--FOOTER-->
+	</body>
+</html>

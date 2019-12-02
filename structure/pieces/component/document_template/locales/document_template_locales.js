@@ -55,7 +55,7 @@ module.exports = {
 		},
 		fields: {
 			boolean: {
-				true: "Vraie",
+				true: "Vrai",
 				false: "Faux"
 			}
 		}

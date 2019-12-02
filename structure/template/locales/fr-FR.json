@@ -219,8 +219,8 @@
 			"start_after_end": "La date de début est après la date de fin, merci de corriger.",
 			"end_before_start": "La date de fin est avant la date de début, merci de corriger."
 		},
-		"print": {
-			"action": "Imprimer"
+		"document_template": {
+			"template_example_dust": "Exemple de template dust"
 		}
 	},
 	"component": {

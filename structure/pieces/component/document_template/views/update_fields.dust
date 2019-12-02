@@ -7,34 +7,43 @@
 	</div>
 	<div data-field="f_file" class="col-xs-12">
 		<div class="form-group">
-			<label for="f_file" class="required"> {#__ key="entity.e_document_template.f_file"/} </label>
+			<label for="f_file" class="required">
+				{#__ key="entity.e_document_template.f_file"/}
+			</label>
 			<div class="dropzone dropzone-field" id="f_file_dropzone" data-storage="local" data-entity="e_document_template"></div>
-			<input type="hidden" name="f_file" id="f_file_dropzone_hidden" value="{f_file}" required=""></div>
+			<input type="hidden" name="f_file" id="f_file_dropzone_hidden" value="{f_file}" required="">
+		</div>
 	</div>
 	<div data-field="f_entity" class="col-xs-12">
 		<div class="form-group">
 			<label for="f_entity" class="required"> {#__ key="entity.e_document_template.f_entity"/} </label>
 			<select name="f_entity" style="width: 100%" class="form-control" id="document_template_select_entity">
 				{#document_template_entities}
-				{@eq key=value value=f_entity}
-				<option value="{.value}" selected="">{.item}</option>
-				{:else}
-				<option value="{.value}">{.item}</option>
-				{/eq}
+					{@eq key=value value=f_entity}
+						<option value="{.value}" selected="">{.item}</option>
+					{:else}
+						<option value="{.value}">{.item}</option>
+					{/eq}
 				{/document_template_entities}
 			</select>
 		</div>
 	</div>
 	<div data-field="f_exclude_relations" class="col-xs-12">
 		<div class="form-group">
-			<label for="f_exclude_relations" class=""> {#__ key="entity.e_document_template.f_exclude_relations"/} </label>&nbsp;&nbsp;  <a href="#" id="document_template_sub_entities"><i class="fa fa-info-circle"></i></a>
+			<label for="f_exclude_relations" class="">
+				{#__ key="entity.e_document_template.f_exclude_relations"/}
+			</label>
+			&nbsp;&nbsp;
+			<a href="#" id="document_template_sub_entities">
+				<i class="fa fa-info-circle"></i>
+			</a>
 			<select name="f_exclude_relations" style="width: 100%" class="form-control" id="f_exclude_relations" multiple="">
 				{#document_template_relations}
-				{?isSelected}
-				<option value="{.value}" selected="">{.item}</option>
-				{:else}
-				<option value="{.value}" >{.item}</option>
-				{/isSelected}
+					{?isSelected}
+						<option value="{.value}" selected="">{.item}</option>
+					{:else}
+						<option value="{.value}" >{.item}</option>
+					{/isSelected}
 				{/document_template_relations}
 			</select>
 		</div>

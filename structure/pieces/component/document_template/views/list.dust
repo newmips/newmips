@@ -9,8 +9,8 @@
 		<li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
 		<li class="active">{#__ key="module.m_administration"/}</li>
 	</ol>
-	{/header}
-	{<content}
+{/header}
+{<content}
 	<div class="box">
 		<div class="box-header">
 			<h3 class="box-title">{#__ key="operation.list"/} {#__ key="entity.e_document_template.plural_entity"/}</h3>
@@ -32,8 +32,8 @@
 			</div>
 		</div>
 	</div>
-	{/content}
-	{<custom_js}
+{/content}
+{<custom_js}
 	{! DATALIST BUTTONS DEFINITION !}
 	<script type="text/javascript">
 	var DATALIST_BUTTONS = [];
@@ -139,4 +139,4 @@
 			});
 		});
 	</script>
-	{/custom_js}
+{/custom_js}

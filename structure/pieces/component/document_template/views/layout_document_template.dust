@@ -74,11 +74,11 @@
 							<label for="f_entity" class="required"> {#__ key="entity.e_document_template.f_entity"/} </label><br>
 							<select name="f_entity"  class="form-control select" id="f_entity" data-width="100%">
 								{#document_template_entities}
-								{@eq key=.value value=selectedEntity}
-								<option value="{.value}" selected="">{.item}</option>
-								{:else}
-								<option value="{.value}">{.item}</option>
-								{/eq}
+									{@eq key=.value value=selectedEntity}
+										<option value="{.value}" selected="">{.item}</option>
+									{:else}
+										<option value="{.value}">{.item}</option>
+									{/eq}
 								{/document_template_entities}
 							</select>
 						</div>

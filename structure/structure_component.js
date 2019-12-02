@@ -1191,7 +1191,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 			plural_entity: "Modèle de documents",
 			id_entity: "ID",
 			f_name: "Nom du fichier",
-			f_file: "Fichier",
+			f_file: "Fichier (.docx, .pdf, .dust)",
 			f_entity: "Entité",
 			f_exclude_relations: "Sous entités"
 		};
@@ -1202,7 +1202,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 			plural_entity: "Document templates",
 			id_entity: "ID",
 			f_name: "Filename",
-			f_file: "File",
+			f_file: "File (.docx, .pdf, .dust)",
 			f_entity: "Entity",
 			f_exclude_relations: "Sub entities"
 		};

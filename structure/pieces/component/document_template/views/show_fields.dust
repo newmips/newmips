@@ -12,7 +12,7 @@
 				<div class="input-group-addon">
 					<i class="fa fa-download"></i>
 				</div>
-				<a href="/default/download?entity=e_document_template&amp;f={f_file}" class="form-control text-left" name="f_file" title='{#__ key="button.download"/}'>{f_file}</a>
+				<a href="/default/download?entity=e_document_template&amp;f={f_file}" class="form-control text-left" name="f_file" title='{#__ key="button.download"/}'>{f_file|filename}</a>
 			</div>
 		</div>
 	</div>
@@ -24,14 +24,16 @@
 	</div>
 	<div data-field="f_exclude_relations" class="col-xs-12">
 		<div class="form-group">
-			<label for="f_exclude_relations" class="required"> {#__ key="entity.e_document_template.f_exclude_relations"/} </label>&nbsp;&nbsp;  <a href="#" id="info_relations"><i class="fa fa-info-circle"></i></a>
+			<label for="f_exclude_relations">
+				{#__ key="entity.e_document_template.f_exclude_relations"/}
+			</label>
 			<select name="f_exclude_relations" style="width: 100%" class="form-control" id="f_exclude_relations" multiple="" disabled="">
 				{#document_template_relations}
-				{?isSelected}
-				<option value="{.value}" selected="">{.item}</option>
-				{:else}
-				<option value="{.value}" >{.item}</option>
-				{/isSelected}
+					{?isSelected}
+						<option value="{.value}" selected="">{.item}</option>
+					{:else}
+						<option value="{.value}" >{.item}</option>
+					{/isSelected}
 				{/document_template_relations}
 			</select>
 		</div>
@@ -39,23 +41,23 @@
 </div>
 <br>
 <div class="actions">
-		<div class="quicklinks ">
-			<span>
-				<form class="btn" action="/document_template/delete" method="post">
-					<button class="btn btn-danger btn-confirm">
-						<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-						<span>{#__ key="button.delete"/}</span>
-					</button>
-					<input name="id" type="hidden" value="{e_document_template.id}" class="form-control">
-				</form>
-			</span>
-			<span>
-				<a href="/document_template/update_form?id={e_document_template.id}" class="btn btn-warning">
-					<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-					<span>{#__ key="button.update"/}</span>
-				</a>
-			</span>
-			{^hideButton}
+	<div class="quicklinks ">
+		<span>
+			<form class="btn" action="/document_template/delete" method="post">
+				<button class="btn btn-danger btn-confirm">
+				<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+				<span>{#__ key="button.delete"/}</span>
+				</button>
+				<input name="id" type="hidden" value="{e_document_template.id}" class="form-control">
+			</form>
+		</span>
+		<span>
+			<a href="/document_template/update_form?id={e_document_template.id}" class="btn btn-warning">
+				<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+				<span>{#__ key="button.update"/}</span>
+			</a>
+		</span>
+		{^hideButton}
 			<span>
 				<a href="/document_template/create_form" class="btn btn-success">
 					<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
@@ -73,7 +75,6 @@
 					<button class="btn btn-default"><i class="fa fa-eye fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.help"/}</span></button>
 				</a>
 			</span>
-			{/hideButton}
-		</div>
-
+		{/hideButton}
+	</div>
 </div>

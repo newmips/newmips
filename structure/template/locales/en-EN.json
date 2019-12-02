@@ -217,8 +217,8 @@
 			"start_after_end": "The start date is after the end date, please fix it.",
 			"end_before_start": "The end date is before the start date, please fix it."
 		},
-		"print": {
-			"action": "Print"
+		"document_template": {
+			"template_example_dust": "Dust template example"
 		}
 	},
 	"component": {
