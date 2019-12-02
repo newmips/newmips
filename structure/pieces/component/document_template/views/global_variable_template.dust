@@ -11,12 +11,12 @@
 	</thead>
 	<tbody>
 		{#globalVariables}
-		<tr>
-			<td>{.name}</td>
-			<td>{{.name}}</td>
-			<td>{.name}</td>
-			<td>{.description}</td>
-		</tr>
+			<tr>
+				<td>{.name}</td>
+				<td>{{.name}}</td>
+				<td>{.name}</td>
+				<td>{.description}</td>
+			</tr>
 		{/globalVariables}
 	</tbody>
 </table>

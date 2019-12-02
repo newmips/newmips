@@ -1,8 +1,9 @@
 const moment = require('moment');
-const fs = require('fs');
+const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
 const pdf = require('html-pdf');
 const enums_radios = require('../locales/enum_radio');
+const globalConf = require('../config/global');
 const JSZip = require('jszip');
 const Docxtemplater = require('docxtemplater');
 const pdfFiller = require('fill-pdf');
@@ -78,24 +79,28 @@ function generateHtmlToPDF(options) {
 			const headerStartIdx = html.indexOf('<!--HEADER-->');
 			const headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx + '<!--HEADER-->'.length) + '<!--HEADER-->'.length;
 			const header = html.substring(headerStartIdx, headerEndIdx);
+			html = html.replace(header, '');
 
 			const footerStartIdx = html.indexOf('<!--FOOTER-->');
 			const footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx + '<!--FOOTER-->'.length) + '<!--FOOTER-->'.length;
 			const footer = html.substring(footerStartIdx, footerEndIdx);
+			html = html.replace(footer, '');
 
 			pdf.create(html, {
 				orientation: "portrait",
 				format: "A4",
 				border: {
-					top: "10px",
+					top: "0px",
 					right: "15px",
-					bottom: "10px",
+					bottom: "0px",
 					left: "15px"
 				},
 				header: {
+					height: "50px",
 					contents: header
 				},
 				footer: {
+					height: "50px",
 					contents: footer
 				}
 			}).toFile(tmpFileName, err => {
@@ -333,38 +338,59 @@ module.exports = {
 		for (const item in object) {
 			if (object[item] == 'null' || object[item] == null || typeof object[item] === "undefined")
 				object[item] = '';
-			//clean all date
+
 			for (const attr in attributes) {
 				const attribute = attributes[attr];
 				if (attr !== item)
 					continue;
 
-				//clean all date
-				if ((attribute.newmipsType === "date" || attribute.newmipsType === "datetime") && object[item] !== '') {
-					const format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
-					object[item] = moment(new Date(object[item])).format(format);
+				switch(attribute.newmipsType) {
+					case 'date':
+					case 'datetime':
+						if(object[item] && object[item] != ''){
+							const format = this.getDateFormatUsingLang(userLang, attribute.newmipsType);
+							object[item] = moment(new Date(object[item])).format(format);
+						}
+						break;
+					case 'password':
+						if(object[item] && object[item] != '')
+							object[item] = '•••••••••';
+						break;
+					case 'boolean':
+						if (fileType === "application/pdf")
+							object[item+ '_translation'] = object[item] == true ? "Yes" : "No";
+						else
+							object[item+ '_translation'] = langMessage[userLang || lang].fields.boolean[(object[item] + '').toLowerCase()];
+						break;
+					case 'text':
+					case 'regular text':
+						if(fileType != 'text/html') {
+							object[item] = object[item].replace(/<[^>]+>/g, ' '); //tag
+							object[item] = object[item].replace(/&[^;]+;/g, ' '); //&nbsp
+						}
+						break;
+					case 'phone':
+					case 'fax':
+						object[item] = format_tel(object[item], ' ');
+						break;
+					case 'picture':
+						if(object[item].split('-').length > 1) {
+							try{
+	                            object[item] = "data:image/*;base64, " + fs.readFileSync(globalConf.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+	                        } catch(err){
+	                            console.log("IMG NOT FOUND: ", object[item]);
+	                            object[item] = "IMG NOT FOUND: " + object[item];
+	                        }
+						}
+						break;
 				}
-				if (attribute.newmipsType === "password")
-					object[item] = '';
-				//translate boolean values
-				if (attribute.newmipsType === "boolean") {
-					object[item + '_value'] = object[item]; //true value
-					if (fileType === "application/pdf")
-						object[item] = object[item] == true ? "Yes" : "No";
-					else
-						object[item] = langMessage[userLang || lang].fields.boolean[(object[item] + '').toLowerCase()];
-				}
-				//text area field, docxtemplater(free) doesn't support html tag so we replace all
-				if (attribute.newmipsType === "text") {
-					object[item] = object[item].replace(/<[^>]+>/g, ' '); //tag
-					object[item] = object[item].replace(/&[^;]+;/g, ' '); //&nbsp
-				}
-				if (attribute.newmipsType === "phone" || attribute.newmipsType === "fax")
-					object[item] = format_tel(object[item], ' ');
+
 				if (attribute.type === "ENUM")
 					setEnumValue(object, item, entityName, fileType, userLang);
+
 				break;
 			}
+
 			if (reworkOptions) {
 				for (let i = 0; i < reworkOptions.length; i++) {
 					const reworkOption = reworkOptions[i];
@@ -515,7 +541,6 @@ module.exports = {
 				resolve(out);
 			});
 		});
-
 	},
 	buildHTMLGlobalVariables: function (userLang) {
 		const globalVariables = this.globalVariables;
