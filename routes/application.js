@@ -125,6 +125,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	try {
 		info = await designer[data.function](data);
 	} catch (err) {
+		console.error('Error on function: ' + data.function);
 		console.error(err);
 		throw __(err.message ? err.message : err, err.messageParams || []);
 	}
@@ -452,8 +453,15 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 
 				applications[i].dataValues.url = app_url;
 
+				let metadataApp;
+				try {
+					metadataApp = metadata.getApplication(applications[i].name);
+				} catch(err) {
+					return;
+				}
+				applications[i].dataValues.createdBy = metadataApp.createdBy;
+
 				if (gitlabConf.doGit && data.gitlabUser) {
-					const metadataApp = metadata.getApplication(applications[i].name);
 					let gitlabProject = null;
 
 					// Missing metadata gitlab info

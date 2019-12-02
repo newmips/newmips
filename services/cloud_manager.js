@@ -112,8 +112,6 @@ async function updateStack(currentStack, cloudUrl) {
 
 async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudUrl) {
 
-	console.log("generateStack");
-
 	const dbImage = cloudDbConf.dialect == 'postgres' ? 'dockside/newmips-postgres:latest' : 'dockside/newmips-mysql:latest';
 
 	// CLOUD APP COMPOSE CONTENT
@@ -253,16 +251,13 @@ exports.deploy = async (data) => {
 	}
 
 	// Get and increment application's version
-	const applicationPath = 'workspace/' + appName;
+	const applicationPath = __dirname + '/../workspace/' + appName;
 	const applicationConf = JSON.parse(fs.readFileSync(applicationPath +'/config/application.json'));
 	applicationConf.version++;
 	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
 	// Workspace database dialect
 	const appDialect = require(applicationPath +'/config/database').dialect;
-
-	console.log("appDialect");
-	console.log(appDialect);
 
 	// Create toSyncProd.lock file
 	if (fs.existsSync(applicationPath + '/models/toSyncProd.lock.json'))
