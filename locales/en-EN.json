@@ -102,6 +102,7 @@
 		"legend": "Applications",
 		"id": "ID",
 		"name": "Name",
+		"createdBy": "Created by",
 		"nbModules": "Modules Count",
 		"action": "Actions",
 		"sureToDelete": "Are you sure ?",

@@ -101,6 +101,7 @@
 		"legend": "Applications",
 		"id": "ID",
 		"name": "Nom",
+		"createdBy": "Crée par",
 		"nbModules": "Nb de modules",
 		"action": "Actions",
 		"sureToDelete": "Êtes-vous sûr ?",
