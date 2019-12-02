@@ -985,21 +985,24 @@ $(document).ready(function () {
     // Avoid double clicking on dynamic button
     $(document).on("click", ".btn.btn-primary, .btn.btn-default, .btn.btn-info, .btn.btn-warning, .btn.btn-danger, .btn.btn-success", function () {
         var context = this;
-        $(this).prop("readOnly", true);
+        $(this).prop("disabled", true);
         $(this).css("cursor", "wait");
         var tmpText = $(this).html();
-        if ($(this).hasClass("btn-confirm")) {
-            if (!isChrome) {
+        if (!/Edge/.test(navigator.userAgent)) {
+            if ($(this).hasClass("btn-confirm")) {
+                if (!isChrome) {
+                    $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+                }
+            } else {
                 $(this).html("<i class='fa fa-spinner fa-spin'></i>");
             }
-        } else {
-            $(this).html("<i class='fa fa-spinner fa-spin'></i>");
         }
         setTimeout(function () {
-            $(context).prop("readOnly", false);
+            $(context).prop("disabled", false);
             $(context).css("cursor", "pointer");
             $(context).html(tmpText);
         }, 1000);
+        return true;
     });
 
     // Validate any form before submit
