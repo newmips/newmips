@@ -1334,7 +1334,7 @@ const training = {
 		"ajouter le champ (.*) de type (.*) avec la valeur par défaut (.*)"
 	],
 	"createNewDataField": [
-		"create field ?(.*)",
+		"create field (.*)",
 		"add field (.*)",
 		"créer champ (.*)",
 		"créer un champ (.*)",
@@ -1342,9 +1342,9 @@ const training = {
 		"ajouter champ (.*)",
 		"ajouter un champ (.*)",
 		"ajouter le champ (.*)",
-		"create field ?(.*) and default value (.*)",
+		"create field (.*) and default value (.*)",
 		"add field (.*) and default value (.*)",
-		"create field ?(.*) with default value (.*)",
+		"create field (.*) with default value (.*)",
 		"add field (.*) with default value (.*)",
 		"créer champ (.*) avec la valeur par défaut (.*)",
 		"créer un champ (.*) avec la valeur par défaut (.*)",
