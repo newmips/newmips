@@ -32,9 +32,9 @@ exports.dropDataField = (data) => {
 
 	let query = "";
 	if(sequelize.options.dialect == "mysql")
-		query = "ALTER TABLE " + data.application.name + "_" + data.entity.name + " DROP " + data.fieldToDrop + ";";
+		query = "ALTER TABLE `" + data.entity.name + "` DROP " + data.fieldToDrop + ";";
 	if(sequelize.options.dialect == "postgres")
-		query = "ALTER TABLE \"" + data.application.name + "_" + data.entity.name + "\" DROP " + data.fieldToDrop + ";";
+		query = "ALTER TABLE \"" + data.entity.name + "\" DROP " + data.fieldToDrop + ";";
 
 	return pushToSyncQuery(data.application, query);
 }

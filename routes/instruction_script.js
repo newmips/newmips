@@ -205,6 +205,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	data.lang_user = req.session.lang_user;
 	data.currentUser = req.session.passport.user;
 	data.gitlabUser = null;
+	data.isGeneration = true;
 
 	if(typeof req.session.gitlab !== 'undefined'
 		&& typeof req.session.gitlab.user !== 'undefined'
@@ -456,8 +457,10 @@ function executeFile(req, userID, __) {
 
 		// Kill the application server if it's running, it will be restarted when accessing it
 		const process_server_per_app = process_manager.process_server_per_app;
-		if (process_server_per_app[data.application.name] != null && typeof process_server_per_app[data.application.name] !== "undefined")
+		if (process_server_per_app[data.application.name] != null && typeof process_server_per_app[data.application.name] !== "undefined"){
 			await process_manager.killChildProcess(process_server_per_app[data.application.name].pid)
+			process_server_per_app[data.application.name] = null;
+		}
 
 		// Delete instructions file
 		return processEnd(req.file.path, userID);
