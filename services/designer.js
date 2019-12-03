@@ -1887,8 +1887,25 @@ exports.createComponentDocumentTemplate = async (data) => {
 	if(data.entity.getComponent(data.options.value, 'document_template'))
 		throw new Error("structure.component.error.alreadyExistOnEntity");
 
-	await structure_component.createComponentDocumentTemplate(data);
+	if (!data.application.hasDocumentTemplate) {
+		const instructions = [
+			"select module Administration",
+			"add entity " + data.options.showValue,
+			"set icon file-text",
+			"add field name",
+			"add field file with type file",
+			"add field entity",
+			"add field exclude relations with type text",
+			"add entity Image ressources",
+			"set icon picture-o",
+			"add field Image with type image",
+			"add field code"
+		];
 
+		await this.recursiveInstructionExecute(data, instructions, 0);
+	}
+
+	await structure_component.createComponentDocumentTemplate(data);
 	data.entity.addComponent(data.options.value, "Document template", 'document_template');
 
 	if(!data.application.hasDocumentTemplate)
