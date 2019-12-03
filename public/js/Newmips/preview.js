@@ -334,9 +334,8 @@ $(document).ready(function() {
                     var defaultUISelectorText = $("#entitySelect option")[0].text;
                     $("#entitySelect").empty();
                     $("#entitySelect").append("<option default value=''>" + defaultUISelectorText + "</option>");
-                    for (var i = 0; i < data.entities.length; i++) {
-                        $("#entitySelect").append("<option value='" + data.entities[i].codeName + "'>" + data.entities[i].name + "</option>");
-                    }
+                    for (var i = 0; i < data.entities.length; i++)
+                        $("#entitySelect").append("<option value='" + data.entities[i]._name + "'>" + data.entities[i]._displayName + "</option>");
 
                     // Update Editor file selection
                     $("ul#sortable.sidebar-menu").empty();

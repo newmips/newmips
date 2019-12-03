@@ -182,7 +182,7 @@ function generatePDFDoc(options) {
 	});
 }
 
-function format_tel(tel, separator) {
+function formatTel(tel, separator) {
 	const formats = {
 		"0": [2, 2, 2, 2, 2, 2],
 		"33": [3, 1, 2, 2, 2, 2],
@@ -371,7 +371,7 @@ module.exports = {
 						break;
 					case 'phone':
 					case 'fax':
-						object[item] = format_tel(object[item], ' ');
+						object[item] = formatTel(object[item], ' ');
 						break;
 					case 'picture':
 						if(object[item].split('-').length > 1) {
