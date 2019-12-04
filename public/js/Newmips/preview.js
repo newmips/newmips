@@ -57,6 +57,7 @@ $(document).ready(function() {
         $.ajax({
             url: '/ui_editor/getPage/' + entity + '/' + page,
             success: function(pageHtml) {
+                console.log(pageHtml);
                 $("#ui_editor").html(pageHtml);
                 // Remove mainControls who are not removed by modifying html
                 $(".ge-mainControls").remove();
@@ -69,9 +70,6 @@ $(document).ready(function() {
                 $("#ui_editor_apply_all_span").show();
                 $(".ui_editor_page").parents('li').removeClass('active');
                 $(self).parents('li').addClass('active');
-
-                if (page == "print")
-                    $("a#custom-grid-editor-print-layout").trigger("click");
             },
             error: function(err) {
                 console.error(err);

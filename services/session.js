@@ -74,7 +74,7 @@ exports.setSession = (npFunction, req, info, data) => {
 				data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/home";
 			}
 			break;
-		case "deleteDataEntity":
+		case "deleteEntity":
 			// If we were on the deleted entity we has to reset the entity session
 			if(req.session.entity_name == info.entity.name)
 				req.session.entity_name = null;
