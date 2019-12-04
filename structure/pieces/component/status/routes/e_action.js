@@ -146,9 +146,10 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 		// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 		// because those values are not updated for now
 		model_builder.setAssocationManyValues(e_action, req.body, createObject, options).then(function(){
-			promises.push(status_helper.setInitialStatus(e_action, 'E_action', attributes));
 			Promise.all(promises).then(function() {
-				res.redirect(redirect);
+				status_helper.setInitialStatus(req, e_action, 'E_action', attributes).then(_ => {
+					res.redirect(redirect);
+				});
 			}).catch(function(err){
 				entity_helper.error(err, req, res, '/action/create_form');
 			});
