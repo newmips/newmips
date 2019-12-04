@@ -199,11 +199,6 @@
 									<i class="fa fa-file"></i>{#__ key="ui_editor.show_page"/}
 								</a>
 							</li>
-							<li class="ui-state-default treeview" style="display:block;">
-								<a class="ui_editor_page" href="#" data-entity="" data-page="print">
-									<i class="fa fa-file"></i>{#__ key="ui_editor.print_page"/}
-								</a>
-							</li>
 						</ul>
 					</div>
 					<div class="col-xs-12 col-sm-10">

@@ -473,6 +473,8 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 					} else if(!metadataApp.gitlabRepo) {
 						try {
 							gitlabProject = await gitlab.getProjectByID(metadataApp.gitlabID);
+							metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
+							metadataApp.save();
 						} catch(err){
 							console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
 						}
