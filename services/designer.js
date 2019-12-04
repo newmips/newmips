@@ -293,6 +293,9 @@ exports.deleteModule = async (data) => {
 	if (data.options.value == 'm_home')
 		throw new Error("structure.module.error.notHome");
 
+	if (data.options.value == 'm_administration')
+		throw new Error("structure.module.error.notAdministration");
+
 	data.np_module = data.application.getModule(data.options.value, true);
 	const entities = data.np_module.entities;
 
@@ -307,7 +310,7 @@ exports.deleteModule = async (data) => {
 			}
 		}
 
-		promises.push(deleteDataEntity(tmpData)); // eslint-disable-line
+		promises.push(deleteEntity(tmpData)); // eslint-disable-line
 	}
 
 	await Promise.all(promises);
@@ -374,7 +377,7 @@ exports.listEntity = async (data) => { // eslint-disable-line
 	};
 }
 
-async function deleteDataEntity(data) {
+async function deleteEntity(data) {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const foundEntity = data.application.findEntity(data.options.value, true);
@@ -487,7 +490,7 @@ async function deleteDataEntity(data) {
 
 	database.dropDataEntity(data.application, data.entity.name);
 	data.np_module.deleteEntity(data.entity.name);
-	await structure_entity.deleteDataEntity(data);
+	await structure_entity.deleteEntity(data);
 
 	return {
 		message: "database.entity.delete.deleted",
@@ -495,7 +498,7 @@ async function deleteDataEntity(data) {
 		entity: data.entity
 	};
 }
-exports.deleteDataEntity = deleteDataEntity;
+exports.deleteEntity = deleteEntity;
 
 /* --------------------------------------------------------------- */
 /* --------------------------- Field ----------------------------- */

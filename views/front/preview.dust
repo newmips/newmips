@@ -221,10 +221,10 @@
 					</div>
 					<div class="col-xs-12 col-sm-10" id="codemirror-editor" style="position:absolute;right:15px;">
 						<div class="row">
-							<div class="col-xs-9">
+							<div class="col-xs-4 col-sm-6 col-lg-8">
 								<h4>{#__ key="editor.legend"/} :</h4>
 							</div>
-							<div class="col-xs-2">
+							<div class="col-xs-4 col-sm-3 col-lg-2">
 								<span class="pull-right" style="margin-right:50px;">
 									<b>{#__ key="editor.change_theme"/} :</b>
 								</span><br>
@@ -280,12 +280,13 @@
 									<option value="zenburn">zenburn</option>
 								</select>
 							</div>
-							<div class="col-xs-1">
+							<div class="col-xs-4 col-sm-3 col-lg-2">
 								<button style="margin-top: 15px" class="btn btn-primary" id="update-file" disabled="true">
 									{#__ key="button.save"/}
 								</button>
 							</div>
 						</div>
+						<br>
 						<div class="nav-tabs-custom" id="tabs-editor" style="margin-bottom:0px;">
 							<ul class="nav nav-tabs" id="editor-navtabs" role="filelist"></ul>
 						</div>
@@ -297,6 +298,7 @@
 			</div>
 			<div class="tab-pane fade in" id="logs">
 				<div class="form-group">
+					<input id='disabled_refresh_logs' type="checkbox">&nbsp;{#__ key="preview.disable_log_refresh"/}
 					<div class="form-control" id="logs-content" name="answers"></div>
 				</div>
 			</div>
