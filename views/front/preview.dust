@@ -20,13 +20,6 @@
 	<link rel="stylesheet" href="/css/slack/skin-chat.css" />
 	{! Animated CSS !}
 	<link rel="stylesheet" href="/css/animated.css" />
-	<style type="text/css">
-		@media screen and (max-width: 768px) {
-			#codemirror-editor {
-				position: relative !important;
-			}
-		}
-	</style>
 {/custom_css}
 {<content}
 	<div class="nav-tabs-custom" id="tabs" style="margin-bottom:0px;">
@@ -305,6 +298,7 @@
 			</div>
 			<div class="tab-pane fade in" id="logs">
 				<div class="form-group">
+					<input id='disabled_refresh_logs' type="checkbox">&nbsp;{#__ key="preview.disable_log_refresh"/}
 					<div class="form-control" id="logs-content" name="answers"></div>
 				</div>
 			</div>

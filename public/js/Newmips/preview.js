@@ -471,7 +471,8 @@ $(document).ready(function() {
     var logsInterval;
     var objDiv = document.getElementById("logs-content");
     function updateLog() {
-        if($('#logs-content').is(":visible") && !flagStopReload){
+        if($('#logs-content').is(":visible") && !$('#disabled_refresh_logs').prop('checked')){
+            console.log('BIM');
             $.ajax({
                 url: '/default/update_logs',
                 method: "POST",
@@ -515,18 +516,6 @@ $(document).ready(function() {
                     flagBottom = false;
                 }
             });
-        }
-    });
-
-    /* Stop logs from reloading for 10 seconds to enable user to copy/paste */
-    $(document).on('mousedown', '#logs-content', function(e) {
-        /* Only right click */
-        if(e.which == 1){
-            flagStopReload = true;
-            setTimeout(function(){
-                console.log("END");
-                flagStopReload = false;
-            }, 10000)
         }
     });
 })
