@@ -242,10 +242,11 @@ router.post('/create', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "c
 		// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 		// because those values are not updated for now
 		model_builder.setAssocationManyValues(ENTITY_NAME, req.body, createObject, options).then(_ => {
-			promises.push(status_helper.setInitialStatus(ENTITY_NAME, 'MODEL_NAME', attributes));
 			Promise.all(promises).then(_ => {
 				component_helper.address.setAddressIfComponentExists(ENTITY_NAME, options, req.body).then(_ => {
-					res.redirect(redirect);
+					status_helper.setInitialStatus(req, ENTITY_NAME, 'MODEL_NAME', attributes).then(_ => {
+						res.redirect(redirect);
+					});
 				});
 			}).catch(err => {
 				entity_helper.error(err, req, res, '/ENTITY_URL_NAME/create_form', "ENTITY_NAME");

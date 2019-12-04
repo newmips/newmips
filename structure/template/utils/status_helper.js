@@ -293,9 +293,7 @@ module.exports = {
 
 		// Fetch entity to get its current status's children and their media
 		let entity = await models['E_' + entityName.substring(2)].findOne({
-			where: {
-				id: entityID
-			},
+			where: {id: entityID},
 			include: {
 				model: models.E_status,
 				as: statusAlias,
@@ -351,20 +349,15 @@ module.exports = {
 
 		// Generate include depending on required fields of all action's media
 		const include = model_builder.getIncludeFromFields(models, entityName, fieldsToInclude);
-
 		// Get entity with elements used in media included
 		entity = await models['E_' + entityName.substring(2)].findOne({
-			where: {
-				id: entityID
-			},
+			where: {id: entityID},
 			include: include
-		})
+		});
 
 		entity.entity_name = entityName;
 		// Create history record for this status field
-		const createObject = {
-			f_comment: comment
-		};
+		const createObject = {f_comment: comment};
 		createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 		createObject["fk_id_" + entityName.substring(2) + "_history_" + statusName.substring(2)] = entityID;
 
@@ -376,7 +369,7 @@ module.exports = {
 
 		return await nextStatus.executeActions(entity);
 	},
-	setInitialStatus: async (model, modelName, attributes) => {
+	setInitialStatus: async (req, model, modelName, attributes) => {
 		// Look for s_status fields
 		const statusFields = [];
 		for (const field in attributes)
@@ -397,12 +390,12 @@ module.exports = {
 				const historyModel = 'E_history_' + modelName.substring(2) + '_' + fieldIn.substring(2);
 				const [status, created] = await models.E_status.findOrCreate({
 					where: {
-						f_entity: modelName,
+						f_entity: modelName.toLowerCase(),
 						f_field: fieldIn,
 						f_default: true
 					},
 					defaults: {
-						f_entity: modelName,
+						f_entity: modelName.toLowerCase(),
 						f_field: fieldIn,
 						f_name: 'Initial',
 						f_default: true,
@@ -459,6 +452,7 @@ module.exports = {
 					} catch(err) {
 						console.error("Unable to execute actions");
 						console.error(err);
+						req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
 					};
 			})(field));
 		}
