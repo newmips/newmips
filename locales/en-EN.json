@@ -374,7 +374,8 @@
 		},
 		"module": {
 			"error": {
-				"notHome": "You can't delete the home module."
+				"notHome": "You can't delete the home module.",
+				"notAdministration": "You can't delete the administration module."
 			}
 		},
 		"field": {

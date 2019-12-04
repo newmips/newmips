@@ -293,6 +293,9 @@ exports.deleteModule = async (data) => {
 	if (data.options.value == 'm_home')
 		throw new Error("structure.module.error.notHome");
 
+	if (data.options.value == 'm_administration')
+		throw new Error("structure.module.error.notAdministration");
+
 	data.np_module = data.application.getModule(data.options.value, true);
 	const entities = data.np_module.entities;
 
