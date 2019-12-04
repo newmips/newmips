@@ -1155,24 +1155,25 @@ exports.createComponentDocumentTemplate = async (data) => {
 		modelContent = modelContent.replace(/TABLE_NAME/g, 'e_document_template');
 		modelContent = modelContent.replace(/MODEL_CODE_NAME/g, 'e_document_template');
 
-		// Now copy model files
-		fs.copySync(piecesPath + 'models/attributes/e_document_template.json', workspacePath + 'models/attributes/e_document_template.json');
-		fs.copySync(piecesPath + 'models/options/e_document_template.json', workspacePath + 'models/options/e_document_template.json');
-		fs.writeFileSync(workspacePath + 'models/e_document_template.js', modelContent, 'utf8');
-
 		// Copy views files. Todo => move directory
-		fs.copySync(piecesPath + 'views/create.dust', workspacePath + 'views/e_document_template/create.dust');
-		fs.copySync(piecesPath + 'views/create_fields.dust', workspacePath + 'views/e_document_template/create_fields.dust');
-		fs.copySync(piecesPath + 'views/list.dust', workspacePath + 'views/e_document_template/list.dust');
-		fs.copySync(piecesPath + 'views/list_fields.dust', workspacePath + 'views/e_document_template/list_fields.dust');
-		fs.copySync(piecesPath + 'views/show.dust', workspacePath + 'views/e_document_template/show.dust');
-		fs.copySync(piecesPath + 'views/show_fields.dust', workspacePath + 'views/e_document_template/show_fields.dust');
-		fs.copySync(piecesPath + 'views/update.dust', workspacePath + 'views/e_document_template/update.dust');
-		fs.copySync(piecesPath + 'views/update_fields.dust', workspacePath + 'views/e_document_template/update_fields.dust');
-		fs.copySync(piecesPath + 'views/readme.dust', workspacePath + 'views/e_document_template/readme.dust');
-		fs.copySync(piecesPath + 'views/entity_helper_template.dust', workspacePath + 'views/e_document_template/entity_helper_template.dust');
-		fs.copySync(piecesPath + 'views/global_variable_template.dust', workspacePath + 'views/e_document_template/global_variable_template.dust');
-		fs.copySync(piecesPath + 'views/layout_document_template.dust', workspacePath + 'views/layout_document_template.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/create.dust', workspacePath + 'views/e_document_template/create.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/create_fields.dust', workspacePath + 'views/e_document_template/create_fields.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/list.dust', workspacePath + 'views/e_document_template/list.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/list_fields.dust', workspacePath + 'views/e_document_template/list_fields.dust');
+		// fs.copySync(piecesPath + 'views/e_document_template/show.dust', workspacePath + 'views/e_document_template/show.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/show_fields.dust', workspacePath + 'views/e_document_template/show_fields.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/update.dust', workspacePath + 'views/e_document_template/update.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/update_fields.dust', workspacePath + 'views/e_document_template/update_fields.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/readme.dust', workspacePath + 'views/e_document_template/readme.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/entity_helper_template.dust', workspacePath + 'views/e_document_template/entity_helper_template.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/global_variable_template.dust', workspacePath + 'views/e_document_template/global_variable_template.dust');
+		fs.copySync(piecesPath + 'views/e_document_template/layout_document_template.dust', workspacePath + 'views/layout_document_template.dust');
+
+
+		// Image ressources views copy
+		fs.copySync(piecesPath + 'views/e_image_ressources/create.dust', workspacePath + 'views/e_image_ressources/create.dust');
+		fs.copySync(piecesPath + 'views/e_image_ressources/show_fields.dust', workspacePath + 'views/e_image_ressources/show_fields.dus');
+		fs.copySync(piecesPath + 'views/e_image_ressources/update.dust', workspacePath + 'views/e_image_ressources/update.dust');
 
 		// Copy helper
 		fs.copySync(piecesPath + 'utils/document_template_helper.js', workspacePath + 'utils/document_template_helper.js');
@@ -1193,7 +1194,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 			f_name: "Nom du fichier",
 			f_file: "Fichier (.docx, .pdf, .dust)",
 			f_entity: "Entité",
-			f_exclude_relations: "Sous entités"
+			f_exclude_relations: "Sous-entités"
 		};
 
 		langEN.entity.e_document_template = {
@@ -1206,45 +1207,6 @@ exports.createComponentDocumentTemplate = async (data) => {
 			f_entity: "Entity",
 			f_exclude_relations: "Sub entities"
 		};
-
-		// Now new Menu For Entity DocumentTemplate
-		const fileName = workspacePath + '/views/layout_m_administration.dust';
-		const $ = await domHelper.read(fileName);
-
-		const li = "\
-		<!--{#entityAccess entity=\"document_template\"}-->\n\
-			<li id='document_template_menu_item' style='display:block;' class='treeview'>\n\
-				<a href='#'>\n\
-					<i class='fa fa-file-text'></i>\n\
-					<span><!--{#__ key=\"entity.e_document_template.label_entity\" /}--></span>\n\
-					<i class='fa fa-angle-left pull-right'></i>\n\
-				</a>\n\
-				<ul class='treeview-menu'>\n\
-					<!--{#actionAccess entity=\"document_template\" action=\"create\"}-->\
-						<li>\n\
-							<a href='/document_template/create_form'>\n\
-								<i class='fa fa-angle-double-right'></i>\n\
-								<!--{#__ key=\"operation.create\" /}--> \n\
-							</a>\n\
-						</li>\
-					<!--{/actionAccess}-->\
-					<!--{#actionAccess entity=\"document_template\" action=\"read\"}-->\
-						<li>\n\
-							<a href='/document_template/list'>\n\
-								<i class='fa fa-angle-double-right'></i>\n\
-								<!--{#__ key=\"operation.list\" /}--> \n\
-							</a>\n\
-						</li>\n\
-					<!--{/actionAccess}-->\
-				</ul>\n\
-			</li>\n\
-		<!--{/entityAccess}-->\n";
-
-		// Add new html to document
-		$('#sortable').append(li);
-
-		// Write back to file
-		domHelper.write(fileName, $);
 	}
 
 	langFR.entity.e_document_template["tab_name_" + data.entity.name] = data.options.showValue == 'Document template' ? 'Modèle de document' : data.options.showValue;
@@ -1259,7 +1221,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 			<!--{#__ key="entity.e_document_template.tab_name_' + data.entity.name + '" /}-->\n\
 		</a>\n\
 	</li>';
-	let newTabContent = fs.readFileSync(piecesPath + 'views/generate_doc.dust', 'utf8');
+	let newTabContent = fs.readFileSync(piecesPath + 'views/e_document_template/generate_doc.dust', 'utf8');
 	newTabContent = newTabContent.replace(/ENTITY_DOC/g, data.entity.name.substring(2).charAt(0).toUpperCase() + data.entity.name.substring(2).slice(1));
 	newTabContent = newTabContent.replace(/ENTITY/g, data.entity.name);
 	await addTab(data.entity.name, workspacePath + 'views' + '/' + data.entity.name + '/show_fields.dust', newLi, newTabContent);

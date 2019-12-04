@@ -4,19 +4,26 @@
 		<title>Template</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<!-- INSERT SIMPLE GRID HERE - DO NOT REMOVE -->
 		<style>
 			html {
 				margin: 0 !important;
 				padding: 0 !important;
+				font-size: 12px;
 			}
 
 			/* Checkbox style */
 			input[type=checkbox] + label {display: block;margin: 0.2em;cursor: pointer;padding: 0.2em;}input[type=checkbox] {display: none;}input[type=checkbox] + label:before {content: "\2714";border: 0.1em solid #000;border-radius: 0.2em;display: inline-block;width: 1em;height: 1em;padding-left: 0.2em;padding-bottom: 0.3em;margin-right: 0.2em;vertical-align: bottom;color: transparent;transition: .2s;}input[type=checkbox] + label:active:before {transform: scale(0);}input[type=checkbox]:checked + label:before {background-color: #3c8dbc;border-color: #3c8dbc;color: #fff;}input[type=checkbox]:disabled + label:before {transform: scale(1);border-color: #aaa;}input[type=checkbox]:checked:disabled + label:before {transform: scale(1);background-color: #bfb;border-color: #bfb;}
 		</style>
+		<!-- See simple grid documentation on => https://simplegrid.io/ -->
 	</head>
 	<body>
 		<!--HEADER-->
-			Page Header Content
+			<div class="row">
+				<div class="col-12-sm" style='text-align: center;'>
+					Page Header Content
+				</div>
+			</div>
 		<!--HEADER-->
 		VARCHAR -> {f_name}<br>
 		NUMBER -> {f_number}<br>
@@ -47,7 +54,17 @@
 		ENUM -> {f_enum} -> {f_enum_translation}<br>
 		RADIO -> {f_radio} -> {f_radio_translation}
 		<!--FOOTER-->
-			Page Footer Content
+			<div class="row">
+				<div class="col-2-sm">
+					Newmips
+				</div>
+				<div class="col-8-sm" style='text-align: center;'>
+					06 66 66 66 66
+				</div>
+				<div class="col-2-sm">
+					**page** / **pages**
+				</div>
+			</div>
 		<!--FOOTER-->
 	</body>
 </html>
