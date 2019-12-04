@@ -364,7 +364,7 @@ exports.deleteModule = result => {
 	return data;
 };
 
-exports.deleteDataEntity = result => {
+exports.deleteEntity = result => {
 
 	const value = result[1];
 
@@ -374,7 +374,7 @@ exports.deleteDataEntity = result => {
 	};
 
 	const data = {
-		function: "deleteDataEntity",
+		function: "deleteEntity",
 		options: options
 	};
 	return data;
@@ -1357,7 +1357,7 @@ const training = {
 		"supprimer module (.*)",
 		"supprimer le module (.*)"
 	],
-	"deleteDataEntity": [
+	"deleteEntity": [
 		"delete entity (.*)",
 		"drop entity (.*)",
 		"remove entity (.*)",

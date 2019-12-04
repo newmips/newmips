@@ -108,7 +108,7 @@ function addPrefix(string, instructionFunction) {
 			return "m_" + string;
 		case 'createNewEntity':
 		case 'selectEntity':
-		case 'deleteDataEntity':
+		case 'deleteEntity':
 		case 'createNewHasOne':
 		case 'createNewHasMany':
 		case 'createNewFieldRelatedToMultiple':
