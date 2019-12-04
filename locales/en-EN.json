@@ -197,6 +197,7 @@
 		"help-button": "Need help ?",
 		"help-disabled": "Support chat is disabled. Activate it in config/global.js and provide mattermost information in config/slack.js",
 		"server_timeout": "Server timed out, please check the application logs.",
+		"disable_log_refresh": "Disable logs refresh",
 		"session": {
 			"noApplication": "No application selected",
 			"noModule": "No module selected",
