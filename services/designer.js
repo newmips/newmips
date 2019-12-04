@@ -1899,7 +1899,9 @@ exports.createComponentDocumentTemplate = async (data) => {
 			"add entity Image ressources",
 			"set icon picture-o",
 			"add field Image with type image",
-			"add field code"
+			"set field Image required",
+			"add field code",
+			"set field code required"
 		];
 
 		await this.recursiveInstructionExecute(data, instructions, 0);

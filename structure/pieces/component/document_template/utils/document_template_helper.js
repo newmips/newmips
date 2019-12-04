@@ -68,7 +68,11 @@ function generateHtmlToPDF(options) {
 	return new Promise(function (resolve, reject) {
 		options.data.staticImagePath = __dirname + '/../public/img';
 
-		const dustSrc = fs.readFileSync(options.file, 'utf8');
+		let dustSrc = fs.readFileSync(options.file, 'utf8');
+		// Add Bootstrap to template
+		// See Docs on => https://simplegrid.io/
+        let simpleGridCss = fs.readFileSync(__dirname + '/../public/css/simple-grid.min.css', 'utf8');
+        dustSrc = dustSrc.replace("<!-- INSERT SIMPLE GRID HERE - DO NOT REMOVE -->", "<style>"+simpleGridCss+"</style>");
 		dust.insertLocalsFn(options.data ? options.data : {}, options.req);
 		dust.renderSource(dustSrc, options.data, function (err, html) {
 			if (err)
@@ -79,12 +83,16 @@ function generateHtmlToPDF(options) {
 			const headerStartIdx = html.indexOf('<!--HEADER-->');
 			const headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx + '<!--HEADER-->'.length) + '<!--HEADER-->'.length;
 			const header = html.substring(headerStartIdx, headerEndIdx);
-			html = html.replace(header, '');
 
 			const footerStartIdx = html.indexOf('<!--FOOTER-->');
 			const footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx + '<!--FOOTER-->'.length) + '<!--FOOTER-->'.length;
-			const footer = html.substring(footerStartIdx, footerEndIdx);
+			let footer = html.substring(footerStartIdx, footerEndIdx);
+
+			html = html.replace(header, '');
 			html = html.replace(footer, '');
+
+			footer = footer.replace('**page**', '{{page}}');
+            footer = footer.replace('**pages**', '{{pages}}');
 
 			pdf.create(html, {
 				orientation: "portrait",
