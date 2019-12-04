@@ -369,7 +369,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		}
 	};
 	// If hasMany, no need to include anything since it will be fetched using /subdatalist
-	if (option.structureType != 'hasMany')
+	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
 		queryOpts.include = {
 			model: models[entity_helper.capitalizeFirstLetter(option.target)],
 			as: option.as,
