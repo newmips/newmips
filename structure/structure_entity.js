@@ -297,7 +297,7 @@ exports.setupEntity = async (data) => {
 	return;
 };
 
-exports.deleteDataEntity = async (data) => {
+exports.deleteEntity = async (data) => {
 	const baseFolder = __dirname + '/../workspace/' + data.application.name;
 
 	// Delete views folder
@@ -341,7 +341,7 @@ exports.deleteDataEntity = async (data) => {
 
 	domHelper.write(filePath, $);
 
-	translateHelper.removeLocales(data.application.name, "entity", data.entity.name)
+	translateHelper.removeLocales(data.application.name, "entity", data.entity.name);
 	return true;
 };
 
@@ -499,6 +499,9 @@ exports.deleteTab = async (data) => {
 		else
 			target = data.entity.name;
 
+		// Delete unnecessary locales
+		translateHelper.removeLocales(data.application.name, "field", [data.entity.name, option.as]);
+
 		options.splice(i, 1);
 		found = true;
 		break;
@@ -549,4 +552,3 @@ exports.deleteTab = async (data) => {
 		tabType: tabType
 	};
 };
-
