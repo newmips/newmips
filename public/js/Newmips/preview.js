@@ -472,7 +472,6 @@ $(document).ready(function() {
     var objDiv = document.getElementById("logs-content");
     function updateLog() {
         if($('#logs-content').is(":visible") && !$('#disabled_refresh_logs').prop('checked')){
-            console.log('BIM');
             $.ajax({
                 url: '/default/update_logs',
                 method: "POST",
