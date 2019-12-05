@@ -450,7 +450,7 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 
 				const appName = applications[i].name.substring(2);
 				if (globalConf.env == 'cloud')
-					app_url += globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
+					app_url = globalConf.protocol_iframe + '://' + globalConf.sub_domain + '-' + appName + "." + globalConf.dns + '/';
 
 				applications[i].dataValues.url = app_url;
 
