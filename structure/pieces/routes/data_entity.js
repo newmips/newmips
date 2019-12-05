@@ -453,13 +453,6 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 
 				break;
 
-			case 'localfilestorage':
-				dustFile = option.target + '/list_fields';
-				obj = {[option.target]: dustData};
-				dustData = obj;
-				dustData.sourceId = id;
-				break;
-
 			default:
 				return res.status(500).end();
 		}

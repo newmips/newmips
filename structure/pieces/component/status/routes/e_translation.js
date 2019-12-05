@@ -260,6 +260,152 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
 	});
 });
 
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translation', 'read'), (req, res) => {
+	const alias = req.params.alias;
+	const id = req.params.id;
+
+	// Find tab option
+	let option;
+	for (let i = 0; i < options.length; i++)
+		if (options[i].as == alias) {
+			option = options[i];
+			break;
+		}
+	if (!option)
+		return res.status(404).end();
+
+	// Check access rights to subentity
+	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
+		return res.status(403).end();
+
+	const queryOpts = {
+		where: {
+			id: id
+		}
+	};
+	// If hasMany, no need to include anything since it will be fetched using /subdatalist
+	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
+		queryOpts.include = {
+			model: models[entity_helper.capitalizeFirstLetter(option.target)],
+			as: option.as,
+			include: {all: true}
+		}
+
+	// Fetch tab data
+	models.E_translation.findOne(queryOpts).then(e_translation => {
+		if (!e_translation)
+			return res.status(404).end();
+
+		let dustData = e_translation[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
+
+		// Default value
+		option.noCreateBtn = false;
+
+		// Build tab specific variables
+		switch (option.structureType) {
+			case 'hasOne':
+				if (!empty) {
+					idSubentity = dustData.id;
+					dustData.hideTab = true;
+					dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
+					// Fetch status children to be able to switch status
+					// Apply getR_children() on each current status
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
+					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
+					for (let i = 0; i < subentityOptions.length; i++)
+						if (subentityOptions[i].target.indexOf('e_status') == 0)
+							(alias => {
+								promisesData.push(new Promise((resolve, reject) => {
+									dustData[alias].getR_children({
+										include: [{
+											model: models.E_group,
+											as: "r_accepted_group"
+										}]
+									}).then(children => {
+										dustData[alias].r_children = children;
+										resolve();
+									}).catch(reject);
+								}));
+							})(subentityOptions[i].as);
+				}
+				dustFile = option.target + '/show_fields';
+				break;
+
+			case 'hasMany':
+				dustFile = option.target + '/list_fields';
+				// Status history specific behavior. Replace history_model by history_table to open view
+				if (option.target.indexOf('_history_') == 0)
+					option.noCreateBtn = true;
+				dustData = {
+					for: 'hasMany'
+				};
+				if (typeof req.query.associationFlag !== 'undefined') {
+					dustData.associationFlag = req.query.associationFlag;
+					dustData.associationSource = req.query.associationSource;
+					dustData.associationForeignKey = req.query.associationForeignKey;
+					dustData.associationAlias = req.query.associationAlias;
+					dustData.associationUrl = req.query.associationUrl;
+				}
+				break;
+
+			case 'hasManyPreset':
+				dustFile = option.target + '/list_fields';
+				obj = {[option.target]: dustData};
+				dustData = obj;
+				if (typeof req.query.associationFlag !== 'undefined') {
+					dustData.associationFlag = req.query.associationFlag;
+					dustData.associationSource = req.query.associationSource;
+					dustData.associationForeignKey = req.query.associationForeignKey;
+					dustData.associationAlias = req.query.associationAlias;
+					dustData.associationUrl = req.query.associationUrl;
+				}
+				dustData.for = 'fieldset';
+				for (let i = 0; i < dustData[option.target].length; i++)
+					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
+
+				break;
+
+			default:
+				return res.status(500).end();
+		}
+
+		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
+		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
+			// Image buffer promise
+			Promise.all(promisesData).then(_ => {
+				// Open and render dust file
+				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+				dust.insertLocalsFn(dustData ? dustData : {}, req);
+				dust.renderSource(file, dustData || {}, (err, rendered) => {
+					if (err) {
+						console.error(err);
+						return res.status(500).end();
+					}
+
+					// Send response to ajax request
+					res.json({
+						content: rendered,
+						data: idSubentity || {},
+						empty: empty,
+						option: option
+					});
+				});
+			}).catch(err => {
+				console.error(err);
+				res.status(500).send(err);
+			});
+		}).catch(err => {
+			console.error(err);
+			res.status(500).send(err);
+		});
+	}).catch(err => {
+		console.error(err);
+		res.status(500).send(err);
+	});
+});
+
 router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('translation', 'read'), function(req, res) {
 	const alias = req.params.alias;
 	const id = req.params.id;

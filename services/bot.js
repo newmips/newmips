@@ -698,23 +698,23 @@ exports.deleteComponentStatusWithName = result => {
 	return checkAndCreateAttr("deleteComponentStatus", options, value);
 };
 
-/* LOCAL FILE STORAGE */
-exports.createNewComponentLocalFileStorage = _ => {
+/* FILE STORAGE */
+exports.addComponentFileStorage = _ => {
 	const data = {
-		function: "createNewComponentLocalFileStorage",
+		function: "addComponentFileStorage",
 		options: {}
 	};
 	return data;
 };
 
-exports.createNewComponentLocalFileStorageWithName = result => {
+exports.addComponentFileStorageWithName = result => {
 	const value = result[1];
 	const options = {
 		value: value,
 		processValue: true
 	};
 
-	return checkAndCreateAttr("createNewComponentLocalFileStorage", options, value);
+	return checkAndCreateAttr("addComponentFileStorage", options, value);
 };
 
 /* CONTACT FORM */
@@ -1939,21 +1939,21 @@ const training = {
 		"supprimer le statut nommé (.*)",
 		"supprimer statut nommé (.*)"
 	],
-	"createNewComponentLocalFileStorageWithName": [
-		"create component local file storage with name (.*)",
-		"create component localfilestorage with name (.*)",
-		"add component local file storage with name (.*)",
-		"add component localfilestorage with name (.*)",
-		"create component local file storage called (.*)",
-		"create component localfilestorage called (.*)",
-		"add component local file storage called (.*)",
-		"add component localfilestorage called (.*)",
-		"créer composant localfilestorage appelé (.*)",
-		"ajouter composant localfilestorage appelé (.*)",
-		"créer un composant localfilestorage appelé (.*)",
-		"ajouter un composant localfilestorage appelé (.*)",
-		"créer le composant localfilestorage appelé (.*)",
-		"ajouter le composant localfilestorage appelé (.*)",
+	"addComponentFileStorageWithName": [
+		"create component file storage with name (.*)",
+		"create component filestorage with name (.*)",
+		"add component file storage with name (.*)",
+		"add component filestorage with name (.*)",
+		"create component file storage called (.*)",
+		"create component filestorage called (.*)",
+		"add component file storage called (.*)",
+		"add component filestorage called (.*)",
+		"créer composant filestorage appelé (.*)",
+		"ajouter composant filestorage appelé (.*)",
+		"créer un composant filestorage appelé (.*)",
+		"ajouter un composant filestorage appelé (.*)",
+		"créer le composant filestorage appelé (.*)",
+		"ajouter le composant filestorage appelé (.*)",
 		"créer composant de stockage de fichier appelé (.*)",
 		"ajouter composant de stockage de fichier appelé (.*)",
 		"créer uncomposant de stockage de fichier appelé (.*)",
@@ -1974,12 +1974,12 @@ const training = {
 		"ajouter un composant de stockage de fichier appelé (.*)",
 		"ajouter le composant de stockage de fichier appelé (.*)",
 		"ajouter le composant de stockage appelé (.*)",
-		"créer composant localfilestorage nommé (.*)",
-		"ajouter composant localfilestorage nommé (.*)",
-		"créer un composant localfilestorage nommé (.*)",
-		"ajouter un composant localfilestorage nommé (.*)",
-		"créer le composant localfilestorage nommé (.*)",
-		"ajouter le composant localfilestorage nommé (.*)",
+		"créer composant filestorage nommé (.*)",
+		"ajouter composant filestorage nommé (.*)",
+		"créer un composant filestorage nommé (.*)",
+		"ajouter un composant filestorage nommé (.*)",
+		"créer le composant filestorage nommé (.*)",
+		"ajouter le composant filestorage nommé (.*)",
 		"créer composant de stockage de fichier nommé (.*)",
 		"ajouter composant de stockage de fichier nommé (.*)",
 		"créer uncomposant de stockage de fichier nommé (.*)",
@@ -2001,35 +2001,35 @@ const training = {
 		"ajouter le composant de stockage de fichier nommé (.*)",
 		"ajouter le composant de stockage nommé (.*)"
 	],
-	"createNewComponentLocalFileStorage": [
-		"create component local file storage",
-		"create component localfilestorage",
-		"add component local file storage",
-		"add component localfilestorage",
-		"créer composant localfilestorage",
-		"ajouter composant localfilestorage",
-		"créer un composant localfilestorage",
-		"ajouter un composant localfilestorage",
-		"créer le composant localfilestorage",
-		"ajouter le composant localfilestorage",
-		"créer composant de stockage de fichier local",
-		"ajouter composant de stockage de fichier local",
-		"créer un composant de stockage de fichier local",
-		"ajouter un composant de stockage de fichier local",
-		"créer le composant de stockage de fichier local",
-		"ajouter le composant de stockage de fichier local",
+	"addComponentFileStorage": [
+		"create component file storage",
+		"create component filestorage",
+		"add component file storage",
+		"add component filestorage",
+		"créer composant filestorage",
+		"ajouter composant filestorage",
+		"créer un composant filestorage",
+		"ajouter un composant filestorage",
+		"créer le composant filestorage",
+		"ajouter le composantfilestorage",
 		"créer composant de stockage de fichier",
 		"ajouter composant de stockage de fichier",
 		"créer un composant de stockage de fichier",
 		"ajouter un composant de stockage de fichier",
 		"créer le composant de stockage de fichier",
 		"ajouter le composant de stockage de fichier",
-		"créer composant de stockage local",
-		"ajouter composant de stockage local",
-		"créer un composant de stockage local",
-		"ajouter un composant de stockage local",
-		"créer le composant de stockage local",
-		"ajouter le composant de stockage local",
+		"créer composant de stockage de fichier",
+		"ajouter composant de stockage de fichier",
+		"créer un composant de stockage de fichier",
+		"ajouter un composant de stockage de fichier",
+		"créer le composant de stockage de fichier",
+		"ajouter le composant de stockage de fichier",
+		"créer composant de stockage",
+		"ajouter composant de stockage",
+		"créer un composant de stockage",
+		"ajouter un composant de stockage",
+		"créer le composant de stockage",
+		"ajouter le composant de stockage",
 		"ajouter un stockage de documents",
 		"créer un stockage de documents",
 		"ajouter stockage de documents",

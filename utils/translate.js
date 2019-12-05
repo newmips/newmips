@@ -99,16 +99,12 @@ module.exports = {
 					}
 					data.entity[keyValue] = {
 						label_entity: value,
-						name_entity: value,
-						plural_entity: value,
 						id_entity: "ID"
 					};
 					break;
 				case 'component':
 					data.component[keyValue] = {
-						label_component: value,
-						name_component: value,
-						plural_component: value
+						label_component: value
 					}
 					break;
 				case 'field':

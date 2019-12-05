@@ -14,7 +14,7 @@
 		</li>
 		<!-- SUB MODULE - DO NOT REMOVE -->
 		<li class="active">
-			{#__ key="entity.custom_data_entity.name_entity"/}
+			{#__ key="entity.custom_data_entity.label_entity"/}
 		</li>
 	</ol>
 {/header}
@@ -23,7 +23,7 @@
 		<div class="col-xs-12 connectedSortable">
 			<div class="box">
 				<div class="box-header">
-					<h3 class="box-title">{#__ key="operation.show"/} {#__ key="entity.custom_data_entity.name_entity" /}</h3>
+					<h3 class="box-title">{#__ key="operation.show"/} {#__ key="entity.custom_data_entity.label_entity" /}</h3>
 					<div class="box-tools pull-right">
 						<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
 						<i class="fa fa-minus"></i></button>
@@ -32,7 +32,7 @@
 				<div class="box-body">
 					{#custom_data_entity}
 						<div class="form-group">
-							<label for="id">{#__ key="entity.custom_data_entity.id_entity"/} {#__ key="entity.custom_data_entity.name_entity"/}</label>
+							<label for="id">{#__ key="entity.custom_data_entity.id_entity"/} {#__ key="entity.custom_data_entity.label_entity"/}</label>
 							<input type="text" name="sourceId" value="{custom_data_entity.id}" disabled="" class="form-control"/>
 							<input type="text" name="sourceName" value="custom_data_entity" disabled="" class="form-control" style="display:none;" />
 						</div>

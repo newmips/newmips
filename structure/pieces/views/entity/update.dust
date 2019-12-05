@@ -10,7 +10,7 @@
 		</li>
 		<!-- SUB MODULE - DO NOT REMOVE -->
 		<li class="active">
-			{#__ key="entity.custom_data_entity.name_entity"/}
+			{#__ key="entity.custom_data_entity.label_entity"/}
 		</li>
 	</ol>
 {/header}
@@ -20,7 +20,7 @@
 			<form action="/custom_url_data_entity/update" method="post">
 				<div class="box">
 					<div class="box-header">
-						<h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.custom_data_entity.name_entity"/}</h3>
+						<h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.custom_data_entity.label_entity"/}</h3>
 						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
 							<i class="fa fa-minus"></i></button>
@@ -28,7 +28,7 @@
 					</div>
 					<div class="box-body">
 						<div class="form-group">
-							<label for="id">{#__ key="entity.custom_data_entity.id_entity"/} {#__ key="entity.custom_data_entity.name_entity"/}</label>
+							<label for="id">{#__ key="entity.custom_data_entity.id_entity"/} {#__ key="entity.custom_data_entity.label_entity"/}</label>
 							<input name="id" type="hidden" placeholder="{custom_data_entity.id_entity}" value="{custom_data_entity.id}" class="form-control input"/>
 							<input name="id_display" type="text" placeholder="{custom_data_entity.id_entity}" value="{custom_data_entity.id}" disabled="" class="form-control input"/>
 						</div>

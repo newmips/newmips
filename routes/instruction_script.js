@@ -114,7 +114,7 @@ const mandatoryInstructions = [
 	"add field Robot related to Robot using Name",
 	"add field Program file with type file",
 	"add field Procedure with type regular text",
-	"add component localfilestorage with name Documents",
+	"add component file storage with name Documents",
 	"entity Media has one Media Mail",
 	"entity Media has one Media Notification",
 	"entity Media has one Media SMS",

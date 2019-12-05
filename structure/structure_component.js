@@ -90,61 +90,39 @@ function replaceValuesInFile(filePath, valueToFind, replaceWith) {
 	fs.writeFileSync(filePath, fileContent);
 }
 
-exports.newLocalFileStorage = async (data) => {
+exports.newFileStorage = async (data) => {
 
-	const componentName = data.options.value;
-	const urlComponent = data.options.urlValue;
-	const showComponentName = data.options.showValue;
-	const source = data.entity.name;
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const piecesPath = __dirname + '/../structure/pieces/component/file_storage';
 
-	// CREATE MODEL FILE
-	let modelTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/models/model_local_file_storage.js', 'utf8');
-	modelTemplate = modelTemplate.replace(/COMPONENT_NAME_LOWER/g, componentName);
-	modelTemplate = modelTemplate.replace(/COMPONENT_NAME/g, componentName.charAt(0).toUpperCase() + componentName.toLowerCase().slice(1));
-	modelTemplate = modelTemplate.replace(/TABLE_NAME/g, componentName);
-	fs.writeFileSync(workspacePath + '/models/' + componentName + '.js', modelTemplate);
+	// Add flag in option for loadtab
+	const optionFile = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
+	for (var i = 0; i < optionFile.length; i++) {
+		if(optionFile[i].target != data.options.value)
+			continue;
 
-	// CREATE MODEL ATTRIBUTES FILE
-	const attributesTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/models/attributes/attributes_local_file_storage.json', 'utf8');
-	fs.writeFileSync(workspacePath + '/models/attributes/' + componentName + '.json', attributesTemplate);
+		optionFile[i].isFileStorage = true;
+		break;
+	}
+	fs.writeFileSync(workspacePath + '/models/options/' + data.entity.name + '.json', JSON.stringify(optionFile, null, 4), 'utf8');
 
-	// CREATE MODEL OPTIONS (ASSOCIATIONS) FILE
-	let optionsTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/models/options/options_local_file_storage.json', 'utf8');
-	optionsTemplate = optionsTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
-	fs.writeFileSync(workspacePath + '/models/options/' + componentName + '.json', optionsTemplate);
+	// Get component view to remplace default one
+	let viewContent = fs.readFileSync(piecesPath + '/views/view_file_storage.dust', 'utf8');
+	viewContent = viewContent.replace(/ENTITY_VALUE/g, data.options.value);
+	viewContent = viewContent.replace(/ENTITY_URL/g, data.options.value.substring(2));
+	fs.writeFileSync(workspacePath + '/views/' + data.options.value + '/list_fields.dust', viewContent, 'utf8');
 
-	// CREATE ROUTE FILE
-	let routeTemplate = fs.readFileSync(__dirname + '/pieces/component/local_file_storage/routes/route_local_file_storage.js', 'utf8');
-	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_LOWER/g, componentName);
-	routeTemplate = routeTemplate.replace(/COMPONENT_NAME_URL/g, componentName.substring(2));
-	routeTemplate = routeTemplate.replace(/COMPONENT_NAME/g, componentName.charAt(0).toUpperCase() + componentName.slice(1));
-	routeTemplate = routeTemplate.replace(/SOURCE_ENTITY_LOWER/g, source);
-	routeTemplate = routeTemplate.replace(/SOURCE_URL_ENTITY_LOWER/g, source.substring(2));
+	// Update default display name in FR
+	if(data.options.showValue == "File storage") {
+		translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", data.entity.name, 'r_' + data.options.value.substring(2)], "Stockage de documents");
+		translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", data.options.value, "label_entity"], "Stockage de documents");
+	} else {
+		translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", data.entity.name, 'r_' + data.options.value.substring(2)], data.options.showValue);
+		translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", data.options.value, "label_entity"], data.options.showValue);
+	}
 
-	fs.writeFileSync(workspacePath + '/routes/' + componentName + '.js', routeTemplate);
-
-	// Add access managment to the component route
-	addAccessManagment(data.application.name, urlComponent, data.module_name.substring(2));
-
-	/* --------------- New translation --------------- */
-	await translateHelper.writeLocales(data.application.name, "component", componentName, showComponentName, data.googleTranslate);
-
-	// GET COMPONENT PIECES TO BUILD STRUCTURE FILE
-	const componentPiece = fs.readFileSync('./structure/pieces/component/local_file_storage/views/view_local_file_storage.dust', 'utf8');
-
-	let componentContent = componentPiece.replace(/COMPONENT_NAME_LOWER/g, componentName);
-	componentContent = componentContent.replace(/COMPONENT_URL_NAME_LOWER/g, urlComponent);
-	componentContent = componentContent.replace(/SOURCE_LOWER/g, source);
-	fs.mkdirSync(workspacePath + '/views/' + componentName);
-	fs.writeFileSync(workspacePath + '/views/' + componentName + '/list_fields.dust', componentContent, 'utf8');
-
-	const newLi = '<li><a id="' + componentName + '-click" data-toggle="tab" href="#' + componentName + '"><!--{#__ key="component.' + componentName + '.label_component" /}--></a></li>';
-	const file = workspacePath + '/views/' + source + '/show_fields.dust';
-
-	// CREATE THE TAB IN SHOW FIELDS
-	const newTab = '<div id="' + componentName + '" class="ajax-tab tab-pane fade" data-tabtype="localfilestorage" data-asso-flag="{' + source + '.id}" data-asso-alias="' + componentName + '"><div class="ajax-content"></div></div>';
-	await addTab(data.entity.name, file, newLi, newTab);
+	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", data.options.value, "f_filename"], "Fichier");
+	translateHelper.updateLocales(data.application.name, "en-EN", ["entity", data.options.value, "f_filename"], "File");
 }
 
 exports.newContactForm = async (data) => {
@@ -248,12 +226,7 @@ exports.newContactForm = async (data) => {
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "successSendMail"], "Le mail a bien été envoyé !");
 
 	translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeNameSettings, "label_entity"], "Settings");
-	translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeNameSettings, "name_entity"], "Settings");
-	translateHelper.updateLocales(data.application.name, "en-EN", ["entity", codeNameSettings, "plural_entity"], "Settings");
-
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "label_entity"], "Paramètres");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "name_entity"], "Paramètres");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "plural_entity"], "Paramètres");
 
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_transport_host"], "Hôte");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeNameSettings, "f_port"], "Port");
@@ -265,8 +238,6 @@ exports.newContactForm = async (data) => {
 	// If default name
 	if (codeName == "e_contact_form")
 		translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "label_entity"], "Formulaire de contact");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "name_entity"], "Formulaire de contact");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", codeName, "plural_entity"], "Formulaires de contact");
 
 	const layoutFileName = __dirname + '/../workspace/' + data.application.name + '/views/layout_' + data.module_name + '.dust';
 	const $ = await domHelper.read(layoutFileName);
@@ -406,8 +377,6 @@ exports.newAgenda = async (data) => {
 
 	// FR translation of the component
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "label_entity"], "Événement");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "name_entity"], "Événement");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "plural_entity"], "Événement");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_title"], "Titre");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_place"], "Lieu");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "f_start_date"], "Date de début");
@@ -418,8 +387,6 @@ exports.newAgenda = async (data) => {
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueEvent, "r_users"], "Utilisateurs");
 
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "label_entity"], "Catégorie");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "name_entity"], "Catégorie");
-	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "plural_entity"], "Catégorie");
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", valueCategory, "f_color"], "Couleur");
 
 	const layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
@@ -459,7 +426,7 @@ exports.newAgenda = async (data) => {
 					<li>\n\
 						<a href='/" + urlEvent + "/list'>\n\
 							<i class='fa fa-list'></i>\n\
-							<!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".plural_entity\" /}-->\n\
+							<!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueEvent + ".label_entity\" /}-->\n\
 						</a>\n\
 					</li>\n\
 				</ul>\n\
@@ -479,7 +446,7 @@ exports.newAgenda = async (data) => {
 					<li>\n\
 						<a href='/" + urlCategory + "/list'>\n\
 							<i class='fa fa-list'></i>\n\
-							<!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".plural_entity\" /}-->\n\
+							<!--{#__ key=\"operation.list\" /}-->&nbsp;<!--{#__ key=\"entity." + valueCategory + ".label_entity\" /}-->\n\
 						</a>\n\
 					</li>\n\
 				</ul>\n\
@@ -650,8 +617,6 @@ exports.newStatus = async (data) => {
 		localesFR.entity['e_' + data.history_table_db_name]['r_modified_by'] = "Modifié par";
 		localesFR.entity['e_' + data.history_table_db_name]['as_r_' + data.history_table] = "Historique " + statusAliasSubstring + " " + source.substring(2);
 		localesFR.entity['e_' + data.history_table_db_name].label_entity = "Historique " + statusAliasSubstring + " " + source.substring(2);
-		localesFR.entity['e_' + data.history_table_db_name].name_entity = "Historique " + statusAliasSubstring + " " + source.substring(2);
-		localesFR.entity['e_' + data.history_table_db_name].plural_entity = "Historique " + statusAliasSubstring + " " + source.substring(2);
 		// Rename traduction key to use history MODEL value, delete old traduction key
 		localesFR.entity['e_' + data.history_table] = localesFR.entity['e_' + data.history_table_db_name];
 		localesFR.entity['e_' + data.history_table_db_name] = undefined;
@@ -662,8 +627,6 @@ exports.newStatus = async (data) => {
 		const localesEN = JSON.parse(fs.readFileSync(workspacePath + '/locales/en-EN.json', 'utf8'));
 		localesEN.entity['e_' + data.history_table_db_name]['as_r_' + data.history_table] = "History " + source.substring(2) + " " + statusAliasSubstring;
 		localesEN.entity['e_' + data.history_table_db_name].label_entity = "History " + source.substring(2) + " " + statusAliasSubstring;
-		localesEN.entity['e_' + data.history_table_db_name].name_entity = "History " + source.substring(2) + " " + statusAliasSubstring;
-		localesEN.entity['e_' + data.history_table_db_name].plural_entity = "History " + source.substring(2) + " " + statusAliasSubstring;
 		// Rename traduction key to use history MODEL value, delete old traduction key
 		localesEN.entity['e_' + data.history_table] = localesEN.entity['e_' + data.history_table_db_name];
 		localesEN.entity['e_' + data.history_table_db_name] = undefined;
@@ -1188,8 +1151,6 @@ exports.createComponentDocumentTemplate = async (data) => {
 		// Set traduction
 		langFR.entity.e_document_template = {
 			label_entity: "Modèle de document",
-			name_entity: "Modèle de document",
-			plural_entity: "Modèle de documents",
 			id_entity: "ID",
 			f_name: "Nom du fichier",
 			f_file: "Fichier (.docx, .pdf, .dust)",
@@ -1199,8 +1160,6 @@ exports.createComponentDocumentTemplate = async (data) => {
 
 		langEN.entity.e_document_template = {
 			label_entity: "Document template",
-			name_entity: "Document template",
-			plural_entity: "Document templates",
 			id_entity: "ID",
 			f_name: "Filename",
 			f_file: "File (.docx, .pdf, .dust)",

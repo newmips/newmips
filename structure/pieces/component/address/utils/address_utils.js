@@ -67,15 +67,11 @@ exports.generateFields = function (componentName, componentCodeName) {
 		fr: {
 			search: 'Saisir une adresse',
 			label_entity: componentName,
-			name_entity: componentName,
-			plural_entity: componentName,
 			id_entity: 'ID'
 		},
 		en: {
 			search: 'Enter an address',
 			label_entity: componentName,
-			name_entity: componentName,
-			plural_entity: componentName,
 			id_entity: 'ID'
 		}
 	};

@@ -1586,21 +1586,17 @@ async function deleteComponentStatus(data) {
 exports.deleteComponentStatus = deleteComponentStatus;
 
 // Componant that we can add on an entity to store local documents
-exports.createNewComponentLocalFileStorage = async (data) => {
+exports.addComponentFileStorage = async (data) => {
 
 	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-	/* If there is no defined name for the module */
+	/* If there is no defined name for the component */
 	if (typeof data.options.value === "undefined") {
-		data.options.value = "c_local_file_storage_" + data.entity.name;
-		data.options.urlValue = "local_file_storage_" + data.entity.name;
-		data.options.showValue = "Local File Storage";
+		data.options.value = "e_file_storage_" + data.entity.name.substring(2);
+		data.options.showValue = "File storage";
 	} else {
-		data.options.value = data.options.value + "_" + data.entity.name;
-		data.options.urlValue = data.options.urlValue + "_" + data.entity.name;
+		data.options.value = data.options.value + "_" + data.entity.name.substring(2);
 	}
-
-	data.options.urlSource = data.options.value.substring(2);
 
 	if (data.entity.getComponent(data.options.value, 'file_storage'))
 		throw new Error('structure.component.error.alreadyExistOnEntity');
@@ -1608,23 +1604,18 @@ exports.createNewComponentLocalFileStorage = async (data) => {
 	if(data.application.findEntity(data.options.value))
 		throw new Error("structure.component.error.alreadyExistInApp");
 
+	const instructions = [
+		'entity ' + data.entity.displayName + ' has many ' + data.options.showValue + ' ' + data.entity.displayName,
+		'select entity ' + data.options.showValue + ' ' + data.entity.displayName,
+		'add field filename with type file'
+	];
+
+	await this.recursiveInstructionExecute(data, instructions, 0);
+
+	// structure_entity.setupAssociation(associationOption);
+	await structure_component.newFileStorage(data);
+
 	data.entity.addComponent(data.options.value, data.options.showValue, 'file_storage');
-
-	const associationOption = {
-		application: data.application,
-		source: data.entity.name,
-		target: data.options.value,
-		foreignKey: "fk_id_" + data.entity.name,
-		as: data.options.value,
-		showAs: data.options.showValue,
-		relation: "hasMany",
-		through: null,
-		toSync: false,
-		type: 'localfilestorage'
-	};
-
-	structure_entity.setupAssociation(associationOption);
-	await structure_component.newLocalFileStorage(data);
 
 	return {
 		message: "database.component.create.successOnEntity",
