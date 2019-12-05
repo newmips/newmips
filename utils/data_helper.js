@@ -136,7 +136,6 @@ function addPrefix(string, instructionFunction) {
 			return "r_" + string;
 		case 'createNewComponentAgenda':
 		case 'deleteAgenda':
-		case 'deleteComponentPrint':
 			return "c_" + string;
 		case 'createNewComponentStatus':
 		case 'deleteComponentStatus':

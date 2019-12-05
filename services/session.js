@@ -79,6 +79,12 @@ exports.setSession = (npFunction, req, info, data) => {
 			if(req.session.entity_name == info.entity.name)
 				req.session.entity_name = null;
 			break;
+		case "deleteComponentContactForm":
+			// Redirect to home to avoid 404
+			if (data && data.iframe_url) {
+				iframeUrl = data.iframe_url.split("/");
+				data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/home";
+			}
 		default:
 			break;
 	}

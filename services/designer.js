@@ -388,6 +388,8 @@ async function deleteEntity(data) {
 	const entityOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
 
 	for (let i = 0; i < entityOptions.length; i++) {
+		if(entityOptions[i].structureType == 'auto_generate')
+			continue;
 		if (entityOptions[i].relation == 'hasMany') {
 			const tmpData = {
 				options: {
@@ -420,7 +422,7 @@ async function deleteEntity(data) {
 				console.warn(entityOptions[i]);
 			}
 		} else if (entityOptions[i].relation == 'belongsToMany') {
-			await database.dropTable(data.application.name, entityOptions[i].through); // eslint-disable-line
+			await database.dropEntityOnSync(data.application, entityOptions[i].through); // eslint-disable-line
 		}
 	}
 
@@ -437,6 +439,7 @@ async function deleteEntity(data) {
 		for (let i = 0; i < options.length; i++) {
 			if (options[i].target != data.entity.name)
 				continue;
+
 			if (options[i].structureType == 'auto_generate')
 				idxToRemove.push(i);
 		}
@@ -455,7 +458,7 @@ async function deleteEntity(data) {
 					urlValue: options[i].as.substring(2)
 				},
 				application: data.application,
-				module_name: data.module_name,
+				module_name: data.np_module.name,
 				structureType: options[i].structureType
 			};
 
@@ -487,8 +490,7 @@ async function deleteEntity(data) {
 	// Fake session for delete widget
 	data.entity_name = data.entity.name;
 	await deleteEntityWidgets(data); // eslint-disable-line
-
-	database.dropDataEntity(data.application, data.entity.name);
+	database.dropEntityOnSync(data.application, data.entity.name);
 	data.np_module.deleteEntity(data.entity.name);
 	await structure_entity.deleteEntity(data);
 

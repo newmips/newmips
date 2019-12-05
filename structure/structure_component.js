@@ -475,7 +475,7 @@ exports.deleteAgenda = async (data) => {
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const layoutFileName = workspacePath + '/views/layout_' + data.np_module.name + '.dust';
 
-	// Remove agenda controller
+	// Remove agenda route
 	fs.unlinkSync(workspacePath + '/routes/' + data.options.value + '.js');
 
 	// Delete views folder

@@ -1261,13 +1261,14 @@ exports.setupRelatedToMultipleField = async (data) => {
 exports.deleteField = async (data) => {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
+	const optionsPath = workspacePath + '/models/options/';
 	const field = data.options.value;
 	const url_value = data.options.urlValue;
 	let isInOptions = false;
 	const info = {};
 
 	// Check if field is in options with relation=belongsTo, it means its a relatedTo association and not a simple field
-	let jsonPath = workspacePath + '/models/options/' + data.entity.name + '.json';
+	let jsonPath = optionsPath + data.entity.name + '.json';
 
 	// Clear the require cache
 	let dataToWrite = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
@@ -1275,7 +1276,7 @@ exports.deleteField = async (data) => {
 	for (let i = 0; i < dataToWrite.length; i++) {
 		if (dataToWrite[i].as.toLowerCase() == "r_" + url_value) {
 			if (dataToWrite[i].relation != 'belongsTo' && dataToWrite[i].structureType != "relatedToMultiple" && dataToWrite[i].structureType != "relatedToMultipleCheckbox")
-				throw new Error(data.entity.name + " isn't a regular field. You might want to use `delete tab` instruction.");
+				throw new Error(data.entity.name + " isn't a regular field. You might want to use 'delete tab' instruction.");
 
 			// Modify the options.json file
 			info.fieldToDrop = dataToWrite[i].foreignKey;
@@ -1348,7 +1349,6 @@ exports.deleteField = async (data) => {
 		domHelper.write(viewsPath + '/list_fields.dust', $);
 	})());
 
-	const optionsPath = workspacePath + '/models/options/';
 	const otherViewsPath = workspacePath + '/views/';
 	const structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
 	fieldsFiles.push("list_fields");
