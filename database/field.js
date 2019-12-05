@@ -1,7 +1,8 @@
 class Field {
-	constructor(name, displayName) {
+	constructor(name, displayName, type) {
 		this._name = name;
 		this._displayName = displayName;
+		this._type = type;
 	}
 
 	get name(){
@@ -10,6 +11,10 @@ class Field {
 
 	get displayName() {
 		return this._displayName;
+	}
+
+	get type() {
+		return this._type;
 	}
 }
 

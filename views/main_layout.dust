@@ -51,7 +51,7 @@
 								{@ifTrue key=dark_theme}
 									<img src="/img/LOGO-PNG-01-min.png" alt="Newmips Logo" class="newmipsLogo" />
 								{:else}
-									<img src="/img/FAVICON-GRAND-01.png" alt="Newmips Logo" class="newmipsLogo" />
+									<img src="/img/FAVICON-GRAND-01{?noel}_noel{/noel}.png" alt="Newmips Logo" class="newmipsLogo" />
 								{/ifTrue}
 							</a>
 							{+title /}

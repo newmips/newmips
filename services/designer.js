@@ -515,8 +515,8 @@ exports.createNewDataField = async (data) => {
 		throw err;
 	}
 
-	data.entity.addField(data.options.value, data.options.showValue);
-	await structure_field.setupField(data);
+	const newmipsFieldType = await structure_field.setupField(data);
+	data.entity.addField(data.options.value, data.options.showValue, newmipsFieldType);
 
 	return {
 		message: "database.field.create.created",

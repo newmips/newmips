@@ -53,14 +53,14 @@ class Entity {
 	}
 
 	// --- ADD ---
-	addField(name, displayName) {
+	addField(name, displayName, type) {
 		const [existingField] = this._fields.filter(x => x.name == name);
 		if (existingField) {
 			console.warn("addField => Field already loaded in the entity instance: " + name);
 			return existingField;
 		}
 
-		const field = new Field(name, displayName);
+		const field = new Field(name, displayName, type);
 		this._fields.push(field);
 		return field;
 	}
