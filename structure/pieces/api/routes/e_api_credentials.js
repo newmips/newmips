@@ -327,7 +327,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
 	});
 });
 
-router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_credentials', 'read'), function (req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_credentials', 'read'), (req, res) => {
 	const alias = req.params.alias;
 	const id = req.params.id;
 
@@ -345,9 +345,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
 		return res.status(403).end();
 
-	const queryOpts = {where: {id: id}};
+	const queryOpts = {
+		where: {
+			id: id
+		}
+	};
 	// If hasMany, no need to include anything since it will be fetched using /subdatalist
-	if (option.structureType != 'hasMany')
+	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
 		queryOpts.include = {
 			model: models[entity_helper.capitalizeFirstLetter(option.target)],
 			as: option.as,
@@ -355,14 +359,15 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 		}
 
 	// Fetch tab data
-	models.E_api_credentials.findOne(queryOpts).then(function (e_api_credentials) {
+	models.E_api_credentials.findOne(queryOpts).then(e_api_credentials => {
 		if (!e_api_credentials)
 			return res.status(404).end();
 
-		let dustData = e_api_credentials[option.as] || null;
-		const empty = !dustData || dustData instanceof Array && dustData.length == 0;
-		const promisesData = [];
-		let dustFile, idSubentity, subentityOptions, obj;
+		let dustData = e_api_credentials[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
+
+		// Default value
+		option.noCreateBtn = false;
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -372,15 +377,20 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 					dustData.hideTab = true;
 					dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
 					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					// Fetch status children to be able to switch status
 					// Apply getR_children() on each current status
+					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
 					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
 							(alias => {
 								promisesData.push(new Promise((resolve, reject) => {
-									dustData[alias].getR_children().then(children => {
+									dustData[alias].getR_children({
+										include: [{
+											model: models.E_group,
+											as: "r_accepted_group"
+										}]
+									}).then(children => {
 										dustData[alias].r_children = children;
 										resolve();
 									}).catch(reject);
@@ -395,9 +405,10 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 				// Status history specific behavior. Replace history_model by history_table to open view
 				if (option.target.indexOf('_history_') == 0)
 					option.noCreateBtn = true;
-				dustData = {for : 'hasMany'};
-				if (typeof req.query.associationFlag !== 'undefined')
-				{
+				dustData = {
+					for: 'hasMany'
+				};
+				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
 					dustData.associationSource = req.query.associationSource;
 					dustData.associationForeignKey = req.query.associationForeignKey;
@@ -410,8 +421,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 				dustFile = option.target + '/list_fields';
 				obj = {[option.target]: dustData};
 				dustData = obj;
-				if (typeof req.query.associationFlag !== 'undefined')
-				{
+				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
 					dustData.associationSource = req.query.associationSource;
 					dustData.associationForeignKey = req.query.associationForeignKey;
@@ -424,41 +434,40 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('api_crede
 
 				break;
 
-			case 'localfilestorage':
-				dustFile = option.target + '/list_fields';
-				obj = {[option.target]: dustData};
-				dustData = obj;
-				dustData.sourceId = id;
-				break;
-
 			default:
 				return res.status(500).end();
 		}
 
-		// Image buffer promise
-		Promise.all(promisesData).then(_ => {
-			// Open and render dust file
-			const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
-			dust.insertLocalsFn(dustData ? dustData : {}, req);
-			dust.renderSource(file, dustData || {}, function (err, rendered) {
-				if (err) {
-					console.error(err);
-					return res.status(500).end();
-				}
+		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
+		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
+			// Image buffer promise
+			Promise.all(promisesData).then(_ => {
+				// Open and render dust file
+				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+				dust.insertLocalsFn(dustData ? dustData : {}, req);
+				dust.renderSource(file, dustData || {}, (err, rendered) => {
+					if (err) {
+						console.error(err);
+						return res.status(500).end();
+					}
 
-				// Send response to ajax request
-				res.json({
-					content: rendered,
-					data: idSubentity || {},
-					empty: empty,
-					option: option
+					// Send response to ajax request
+					res.json({
+						content: rendered,
+						data: idSubentity || {},
+						empty: empty,
+						option: option
+					});
 				});
+			}).catch(err => {
+				console.error(err);
+				res.status(500).send(err);
 			});
-		}).catch(function (err) {
+		}).catch(err => {
 			console.error(err);
 			res.status(500).send(err);
 		});
-	}).catch(function (err) {
+	}).catch(err => {
 		console.error(err);
 		res.status(500).send(err);
 	});

@@ -116,6 +116,7 @@ function addPrefix(string, instructionFunction) {
 		case 'createNewFieldRelatedTo':
 		case 'createNewComponentContactForm':
 		case 'deleteComponentContactForm':
+		case 'addComponentFileStorage':
 		case 'setIcon':
 			return "e_" + string;
 		case 'createNewDataField':
@@ -133,7 +134,6 @@ function addPrefix(string, instructionFunction) {
 		case 'alias':
 			/* R for Relation */
 			return "r_" + string;
-		case 'createNewComponentLocalFileStorage':
 		case 'createNewComponentAgenda':
 		case 'deleteAgenda':
 		case 'deleteComponentPrint':

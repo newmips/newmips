@@ -13,7 +13,7 @@
 			</a>
 		</li>
 		<li class="active">
-			{#__ key="entity.custom_data_entity.name_entity"/}
+			{#__ key="entity.custom_data_entity.label_entity"/}
 		</li>
 	</ol>
 {/header}
@@ -22,7 +22,7 @@
 		<div class="box-header">
 			<h3 class="box-title">
 				{#__ key="operation.list"/}&nbsp;
-				{#__ key="entity.custom_data_entity.plural_entity"/}
+				{#__ key="entity.custom_data_entity.label_entity"/}
 			</h3>
 			<div class="box-tools pull-right">
 				<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">

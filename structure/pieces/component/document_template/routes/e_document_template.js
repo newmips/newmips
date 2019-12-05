@@ -402,7 +402,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('document_
 		}
 	};
 	// If hasMany, no need to include anything since it will be fetched using /subdatalist
-	if (option.structureType != 'hasMany')
+	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
 		queryOpts.include = {
 			model: models[entity_helper.capitalizeFirstLetter(option.target)],
 			as: option.as,
@@ -483,13 +483,6 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('document_
 				for (let i = 0; i < dustData[option.target].length; i++)
 					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
 
-				break;
-
-			case 'localfilestorage':
-				dustFile = option.target + '/list_fields';
-				obj = {[option.target]: dustData};
-				dustData = obj;
-				dustData.sourceId = id;
 				break;
 
 			default:

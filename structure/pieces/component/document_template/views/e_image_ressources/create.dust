@@ -9,7 +9,7 @@
 			</a>
 		</li>
 		<li class="active">
-			{#__ key="entity.e_image_ressources.name_entity"/}
+			{#__ key="entity.e_image_ressources.label_entity"/}
 		</li>
 	</ol>
 {/header}
@@ -21,7 +21,7 @@
 					<div class="box-header">
 						<h3 class="box-title">
 							{#__ key="operation.create"/}&nbsp;
-							{#__ key="entity.e_image_ressources.name_entity"/}
+							{#__ key="entity.e_image_ressources.label_entity"/}
 						</h3>
 						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">

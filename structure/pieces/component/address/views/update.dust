@@ -12,7 +12,7 @@
 			<form action="/URL_COMPONENT_ADDRESS/update" method="post">
 				<div class="box">
 					<div class="box-header">
-						<h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.e_address.name_entity"/}</h3>
+						<h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.e_address.label_entity"/}</h3>
 						<div class="box-tools pull-right">
 							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
 							<i class="fa fa-minus"></i></button>
@@ -20,7 +20,7 @@
 					</div>
 					<div class="box-body">
 						<div class="form-group">
-							<label for="id">{#__ key="entity.e_address.id_entity"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {#__ key="entity.e_address.name_entity"/}</label>
+							<label for="id">{#__ key="entity.e_address.id_entity"/} {@inline_help field="id"}&nbsp;<i data-field="id" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} {#__ key="entity.e_address.label_entity"/}</label>
 							<input name="id" type="hidden" placeholder="{e_address.id_label}" value="{COMPONENT_NAME.id}" class="form-control input"/>
 							<input name="id_display" type="text" placeholder="{e_address.id_label}" value="{COMPONENT_NAME.id}" disabled="" class="form-control input"/>
 						</div>

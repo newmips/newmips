@@ -219,36 +219,50 @@ function initHasMany(tab, data) {
     var doPagination = data.option.relation == 'belongsToMany' ? false : true;
 
     var table = tab.find('table');
-    if (!data.option.noCreateBtn) {
+    if (!data.option.noCreateBtn && !data.option.isFileStorage) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
         tab.find('.ajax-content').append("<br>").append(newButton);
+    }
 
+    if(data.option.isFileStorage) {
+        // Only delete in file storage
+        DATALIST_BUTTONS = [{
+            render: function(data2, type, row) {
+                var form = '\
+                <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                    <input name="id" value="'+row['id']+'" type="hidden"/>\
+                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+DELETE_TEXT+'</span>\
+                    </button>\
+                </form>';
+                return form;
+            }
+        }];
+    } else if(data.option.target.indexOf('e_history_') == -1) {
         // No buttons for history status list
-        if(data.option.target.indexOf('e_history_') == -1) {
-            // Define update/delete button to be used by DataList plugin
-            DATALIST_BUTTONS = [{
-                render: function(data2, type, row) {
-                    var aTag = '\
-                    <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
-                        <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
-                        <span>'+UPDATE_TEXT+'</span>\
-                    </a>';
-                    return aTag;
-                }
-            }, {
-                render: function(data2, type, row) {
-                    var form = '\
-                    <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                        <input name="id" value="'+row['id']+'" type="hidden"/>\
-                        <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                            <span>'+DELETE_TEXT+'</span>\
-                        </button>\
-                    </form>';
-                    return form;
-                }
-            }];
-        }
+        // Define update/delete button to be used by DataList plugin
+        DATALIST_BUTTONS = [{
+            render: function(data2, type, row) {
+                var aTag = '\
+                <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
+                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
+                    <span>'+UPDATE_TEXT+'</span>\
+                </a>';
+                return aTag;
+            }
+        }, {
+            render: function(data2, type, row) {
+                var form = '\
+                <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                    <input name="id" value="'+row['id']+'" type="hidden"/>\
+                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+DELETE_TEXT+'</span>\
+                    </button>\
+                </form>';
+                return form;
+            }
+        }];
     }
 
     // Set subdatalist url and subentity to table

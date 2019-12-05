@@ -20,7 +20,7 @@
 					</div>
 					<div class="box-body">
 						<div class="form-group" style="display: none;">
-							<label for="id">{#__ key="entity.CODE_VALUE_CONTACT_settings.id_entity"/} {#__ key="entity.CODE_VALUE_CONTACT_settings.name_entity"/}</label>
+							<label for="id">{#__ key="entity.CODE_VALUE_CONTACT_settings.id_entity"/} {#__ key="entity.CODE_VALUE_CONTACT_settings.label_entity"/}</label>
 							<input name="id" type="hidden" placeholder="{CODE_VALUE_CONTACT_settings.id_entity}" value="{CODE_VALUE_CONTACT_settings.id}" class="form-control input"/>
 							<input name="id_display" type="text" placeholder="{CODE_VALUE_CONTACT_settings.id_entity}" value="{CODE_VALUE_CONTACT_settings.id}" disabled="" class="form-control input"/>
 						</div>

@@ -520,8 +520,6 @@ exports.initializeApplication = async(application) => {
 	fs.unlinkSync(workspacePath + '/api/e_api_credentials.js');
 	// Set french translation about API credentials
 	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
-	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_api_credentials", "name_entity"], "Identifiant d'API");
-	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_api_credentials", "plural_entity"], "Identifiant d'API");
 
 	await initializeWorkflow(application);
 }

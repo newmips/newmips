@@ -1,6 +1,5 @@
 var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
-var dropzonesComponentArray = [];
 Dropzone.autoDiscover = false;
 
 function select2_ajaxsearch(select, placeholder) {
@@ -282,9 +281,8 @@ function initForm(context) {
     var ctpQrCode = 0;
     $("input[data-type='qrcode']", context).each(function () {
         if ($(this).val() != '') {
-            //Update View, set attr parent id, Qrcode only work with component Id
+            // Update View, set attr parent id, Qrcode only work with component Id
             $(this).parent().parent().attr("id", $(this).attr('name') + ctpQrCode);
-            //$(this).attr('name') = this parent id
             var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
                 text: $(this).val(),
                 width: 128,
@@ -322,7 +320,7 @@ function initForm(context) {
         }
     };
 
-    //input barcode
+    // Input barcode
     $("input[data-type='barcode']", context).each(function () {
         if ($(this).attr('show') == 'true' && $(this).val() != '') {
             displayBarCode(this);
@@ -335,14 +333,14 @@ function initForm(context) {
         }
     });
 
-    //input barcode
+    // Input barcode
     $("input[data-type='code39']", context).each(function () {
         $(this).on('keyup', function () {
             $(this).val($(this).val().toUpperCase());
         });
     });
 
-    //Mask for data-type currency
+    // Mask for data-type currency
     $("input[data-type='currency']", context).each(function () {
         var val = $(this).val();
         //Fix display maskMoney bug with number and with zero
@@ -426,8 +424,33 @@ function initForm(context) {
                         '<a style="text-align: center;cursor: pointer;display: block;" href="/default/download?entity='+that.attr("data-entity")+'&f='+$("#" + that.attr("id") + "_hidden").val()+'">Télécharger</a>');
                 });
 
+                this.on("success", function (file, message) {
+                    /* Only in file storage component */
+                    if(that.hasClass('file-storage-dropzone')) {
+                        $.ajax({
+                            url: '/' + that.attr('data-entity').substring(2) + '/create',
+                            type: 'POST',
+                            context: this,
+                            data: {
+                                entity: that.attr("data-entity"),
+                                associationFlag: that.attr("data-flag"),
+                                associationSource: that.attr("data-source"),
+                                associationForeignKey: that.attr("data-fk"),
+                                associationAlias: that.attr("data-alias"),
+                                associationUrl: that.attr("data-url"),
+                                f_filename: $("#" + that.attr("id") + "_hidden").val()
+                            },
+                            complete: function() {
+                                $("#table_" + that.attr('data-entity')).DataTable().ajax.reload();
+                                $("#" + that.attr("id") + "_hidden").val('');
+                                this.removeAllFiles();
+                            }
+                        });
+                    }
+                });
+
                 this.on('removedfile', function (file) {
-                    if (file.status != "error") {
+                    if (file.status != "error" && !that.hasClass('file-storage-dropzone')) {
                         var dropzone = this;
                         $.ajax({
                             url: '/default/delete_file',
@@ -488,7 +511,7 @@ function initForm(context) {
     });
 
     // Component address
-    if (typeof context.data === "undefined" || context.data("tabtype") != "print")
+    if (typeof context.data === "undefined")
         initComponentAddress(context);
 
     // Input group addons click
@@ -532,181 +555,6 @@ function initForm(context) {
     });
 }
 
-// DROPZONE
-function initDropZone(context) {
-    if (!context)
-        context = document;
-
-    /* File Storage Component */
-  $('.dropzone_local_file_component', context).each(function (index) {
-        var that = $(this);
-        var dropzoneId = $(this).attr("id");
-        var dropzoneInit = new Dropzone("#" + dropzoneId, {
-            url: "/" + that.attr("data-component") + "/file_upload",
-            autoProcessQueue: true,
-            maxFilesize: 10,
-            addRemoveLinks: true,
-            uploadMultiple: false,
-            dictDefaultMessage: "Glisser le fichier ou cliquer ici pour ajouter.",
-            dictRemoveFile: "Supprimer",
-            dictCancelUpload: "Annuler",
-            init: function () {
-                this.on("addedfile", function () {
-                    if (this.files[1] != null) {
-                        this.removeFile(this.files[1]);
-                        toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                    }
-                });
-                this.on("sending", function (file, xhr, formData) {
-                    var dataComponent = that.attr("data-component");
-                    var dataSource = that.attr("data-source");
-                    var dataSourceID = that.attr("data-sourceId");
-                    formData.append("dataComponent", dataComponent);
-                    formData.append("dataSource", dataSource);
-                    formData.append("dataSourceID", dataSourceID);
-                });
-                this.on("maxfilesexceeded", function () {
-                    this.removeFile(this.files[1]);
-                    toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
-                });
-                this.on("success", function (file, message) {
-                    $("#" + that.attr("id") + "_hidden_name").parents("form")[0].submit();
-                });
-                this.on("error", function (file, message) {
-                    this.removeFile(this.files[0]);
-                    toastr.error(message);
-                    $("#" + that.attr("id") + "_hidden").removeAttr('value');
-                });
-            },
-            renameFile: function (file) {
-                var filename = file.name;
-                var value = $('#' + dropzoneId + '_hidden').val();
-                if (!value) {
-                    var uuid = uuidv4().replace(/-/g, '');
-                    var filenameCleanedAndRenamed = clearString(filename);
-                    var timeFile = moment().format("YYYYMMDD-HHmmss");
-                    filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
-                    $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
-                    $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
-                }
-                return filenameCleanedAndRenamed;
-            }
-        });
-
-        dropzonesComponentArray[$(this).attr("data-component")] = [];
-        dropzonesComponentArray[$(this).attr("data-component")].push(dropzoneInit);
-    });
-}
-
-// PRINT
-function initPrint() {
-    /* Clear print tab component */
-    $(".print-tab input").each(function () {
-        $(this).prop("disabled", true);
-        $(this).attr("placeholder", "-");
-        $(this).css("cursor", "default");
-        $(this).css("padding", "0");
-        if ($(this).attr("type") == "hidden" && !$(this).hasClass("print-not-remove"))
-            $(this).remove();
-    });
-
-    $(".print-tab a:not([href=''])").each(function () {
-        if ($(this).find("img").length == 0) {
-            if ($(this).text() == "")
-                if ($(this).prev(".input-group-addon").find("i.fa").hasClass("fa-download"))
-                    $(this).replaceWith("Aucun fichier");
-                else
-                    $(this).replaceWith("-");
-            else
-                $(this).replaceWith($(this).text());
-        }
-    });
-
-    $(".print-tab select[multiple]").each(function () {
-        if ($(this).val() == null) {
-            $(this).replaceWith("<br>-");
-        } else {
-            var selectContent = "<br>";
-            for (var i = 0; i < $(this).val().length; i++) {
-                if (i > 0)
-                    selectContent += ",&nbsp;";
-                selectContent += $(this).val()[i];
-            }
-            $(this).replaceWith(selectContent);
-        }
-    });
-
-    $(".print-tab input[type='color']").each(function () {
-        $(this).css("width", "20%");
-    });
-
-    $(".print-tab a[data-type='url']").each(function () {
-        if ($(this).text() == "")
-            $(this).replaceWith("-");
-    });
-
-    $(".print-tab input[data-type='email']").each(function () {
-        $(this).parent().removeClass("input-group");
-    });
-
-    $(".print-tab .input-group-addon").each(function () {
-        $(this).remove();
-    });
-
-    $(".print-tab select").each(function () {
-        $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-    });
-
-    $(".print-tab input[type='radio']:checked").each(function () {
-        var formGroup = $(this).parent(".form-group");
-        var label = formGroup.find("label");
-        var htmlToWrite = label[0].outerHTML + "\n";
-        formGroup.find("input[type='radio']").each(function () {
-            if ($(this).prop("checked")) {
-                htmlToWrite += "<br><span>" + $(this).val() + "</span>";
-            }
-        });
-        formGroup.html(htmlToWrite);
-    });
-
-    $(".print-tab input[type='checkbox']").each(function () {
-        var formGroup = $(this).parents(".form-group");
-        var label = formGroup.find("label").html();
-        var htmlToWrite = "<b>" + label + "</b>\n";
-        formGroup.find("input[type='checkbox']").each(function () {
-            if ($(this).prop("checked")) {
-                htmlToWrite += "<br><span><i class='fa fa-check'></i></span>";
-            } else {
-                htmlToWrite += "<br><span><i class='fa fa-close'></i></span>";
-            }
-        });
-        formGroup.html(htmlToWrite);
-    });
-
-    $(".print-tab textarea").each(function () {
-        $(this).replaceWith("<br><span>" + $(this).val() + "</span>");
-    });
-
-    $(".print-tab button, .print-tab .btn").each(function () {
-        $(this).remove();
-    });
-
-    $(".print-tab form").each(function () {
-        $(this).remove();
-    });
-
-    $(".print-tab .print-remove").each(function () {
-        $(this).remove();
-    });
-
-    // Component address
-    $(".print-tab .address_maps").attr("mapsid", $(".print-tab .address_maps").attr("mapsid") + "_print");
-    $(".print-tab .address_maps").attr("id", $(".print-tab .address_maps").attr("id") + "_print");
-    setTimeout(function () {
-        initMapsIfComponentAddressExists($(".print-tab"));
-    }, 500);
-}
-
 function validateForm(form) {
     var isValid = true;
 
@@ -724,11 +572,6 @@ function validateForm(form) {
     function isFileRequired() {
         for (var i = 0; i < dropzonesFieldArray.length; i++) {
             if ($("input#" + $(dropzonesFieldArray[i].element).attr("id") + "_hidden", form).prop("required") && $("input#" + $(dropzonesFieldArray[i].element).attr("id") + "_hidden", form).val() == "") {
-                return true;
-            }
-        }
-        for (let item in dropzonesComponentArray) {
-            if ($("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).prop("required") && $("input#" + $(dropzonesComponentArray[item][0].element).attr("id") + "_hidden", form).val() == "") {
                 return true;
             }
         }
@@ -1161,53 +1004,9 @@ $(document).ready(function () {
         $("a[href='/" + mainMenu + "/" + subMenu + "']").css("color", "#3c8dbc");
     }
 
-    // DROPZONE SUBMIT
-    /* Dropzone files managment already done ? */
-    var filesComponentProceeded = false;
-    $(document).on("submit", ".component-form", function (e) {
-        if (!filesComponentProceeded && dropzonesComponentArray[$(this).attr("data-component")].length > 0) {
-            /* If there are files to write, stop submit and do this before */
-            e.preventDefault();
-
-            /* Send dropzone file */
-            for (var i = 0; i < dropzonesComponentArray[$(this).attr("data-component")].length; i++) {
-                if (dropzonesComponentArray[$(this).attr("data-component")][i].files.length > 0) {
-                    dropzonesComponentArray[$(this).attr("data-component")][i].processQueue();
-                    (function (ibis, myform) {
-                        dropzonesComponentArray[myform.attr("data-component")][i].on("complete", function (file) {
-                            if (ibis == dropzonesComponentArray[myform.attr("data-component")].length - 1) {
-                                filesComponentProceeded = true;
-                                myform.submit();
-                            }
-                        });
-                    })(i, $(this))
-                } else {
-                    if (i == dropzonesComponentArray[$(this).attr("data-component")].length - 1) {
-                        filesComponentProceeded = false;
-                        toastr.error(REQUIRED_FILE_TEXT);
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
-    });
-
     /* ---------------------- Composants ---------------------- */
     /** Do not remove **/
     /** Do not remove **/
-
-    /* Component print button action */
-    $(document).on("click", ".component-print-button", function () {
-        // Clear component address
-        $(".print-tab .section_address_fields .address_maps").replaceWith(
-            "<div style='position:relative;height:450px;overflow:hidden;'>" +
-            $(".print-tab .section_address_fields .address_maps").find(".olLayerGrid").parent().html() +
-            "</div>");
-        window.print();
-        return true;
-    });
 });
 
 function initComponentAddress(context) {

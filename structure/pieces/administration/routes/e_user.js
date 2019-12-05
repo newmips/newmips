@@ -366,7 +366,7 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 	});
 });
 
-router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'read'), function(req, res) {
+router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'read'), (req, res) => {
 	const alias = req.params.alias;
 	const id = req.params.id;
 
@@ -390,13 +390,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 		}
 	};
 	// If hasMany, no need to include anything since it will be fetched using /subdatalist
-	if (option.structureType != 'hasMany')
+	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
 		queryOpts.include = {
 			model: models[entity_helper.capitalizeFirstLetter(option.target)],
 			as: option.as,
-			include: {
-				all: true
-			}
+			include: {all: true}
 		}
 
 	// Fetch tab data
@@ -404,9 +402,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 		if (!e_user)
 			return res.status(404).end();
 
-		let dustData = e_user[option.as] || null, dustFile, idSubentity, subentityOptions = [];
-		const empty = !dustData || dustData instanceof Array && dustData.length == 0;
-		const promisesData = [];
+		let dustData = e_user[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
+		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
+
+		// Default value
+		option.noCreateBtn = false;
 
 		// Build tab specific variables
 		switch (option.structureType) {
@@ -423,8 +423,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 					for (let i = 0; i < subentityOptions.length; i++)
 						if (subentityOptions[i].target.indexOf('e_status') == 0)
 							(alias => {
-								promisesData.push(new Promise(function(resolve, reject) {
-									dustData[alias].getR_children().then(function(children) {
+								promisesData.push(new Promise((resolve, reject) => {
+									dustData[alias].getR_children({
+										include: [{
+											model: models.E_group,
+											as: "r_accepted_group"
+										}]
+									}).then(children => {
 										dustData[alias].r_children = children;
 										resolve();
 									}).catch(reject);
@@ -453,7 +458,8 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				dustData = {[option.target]: dustData};
+				obj = {[option.target]: dustData};
+				dustData = obj;
 				if (typeof req.query.associationFlag !== 'undefined') {
 					dustData.associationFlag = req.query.associationFlag;
 					dustData.associationSource = req.query.associationSource;
@@ -467,24 +473,18 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 
 				break;
 
-			case 'localfilestorage':
-				dustFile = option.target + '/list_fields';
-				dustData = {[option.target]: dustData};
-				dustData.sourceId = id;
-				break;
-
 			default:
 				return res.status(500).end();
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(function(dustData) {
+		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
 			// Image buffer promise
-			Promise.all(promisesData).then(function() {
+			Promise.all(promisesData).then(_ => {
 				// Open and render dust file
 				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
 				dust.insertLocalsFn(dustData ? dustData : {}, req);
-				dust.renderSource(file, dustData || {}, function(err, rendered) {
+				dust.renderSource(file, dustData || {}, (err, rendered) => {
 					if (err) {
 						console.error(err);
 						return res.status(500).end();
@@ -498,15 +498,15 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 						option: option
 					});
 				});
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
 				res.status(500).send(err);
 			});
-		}).catch(function(err) {
+		}).catch(err => {
 			console.error(err);
 			res.status(500).send(err);
 		});
-	}).catch(function(err) {
+	}).catch(err => {
 		console.error(err);
 		res.status(500).send(err);
 	});

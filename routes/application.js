@@ -615,7 +615,7 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 		"add field Robot related to Robot using Name",
 		"add field Program file with type file",
 		"add field Procedure with type regular text",
-		"add component localfilestorage with name Documents",
+		"add component file storage with name Documents",
 		"create entity Media",
 		"set icon envelope",
 		"add field Type with type enum and values Mail, Notification, SMS, Task",
