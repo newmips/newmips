@@ -310,7 +310,7 @@ exports.addTitle = async (data) => {
 			const currentView = viewsToProcess[i];
 			const $ = await domHelper.read(pathToViews + '/' + currentView + '.dust');
 			if (data.options.afterField) {
-				$("div[data-field=" + data.fieldCodeName + "]").after(title);
+				$("div[data-field=" + data.field.name + "]").after(title);
 			} else {
 				$("#fields").append(title);
 			}
