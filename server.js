@@ -207,7 +207,6 @@ app.use(function(req, res, next) {
 
 	// Locals
 	res.locals.__ = (ch, con, bo, params) => ch.write(language(lang).__(params.key, params.params));
-
 	res.locals.M_ = (ch, con, bo, params) => ch.write(language(lang).M_(params.key, params.params));
 
 	res.locals.isAdmin = () => {
@@ -218,6 +217,9 @@ app.use(function(req, res, next) {
 
 	res.locals.user_lang = lang;
 	res.locals.globalConf = globalConf;
+	// Snow and christmas ambiance
+	if(moment().format('MM') == '12')
+		res.locals.noel = true;
 
 	// Filters
 	dust.filters.stringify = value => JSON.stringify(value);

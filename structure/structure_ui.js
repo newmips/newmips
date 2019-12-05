@@ -412,9 +412,16 @@ exports.createWidgetPiechart = async (data) => {
 	const $ = await domHelper.read(layoutFile);
 	const $2 = await domHelper.read(piecesPath + '/views/widget/' + data.widgetType + '.dust');
 
-	const widgetElemId = data.widgetType + '_' + data.entity.name + '_' + data.field.name + '_widget';
 	// Widget box title traduction
 	$2(".box-title").html(`<!--{#__ key="defaults.widgets.piechart.distribution" /}-->&nbsp;<!--{#__ key="entity.${data.entity.name}.label_entity" /}-->&nbsp;-&nbsp;<!--{#__ key="entity.${data.entity.name}.${data.field.name}" /}-->`);
+
+	let widgetElemId = data.widgetType + '_' + data.entity.name + '_' + data.field.name + '_widget';
+
+	let randomNumber = Math.floor(Math.random() * 100);
+	while($('#widgetElemId_' + randomNumber).length != 0)
+		randomNumber = Math.floor(Math.random() * 100);
+
+	widgetElemId = widgetElemId + '_' + randomNumber;
 
 	// Create widget's html
 	let newHtml = "";

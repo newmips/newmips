@@ -48,7 +48,7 @@ class Application {
 
 					// Fields loading
 					for (const field in metadata[name].modules[np_module].entities[entity].fields)
-						currentEntity.addField(field, metadata[name].modules[np_module].entities[entity].fields[field].displayName);
+						currentEntity.addField(field, metadata[name].modules[np_module].entities[entity].fields[field].displayName, metadata[name].modules[np_module].entities[entity].fields[field].type);
 
 					// Entity components loading
 					for (const component_type in metadata[name].modules[np_module].entities[entity].components)
@@ -276,6 +276,7 @@ class Application {
 						newMetadata.modules[np_module.name].entities[entity.name].fields[field.name] = actualMetadata[appName].modules[np_module.name].entities[entity.name].fields[field.name];
 
 					newMetadata.modules[np_module.name].entities[entity.name].fields[field.name].displayName = field.displayName;
+					newMetadata.modules[np_module.name].entities[entity.name].fields[field.name].type = field.type;
 				}
 
 				// Loop on entity components

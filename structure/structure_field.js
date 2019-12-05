@@ -846,7 +846,7 @@ exports.setupField = async (data) => {
 	// Field application locales
 	await translateHelper.writeLocales(data.application.name, "field", entity_name, [field_name, data.options.showValue], data.googleTranslate);
 
-	return;
+	return field_type;
 }
 
 exports.setRequiredAttribute = async (data) => {
