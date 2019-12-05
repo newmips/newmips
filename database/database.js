@@ -15,14 +15,13 @@ function pushToSyncQuery(app, query) {
 	return true;
 }
 
-// DataEntity
-exports.dropDataEntity = (app, entity) => {
+// Drop entity on application sync
+exports.dropEntityOnSync = (app, entity) => {
 	let query = "";
-
 	if(sequelize.options.dialect == "mysql")
 		query = "SET FOREIGN_KEY_CHECKS=0;DROP TABLE IF EXISTS " + entity + ";SET FOREIGN_KEY_CHECKS=1;";
 	else if(sequelize.options.dialect == "postgres")
-		query = "DROP TABLE IF EXISTS \"" + entity + "\" CASCADE;";
+		query = "DROP TABLE \"" + entity + "\" CASCADE;";
 
 	return pushToSyncQuery(app, query);
 }
@@ -76,13 +75,6 @@ exports.dropFKMultipleDataField = async (data) => {
 		return;
 	query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop +";";
 	pushToSyncQuery(data.application, query);
-}
-
-exports.dropTable = async (appName, table_name) => {
-	delete require.cache[require.resolve('../workspace/' + appName + '/models/')];
-	const workspaceModels = require('../workspace/' + appName + '/models/').sequelize; // eslint-disable-line
-
-	return await workspaceModels.query(`DROP TABLE ${table_name};`);
 }
 
 // Get real SQL type in DB, not sequelize datatype
