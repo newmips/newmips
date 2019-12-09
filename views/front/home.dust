@@ -178,7 +178,7 @@
 {/content}
 {<custom_js}
 	{?noel}
-		<script type="text/javascript" src="/js/snow.js"></script>
+		<script type="text/javascript" src="/js/Newmips/snow.js"></script>
 	{/noel}
 	{?showytpopup}
 		<script type="text/javascript">
