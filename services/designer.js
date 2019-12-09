@@ -247,7 +247,7 @@ exports.selectModule = async (data) => { // eslint-disable-line
 	return {
 		module: data.module,
 		message: "database.module.select.selected",
-		messageParams: [data.module.name],
+		messageParams: [data.module.displayName],
 		restartServer: false
 	};
 }
