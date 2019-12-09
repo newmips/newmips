@@ -1937,7 +1937,7 @@ exports.deleteComponentDocumentTemplate = async (data) => {
 	data.entity.deleteComponent(data.options.value, 'document_template');
 
 	return {
-		message: 'database.component.create.success',
+		message: 'database.component.delete.success',
 		messageParams: ["Document template"]
 	};
 };
