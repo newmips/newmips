@@ -126,6 +126,7 @@ function addPrefix(string, instructionFunction) {
 		case 'setFieldAttribute':
 		case 'setFieldKnownAttribute':
 		case 'setColumnVisibility':
+		case 'createWidgetPiechart':
 			if (string == 'id')
 				return string;
 			return "f_" + string;

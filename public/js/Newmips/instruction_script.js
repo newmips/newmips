@@ -108,11 +108,14 @@ $(function() {
             });
         } else {
 
-            lastWrittenScript.unshift({
-                date: moment().format("DD MMM, HH:mm"),
-                content: $("#createScriptTextarea").val()
-            });
-            localStorage.setItem("newmips_last_written_script", JSON.stringify(lastWrittenScript));
+            // Avoid store multiple time the same written script
+            if(lastWrittenScript.length == 0 || $("#createScriptTextarea").val() != lastWrittenScript[0].content) {
+                lastWrittenScript.unshift({
+                    date: moment().format("DD MMM, HH:mm"),
+                    content: $("#createScriptTextarea").val()
+                });
+                localStorage.setItem("newmips_last_written_script", JSON.stringify(lastWrittenScript));
+            }
 
             var ajaxData = {
                 template_entry: $("#template_entry").val(),
