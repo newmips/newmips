@@ -277,16 +277,19 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		}
 
 		/* Save an instruction history in the history script in workspace folder */
-		if (data.function != 'restart') {
+		if (data.function != 'restart' && data.function != 'deleteApplication') {
 			const historyScriptPath = __dirname + '/../workspace/' + appName + '/history_script.nps';
 			let historyScript = fs.readFileSync(historyScriptPath, 'utf8');
 			historyScript += "\n" + instruction;
 			fs.writeFileSync(historyScriptPath, historyScript);
 		}
 
-		if (data.function == "deleteApplication"){
+		if (data.function == "deleteApplication") {
+			// Kill server
+			await process_manager.killChildProcess(process_server_per_app[appName].pid);
+			process_server_per_app[appName] = null;
 			data.toRedirect = true;
-			data.url = "/default/home";
+			data.url = "/default/home"; // Generator home
 			return data;
 		}
 
@@ -302,7 +305,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 		if(data.restartServer) {
 			// Kill server first
-			await process_manager.killChildProcess(process_server_per_app[appName].pid)
+			await process_manager.killChildProcess(process_server_per_app[appName].pid);
 			// Launch a new server instance to reload resources
 			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
 			const initialTimestamp = new Date().getTime();
@@ -321,7 +324,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		return data;
 
 	})().then(data => {
-		if(data.application)
+		if(data.application && data.function != 'deleteApplication')
 			docBuilder.build(data.application).catch(err => {
 				console.error(err);
 			});
