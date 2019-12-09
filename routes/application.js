@@ -245,6 +245,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 	let data = {};
 
 	(async () => {
+
 		const db_app = await models.Application.findOne({where: {name: appName}});
 
 		const port = math.add(9000, db_app.id);
@@ -257,6 +258,9 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 		// Current application url
 		data.iframe_url = process_manager.childUrl(req, db_app.id);
+
+		if(parser.parse(instruction).function == 'createNewApplication')
+			throw new Error('preview.no_create_app');
 
 		/* Add instruction in chat */
 		setChat(req, appName, currentUserID, req.session.passport.user.login, instruction, []);
@@ -365,6 +369,10 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		data = initPreviewData(appName, data);
 		data.session = session_manager.getSession(req);
 		data.chat = chats[appName][currentUserID];
+
+		if(typeof data.iframe_url === 'undefined')
+			data.iframe_url = -1;
+
 		res.send(data);
 	});
 });
