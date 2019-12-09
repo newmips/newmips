@@ -364,11 +364,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
 		return res.status(403).end();
 
-	const queryOpts = {
-		where: {
-			id: id
-		}
-	};
+	const queryOpts = {where: {id: id}};
 	// If hasMany, no need to include anything since it will be fetched using /subdatalist
 	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
 		queryOpts.include = {
@@ -384,6 +380,9 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 
 		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
 		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
+
+		if (typeof req.query.associationFlag !== 'undefined')
+			dustData = {...dustData, ...req.query};
 
 		// Default value
 		option.noCreateBtn = false;
@@ -424,33 +423,12 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 				// Status history specific behavior. Replace history_model by history_table to open view
 				if (option.target.indexOf('_history_') == 0)
 					option.noCreateBtn = true;
-				dustData = {
-					for: 'hasMany'
-				};
-				if (typeof req.query.associationFlag !== 'undefined') {
-					dustData.associationFlag = req.query.associationFlag;
-					dustData.associationSource = req.query.associationSource;
-					dustData.associationForeignKey = req.query.associationForeignKey;
-					dustData.associationAlias = req.query.associationAlias;
-					dustData.associationUrl = req.query.associationUrl;
-				}
+				dustData = {for: 'hasMany'};
 				break;
 
 			case 'hasManyPreset':
 				dustFile = option.target + '/list_fields';
-				obj = {[option.target]: dustData};
-				dustData = obj;
-				if (typeof req.query.associationFlag !== 'undefined') {
-					dustData.associationFlag = req.query.associationFlag;
-					dustData.associationSource = req.query.associationSource;
-					dustData.associationForeignKey = req.query.associationForeignKey;
-					dustData.associationAlias = req.query.associationAlias;
-					dustData.associationUrl = req.query.associationUrl;
-				}
-				dustData.for = 'fieldset';
-				for (let i = 0; i < dustData[option.target].length; i++)
-					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
-
+				dustData = {for: 'fieldset'};
 				break;
 
 			default:
