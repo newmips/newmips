@@ -1529,6 +1529,9 @@ exports.createNewComponentStatus = async (data) => {
 
 	data.entity.addComponent(data.options.value, data.options.showValue, 'status');
 
+	// Remove useless related field on entity
+	data.entity.deleteField('f_' + data.options.value.substring(2));
+
 	return {
 		message: 'database.component.create.successOnEntity',
 		messageParams: ['status', data.entity.displayName]
