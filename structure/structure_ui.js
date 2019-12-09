@@ -48,8 +48,6 @@ exports.setColumnVisibility = async (data) => {
 	const err = new Error('structure.ui.columnVisibility.noColumn');
 	err.messageParams = [data.options.showValue]
 	throw err;
-
-
 }
 
 exports.setLogo = async (data) => {
@@ -159,7 +157,6 @@ exports.setLayout = async (data) => {
 		msgParams += "-  " + layoutListAvailable[i] + "<br>";
 	err.messageParams = [msgParams];
 	throw err;
-
 }
 
 exports.listLayout = (data) => {
@@ -423,10 +420,14 @@ exports.createWidgetPiechart = async (data) => {
 
 	widgetElemId = widgetElemId + '_' + randomNumber;
 
+	let type = 'string';
+	if(typeof data.field.type !== 'undefined')
+		type = data.field.type;
+
 	// Create widget's html
 	let newHtml = "";
 	newHtml += '<!--{#entityAccess entity="' + data.entity.name.substring(2) + '" }-->';
-	newHtml += "<div id='" + widgetElemId + "' data-entity='" + data.entity.name + "' data-field-type='" + data.field.type + "' data-field='" + data.field.name + "' data-legend='" + data.legend + "' data-widget-type='" + data.widgetType + "' class='ajax-widget col-sm-4 col-xs-12'>\n";
+	newHtml += "<div id='" + widgetElemId + "' data-entity='" + data.entity.name + "' data-field-type='" + type + "' data-field='" + data.field.name + "' data-legend='" + data.legend + "' data-widget-type='" + data.widgetType + "' class='ajax-widget col-sm-4 col-xs-12'>\n";
 	newHtml += $2("body")[0].innerHTML + "\n";
 	newHtml += "</div>";
 	newHtml += '<!--{/entityAccess}-->';
