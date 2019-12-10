@@ -4,7 +4,7 @@ const domHelper = require('../utils/jsDomHelper');
 const translateHelper = require("../utils/translate");
 const path = require("path");
 const mysql = require('promise-mysql');
-const { Pool, Client } = require('pg');
+const {Client} = require('pg');
 
 // Gitlab
 const globalConf = require('../config/global.js');
@@ -239,7 +239,7 @@ async function initializeWorkflow(application) {
 
 	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
-	let mediaModels = [
+	const mediaModels = [
 		'e_media.js',
 		'e_media_mail.js',
 		'e_media_notification.js',

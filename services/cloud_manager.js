@@ -146,18 +146,18 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 					"MYSQL_USER": cloudDbConf.dbUser,
 					"MYSQL_PASSWORD": cloudDbConf.dbPwd,
 					"MYSQL_ROOT_PASSWORD": cloudDbConf.dbRootPwd,
-                    "PG_DATA": "/var/lib/postgresql/data/pgdata",
-                    "POSTGRES_DB": cloudDbConf.dbName,
-                    "POSTGRES_USER": cloudDbConf.dbUser,
-                    "POSTGRES_PASSWORD": cloudDbConf.dbPwd,
-                    "POSTGRES_ROOT_PASSWORD": cloudDbConf.dbRootPwd
+					"PG_DATA": "/var/lib/postgresql/data/pgdata",
+					"POSTGRES_DB": cloudDbConf.dbName,
+					"POSTGRES_USER": cloudDbConf.dbUser,
+					"POSTGRES_PASSWORD": cloudDbConf.dbPwd,
+					"POSTGRES_ROOT_PASSWORD": cloudDbConf.dbRootPwd
 				},
 				"networks": [
 					"proxy"
 				],
 				"volumes": [
-					stackName+"_db_data:/var/lib/mysql",
-					stackName+"_db_log:/var/log/mysql"
+					stackName + "_db_data:/var/lib/mysql",
+					stackName + "_db_log:/var/log/mysql"
 				]
 			}
 		},
@@ -257,7 +257,7 @@ exports.deploy = async (data) => {
 	fs.writeFileSync(applicationPath +'/config/application.json', JSON.stringify(applicationConf, null, 4), 'utf8');
 
 	// Workspace database dialect
-	const appDialect = require(applicationPath +'/config/database').dialect;
+	const appDialect = require(applicationPath +'/config/database').dialect; // eslint-disable-line
 
 	// Create toSyncProd.lock file
 	if (fs.existsSync(applicationPath + '/models/toSyncProd.lock.json'))

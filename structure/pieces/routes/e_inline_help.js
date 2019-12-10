@@ -201,9 +201,7 @@ router.get('/create_form', block_access.actionAccessMiddleware("inline_help", "c
 	}
 
 	const entities = [];
-	fs.readdirSync(__dirname + '/../models/attributes/').filter(file => {
-		return file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_';
-	}).forEach(file => {
+	fs.readdirSync(__dirname + '/../models/attributes/').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_').forEach(file => {
 		const fields = [];
 		const attributesObj = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + file));
 		const optionsObj = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + file));

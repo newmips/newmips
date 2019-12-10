@@ -1618,7 +1618,7 @@ exports.addComponentFileStorage = async (data) => {
 	await this.recursiveInstructionExecute(data, instructions, 0);
 
 	// structure_entity.setupAssociation(associationOption);
-	await structure_component.newFileStorage(data);
+	structure_component.newFileStorage(data);
 
 	data.entity.addComponent(data.options.value, data.options.showValue, 'file_storage');
 
