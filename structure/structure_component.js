@@ -90,14 +90,14 @@ function replaceValuesInFile(filePath, valueToFind, replaceWith) {
 	fs.writeFileSync(filePath, fileContent);
 }
 
-exports.newFileStorage = async (data) => {
+exports.newFileStorage = (data) => {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const piecesPath = __dirname + '/../structure/pieces/component/file_storage';
 
 	// Add flag in option for loadtab
 	const optionFile = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.entity.name + '.json'));
-	for (var i = 0; i < optionFile.length; i++) {
+	for (let i = 0; i < optionFile.length; i++) {
 		if(optionFile[i].target != data.options.value)
 			continue;
 
@@ -123,6 +123,7 @@ exports.newFileStorage = async (data) => {
 
 	translateHelper.updateLocales(data.application.name, "fr-FR", ["entity", data.options.value, "f_filename"], "Fichier");
 	translateHelper.updateLocales(data.application.name, "en-EN", ["entity", data.options.value, "f_filename"], "File");
+	return;
 }
 
 exports.newContactForm = async (data) => {
@@ -1113,11 +1114,6 @@ exports.createComponentDocumentTemplate = async (data) => {
 	// Add administration configuration files
 	if (!data.application.hasDocumentTemplate) {
 
-		// Models
-		let modelContent = fs.readFileSync(piecesPath + 'models/e_document_template.js', 'utf8');
-		modelContent = modelContent.replace(/TABLE_NAME/g, 'e_document_template');
-		modelContent = modelContent.replace(/MODEL_CODE_NAME/g, 'e_document_template');
-
 		// Copy views files. Todo => move directory
 		fs.copySync(piecesPath + 'views/e_document_template/create.dust', workspacePath + 'views/e_document_template/create.dust');
 		fs.copySync(piecesPath + 'views/e_document_template/create_fields.dust', workspacePath + 'views/e_document_template/create_fields.dust');
@@ -1131,7 +1127,6 @@ exports.createComponentDocumentTemplate = async (data) => {
 		fs.copySync(piecesPath + 'views/e_document_template/entity_helper_template.dust', workspacePath + 'views/e_document_template/entity_helper_template.dust');
 		fs.copySync(piecesPath + 'views/e_document_template/global_variable_template.dust', workspacePath + 'views/e_document_template/global_variable_template.dust');
 		fs.copySync(piecesPath + 'views/e_document_template/layout_document_template.dust', workspacePath + 'views/layout_document_template.dust');
-
 
 		// Image ressources views copy
 		fs.copySync(piecesPath + 'views/e_image_ressources/create.dust', workspacePath + 'views/e_image_ressources/create.dust');

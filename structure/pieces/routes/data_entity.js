@@ -378,7 +378,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		if (!ENTITY_NAME)
 			return res.status(404).end();
 
-		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
+		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity;
 		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
 
 		if (typeof req.query.associationFlag !== 'undefined')

@@ -85,6 +85,7 @@ exports.setSession = (npFunction, req, info, data) => {
 				iframeUrl = data.iframe_url.split("/");
 				data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/home";
 			}
+			break;
 		default:
 			break;
 	}

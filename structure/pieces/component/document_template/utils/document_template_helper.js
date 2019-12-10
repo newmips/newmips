@@ -71,10 +71,10 @@ function generateHtmlToPDF(options) {
 		let dustSrc = fs.readFileSync(options.file, 'utf8');
 		// Add Bootstrap to template
 		// See Docs on => https://simplegrid.io/
-        let simpleGridCss = fs.readFileSync(__dirname + '/../public/css/simple-grid.min.css', 'utf8');
-        dustSrc = dustSrc.replace("<!-- INSERT SIMPLE GRID HERE - DO NOT REMOVE -->", "<style>"+simpleGridCss+"</style>");
+		const simpleGridCss = fs.readFileSync(__dirname + '/../public/css/simple-grid.min.css', 'utf8');
+		dustSrc = dustSrc.replace("<!-- INSERT SIMPLE GRID HERE - DO NOT REMOVE -->", "<style>" + simpleGridCss + "</style>");
 		dust.insertLocalsFn(options.data ? options.data : {}, options.req);
-		dust.renderSource(dustSrc, options.data, function (err, html) {
+		dust.renderSource(dustSrc, options.data, function(err, html) {
 			if (err)
 				return reject(err);
 
@@ -92,7 +92,7 @@ function generateHtmlToPDF(options) {
 			html = html.replace(footer, '');
 
 			footer = footer.replace('**page**', '{{page}}');
-            footer = footer.replace('**pages**', '{{pages}}');
+			footer = footer.replace('**pages**', '{{pages}}');
 
 			pdf.create(html, {
 				orientation: "portrait",
@@ -382,14 +382,16 @@ module.exports = {
 						object[item] = formatTel(object[item], ' ');
 						break;
 					case 'picture':
-						if(object[item].split('-').length > 1) {
-							try{
-	                            object[item] = "data:image/*;base64, " + fs.readFileSync(globalConf.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
-	                        } catch(err){
-	                            console.log("IMG NOT FOUND: ", object[item]);
-	                            object[item] = "IMG NOT FOUND: " + object[item];
-	                        }
+						if (object[item].split('-').length > 1) {
+							try {
+								object[item] = "data:image/*;base64, " + fs.readFileSync(globalConf.localstorage + entityName + '/' + object[item].split('-')[0] + '/' + object[item]).toString('base64');
+							} catch (err) {
+								console.log("IMG NOT FOUND: ", object[item]);
+								object[item] = "IMG NOT FOUND: " + object[item];
+							}
 						}
+						break;
+					default:
 						break;
 				}
 

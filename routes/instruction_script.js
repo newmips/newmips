@@ -383,8 +383,8 @@ function executeFile(req, userID, __) {
 
 		// If new app created, then add mandatory instructions
 		if(scriptData[userID].isNewApp) {
-			let newFileLines = [];
-			for (var i = 0; i < fileLines.length; i++) {
+			const newFileLines = [];
+			for (let i = 0; i < fileLines.length; i++) {
 				newFileLines.push(fileLines[i]);
 				if(scriptData[userID].newAppIndexes.indexOf(i) != -1) {
 					scriptData[userID].totalInstruction += mandatoryInstructions.length;
