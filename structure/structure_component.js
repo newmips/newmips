@@ -677,10 +677,10 @@ exports.newStatus = async (data) => {
 	// Update list field to show status color in datalist
 	$ = await domHelper.read(workspacePath + '/views/' + source + '/list_fields.dust');
 	$("th[data-field='" + statusAlias + "']").each(function () {
-		$(this).data("data-type", "status");
+		$(this).attr("data-type", "status");
 	});
-	$("td[data-field='" + statusAlias + "']").data("data-type", "status");
-	$("td[data-field='" + statusAlias + "']").data("data-color", "{" + statusAlias + ".f_color}");
+	$("td[data-field='" + statusAlias + "']").attr("data-type", "status");
+	$("td[data-field='" + statusAlias + "']").attr("data-color", "{" + statusAlias + ".f_color}");
 	domHelper.write(workspacePath + '/views/' + source + '/list_fields.dust', $)
 
 	return await translateHelper.writeLocales(data.application.name, 'field', source, [data.options.value, data.options.showValue], false)

@@ -337,6 +337,14 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 	const id_e_document_template = parseInt(req.body.id);
 	const updateObject = model_builder.buildForRoute(attributes, options, req.body);
 
+	const relations = document_template_helper.getRelations(req.body.f_entity);
+	const f_exclude_relations = Array.isArray(req.body.f_exclude_relations) ? req.body.f_exclude_relations : [req.body.f_exclude_relations];
+	const exclude_relations = [];
+	for (var i = 0; i < relations.length; i++)
+		if (f_exclude_relations.indexOf(relations[i].value) < 0)
+			exclude_relations.push(relations[i].value);
+	updateObject.f_exclude_relations = exclude_relations.join(',');
+
 	models.E_document_template.findOne({
 		where: {
 			id: id_e_document_template

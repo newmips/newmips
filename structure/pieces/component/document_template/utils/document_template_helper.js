@@ -468,7 +468,7 @@ module.exports = {
 			attributes: this.getAttributes(attributes),
 			entity: entityRootTranslated,
 			relation: 'root',
-			color: "#ffffff"
+			color: "#b2b2b2"
 		});
 		//now get options entities and there attributes
 		for (let i = 0; i < options.length; i++) {
