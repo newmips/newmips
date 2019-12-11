@@ -354,7 +354,7 @@ exports.createWidget = async (data) => {
 	// Get entity's icon
 	let $ = await domHelper.read(workspacePath + '/views/' + layout_filename);
 
-	const entityIconClass = $("#" + data.entity.name.substring(2) + '_menu_item').find('a:first').find('i:first').attr('class');
+	const entityIconClass = $("#" + data.entity.name.substring(2) + '_menu_item').find('a:first').find('i:first').attr('class') || 'fa fa-folder';
 	const layout_view_filename = workspacePath + '/views/default/' + data.np_module.name + '.dust';
 
 	// Add widget to module's layout
@@ -511,7 +511,7 @@ exports.deleteWidget = async (data) => {
 
 	// For each widgetType, find corresponding divs using a regex on data id
 	for (const widgetType of data.widgetTypes) {
-		widgetElements = $("#widgets > div[data-widget-type=" + widgetType + "]").filter(_ => {
+		widgetElements = $("#widgets > div[data-widget-type=" + widgetType + "]").filter(function() {
 			// We don't know piechart's field, use regex to match rest of id
 			const reg = widgetType == 'piechart' ? new RegExp('piechart_' + data.entity.name + '_.*_widget') : new RegExp(widgetType + '_' + data.entity.name + '_widget');
 			return this.id.match(reg);
