@@ -1114,6 +1114,10 @@ exports.createNewHasManyPreset = async (data) => {
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	const sourceEntity = data.application.findEntity(data.options.source, true);
+
+	// Check that target exist
+	data.application.findEntity(data.options.target, true);
+
 	data.np_module = sourceEntity.np_module;
 	data.source_entity = sourceEntity.entity;
 
