@@ -146,7 +146,7 @@ const mandatoryInstructions = [
 	"add field Color with type color",
 	"add field Icon",
 	"select entity media SMS",
-	"add field Message with type text",
+	"add field Message with type regular text",
 	"add field Phone numbers",
 	"add entity Inline Help",
 	"set icon question-circle-o",

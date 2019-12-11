@@ -659,7 +659,7 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 		"add field Color with type color",
 		"add field Icon",
 		"select entity media SMS",
-		"add field Message with type text",
+		"add field Message with type regular text",
 		"add field Phone numbers",
 		"entity user has many notification",
 		"entity notification has many user",
