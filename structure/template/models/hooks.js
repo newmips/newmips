@@ -1,15 +1,14 @@
 const fs = require('fs-extra');
 const globalConf = require('../config/global');
-
 const ignoreList = globalConf.synchronization.ignore_list;
 
+/* eslint-disable */
 function getModels() {
-	/* eslint-disable */
 	if (!this.models)
 		this.models = require('./');
-	/* eslint-enable */
 	return this.models;
 }
+/* eslint-enable */
 
 function writeJournalLine(line) {
 	let journalData;
@@ -22,14 +21,12 @@ function writeJournalLine(line) {
 	fs.writeFileSync(__dirname + '/../sync/journal.json', JSON.stringify(journalData, null, 4), 'utf8');
 }
 
-module.exports = function(model_name, attributes) {
-	const model_urlvalue = model_name.substring(2);
-
+module.exports = function(model_name) {
 	return {
 		// CREATE HOOKS
 		beforeCreate: [{
 			name: 'insertCreatedBy',
-			func: (model, args) => new Promise((resolve, reject) => {
+			func: (model, args) => new Promise(resolve => {
 				try {
 					if(!args.req)
 						throw 'Missing req';
@@ -57,7 +54,7 @@ module.exports = function(model_name, attributes) {
 		// UPDATE HOOKS
 		beforeUpdate: [{
 			name: 'insertUpdatedBy',
-			func: (model, args) => new Promise((resolve, reject) => {
+			func: (model, args) => new Promise(resolve => {
 				try {
 					if(!args.req)
 						throw 'Missing req';

@@ -247,7 +247,7 @@ exports.selectModule = async (data) => { // eslint-disable-line
 	return {
 		module: data.module,
 		message: "database.module.select.selected",
-		messageParams: [data.module.name],
+		messageParams: [data.module.displayName],
 		restartServer: false
 	};
 }
@@ -1114,6 +1114,10 @@ exports.createNewHasManyPreset = async (data) => {
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	const sourceEntity = data.application.findEntity(data.options.source, true);
+
+	// Check that target exist
+	data.application.findEntity(data.options.target, true);
+
 	data.np_module = sourceEntity.np_module;
 	data.source_entity = sourceEntity.entity;
 
@@ -1618,7 +1622,7 @@ exports.addComponentFileStorage = async (data) => {
 	await this.recursiveInstructionExecute(data, instructions, 0);
 
 	// structure_entity.setupAssociation(associationOption);
-	await structure_component.newFileStorage(data);
+	structure_component.newFileStorage(data);
 
 	data.entity.addComponent(data.options.value, data.options.showValue, 'file_storage');
 
@@ -1937,7 +1941,7 @@ exports.deleteComponentDocumentTemplate = async (data) => {
 	data.entity.deleteComponent(data.options.value, 'document_template');
 
 	return {
-		message: 'database.component.create.success',
+		message: 'database.component.delete.success',
 		messageParams: ["Document template"]
 	};
 };
@@ -2055,37 +2059,46 @@ exports.createWidgetLastRecords = async (data) => {
 	data.entity = data.np_module.getEntity(data.entity_name, true);
 
 	// Check for not found fields and build error message
-	for (let k = 0; k < data.columns.length; k++) {
+	loop1: for (let k = 0; k < data.columns.length; k++) {
 
-		let kFound = false;
 		if (data.columns[k].toLowerCase() == 'id') {
 			data.columns[k] = {
 				name: 'id',
 				displayName: 'id',
 				found: true
 			};
-			kFound = true;
 			continue;
 		}
 
+		// Looking in entity fields
 		for (let i = 0; i < data.entity.fields.length; i++) {
-			if (data.entity.fields[i].name.indexOf('s_') == 0)
-				data.entity.fields[i].name = 'r_' + data.entity.fields[i].name.substring(2);
 			if (data.columns[k].toLowerCase() == data.entity.fields[i].displayName.toLowerCase()) {
 				data.columns[k] = {
 					name: data.entity.fields[i].name,
 					displayName: data.entity.fields[i].displayName,
 					found: true
 				};
-				kFound = true;
-				break;
+				continue loop1;
 			}
 		}
-		if (!kFound)
-			data.columns[k] = {
-				name: data.columns[k],
-				found: false
-			};
+
+		// Looking in entity components for status
+		for (let i = 0; i < data.entity.components.length; i++) {
+
+			if (data.entity.components[i].name.indexOf('s_') == 0 && data.columns[k] == data.entity.components[i].displayName) {
+				data.columns[k] = {
+					name: 'r_' + data.entity.components[i].name.substring(2),
+					displayName: data.entity.components[i].displayName,
+					found: true
+				};
+				continue loop1;
+			}
+		}
+
+		data.columns[k] = {
+			name: data.columns[k],
+			found: false
+		};
 	}
 
 	await structure_ui.createWidgetLastRecords(data);

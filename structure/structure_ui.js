@@ -492,7 +492,10 @@ exports.createWidgetLastRecords = async (data) => {
 		const type = $list('th[data-field="' + field + '"]').data('type');
 		const col = $list('th[data-field="' + field + '"]').data('col');
 		const fieldTradKey = field != 'id' ? field : 'id_entity';
-		thead += '<th data-field="' + field + '" data-type="' + type + '" data-col="' + col + '"><!--{#__ key="entity.' + data.entity.name + '.' + fieldTradKey + '" /}--></th>';
+		thead += '\
+		<th data-field="' + field + '" data-type="' + type + '" data-col="' + col + '">\n\
+			<!--{#__ key="entity.' + data.entity.name + '.' + fieldTradKey + '" /}-->\n\
+		</th>';
 	}
 	thead += '</tr></thead>';
 

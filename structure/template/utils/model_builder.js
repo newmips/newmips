@@ -46,10 +46,11 @@ exports.attributesValidation = function (attributes) {
 //			  Ex: [{model: E_project, as:'r_project'}, {model: E_user, as:'r_user', include: [{model: E_user, as:'r_children'}]}}]
 exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 	const globalInclude = [];
+
 	function buildInclude(currentEntity, includeObject, depths, idx = 0) {
-		if (depths.length-1 == idx)
-			return ;
-		const entityOptions = require('../models/options/'+currentEntity); // eslint-disable-line
+		if (depths.length - 1 == idx)
+			return;
+		const entityOptions = require('../models/options/' + currentEntity.toLowerCase()); // eslint-disable-line
 
 		for (let j = 0; j < entityOptions.length; j++) {
 			if (entityOptions[j].as == depths[idx]) {
@@ -59,10 +60,10 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 						return buildInclude(entityOptions[j].target, includeObject[i].include, depths, ++idx);
 
 				// Uppercase target's first letter to build model name. This is necessary because of component `C`_adresse
-				const modelPrefix = entityOptions[j].target.charAt(0).toUpperCase()+'_';
+				const modelPrefix = entityOptions[j].target.charAt(0).toUpperCase() + '_';
 				// If include for current depth doesn't exists, create it and send include array to recursive buildInclude
 				const depthInclude = {
-					model: models[modelPrefix+entityOptions[j].target.slice(2)],
+					model: models[modelPrefix + entityOptions[j].target.slice(2)],
 					as: depths[idx],
 					include: [],
 					duplicating: false

@@ -453,7 +453,7 @@ module.exports = {
 						console.error("Unable to execute actions");
 						console.error(err);
 						req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
-					};
+					}
 			})(field));
 		}
 

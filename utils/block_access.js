@@ -36,27 +36,38 @@ exports.hasAccessApplication = function(req, res, next) {
 		app_name = req.session.app_name ? req.session.app_name : null;
 
 	if (req.isAuthenticated()){
-		models.User.findOne({
+		// Check if application exist
+		models.Application.findOne({
 			where: {
-				id: req.session.passport.user.id
-			},
-			include: [{
-				model: models.Application,
-				required: true,
-				where: {
-					name: app_name
-				}
-			}]
-		}).then(user => {
-			if(!user){
-				req.session.toastr = [{
-					message: "application.no_access",
-					level: "error"
-				}];
-				return res.redirect('/');
+				name: app_name
 			}
-			return next();
-		})
+		}).then(app => {
+			if(!app)
+				return res.redirect('/');
+			// Check user access
+			models.User.findOne({
+				where: {
+					id: req.session.passport.user.id
+				},
+				include: [{
+					model: models.Application,
+					required: true,
+					where: {
+						name: app_name
+					}
+				}]
+			}).then(user => {
+				if(!user){
+					req.session.toastr = [{
+						message: "application.no_access",
+						level: "error"
+					}];
+					return res.redirect('/');
+				}
+				return next();
+			})
+		});
+
 	} else {
 		res.redirect('/login');
 	}
