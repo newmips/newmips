@@ -98,7 +98,7 @@ module.exports = (sequelize, DataTypes) => {
 				f_type: self.f_task_type,
 				f_data_flow: insertVariablesValue('f_data_flow'),
 				f_program_file: program_file
-			}, {req: req}).then(_ => {
+			}).then(_ => {
 				resolve();
 			}).catch(reject);
 		});

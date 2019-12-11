@@ -198,6 +198,7 @@
 		"help-disabled": "Le chat support est désactivé. Activez-le dans config/global.js et renseignez votre configuration dans config/mattermost.js",
 		"server_timeout": "Le serveur de l'application ne répond pas, merci de vérifier les logs.",
 		"disable_log_refresh": "Désactiver le rafraichissement des logs",
+		"no_create_app": "Vous ne pouvez pas créer de nouvelle application depuis la prévisualisation, merci de vous rendre à l'accueil du générateur.",
 		"session": {
 			"noApplication": "Aucune application sélectionnée",
 			"noModule": "Aucune module sélectionné",

@@ -36,7 +36,11 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 	// ORDER BY Managment
 	const stringOrder = params.columns[params.order[0].column].data;
 	// If ordering on an association field, use Sequelize.literal so it can match field path 'r_alias.f_name'
-	const order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), params.order[0].dir]] : [[stringOrder, params.order[0].dir]];
+	let order = stringOrder.indexOf('.') != -1 ? [[models.Sequelize.literal(stringOrder), params.order[0].dir]] : [[stringOrder, params.order[0].dir]];
+
+	// If request come from widget lastrecord, then default query order is ID DESC
+	if(params.widgetType == 'lastrecords')
+		order = [['id', 'DESC']];
 
 	// Building final query object
 	let queryObject;

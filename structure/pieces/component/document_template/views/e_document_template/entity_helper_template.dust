@@ -24,7 +24,7 @@
 					<tbody>
 						{#attributes entity=.}
 						<tr>
-							<td><span class="badge bg-red">{entity.entity}</span></td>
+							<td><span class="badge" style='background-color: {color};'>{entity.entity}</span></td>
 							<td><span>{.}</span></td>
 							<td>
 								{@eq key=entity.relation value="belongsTo"}

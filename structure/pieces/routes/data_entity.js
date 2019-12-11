@@ -378,7 +378,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		if (!ENTITY_NAME)
 			return res.status(404).end();
 
-		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
+		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity;
 		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
 
 		if (typeof req.query.associationFlag !== 'undefined')
@@ -386,6 +386,15 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 
 		// Default value
 		option.noCreateBtn = false;
+
+		// Get read / create / update / delete access on the sub entity to handle button display
+		const userRoles = req.session.passport.user.r_role;
+		option.access = {
+			read: block_access.actionAccess(userRoles, option.target.substring(2), "read"),
+			create: block_access.actionAccess(userRoles, option.target.substring(2), "create"),
+			update: block_access.actionAccess(userRoles, option.target.substring(2), "update"),
+			delete: block_access.actionAccess(userRoles, option.target.substring(2), "delete")
+		};
 
 		// Build tab specific variables
 		switch (option.structureType) {

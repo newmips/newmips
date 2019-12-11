@@ -1,5 +1,4 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const block_access = require('../utils/block_access');
 const filterDataTable = require('../utils/filter_datatable');
 const models = require('../models/');
@@ -8,11 +7,13 @@ const options = require('../models/options/e_status');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
 const status_helper = require('../utils/status_helper');
+const component_helper = require('../utils/component_helper');
 const fs = require('fs-extra');
 const dust = require('dustjs-linkedin');
-const language = require('../services/language');
+const moment = require("moment");
 const enums_radios = require('../utils/enum_radio.js');
-const moment = require('moment');
+const language = require('../services/language');
+const SELECT_PAGE_SIZE = 10;
 
 router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
 	const id_status = req.params.id;
@@ -98,11 +99,11 @@ router.get('/set_default/:id', block_access.actionAccessMiddleware("status", "up
 	});
 });
 
-router.get('/diagram', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
+router.get('/diagram', block_access.actionAccessMiddleware("status", "read"), (req, res) => {
 	res.render('e_status/diagram', {statuses: status_helper.entityStatusFieldList()});
 });
 
-router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"), (req, res)=> {
+router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"), (req, res) => {
 	models.E_status.findAll({where: {f_entity: req.body.f_entity, f_field: req.body.f_field}, include: {model: models.E_action, as: 'r_actions'}}).then((statuses)=> {
 		if (statuses.length == 0)
 			return res.json({statuses: [], connections: []});
@@ -114,7 +115,7 @@ router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"
 	});
 });
 
-router.post('/set_children_diagram', block_access.actionAccessMiddleware("status", "update"), (req, res)=> {
+router.post('/set_children_diagram', block_access.actionAccessMiddleware("status", "update"), (req, res) => {
 	models.E_status.findOne({where: {id: req.body.parent}}).then(parent => {
 		parent.addR_children(req.body.child).then(_=> {
 			res.sendStatus(200);
@@ -123,15 +124,19 @@ router.post('/set_children_diagram', block_access.actionAccessMiddleware("status
 });
 
 router.post('/remove_children_diagram', block_access.actionAccessMiddleware("status", "update"), function(req, res) {
-	models.E_status.findOne({where: {id: req.body.id}}).then(status=> {
+	models.E_status.findOne({
+		where: {
+			id: req.body.id
+		}
+	}).then(status => {
 		if (!status)
 			return res.sendStatus(500);
 		const tableName = status.constructor.tableName;
 		const tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
-		models.sequelize.query(
-			`DELETE FROM ${tableAppNumber}_status_children WHERE fk_id_parent_status = ? || fk_id_child_status = ?`,
-			{replacements: [status.id, status.id], type: models.sequelize.QueryTypes.DELETE})
-		.then(function(){
+		models.sequelize.query(`DELETE FROM ${tableAppNumber}_status_children WHERE fk_id_parent_status = ? || fk_id_child_status = ?`, {
+			replacements: [status.id, status.id],
+			type: models.sequelize.QueryTypes.DELETE
+		}).then(_ => {
 			res.sendStatus(200);
 		});
 	})
@@ -767,7 +772,6 @@ router.get('/set_status/:id_status/:status/:id_new_status', block_access.actionA
 	});
 });
 
-const SELECT_PAGE_SIZE = 10
 router.post('/search', block_access.actionAccessMiddleware('status', 'read'), function (req, res) {
 	const search = '%' + (req.body.search || '') + '%';
 	const limit = SELECT_PAGE_SIZE;
@@ -833,7 +837,6 @@ router.post('/search', block_access.actionAccessMiddleware('status', 'read'), fu
 		res.status(500).json(e);
 	});
 });
-
 
 router.post('/fieldset/:alias/remove', block_access.actionAccessMiddleware("status", "delete"), function (req, res) {
 	const alias = req.params.alias;

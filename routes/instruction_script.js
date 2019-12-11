@@ -275,11 +275,13 @@ function executeFile(req, userID, __) {
 	};
 
 	// Read file line by line, check for empty line, line comment, scope comment
-	const fileLines = [];
+	let fileLines = [];
 	let commenting = false;
 
 	// Checking file
+	let lineIdx = -1;
 	rl.on('line', line => {
+		lineIdx++;
 
 		// Empty line || One line comment scope
 		if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1 || line.indexOf('//*') != -1))
@@ -321,8 +323,13 @@ function executeFile(req, userID, __) {
 			if (typeof parserResult.options !== "undefined")
 				designerValue = parserResult.options.value ? parserResult.options.value.toLowerCase() : '';
 
-			if (designerFunction == "createNewApplication")
+			if (designerFunction == "createNewApplication") {
 				scriptData[userID].isNewApp = true;
+				// Getting all new app instructions indexes
+				if(typeof scriptData[userID].newAppIndexes === 'undefined')
+					scriptData[userID].newAppIndexes = [];
+				scriptData[userID].newAppIndexes.push(lineIdx);
+			}
 
 			if (designerFunction == "createNewApplication" || designerFunction == "selectApplication")
 				exceptions.createNewApplication.nbAuthorized++;
@@ -376,8 +383,15 @@ function executeFile(req, userID, __) {
 
 		// If new app created, then add mandatory instructions
 		if(scriptData[userID].isNewApp) {
-			scriptData[userID].totalInstruction += mandatoryInstructions.length;
-			fileLines.splice.apply(fileLines, [1, 0].concat(mandatoryInstructions));
+			const newFileLines = [];
+			for (let i = 0; i < fileLines.length; i++) {
+				newFileLines.push(fileLines[i]);
+				if(scriptData[userID].newAppIndexes.indexOf(i) != -1) {
+					scriptData[userID].totalInstruction += mandatoryInstructions.length;
+					newFileLines.push(...mandatoryInstructions);
+				}
+			}
+			fileLines = newFileLines;
 		}
 
 		// Set default theme if different than blue-light
@@ -421,39 +435,42 @@ function executeFile(req, userID, __) {
 			});
 		}
 
-		// Workspace sequelize instance
-		delete require.cache[require.resolve(__dirname + '/../workspace/' + data.application.name + '/models/')]; // eslint-disable-line
-		const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/'); // eslint-disable-line
+		try {
+			// Workspace sequelize instance
+			delete require.cache[require.resolve(__dirname + '/../workspace/' + data.application.name + '/models/')]; // eslint-disable-line
+			const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/'); // eslint-disable-line
 
-		// We need to clear toSync.json
-		const toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
-		const toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
+			// We need to clear toSync.json
+			const toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+			const toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
-		let tableName = "TABLE_NAME"; // MySQL
-		if(workspaceSequelize.sequelize.options.dialect == "postgres")
-			tableName = "table_name";
+			let tableName = "TABLE_NAME"; // MySQL
+			if(workspaceSequelize.sequelize.options.dialect == "postgres")
+				tableName = "table_name";
 
-		// Looking for already exisiting table in workspace BDD
-		const result = await workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT});
-		const workspaceTables = [];
-		for (let i = 0; i < result.length; i++)
-			workspaceTables.push(result[i][tableName]);
+			// Looking for already exisiting table in workspace BDD
+			const result = await workspaceSequelize.sequelize.query("SELECT * FROM INFORMATION_SCHEMA.TABLES;", {type: workspaceSequelize.sequelize.QueryTypes.SELECT});
+			const workspaceTables = [];
+			for (let i = 0; i < result.length; i++)
+				workspaceTables.push(result[i][tableName]);
 
-		for(const entity in toSyncObject)
-			if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
-				toSyncObject[entity].attributes = {};
-				// We have to remove options from toSync.json that will be generate with sequelize sync
-				// But we have to keep relation toSync on already existing entities
-				if(typeof toSyncObject[entity].options !== "undefined"){
-					const cleanOptions = [];
-					for(let i=0; i<toSyncObject[entity].options.length; i++)
-						if(workspaceTables.indexOf(toSyncObject[entity].options[i].target) != -1 &&
-							toSyncObject[entity].options[i].relation != "belongsTo")
-							cleanOptions.push(toSyncObject[entity].options[i]);
-					toSyncObject[entity].options = cleanOptions;
+			for(const entity in toSyncObject)
+				if(workspaceTables.indexOf(entity) == -1 && !toSyncObject[entity].force){
+					toSyncObject[entity].attributes = {};
+					// We have to remove options from toSync.json that will be generate with sequelize sync
+					// But we have to keep relation toSync on already existing entities
+					if (typeof toSyncObject[entity].options !== "undefined") {
+						const cleanOptions = [];
+						for (let i = 0; i < toSyncObject[entity].options.length; i++)
+							if (workspaceTables.indexOf(toSyncObject[entity].options[i].target) != -1 && toSyncObject[entity].options[i].relation != "belongsTo")
+								cleanOptions.push(toSyncObject[entity].options[i]);
+						toSyncObject[entity].options = cleanOptions;
+					}
 				}
-			}
-		fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
+			fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4), 'utf8');
+		} catch(err) {
+			console.error(err);
+		}
 
 		// Kill the application server if it's running, it will be restarted when accessing it
 		const process_server_per_app = process_manager.process_server_per_app;

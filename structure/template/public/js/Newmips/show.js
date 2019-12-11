@@ -185,7 +185,7 @@ function initHasOne(tab, data) {
 
     var newButton, href= '/'+data.option.target.substring(2);
     // EMPTY: Set empty text, add create button
-    if (data.empty) {
+    if (data.empty && data.option.access.create) {
         newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', href+'/create_form'+associationHref);
     }
@@ -203,9 +203,15 @@ function initHasOne(tab, data) {
         delForm.attr('action', '/'+data.option.target.substring(2)+'/delete');
         delForm.find('input[name=id]').val(data.data);
 
-        delForm.prepend(updBtn);
+        // Add update btn
+        if(data.option.access.update)
+            delForm.prepend(updBtn);
+
         newButton = $('<div class="quicklinks"></div>');
-        newButton.append(delForm);
+
+        // Add delete btn
+        if(data.option.access.delete)
+            newButton.append(delForm);
     }
     tab.find('.ajax-content').append(newButton);
 }
@@ -219,50 +225,58 @@ function initHasMany(tab, data) {
     var doPagination = data.option.relation == 'belongsToMany' ? false : true;
 
     var table = tab.find('table');
-    if (!data.option.noCreateBtn && !data.option.isFileStorage) {
+    if (!data.option.noCreateBtn && !data.option.isFileStorage && data.option.access.create) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
         tab.find('.ajax-content').append("<br>").append(newButton);
     }
 
+    DATALIST_BUTTONS = [];
     if(data.option.isFileStorage) {
         // Only delete in file storage
-        DATALIST_BUTTONS = [{
-            render: function(data2, type, row) {
-                var form = '\
-                <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                    <input name="id" value="'+row['id']+'" type="hidden"/>\
-                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                        <span>'+DELETE_TEXT+'</span>\
-                    </button>\
-                </form>';
-                return form;
-            }
-        }];
-    } else if(data.option.target.indexOf('e_history_') == -1) {
-        // No buttons for history status list
-        // Define update/delete button to be used by DataList plugin
-        DATALIST_BUTTONS = [{
-            render: function(data2, type, row) {
-                var aTag = '\
-                <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
-                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
-                    <span>'+UPDATE_TEXT+'</span>\
-                </a>';
-                return aTag;
-            }
-        }, {
-            render: function(data2, type, row) {
-                var form = '\
-                <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                    <input name="id" value="'+row['id']+'" type="hidden"/>\
-                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                        <span>'+DELETE_TEXT+'</span>\
-                    </button>\
-                </form>';
-                return form;
-            }
-        }];
+        if(data.option.access.delete) {
+            DATALIST_BUTTONS.push({
+                render: function(data2, type, row) {
+                    var form = '\
+                    <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                        <input name="id" value="'+row['id']+'" type="hidden"/>\
+                        <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                            <span>'+DELETE_TEXT+'</span>\
+                        </button>\
+                    </form>';
+                    return form;
+                }
+            });
+        }
+    } else if(data.option.target.indexOf('e_history_') == -1) { // No buttons for history status list
+        // Define update/delete button to be used by datalist
+        if(data.option.access.update) {
+            DATALIST_BUTTONS.push({
+                render: function(data2, type, row) {
+                    var aTag = '\
+                    <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
+                        <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+UPDATE_TEXT+'</span>\
+                    </a>';
+                    return aTag;
+                }
+            });
+        }
+
+        if(data.option.access.delete) {
+            DATALIST_BUTTONS.push({
+                render: function(data2, type, row) {
+                    var form = '\
+                    <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                        <input name="id" value="'+row['id']+'" type="hidden"/>\
+                        <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                            <span>'+DELETE_TEXT+'</span>\
+                        </button>\
+                    </form>';
+                    return form;
+                }
+            });
+        }
     }
 
     // Set subdatalist url and subentity to table
@@ -275,52 +289,59 @@ function initHasMany(tab, data) {
 
 // HAS MANY PRESET
 function initHasManyPreset(tab, data) {
-    // Init select2 ajax for fieldset
-    var fieldsetForm = $(FIELDSET_SELECT);
-    fieldsetForm.attr('action', '/'+data.sourceName+'/fieldset/'+data.option.as+'/add');
-    tab.find('.ajax-content').html(fieldsetForm);
 
-    // Select2 search for fieldset
-    select2_fieldset(tab.find('select:eq(0)'), data);
+    if(data.option.access.create) {
+        // Init select2 ajax for fieldset
+        var fieldsetForm = $(FIELDSET_SELECT);
+        fieldsetForm.attr('action', '/'+data.sourceName+'/fieldset/'+data.option.as+'/add');
+        tab.find('.ajax-content').html(fieldsetForm);
+        // Select2 search for fieldset
+        select2_fieldset(tab.find('select:eq(0)'), data);
+    }
 
     // Display list
     tab.find('.ajax-content').append(data.content);
-
     var table = tab.find('table');
     table.find('.filters').remove();
 
     // Set subdatalist url and subentity to table
     var tableUrl = '/'+tab.data('asso-source').substring(2)+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
     table.data('url', tableUrl);
-    // Define update/delete button to be used by DataList plugin
-    DATALIST_BUTTONS = [{
-        render: function (data2, type, row) {
-            var aTag = '\
-                <a class="btn-show" href="/'+data.option.target.substring(2)+'/show?id='+row['id']+'">\
-                    <button class="btn btn-primary">\
-                        <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
-                        <span>'+SHOW_TEXT+'</span>\
-                    </button>\
-                </a>';
-            return aTag;
-        },
-        searchable: false
-    }, {
-        render: function(data2, type, row) {
-            var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
-            var form = '\
-                <form action="'+url+'" class="fieldsetform" method="post">\
-                    <input type="hidden" value="'+row['id']+'" name="idRemove">\
-                    <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
-                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
-                </form>';
-            return form;
-        }
-    }];
+
+    // Define update/delete button to be used by datalist
+    DATALIST_BUTTONS = [];
+    if(data.option.access.read) {
+        DATALIST_BUTTONS.push({
+            render: function (data2, type, row) {
+                var aTag = '\
+                    <a class="btn-show" href="/'+data.option.target.substring(2)+'/show?id='+row['id']+'">\
+                        <button class="btn btn-primary">\
+                            <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
+                            <span>'+SHOW_TEXT+'</span>\
+                        </button>\
+                    </a>';
+                return aTag;
+            },
+            searchable: false
+        });
+    }
+
+    if(data.option.access.delete) {
+        DATALIST_BUTTONS.push({
+            render: function(data2, type, row) {
+                var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
+                var form = '\
+                    <form action="'+url+'" class="fieldsetform" method="post">\
+                        <input type="hidden" value="'+row['id']+'" name="idRemove">\
+                        <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
+                        <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
+                    </form>';
+                return form;
+            }
+        });
+    }
 
     init_datatable('#'+table.attr('id'), true, tab);
-
-    // bindFieldsetForm(tab, data);
 }
 
 // LOCAL FILE STORAGE
