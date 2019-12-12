@@ -2110,7 +2110,8 @@ exports.createWidgetLastRecords = async (data) => {
 }
 
 exports.createWidgetOnEntity = async (data) => {
-	data.entity_name = data.application.findEntity(data.entityTarget, true).entity.name;
+	const entity = "e_" + dataHelper.clearString(data.entityTarget);
+	data.entity_name = data.application.findEntity(entity, true).entity.name;
 	return await createWidget(data); // eslint-disable-line
 }
 
