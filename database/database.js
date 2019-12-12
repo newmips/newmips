@@ -26,8 +26,8 @@ exports.dropEntityOnSync = (app, entity) => {
 	return pushToSyncQuery(app, query);
 }
 
-// Drop DataField
-exports.dropDataField = (data) => {
+// Drop field
+exports.dropField = (data) => {
 
 	let query = "";
 	if(sequelize.options.dialect == "mysql")
@@ -38,7 +38,7 @@ exports.dropDataField = (data) => {
 	return pushToSyncQuery(data.application, query);
 }
 
-exports.dropFKDataField = async(data) => {
+exports.dropFKField = async(data) => {
 
 	// *** 1 - Initialize variables according to options ***
 	const table_name = data.entity.name;
@@ -60,7 +60,7 @@ exports.dropFKDataField = async(data) => {
 }
 
 // Delete field related to multiple
-exports.dropFKMultipleDataField = async (data) => {
+exports.dropFKMultipleField = async (data) => {
 
 	// *** 1 - Initialize variables according to options ***
 	const table_name = data.entity.name;

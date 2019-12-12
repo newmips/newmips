@@ -528,6 +528,10 @@ exports.setupField = async (data) => {
 
 		if (sameResults.length > 0)
 			throw new Error('structure.field.attributes.noSpace');
+
+		// Clean empty value
+		if(field_values.length > 0)
+			field_values = field_values.filter(x => x != '');
 	}
 
 	/* ----------------- 2 - Update the entity model, add the attribute ----------------- */

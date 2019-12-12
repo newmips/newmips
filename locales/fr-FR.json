@@ -333,7 +333,7 @@
 		"field": {
 			"error":{
 				"selectOrCreateBefore": "Vous devez sélectionner ou créer une entité avant.",
-				"alreadyExist": "Désolé, un champ avec un nom (%s) identique ou similaire existe déjà."
+				"alreadyExist": "Désolé, un champ ou un onglet avec un nom (%s) identique ou similaire existe déjà."
 			},
 			"create": {
 				"created": "Vous venez d'ajouter un nouveau champ %s à l'entité %s.<br>Pour le supprimer, tapez l'instruction:<br>- <b class='click-instruction'>supprimer le champ %s</b><br>Pour le rendre unique:<br>- <b class='click-instruction'>rendre le champ %s unique</b><br>Pour le rendre obligatoire:<br>- <b class='click-instruction'>rendre le champ %s obligatoire</b>",

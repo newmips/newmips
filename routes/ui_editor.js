@@ -13,28 +13,28 @@ async function applyToAllEntity(currentHtml, notPage, entity, appName) {
 
 		const pageUri = __dirname + '/../workspace/' + appName + '/views/' + entity + '/' + pageFiles[i];
 		const $ = await domHelper.read(pageUri); // eslint-disable-line
-		const saveDataField = {};
+		const saveField = {};
 
 		// Save current state of fields in the current working page
 		$("div[data-field]").each(function() {
-			saveDataField[$(this).attr("data-field")] = $(this)[0].innerHTML;
+			saveField[$(this).attr("data-field")] = $(this)[0].innerHTML;
 		});
 
 		// Loop on source entity fields
 		currentHtml("div[data-field]").each(function() {
-			if (typeof saveDataField[currentHtml(this).attr("data-field")] === "undefined") {
+			if (typeof saveField[currentHtml(this).attr("data-field")] === "undefined") {
 				currentHtml(this).remove();
 				console.log("ERROR: Cannot find field " + currentHtml(this).attr("data-field") + " in apply all UI designer function, it won't be restitute correctly !")
 			} else
-				currentHtml(this).html(saveDataField[currentHtml(this).attr("data-field")]);
-			saveDataField[currentHtml(this).attr("data-field")] = true;
+				currentHtml(this).html(saveField[currentHtml(this).attr("data-field")]);
+			saveField[currentHtml(this).attr("data-field")] = true;
 		});
 
 		// Missing fields from the source that we'll append in col-xs-12
-		for (const field in saveDataField) {
-			if (saveDataField[field] != true) {
+		for (const field in saveField) {
+			if (saveField[field] != true) {
 				let newDiv = "<div data-field='" + field + "' class='fieldLineHeight col-xs-12 col-sm-12 col-md-12'>";
-				newDiv += saveDataField[field];
+				newDiv += saveField[field];
 				newDiv += "</div>";
 				currentHtml("div[data-field]:last").after(newDiv);
 			}
