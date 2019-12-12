@@ -1050,7 +1050,7 @@ exports.createWidgetOnEntity = result => {
 		function: 'createWidgetOnEntity',
 		widgetInputType: originalType,
 		widgetType: finalType,
-		entityTarget: 'e_' + result[2].toLowerCase()
+		entityTarget: result[2]
 	}
 }
 
