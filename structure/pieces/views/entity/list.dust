@@ -12,6 +12,7 @@
 				{#__ key="module.home"/}
 			</a>
 		</li>
+		<!-- SUB MODULE - DO NOT REMOVE -->
 		<li class="active">
 			{#__ key="entity.custom_data_entity.label_entity"/}
 		</li>

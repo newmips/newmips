@@ -262,12 +262,12 @@ exports.setupEntity = async (data) => {
 		dustContent = dustContent.replace(/custom_url_data_entity/g, entity_url);
 
 		if (module_name != "m_home") {
-			const htmlToAdd = "" +
-				"<li>" +
-				"   <a class='sub-module-arianne' href='/default/" + module_name.substring(2) + "'>" +
-				"	   <!--{#__ key=\"module." + module_name + "\"/}-->" +
-				"   </a>" +
-				"</li>";
+			// Good indent for dust code
+			const htmlToAdd = "<li>\n\
+			<a class='sub-module-arianne' href='/default/" + module_name.substring(2) + "'>\n\
+				{#__ key=\"module." + module_name + "\"/}\n\
+			</a>\n\
+		</li>";
 
 			dustContent = dustContent.replace(/<!-- SUB MODULE - DO NOT REMOVE -->/g, htmlToAdd);
 		}

@@ -347,6 +347,7 @@ exports.newAgenda = async (data) => {
 		let viewTemplate = fs.readFileSync(viewFile, 'utf8');
 		viewTemplate = viewTemplate.replace(/CODE_NAME_LOWER/g, valueComponent);
 		viewTemplate = viewTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
+		viewTemplate = viewTemplate.replace(/MODULE_NAME_SHORT/g, data.np_module.name.substring(2));
 		viewTemplate = viewTemplate.replace(/MODULE_NAME/g, data.np_module.name);
 		viewTemplate = viewTemplate.replace(/URL_ROUTE/g, valueComponent.substring(2));
 		viewTemplate = viewTemplate.replace(/URL_EVENT/g, urlEvent);

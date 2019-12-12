@@ -2,13 +2,7 @@
 {<header}
 	<h1>{#__ key="module.m_home"/}<small>{#__ key="module.module"/}</small></h1>
 	<ol class="breadcrumb">
-		<li>
-			<a href="/">
-				<i class="fa fa-home"></i>
-				{#__ key="module.home"/}
-			</a>
-		</li>
-		<!-- SUB MODULE - DO NOT REMOVE -->
+		<li><a href="/"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
 		<li class="active">
 			{#__ key="settings.legend"/}
 		</li>

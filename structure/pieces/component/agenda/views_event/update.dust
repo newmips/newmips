@@ -9,7 +9,7 @@
 			</a>
 		</li>
 		<li>
-			<a class='sub-module-arianne' href='/default/coucou'>
+			<a class='sub-module-arianne' href='/default/MODULE_NAME_SHORT'>
 				{#__ key="module.MODULE_NAME"/}
 			</a>
 		</li>
