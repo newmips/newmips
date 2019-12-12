@@ -831,19 +831,13 @@ $(document).ready(function () {
         $(this).prop("disabled", true);
         $(this).css("cursor", "wait");
         var tmpText = $(this).html();
-        if (!/Edge/.test(navigator.userAgent)) {
-            if ($(this).hasClass("btn-confirm")) {
-                if (!isChrome) {
-                    $(this).html("<i class='fa fa-spinner fa-spin'></i>");
-                }
-            } else {
-                $(this).html("<i class='fa fa-spinner fa-spin'></i>");
-            }
-        }
+        if (!/Edge/.test(navigator.userAgent) && !isChrome)
+            $(this).html("<i class='fa fa-spinner fa-spin'></i>");
         setTimeout(function () {
             $(context).prop("disabled", false);
             $(context).css("cursor", "pointer");
-            $(context).html(tmpText);
+            if (!/Edge/.test(navigator.userAgent) && !isChrome)
+                $(context).html(tmpText);
         }, 1000);
         return true;
     });
