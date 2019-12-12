@@ -505,7 +505,7 @@ exports.deleteEntity = deleteEntity;
 /* --------------------------------------------------------------- */
 /* --------------------------- Field ----------------------------- */
 /* --------------------------------------------------------------- */
-exports.createNewDataField = async (data) => {
+exports.createNewField = async (data) => {
 
 	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
@@ -532,7 +532,7 @@ async function deleteTab(data) {
 	data.fieldToDrop = fk;
 	data.name_data_entity = target;
 
-	await database.dropFKDataField(data);
+	await database.dropFKField(data);
 
 	return {
 		tabType: tabType,
@@ -557,11 +557,11 @@ async function deleteField(data) {
 	// Related To Multiple
 	if (infoStructure.isMultipleConstraint) {
 		data.target = infoStructure.target;
-		await database.dropFKMultipleDataField(data);
+		await database.dropFKMultipleField(data);
 	} else if (infoStructure.isConstraint)
-		await database.dropFKDataField(data);
+		await database.dropFKField(data);
 	else
-		database.dropDataField(data);
+		database.dropField(data);
 
 	// Missing id_ in data.options.value, so we use fieldToDrop
 	// data.options.value = data.fieldToDrop;
@@ -1870,7 +1870,7 @@ exports.deleteComponentAddress = async (data) => {
 
 	await structure_component.deleteComponentAddress(data);
 	data.fieldToDrop = 'fk_id_address';
-	database.dropFKDataField(data);
+	database.dropFKField(data);
 
 	data.entity.deleteComponent(data.options.value, 'address');
 

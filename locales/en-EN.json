@@ -335,7 +335,7 @@
 		"field": {
 			"error":{
 				"selectOrCreateBefore": "You have to select or create an entity before.",
-				"alreadyExist": "Sorry, a field with the same or similar name (%s) already exists."
+				"alreadyExist": "Sorry, a field or a tab with the same or similar name (%s) already exists."
 			},
 			"create": {
 				"created": "You have just added a new field %s (%s) to the entity %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",

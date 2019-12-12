@@ -119,7 +119,7 @@ function addPrefix(string, instructionFunction) {
 		case 'addComponentFileStorage':
 		case 'setIcon':
 			return "e_" + string;
-		case 'createNewDataField':
+		case 'createNewField':
 		case 'deleteField':
 		case 'deleteTab':
 		case 'using':

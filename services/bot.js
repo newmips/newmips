@@ -244,7 +244,7 @@ exports.createNewEntity = result => {
 	return checkAndCreateAttr("createNewEntity", options, value);
 };
 
-exports.createNewDataField = result => {
+exports.createNewField = result => {
 
 	// Field name has not been defined
 	const value = result[1];
@@ -260,10 +260,10 @@ exports.createNewDataField = result => {
 		processValue: true
 	};
 
-	return checkAndCreateAttr("createNewDataField", options, value);
+	return checkAndCreateAttr("createNewField", options, value);
 };
 
-exports.createNewDataFieldWithType = result => {
+exports.createNewFieldWithType = result => {
 
 	const value = result[1];
 	const type = result[2].toLowerCase().trim();
@@ -285,10 +285,10 @@ exports.createNewDataFieldWithType = result => {
 		processValue: true
 	};
 
-	return checkAndCreateAttr("createNewDataField", options, value);
+	return checkAndCreateAttr("createNewField", options, value);
 };
 
-exports.createNewDataFieldWithTypeEnum = result => {
+exports.createNewFieldWithTypeEnum = result => {
 
 	const value = result[1];
 	const allValues = result[2];
@@ -306,10 +306,10 @@ exports.createNewDataFieldWithTypeEnum = result => {
 		processValue: true
 	};
 
-	return checkAndCreateAttr("createNewDataField", options, value);
+	return checkAndCreateAttr("createNewField", options, value);
 };
 
-exports.createNewDataFieldWithTypeRadio = result => {
+exports.createNewFieldWithTypeRadio = result => {
 
 	const value = result[1];
 	const allValues = result[2];
@@ -327,7 +327,7 @@ exports.createNewDataFieldWithTypeRadio = result => {
 		processValue: true
 	};
 
-	return checkAndCreateAttr("createNewDataField", options, value);
+	return checkAndCreateAttr("createNewField", options, value);
 };
 
 // ******* DELETE Actions ******* //
@@ -1259,7 +1259,7 @@ const training = {
 		"ajouter une entité (.*)",
 		"ajouter l'entité (.*)"
 	],
-	"createNewDataFieldWithTypeEnum": [
+	"createNewFieldWithTypeEnum": [
 		"create field (.*) with type enum and values (.*)",
 		"add field (.*) with type enum and values (.*)",
 		"create field (.*) with type enum with values (.*)",
@@ -1282,7 +1282,7 @@ const training = {
 		"ajouter un champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)",
 		"ajouter le champ (.*) de type enum avec les valeurs (.*) et la valeur par défaut (.*)"
 	],
-	"createNewDataFieldWithTypeRadio": [
+	"createNewFieldWithTypeRadio": [
 		"create field (.*) with type radio and values (.*)",
 		"add field (.*) with type radio and values (.*)",
 		"create field (.*) with type radio with values (.*)",
@@ -1306,7 +1306,7 @@ const training = {
 		"ajouter un champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)",
 		"ajouter le champ (.*) de type radio avec les valeurs (.*) et la valeur par défaut (.*)"
 	],
-	"createNewDataFieldWithType": [
+	"createNewFieldWithType": [
 		"create field (.*) with type (.*)",
 		"add field (.*) with type (.*)",
 		"créer champ (.*) de type (.*)",
@@ -1323,7 +1323,7 @@ const training = {
 		"ajouter un champ (.*) de type (.*) avec la valeur par défaut (.*)",
 		"ajouter le champ (.*) de type (.*) avec la valeur par défaut (.*)"
 	],
-	"createNewDataField": [
+	"createNewField": [
 		"create field (.*)",
 		"add field (.*)",
 		"créer champ (.*)",
