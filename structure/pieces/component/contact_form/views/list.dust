@@ -6,7 +6,7 @@
 {<header}
 	<h1>{#__ key="module.CODE_VALUE_MODULE"/}<small>{#__ key="module.module"/}</small></h1>
 	<ol class="breadcrumb">
-		<li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+		<li><a href="/"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
 		<li class="active">{#__ key="module.CODE_VALUE_MODULE"/}</li>
 	</ol>
 {/header}

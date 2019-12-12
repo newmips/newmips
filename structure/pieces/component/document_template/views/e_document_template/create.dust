@@ -2,8 +2,9 @@
 {<header}
 	<h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
 	<ol class="breadcrumb">
-		<li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
-		<li class="active">{#__ key="module.m_administration"/}</li>
+		<li><a href="/"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+		<li><a class='sub-module-arianne' href='/default/administration'>{#__ key="module.m_administration"/}</a></li>
+		<li class="active">{#__ key="entity.e_document_template.label_entity"/}</li>
 	</ol>
 {/header}
 {<content}
