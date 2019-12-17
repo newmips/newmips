@@ -10,7 +10,7 @@ function checkAndCreateAttr(instructionsFunction, options, valueToCheck) {
 
 	if (valueToCheck.length > 30) {
 		console.log("Value is too long => " + valueToCheck + "(" + valueToCheck.length + ")");
-		const err = new Error('valueTooLong');
+		const err = new Error('error.valueTooLong');
 		err.msgParams = [valueToCheck];
 		throw err;
 	}
