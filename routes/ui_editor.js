@@ -139,15 +139,14 @@ router.post('/setPage/:entity/:page', block_access.hasAccessApplication, (req, r
 
 		// Doing gitlab commit
 		// We simply add session values in attributes array
-		const data = {
-			application: req.session.app_name,
-			module: req.session.module_name,
-			entity: req.session.entity_name,
-			field: req.session.field_name,
+		await gitHelper.gitCommit({
+			application: {
+				name: req.session.app_name
+			},
+			module_name: req.session.module_name,
+			entity_name: req.session.entity_name,
 			function: "Save a file from UI designer: " + pageUri
-		};
-
-		await gitHelper.gitCommit(data);
+		});
 	})().then(_ => {
 		if (req.body.applyAll == "true")
 			res.status(200).send(generatorLanguage.__("ui_editor.page_saved_all"));
