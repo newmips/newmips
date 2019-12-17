@@ -857,7 +857,7 @@ exports.createNewHasOne = async (data) => {
 
 async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 
-	data.options.through = data.application.associationSeq + "_" + data.options.source + "_" + data.options.target;
+	data.options.through = data.application.associationSeq + "_" + data.options.source.substring(2) + "_" + data.options.target.substring(2) + '_' + data.options.as.substring(2);
 	const through = data.options.through;
 
 	try {
@@ -1011,61 +1011,70 @@ exports.createNewHasMany = async (data) => {
 
 	const answer = {};
 	let toSync = true;
-	let optionsObject;
-
 	let targetEntity = data.application.findEntity(data.options.target);
 
-	// Target entity does not exist -> Subentity generation
+	// Target entity does not exist -> Sub entity generation
 	if(!targetEntity) {
 		targetEntity = data.np_module.addEntity(data.options.target, data.options.showTarget);
 
 		answer.message = "structure.association.hasMany.successSubEntity";
 		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
 
-		// Subentity code generation
+		// Sub entity code generation
 		await structure_entity.setupEntity(data)
-
-		optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
 	} else {
-		optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target.toLowerCase() + '.json'));
 
-		let cptExistingHasMany = 0;
+		let optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
+		let matchingAlias = null, cptExistingHasMany = 0;
+
 		// Check if there is no or just one belongsToMany to do
 		for (let i = 0; i < optionsObject.length; i++)
-			if (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation != "belongsTo")
-				if (optionsObject[i].relation != "belongsToMany")
+			if (optionsObject[i].target == data.options.source
+				&& optionsObject[i].relation == "hasMany"
+				&& optionsObject[i].structureType != "auto_generate") {
 					cptExistingHasMany++;
 
-		/* If there are multiple has many association from target to source we can't handle on which one we gonna link the belongsToMany association */
-		if (cptExistingHasMany > 1)
-			throw new Error("structure.association.error.tooMuchHasMany");
+					if(optionsObject[i].as == data.options.as)
+						matchingAlias = optionsObject[i].as;
+					else if(optionsObject[i].as == 'r_' + data.options.source.substring(2)) // Matching default generated alias in case of specific alias not found
+						matchingAlias = optionsObject[i].as;
+				}
+
+		// Check that an association already exist from TARGET to SOURCE
+		for (let i = 0; i < optionsObject.length; i++) {
+			if (optionsObject[i].target == data.options.source
+				&& optionsObject[i].target != data.options.target
+				&& optionsObject[i].relation == "hasMany"
+				&& optionsObject[i].structureType != "auto_generate") {
+
+				/* If there are multiple has many association from target to source and no alias matching */
+				/* we can't handle on which one we gonna link the belongsToMany association */
+				if (cptExistingHasMany > 1)
+					if(!matchingAlias)
+						throw new Error("structure.association.error.tooMuchHasMany");
+					else if(optionsObject[i].as != matchingAlias) // Not the matching alias we want to generate belongsToMany link
+						continue;
+
+				/* Then lets create the belongs to many association */
+				await belongsToMany(data, optionsObject[i], "setupHasManyTab", exportsContext); // eslint-disable-line
+
+				return {
+					entity: data.source_entity,
+					message: 'structure.association.hasMany.successEntity',
+					messageParams: [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs]
+				}
+
+			} else if (data.options.source != data.options.target
+					&& (optionsObject[i].target == data.options.source && optionsObject[i].relation == "belongsTo")
+					&& optionsObject[i].foreignKey == data.options.foreignKey) {
+				// We avoid the toSync to append because the already existing has one relation
+				// has already created the foreign key in BDD
+				toSync = false;
+			}
+		}
 
 		answer.message = "structure.association.hasMany.successEntity";
 		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
-	}
-
-	// Vérification si une relation existe déjà de la target VERS la source
-	for (let i = 0; i < optionsObject.length; i++) {
-		if (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase()
-			&& optionsObject[i].target.toLowerCase() != data.options.target.toLowerCase()
-			&& optionsObject[i].relation != "belongsTo"
-			&& optionsObject[i].structureType != "auto_generate") {
-
-			/* Then lets create the belongs to many association */
-			await belongsToMany(data, optionsObject[i], "setupHasManyTab", exportsContext); // eslint-disable-line
-
-			return {
-				entity: data.source_entity,
-				message: 'structure.association.hasMany.successEntity',
-				messageParams: [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs]
-			}
-
-		} else if (data.options.source.toLowerCase() != data.options.target.toLowerCase()
-				&& (optionsObject[i].target.toLowerCase() == data.options.source.toLowerCase() && optionsObject[i].relation == "belongsTo")
-				&& optionsObject[i].foreignKey == data.options.foreignKey) {
-			// We avoid the toSync to append because the already existing has one relation has already created the foreign key in BDD
-			toSync = false;
-		}
 	}
 
 	// Créer le lien hasMany en la source et la target
@@ -1087,7 +1096,7 @@ exports.createNewHasMany = async (data) => {
 		source: data.options.target,
 		target: data.options.source,
 		foreignKey: data.options.foreignKey,
-		as: "r_"+data.options.source.substring(2),
+		as: "r_" + data.options.source.substring(2) + '_' + data.options.as.substring(2),
 		relation: "belongsTo",
 		toSync: toSync,
 		type: "auto_generate"
