@@ -1271,7 +1271,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	}
 
 	// Check if the target entity exist
-	data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+	data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.options.target, true);
 
 	// If a using field or fields has been asked, we have to check if those fields exist in the entity
 	if (typeof data.options.usingField !== "undefined") {
