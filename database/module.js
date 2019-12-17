@@ -25,16 +25,16 @@ class Module {
 		return this._components;
 	}
 
-	getEntity(entity_name, required) {
-		if (!entity_name)
+	getEntity(name, displayName = name, required) {
+		if (!name)
 			throw new Error('database.field.error.selectOrCreateBefore');
 
-		if (this._entities.filter(x => x.name == entity_name).length > 0)
-			return this._entities.filter(x => x.name == entity_name)[0];
+		if (this._entities.filter(x => x.name == name).length > 0)
+			return this._entities.filter(x => x.name == name)[0];
 
 		if (required) {
 			const err = new Error('database.entity.notFound.withThisName');
-			err.messageParams = [entity_name];
+			err.messageParams = [displayName];
 			throw err;
 		}
 

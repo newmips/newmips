@@ -546,7 +546,7 @@ exports.deleteTab = deleteTab;
 async function deleteField(data) {
 
 	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
-	data.field = data.entity.getField(data.options.value, true)
+	data.field = data.entity.getField(data.options.value, data.options.showValue, true)
 
 	// Delete field from views and models
 	const infoStructure = await structure_field.deleteField(data);
