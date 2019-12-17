@@ -26,14 +26,14 @@ class Entity {
 		return this._components;
 	}
 
-	getField(field_name, required) {
-		const [field] = this._fields.filter(x => x.name == field_name)
+	getField(name, displayName = name, required) {
+		const [field] = this._fields.filter(x => x.name == name)
 		if (field)
 			return field;
 
 		if (required) {
 			const err = new Error("database.field.notFound.withThisName");
-			err.messageParams = [field_name];
+			err.messageParams = [displayName];
 			throw err;
 		}
 		return false;
