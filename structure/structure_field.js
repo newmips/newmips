@@ -778,7 +778,6 @@ exports.setupField = async (data) => {
 
 	// Add default "validate" property to true, setting to false will disable sequelize's validation on the field
 	attributesObject[field_name].validate = true;
-
 	fs.writeFileSync(attributesFileName, JSON.stringify(attributesObject, null, 4));
 	fs.writeFileSync(toSyncFileName, JSON.stringify(toSyncObject, null, 4));
 
