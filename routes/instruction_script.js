@@ -161,7 +161,8 @@ const mandatoryInstructions = [
 // When a script handling is over
 function processEnd(path, userID) {
 	// Delete instructions file
-	fs.unlinkSync(path);
+	if (fs.existsSync(path))
+		fs.unlinkSync(path);
 	// Tell client that the script is over
 	scriptData[userID].over = true;
 	// Tell the server that script processing is done
@@ -314,6 +315,8 @@ function executeFile(req, userID, __) {
 					instruction: line,
 					message: __(err.message, err.messageParams || [])
 				});
+				console.log("CA VA ETRE LA ?");
+				console.log(line);
 				return processEnd(req.file.path, userID);
 			}
 

@@ -180,7 +180,6 @@ function removePrefix(string, type) {
 		default:
 			return string;
 	}
-	return string;
 }
 
 function capitalizeFirstLetter(word) {
