@@ -72,29 +72,29 @@ module.exports = {
 		whereIsNL: "The new lines are kept inside the sections, so the following example template",
 		one: "One",
 		two: "Two",
-		description: ""+
-			"<p style='text-align:justify;'>"+
-			"	The document templates can be used in the tab where the component is positioned."+
-			"	To do this, you must include the variables listed below in Word (Docx) or PDF documents"+
-			"</p>"+
-			"<p style='text-align:justify;'>"+
-			"	For a Docx template, variables must be copied in your text enclosed in braces."+
-			"	They will be replaced by the entity's data when you click on the \"Generate\" button who is on entity show page."+
-			"</p>"+
-			"<p>Click on each entity name to discover the use of the variables.</p>"+
-			"<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; To use createdAt and updatedAt of each entity please add:<br>"+
-			"<b>{createdAt}</b> for Docx file or <b>createdAt</b> for PDF file <br>"+
-			"<b>{updatedAt}</b> for Docx file or <b>updatedAt</b> for PDF file"+
-			"</h5>"+
-			"<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type boolean<br>"+
-			"{variable_<b>value</b>} to access the untranslated value of field"+
-			"</h5>"+
-			"<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type enum<br>"+
-			"{variable_<b>value</b>} to access the untranslated value or code of field for PDF file<br>"+
-			"{variable_<b>translation</b>} to access field translation"+
-			"</h5>",
 		readme: {
-			pageTitle: "Usable variables",
+			pageTitle: "Document template : available variables",
+			description: ""+
+				"<p style='text-align:justify;'>"+
+				"	The document templates can be used in the tab where the component is positioned."+
+				"	To do this, you must include the variables listed below in Word (Docx) or PDF documents"+
+				"</p>"+
+				"<p style='text-align:justify;'>"+
+				"	For a Docx template, variables must be copied in your text enclosed in braces."+
+				"	They will be replaced by the entity's data when you click on the \"Generate\" button who is on entity show page."+
+				"</p>"+
+				"<p>Click on each entity name to discover the use of the variables.</p>"+
+				"<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; To use createdAt and updatedAt of each entity please add:<br>"+
+				"<b>{createdAt}</b> for Docx file or <b>createdAt</b> for PDF file <br>"+
+				"<b>{updatedAt}</b> for Docx file or <b>updatedAt</b> for PDF file"+
+				"</h5>"+
+				"<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type boolean<br>"+
+				"{variable_<b>value</b>} to access the untranslated value of field"+
+				"</h5>"+
+				"<h5><i class='fa fa-info-circle text-blue'></i>&nbsp; Type enum<br>"+
+				"{variable_<b>value</b>} to access the untranslated value or code of field for PDF file<br>"+
+				"{variable_<b>translation</b>} to access field translation"+
+				"</h5>",
 			entityInformations: "Entity informations",
 			entityTableRow1: "Entity",
 			entityTableRow2: "Variable",
