@@ -280,7 +280,7 @@ router.get('/download', block_access.isLoggedIn, (req, res) => {
 
 		res.download(filePath, cleanFilename, function (err) {
 			if (err)
-				throw err;
+				console.error(err);
 		});
 	} catch (err) {
 		console.error(err);
