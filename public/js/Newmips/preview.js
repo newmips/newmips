@@ -429,7 +429,7 @@ $(document).ready(function() {
                 var completeVal = ui.item.value;
                 // If complete value have already typed string in it, dont concat with current value
                 if (completeVal.indexOf(this.value) == 0) {
-                    this.value = completeVal.split("[variable]").join("").trim();
+                    this.value = completeVal.split("[variable]").join("").split('[type]').join("").trim();
                 } else {
                     // Remove the last word of already typed instruction because it is also in the completed value
                     var parts = this.value.split(' ');
@@ -444,7 +444,7 @@ $(document).ready(function() {
                         if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
                             parts.pop();
                     }
-                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
+                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").split('[type]').join("").trim();
                 }
 
                 var TABKEY = 9;

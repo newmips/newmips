@@ -140,7 +140,7 @@ sequelize.customAfterSync = async () => {
 
 				if(typeof toSyncObject[entity].attributes[attribute].defaultValue === "undefined")
 					toSyncObject[entity].attributes[attribute].defaultValue = null;
-				if(toSyncObject[entity].attributes[attribute].defaultValue != null)
+				if(toSyncObject[entity].attributes[attribute].defaultValue != null && toSyncObject[entity].attributes[attribute].defaultValue !== true && toSyncObject[entity].attributes[attribute].defaultValue !== false)
 					toSyncObject[entity].attributes[attribute].defaultValue = "'" + toSyncObject[entity].attributes[attribute].defaultValue + "'";
 
 				request += "ALTER TABLE ";
