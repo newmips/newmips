@@ -1529,7 +1529,7 @@ exports.createNewComponentStatus = async (data) => {
 	const instructions = [
 		"entity " + data.entity.name.substring(2) + ' has many ' + data.history_table_db_name + ' called History ' + data.options.showValue,
 		"select entity " + data.history_table_db_name,
-		"add field " + data.options.showValue + " related to Status using name, color",
+		"add field " + data.options.showValue + " related to Status using name",
 		"add field Comment with type text",
 		"add field Modified by related to user using login",
 		"entity status has many " + data.history_table_db_name,
