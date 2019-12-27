@@ -29,7 +29,7 @@
 					<div class="box-body">
 						<div class="form-group">
 							<label for="id">{#__ key="entity.custom_data_entity.id_entity"/} {#__ key="entity.custom_data_entity.label_entity"/}</label>
-							<input name="id" type="hidden" placeholder="{custom_data_entity.id_entity}" value="{custom_data_entity.id}" class="form-control input"/>
+							<input name="id" type="hidden" value="{custom_data_entity.id}">
 							<input name="id_display" type="text" placeholder="{custom_data_entity.id_entity}" value="{custom_data_entity.id}" disabled="" class="form-control input"/>
 						</div>
 						{#custom_data_entity}
