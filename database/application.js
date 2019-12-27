@@ -11,7 +11,7 @@ class Application {
 		this._gitlabID = null;
 		this._gitlabRepo = null;
 		this._createdBy = null;
-		this._associationSeq = 1; // Used for unique generation of workspace assocation table
+		this._associationSeq = 0; // Used for unique generation of workspace assocation table
 		this._hasDocumentTemplate = 0;
 		this._modules = [];
 		this._components = [];
@@ -103,7 +103,7 @@ class Application {
 	}
 
 	get associationSeq() {
-		return this._associationSeq;
+		return ++this._associationSeq;
 	}
 
 	get hasDocumentTemplate() {

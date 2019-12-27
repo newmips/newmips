@@ -513,7 +513,7 @@ exports.newStatus = async (data) => {
 
 	// Change model name of history table
 	let historyModel = fs.readFileSync(workspacePath + '/models/e_' + data.history_table + '.js', 'utf8');
-	historyModel = historyModel.replace(/e_[^_]_history_[^.]+.json/g, 'e_' + data.history_table + '.json');
+	historyModel = historyModel.replace(/e_[0-9]+_history_[^.]+\.json/g, 'e_' + data.history_table + '.json');
 	historyModel = historyModel.replace(/(buildAssociation\(')([^']+)'/, '$1E_' + data.history_table + '\'');
 	historyModel = historyModel.replace(/(sequelize.define\(')([^']+)'/, '$1E_' + data.history_table + '\'');
 	historyModel = historyModel.replace(/(addHooks\(Model, ')([^']+)'/, '$1' + data.history_table + '\'');
@@ -594,7 +594,12 @@ exports.newStatus = async (data) => {
 	{
 		// Remove buttons i.e last two th/td
 		$("thead").each(function () {
-			$(this).find("tr th").slice(5, 7).remove();
+			$(this).find("tr th").slice(4, 5).remove();
+		});
+
+		// Render status column as colored badge
+		$("[data-col='"+statusAlias+".f_name']").each(function() {
+			$(this).attr('data-type', 'status');
 		});
 
 		// Remove id column

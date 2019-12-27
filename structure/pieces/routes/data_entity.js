@@ -430,7 +430,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 			case 'hasMany':
 				dustFile = option.target + '/list_fields';
 				// Status history specific behavior. Replace history_model by history_table to open view
-				if (option.target.indexOf('_history_') == 0)
+				if (option.target.indexOf('e_history_') == 0)
 					option.noCreateBtn = true;
 				dustData = {for: 'hasMany'};
 				break;
