@@ -826,21 +826,22 @@ $(document).ready(function () {
 
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     // Avoid double clicking on dynamic button
-    $(document).on("click", ".btn.btn-primary, .btn.btn-default, .btn.btn-info, .btn.btn-warning, .btn.btn-danger, .btn.btn-success", function () {
-        var context = this;
-        $(this).prop("disabled", true);
-        $(this).css("cursor", "wait");
-        var tmpText = $(this).html();
-        if (!/Edge/.test(navigator.userAgent) && !isChrome)
-            $(this).html("<i class='fa fa-spinner fa-spin'></i>");
-        setTimeout(function () {
-            $(context).prop("disabled", false);
-            $(context).css("cursor", "pointer");
+    if (!isChrome)
+        $(document).on("click", ".btn.btn-primary, .btn.btn-default, .btn.btn-info, .btn.btn-warning, .btn.btn-danger, .btn.btn-success", function () {
+            var context = this;
+            $(this).prop("disabled", true);
+            $(this).css("cursor", "wait");
+            var tmpText = $(this).html();
             if (!/Edge/.test(navigator.userAgent) && !isChrome)
-                $(context).html(tmpText);
-        }, 1000);
-        return true;
-    });
+                $(this).html("<i class='fa fa-spinner fa-spin'></i>");
+            setTimeout(function () {
+                $(context).prop("disabled", false);
+                $(context).css("cursor", "pointer");
+                if (!/Edge/.test(navigator.userAgent) && !isChrome)
+                    $(context).html(tmpText);
+            }, 1000);
+            return true;
+        });
 
     // Validate any form before submit
     $('form').submit(function (e) {
