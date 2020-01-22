@@ -17,13 +17,13 @@ const config = {
 			readonly: false, // If true readonly
 			required: false, // If true set field required on create or update
 			addInForm: true, // If true add it in form
-			type: 'number', // Type of field, must be html type, default text,
+			type: 'string', // Type of field, must be html type, default text,
 			maxLength: '',
 			apiField: 'housenumber', // Attribute name in data, means this attribute must exist in data, whe use it for db column name
 			defaultValue: '',
 			sql: {
-				type: 'INTEGER',
-				newmipsType: "number",
+				type: 'STRING',
+				newmipsType: "string",
 				defaultValue: null
 			},
 			lang: {
@@ -78,8 +78,8 @@ const config = {
 			apiField: 'postcode',
 			defaultValue: '',
 			sql: {
-				type: 'INTEGER',
-				newmipsType: "number",
+				type: 'STRING',
+				newmipsType: "string",
 				defaultValue: null
 			},
 			lang: {
