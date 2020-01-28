@@ -1,3 +1,5 @@
+$.fn.dataTable.ext.errMode = 'throw';
+
 // =========================
 // DataTableBuilder "HOW TO"
 // =========================
