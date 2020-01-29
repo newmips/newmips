@@ -433,6 +433,14 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 				if (option.target.indexOf('e_history_') == 0)
 					option.noCreateBtn = true;
 				dustData = {for: 'hasMany'};
+
+				// For component file storage only
+				if(option.isFileStorage) {
+					dustData = {
+						...dustData,
+						...req.query
+					}
+				}
 				break;
 
 			case 'hasManyPreset':

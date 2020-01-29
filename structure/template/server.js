@@ -197,6 +197,7 @@ if (startedFromGenerator) {
 }
 
 //------------------------------ LOCALS ------------------------------ //
+const dustFn = require("./utils/dust_fn"); // eslint-disable-line
 app.use((req, res, next) => {
 
 	// If not a person (healthcheck service or other spamming services)
@@ -214,11 +215,12 @@ app.use((req, res, next) => {
 	res.locals.lang_user = lang;
 	res.locals.config = globalConf;
 
-	const dustFn = require("./utils/dust_fn"); // eslint-disable-line
 	// To use before calling renderSource function
 	// Insert locals function in dustData
 	dust.insertLocalsFn = (locals, request) => {
+		dustFn.getHelpers(dust);
 		dustFn.getLocals(locals, request, language(request.session.lang_user), block_access);
+		dustFn.getFilters(dust, lang);
 	}
 
 	// Helpers / Locals / Filters
