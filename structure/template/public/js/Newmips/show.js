@@ -165,13 +165,6 @@ function ajaxForm(form, tab) {
     });
 }
 
-function currencyFormat(num) {
-    if(num != null)
-        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-    else
-        return "";
-}
-
 //
 // TABS INIT
 //
