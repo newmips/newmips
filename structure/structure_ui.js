@@ -398,6 +398,9 @@ exports.createWidgetPiechart = async (data) => {
 			}
 
 		if (definitlyNotFound){
+			if(!data.field)
+				throw new Error('structure.ui.widget.no_fields');
+
 			const err = new Error('structure.ui.widget.unknown_fields');
 			err.messageParams = [data.field];
 			throw err;
