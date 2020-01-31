@@ -348,7 +348,6 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 
 router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'read'), (req, res) => {
 	const alias = req.params.alias;
-	const id = req.params.id;
 
 	// Find tab option
 	let option;
@@ -357,6 +356,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 			option = options[i];
 			break;
 		}
+
 	if (!option)
 		return res.status(404).end();
 
@@ -364,28 +364,13 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
 		return res.status(403).end();
 
-	const queryOpts = {where: {id: id}};
-	// If hasMany, no need to include anything since it will be fetched using /subdatalist
-	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
-		queryOpts.include = {
-			model: models[entity_helper.capitalizeFirstLetter(option.target)],
-			as: option.as,
-			include: {all: true}
-		}
+	// Default value
+	option.noCreateBtn = false;
 
-	// Fetch tab data
-	models.MODEL_NAME.findOne(queryOpts).then(ENTITY_NAME => {
-		if (!ENTITY_NAME)
-			return res.status(404).end();
-
-		let dustData = ENTITY_NAME[option.as] || null, subentityOptions = [], dustFile, idSubentity;
-		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
-
+	let dustData = null, subentityOptions = [], empty = false, dustFile;
+	(async () => {
 		if (typeof req.query.associationFlag !== 'undefined')
-			dustData = {...dustData, ...req.query};
-
-		// Default value
-		option.noCreateBtn = false;
+			dustData = req.query;
 
 		// Get read / create / update / delete access on the sub entity to handle button display
 		const userRoles = req.session.passport.user.r_role;
@@ -397,55 +382,62 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		};
 
 		// Build tab specific variables
+		let ENTITY_NAME;
 		switch (option.structureType) {
 			case 'hasOne':
-				if (!empty) {
-					idSubentity = dustData.id;
-					dustData.hideTab = true;
-					dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
-					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-					// Fetch status children to be able to switch status
-					// Apply getR_children() on each current status
-					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
-					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (let i = 0; i < subentityOptions.length; i++)
-						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(alias => {
-								promisesData.push(new Promise((resolve, reject) => {
-									dustData[alias].getR_children({
-										include: [{
-											model: models.E_group,
-											as: "r_accepted_group"
-										}]
-									}).then(children => {
-										dustData[alias].r_children = children;
-										resolve();
-									}).catch(reject);
-								}));
-							})(subentityOptions[i].as);
-				}
+				ENTITY_NAME = await models.MODEL_NAME.findOne({
+					where: {
+						id: req.params.id
+					},
+					include: {
+						model: models[entity_helper.capitalizeFirstLetter(option.target)],
+						as: option.as,
+						include: {all: true}
+					}
+				});
+				if (!ENTITY_NAME)
+					throw new Error('Cannot find entity object.')
+
+				dustData = ENTITY_NAME[option.as];
+				empty = !dustData || dustData instanceof Array && dustData.length == 0;
 				dustFile = option.target + '/show_fields';
+
+				if (empty)
+					break;
+
+				dustData.hideTab = true;
+				dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+				dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
+				await entity_helper.getPicturesBuffers(dustData, option.target);
+
+				// Fetch status children to be able to switch status
+				// Apply getR_children() on each current status
+				subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
+				for (let i = 0; i < subentityOptions.length; i++) {
+
+					if (subentityOptions[i].target.indexOf('e_status') != 0)
+						continue;
+
+					dustData[alias].r_children = await dustData[alias].getR_children({ // eslint-disable-line
+						include: [{
+							model: models.E_group,
+							as: "r_accepted_group"
+						}]
+					});
+				}
 				break;
 
 			case 'hasMany':
-				dustFile = option.target + '/list_fields';
 				// Status history specific behavior. Replace history_model by history_table to open view
 				if (option.target.indexOf('e_history_') == 0)
 					option.noCreateBtn = true;
-				dustData = {for: 'hasMany'};
-
-				// For component file storage only
-				if(option.isFileStorage) {
-					dustData = {
-						...dustData,
-						...req.query
-					}
-				}
+				dustData.for = 'hasMany';
+				dustFile = option.target + '/list_fields';
 				break;
 
 			case 'hasManyPreset':
+				dustData.for = 'fieldset';
 				dustFile = option.target + '/list_fields';
-				dustData = {for: 'fieldset'};
 				break;
 
 			default:
@@ -453,33 +445,25 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
-			// Image buffer promise
-			Promise.all(promisesData).then(_ => {
-				// Open and render dust file
-				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
-				dust.insertLocalsFn(dustData ? dustData : {}, req);
-				dust.renderSource(file, dustData || {}, (err, rendered) => {
-					if (err) {
-						console.error(err);
-						return res.status(500).end();
-					}
+		return await entity_helper.getLoadOnStartData(dustData, subentityOptions); // Return dustData
 
-					// Send response to ajax request
-					res.json({
-						content: rendered,
-						data: idSubentity || {},
-						empty: empty,
-						option: option
-					});
-				});
-			}).catch(err => {
+	})().then(dustData => {
+		// Open and render dust file
+		const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+		dust.insertLocalsFn(dustData ? dustData : {}, req);
+		dust.renderSource(file, dustData || {}, (err, rendered) => {
+			if (err) {
 				console.error(err);
-				res.status(500).send(err);
+				return res.status(500).end();
+			}
+
+			// Send response to ajax request
+			res.json({
+				content: rendered,
+				data: dustData ? dustData.id || {} : {},
+				empty: empty,
+				option: option
 			});
-		}).catch(err => {
-			console.error(err);
-			res.status(500).send(err);
 		});
 	}).catch(err => {
 		console.error(err);

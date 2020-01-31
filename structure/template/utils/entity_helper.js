@@ -179,48 +179,44 @@ const funcs = {
 			}
 		}
 	},
-	getPicturesBuffers: function (entity, modelName, isThumbnail) {
-		return new Promise((resolve) => {
+	getPicturesBuffers: async (entity, modelName, isThumbnail) => {
+		try {
 			if (!entity)
-				return resolve();
+				return false;
 
 			let attributes;
 			try {
 				attributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + modelName + '.json'));
-			} catch (e) {
-				return resolve();
+			} catch (err) {
+				console.error('Cannot read attributes file');
+				return false;
 			}
 
-			const bufferPromises = [];
-			for (const key in entity.dataValues)
-				if (attributes[key] && attributes[key].newmipsType == 'picture') {
-					(function (keyCopy) {
-						bufferPromises.push(new Promise((resolveBuf) => {
-							const value = entity.dataValues[keyCopy] || '';
-							const partOfValue = value.split('-');
-							if (partOfValue.length <= 1)
-								return resolveBuf();
-							let path = modelName.toLowerCase() + '/' + partOfValue[0] + '/' + entity.dataValues[keyCopy];
-							if (isThumbnail)
-								path = 'thumbnail/' + path;
-							file_helper.getFileBuffer(path).then(buffer => {
-								entity.dataValues[keyCopy] = {
-									value: value,
-									buffer: buffer
-								};
-							}).catch(e => {
-								console.error(e);
-							}).then(_ => {
-								resolveBuf();
-							});
-						}));
-					}(key));
-				}
+			const promises = [];
+			for (const key in entity.dataValues) {
+				if (!attributes[key] || attributes[key].newmipsType != 'picture')
+					continue;
 
-			Promise.all(bufferPromises).then(_ => {
-				resolve();
-			});
-		});
+				promises.push((async (key) => {
+					const value = entity.dataValues[key] || '';
+					let path = modelName.toLowerCase() + '/' + value.split('-')[0] + '/' + value;
+					if (isThumbnail)
+						path = 'thumbnail/' + path;
+
+					let buffer = await file_helper.getFileBuffer(path);
+					entity.dataValues[key] = {
+						value: value,
+						buffer: buffer
+					};
+				})(key));
+			}
+
+			await Promise.all(promises);
+			return true;
+		} catch(err) {
+			console.error(err);
+			return false;
+		}
 	},
 	removeFiles: function (entityName, entity, attributes) {
 		for (const key in entity.dataValues) {
