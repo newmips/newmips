@@ -398,6 +398,9 @@ exports.createWidgetPiechart = async (data) => {
 			}
 
 		if (definitlyNotFound){
+			if(!data.field)
+				throw new Error('structure.ui.widget.no_fields');
+
 			const err = new Error('structure.ui.widget.unknown_fields');
 			err.messageParams = [data.field];
 			throw err;
@@ -451,8 +454,8 @@ exports.createWidgetLastRecords = async (data) => {
 		for (let j = 0; j < options.length; j++)
 			if (data.columns[i].name.toLowerCase() == options[j].showAs.toLowerCase()) {
 				data.columns[i] = {
-					name: options[j].showAs,
-					codeName: options[j].as,
+					name: options[j].as,
+					displayName: options[j].showAs,
 					found: true
 				};
 				break;
@@ -488,7 +491,7 @@ exports.createWidgetLastRecords = async (data) => {
 
 	let thead = '<thead><tr>';
 	for (let i = 0; i < data.columns.length; i++) {
-		const field = data.columns[i].name.toLowerCase();
+		const field = data.columns[i].name;
 		const type = $list('th[data-field="' + field + '"]').data('type');
 		const col = $list('th[data-field="' + field + '"]').data('col');
 		const fieldTradKey = field != 'id' ? field : 'id_entity';

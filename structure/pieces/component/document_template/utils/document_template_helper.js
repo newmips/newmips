@@ -80,19 +80,8 @@ function generateHtmlToPDF(options) {
 
 			const tmpFileName = __dirname + '/../' + new Date().getTime() + '' + Math.floor(Math.random() * Math.floor(100)) + '.pdf';
 
-			const headerStartIdx = html.indexOf('<!--HEADER-->');
-			const headerEndIdx = html.indexOf('<!--HEADER-->', headerStartIdx + '<!--HEADER-->'.length) + '<!--HEADER-->'.length;
-			const header = html.substring(headerStartIdx, headerEndIdx);
-
-			const footerStartIdx = html.indexOf('<!--FOOTER-->');
-			const footerEndIdx = html.indexOf('<!--FOOTER-->', footerStartIdx + '<!--FOOTER-->'.length) + '<!--FOOTER-->'.length;
-			let footer = html.substring(footerStartIdx, footerEndIdx);
-
-			html = html.replace(header, '');
-			html = html.replace(footer, '');
-
-			footer = footer.replace('**page**', '{{page}}');
-			footer = footer.replace('**pages**', '{{pages}}');
+			html = html.replace(/\*\*page\*\*/g, '{{page}}');
+			html = html.replace(/\*\*pages\*\*/g, '{{pages}}');
 
 			pdf.create(html, {
 				orientation: "portrait",
@@ -102,14 +91,6 @@ function generateHtmlToPDF(options) {
 					right: "15px",
 					bottom: "0px",
 					left: "15px"
-				},
-				header: {
-					height: "50px",
-					contents: header
-				},
-				footer: {
-					height: "50px",
-					contents: footer
 				}
 			}).toFile(tmpFileName, err => {
 				if (err)
