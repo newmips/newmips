@@ -35,10 +35,10 @@ exports.setupModule = async (data) => {
 	// Replace custom_module occurence and write to file
 	let resultDust = dataDust.replace(/custom_module/g, name_module.toLowerCase());
 	if (name_module.toLowerCase() != "m_home") {
-		const moduleAriane = "" +
-			"<li class='active'>" +
-			"   <!--{#__ key=\"module." + name_module.toLowerCase() + "\"/}-->" +
-			"</li>";
+		const moduleAriane = "\
+			<li class='active'>\
+				{#__ key=\"module." + name_module.toLowerCase() + "\"/}\n\
+			</li>";
 		resultDust = resultDust.replace(/<!-- NEW MODULE -->/g, moduleAriane);
 	}
 	resultDust = resultDust.replace(/custom_show_module/g, show_name_module.toLowerCase());

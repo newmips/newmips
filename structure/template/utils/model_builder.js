@@ -198,8 +198,8 @@ exports.buildForRoute = function buildForRoute(attributes, options, body) {
 				object[foreignKey] = body[associationLower];
 			}
 		}
-
 	}
+
 	return object;
 }
 

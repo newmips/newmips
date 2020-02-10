@@ -1024,21 +1024,22 @@ exports.createNewHasMany = async (data) => {
 		await structure_entity.setupEntity(data)
 	} else {
 
-		let optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
+		const optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
 		let matchingAlias = null, cptExistingHasMany = 0;
 
 		// Check if there is no or just one belongsToMany to do
-		for (let i = 0; i < optionsObject.length; i++)
-			if (optionsObject[i].target == data.options.source
-				&& optionsObject[i].relation == "hasMany"
-				&& optionsObject[i].structureType != "auto_generate") {
-					cptExistingHasMany++;
+		for (let i = 0; i < optionsObject.length; i++) {
+			if (optionsObject[i].target == data.options.source &&
+				optionsObject[i].relation == "hasMany" &&
+				optionsObject[i].structureType != "auto_generate") {
+				cptExistingHasMany++;
 
-					if(optionsObject[i].as == data.options.as)
-						matchingAlias = optionsObject[i].as;
-					else if(optionsObject[i].as == 'r_' + data.options.source.substring(2)) // Matching default generated alias in case of specific alias not found
-						matchingAlias = optionsObject[i].as;
-				}
+				if (optionsObject[i].as == data.options.as)
+					matchingAlias = optionsObject[i].as;
+				else if (optionsObject[i].as == 'r_' + data.options.source.substring(2)) // Matching default generated alias in case of specific alias not found
+					matchingAlias = optionsObject[i].as;
+			}
+		}
 
 		// Check that an association already exist from TARGET to SOURCE
 		for (let i = 0; i < optionsObject.length; i++) {
@@ -1063,7 +1064,6 @@ exports.createNewHasMany = async (data) => {
 					message: 'structure.association.hasMany.successEntity',
 					messageParams: [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs]
 				}
-
 			} else if (data.options.source != data.options.target
 					&& (optionsObject[i].target == data.options.source && optionsObject[i].relation == "belongsTo")
 					&& optionsObject[i].foreignKey == data.options.foreignKey) {
@@ -1108,8 +1108,7 @@ exports.createNewHasMany = async (data) => {
 	structure_entity.setupAssociation(reversedOptions);
 
 	// Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
-	structure_entity.setupHasManyTab(data);
-
+	await structure_entity.setupHasManyTab(data);
 	return {
 		...answer,
 		entity: data.source_entity
@@ -1155,7 +1154,7 @@ exports.createNewHasManyPreset = async (data) => {
 
 	let toSync = true;
 	let saveFile = false;
-	// Vérification si une relation existe déjà avec cet alias
+	// Checking if a relationship already exists with this alias
 	for (let i = 0; i < optionsSourceObject.length; i++) {
 		if (optionsSourceObject[i].target == data.options.target) {
 			// If alias already used
@@ -1243,10 +1242,10 @@ exports.createNewHasManyPreset = async (data) => {
 		type: "hasManyPreset"
 	};
 
-	// Créer le lien belongsTo en la source et la target
+	// Create the belongsTo link between source and target
 	structure_entity.setupAssociation(associationOption);
 
-	// Ajouter le field d'assocation dans create_fields/update_fields. Ajout d'un tab dans le show
+	// Add the assocation field in create_fields/update_fields. Adding a tab in the show
 	await structure_entity.setupHasManyPresetTab(data);
 
 	return {

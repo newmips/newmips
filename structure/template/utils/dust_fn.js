@@ -106,6 +106,40 @@ module.exports = {
 			}
 			return false;
 		}
+		function buildContext(ctx){
+            let newContext = {};
+            for(let obj in ctx) {
+                if(obj == 'dataValues')
+                    newContext = {...newContext, ...ctx[obj]};
+                else if(ctx[obj] && typeof ctx[obj] === 'object' && ctx[obj].dataValues)
+                    newContext[obj] = buildContext(ctx[obj]);
+                else if(!obj.startsWith('_')) // Skip Sequelize private variable
+                    newContext[obj] = ctx[obj];
+            }
+            return newContext;
+        }
+        function diveContext(ctx) {
+            let current, results = [];
+            for (let obj in ctx) {
+                current = ctx[obj];
+                if(typeof current === 'object')
+                    switch(obj) {
+                        case 'stack':
+                        case 'tail':
+                            results = diveContext(current);
+                        case 'head':
+                            if(!("tail" in current))
+                                results.push(JSON.stringify(buildContext(current), null, 2));
+                    }
+            }
+            return results;
+        }
+        dust.helpers.contextUpperDump = function(chunk, context, bodies, params) {
+            const results = diveContext(context);
+            for (let i = 0; i < results.length; i++)
+                results[i] = results[i].replace(/</g, '\\u003c');
+            chunk = chunk.write(results);
+        }
 	},
 	getFilters: function(dust, lang) {
 		// ----------- Filter DUST ----------- //

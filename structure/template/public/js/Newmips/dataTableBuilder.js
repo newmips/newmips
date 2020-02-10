@@ -48,6 +48,7 @@ if (lang_user == "fr-FR") {
         "emptyTable": "Aucune donn&eacute;e disponible dans le tableau",
         "reset_filter": "Réinitialiser les filtres",
         "scroll_right": "Défilement à droite",
+        "download_file": "Télécharger le fichier",
         "paginate": {
             "first": "Premier",
             "previous": "Pr&eacute;c&eacute;dent",
@@ -82,6 +83,7 @@ if (lang_user == "fr-FR") {
         "emptyTable": "No data available in this array",
         "reset_filter": "Reset all filters",
         "scroll_right": "Scroll right",
+        "download_file": "Download the file",
         "paginate": {
             "first": "First",
             "previous": "Previous",
@@ -249,11 +251,12 @@ function getValue(cellArrayKeyValue, row) {
     return row;
 }
 
-function currencyFormat(num) {
-    if(num != null)
-        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-    else
-        return "";
+function currencyFormat(value) {
+    if(typeof value === 'string' && value.indexOf('.') != -1 && value.split('.')[1].length == 1)
+        return value + '0';
+    else if(typeof value === 'number')
+        return value.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+    return value;
 }
 
 // Dive trough the object to find the key we are looking for
@@ -479,7 +482,7 @@ function init_datatable(tableID, doPagination, context) {
                             // Remove uuid
                             if(justFilename[32] == '_')
                                 justFilename = justFilename.substring(33);
-                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                            cellValue = '<a href="/default/download?entity=' + currentEntity + '&amp;f=' + encodeURIComponent(cellValue) + '" name="' + columns[meta.col].data + '"><i class="fa fa-download"></i>&nbsp;&nbsp;' + STR_LANGUAGE.download_file + '</a>';
                         } else
                             cellValue = '';
                     }
