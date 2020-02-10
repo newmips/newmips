@@ -183,16 +183,21 @@ exports.buildForRoute = function buildForRoute(attributes, options, body) {
 
 	// Association Field
 	for (let i = 0; i < options.length; i++) {
-		if (options[i].relation != 'belongsTo')
-			continue;
-
 		const association = options[i].as;
 		const foreignKey = options[i].foreignKey.toLowerCase();
+		const associationLower = association.toLowerCase();
 
-		if (typeof body[association] === 'undefined' || body[association] == "")
-			object[foreignKey] = null;
-		else
-			object[foreignKey] = body[association];
+		if (options[i].relation === 'belongsTo') {
+			if (typeof body[association] !== 'undefined') {
+				if (body[association] == "")
+					body[association] = null;
+				object[foreignKey] = body[association];
+			} else if (typeof body[associationLower] !== 'undefined') {
+				if (body[associationLower] == "")
+					body[associationLower] = null;
+				object[foreignKey] = body[associationLower];
+			}
+		}
 	}
 
 	return object;

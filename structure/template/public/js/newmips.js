@@ -638,8 +638,8 @@ function validateForm(form) {
         }
     });
 
-    /* If a select multiple is empty we want to have an empty value in the req.body */
-    form.find("select[multiple]").each(function () {
+    /* If a select is empty we want to have an empty value in the req.body */
+    form.find("select").each(function() {
         if ($(this).val() == null) {
             var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
             form.append($(input));
