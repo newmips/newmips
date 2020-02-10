@@ -573,22 +573,23 @@ module.exports = {
 	},
 	generateDoc: function (options) {
 		return new Promise(function (resolve, reject) {
+			let promise;
 			switch (options.mimeType) {
 				case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-					resolve(generateDocxDoc(options));
+					promise = generateDocxDoc(options);
 					break;
 				case "application/pdf":
-					resolve(generatePDFDoc(options));
+					promise = generatePDFDoc(options);
 					break;
 				case "text/html":
-					resolve(generateHtmlToPDF(options));
+					promise = generateHtmlToPDF(options);
 					break;
 				default:
-					reject({
+					return reject({
 						message: langMessage[options.lang || lang].fileTypeNotValid
 					});
-					break;
 			}
+			promise.then(resolve).catch(reject);
 		});
 	}
 };
