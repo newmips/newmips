@@ -282,8 +282,6 @@ function executeFile(req, userID, __) {
 	// Checking file
 	let lineIdx = -1;
 	rl.on('line', line => {
-		lineIdx++;
-
 		// Empty line || One line comment scope
 		if (line.trim() == '' || (line.indexOf('/*') != -1 && line.indexOf('*/') != -1 || line.indexOf('//*') != -1))
 			return;
@@ -309,14 +307,13 @@ function executeFile(req, userID, __) {
 			let parserResult;
 			try {
 				parserResult = parser.parse(line);
+				lineIdx++;
 			} catch (err) {
 				// Update script logs
 				scriptData[userID].answers.unshift({
 					instruction: line,
 					message: __(err.message, err.messageParams || [])
 				});
-				console.log("CA VA ETRE LA ?");
-				console.log(line);
 				return processEnd(req.file.path, userID);
 			}
 
