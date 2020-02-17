@@ -505,10 +505,10 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 					continue;
 				const currentOrObj = {};
 				if (req.body.searchField[i].indexOf(".") != -1)
-					currentOrObj["$" + req.body.searchField[i] + "$"] = {$like: search}
+					currentOrObj["$" + req.body.searchField[i] + "$"] = {[models.$like]: search}
 				else
-					currentOrObj[req.body.searchField[i]] = {$like: search}
-				query.where.$or.push(currentOrObj);
+					currentOrObj[req.body.searchField[i]] = {[models.$like]: search}
+				query.where[models.$or].push(currentOrObj);
 			}
 		}
 	}
