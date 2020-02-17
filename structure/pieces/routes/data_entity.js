@@ -496,26 +496,19 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 		where: {}
 	};
 	if (search != '%%') {
-		if (req.body.searchField.length == 1) {
-			where.where[req.body.searchField[0]] = {
-				[models.$like]: search
-			};
-		} else {
+		if (req.body.searchField.length == 1)
+			where.where[req.body.searchField[0]] = {[models.$like]: search};
+		else {
 			where.where[models.$or] = [];
 			for (let i = 0; i < req.body.searchField.length; i++) {
-				if (req.body.searchField[i] != "id") {
-					const currentOrObj = {};
-					if(req.body.searchField[i].indexOf(".") != -1){
-						currentOrObj["$"+req.body.searchField[i]+"$"] = {
-							[models.$like]: search
-						}
-					} else {
-						currentOrObj[req.body.searchField[i]] = {
-							[models.$like]: search
-						}
-					}
-					where.where[models.$or].push(currentOrObj);
-				}
+				if (req.body.searchField[i] == "id")
+					continue;
+				const currentOrObj = {};
+				if (req.body.searchField[i].indexOf(".") != -1)
+					currentOrObj["$" + req.body.searchField[i] + "$"] = {$like: search}
+				else
+					currentOrObj[req.body.searchField[i]] = {$like: search}
+				where.where.$or.push(currentOrObj);
 			}
 		}
 	}
