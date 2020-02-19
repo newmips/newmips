@@ -45,7 +45,7 @@ html#html-login, html#html-login body{
 }
 
 html#html-login .form-box .header {
-  background: #ffffff;
+  background: #222;
 }
 
 html#html-login .btn.btn-primary:hover, html#html-login .btn.btn-primary:active, html#html-login .btn.btn-primary.hover {
