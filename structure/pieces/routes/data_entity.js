@@ -490,32 +490,25 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 	if (req.body.searchField.indexOf("id") == -1)
 		req.body.searchField.push('id');
 
-	const where = {
+	const query = {
 		raw: true,
 		attributes: req.body.searchField,
 		where: {}
 	};
 	if (search != '%%') {
-		if (req.body.searchField.length == 1) {
-			where.where[req.body.searchField[0]] = {
-				[models.$like]: search
-			};
-		} else {
-			where.where[models.$or] = [];
+		if (req.body.searchField.length == 1)
+			query.where[req.body.searchField[0]] = {[models.$like]: search};
+		else {
+			query.where[models.$or] = [];
 			for (let i = 0; i < req.body.searchField.length; i++) {
-				if (req.body.searchField[i] != "id") {
-					const currentOrObj = {};
-					if(req.body.searchField[i].indexOf(".") != -1){
-						currentOrObj["$"+req.body.searchField[i]+"$"] = {
-							[models.$like]: search
-						}
-					} else {
-						currentOrObj[req.body.searchField[i]] = {
-							[models.$like]: search
-						}
-					}
-					where.where[models.$or].push(currentOrObj);
-				}
+				if (req.body.searchField[i] == "id")
+					continue;
+				const currentOrObj = {};
+				if (req.body.searchField[i].indexOf(".") != -1)
+					currentOrObj["$" + req.body.searchField[i] + "$"] = {[models.$like]: search}
+				else
+					currentOrObj[req.body.searchField[i]] = {[models.$like]: search}
+				query.where[models.$or].push(currentOrObj);
 			}
 		}
 	}
@@ -538,26 +531,26 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 					if ((options[option].foreignKey == param || options[option].otherKey == param) && options[option].relation != "belongsToMany"){
 						// Where on include managment if fk
 						if(param.indexOf(".") != -1)
-							where.where["$"+param+"$"] = req.body.customwhere[param];
+							query.where["$"+param+"$"] = req.body.customwhere[param];
 						else
-							where.where[param] = req.body.customwhere[param];
+							query.where[param] = req.body.customwhere[param];
 					}
 				}
 			else if (param.indexOf(".") != -1)
-				where.where["$"+param+"$"] = req.body.customwhere[param];
+				query.where["$"+param+"$"] = req.body.customwhere[param];
 			else
-				where.where[param] = req.body.customwhere[param];
+				query.where[param] = req.body.customwhere[param];
 		}
 	}
 
-	where.offset = offset;
-	where.limit = limit;
+	query.offset = offset;
+	query.limit = limit;
 
 	// If you need to show fields in the select that are in an other associate entity
 	// You have to include those entity here
-	// where.include = [{model: models.E_myentity, as: "r_myentity"}]
+	// query.include = [{model: models.E_myentity, as: "r_myentity"}]
 
-	models.MODEL_NAME.findAndCountAll(where).then(results => {
+	models.MODEL_NAME.findAndCountAll(query).then(results => {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
 		// Format value like date / datetime / etc...
 		for (const field in attributes)
