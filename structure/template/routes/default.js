@@ -207,7 +207,9 @@ router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 			if (req.body.dataType == 'picture') {
 				basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + entity + '/' + folder[0] + '/';
 				fs.mkdirsSync(basePath);
-
+				const thumbnailPath = basePath + req.file.originalname;
+				// Upload default file as thumbnail anyway, will be overwritten if everything works perfectly for thumbnail generation
+				fs.writeFileSync(thumbnailPath, req.file.buffer);
 				Jimp.read(uploadPath, (err, imgThumb) => {
 					if (err)
 						return console.error(err);
@@ -215,7 +217,6 @@ router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 					const thumbnailWidth = globalConfig.thumbnail.width;
 					const thumbnailHeight = globalConfig.thumbnail.height;
 					const thumbnailQuality = globalConfig.thumbnail.quality;
-					const thumbnailPath = basePath + req.file.originalname;
 					imgThumb.resize(thumbnailWidth, thumbnailHeight).quality(thumbnailQuality).write(thumbnailPath);
 				});
 			}
@@ -226,7 +227,7 @@ router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 	});
 });
 
-router.get('/get_picture', block_access.isLoggedIn, (req, res) => {
+router.get('/get_file', block_access.isLoggedIn, (req, res) => {
 	try {
 		const entity = req.query.entity;
 		const filename = req.query.src;
@@ -248,10 +249,8 @@ router.get('/get_picture', block_access.isLoggedIn, (req, res) => {
 		const picture = fs.readFileSync(filePath);
 
 		res.json({
-			result: 200,
 			data: new Buffer(picture).toString('base64'),
-			file: cleanFilename,
-			success: true
+			file: cleanFilename
 		});
 	} catch (err) {
 		console.error(err);
