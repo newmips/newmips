@@ -51,10 +51,10 @@ $(function() {
         if (wrapper[0].scrollHeight - wrapper.scrollTop() == wrapper.height()) {
             var notificationOffset = wrapper.children('li').length;
 
-            // Stop ajax calls if there is no more notification to load
             $.ajax({
                 url: '/notification/load/'+notificationOffset,
                 success: function(notifications) {
+                    // Block ajax calls if there is no more notification to load
                     if (notifications.length == 0)
                         lastNotifReached = true;
                     for (var i = 0; i < notifications.length; i++)
