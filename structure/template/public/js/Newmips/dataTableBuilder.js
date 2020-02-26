@@ -49,6 +49,7 @@ if (lang_user == "fr-FR") {
         "reset_filter": "Réinitialiser les filtres",
         "scroll_right": "Défilement à droite",
         "download_file": "Télécharger le fichier",
+        "close": "Fermer",
         "paginate": {
             "first": "Premier",
             "previous": "Pr&eacute;c&eacute;dent",
@@ -84,6 +85,7 @@ if (lang_user == "fr-FR") {
         "reset_filter": "Reset all filters",
         "scroll_right": "Scroll right",
         "download_file": "Download the file",
+        "close": "Close",
         "paginate": {
             "first": "First",
             "previous": "Previous",
@@ -435,6 +437,9 @@ function init_datatable(tableID, doPagination, context) {
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
+                    // Get current entity by splitting current table id
+                    var currentEntity = tableID.split("#table_")[1];
+
                     // date / datetime
                     if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
@@ -470,19 +475,13 @@ function init_datatable(tableID, doPagination, context) {
                         cellValue = '<a href="tel:' + cellValue + '">' + cellValue + '</a>';
                     else if (columns[meta.col].type == 'picture') {
                         if (cellValue != null && cellValue.buffer != '')
-                            cellValue = '<img src=data:image/;base64,' + cellValue.buffer + ' />';
+                            cellValue = '<img class="file" style="max-width: 50px;" data-entity="' + currentEntity + '" data-value="' + cellValue.value + '" src=data:image/;base64,' + cellValue.buffer + ' />';
                         else
                             cellValue = '';
                     }
                     else if (columns[meta.col].type == 'file') {
                         if(cellValue != "" && cellValue != null){
-                            // Get current entity by splitting current table id
-                            var currentEntity = tableID.split("#table_")[1];
-                            var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
-                            // Remove uuid
-                            if(justFilename[32] == '_')
-                                justFilename = justFilename.substring(33);
-                            cellValue = '<a href="/default/download?entity=' + currentEntity + '&amp;f=' + encodeURIComponent(cellValue) + '" name="' + columns[meta.col].data + '"><i class="fa fa-download"></i>&nbsp;&nbsp;' + STR_LANGUAGE.download_file + '</a>';
+                            cellValue = '<a class="file" href="#" data-entity="' + currentEntity + '" data-value="' + cellValue + '" data-name="' + columns[meta.col].data + '"><i class="fa fa-download"></i>&nbsp;&nbsp;' + STR_LANGUAGE.download_file + '</a>';
                         } else
                             cellValue = '';
                     }
@@ -626,36 +625,67 @@ function init_datatable(tableID, doPagination, context) {
     }
     table = $(tableID, context).DataTable(tableOptions);
 
-    //modal on click on picture cell
-    $(tableID+' tbody', context).on('click', 'td img', function () {
-        var colIdx = table.cell($(this).parent()).index().column;
-        if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
-            var entity = tableID.replace('#table_', '');
-            var cellData = table.cell($(this).parent()).data();
-            $.ajax({
-                url: '/default/get_picture',
-                type: 'GET',
-                data: {entity: entity, src: cellData.value},
-                success: function (result) {
-                    if (result.success) {
-                        var text = '<div class="modal fade" tabindex="-1" role="dialog">'
-                                + '     <div class="modal-dialog" role="document">'
-                                + '         <div class="modal-content">'
-                                + '             <div class="modal-header skin-blue-light">'
-                                + '                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                                + '                 <h4 class="modal-title">' + result.file + '</h4>'
-                                + '             </div>'
-                                + '             <div class="modal-body">'
-                                + '                 <p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
-                                + '             </div>'
-                                + '         </div>'
-                                + '     </div>'
-                                + '</div>';
-                        $(text).modal('show');
-                    }
-                }
-            });
+    function generatePDFViewer(base64) {
+        var raw = window.atob(base64);
+        var rawLength = raw.length;
+        var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+        for (var i = 0; i < rawLength; i++) {
+            array[i] = raw.charCodeAt(i);
         }
+
+        var binaryData = [];
+        binaryData.push(array);
+        var dataPdf = window.URL.createObjectURL(new Blob(binaryData, {
+            type: "application/pdf"
+        }))
+        return dataPdf;
+    }
+
+    // Preview modal on type file
+    $(tableID + ' tbody', context).on('click', 'td > .file', function () {
+        var colIdx = table.cell($(this).parent()).index().column;
+        if (typeof columns[colIdx] === 'undefined' || (columns[colIdx].type != 'file' && columns[colIdx].type != 'picture'))
+            return;
+
+        let downloadURL = '/default/download?entity=' + $(this).data('entity') + '&amp;f=' + encodeURIComponent($(this).data('value'));
+        $.ajax({
+            url: '/default/get_file',
+            type: 'GET',
+            data: {entity: $(this).data('entity'), src: $(this).data('value')},
+            success: function (result) {
+
+                var showHTML = '<p><img class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>';
+                if(result.file.substring(result.file.length, result.file.length - 4) == '.pdf') {
+                    var binaryPDF = generatePDFViewer(result.data);
+                    showHTML = '<iframe src=/js/plugins/pdf/web/viewer.html?file=' + encodeURIComponent(binaryPDF) + ' style="width:100%;min-height:500px !important;" allowfullscreen webkitallowfullscreen ></iframe>';
+                }
+
+                var modalHTML = '\
+                <div class="modal fade" tabindex="-1" role="dialog">\
+                    <div class="modal-dialog" role="document" style="width:60%;">\
+                        <div class="modal-content">\
+                            <div class="modal-header skin-blue-light">\
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+                                <h4 class="modal-title">' + result.file + '</h4>\
+                            </div>\
+                            <div class="modal-body">\
+                                ' + showHTML + '\
+                                <a href="' + downloadURL + '" class="btn btn-primary"><i class="fa fa-download"></i>&nbsp;&nbsp;Télécharger</a>\
+                            </div>\
+                            <div class="modal-footer">\
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">' + STR_LANGUAGE.close + '</button>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+
+                $(modalHTML).modal('show');
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
     });
 
     var startFilterTimer = 0;
@@ -811,7 +841,12 @@ $(function () {
 
     $('tbody').on('click', 'tr', function (e) {
         if(!e.ctrlKey){
-            if ($(this).find('.dataTables_empty').length > 0 || $(e.target).hasClass("btn-danger") || $(e.target).hasClass("np_text_modal") || $(e.target).parents("button.btn-danger").length != 0 || $(e.target).is("img"))
+            if ($(this).find('.dataTables_empty').length > 0 ||
+                $(e.target).hasClass("btn-danger") ||
+                $(e.target).parents("button.btn-danger").length != 0 ||
+                $(e.target).hasClass("np_text_modal") ||
+                $(e.target).is("img") ||
+                $(e.target).hasClass("file"))
                 return;
             if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
                 window.location = $(this).find('td > a.btn-show:first').attr('href');
