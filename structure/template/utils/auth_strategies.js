@@ -44,7 +44,7 @@ function(req, login_user, password_user, done) {
 		if (user.f_password == "" || user.f_password == null)
 			return accessForbidden('Compte non activé - Mot de passe manquant');
 
-		// If the user has no password
+		// If the user is not enabled
 		if (user.f_enabled == 0 || user.f_enabled == null)
 			return accessForbidden('Compte non activé');
 
