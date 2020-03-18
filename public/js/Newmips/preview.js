@@ -296,7 +296,8 @@ $(document).ready(function() {
                 indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
                 // User instruction
                 var userItem = data.chat.items[data.chat.items.length - 2];
-                $("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + userItem.dateEmission + "</small>" + userItem.user + "</a><span class=\"standard-writing\" style=\"display: block;\">" + userItem.content + "</span></p></div><hr>");
+                if (userItem.user != 'Mipsy')
+                    $("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + userItem.dateEmission + "</small>" + userItem.user + "</a><span class=\"standard-writing\" style=\"display: block;\">" + userItem.content + "</span></p></div><hr>");
 
                 // Mipsy answer
                 var mipsyItem = data.chat.items[data.chat.items.length - 1];
