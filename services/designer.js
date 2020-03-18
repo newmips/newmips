@@ -342,15 +342,14 @@ exports.selectEntity = async (data) => {
 }
 
 exports.createNewEntity = async (data) => {
-
-	data.np_module = data.application.getModule(data.module_name, true);
-
-	if (data.np_module.getEntity(data.options.value)) {
+	const entityName = data.options.value;
+	if (data.application.findEntity(entityName) !== false) {
 		const err = new Error('database.entity.create.alreadyExist');
 		err.messageParams = [data.options.showValue];
 		throw err;
 	}
 
+	data.np_module = data.application.getModule(data.module_name, true);
 	const entity = data.np_module.addEntity(data.options.value, data.options.showValue);
 
 	await structure_entity.setupEntity(data);

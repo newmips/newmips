@@ -70,7 +70,6 @@ function initPreviewData(appName, data){
 
 const chats = {};
 function setChat(req, app_name, userID, user, content, params, isError){
-
 	// Init if necessary
 	if(!chats[app_name])
 		chats[app_name] = {};
@@ -89,7 +88,6 @@ function setChat(req, app_name, userID, user, content, params, isError){
 }
 
 async function execute(req, instruction, __, data = {}, saveMetadata = true) {
-
 	// Lower the first word for the basic parser json
 	instruction = dataHelper.lowerFirstWord(instruction);
 
@@ -222,7 +220,6 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 				lastError = lastError.split("Cannot find module")[1].replace(/'/g, "").trim();
 				chatParams = [lastError, lastError];
 			}
-
 			setChat(req, appName, currentUserID, "Mipsy", chatKey, chatParams, true);
 			data.iframe_url = -1;
 			res.render('front/preview', data);
