@@ -201,7 +201,7 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_action.create(createObject, {req: req}).then(e_action => {
+	models.E_action.create(createObject, {req}).then(e_action => {
 		let redirect = '/action/show?id=' + e_action.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -246,7 +246,7 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_action.id;
-						association.update(obj, {req: req}).then(resolve).catch(err => {
+						association.update(obj, {req}).then(resolve).catch(err => {
 							reject(err);
 						});
 					}
@@ -334,7 +334,7 @@ router.post('/update', block_access.actionAccessMiddleware("action", "update"), 
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_action.update(updateObject, {req: req}).then(_ => {
+		e_action.update(updateObject, {req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

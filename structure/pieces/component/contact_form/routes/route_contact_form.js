@@ -122,7 +122,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 			//createObject = enums.values("CODE_VALUE_CONTACT", createObject, req.body);
 			createObject.fk_id_user_user = req.session.passport.user.id;
 			createObject.f_recipient = settings.f_form_recipient;
-			models.MODEL_VALUE_CONTACT.create(createObject, {req: req}).then((CODE_VALUE_CONTACT) => {
+			models.MODEL_VALUE_CONTACT.create(createObject, {req}).then((CODE_VALUE_CONTACT) => {
 				let redirect = '/URL_VALUE_CONTACT/create_form';
 				req.session.toastr = [{
 					message: "entity.CODE_VALUE_CONTACT.successSendMail",
@@ -149,7 +149,7 @@ router.post('/create', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", 
 						else {
 							const obj = {};
 							obj[req.body.associationForeignKey] = CODE_VALUE_CONTACT.id;
-							association.update(obj, {req: req});
+							association.update(obj, {req});
 						}
 					});
 				}
@@ -297,7 +297,7 @@ router.get('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS"
 				f_user: "",
 				f_pass: "",
 				f_form_recipient: ""
-			}, {req: req}).then(createdSettings => {
+			}, {req}).then(createdSettings => {
 				data.CODE_VALUE_SETTINGS = createdSettings;
 				res.render('CODE_VALUE_CONTACT/settings', data);
 			});
@@ -330,7 +330,7 @@ router.post('/settings', block_access.actionAccessMiddleware("URL_VALUE_SETTINGS
 			where: {
 				id: id_CODE_VALUE_SETTINGS
 			}
-		}, {req: req}).then(_ => {
+		}, {req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

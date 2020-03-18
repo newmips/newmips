@@ -24,26 +24,26 @@
 			<input class="form-control input" placeholder='{#__ key="entity.e_media_task.f_task_name" /}' name="f_task_name" value="{f_task_name}" type="text" maxlength="255">
 		</div>
 	</div>
-	<div data-field="f_media_type" class="fieldLineHeight col-xs-12">
+	<div data-field="f_task_type" class="fieldLineHeight col-xs-12">
 		<div class="form-group">
-			<label for="f_media_type">
-				{#__ key="entity.e_media_task.f_media_type"/}&nbsp;
-				{@inline_help field="f_media_type"}
-				<i data-field="f_media_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+			<label for="f_task_type">
+				{#__ key="entity.e_media_task.f_task_type"/}&nbsp;
+				{@inline_help field="f_task_type"}
+				<i data-field="f_task_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
 				{/inline_help}
 			</label>
 			<br>
-			<select class="form-control select" name="f_media_type" style="width: 100%;">
+			<select class="form-control select" name="f_task_type" style="width: 100%;">
 				<option value="">
 					{#__ key="select.default" /}
 				</option>
-				{#enum_radio.e_media_task.f_media_type}
-				{@eq key=f_media_type value="{.value}" }
+				{#enum_radio.e_media_task.f_task_type}
+				{@eq key=f_task_type value="{.value}" }
 				<option value="{.value}" selected=""> {.translation} </option>
 				{:else}
 				<option value="{.value}"> {.translation} </option>
 				{/eq}
-				{/enum_radio.e_media_task.f_media_type}
+				{/enum_radio.e_media_task.f_task_type}
 			</select>
 		</div>
 	</div>
