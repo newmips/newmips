@@ -198,7 +198,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
 
 	createObject.f_client_key = randomString.generate(15);
 	createObject.f_client_secret = randomString.generate(15);
-	models.E_api_credentials.create(createObject, {req: req}).then(function (e_api_credentials) {
+	models.E_api_credentials.create(createObject, {req}).then(function (e_api_credentials) {
 		let redirect = '/api_credentials/show?id=' + e_api_credentials.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -226,7 +226,7 @@ router.post('/create', block_access.actionAccessMiddleware("api_credentials", "c
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_api_credentials.id;
-						association.update(obj, {req: req}).then(resolve).catch(function (err) {
+						association.update(obj, {req}).then(resolve).catch(function (err) {
 							reject(err);
 						});
 					}
@@ -302,7 +302,7 @@ router.post('/update', block_access.actionAccessMiddleware("api_credentials", "u
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_api_credentials.update(updateObject, {req: req}).then(_ => {
+		e_api_credentials.update(updateObject, {req}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -557,7 +557,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_api_credentials_history_" + req.params.status.substring(2)] = req.params.id_api_credentials;
-				models[historyModel].create(createObject, {req: req}).then(_ => {
+				models[historyModel].create(createObject, {req}).then(_ => {
 					e_api_credentials['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/api_credentials/show?id=' + req.params.id_api_credentials)
 				});
@@ -570,7 +570,7 @@ router.get('/set_status/:id_api_credentials/:status/:id_new_status', block_acces
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_api_credentials_history_" + req.params.status.substring(2)] = req.params.id_api_credentials;
-				models[historyModel].create(createObject, {req: req}).then(_ => {
+				models[historyModel].create(createObject, {req}).then(_ => {
 					e_api_credentials['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/api_credentials/show?id=' + req.params.id_api_credentials)
 				});

@@ -181,7 +181,7 @@ router.post('/', function(req, res) {
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_task.create(createObject, {req: req}).then(function(e_task) {
+	models.E_task.create(createObject, {req}).then(function(e_task) {
 		answer["e_task".substring(2)] = e_task;
 
 		// Set associations
@@ -226,7 +226,7 @@ router.put('/:id', function(req, res) {
 		}
 
 		// Update e_task
-		e_task.update(updateObject, {where: {id: id_e_task}}, {req: req}).then(function() {
+		e_task.update(updateObject, {where: {id: id_e_task}}, {req}).then(function() {
 			answer["e_task".substring(2)] = e_task;
 
 			// Set associations

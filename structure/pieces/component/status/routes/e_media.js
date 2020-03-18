@@ -73,6 +73,8 @@ router.get('/list', block_access.actionAccessMiddleware("media", "read"), functi
 router.post('/datalist', block_access.actionAccessMiddleware("media", "read"), function (req, res) {
 	filterDataTable("E_media", req.body).then(function (rawData) {
 		entity_helper.prepareDatalistResult('e_media', rawData, req.session.lang_user).then(function(preparedData) {
+			// Translate targeted entity name
+			preparedData.data.forEach(row => row.f_target_entity = language(req.session.lang_user).__(`entity.${row.f_target_entity}.label_entity`));
 			res.send(preparedData).end();
 		});
 	}).catch(function (err) {
@@ -109,6 +111,8 @@ router.get('/show', block_access.actionAccessMiddleware("media", "read"), functi
 					for (const value in data.enum[item])
 						if (data.enum[item][value].value == e_media[field])
 							e_media[field] = data.enum[item][value].translation;
+
+		e_media.f_target_entity = language(req.session.lang_user).__(`entity.${e_media.f_target_entity}.label_entity`)
 
 		/* Update local e_media data before show */
 		data.e_media = e_media;
@@ -149,7 +153,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_media.create(createObject, {req: req}).then(function (e_media) {
+	models.E_media.create(createObject, {req}).then(function (e_media) {
 		let redirect = '/media/show?id='+e_media.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -172,7 +176,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 				else {
 					const obj = {};
 					obj[req.body.associationForeignKey] = e_media.id;
-					association.update(obj, {req: req});
+					association.update(obj, {req});
 				}
 			});
 		}
@@ -231,7 +235,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_media.update(updateObject, {req: req}).then(function () {
+		e_media.update(updateObject, {req}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
