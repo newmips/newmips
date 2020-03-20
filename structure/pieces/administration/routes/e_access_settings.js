@@ -11,8 +11,14 @@ const ignoreEntityList = ['notification'];
 
 router.get('/show_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "read"), function(req, res) {
 	const data = {};
-	const appConf = JSON.parse(fs.readFileSync('../config/application.json', 'utf8'));
-	data.api_enabled = appConf.api_enabled;
+	try {
+		const appConf = JSON.parse(fs.readFileSync(__dirname+'/../config/application.json', 'utf8'));
+		data.api_enabled = appConf.api_enabled;
+	} catch (err) {
+		console.error("Coudn't read config/application.json - API disabled")
+		console.error(err);
+		data.api_enabled = false;
+	}
 	res.render('e_access_settings/show_api', data);
 });
 
