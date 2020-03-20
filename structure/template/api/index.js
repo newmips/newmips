@@ -3,6 +3,7 @@ const path = require('path');
 const basename = path.basename(module.filename);
 const block_access = require('../utils/block_access');
 const appConf = require('../config/application.json');
+const matomoTracker = require('../utils/matomo_api_tracker');
 
 function isApiEnabled(req, res, next) {
 	if (appConf.api_enabled)
@@ -21,7 +22,7 @@ module.exports = function(app) {
 		else if (file == 'synchronization')
 			app.use('/api/synchronization', isApiEnabled, block_access.apiAuthentication, require('./'+file));
 		else
-			app.use('/api/'+file.substring(2), isApiEnabled, block_access.apiAuthentication, require('./'+file));
+			app.use('/api/'+file.substring(2), isApiEnabled, block_access.apiAuthentication, matomoTracker, require('./'+file));
 		/* eslint-enable */
 	});
 }
