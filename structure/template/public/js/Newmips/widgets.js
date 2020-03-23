@@ -61,7 +61,7 @@ function getValue(cellArrayKeyValue, row) {
     return row;
 }
 
-// Dive trough the object to find the key we are looking for
+// Dive through the object to find the key we are looking for
 function diveObj(obj, idx, keys){
     if(!obj)
         return '-';
