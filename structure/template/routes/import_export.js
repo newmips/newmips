@@ -17,8 +17,9 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
 	}
 
 	const data = {};
-	const entities = [];
+	let entities = [];
 	const through = [];
+	const association_table = [];
 
 	fs.readdirSync(__dirname + '/../models/options/').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file.substring(0, 2) == 'e_').forEach(file => {
 		// Get primary tables
@@ -36,13 +37,15 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
 		for (let i = 0; i < currentFile.length; i++) {
 			if (typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1) {
 				through.push(currentFile[i].through);
-				entities.push({
-					tradKey: currentFile[i].through.substring(3),
+				association_table.push({
+					tradKey: 'association_table - ' + entityName.substring(2) + '_' + currentFile[i].target + ' (' + currentFile[i].as + ')',
 					tableName: currentFile[i].through
 				});
 			}
 		}
 	})
+
+	entities = entities.concat(association_table);
 
 	data.entities = entities;
 	res.render('import_export/db_show', data);
