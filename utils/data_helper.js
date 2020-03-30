@@ -101,6 +101,7 @@ function addPrefix(string, instructionFunction) {
 	switch (instructionFunction) {
 		case 'createNewApplication':
 		case 'deleteApplication':
+		case 'selectApplication':
 			return "a_" + string;
 		case 'createNewModule':
 		case 'deleteModule':
