@@ -20,7 +20,8 @@
 			"no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici.",
 			"select_status": "Sélectionner un statut",
 			"diagram_description": "Gissez/Déposez un statut sur un parent dans le diagram pour l'ajouter comme enfant.",
-			"diagram": "Diagram"
+			"diagram": "Diagramme",
+			"tip_1": "Astuce: Double cliquer sur un status pour être redirigé vers ses statuts enfants."
 		},
 		"c_synchro": {
 			"label_component": "Synchronisation"
