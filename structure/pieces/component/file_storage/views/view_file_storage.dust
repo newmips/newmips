@@ -29,12 +29,15 @@
 <table id="table_ENTITY_VALUE" data-url="/ENTITY_URL/datalist" class="dataTable table table-bordered table-striped animated fadeIn" style="display: none;">
     <thead class="main">
         <tr class="fields">
-            <th data-field="id" data-col="id">
+            <th data-field="id" data-col="id" data-width="20%">
                 {#__ key="entity.ENTITY_VALUE.id_entity"/}&nbsp;
                 {#__ key="entity.ENTITY_VALUE.label_entity"/}
             </th>
-            <th data-field="f_filename" data-col="f_filename" data-type="file">
+            <th data-field="f_filename" data-col="f_filename" data-type="filename">
                 {#__ key="entity.ENTITY_VALUE.f_filename"/}
+            </th>
+            <th data-field="f_filename" data-col="f_filename" data-type="file" data-width="20%">
+                {#__ key="button.download"/}
             </th>
             {#actionAccess entity="ENTITY_URL" action="read"}
             <th></th>
@@ -50,8 +53,8 @@
                 {#__ key="entity.ENTITY_VALUE.id_entity"/}&nbsp;
                 {#__ key="entity.ENTITY_VALUE.label_entity"/}
             </th>
-            <th data-field="f_filename" data-col="f_filename" data-type="file">
-                {#__ key="entity.ENTITY_VALUE.f_filename"/}
+            <th data-field="f_filename" data-col="f_filename" data-type="string">
+                {#__ key="button.download"/}
             </th>
             {#actionAccess entity="ENTITY_URL" action="read"}
             <th></th>
