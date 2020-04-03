@@ -97,9 +97,10 @@ router.get('/show_role', block_access.isLoggedIn, block_access.actionAccessMiddl
 
 router.post('/enable_disable_api', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_settings", "create"), function(req, res) {
 	const enable = req.body.enable;
-	const applicationConfig = JSON.parse(fs.readFileSync('../config/application.json', 'utf8'));
+	const applicationConfigPath = __dirname + '/../config/application.json';
+	const applicationConfig = JSON.parse(fs.readFileSync(applicationConfigPath, 'utf8'));
 	applicationConfig.api_enabled = enable == 'true';
-	fs.writeFileSync(__dirname+'/../config/application.json', JSON.stringify(applicationConfig, null, 4), 'utf8');
+	fs.writeFileSync(applicationConfigPath, JSON.stringify(applicationConfig, null, 4), 'utf8');
 	res.status(200).end();
 });
 

@@ -481,7 +481,7 @@ function init_datatable(tableID, doPagination, context) {
                     }
                     else if (columns[meta.col].type == 'file') {
                         if(cellValue != "" && cellValue != null){
-                            cellValue = '<a class="file" href="#" data-entity="' + currentEntity + '" data-value="' + cellValue + '" data-name="' + columns[meta.col].data + '"><i class="fa fa-download"></i>&nbsp;&nbsp;' + STR_LANGUAGE.download_file + '</a>';
+                            cellValue = '<a class="file" style="white-space: nowrap;" href="#" data-entity="' + currentEntity + '" data-value="' + cellValue + '" data-name="' + columns[meta.col].data + '"><i class="fa fa-download"></i>&nbsp;&nbsp;' + STR_LANGUAGE.download_file + '</a>';
                         } else
                             cellValue = '';
                     }

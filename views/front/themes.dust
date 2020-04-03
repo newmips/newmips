@@ -81,7 +81,7 @@
 	</div>
 {/content}
 {<custom_js}
-	<script src="/js/Newmips/instructionsScriptStatus.js" type="text/javascript"></script>
+	<script src="/js/Newmips/instruction_script.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		var wrongExt = '{#__ key="themes.wrongExt"/}';
 		var confirmText = '{#__ key="listApplication.sureToDelete"/}';
