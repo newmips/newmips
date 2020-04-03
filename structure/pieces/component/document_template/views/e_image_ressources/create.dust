@@ -87,7 +87,7 @@
 				if($(this).val() != '') {
 					if($(this).val().startsWith('{img_'))
 						$(this).val($(this).val().substring(5, $(this).val().length -1));
-					$(this).val('{img_' + $(this).val() + '}');
+					$(this).val('{img_' + $(this).val().replace(/ /g, '_').toLowerCase() + '}');
 				}
 			});
 		});
