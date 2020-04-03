@@ -485,6 +485,13 @@ function init_datatable(tableID, doPagination, context) {
                         } else
                             cellValue = '';
                     }
+                    else if (columns[meta.col].type == 'filename') {
+                        if(cellValue != "" && cellValue != null){
+                            // Remove datatime + uuid (everything before the second _)
+                            cellValue = cellValue.substring(cellValue.split('_', 2).join('_').length + 1);
+                        } else
+                            cellValue = '';
+                    }
                     else if (columns[meta.col].type == 'url' && cellValue!=null)
                         cellValue = '<a target="_blank" href="'+cellValue+'">'+cellValue+'</a>';
                     else if (columns[meta.col].type == 'time' && cellValue != null){
