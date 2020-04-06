@@ -255,34 +255,35 @@ exports.setAssocationManyValues = (model, body, buildForRouteObj, options) => ne
 				// If the alias match between the option and the body
 				if (typeof options[i].as != "undefined" && options[i].as.toLowerCase() == unusedValueFromReqBody[j].toLowerCase()){
 					// BelongsTo association have been already done before
-					if(options[i].relation != "belongsTo"){
-						const target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
-						const value = [];
+					if(options[i].relation == "belongsTo")
+						continue;
 
-						// Empty string is not accepted by postgres, clean array to avoid error
-						if(body[unusedValueFromReqBody[j]].length > 0){
-							// If just one value in select2, then it give a string, not an array
-							if(typeof body[unusedValueFromReqBody[j]] == "string"){
-								if(body[unusedValueFromReqBody[j]] != "")
-									value.push(parseInt(body[unusedValueFromReqBody[j]]))
-							} else if(typeof body[unusedValueFromReqBody[j]] == "object") {
-								for(const val in body[unusedValueFromReqBody[j]])
-									if(body[unusedValueFromReqBody[j]][val] != "")
-										value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
-							}
+					const target = options[i].as.charAt(0).toUpperCase() + options[i].as.toLowerCase().slice(1);
+					const value = [];
+
+					// Empty string is not accepted by postgres, clean array to avoid error
+					if(body[unusedValueFromReqBody[j]].length > 0){
+						// If just one value in select2, then it give a string, not an array
+						if(typeof body[unusedValueFromReqBody[j]] == "string"){
+							if(body[unusedValueFromReqBody[j]] != "")
+								value.push(parseInt(body[unusedValueFromReqBody[j]]))
+						} else if(typeof body[unusedValueFromReqBody[j]] == "object") {
+							for(const val in body[unusedValueFromReqBody[j]])
+								if(body[unusedValueFromReqBody[j]][val] != "")
+									value.push(parseInt(body[unusedValueFromReqBody[j]][val]))
 						}
-
-						await model['set' + target](value); // eslint-disable-line
-						// Log association in Journal
-						entity_helper.synchro.writeJournal({
-							verb: "associate",
-							id: model.id,
-							target: options[i].target,
-							entityName: model._modelOptions.name.singular.toLowerCase(),
-							func: 'set' + target,
-							ids: value
-						});
 					}
+
+					await model['set' + target](value); // eslint-disable-line
+					// Log association in Journal
+					entity_helper.synchro.writeJournal({
+						verb: "associate",
+						id: model.id,
+						target: options[i].target,
+						entityName: model._modelOptions.name.singular.toLowerCase(),
+						func: 'set' + target,
+						ids: value
+					});
 				}
 			}
 		}
