@@ -104,13 +104,32 @@ router.get('/diagram', block_access.actionAccessMiddleware("status", "read"), (r
 });
 
 router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"), (req, res) => {
-	models.E_status.findAll({where: {f_entity: req.body.f_entity, f_field: req.body.f_field}, include: {model: models.E_action, as: 'r_actions'}}).then((statuses)=> {
+	models.E_status.findAll({
+		where: {
+			f_entity: req.body.f_entity,
+			f_field: req.body.f_field
+		},
+		include: {
+			model: models.E_action,
+			as: 'r_actions'
+		}
+	}).then((statuses) => {
 		if (statuses.length == 0)
-			return res.json({statuses: [], connections: []});
-		const tableName = statuses[0].constructor.tableName;
-		const tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
-		models.sequelize.query(`select * from ${tableAppNumber}_status_children`, { type: models.sequelize.QueryTypes.SELECT}).then((connections)=> {
-			res.json({statuses, connections});
+			return res.json({
+				statuses: [],
+				connections: []
+			});
+
+		// Looking for r_children association through database table
+		const throughTable = options.filter(x => (x.target == 'e_status' && x.as == 'r_children'))[0].through;
+
+		models.sequelize.query(`select * from ${throughTable}`, {
+			type: models.sequelize.QueryTypes.SELECT
+		}).then((connections) => {
+			res.json({
+				statuses,
+				connections
+			});
 		});
 	});
 });

@@ -20,7 +20,8 @@
 			"choose_from_file_field": "Choose a field with type file",
 			"choose_user_target": "Choose field related to user",
 			"notification_targets": "Notification targets",
-			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure it."
+			"no_status_field": "There is no entity with a status component. Pease select an entity, create a status component and this page will allow you to configure it.",
+			"tip_1": "Tip: You can double click on a status to be redirect to its children."
 		}
 	},
 	"entity": {

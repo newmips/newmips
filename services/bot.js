@@ -86,7 +86,8 @@ exports.selectApplication = result => {
 
 	const value = result[1];
 	const options = {
-		value: value
+		value: value,
+		processValue: true
 	};
 
 	const data = {
