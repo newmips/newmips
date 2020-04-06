@@ -268,6 +268,8 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 				component_helper.address.setAddressIfComponentExists(e_document_template, options, req.body).then(_ => {
 					status_helper.setInitialStatus(req, e_document_template, 'E_document_template', attributes).then(_ => {
 						res.redirect(redirect);
+					}).catch(err => {
+						entity_helper.error(err, req, res, '/document_template/create_form', "e_document_template");
 					});
 				});
 			}).catch(err => {
