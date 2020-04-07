@@ -12,28 +12,35 @@
 		"log_in": "Log in",
 		"reset_password": {
 			"title": "Mot de passe oublié",
-			"success": "Votre mot de passe a bien été reinitialisé.",
-			"successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a bien été envoyé.",
-			"userNotExist": "Erreur, cet utilisateur n'existe pas.",
+			"success": "Votre mot de passe a bien été reinitialisé. Merci de faire de nouveau le processus de première connexion pour changer votre mot de passe.",
+			"successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
+			"userNotExist": "Impossible de trouver l'utilisateur correspondant aux informations renseignées.",
 			"cannotFindToken": "Erreur, impossible de retrouver votre token de réinitialisation."
 		},
 		"first_connection": {
 			"title": "Première connexion",
 			"success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
-			"success2": "Mise à jour effectuée, vous êtes maintenant connecté(e) !",
-			"userNotExist": "Erreur, cet utilisateur n'existe pas ou a déjà été activé.",
+			"success_login": "Mise à jour effectuée, vous êtes désormais connecté(e) !",
+			"userNotExist": "Cet utilisateur n'existe pas ou a déjà été activé.",
 			"alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
-			"passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 4 caractères."
+			"passwordNotValid": "Mot de passe invalide, merci de réessayer.",
+			"help": {
+				"password_title": "Mot de passe - Première connexion",
+				"password_content": "<p>Merci de choisir votre mot de passe, il doit respecter le format suivant:<br><br>- 8 caractères minimum<br>- Au moins 1 chiffre<br>- Au moins 1 majuscule<br>- Au moins 1 caractère spécial (!@#$%^&*)<br></i><br></p>"
+			}
 		},
 		"authentication": "Connexion",
 		"login": "Login",
 		"password": "Mot de passe",
-		"minimalLength": "(4 caractères minimum)",
 		"confirm_password": "Confirmation du mot de passe",
-		"mail": "Mail",
+		"email": "Email",
 		"remember_me": "Se souvenir de moi",
 		"submit": "Soumettre",
-		"missing_infos": "Merci de renseigner l'ensemble des champs."
+		"missing_infos": "Merci de renseigner l'ensemble des champs.",
+		"login_fail": "Le login et/ou le mot de passe n'est pas correct, merci de recommencer.",
+		"not_enabled": "Votre compte ne semble pas être activé, merci d'effectuer le processus de première connexion.",
+		"logout_sucess": "Vous avez bien été déconnecté.",
+		"wrong_captcha": "Le captcha saisi n'est pas correct, merci de recommencer."
 	},
 	"settings": {
 		"title": "Gestion des accès",

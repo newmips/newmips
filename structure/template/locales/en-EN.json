@@ -12,28 +12,35 @@
 		"log_in": "Log in",
 		"reset_password": {
 			"title": "Forgotten password",
-			"success": "Your password has been reset..",
+			"success": "Your password has successfully been reset. Please do the first connection process in order to set your new password.",
 			"successMail": "An email allowing you to reset your password has been sent to you.",
-			"userNotExist": "Error, this user does not exist.",
+			"userNotExist": "The user corresponding to the information entered could not be found.",
 			"cannotFindToken": "Error, can not find your reset token."
 		},
 		"first_connection": {
 			"title": "First connection",
 			"success": "Update done, you can now log in with your credentials.",
-			"success2": "Update done, you are now log in !",
-			"userNotExist": "Error, this user does not exist or has already been activated.",
+			"success_login": "Update done, you are now log in !",
+			"userNotExist": "This user does not exist or has already been activated.",
 			"alreadyHavePassword": "Operation is not possible, this user already has a password.",
-			"passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 4 characters."
+			"passwordNotValid": "The password is not valid, please try again.",
+			"help": {
+				"password_title": "Password - First connection",
+				"password_content": "<p>Please choose your password, it must respect the following format:<br><br> - 8 characters minimum<br> - At least 1 digit<br> - At least 1 capital letter<br> - At least 1 special character (!@#$%^&*)<br></i><br></p>"
+			}
 		},
 		"authentication": "Connection",
 		"login": "Login",
 		"password": "Password",
-		"minimalLength": "(4 characters minimum)",
 		"confirm_password": "Confirm password",
-		"mail": "Email",
+		"email": "Email",
 		"remember_me": "Remember me",
 		"submit": "Submit",
-		"missing_infos": "Please fill all the input."
+		"missing_infos": "Please fill all the input.",
+		"login_fail": "The login and / or password is not correct, please try again.",
+		"not_enabled": "Your account does not seem to be activated, please complete the first connection process.",
+		"logout_sucess": "You have been successfully logged out.",
+		"wrong_captcha": "The captcha entered is not correct, please try again."
 	},
 	"settings": {
 		"title": "Access managment",
@@ -188,7 +195,7 @@
 			"title": "Synchronisation",
 			"synchronize": "Synchronise",
 			"dumped": "Data dump generated",
-			"no_credentials": "No Synchro credentials found",
+			"no_credentials": "No synchro credentials found",
 			"connection_failed": "Impossible to connect with API."
 		}
 	},
@@ -247,7 +254,7 @@
 	"defaults": {
 		"widgets": {
 			"lastrecords": {
-				"label": "last records"
+				"label": "Last records"
 			},
 			"stats": {
 				"more_info": "More info"
@@ -256,7 +263,7 @@
 				"distribution": "Distribution"
 			}
 		},
-		"createdAt": "Creation date"
+		"createdAt": "Created at"
 	},
 	"error": {
 		"validation": {
@@ -274,14 +281,14 @@
 		"404": {
 			"title": "We could not find what you were looking for.",
 			"title2": "Page not found.",
-			"textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+			"textone": "The link you followed may be incorrect or the page may have been deleted."
 		},
 		"500": {
 			"title": "We are sorry, an internal serveur error occured."
 		},
 		"title": "Error",
-		"contactAdmin": "Merci de contacter votre administrateur.",
-		"meanwhile": "Entre temps, vous pouvez ",
+		"contactAdmin": "Please contact your system administrator.",
+		"meanwhile": "Meanhile, you can ",
 		"goHome": "If you wish to return to the homepage, click here",
 		"goBack": "If you want to go back, click here",
 		"goBackText": "Go back",

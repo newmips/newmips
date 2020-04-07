@@ -167,7 +167,12 @@ module.exports = {
 	},
 	getLastLoggedError: function(appName) {
 		try {
-			const logContent = fs.readFileSync(__dirname + "/../workspace/logs/app_" + appName + ".log", "utf8");
+			const logFilePath = __dirname + "/../workspace/logs/app_" + appName + ".log";
+
+			if(!fs.existsSync(logFilePath))
+				fs.writeFileSync(logFilePath, '', 'utf8');
+
+			const logContent = fs.readFileSync(logFilePath, 'utf8');
 			// First line of last error in app logs
 			if (logContent.indexOf("Error:") == -1)
 				return "No error detected.";
