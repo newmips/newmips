@@ -5,21 +5,23 @@
 		<div class="body bg-white">
 			<center><img src="/img/logo_newmips.png" alt='Login logo' width="50%" height="50%"/></center>
 		</div>
-		{#message}
-			<div class="body bg-orange">{#__ key=. /}</div>
-		{/message}
 		<div class="body bg-gray">
 			<div class="form-group">
-				<label for="login_user">{#__ key="login.login"/}</label>
-				<input type="text" name="login_user" placeholder='{#__ key="login.login"/}' required="required" class="form-control"/>
+				<label for="login" class='required'>{#__ key="login.login"/}</label>
+				<input class="form-control" type="text" name="login" placeholder='{#__ key="login.login"/}' required />
 			</div>
 			<div class="form-group">
-				<label for="password_user">{#__ key="login.password"/} {#__ key="login.minimalLength"/}</label>
-				<input type="password" name="password_user" id="password" placeholder='{#__ key="login.password"/}' required="required" class="form-control"/>
+				<label for="email" class="required">{#__ key="login.email"/}</label>
+				<input class="form-control" type="text" data-type="email" name="email" value="{email}" placeholder='{#__ key="login.email"/}' required >
 			</div>
 			<div class="form-group">
-				<label for="password_user2">{#__ key="login.confirm_password"/}</label>
-				<input type="password" name="password_user2" id="confirm_password" placeholder='{#__ key="login.password"/}' required="required" class="form-control"/>
+				<label for="password" class='required'>{#__ key="login.password"/}&nbsp;&nbsp;
+					<i class="login-help fa fa-info-circle" style="color: #1085EE;cursor: pointer;" data-title='{#__ key="login.first_connection.help.password_title"/}' data-content='{#__ key="login.first_connection.help.password_content"/}'></i></label>
+				<input type="password" name="password" id="password" placeholder='{#__ key="login.password"/}' required class="form-control"/>
+			</div>
+			<div class="form-group">
+				<label for="confirm_password" class='required'>{#__ key="login.confirm_password"/}</label>
+				<input class="form-control" type="password" name="confirm_password" id="confirm_password" placeholder='{#__ key="login.password"/}' required />
 			</div>
 		</div>
 		<div class="footer">
@@ -30,43 +32,65 @@
 {/content}
 {<custom_js}
 	<script type="text/javascript">
-		var notMatchPasswordText = '{#__ key="login.first_connection.passwordNotMatch"/}';
+		var notMatchPasswordText = '{#__ key="login.first_connection.passwordNotValid"/}';
+		var passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+		var globalConfEnv = '{config.env}';
+
 		$(document).ready(function(){
-			$(document).on("keyup", "#confirm_password", function(){
-				if($("#confirm_password").val() != $("#password").val()){
-					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
-				} else if($("#confirm_password").val() != ""){
-					$(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
-				} else{
-					$(this).attr("style", "");
-				}
-			});
 
-			$(document).on("keyup", "#password", function(){
+			function isValidPassword(string, confirmString) {
 
-				if($(this).val().length < 4){
-					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
-				} else{
-					$(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
-				}
-
-				if($("#confirm_password").val() != $("#password").val() && $("#confirm_password").val() != ""){
-					$("#confirm_password").attr("style", "border: 1px solid red !important; border-color: red !important;");
-				} else if($("#confirm_password").val() != ""){
-					$("#confirm_password").attr("style", "border: 1px solid green !important; border-color: green !important;");
-				} else{
-					$("#confirm_password").attr("style", "");
-				}
-			});
-
-			$(document).on("submit", "#first_connection", function(){
-				if($("#confirm_password").val() != $("#password").val() || $("#password").val().length < 4){
-					toastr.error(notMatchPasswordText);
+				if (!string || string == '')
 					return false;
-				} else{
-					$(this).submit();
+
+				if(globalConfEnv == 'develop')
 					return true;
+
+				if (string.length < 8)
+					return false;
+
+				if (!passwordRegex.test(string))
+					return false;
+
+				if (confirmString != '' && confirmString != string)
+					return false;
+
+				return true;
+			}
+
+			$(document).on("keyup", "#password", function() {
+				if (isValidPassword($(this).val(), $("#confirm_password").val())) {
+					$(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+					if (isValidPassword($("#confirm_password").val(), $(this).val()))
+						$("#confirm_password").attr("style", "border: 1px solid green !important; border-color: green !important;");
+				} else {
+					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
 				}
+			});
+
+			$(document).on("keyup", "#confirm_password", function() {
+				if (isValidPassword($(this).val(), $("#password").val())) {
+					$(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
+					if (isValidPassword($("#password").val(), $(this).val()))
+						$("#password").attr("style", "border: 1px solid green !important; border-color: green !important;");
+				} else {
+					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
+				}
+			});
+
+			$(document).on("submit", "#first_connection", function() {
+
+				if ($('input[name="email"]').val() == '' || !$('input[name="email"]').inputmask("isComplete")) {
+					$('input[name="email"]').css("border", "1px solid red");
+					return false;
+				}
+
+				if (globalConfEnv != 'develop' && !isValidPassword($("#password").val(), $("#confirm_password").val())) {
+					$('.body.bg-white').after("<div class='body bg-red text-center'><i class='fa fa-exclamation-circle'></i>&nbsp;&nbsp;" + notMatchPasswordText + "</div>");
+					return false;
+				}
+
+				return true;
 			});
 		});
 	</script>

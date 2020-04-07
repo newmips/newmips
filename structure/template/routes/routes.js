@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const mailer = require('../utils/mailer');
 const svgCaptcha = require('svg-captcha');
 const models = require('../models/');
+const globalConf = require('../config/global');
 
 // Home
 router.get('/', (req, res) => {
@@ -20,14 +21,7 @@ router.post('/status_comment', block_access.isLoggedIn, (req, res) => {
 // Login
 router.get('/login', block_access.loginAccess, (req, res) => {
 
-	let message, captcha;
-	if(typeof req.session.flash !== "undefined"
-		&& typeof req.session.flash.error !== "undefined"
-		&& req.session.flash.error.length != 0)
-		message = req.session.flash.error[0];
-
-	delete req.session.flash;
-
+	let captcha;
 	if(req.session.loginAttempt >= 5){
 		const loginCaptcha = svgCaptcha.create({
 			size: 4, // size of random string
@@ -41,7 +35,6 @@ router.get('/login', block_access.loginAccess, (req, res) => {
 	}
 
 	res.render('login/login', {
-		message: message,
 		captcha: captcha,
 		redirect: req.query.r ? req.query.r : null
 	});
@@ -75,164 +68,166 @@ router.get('/first_connection', block_access.loginAccess, (req, res) => {
 });
 
 router.post('/first_connection', block_access.loginAccess, (req, res) => {
-	const login_user = req.body.login_user;
+	const login = req.body.login;
+	const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
-	models.E_user.findOne({
-		where: {
-			f_login: login_user,
-			[models.$or]: [{f_password: ""}, {f_password: null}],
-			f_enabled: 0
-		}
-	}).then(user => {
-		if(!user){
-			req.flash('loginMessage', "login.first_connection.userNotExist");
-			res.redirect('/login');
-		} else if (user.f_password != "" && user.f_password != null){
-			req.flash('loginMessage', "login.first_connection.alreadyHavePassword");
-			res.redirect('/login');
-		} else {
-			const password = bcrypt.hashSync(req.body.password_user2, null, null);
+	(async () => {
 
-			user.update({
-				f_password: password,
-				f_enabled: 1
-			}).then(() => {
-				models.E_user.findOne({
-					where: {id: user.id},
-					include: [{
-						model: models.E_group,
-						as: 'r_group'
-					}, {
-						model: models.E_role,
-						as: 'r_role'
-					}]
-				}).then(function(user) {
-					req.login(user, (err) => {
-						if (err) {
-							console.error(err);
-							req.flash('loginMessage', "login.first_connection.success");
-							return res.redirect('/login');
-						}
-						req.session.toastr = [{
-							message: "login.first_connection.success2",
-							level: "success"
-						}];
-						res.redirect('/default/home');
-					})
-				})
-			})
-		}
-	}).catch(function(err){
-		req.flash('loginMessage', err.message);
-		res.redirect('/login');
+		if (globalConf.env != 'develop' && (req.body.password != req.body.confirm_password || !passwordRegex.test(req.body.password)))
+			throw new Error("login.first_connection.passwordNotValid");
+
+		const user = await models.E_user.findOne({
+			where: {
+				f_login: login,
+				f_enabled: false
+			},
+			include: [{
+				model: models.E_group,
+				as: 'r_group'
+			}, {
+				model: models.E_role,
+				as: 'r_role'
+			}]
+		})
+
+		if (!user)
+			throw new Error("login.first_connection.userNotExist");
+
+		if (user.f_password && user.f_password != '')
+			throw new Error("login.first_connection.alreadyHavePassword");
+
+		const password = bcrypt.hashSync(req.body.confirm_password, null, null);
+
+		await user.update({
+			f_password: password,
+			f_email: req.body.email,
+			f_enabled: 1
+		})
+
+		return user;
+	})().then(user => {
+		req.login(user, err => {
+			if (err) {
+				console.error(err);
+				req.session.toastr = [{
+					message: err.message,
+					level: "warn"
+				}];
+				return res.redirect('/login');
+			}
+			req.session.toastr = [{
+				message: "login.first_connection.success_login",
+				level: "success"
+			}];
+			res.redirect('/default/home');
+		})
+	}).catch(err => {
+		console.error(err);
+		req.session.toastr = [{
+			message: err.message,
+			level: "error"
+		}];
+		res.redirect('/first_connection');
 	})
 })
 
 // Affichage de la page reset_password
 router.get('/reset_password', block_access.loginAccess, (req, res) => {
-	res.render('login/reset_password', {
-		message: req.flash('loginMessage')
-	});
+	res.render('login/reset_password');
 });
 
-// Reset password, Generate token, insert into DB, send email
+// Reset password - Generate token, insert into DB, send email
 router.post('/reset_password', block_access.loginAccess, (req, res) => {
-	const login_user = req.body.login;
-	const given_mail = req.body.mail;
+	(async () => {
+		// Check if user with login + email exist in DB
+		const user = await models.E_user.findOne({
+			where: {
+				f_login: req.body.login.toLowerCase(),
+				f_email: req.body.email
+			}
+		});
 
-	function resetPasswordProcess(user) {
+		if(!user)
+			throw new Error("login.reset_password.userNotExist");
+
+		if(!user.f_enabled)
+			throw new Error("login.not_enabled");
+
 		// Create unique token and insert into user
 		const token = crypto.randomBytes(64).toString('hex');
 
-		models.E_user.update({
+		await user.update({
 			f_token_password_reset: token
+		});
+
+		// Send email with generated token
+		const mailOptions = {
+			data: {
+				href: mailer.config.host + '/reset_password/' + token,
+				user: user
+			},
+			from: mailer.config.expediteur,
+			to: req.body.email,
+			subject: 'Newmips - Réinitialisation de votre mot de passe'
+		}
+		await mailer.sendTemplate('mail_reset_password', mailOptions);
+	})().then(_ => {
+		req.session.toastr = [{
+			message: "login.reset_password.successMail",
+			level: "success"
+		}];
+		res.redirect('/');
+	}).catch(err => {
+		// Remove inserted value in user to avoid zombies
+		models.E_user.update({
+			f_token_password_reset: null
 		}, {
 			where: {
-				id: user.id
+				f_login: req.body.login.toLowerCase()
 			}
-		}).then(function(){
-			// Send email with generated token
-			const mailOptions = {
-				data: {
-					href: mailer.config.host + '/reset_password/' + token,
-					user: user
-				},
-				from: mailer.config.expediteur,
-				to: given_mail,
-				subject: 'Newmips, modification de mot de passe'
-			}
-			mailer.sendTemplate('mail_reset_password', mailOptions).then(function() {
-				res.render('login/reset_password', {
-					message: "login.reset_password.successMail"
-				});
-			}).catch(function(err) {
-				// Remove inserted value in user to avoid zombies
-				models.E_user.update({f_token_password_reset: null}, {where: {id: user.id}}).then(function(){
-					res.render('login/reset_password', {
-						message: err.message
-					});
-				});
-			});
-		}).catch(function(err){
-			res.render('login/reset_password', {
-				message: err.message
-			});
-		});
-	}
+		}).catch(err => {console.error(err);})
 
-	models.E_user.findOne({
-		where: {
-			f_login: login_user,
-			f_email: given_mail
-		}
-	}).then(function(user){
-		if(user){
-			resetPasswordProcess(user);
-		} else {
-			res.render('login/reset_password', {
-				message: "login.reset_password.userNotExist"
-			});
-		}
-	}).catch(function(err){
-		res.render('login/reset_password', {
-			message: err.message
-		});
-	});
-});
+		console.error(err);
+		req.session.toastr = [{
+			message: err.message,
+			level: "error"
+		}];
+		res.render('login/reset_password');
+	})
+})
 
 // Trigger password reset
 router.get('/reset_password/:token', block_access.loginAccess, (req, res) => {
-
 	models.E_user.findOne({
 		where: {
 			f_token_password_reset: req.params.token
 		}
-	}).then(function(user){
-		if(!user){
-			res.render('login/reset_password', {
-				message: "login.reset_password.cannotFindToken"
-			});
+	}).then(user => {
+		if (!user) {
+			req.session.toastr = [{
+				message: "login.reset_password.cannotFindToken",
+				level: 'error'
+			}];
+			return res.redirect('/login');
 		}
-		else{
-			models.E_user.update({
-				f_password: null,
-				f_token_password_reset: null,
-				f_enabled: 0
-			}, {
-				where: {
-					id: user.id
-				}
-			}).then(function(){
-				// Redirect to firt connection page
-				res.render('login/first_connection', {
-					message: "login.reset_password.success"
-				});
-			});
-		}
-	}).catch(function(err){
-		res.render('login/reset_password', {
-			message: err.message
+
+		user.update({
+			f_password: null,
+			f_token_password_reset: null,
+			f_enabled: 0
+		}).then(_ => {
+			req.session.toastr = [{
+				message: "login.reset_password.success",
+				level: 'success'
+			}];
+			res.redirect('/first_connection');
 		});
+	}).catch(err => {
+		req.session.toastr = [{
+			message: err.message,
+			level: 'error'
+		}];
+		res.redirect('/login');
 	});
 });
 
@@ -242,6 +237,10 @@ router.get('/reset_password/:token', block_access.loginAccess, (req, res) => {
 router.get('/logout', (req, res) => {
 	req.session.autologin = false;
 	req.logout();
+	req.session.toastr = [{
+		message: "login.logout_sucess",
+		level: "success"
+	}];
 	res.redirect('/login');
 });
 

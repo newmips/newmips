@@ -114,6 +114,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 
 	if(typeof req.session.gitlab !== 'undefined'
 		&& typeof req.session.gitlab.user !== 'undefined'
+		&& req.session.gitlab.user
 		&& !isNaN(req.session.gitlab.user.id))
 		data.gitlabUser = req.session.gitlab.user;
 
@@ -179,7 +180,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
 			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
 
-		if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+		if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && req.session.gitlab.user && !isNaN(req.session.gitlab.user.id))
 			data.gitlabUser = req.session.gitlab.user;
 
 		data.session = session_manager.getSession(req)
