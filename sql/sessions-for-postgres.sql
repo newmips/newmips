@@ -1,3 +1,5 @@
+-- GENERATE NEEDED SESSION TABLE FOR PostgreSQL
+
 CREATE TABLE "sessions" (
   "sid" varchar NOT NULL COLLATE "default",
 	"sess" json NOT NULL,

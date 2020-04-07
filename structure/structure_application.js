@@ -105,10 +105,10 @@ exports.setupApplication = async (data) => {
 		});
 	} else if(dbConf.dialect == 'postgres') {
 		db_requests = [
-			"CREATE DATABASE np_" + appName + " ENCODING 'UTF8';",
-			"CREATE USER np_" + appName + " WITH PASSWORD 'np_" + appName + "';",
-			"GRANT ALL PRIVILEGES ON DATABASE np_" + appName + " TO np_" + appName + ";",
-			"GRANT ALL PRIVILEGES ON DATABASE np_" + appName + " TO " + dbConf.user + ";"
+			"CREATE DATABASE \"np_" + appName + "\" ENCODING 'UTF8';",
+			"CREATE USER \"np_" + appName + "\" WITH PASSWORD 'np_" + appName + "';",
+			"GRANT ALL PRIVILEGES ON DATABASE \"np_" + appName + "\" TO \"np_" + appName + "\";",
+			"GRANT ALL PRIVILEGES ON DATABASE \"np_" + appName + "\" TO " + dbConf.user + ";"
 		];
 		conn = new Client({
 			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
@@ -121,6 +121,7 @@ exports.setupApplication = async (data) => {
 	}
 
 	for (let i = 0; i < db_requests.length; i++) {
+		console.log(db_requests[i]);
 		try {
 			await conn.query(db_requests[i]); // eslint-disable-line
 		} catch(err) {
@@ -572,9 +573,9 @@ exports.deleteApplication = async(data) => {
 			port: dbConf.port
 		});
 		conn.connect();
-		await conn.query("REVOKE CONNECT ON DATABASE np_" + app_name + " FROM public;");
+		await conn.query("REVOKE CONNECT ON DATABASE \"np_" + app_name + "\" FROM public;");
 		await conn.query("SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'np_" + app_name + "' AND pid <> pg_backend_pid();");
-		await conn.query("DROP DATABASE np_" + app_name + ";");
+		await conn.query("DROP DATABASE \"np_" + app_name + "\";");
 	}
 
 	conn.end();
