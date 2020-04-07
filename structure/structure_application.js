@@ -121,7 +121,6 @@ exports.setupApplication = async (data) => {
 	}
 
 	for (let i = 0; i < db_requests.length; i++) {
-		console.log(db_requests[i]);
 		try {
 			await conn.query(db_requests[i]); // eslint-disable-line
 		} catch(err) {
@@ -567,8 +566,8 @@ exports.deleteApplication = async(data) => {
 	} else if(dbConf.dialect == 'postgres') {
 		conn = new Client({
 			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.user : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.password : dbConf.password,
 			database: dbConf.database,
 			port: dbConf.port
 		});
