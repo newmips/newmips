@@ -312,7 +312,8 @@ function executeFile(req, userID, __) {
 				// Update script logs
 				scriptData[userID].answers.unshift({
 					instruction: line,
-					message: __(err.message, err.messageParams || [])
+					message: __(err.message, err.messageParams || []),
+					error: true
 				});
 				return processEnd(req.file.path, userID);
 			}
@@ -420,7 +421,8 @@ function executeFile(req, userID, __) {
 				// Update script logs
 				scriptData[userID].answers.unshift({
 					instruction: fileLines[i],
-					message: __(err.message, err.messageParams || [])
+					message: __(err.message, err.messageParams || []),
+					error: true
 				});
 				return processEnd(req.file.path, userID);
 			}
