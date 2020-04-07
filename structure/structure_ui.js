@@ -423,9 +423,7 @@ exports.createWidgetPiechart = async (data) => {
 
 	widgetElemId = widgetElemId + '_' + randomNumber;
 
-	let type = 'string';
-	if(typeof data.field.type !== 'undefined')
-		type = data.field.type;
+	const type = data.field.type || 'string';
 
 	// Create widget's html
 	let newHtml = "";

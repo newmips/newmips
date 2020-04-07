@@ -261,6 +261,8 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 				component_helper.address.setAddressIfComponentExists(e_action, options, req.body).then(_ => {
 					status_helper.setInitialStatus(req, e_action, 'E_action', attributes).then(_ => {
 						res.redirect(redirect);
+					}).catch(err => {
+						entity_helper.error(err, req, res, '/action/create_form', "e_action");
 					});
 				});
 			}).catch(err => {

@@ -55,7 +55,7 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 	}
 
 	if (speWhere)
-		for (const prop in speWhere)
+		for (const prop of Reflect.ownKeys(speWhere)) // Reflect.onwKeys fetch and concat ownPropertie and ownSymbol
 			queryObject.where[prop] = speWhere[prop];
 
 	// TODO: handle attributes
