@@ -63,11 +63,12 @@ module.exports = async (modelName, params, speInclude, speWhere) => {
 
 	// If postgres, then we have to parse all value to text, postgres cannot compare varchar with integer for example
 	if (models.sequelize.options.dialect == "postgres" && typeof queryObject.where !== "undefined")
-		for(const item in queryObject.where[searchTerm]){
-			const attribute = Object.keys(queryObject.where[searchTerm][item])[0]
-			queryObject.where[searchTerm][item][attribute] = models.sequelize.where(
-				models.sequelize.cast(models.sequelize.col(modelName+'.'+attribute), 'text'),
-				queryObject.where[searchTerm][item][attribute])
+		for (const item in queryObject.where[searchTerm]) {
+			const currentItem = queryObject.where[searchTerm][item];
+			const attribute = Object.keys(currentItem)[0];
+			// Don't convert boolean to text, postgres need real boolean in order to work correctly
+			if(typeof currentItem[attribute] !== 'boolean')
+				currentItem[attribute] = models.sequelize.where(models.sequelize.cast(models.sequelize.col(modelName + '.' + attribute), 'text'), currentItem[attribute])
 		}
 
 	// Build include from field array
