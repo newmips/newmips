@@ -493,6 +493,12 @@ exports.initializeApplication = async(application) => {
 
 	$("#sortable").append(li);
 
+	$("li#status_menu_item ul.treeview-menu").append('\<li>\n\
+		<a href="/status/diagram"><i class="fa fa-angle-double-right"></i>\n\
+			{#__ key="global_component.status.diagram" /}\n\
+		</a>\n\
+	</li>');
+
 	// Add settings entry into authentication module layout
 	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 

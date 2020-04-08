@@ -228,6 +228,9 @@
 		},
 		"document_template": {
 			"template_example_dust": "Exemple de template dust"
+		},
+		"status": {
+			"diagram": "Diagramme"
 		}
 	},
 	"component": {
