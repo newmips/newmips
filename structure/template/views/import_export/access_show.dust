@@ -14,7 +14,7 @@
 			</a>
 		</li>
 		<li class="active">
-			{#__ key="settings.db_tool.title" /}
+			{#__ key="settings.tool_title" /}
 		</li>
 	</ol>
 {/header}
