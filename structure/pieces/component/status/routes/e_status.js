@@ -121,9 +121,9 @@ router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"
 			});
 
 		// Looking for r_children association through database table
-		const throughTable = options.filter(x => (x.target == 'e_status' && x.as == 'r_children'))[0].through;
+		const throughTable = options.filter(x => x.target == 'e_status' && x.as == 'r_children')[0].through;
 
-		models.sequelize.query(`select * from ${throughTable}`, {
+		models.sequelize.query(`SELECT * FROM "${throughTable}"`, {
 			type: models.sequelize.QueryTypes.SELECT
 		}).then((connections) => {
 			res.json({
@@ -135,8 +135,12 @@ router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"
 });
 
 router.post('/set_children_diagram', block_access.actionAccessMiddleware("status", "update"), (req, res) => {
-	models.E_status.findOne({where: {id: req.body.parent}}).then(parent => {
-		parent.addR_children(req.body.child).then(_=> {
+	models.E_status.findOne({
+		where: {
+			id: req.body.parent
+		}
+	}).then(parent => {
+		parent.addR_children(req.body.child).then(_ => {
 			res.sendStatus(200);
 		});
 	});
@@ -150,9 +154,12 @@ router.post('/remove_children_diagram', block_access.actionAccessMiddleware("sta
 	}).then(status => {
 		if (!status)
 			return res.sendStatus(500);
-		const tableName = status.constructor.tableName;
-		const tableAppNumber = tableName.substr(0, tableName.indexOf('_'));
-		models.sequelize.query(`DELETE FROM ${tableAppNumber}_status_children WHERE fk_id_parent_status = ? || fk_id_child_status = ?`, {
+
+		// Looking for r_children association through database table
+		const throughTable = options.filter(x => x.target == 'e_status' && x.as == 'r_children')[0].through;
+		const query = `DELETE FROM "${throughTable}" WHERE fk_id_parent_status = '?' OR fk_id_child_status = '?';`;
+
+		models.sequelize.query(query, {
 			replacements: [status.id, status.id],
 			type: models.sequelize.QueryTypes.DELETE
 		}).then(_ => {
@@ -167,10 +174,14 @@ router.post('/set_children', block_access.actionAccessMiddleware("status", "upda
 
 	for (let i = 0; i < statuses.length; i++)
 		statuses[i] = parseInt(statuses[i]);
-	models.E_status.findOne({where: {id: id_status}}).then(function(status) {
+	models.E_status.findOne({
+		where: {
+			id: id_status
+		}
+	}).then(function(status) {
 		if (status)
 			status.setR_children(statuses);
-		res.redirect('/status/show?id='+id_status+'#r_children');
+		res.redirect('/status/show?id=' + id_status + '#r_children');
 	});
 });
 

@@ -218,7 +218,7 @@ exports.setupEntity = async (data) => {
 		li += "	 <li id='" + entity_url + "_menu_item' class='treeview'>\n";
 		li += '		 <a href="#">\n';
 		li += '			 <i class="fa fa-folder"></i>\n';
-		li += '			 <span><!--{#__ key="entity.' + entity_name + '.label_entity" /}--></span>\n';
+		li += '			 <span>\n<!--{#__ key="entity.' + entity_name + '.label_entity" /}-->\n</span>\n';
 		li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
 		li += '		 </a>\n';
 		li += '		 <ul class="treeview-menu">\n';
