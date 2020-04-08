@@ -123,7 +123,11 @@ router.post('/diagramdata', block_access.actionAccessMiddleware("status", "read"
 		// Looking for r_children association through database table
 		const throughTable = options.filter(x => x.target == 'e_status' && x.as == 'r_children')[0].through;
 
-		models.sequelize.query(`SELECT * FROM "${throughTable}"`, {
+		let query = 'SELECT * FROM ' + throughTable + ';';
+		if(models.sequelize.options.dialect == 'postgres')
+			query = 'SELECT * FROM "' + throughTable + '";';
+
+		models.sequelize.query(query, {
 			type: models.sequelize.QueryTypes.SELECT
 		}).then((connections) => {
 			res.json({
@@ -157,7 +161,10 @@ router.post('/remove_children_diagram', block_access.actionAccessMiddleware("sta
 
 		// Looking for r_children association through database table
 		const throughTable = options.filter(x => x.target == 'e_status' && x.as == 'r_children')[0].through;
-		const query = `DELETE FROM "${throughTable}" WHERE fk_id_parent_status = '?' OR fk_id_child_status = '?';`;
+
+		let query = `DELETE FROM ${throughTable} WHERE fk_id_parent_status = ? || fk_id_child_status = ?;`;
+		if(models.sequelize.options.dialect == 'postgres')
+			query = `DELETE FROM "${throughTable}" WHERE fk_id_parent_status = '?' OR fk_id_child_status = '?';`;
 
 		models.sequelize.query(query, {
 			replacements: [status.id, status.id],
