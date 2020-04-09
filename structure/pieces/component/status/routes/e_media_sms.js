@@ -18,13 +18,13 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_media_sms.create(createObject, {req}).then(function(e_media_sms) {
+	models.E_media_sms.create(createObject, {user: req.user}).then(function(e_media_sms) {
 		models.E_media.create({
 			f_type: 'sms',
 			f_name: req.body.f_name,
 			f_target_entity: req.body.f_target_entity,
 			fk_id_media_sms: e_media_sms.id
-		}, {req}).then(function(e_media) {
+		}, {user: req.user}).then(function(e_media) {
 
 			let redirect = '/media/show?id=' + e_media.id;
 			req.session.toastr = [{
@@ -57,7 +57,7 @@ router.post('/create', block_access.actionAccessMiddleware("media_sms", "create"
 						} else {
 							const obj = {};
 							obj[req.body.associationForeignKey] = e_media_sms.id;
-							association.update(obj, {req}).then(resolve).catch(function(err) {
+							association.update(obj, {user: req.user}).then(resolve).catch(function(err) {
 								reject(err);
 							});
 						}
@@ -150,7 +150,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_media_sms.update(updateObject, {req}).then(function() {
+		e_media_sms.update(updateObject, {user: req.user}).then(function() {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -161,7 +161,7 @@ router.post('/update', block_access.actionAccessMiddleware("media_sms", "update"
 					// Update parent E_media's target entity if changed
 					const newTargetEntity = req.body.f_target_entity;
 					Promise.all(newTargetEntity && e_media.f_target_entity !== newTargetEntity
-						? [e_media.update({f_target_entity: newTargetEntity}, {req})]
+						? [e_media.update({f_target_entity: newTargetEntity}, {user: req.user})]
 						: []
 					).then(_ => {
 						let redirect = '/media/show?id=' + e_media.id;
@@ -548,7 +548,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 					createObject.f_comment = req.query.comment;
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_media_sms_history_" + req.params.status.substring(2)] = req.params.id_media_sms;
-				models[historyModel].create(createObject, {req}).then(_ => {
+				models[historyModel].create(createObject, {user: req.user}).then(_ => {
 					e_media_sms['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/media_sms/show?id=' + req.params.id_media_sms)
 				});
@@ -561,7 +561,7 @@ router.get('/set_status/:id_media_sms/:status/:id_new_status', block_access.acti
 				const createObject = {}
 				createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_media_sms_history_" + req.params.status.substring(2)] = req.params.id_media_sms;
-				models[historyModel].create(createObject, {req}).then(function() {
+				models[historyModel].create(createObject, {user: req.user}).then(function() {
 					e_media_sms['set' + entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/media_sms/show?id=' + req.params.id_media_sms)
 				});

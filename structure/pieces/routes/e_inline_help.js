@@ -237,7 +237,7 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 		f_content: req.body.f_content
 	};
 
-	models.E_inline_help.create(createObject, {req}).then(e_inline_help => {
+	models.E_inline_help.create(createObject, {user: req.user}).then(e_inline_help => {
 		let redirect = '/inline_help/show?id=' + e_inline_help.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -282,7 +282,7 @@ router.post('/create', block_access.actionAccessMiddleware("inline_help", "creat
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_inline_help.id;
-						association.update(obj, {req}).then(resolve).catch(err => {
+						association.update(obj, {user: req.user}).then(resolve).catch(err => {
 							reject(err);
 						});
 					}
@@ -370,7 +370,7 @@ router.post('/update', block_access.actionAccessMiddleware("inline_help", "updat
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_inline_help.update(updateObject, {req}).then(_ => {
+		e_inline_help.update(updateObject, {user: req.user}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now

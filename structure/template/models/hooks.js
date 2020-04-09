@@ -28,11 +28,21 @@ module.exports = function(model_name) {
 			name: 'insertCreatedBy',
 			func: (model, args) => new Promise(resolve => {
 				try {
-					if(!args.req)
-						throw 'Missing req';
-					model.createdBy = args.req.session.passport.user.f_login;
-				} catch (err) {
-					console.warn('Missing user for createdBy on table -> ' + model.constructor.tableName)
+					// No user
+					if(!args.user)
+						throw 'No user provided for createdBy on table -> ' + model.constructor.tableName;
+
+					// Disabled
+					if (args.user === false)
+						return resolve();
+
+					// No login
+					if (!args.user.f_login)
+						throw 'Couldn\'t get user login for createdBy on table -> ' + model.constructor.tableName;
+
+					model.createdBy = args.user.f_login;
+				} catch (errMsg) {
+					console.warn(errMsg);
 				}
 				resolve();
 			})
@@ -56,11 +66,21 @@ module.exports = function(model_name) {
 			name: 'insertUpdatedBy',
 			func: (model, args) => new Promise(resolve => {
 				try {
-					if(!args.req)
-						throw 'Missing req';
-					model.updatedBy = args.req.session.passport.user.f_login;
-				} catch (err) {
-					console.warn('Missing user for updatedBy on table -> ' + model.constructor.tableName)
+					// No user
+					if(!args.user)
+						throw 'No user provided for updatedBy on table -> ' + model.constructor.tableName;
+
+					// Disabled
+					if (args.user === false)
+						return resolve();
+
+					// No login
+					if (!args.user.f_login)
+						throw 'Couldn\'t get user login for updatedBy on table -> ' + model.constructor.tableName;
+
+					model.updatedBy = args.user.f_login;
+				} catch (errMsg) {
+					console.warn(errMsg);
 				}
 				resolve();
 			})

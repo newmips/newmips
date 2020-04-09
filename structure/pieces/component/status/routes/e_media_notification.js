@@ -12,13 +12,13 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_media_notification.create(createObject, {req}).then(function (e_media_notification) {
+	models.E_media_notification.create(createObject, {user: req.user}).then(function (e_media_notification) {
 		models.E_media.create({
 			f_type: 'notification',
 			f_name: req.body.f_name,
 			f_target_entity: req.body.f_target_entity,
 			fk_id_media_notification: e_media_notification.id
-		}, {req}).then(function(e_media) {
+		}, {user: req.user}).then(function(e_media) {
 
 			let redirect = '/media/show?id='+e_media.id;
 			req.session.toastr = [{
@@ -47,7 +47,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 						} else {
 							const obj = {};
 							obj[req.body.associationForeignKey] = e_media_notification.id;
-							association.update(obj, {req}).then(resolve).catch(function(err){
+							association.update(obj, {user: req.user}).then(resolve).catch(function(err){
 								reject(err);
 							});
 						}
@@ -111,7 +111,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_media_notification.update(updateObject, {req}).then(function () {
+		e_media_notification.update(updateObject, {user: req.user}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -122,7 +122,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 					// Update parent E_media's target entity if changed
 					const newTargetEntity = req.body.f_target_entity;
 					Promise.all(newTargetEntity && e_media.f_target_entity !== newTargetEntity
-						? [e_media.update({f_target_entity: newTargetEntity}, {req})]
+						? [e_media.update({f_target_entity: newTargetEntity}, {user: req.user})]
 						: []
 					).then(_ => {
 						let redirect = '/media/show?id=' + e_media.id;
@@ -219,7 +219,7 @@ router.get('/set_status/:id_media_notification/:status/:id_new_status', block_ac
 			const createObject = {}
 			createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 			createObject["fk_id_media_notification_history_"+req.params.status.substring(2)] = req.params.id_media_notification;
-			models[historyModel].create(createObject, {req}).then(function() {
+			models[historyModel].create(createObject, {user: req.user}).then(function() {
 				e_media_notification['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 				res.redirect('/media_notification/show?id='+req.params.id_media_notification)
 			}).catch(function(err) {

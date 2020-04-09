@@ -206,7 +206,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
 	createObject.f_enabled = 0;
 	createObject.f_password = undefined;
 
-	models.E_user.create(createObject, {req}).then(function(e_user) {
+	models.E_user.create(createObject, {user: req.user}).then(function(e_user) {
 		let redirect = '/user/show?id=' + e_user.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -238,7 +238,7 @@ router.post('/create', block_access.actionAccessMiddleware("user", "create"), fu
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_user.id;
-						association.update(obj, {req}).then(resolve).catch(function(err) {
+						association.update(obj, {user: req.user}).then(resolve).catch(function(err) {
 							reject(err);
 						});
 					}
@@ -341,7 +341,7 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_user.update(updateObject, {req}).then(function() {
+		e_user.update(updateObject, {user: req.user}).then(function() {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -747,7 +747,7 @@ router.post('/settings', block_access.isLoggedIn, function(req, res) {
 		})
 
 		newPassword.then(updateObject => {
-			user.update(updateObject, {req}).then(() => {
+			user.update(updateObject, {user: req.user}).then(() => {
 				req.session.toastr = [{
 					message: "settings.success",
 					level: "success"

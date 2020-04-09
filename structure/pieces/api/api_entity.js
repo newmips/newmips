@@ -169,7 +169,7 @@ router.post('/', function(req, res) {
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.MODEL_NAME.create(createObject, {req}).then(function(ENTITY_NAME) {
+	models.MODEL_NAME.create(createObject, {user: req.user}).then(function(ENTITY_NAME) {
 		answer["ENTITY_NAME".substring(2)] = ENTITY_NAME;
 
 		// Set associations
@@ -214,7 +214,7 @@ router.put('/:id', function(req, res) {
 		}
 
 		// Update ENTITY_NAME
-		ENTITY_NAME.update(updateObject, {where: {id: id_ENTITY_NAME}}, {req}).then(function() {
+		ENTITY_NAME.update(updateObject, {where: {id: id_ENTITY_NAME}}, {user: req.user}).then(function() {
 			answer["ENTITY_NAME".substring(2)] = ENTITY_NAME;
 
 			// Set associations

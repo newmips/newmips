@@ -21,13 +21,13 @@ router.get('/entityTree', function(req, res) {
 router.post('/create', block_access.actionAccessMiddleware("media", "create"), function (req, res) {
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_media_mail.create(createObject, {req}).then(function (e_media_mail) {
+	models.E_media_mail.create(createObject, {user: req.user}).then(function (e_media_mail) {
 		models.E_media.create({
 			f_type: 'mail',
 			f_name: req.body.f_name,
 			f_target_entity: req.body.f_target_entity,
 			fk_id_media_mail: e_media_mail.id
-		}, {req}).then(function(e_media) {
+		}, {user: req.user}).then(function(e_media) {
 			let redirect = '/media/show?id='+e_media.id;
 			req.session.toastr = [{
 				message: 'message.create.success',
@@ -50,7 +50,7 @@ router.post('/create', block_access.actionAccessMiddleware("media", "create"), f
 					else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_media.id;
-						association.update(obj, {req});
+						association.update(obj, {user: req.user});
 					}
 				});
 			}
@@ -107,7 +107,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_media_mail.update(updateObject, {req}).then(function () {
+		e_media_mail.update(updateObject, {user: req.user}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -118,7 +118,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 				// Update parent E_media's target entity if changed
 				const newTargetEntity = req.body.f_target_entity;
 				Promise.all(newTargetEntity && e_media.f_target_entity !== newTargetEntity
-					? [e_media.update({f_target_entity: newTargetEntity}, {req})]
+					? [e_media.update({f_target_entity: newTargetEntity}, {user: req.user})]
 					: []
 				).then(_ => {
 					let redirect = '/media/show?id=' + e_media.id;
@@ -199,7 +199,7 @@ router.get('/set_status/:id_media_mail/:status/:id_new_status', block_access.act
 			// Beeing the most recent history for media_mail it will now be its current status
 			const createObject = {fk_id_status_status: req.params.id_new_status};
 			createObject["fk_id_media_mail_history_"+req.params.status.substring(2)] = req.params.id_media_mail;
-			models[historyModel].create(createObject, {req}).then(function() {
+			models[historyModel].create(createObject, {user: req.user}).then(function() {
 				res.redirect('/media_mail/show?id='+req.params.id_media_mail)
 			}).catch(function(err) {
 				entity_helper.error(err, req, res, errorRedirect);
