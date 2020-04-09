@@ -42,6 +42,11 @@ exports.sendTemplate = (templateName, options, attachments) => new Promise((reso
 
 		// Generate mail model, then render mail to html
 		dust.renderSource(template, options.data, (err, rendered) => {
+			if (err) {
+				console.error(err);
+				return reject(err);
+			}
+
 			options.html = rendered;
 
 			if (attachments)
