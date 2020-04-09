@@ -396,7 +396,7 @@ function initForm(context) {
             thumbnailWidth: 500,
             thumbnailHeight: 500,
             init: function () {
-                this.on("addedfile", function (files) {
+                this.on("addedfile", function (file) {
                     if (this.files[1] != null) {
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
@@ -463,7 +463,7 @@ function initForm(context) {
                             success: function (success) {
                                 $("#" + that.attr("id") + "_hidden").val('');
                                 $("#" + that.attr("id") + "_hidden_name").val('');
-                                if (dropzone.files.length) {
+                                if (dropzone.files.length > 1) {
                                     dropzone.removeAllFiles(true);
                                 }
                             }

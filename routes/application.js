@@ -478,24 +478,29 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 					if(!metadataApp.gitlabID) {
 						gitlabProject = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
 						metadataApp.gitlabID = gitlabProject.id;
-						metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
+						metadataApp.gitlabRepoHTTP = gitlabProject.http_url_to_repo;
+						metadataApp.gitlabRepoSSH = gitlabProject.ssh_url_to_repo;
 						metadataApp.save();
-					} else if(!metadataApp.gitlabRepo) {
+					} else if(!metadataApp.gitlabRepoHTTP) {
 						try {
 							gitlabProject = await gitlab.getProjectByID(metadataApp.gitlabID);
-							metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
+							metadataApp.gitlabRepoHTTP = gitlabProject.http_url_to_repo;
+							metadataApp.gitlabRepoSSH = gitlabProject.ssh_url_to_repo;
 							metadataApp.save();
 						} catch(err){
 							console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
 						}
 					} else {
 						gitlabProject = {
-							http_url_to_repo: metadataApp.gitlabRepo
+							http_url_to_repo: metadataApp.gitlabRepoHTTP,
+							ssh_url_to_repo: metadataApp.gitlabRepoSSH
 						};
 					}
 
-					if (gitlabProject)
+					if (gitlabProject){
 						applications[i].dataValues.repo_url = gitlabProject.http_url_to_repo;
+						applications[i].dataValues.repo_ssh_url = gitlabProject.ssh_url_to_repo;
+					}
 					else
 						console.warn("Cannot find gitlab project: " + metadataApp.name);
 				}
