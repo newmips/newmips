@@ -1380,7 +1380,8 @@ exports.deleteField = async (data) => {
 					fs.writeFileSync(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust', content);
 					// Looking for select in create / update / show
 					promises.push((async () => {
-						const $ = await domHelper.read(otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust');
+						const dustPath = otherViewsPath + currentEntity + '/' + fieldsFiles[k] + '.dust';
+						const $ = await domHelper.read(dustPath);
 						const el = $("select[name='" + currentOption[i].as + "'][data-source='" + currentOption[i].target.substring(2) + "']");
 						if (el.length == 0)
 							return;
@@ -1398,7 +1399,7 @@ exports.deleteField = async (data) => {
 							el.attr("data-using", using.join())
 						}
 						el.html(el.html().replace(new RegExp(field, "g"), "id"))
-						domHelper.write(otherViewsPath + currentEntity + '/' + file + '.dust', $);
+						domHelper.write(dustPath, $);
 					})());
 				}
 
