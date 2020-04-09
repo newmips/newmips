@@ -175,6 +175,17 @@ app.use(passport.initialize());
 // Persistent login sessions
 app.use(passport.session());
 
+// Set quick access to user in session through req.user
+// This middleware needs to stay after passport initialization
+app.use((req, res, next) => {
+	try {
+		req.user = req.session.passport.user;
+	} catch(e) {
+		req.user = null;
+	}
+	next();
+});
+
 // Use connect-flash for flash messages stored in session
 app.use(flash());
 
@@ -345,21 +356,21 @@ models.sequelize.sync({logging: false, hooks: false}).then(_ => {
 			}
 
 			if (!users || users.length == 0 || !hasAdmin) {
-				const fakeReq = {req: {session: {passport: {user: {f_login: 'system'}}}}};
+				const user = {f_login: 'system'};
 				models.E_group.create({
 					version: 0,
 					f_label: 'admin'
-				}, fakeReq).then(group => {
+				}, {user}).then(group => {
 					models.E_role.create({
 						version: 0,
 						f_label: 'admin'
-					}, fakeReq).then(role => {
+					}, {user}).then(role => {
 						models.E_user.create({
 							f_login: 'admin',
 							f_password: null,
 							f_enabled: 0,
 							version: 0
-						}, fakeReq).then(user => {
+						}, {user}).then(user => {
 							user.setR_role(role.id);
 							user.setR_group(group.id);
 						});

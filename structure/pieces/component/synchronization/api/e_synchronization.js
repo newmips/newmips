@@ -136,7 +136,7 @@ router.post('/situation', function(req, res) {
 						}
 						res.status(200).send(data);
 
-						models.E_synchronization.create({f_journal_backup_file: backupFilename}, {req}).then(function(synchronize) {
+						models.E_synchronization.create({f_journal_backup_file: backupFilename}, {user: req.user}).then(function(synchronize) {
 							synchronize.setR_api_credentials(req.apiCredentials.id);
 						}).catch(function(err) {
 							console.error("ERROR: Couldn't create e_synchronization in DB");

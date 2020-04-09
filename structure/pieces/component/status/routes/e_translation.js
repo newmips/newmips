@@ -131,7 +131,7 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
 
 	const createObject = model_builder.buildForRoute(attributes, options, req.body);
 
-	models.E_translation.create(createObject, {req}).then(function (e_translation) {
+	models.E_translation.create(createObject, {user: req.user}).then(function (e_translation) {
 		let redirect = '/translation/show?id='+e_translation.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -159,7 +159,7 @@ router.post('/create', block_access.actionAccessMiddleware("translation", "creat
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_translation.id;
-						association.update(obj, {req}).then(resolve).catch(function(err){
+						association.update(obj, {user: req.user}).then(resolve).catch(function(err){
 							reject(err);
 						});
 					}
@@ -235,7 +235,7 @@ router.post('/update', block_access.actionAccessMiddleware("translation", "updat
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_translation.update(updateObject, {req}).then(function () {
+		e_translation.update(updateObject, {user: req.user}).then(function () {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -599,7 +599,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 				const createObject = {}
 				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_translation_history_"+req.params.status.substring(2)] = req.params.id_translation;
-				models[historyModel].create(createObject, {req}).then(function() {
+				models[historyModel].create(createObject, {user: req.user}).then(function() {
 					e_translation['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/translation/show?id='+req.params.id_translation)
 				});
@@ -612,7 +612,7 @@ router.get('/set_status/:id_translation/:status/:id_new_status', block_access.ac
 				const createObject = {}
 				createObject["fk_id_status_"+nextStatus.f_field.substring(2)] = nextStatus.id;
 				createObject["fk_id_translation_history_"+req.params.status.substring(2)] = req.params.id_translation;
-				models[historyModel].create(createObject, {req}).then(function() {
+				models[historyModel].create(createObject, {user: req.user}).then(function() {
 					e_translation['set'+entity_helper.capitalizeFirstLetter(statusAlias)](nextStatus.id);
 					res.redirect('/translation/show?id='+req.params.id_translation)
 				});

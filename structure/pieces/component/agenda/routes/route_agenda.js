@@ -73,7 +73,7 @@ router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event",
 		fk_id_CODE_NAME_CATEGORY_URL_category: req.body.idCategory
 	};
 
-	models.CODE_NAME_EVENT_MODEL.create(createObj, {req}).then(function(createdEvent){
+	models.CODE_NAME_EVENT_MODEL.create(createObj, {user: req.user}).then(function(createdEvent){
 		const users = [];
 		if(req.body.idUser != null)
 			users.push(req.body.idUser);
@@ -93,7 +93,7 @@ router.post('/resize_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 		f_end_date: req.body.end
 	};
 
-	models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}, {req}).then(_ => {
+	models.CODE_NAME_EVENT_MODEL.update(updateObj, {where: {id: req.body.eventId}}, {user: req.user}).then(_ => {
 		res.json({
 			success: true
 		});
@@ -116,7 +116,7 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_URL_ROUTE_event.update(updateObject, {req}).then(function(updatedObject) {
+		e_URL_ROUTE_event.update(updateObject, {user: req.user}).then(function(updatedObject) {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
@@ -140,7 +140,7 @@ router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_ev
 	};
 
 	models.E_agenda_event.findByPk(req.body.eventId).then(function(currentEvent){
-		currentEvent.update(updateObj, {where: {id: req.body.eventId}}, {req}).then(_ => {
+		currentEvent.update(updateObj, {where: {id: req.body.eventId}}, {user: req.user}).then(_ => {
 			let users = [];
 			if(req.body.idUsers != null)
 				users = req.body.idUsers;

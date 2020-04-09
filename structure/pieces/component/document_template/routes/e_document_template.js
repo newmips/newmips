@@ -208,7 +208,7 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 
 	createObject.f_exclude_relations = exclude_relations.join(',');
 
-	models.E_document_template.create(createObject, {req}).then(e_document_template => {
+	models.E_document_template.create(createObject, {user: req.user}).then(e_document_template => {
 		let redirect = '/document_template/show?id=' + e_document_template.id;
 		req.session.toastr = [{
 			message: 'message.create.success',
@@ -253,7 +253,7 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 					} else {
 						const obj = {};
 						obj[req.body.associationForeignKey] = e_document_template.id;
-						association.update(obj, {req}).then(resolve).catch(err => {
+						association.update(obj, {user: req.user}).then(resolve).catch(err => {
 							reject(err);
 						});
 					}
@@ -361,7 +361,7 @@ router.post('/update', block_access.actionAccessMiddleware("document_template", 
 			updateObject.version = 0;
 		updateObject.version++;
 
-		e_document_template.update(updateObject, {req}).then(_ => {
+		e_document_template.update(updateObject, {user: req.user}).then(_ => {
 
 			// We have to find value in req.body that are linked to an hasMany or belongsToMany association
 			// because those values are not updated for now
