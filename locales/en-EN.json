@@ -13,18 +13,25 @@
 			"success": "Update completed. You could now log in with your username and password",
 			"hasAlreadyPassword": "Can not update. This user already has a password.",
 			"userNotExist": "This user does not exist, please check that the login and email are correct.",
-			"passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 8 characters.",
-			"userNotActivate": "Your account is not activated, please do the first login procedure."
+			"passwordNotValid": "The password is not valid, please try again.",
+			"userNotActivate": "Your account is not activated, please do the first login procedure.",
+			"help": {
+				"email_title": "Email - First connection",
+				"email_content": "<u>For the admin account:</u><br>Local environment:<b>admin@admin.fr</b><br>Online environment:<b>VOTRE_ENV-admin@newmips.com</b><br><i>(example: https://myenv.newmips.studio => myenv-admin@newmips.com)</i><br><br><u>For other accounts:</u><br>Email of your choice, this email will be used for the gitlab account associated with the generator if applicable.",
+				"password_title": "Password - First connection",
+				"password_content": "<p>Please choose your password, it must respect the following format:<br><br> - 8 characters minimum<br> - At least 1 digit<br> - At least 1 capital letter<br> - At least 1 special character (!@#$%^&*)<br></i><br></p>"
+			}
 		},
 		"authentication": "Connection",
 		"login": "Login",
 		"password": "Password",
 		"newpassword": "New password",
-		"minimalLength": "(8 characters minimum)",
 		"confirm_password": "Confirm password",
 		"mail": "Email",
 		"remember_me": "Remember me",
-		"submit": "Submit"
+		"submit": "Submit",
+		"login_fail": "The login and / or password is not correct, please try again.",
+		"logout_sucess": "You have been successfully logged out."
 	},
 	"deploy": {
 		"deploying": "Deploying...",

@@ -37,7 +37,7 @@ module.exports = {
 			entityInformations: "Informations concernant l'entité",
 			entityTableRow1: "Entité",
 			entityTableRow2: "Variable",
-			entityTableRow3: "Accès variable document format DOCX",
+			entityTableRow3: "Accès variable document format DOCX et DUST",
 			entityTableRow4: "Accès variable document format PDF",
 			entityTableRow5: "Description",
 			variables: "Variables globales"
@@ -98,7 +98,7 @@ module.exports = {
 			entityInformations: "Entity informations",
 			entityTableRow1: "Entity",
 			entityTableRow2: "Variable",
-			entityTableRow3: "Variable access for DOCX",
+			entityTableRow3: "Variable access for DOCX and DUST",
 			entityTableRow4: "Variable access for PDF",
 			entityTableRow5: "Description",
 			variables: "Global variables"

@@ -6,13 +6,14 @@ const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mail = require('../utils/mailer');
 const request = require('request');
+const globalConf = require('../config/global');
 
 // Sequelize
 const models = require('../models/');
 
 // Gitlab API
 const gitlab = require('../services/gitlab_api');
-const gitlabConf = require('../config/gitlab.js');
+const gitlabConf = require('../config/gitlab');
 
 router.get('/', block_access.loginAccess, function(req, res) {
 	res.redirect('/login');
@@ -113,39 +114,38 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res) {
-	const login_user = req.body.login_user.toLowerCase();
-	const email_user = req.body.email_user;
-	const usernameGitlab = email_user.replace(/@/g, "").replace(/\./g, "").trim();
+	const login = req.body.login.toLowerCase();
+	const email = req.body.email;
+	const usernameGitlab = email.replace(/@/g, "").replace(/\./g, "").trim();
+	const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
-	(async () => {
+	(async() => {
 
-		if(req.body.password_user != req.body.password_user2 || req.body.password_user.length < 8)
-			throw new Error("login.first_connection.passwordNotMatch");
+		if (globalConf.env != 'develop' && (req.body.password != req.body.confirm_password || !passwordRegex.test(req.body.password)))
+			throw new Error("login.first_connection.passwordNotValid");
 
-		const password = bcrypt.hashSync(req.body.password_user2, null, null);
+		const password = bcrypt.hashSync(req.body.confirm_password, null, null);
 
 		const user = await models.User.findOne({
 			where: {
-				login: login_user,
-				email: email_user,
-				[models.$or]: [{password: ""}, {password: null}],
-				enabled: false
+				login: login,
+				email: email
 			}
 		})
 
-		if(!user)
+		if (!user)
 			throw new Error("login.first_connection.userNotExist");
 
-		if(user.password && user.password != "")
+		if (user.password && user.password != "")
 			throw new Error("login.first_connection.hasAlreadyPassword");
 
-		if(gitlabConf.doGit){
-			let gitlabUser = await gitlab.getUser(email_user);
+		if (gitlabConf.doGit) {
+			let gitlabUser = await gitlab.getUser(email);
 
 			if (!gitlabUser)
 				gitlabUser = await gitlab.createUser({
-					email: email_user,
-					password: req.body.password_user2,
+					email: email,
+					password: req.body.confirm_password,
 					username: usernameGitlab,
 					name: usernameGitlab,
 					admin: false,
@@ -159,8 +159,8 @@ router.post('/first_connection', block_access.loginAccess, function(req, res) {
 
 		await user.update({
 			password: password,
-			email: email_user,
-			enabled: 1
+			email: email,
+			enabled: true
 		})
 
 		return user;
@@ -181,7 +181,7 @@ router.post('/first_connection', block_access.loginAccess, function(req, res) {
 			message: err.message,
 			level: "error"
 		}];
-		res.redirect('/first_connection?login='+login_user+'&email='+email_user);
+		res.redirect('/first_connection?login=' + login + '&email=' + email);
 	});
 });
 
@@ -191,73 +191,50 @@ router.get('/reset_password', block_access.loginAccess, function(req, res) {
 
 // Reset password - Generate token, insert into DB, send email
 router.post('/reset_password', block_access.loginAccess, function(req, res) {
-	// Check if user with login + email exist in DB
-	models.User.findOne({
-		where: {
-			login: req.body.login.toLowerCase(),
-			email: req.body.mail
-		}
-	}).then(user => {
-		if(!user){
-			req.session.toastr = [{
-				message: "login.first_connection.userNotExist",
-				level: "error"
-			}];
-			return res.render('login/reset_password');
-		}
+	(async () => {
+		// Check if user with login + email exist in DB
+		const user = await models.User.findOne({
+			where: {
+				login: req.body.login.toLowerCase(),
+				email: req.body.mail
+			}
+		});
 
-		if(!user.password && !user.enabled){
-			req.session.toastr = [{
-				message: "login.first_connection.userNotActivate",
-				level: "error"
-			}];
-			return res.redirect('/first_connection');
-		}
+		if(!user)
+			throw new Error("login.first_connection.userNotExist");
+
+		if(!user.password && !user.enabled)
+			throw new Error("login.first_connection.userNotActivate");
 
 		// Create unique token and insert into user
 		const token = crypto.randomBytes(64).toString('hex');
 
-		models.User.update({
+		await user.update({
 			token_password_reset: token
+		});
+
+		// Send email with generated token
+		await mail.sendMailResetPassword({
+			mail_user: user.email,
+			token: token
+		});
+	})().then(_ => {
+		req.session.toastr = [{
+			message: "login.emailResetSent",
+			level: "success"
+		}];
+		res.redirect('/');
+	}).catch(err => {
+		// Remove inserted value in user to avoid zombies
+		models.User.update({
+			token_password_reset: null
 		}, {
 			where: {
-				id: user.id
+				login: req.body.login.toLowerCase()
 			}
-		}).then(function(){
-			// Send email with generated token
-			mail.sendMailResetPassword({
-				mail_user: user.email,
-				token: token
-			}).then(_ => {
-				req.session.toastr = [{
-					message: "login.emailResetSent",
-					level: "success"
-				}];
-				res.redirect('/');
-			}).catch(err => {
-				// Remove inserted value in user to avoid zombies
-				models.User.update({
-					token_password_reset: null
-				}, {
-					where: {
-						id: user.id
-					}
-				}).then(_ => {
-					req.session.toastr = [{
-						message: err.message,
-						level: "error"
-					}];
-					res.render('login/reset_password');
-				});
-			});
-		}).catch(function(err){
-			req.session.toastr = [{
-				message: err.message,
-				level: "error"
-			}];
-			res.render('login/reset_password');
-		});
-	}).catch(function(err){
+		})
+
+		console.error(err);
 		req.session.toastr = [{
 			message: err.message,
 			level: "error"
@@ -267,7 +244,6 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 })
 
 router.get('/reset_password_form/:token', block_access.loginAccess, function(req, res) {
-
 	models.User.findOne({
 		where: {
 			token_password_reset: req.params.token
@@ -278,19 +254,16 @@ router.get('/reset_password_form/:token', block_access.loginAccess, function(req
 				message: "login.tokenNotFound",
 				level: "error"
 			}];
-			res.render('login/reset_password');
-		} else
-			models.User.update({
-				password: null
-			}, {
-				where: {
-					id: user.id
-				}
-			}).then(_ => {
-				res.render('login/reset_password_form', {
-					resetUser: user
-				});
+			return res.render('login/reset_password');
+		}
+
+		user.update({
+			password: null
+		}).then(_ => {
+			res.render('login/reset_password_form', {
+				resetUser: user
 			});
+		});
 	}).catch(err => {
 		req.session.toastr = [{
 			message: err.message,
@@ -302,25 +275,25 @@ router.get('/reset_password_form/:token', block_access.loginAccess, function(req
 
 router.post('/reset_password_form', block_access.loginAccess, function(req, res) {
 
-	const login_user = req.body.login_user.toLowerCase();
-	const email_user = req.body.email_user;
+	const login = req.body.login.toLowerCase();
+	const email = req.body.email;
 
 	(async () => {
 		const user = await models.User.findOne({
 			where: {
-				login: login_user,
-				email: email_user,
+				login: login,
+				email: email,
 				[models.$or]: [{password: ""}, {password: null}]
 			}
 		});
 
-		if(req.body.password_user != req.body.password_user2 || req.body.password_user.length < 8)
+		if(globalConf.env != 'develop' && (req.body.password != req.body.confirm_password || req.body.password.length < 8))
 			throw {
-				message: "login.first_connection.passwordNotMatch",
+				message: "login.first_connection.passwordNotValid",
 				redirect: '/reset_password_form/'+user.token_password_reset
 			}
 
-		const password = bcrypt.hashSync(req.body.password_user2, null, null);
+		const password = bcrypt.hashSync(req.body.confirm_password, null, null);
 
 		if(!user)
 			throw {
@@ -346,13 +319,13 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 		let gitlabUser = null;
 		// Update Gitlab password
 		if(gitlabConf.doGit){
-			gitlabUser = await gitlab.getUser(email_user);
+			gitlabUser = await gitlab.getUser(email);
 
 			if(!gitlabUser)
 				console.warn('Cannot update gitlab user password, user not found.');
 			else
 				await gitlab.updateUser(gitlabUser, {
-					password: req.body.password_user2,
+					password: req.body.confirm_password,
 					skip_reconfirmation: true
 				});
 		}
@@ -375,17 +348,19 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 					message: err.message,
 					level: "error"
 				}];
-				res.redirect('/login');
-			} else {
+				return res.redirect('/login');
+			}
+
+			if(infos.gitlabUser)
 				req.session.gitlab = {
 					user: infos.gitlabUser
 				};
-				req.session.toastr = [{
-					message: "login.passwordReset",
-					level: "success"
-				}];
-				res.redirect('/default/home');
-			}
+
+			req.session.toastr = [{
+				message: "login.passwordReset",
+				level: "success"
+			}];
+			res.redirect('/default/home');
 		});
 	}).catch(err => {
 		req.session.toastr = [{
@@ -399,6 +374,10 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 // Logout
 router.get('/logout', function(req, res) {
 	req.logout();
+	req.session.toastr = [{
+		message: "login.logout_sucess",
+		level: "success"
+	}];
 	res.redirect('/login');
 });
 

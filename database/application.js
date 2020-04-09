@@ -9,7 +9,8 @@ class Application {
 		this._name = name;
 		this._displayName = displayName;
 		this._gitlabID = null;
-		this._gitlabRepo = null;
+		this._gitlabRepoHTTP = null;
+		this._gitlabRepoSSH = null;
 		this._createdBy = null;
 		this._associationSeq = 0; // Used for unique generation of workspace assocation table
 		this._hasDocumentTemplate = 0;
@@ -34,7 +35,8 @@ class Application {
 			app.associationSeq = metadata[name].associationSeq;
 			app.displayName = metadata[name].displayName;
 			app.gitlabID = metadata[name].gitlabID;
-			app.gitlabRepo = metadata[name].gitlabRepo;
+			app.gitlabRepoHTTP = metadata[name].gitlabRepoHTTP;
+			app.gitlabRepoSSH = metadata[name].gitlabRepoSSH;
 			app.createdBy = metadata[name].createdBy;
 
 			// Modules loading
@@ -90,8 +92,12 @@ class Application {
 		return this._gitlabID;
 	}
 
-	get gitlabRepo() {
-		return this._gitlabRepo;
+	get gitlabRepoHTTP() {
+		return this._gitlabRepoHTTP;
+	}
+
+	get gitlabRepoSSH() {
+		return this._gitlabRepoSSH;
 	}
 
 	get createdBy() {
@@ -119,8 +125,12 @@ class Application {
 		this._gitlabID = id;
 	}
 
-	set gitlabRepo(repo) {
-		this._gitlabRepo = repo;
+	set gitlabRepoHTTP(repo) {
+		this._gitlabRepoHTTP = repo;
+	}
+
+	set gitlabRepoSSH(repo) {
+		this._gitlabRepoSSH = repo;
 	}
 
 	set createdBy(login) {
@@ -238,7 +248,8 @@ class Application {
 
 		newMetadata.associationSeq = this._associationSeq;
 		newMetadata.gitlabID = this._gitlabID;
-		newMetadata.gitlabRepo = this._gitlabRepo;
+		newMetadata.gitlabRepoHTTP = this._gitlabRepoHTTP;
+		newMetadata.gitlabRepoSSH = this._gitlabRepoSSH;
 		newMetadata.createdBy = this._createdBy;
 		newMetadata.hasDocumentTemplate = this._hasDocumentTemplate;
 		newMetadata.displayName = this._displayName;

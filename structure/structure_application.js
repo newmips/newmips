@@ -105,10 +105,10 @@ exports.setupApplication = async (data) => {
 		});
 	} else if(dbConf.dialect == 'postgres') {
 		db_requests = [
-			"CREATE DATABASE np_" + appName + " ENCODING 'UTF8';",
-			"CREATE USER np_" + appName + " WITH PASSWORD 'np_" + appName + "';",
-			"GRANT ALL PRIVILEGES ON DATABASE np_" + appName + " TO np_" + appName + ";",
-			"GRANT ALL PRIVILEGES ON DATABASE np_" + appName + " TO " + dbConf.user + ";"
+			"CREATE DATABASE \"np_" + appName + "\" ENCODING 'UTF8';",
+			"CREATE USER \"np_" + appName + "\" WITH PASSWORD 'np_" + appName + "';",
+			"GRANT ALL PRIVILEGES ON DATABASE \"np_" + appName + "\" TO \"np_" + appName + "\";",
+			"GRANT ALL PRIVILEGES ON DATABASE \"np_" + appName + "\" TO " + dbConf.user + ";"
 		];
 		conn = new Client({
 			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
@@ -493,6 +493,12 @@ exports.initializeApplication = async(application) => {
 
 	$("#sortable").append(li);
 
+	$("li#status_menu_item ul.treeview-menu").append('\<li>\n\
+		<a href="/status/diagram"><i class="fa fa-angle-double-right"></i>\n\
+			{#__ key="global_component.status.diagram" /}\n\
+		</a>\n\
+	</li>');
+
 	// Add settings entry into authentication module layout
 	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
 
@@ -566,15 +572,15 @@ exports.deleteApplication = async(data) => {
 	} else if(dbConf.dialect == 'postgres') {
 		conn = new Client({
 			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			user: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.user : dbConf.user,
+			password: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.password : dbConf.password,
 			database: dbConf.database,
 			port: dbConf.port
 		});
 		conn.connect();
-		await conn.query("REVOKE CONNECT ON DATABASE np_" + app_name + " FROM public;");
+		await conn.query("REVOKE CONNECT ON DATABASE \"np_" + app_name + "\" FROM public;");
 		await conn.query("SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'np_" + app_name + "' AND pid <> pg_backend_pid();");
-		await conn.query("DROP DATABASE np_" + app_name + ";");
+		await conn.query("DROP DATABASE \"np_" + app_name + "\";");
 	}
 
 	conn.end();

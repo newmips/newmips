@@ -114,6 +114,7 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 
 	if(typeof req.session.gitlab !== 'undefined'
 		&& typeof req.session.gitlab.user !== 'undefined'
+		&& req.session.gitlab.user
 		&& !isNaN(req.session.gitlab.user.id))
 		data.gitlabUser = req.session.gitlab.user;
 
@@ -179,7 +180,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
 			process_server_per_app[appName] = process_manager.launchChildProcess(req, appName, env);
 
-		if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && !isNaN(req.session.gitlab.user.id))
+		if(typeof req.session.gitlab !== "undefined" && typeof req.session.gitlab.user !== "undefined" && req.session.gitlab.user && !isNaN(req.session.gitlab.user.id))
 			data.gitlabUser = req.session.gitlab.user;
 
 		data.session = session_manager.getSession(req)
@@ -477,24 +478,29 @@ router.get('/list', block_access.isLoggedIn, (req, res) => {
 					if(!metadataApp.gitlabID) {
 						gitlabProject = await gitlab.getProjectByName(globalConf.host + "-" + applications[i].name.substring(2));
 						metadataApp.gitlabID = gitlabProject.id;
-						metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
+						metadataApp.gitlabRepoHTTP = gitlabProject.http_url_to_repo;
+						metadataApp.gitlabRepoSSH = gitlabProject.ssh_url_to_repo;
 						metadataApp.save();
-					} else if(!metadataApp.gitlabRepo) {
+					} else if(!metadataApp.gitlabRepoHTTP) {
 						try {
 							gitlabProject = await gitlab.getProjectByID(metadataApp.gitlabID);
-							metadataApp.gitlabRepo = gitlabProject.http_url_to_repo;
+							metadataApp.gitlabRepoHTTP = gitlabProject.http_url_to_repo;
+							metadataApp.gitlabRepoSSH = gitlabProject.ssh_url_to_repo;
 							metadataApp.save();
 						} catch(err){
 							console.log("ERROR while retrieving: " + applications[i].name + "(" + metadataApp.gitlabID + ")");
 						}
 					} else {
 						gitlabProject = {
-							http_url_to_repo: metadataApp.gitlabRepo
+							http_url_to_repo: metadataApp.gitlabRepoHTTP,
+							ssh_url_to_repo: metadataApp.gitlabRepoSSH
 						};
 					}
 
-					if (gitlabProject)
+					if (gitlabProject){
 						applications[i].dataValues.repo_url = gitlabProject.http_url_to_repo;
+						applications[i].dataValues.repo_ssh_url = gitlabProject.ssh_url_to_repo;
+					}
 					else
 						console.warn("Cannot find gitlab project: " + metadataApp.name);
 				}

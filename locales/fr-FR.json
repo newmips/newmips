@@ -13,18 +13,25 @@
 			"success": "Mise à jour effectuée. Vous pouvez désormais vous connecter avec votre identifiant et votre nouveau mot de passe.",
 			"hasAlreadyPassword": "Mise à jour impossible. Cet utilisateur possède déjà un mot de passe.",
 			"userNotExist": "Cet utilisateur n'existe pas, merci de vérifier que le login et l'email soient corrects.",
-			"passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 8 caractères.",
-			"userNotActivate": "Votre compte n'est pas activé, merci de faire la procédure de première connexion."
+			"passwordNotValid": "Mot de passe invalide, merci de réessayer.",
+			"userNotActivate": "Votre compte n'est pas activé, merci de faire la procédure de première connexion.",
+			"help": {
+				"email_title": "Email - Première connexion",
+				"email_content": "<u>Pour le compte admin:</u><br>Environnement local: <b>admin@admin.fr</b><br>Environnement en ligne: <b>VOTRE_ENV-admin@newmips.com</b><br><i>(exemple: https://myenv.newmips.studio => myenv-admin@newmips.com)</i><br><br><u>Pour les autres comptes:</u><br>Email de votre choix, cet email sera utilisé pour le compte gitlab associé au générateur le cas échéant.",
+				"password_title": "Mot de passe - Première connexion",
+				"password_content": "<p>Merci de choisir votre mot de passe, il doit respecter le format suivant:<br><br>- 8 caractères minimum<br>- Au moins 1 chiffre<br>- Au moins 1 majuscule<br>- Au moins 1 caractère spécial (!@#$%^&*)<br></i><br></p>"
+			}
 		},
 		"authentication": "Connexion",
 		"login": "Login",
 		"password": "Mot de passe",
 		"newpassword": "Nouveau mot de passe",
-		"minimalLength": "(8 caractères minimum)",
 		"confirm_password": "Confirmer le mot de passe",
 		"mail": "Email",
 		"remember_me": "Se souvenir de moi",
-		"submit": "Soumettre"
+		"submit": "Soumettre",
+		"login_fail": "Le login et/ou le mot de passe n'est pas correct, merci de recommencer.",
+		"logout_sucess": "Vous avez bien été déconnecté."
 	},
 	"deploy": {
 		"deploying": "Déploiement...",

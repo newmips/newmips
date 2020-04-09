@@ -12,6 +12,7 @@ function fetchText(key, params, lang) {
 
 	if (typeof languages[lang] === 'undefined') {
 		try {
+			delete require.cache[require.resolve(__dirname + '/../locales/' + lang)];
 			languages[lang] = require(__dirname + '/../locales/' + lang); // eslint-disable-line
 		} catch (e) {
 			console.log(e);

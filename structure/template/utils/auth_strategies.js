@@ -8,14 +8,14 @@ const models = require('../models/');
 // IS LOGGED IN ============================================================
 // =========================================================================
 passport.use(new LocalStrategy({
-	usernameField: 'login_user',
-	passwordField: 'password_user',
+	usernameField: 'login',
+	passwordField: 'password',
 	passReqToCallback: true // Allows us to pass back the entire request to the callback
 },
-function(req, login_user, password_user, done) {
+function(req, login, password, done) {
 
 	models.E_user.findOne({
-		where: {f_login: login_user},
+		where: {f_login: login},
 		include: [{
 			model: models.E_group,
 			as: 'r_group'
@@ -25,37 +25,41 @@ function(req, login_user, password_user, done) {
 		}]
 	}).then(function(user) {
 
-		function accessForbidden(msg){
+		function accessForbidden(msg, msgToShow = 'login.login_fail'){
 			if(!req.session.loginAttempt)
 				req.session.loginAttempt = 0;
 			req.session.loginAttempt++;
-			return done(null, false, req.flash('error', msg));
+			console.warn(msg);
+			req.session.toastr = [{
+				message: msgToShow,
+				level: 'error'
+			}];
+			return done(null, false);
 		}
 
 		// Wrong captcha
 		if(typeof req.session.loginCaptcha !== "undefined" && req.session.loginCaptcha != req.body.captcha)
-			return accessForbidden("Le captcha saisi n'est pas correct.");
+			return accessForbidden('CONNECTION ATTEMPT FAIL: USER "' + login + '" WRONG CAPTCHA.', "login.wrong_captcha");
 
 		// If the user doesn't exist
 		if (!user)
-			return accessForbidden("Nom d'utilisateur inexistant.");
-
-		// If the user has no password
-		if (user.f_password == "" || user.f_password == null)
-			return accessForbidden('Compte non activé - Mot de passe manquant');
+			return accessForbidden('CONNECTION ATTEMPT FAIL: USER "' + login + '" DOES NOT EXIST.');
 
 		// If the user is not enabled
 		if (user.f_enabled == 0 || user.f_enabled == null)
-			return accessForbidden('Compte non activé');
+			return accessForbidden('CONNECTION ATTEMPT FAIL: USER "' + login + '" IS NOT ENABLED.', "login.not_enabled");
+
+		// If the user has no password
+		if (user.f_password == "" || user.f_password == null)
+			return accessForbidden('CONNECTION ATTEMPT FAIL: USER "' + login + '" PASSWORD IS EMPTY.');
 
 		// If the user is found but the password is wrong
-		if (!bcrypt.compareSync(password_user, user.f_password))
-			return accessForbidden('Mauvais mot de passe.');
+		if (!bcrypt.compareSync(password, user.f_password))
+			return accessForbidden('CONNECTION ATTEMPT FAIL: USER "' + login + '" WRONG PASSWORD.');
 
 		// Access authorized
 		delete req.session.loginAttempt;
 		return done(null, user);
-
 	});
 }
 ));

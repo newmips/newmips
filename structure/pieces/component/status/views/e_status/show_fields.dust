@@ -182,12 +182,10 @@
 					<button type="submit" class="btn btn-primary">
 					<i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
 					{#__ key="button.save" /}
-					</button>
+					</button>&nbsp;&nbsp;<a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
+						<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
+					</a>
 				</form>
-				<br>
-				<a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
-					<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
-				</a>
 			</div>
 
 			{#entityAccess entity="translation"}
