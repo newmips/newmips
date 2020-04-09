@@ -60,7 +60,8 @@ router.get('/getPage/:entity/:page', block_access.hasAccessApplication, (req, re
 		page += '_fields.dust';
 
 		const entity = req.params.entity;
-		const workspaceLanguage = require(__dirname + '/../workspace/' + req.session.app_name + '/services/language')(req.session.lang_user); // eslint-disable-line
+		const languagePath = __dirname + '/../workspace/' + req.session.app_name + '/services/language';
+		const workspaceLanguage = require(languagePath)(req.session.lang_user); // eslint-disable-line
 		const pageUri = __dirname + '/../workspace/' + req.session.app_name + '/views/' + entity + '/' + page;
 
 		const $ = await domHelper.read(pageUri);

@@ -67,7 +67,7 @@
 															{?gitlabUser}
 																{?dataValues.repo_url}
 																	<td class="text-center">
-																		<button type="button" data-repourl="{dataValues.repo_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
+																		<button type="button" data-repourl="{dataValues.repo_url}" data-reposshurl="{dataValues.repo_ssh_url}" class="btn btn-warning gitlab-button" data-toggle="modal" data-target="#gitlabModal">
 																			<i class="fa fa-gitlab fa-md">&nbsp;&nbsp;</i>
 																			<span>{#__ key="button.clone"/}</span>
 																		</button>
@@ -108,7 +108,8 @@
 					</div>
 					<div class="modal-body text-center">
 						{#__ key="listApplication.gitlab.text1" /}<br><br>
-						<i><b>git clone <span id="gitlab_repo_url"></span></b></i><br><br>
+						<i>HTTP: <b>git clone <span id="gitlab_repo_url"></span></b></i><br>
+						<i>SSH: <b>git clone <span id="gitlab_repo_ssh_url"></span></b></i><br><br>
 						{#__ key="listApplication.gitlab.text2" /}<br><br>
 						<i><b>{gitlabUser.name}</b></i><br><br>
 						{#__ key="listApplication.gitlab.text3" /}&nbsp;<i class="fa fa-smile-o"></i><br><br>
@@ -148,8 +149,6 @@
 	            $(context).html(tmpText);
 	        }, 1000);
 		});
-
-		
 
 		$(document).ready(function() {
 			/* --- Delete application --- */
@@ -191,6 +190,7 @@
 
 			$(document).on("click", ".gitlab-button", function(){
 				$("#gitlab_repo_url").html($(this).attr("data-repourl"));
+				$("#gitlab_repo_ssh_url").html($(this).attr("data-reposshurl"));
 			});
 		});
 	</script>

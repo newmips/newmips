@@ -6,8 +6,8 @@ const moment = require('moment');
 
 // Default authentication strategy : passport.authenticate('local')
 passport.use(new LocalStrategy({
-	usernameField: 'login_user',
-	passwordField: 'password_user',
+	usernameField: 'login',
+	passwordField: 'password',
 	passReqToCallback: true // allows us to pass back the entire request to the callback
 },
 async (req, login, password, done) => {
@@ -18,28 +18,24 @@ async (req, login, password, done) => {
 		}
 	})
 
-	// If the user doesn't exist
+	let loginValid = true;
 	if (!user) {
-		req.session.toastr = [{
-			message: "Cet utilisateur n'existe pas.",
-			level: "error"
-		}];
-		return done(null, false);
+		// If the user doesn't exist
+		loginValid = false;
+		console.warn('CONNECTION ATTEMPT FAIL: USER "' + login + '" DOES NOT EXIST.');
+	} else if (user.password == "" || user.password == null) {
+		// If the user has no password
+		loginValid = false;
+		console.warn('CONNECTION ATTEMPT FAIL: USER "' + login + '" PASSWORD IS EMPTY.');
+	} else if (!bcrypt.compareSync(password, user.password)) {
+		// If the user is found but the password is wrong
+		loginValid = false;
+		console.warn('CONNECTION ATTEMPT FAIL: USER "' + login + '" WRONG PASSWORD.');
 	}
 
-	// If the user has no password
-	if (user.password == "" || user.password == null) {
+	if(!loginValid) {
 		req.session.toastr = [{
-			message: "Compte non activé.",
-			level: "error"
-		}];
-		return done(null, false);
-	}
-
-	// If the user is found but the password is wrong
-	if (!bcrypt.compareSync(password, user.password)) {
-		req.session.toastr = [{
-			message: "Mauvais mot de passe.",
+			message: "login.login_fail",
 			level: "error"
 		}];
 		return done(null, false);
