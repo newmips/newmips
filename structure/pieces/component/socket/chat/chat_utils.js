@@ -191,7 +191,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			models.E_channel.create({
 				f_name: data.name,
 				f_type: data.type
-			}).then(function(channel) {
+			}, {user: false}).then(function(channel) {
 				models.E_user.findByPk(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel).then(function() {
 						// Refresh contact list
@@ -207,7 +207,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		socket.on('channel-join', function(data) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)}
-			}).then(function(channel) {
+			}, {user: false}).then(function(channel) {
 				models.E_user.findByPk(user.id).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
 						// Refresh contact list
@@ -223,7 +223,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 		socket.on('channel-invite', function(data) {
 			models.E_channel.findOne({
 				where: {id: parseInt(data.id_channel)}
-			}).then(function(channel) {
+			}, {user: false}).then(function(channel) {
 				models.E_user.findByPk(parseInt(data.id_user)).then(function(userObj) {
 					userObj.addR_user_channel(channel.id).then(function() {
 						// Refresh contact list
@@ -260,7 +260,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					f_message: data.message,
 					fk_id_user_sender: user.id,
 					fk_id_channel: data.id_channel
-				}).then(function(channelmessage) {
+				}, {user: false}).then(function(channelmessage) {
 					models.E_channelmessage.findOne({
 						where: {id: channelmessage.id},
 						include: [{
@@ -344,7 +344,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 			}).then(function(chat) {
 				if (chat && chat.r_user && chat.r_user.length == 2)
 					return 'Existe deja, il a joue avec les ID';
-				models.E_chat.create().then(function(chat) {
+				models.E_chat.create({}, {user: false}).then(function(chat) {
 					chat.setR_user(chatUserIds).then(function() {
 						// Refresh contact list
 						sendChatChannelList(user, socket);
@@ -371,7 +371,7 @@ exports.bindSocket = function(user, socket, connectedUsers) {
 					fk_id_user_sender: user.id,
 					fk_id_user_receiver: data.id_contact,
 					fk_id_chat: data.id_chat
-				}).then(chatmessage => {
+				}, {user: false}).then(chatmessage => {
 					models.E_chatmessage.findOne({
 						where: {id: chatmessage.id},
 						include: [{
