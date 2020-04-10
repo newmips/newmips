@@ -25,11 +25,13 @@ module.exports = function(model_name) {
 	return {
 		// CREATE HOOKS
 		beforeCreate: [{
+			// Hook is expecting a user to set createdBy
+			// If user is false, warning is disabled
 			name: 'insertCreatedBy',
 			func: (model, args) => new Promise(resolve => {
 				try {
 					// No user
-					if(!args.user)
+					if(args.user === undefined)
 						throw 'No user provided for createdBy on table -> ' + model.constructor.tableName;
 
 					// Disabled
@@ -42,7 +44,7 @@ module.exports = function(model_name) {
 
 					model.createdBy = args.user.f_login;
 				} catch (errMsg) {
-					console.warn(errMsg);
+					console.log('WARN '+errMsg);
 				}
 				resolve();
 			})
@@ -63,11 +65,13 @@ module.exports = function(model_name) {
 		}],
 		// UPDATE HOOKS
 		beforeUpdate: [{
+			// Hook is expecting a user to set updatedBy
+			// If user is false, warning is disabled
 			name: 'insertUpdatedBy',
 			func: (model, args) => new Promise(resolve => {
 				try {
 					// No user
-					if(!args.user)
+					if(args.user === undefined)
 						throw 'No user provided for updatedBy on table -> ' + model.constructor.tableName;
 
 					// Disabled
@@ -80,7 +84,7 @@ module.exports = function(model_name) {
 
 					model.updatedBy = args.user.f_login;
 				} catch (errMsg) {
-					console.warn(errMsg);
+					console.log('WARN '+errMsg);
 				}
 				resolve();
 			})
