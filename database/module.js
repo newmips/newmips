@@ -83,7 +83,7 @@ class Module {
 
 		if (this._entities.filter(x => x.name == name).length == 0) {
 			const err = new Error('database.entity.notFound.withThisName')
-			err.messageParams = [name]
+			err.messageParams = [name];
 			throw err;
 		}
 

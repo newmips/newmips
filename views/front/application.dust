@@ -108,8 +108,8 @@
 					</div>
 					<div class="modal-body text-center">
 						{#__ key="listApplication.gitlab.text1" /}<br><br>
-						<i>HTTP: <b>git clone <span id="gitlab_repo_url"></span></b></i><br>
-						<i>SSH: <b>git clone <span id="gitlab_repo_ssh_url"></span></b></i><br><br>
+						<i>HTTP:<br><b>git clone <span id="gitlab_repo_url"></span></b></i><br>
+						<i>SSH:<br><b>git clone <span id="gitlab_repo_ssh_url"></span></b></i><br><br>
 						{#__ key="listApplication.gitlab.text2" /}<br><br>
 						<i><b>{gitlabUser.name}</b></i><br><br>
 						{#__ key="listApplication.gitlab.text3" /}&nbsp;<i class="fa fa-smile-o"></i><br><br>
