@@ -380,6 +380,7 @@ async function deleteEntity(data) {
 
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const foundEntity = data.application.findEntity(data.options.value, true);
+
 	data.np_module = foundEntity.np_module;
 	data.entity = foundEntity.entity;
 
@@ -488,6 +489,7 @@ async function deleteEntity(data) {
 
 	// Fake session for delete widget
 	data.entity_name = data.entity.name;
+	data.module_name = data.np_module.name;
 	await deleteEntityWidgets(data); // eslint-disable-line
 	database.dropEntityOnSync(data.application, data.entity.name);
 	data.np_module.deleteEntity(data.entity.name);

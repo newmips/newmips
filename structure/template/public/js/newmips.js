@@ -882,62 +882,64 @@ function initComponentAddress(context) {
         enable: true // If  enable, do query and get data, else data should be to set manually by user
     };
 
-    if (componentAddressConf.enable) {
-        $('.address_field').on('keyup', function () {
-            $(this).val($(this).val().toUpperCase());
-        });
-        $(".address_search_input", context).each(function () {
-            var result;
-            var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
-            var currentContext = $(this).parents('section.section_address_fields');
-            $(this).autocomplete({
-                minLength: 1,
-                source: function (req, res) {
-                    var val = $('#address_search_input', currentContext).val();
-                    var data = {limit: 10};
-                    data[componentAddressConf.query_parm] = val;
-                    $.ajax({
-                        url: componentAddressConf.url,
-                        type: componentAddressConf.type,
-                        data: data,
-                        dataType: 'json',
-                        success: function (data) {
-                            result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
-                            res($.map(result, function (_address) {
-                                var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
-                                var toReturn = '';
-                                fieldsToShow.forEach(function (field) {
-                                    toReturn += objet[field] + ' ';
-                                });
-                                return toReturn;
-                            }));
-                        }
+    if (!componentAddressConf.enable)
+        return;
+
+    $('.address_field').on('keyup', function () {
+        $(this).val($(this).val().toUpperCase());
+    });
+
+    $(".address_search_input", context).each(function () {
+        var result;
+        var fieldsToShow = componentAddressConf.autocomplete_field.split(',');
+        var currentContext = $(this).parents('section.section_address_fields');
+        $(this).autocomplete({
+            minLength: 1,
+            source: function (req, res) {
+                var val = $('#address_search_input', currentContext).val();
+                var data = {limit: 10};
+                data[componentAddressConf.query_parm] = val;
+                $.ajax({
+                    url: componentAddressConf.url,
+                    type: componentAddressConf.type,
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        result = componentAddressConf.addresses !== '.' ? data[componentAddressConf.addresses] : data;
+                        res($.map(result, function (_address) {
+                            var objet = componentAddressConf.address_fields !== '.' ? _address[componentAddressConf.address_fields] : _address;
+                            var toReturn = '';
+                            fieldsToShow.forEach(function (field) {
+                                toReturn += objet[field] + ' ';
+                            });
+                            return toReturn;
+                        }));
+                    }
+                });
+            },
+            select: function (e, ui) {
+                result.forEach(function (_) {
+                    var toReturn = '';
+                    var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
+                    var toReturn = '';
+                    fieldsToShow.forEach(function (field) {
+                        toReturn += _address[field] + ' ';
                     });
-                },
-                select: function (e, ui) {
-                    result.forEach(function (_) {
-                        var toReturn = '';
-                        var _address = componentAddressConf.address_fields !== '.' ? _[componentAddressConf.address_fields] : _;
-                        var toReturn = '';
-                        fieldsToShow.forEach(function (field) {
-                            toReturn += _address[field] + ' ';
-                        });
-                        if (ui.item.value == toReturn) {
-                            for (var key in _address) {
-                                if (_address[key] != '') //to prevent to replace default value
-                                    $('input[field=' + key + ']', currentContext).val((_address[key] + '').toUpperCase());
-                            }
-                            /** Set Lat and Long value **/
-                            $('input[name=f_address_lat]', currentContext).val(_.geometry.coordinates[1]);
-                            $('input[name=f_address_lon]', currentContext).val(_.geometry.coordinates[0]);
-                            if ((!_address.street || typeof _address.street === "undefined") && _address.name)
-                                $("#f_address_street", currentContext).val(_address.name);
+                    if (ui.item.value == toReturn) {
+                        for (var key in _address) {
+                            if (_address[key] != '') //to prevent to replace default value
+                                $('input[field=' + key + ']', currentContext).val((_address[key] + '').toUpperCase());
                         }
-                    });
-                }
-            });
+                        /** Set Lat and Long value **/
+                        $('input[name=f_address_lat]', currentContext).val(_.geometry.coordinates[1]);
+                        $('input[name=f_address_lon]', currentContext).val(_.geometry.coordinates[0]);
+                        if ((!_address.street || typeof _address.street === "undefined") && _address.name)
+                            $("#f_address_street", currentContext).val(_address.name);
+                    }
+                });
+            }
         });
-    }
+    });
 
     $('#info_address_maps').on('click', function (e) {
         e.preventDefault();
