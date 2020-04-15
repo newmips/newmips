@@ -184,15 +184,16 @@ router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 				throw err;
 
 			const folder = req.file.originalname.split('-');
-			const entity = req.body.entity;
+			const e_entity = req.body.entity;
+			const entity = e_entity.startsWith('e_') ? e_entity.substring(2) : e_entity;
 
-			if (typeof entity === 'undefined' || !entity || folder.length == 0)
+			if (typeof e_entity === 'undefined' || !e_entity || folder.length == 0)
 				throw new Error("500 - Missing correct entity or folder for upload");
 
-			if (!block_access.entityAccess(req.session.passport.user.r_group, entity.substring(2)))
+			if (!block_access.entityAccess(req.session.passport.user.r_group, entity))
 				throw new Error("403 - Access forbidden");
 
-			let basePath = globalConfig.localstorage + entity + '/' + folder[0] + '/';
+			let basePath = globalConfig.localstorage + e_entity + '/' + folder[0] + '/';
 			fs.mkdirsSync(basePath);
 
 			const uploadPath = basePath + req.file.originalname;
@@ -205,7 +206,7 @@ router.post('/file_upload', block_access.isLoggedIn, (req, res) => {
 
 			// We make image thumbnail for datalist
 			if (req.body.dataType == 'picture') {
-				basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + entity + '/' + folder[0] + '/';
+				basePath = globalConfig.localstorage + globalConfig.thumbnail.folder + e_entity + '/' + folder[0] + '/';
 				fs.mkdirsSync(basePath);
 				const thumbnailPath = basePath + req.file.originalname;
 				// Upload default file as thumbnail anyway, will be overwritten if everything works perfectly for thumbnail generation
