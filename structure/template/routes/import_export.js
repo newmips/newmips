@@ -262,7 +262,7 @@ router.post('/access_import', block_access.isLoggedIn, block_access.actionAccess
 	const partOfFilepath = src.split('-');
 	if (partOfFilepath.length > 1) {
 		const base = partOfFilepath[0];
-		const completeFilePath = globalConf.localstorage + 'access_import/' + base + '/' + src;
+		const completeFilePath = globalConf.localstorage + 'access_tool/' + base + '/' + src;
 		const newAccessJson = fs.readFileSync(completeFilePath);
 		fs.writeFileSync(__dirname + "/../config/access.json", newAccessJson);
 		req.session.toastr.push({
@@ -276,7 +276,6 @@ router.post('/access_import', block_access.isLoggedIn, block_access.actionAccess
 		level: "error"
 	});
 	return res.redirect("/import_export/access_show");
-
-})
+});
 
 module.exports = router;
