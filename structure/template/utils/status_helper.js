@@ -421,7 +421,8 @@ module.exports = {
 								as: 'r_media_task'
 							}]
 						}]
-					}]
+					}],
+					user: req.user
 				});
 				let includeArray = [];
 				if (!created) {
@@ -443,8 +444,8 @@ module.exports = {
 				historyObject["fk_id_status_" + fieldIn.substring(2)] = status.id;
 				historyObject["fk_id_" + modelName.substring(2) + "_history_" + fieldIn.substring(2)] = modelWithRelations.id;
 
-				await models[historyModel].create(historyObject);
-				await modelWithRelations['setR_' + fieldIn.substring(2)](status.id)
+				await models[historyModel].create(historyObject, {user: req.user});
+				await modelWithRelations['setR_' + fieldIn.substring(2)](status.id, {user: req.user})
 
 				if (!created)
 					try {
