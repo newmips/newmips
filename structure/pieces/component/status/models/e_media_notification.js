@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
 
 				// Fetch all groups found and their users
 				const groups = await sequelize.models.E_group.findAll({
-					where: {id: {[sequelize.models.$in]: groupIds}},
+					where: {id: groupIds},
 					include: {model: sequelize.models.E_user, as: 'r_user'}
 				});
 
@@ -168,8 +168,8 @@ module.exports = (sequelize, DataTypes) => {
 				return reject(e);
 			}
 
-			sequelize.models.E_notification.create(notificationObj).then(function(notification) {
-				notification.setR_user(targetIds);
+			sequelize.models.E_notification.create(notificationObj, {user: false}).then(function(notification) {
+				notification.setR_user(targetIds, {user: false});
 				socket().sendNotification(notification, targetIds);
 				resolve();
 			}).catch(reject);
