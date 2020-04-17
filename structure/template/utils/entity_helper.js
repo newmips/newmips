@@ -136,6 +136,7 @@ const funcs = {
 	},
 	error: function (err, req, res, redirect, entity) {
 		let isKnownError = false;
+		const toasts = [];
 		const ajax = req.query.ajax || false;
 		const data = {
 			code: 500,
@@ -154,32 +155,36 @@ const funcs = {
 				for (const validationError of err.errors) {
 					const fieldTrad = __(`entity.${entity}.${validationError.path}`);
 					const message = __(validationError.message, [fieldTrad]);
-					req.session.toastr.push({level: 'error', message: message});
+					toasts.push({level: 'error', message: message});
 				}
 				data.code = 400;
 				isKnownError = true;
 			}
-
 			// Unique value constraint error
-			if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
+			else if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
 				const message = __('message.unique') + " " + __("entity." + entity + "." + err.errors[0].path);
-				req.session.toastr.push({level: 'error', message: message});
+				toasts.push({level: 'error', message: message});
 				data.code = 400;
 				isKnownError = true;
 			}
+			else
+				toasts.push({level: 'error', message: __('error.500.title')});
 
 		} finally {
-			if (ajax)
-				res.status(data.code).send(req.session.toastr);
-			else if (isKnownError)
-				res.redirect(redirect || '/');
-			else {
+			if (!isKnownError)
 				console.error(err);
-				res.status(data.code).render('common/error', data);
+
+			if (ajax)
+				res.status(data.code).send(toasts);
+			else {
+				req.session.toastr = toasts;
+				if (isKnownError)
+					res.redirect(redirect || '/');
+				else
+					res.status(data.code).render('common/error', data);
 			}
 		}
-	},
-	getPicturesBuffers: async (entity, modelName, isThumbnail) => {
+	},	getPicturesBuffers: async (entity, modelName, isThumbnail) => {
 		try {
 			if (!entity)
 				return false;
