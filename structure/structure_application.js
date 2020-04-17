@@ -184,8 +184,25 @@ async function finalizeApplication(application) {
 		hooks: false
 	});
 
+	const databaseManager = require('../database/database'); // eslint-disable-line
+	await databaseManager.dropFKField({
+		application: application,
+		entity: {
+			name: 'e_user'
+		},
+		fieldToDrop: 'fk_id_role'
+	});
+
+	await databaseManager.dropFKField({
+		application: application,
+		entity: {
+			name: 'e_user'
+		},
+		fieldToDrop: 'fk_id_group'
+	});
+
 	// Create application's DNS through studio_manager
-	if (globalConf.env == 'cloud'){
+	if (globalConf.env == 'cloud') {
 		const appID = await models.Application.findOne({
 			name: application.name
 		});
@@ -196,6 +213,38 @@ async function finalizeApplication(application) {
 async function initializeWorkflow(application) {
 	const piecesPath = __dirname + '/pieces/component/status';
 	const workspacePath = __dirname + '/../workspace/' + application.name;
+
+	// Replace default role & groupe option to set belongsToMany with user entity
+	fs.writeFileSync(workspacePath + '/models/options/e_role.json', JSON.stringify([{
+		"target": "e_user",
+		"relation": "belongsToMany",
+		"foreignKey": "fk_id_e_role",
+		"as": "r_user",
+		"showAs": "User",
+		"through": "1_role",
+		"otherKey": "fk_id_e_user",
+		"structureType": "hasMany"
+	}], null, 4), 'utf8');
+
+	fs.writeFileSync(workspacePath + '/models/options/e_group.json', JSON.stringify([{
+		"target": "e_user",
+		"relation": "belongsToMany",
+		"foreignKey": "fk_id_e_group",
+		"as": "r_user",
+		"showAs": "User",
+		"through": "2_group",
+		"otherKey": "fk_id_e_user",
+		"structureType": "hasMany"
+	}], null, 4), 'utf8');
+
+	// Clean useless auto_generate key in user option about role and group hasMany/BelongsTo
+	let userOptions = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_user.json'));
+	userOptions = userOptions.filter(x => {
+		if(['e_role', 'e_group'].indexOf(x.target) != -1 && x.structureType == 'auto_generate')
+			return false;
+		return true;
+	})
+	fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
 
 	// Remove existing has many from Status, the instruction is only used to generate the tab and views
 	const statusModel = JSON.parse(fs.readFileSync(workspacePath + '/models/options/e_status.json'));
