@@ -443,7 +443,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 				break;
 
 			default:
-				return res.status(500).end();
+				throw new Error('Cannot find assocation structureType')
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).

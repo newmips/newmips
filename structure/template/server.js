@@ -373,8 +373,6 @@ models.sequelize.sync({logging: false, hooks: false}).then(_ => {
 						}, {user}).then(user => {
 							user.setR_role(role.id);
 							user.setR_group(group.id);
-							role.setR_user(user.id);
-							group.setR_user(user.id);
 						});
 					});
 				});
