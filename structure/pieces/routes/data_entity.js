@@ -317,6 +317,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 
 		component_helper.address.updateAddressIfComponentExists(ENTITY_NAME, options, req.body);
 
+		updateObject.version = ENTITY_NAME.version;
 		if(typeof ENTITY_NAME.version === 'undefined' || !ENTITY_NAME.version)
 			updateObject.version = 0;
 		updateObject.version++;
@@ -443,7 +444,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('ENTITY_UR
 				break;
 
 			default:
-				return res.status(500).end();
+				throw new Error('Cannot find assocation structureType')
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
