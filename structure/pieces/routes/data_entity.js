@@ -317,6 +317,7 @@ router.post('/update', block_access.actionAccessMiddleware("ENTITY_URL_NAME", "u
 
 		component_helper.address.updateAddressIfComponentExists(ENTITY_NAME, options, req.body);
 
+		updateObject.version = ENTITY_NAME.version;
 		if(typeof ENTITY_NAME.version === 'undefined' || !ENTITY_NAME.version)
 			updateObject.version = 0;
 		updateObject.version++;
