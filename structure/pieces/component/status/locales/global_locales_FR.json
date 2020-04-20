@@ -62,7 +62,7 @@
 		},
 		"e_notification": {
 			"f_title": "Titre",
-			"f_description": "Description",
+			"f_description": "Déscription",
 			"f_url": "URL",
 			"f_color": "Couleur",
 			"f_icon": "Icône",

@@ -308,6 +308,13 @@ async function initializeWorkflow(application) {
 
 	// Write enum traductions
 	translateHelper.writeEnumTrad(application.name, 'e_media', 'f_type', 'task', 'Tâche', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_task', 'f_type', 'manual', 'Manuelle', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_task', 'f_type', 'automatic', 'Automatique', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_media_task', 'f_task_type', 'manual', 'Manuelle', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_media_task', 'f_task_type', 'automatic', 'Automatique', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_robot', 'f_current_status', 'connected', 'CONNECTÉ', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_robot', 'f_current_status', 'disconnected', 'DÉCONNECTÉ', 'fr-FR');
+	translateHelper.writeEnumTrad(application.name, 'e_robot', 'f_current_status', 'working', 'EN COURS', 'fr-FR');
 
 	return await finalizeApplication(application);
 }
