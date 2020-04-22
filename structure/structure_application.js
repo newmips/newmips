@@ -77,10 +77,6 @@ exports.setupApplication = async (data) => {
 		throw new Error("An error occurred while initializing the node modules.");
 	}
 
-	// Check if app folder in filesystem is free
-	if(fs.lstatSync(__dirname + '/../workspace/' + appName).isDirectory())
-		throw new Error("A directory with this application name already exist in your workspace folder, please remove it from the folder or change the new application name in order to continue.");
-
 	// *** Copy template folder to new workspace ***
 	fs.copySync(__dirname + '/template/', __dirname + '/../workspace/' + appName);
 
