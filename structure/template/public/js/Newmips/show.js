@@ -18,7 +18,7 @@ function isValidJSON(string) {
 // You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
-        if(isValidJSON(error.responseText)){
+        if (isValidJSON(error.responseText)){
             var errorObj = JSON.parse(error.responseText);
             if(errorObj.refresh)
                 return location.reload();
@@ -28,15 +28,15 @@ function handleError(error, par2, par3) {
             }
             else
                 toastr.error(error.responseText);
-        } else {
-            if(typeof error.responseText === "string")
+        }
+        else {
+            if (typeof error.responseText === "string")
                 return toastr.error(error.responseText);
+            throw 'unknown';
         }
     } catch(e) {
-        if(error.statusText == "timeout"){
-            toastr.error("Server timedout");
-        }
         console.error(error, par2, par3);
+        return toastr.error(ERROR)
     }
 }
 
@@ -486,7 +486,6 @@ $(function() {
             method: 'post',
             data: reqData,
             success:function() {
-                console.log("FIELDSET REMOVED");
                 reloadTab(tab);
             },
             error: handleError

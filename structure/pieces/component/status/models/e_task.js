@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 	builder.addHooks(Model, 'e_task', attributes_origin);
 
 	Model.addHook('beforeCreate', (model) => new Promise(resolve => {
-		models.sequelize.query("\
+		models().sequelize.query("\
 			SELECT\
 				`E_robot`.`id` as `robot`,\
 				count(`E_task`.`id`) as `nb_pending_task`\
