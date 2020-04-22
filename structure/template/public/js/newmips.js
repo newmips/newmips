@@ -998,81 +998,82 @@ function initMapsIfComponentAddressExists(context) {
             });
         }
     });
+}
 
-    function initComponentAddressMaps(lat, lon, mapsContext) {
-        try {
-            $(mapsContext).find('.address_maps').each(function () {
-                var that = $(this);
-                $(this).empty();
-                var control = ol.control.defaults();
-                var options = {
-                    controls: []
-                };
-                lon = parseFloat(lon);
-                lat = parseFloat(lat);
+// Tool - Init Map on given lat / lon
+function initComponentAddressMaps(lat, lon, mapsContext) {
+    try {
+        $(mapsContext).find('.address_maps').each(function () {
+            var that = $(this);
+            $(this).empty();
+            var control = ol.control.defaults();
+            var options = {
+                controls: []
+            };
+            lon = parseFloat(lon);
+            lat = parseFloat(lat);
 
-                const markerSource = new ol.source.Vector();
-                var markerStyle = new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                        anchor: [0.5, 46],
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'pixels',
-                        opacity: 0.75,
-                        src: '../img/address_map_marker.png'
-                    }))
-                });
-                var iconFeature = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326',
-                        'EPSG:3857')),
-                    name: '',
-                    population: 4000,
-                    rainfall: 500
-                });
-
-                markerSource.addFeature(iconFeature);
-                if ($('.f_address_zoomBar', mapsContext).val() === 'true') {
-                    var zoomSlider = new ol.control.ZoomSlider();
-                    options.controls.push(zoomSlider)
-                }
-                if ($('.f_address_mousePosition', mapsContext).val() === 'true') {
-                    var mousePositionControl = new ol.control.MousePosition({
-                        coordinateFormat: ol.coordinate.createStringXY(4),
-                        projection: 'EPSG:4326',
-                        // comment the following two lines to have the mouse position
-                        // be placed within the map.
-                        className: 'custom-mouse-position',
-                        // target: document.getElementById('mouse-position'),
-                        undefinedHTML: '&nbsp;'
-                    });
-                    options.controls.push(mousePositionControl);
-                }
-                var mapConfig = {
-                    controls: control.extend(options.controls),
-                    target: that.attr('id'),
-                    layers: [
-                        new ol.layer.Tile({
-                            source: new ol.source.OSM()
-                        }),
-                        new ol.layer.Vector({
-                            source: markerSource,
-                            style: markerStyle,
-                        })
-                    ],
-                    view: new ol.View({
-                        center: ol.proj.fromLonLat([lon, lat]),
-                        zoom: 17
-                    })
-                };
-                if ($('.f_address_navigation', mapsContext).val() === 'false') {
-                    mapConfig.interactions = [];
-                    mapConfig.controls = [];
-                }
-                var map = new ol.Map(mapConfig);
-
+            const markerSource = new ol.source.Vector();
+            var markerStyle = new ol.style.Style({
+                image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                    anchor: [0.5, 46],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'pixels',
+                    opacity: 0.75,
+                    src: '/img/address_map_marker.png'
+                }))
             });
-        } catch (e) {
-            console.log(e);
-        }
+            var iconFeature = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326',
+                    'EPSG:3857')),
+                name: '',
+                population: 4000,
+                rainfall: 500
+            });
+
+            markerSource.addFeature(iconFeature);
+            if ($('.f_address_zoomBar', mapsContext).val() === 'true') {
+                var zoomSlider = new ol.control.ZoomSlider();
+                options.controls.push(zoomSlider)
+            }
+            if ($('.f_address_mousePosition', mapsContext).val() === 'true') {
+                var mousePositionControl = new ol.control.MousePosition({
+                    coordinateFormat: ol.coordinate.createStringXY(4),
+                    projection: 'EPSG:4326',
+                    // comment the following two lines to have the mouse position
+                    // be placed within the map.
+                    className: 'custom-mouse-position',
+                    // target: document.getElementById('mouse-position'),
+                    undefinedHTML: '&nbsp;'
+                });
+                options.controls.push(mousePositionControl);
+            }
+            var mapConfig = {
+                controls: control.extend(options.controls),
+                target: that.attr('id'),
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    }),
+                    new ol.layer.Vector({
+                        source: markerSource,
+                        style: markerStyle,
+                    })
+                ],
+                view: new ol.View({
+                    center: ol.proj.fromLonLat([lon, lat]),
+                    zoom: 17
+                })
+            };
+            if ($('.f_address_navigation', mapsContext).val() === 'false') {
+                mapConfig.interactions = [];
+                mapConfig.controls = [];
+            }
+            var map = new ol.Map(mapConfig);
+
+        });
+    } catch (e) {
+        console.log(e);
     }
 }
 
