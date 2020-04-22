@@ -148,6 +148,10 @@ exports.createNewApplication = async (data) => {
 		throw err;
 	}
 
+	// Check if app folder in filesystem is free
+	if(fs.existsSync(__dirname + '/../workspace/' + data.options.value))
+		throw new Error("database.application.fsAlreadyExist");
+
 	// Generator DB
 	const dbApp = await models.Application.create({
 		name: data.options.value,

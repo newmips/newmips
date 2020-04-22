@@ -277,7 +277,8 @@
 				"withThisName": "Sorry, but there is no application with this name: %s.",
 				"withThisCodeName": "Sorry, but there is no application with this code name: %s."
 			},
-			"alreadyExist": "Sorry, but an application already exist with this name: %s."
+			"alreadyExist": "Sorry, but an application already exist with this name: %s.",
+			"fsAlreadyExist": "A directory with this application name already exist in your workspace folder, please remove it from the folder or change the new application name in order to continue."
 		},
 		"module": {
 			"select": {

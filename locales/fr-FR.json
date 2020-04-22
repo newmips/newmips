@@ -275,7 +275,8 @@
 			"notFound": {
 				"withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s."
 			},
-			"alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s."
+			"alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s.",
+			"fsAlreadyExist": "Un dossier avec ce nom d'application existe déjà dans votre dossier d'espace de travail, veuillez le supprimer ou changer le nom de la nouvelle application pour continuer."
 		},
 		"module": {
 			"select": {
