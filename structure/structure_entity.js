@@ -195,7 +195,12 @@ exports.setupEntity = async (data) => {
 	fs.writeFileSync(workspacePath + '/models/options/' + entity_name + '.json', JSON.stringify([], null, 4));
 
 	// CREATE ROUTE FILE
-	let routeTemplate = fs.readFileSync(piecesPath + '/routes/data_entity.js', 'utf8');
+	let routeTemplate = '';
+	if(data.options.isParamEntity) {
+		routeTemplate = fs.readFileSync(piecesPath + '/routes/param_entity.js', 'utf8');
+	} else {
+		routeTemplate = fs.readFileSync(piecesPath + '/routes/data_entity.js', 'utf8');
+	}
 	routeTemplate = routeTemplate.replace(/ENTITY_NAME/g, entity_name);
 	routeTemplate = routeTemplate.replace(/ENTITY_URL_NAME/g, entity_url);
 	routeTemplate = routeTemplate.replace(/MODEL_NAME/g, entity_model);
@@ -213,34 +218,48 @@ exports.setupEntity = async (data) => {
 		// Read file and get jQuery instance
 		const $ = await domHelper.read(fileName);
 		let li = '';
-		// Create new html
-		li += '<!--{#entityAccess entity="' + entity_url + '"}-->\n';
-		li += "	 <li id='" + entity_url + "_menu_item' class='treeview'>\n";
-		li += '		 <a href="#">\n';
-		li += '			 <i class="fa fa-folder"></i>\n';
-		li += '			 <span>\n<!--{#__ key="entity.' + entity_name + '.label_entity" /}-->\n</span>\n';
-		li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
-		li += '		 </a>\n';
-		li += '		 <ul class="treeview-menu">\n';
-		li += '			 <!--{#actionAccess entity="' + entity_url + '" action="create"}-->';
-		li += '				 <li>\n';
-		li += "					 <a href='/" + entity_url + "/create_form'>\n";
-		li += '						 <i class="fa fa-angle-double-right"></i>\n';
-		li += '						 <!--{#__ key="operation.create" /}--> \n';
-		li += '					 </a>\n';
-		li += '				 </li>';
-		li += '			 <!--{/actionAccess}-->';
-		li += '			 <!--{#actionAccess entity="' + entity_url + '" action="read"}-->';
-		li += '				 <li>\n';
-		li += "					 <a href='/" + entity_url + "/list'>\n";
-		li += '						 <i class="fa fa-angle-double-right"></i>\n';
-		li += '						 <!--{#__ key="operation.list" /}--> \n';
-		li += '					 </a>\n';
-		li += '				 </li>\n';
-		li += '			 <!--{/actionAccess}-->';
-		li += '		 </ul>\n';
-		li += '	 </li>\n';
-		li += '<!--{/entityAccess}-->\n';
+
+		if(data.options.isParamEntity) {
+			// Create new html for param entity
+			li += '<!--{#entityAccess entity="' + entity_url + '"}-->\n';
+			li += "	 <li id='" + entity_url + "_menu_item' class='treeview'>\n";
+			li += "		 <a href='/" + entity_url + "/update_form?id=1'>\n";
+			li += '			 <i class="fa fa-cog"></i>\n';
+			li += '			 <span>\n<!--{#__ key="entity.' + entity_name + '.label_entity" /}-->\n</span>\n';
+			li += '			 <i class="fa fa-angle-right pull-right"></i>\n';
+			li += '		 </a>\n';
+			li += '	 </li>\n';
+			li += '<!--{/entityAccess}-->\n';
+		} else {
+			// Create new html for standard entity
+			li += '<!--{#entityAccess entity="' + entity_url + '"}-->\n';
+			li += "	 <li id='" + entity_url + "_menu_item' class='treeview'>\n";
+			li += '		 <a href="#">\n';
+			li += '			 <i class="fa fa-folder"></i>\n';
+			li += '			 <span>\n<!--{#__ key="entity.' + entity_name + '.label_entity" /}-->\n</span>\n';
+			li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
+			li += '		 </a>\n';
+			li += '		 <ul class="treeview-menu">\n';
+			li += '			 <!--{#actionAccess entity="' + entity_url + '" action="create"}-->';
+			li += '				 <li>\n';
+			li += "					 <a href='/" + entity_url + "/create_form'>\n";
+			li += '						 <i class="fa fa-angle-double-right"></i>\n';
+			li += '						 <!--{#__ key="operation.create" /}--> \n';
+			li += '					 </a>\n';
+			li += '				 </li>';
+			li += '			 <!--{/actionAccess}-->';
+			li += '			 <!--{#actionAccess entity="' + entity_url + '" action="read"}-->';
+			li += '				 <li>\n';
+			li += "					 <a href='/" + entity_url + "/list'>\n";
+			li += '						 <i class="fa fa-angle-double-right"></i>\n';
+			li += '						 <!--{#__ key="operation.list" /}--> \n';
+			li += '					 </a>\n';
+			li += '				 </li>\n';
+			li += '			 <!--{/actionAccess}-->';
+			li += '		 </ul>\n';
+			li += '	 </li>\n';
+			li += '<!--{/entityAccess}-->\n';
+		}
 
 		// Add new html to document
 		$('#sortable').append(li);
@@ -252,7 +271,9 @@ exports.setupEntity = async (data) => {
 	// Copy CRUD view folder and customize them according to data entity properties
 	fs.copySync(piecesPath + '/views/entity', workspacePath + '/views/' + entity_name);
 	const fileBase = workspacePath + '/views/' + entity_name;
-	const dustFiles = ["create", "create_fields", "show", "show_fields", "update", "update_fields", "list", "list_fields"];
+	let dustFiles = ["create", "create_fields", "show", "show_fields", "update", "update_fields", "list", "list_fields"];
+	if(data.options.isParamEntity)
+		dustFiles = ["update", "update_fields"];
 
 	for (let i = 0; i < dustFiles.length; i++) {
 		const fileToWrite = fileBase + '/' + dustFiles[i] + ".dust";
@@ -273,6 +294,15 @@ exports.setupEntity = async (data) => {
 		}
 		fs.writeFileSync(fileToWrite, dustContent, "utf8");
 	}
+
+	// Remove useless dust file if it's a param entity
+	// TODO - Generator is not ready to handle entity without all default views
+
+	// if(data.options.isParamEntity) {
+	// 	const dustToRemove = ["create.dust", "create_fields.dust", "show.dust", "show_fields.dust", "list.dust", "list_fields.dust"];
+	// 	for (let i = 0; i < dustToRemove.length; i++)
+	// 		fs.unlinkSync(workspacePath + '/views/' + entity_name + '/' + dustToRemove[i]);
+	// }
 
 	// Write new data entity to access.json file, within module's context
 	const accessPath = workspacePath + '/config/access.json';
