@@ -683,7 +683,12 @@ router.post('/initiate', block_access.isLoggedIn, (req, res) => {
 		"set icon question-circle-o",
 		"add field Entity",
 		"add field Field",
-		"add field Content with type text"
+		"add field Content with type text",
+
+		// User guide
+		"add param entity User Guide",
+		"set icon book",
+		"add field File with type file"
 	];
 
 	// Set default theme if different than blue-light

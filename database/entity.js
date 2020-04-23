@@ -2,9 +2,10 @@ const Field = require('./field');
 const Component = require('./component');
 
 class Entity {
-	constructor(name, displayName) {
+	constructor(name, displayName, isParamEntity) {
 		this._name = name;
 		this._displayName = displayName;
+		this._isParamEntity = isParamEntity;
 		this._fields = [];
 		this._components = [];
 	}
@@ -16,6 +17,10 @@ class Entity {
 
 	get displayName() {
 		return this._displayName;
+	}
+
+	get isParamEntity() {
+		return this._isParamEntity;
 	}
 
 	get fields() {
