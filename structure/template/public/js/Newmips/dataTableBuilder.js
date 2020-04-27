@@ -553,14 +553,25 @@ function init_datatable(tableID, doPagination, context) {
         "dom": 'RlBfrtip',
         "stateSave": true,
         stateSaveCallback: function(settings, data) {
-            var sizes = [];
-            for (var i = 0; i < settings.aoColumns.length; i++)
-                sizes.push($(settings.aoColumns[i].nTh).width()+'px');
-            localStorage.setItem(tableID+'_columns_sizes', JSON.stringify(sizes));
+            var sizes = [], allZero = true;
+            for (var i = 0; i < settings.aoColumns.length; i++) {
+                var size = $(settings.aoColumns[i].nTh).width();
+                if (size != 0)
+                    allZero = false;
+                sizes.push(size+'px');
+            }
+            if (!allZero)
+                localStorage.setItem(tableID+'_columns_sizes', JSON.stringify(sizes));
         },
         stateLoadCallback: function(settings) {
             var sizes = JSON.parse(localStorage.getItem(tableID+'_columns_sizes'));
             if (!sizes)
+                return;
+            var allWidthZero = true;
+            for (var i = 0; i < sizes.length; i++)
+                if (sizes[i] != '0px')
+                    allWidthZero = false;
+            if (allWidthZero)
                 return;
             for (var i = 0; i < settings.aoColumns.length; i++)
                 if (sizes[i])
