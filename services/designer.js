@@ -148,6 +148,10 @@ exports.createNewApplication = async (data) => {
 		throw err;
 	}
 
+	// Check if app folder in filesystem is free
+	if(fs.existsSync(__dirname + '/../workspace/' + data.options.value))
+		throw new Error("database.application.fsAlreadyExist");
+
 	// Generator DB
 	const dbApp = await models.Application.create({
 		name: data.options.value,
@@ -350,7 +354,7 @@ exports.createNewEntity = async (data) => {
 	}
 
 	data.np_module = data.application.getModule(data.module_name, true);
-	const entity = data.np_module.addEntity(data.options.value, data.options.showValue);
+	const entity = data.np_module.addEntity(data.options.value, data.options.showValue, data.options.isParamEntity);
 
 	await structure_entity.setupEntity(data);
 
@@ -742,6 +746,10 @@ exports.createNewHasOne = async (data) => {
 
 	/* Check if entity source exist before doing anything */
 	const sourceEntity = data.application.findEntity(data.options.source, true);
+
+	if(sourceEntity.entity.isParamEntity)
+		throw new Error('error.notForParamEntity');
+
 	data.np_module = sourceEntity.np_module;
 	data.source_entity = sourceEntity.entity;
 
@@ -761,6 +769,8 @@ exports.createNewHasOne = async (data) => {
 		// Subentity code generation
 		await structure_entity.setupEntity(data)
 	} else {
+		if(target_entity.entity.isParamEntity)
+			throw new Error('error.notForParamEntity');
 		answer.message = "structure.association.hasOne.successEntity";
 		answer.messageParams = [data.options.showAs, data.options.showSource, data.options.showSource, data.options.showAs];
 	}
@@ -983,6 +993,9 @@ exports.createNewHasMany = async (data) => {
 	data.np_module = sourceEntity.np_module;
 	data.source_entity = sourceEntity.entity;
 
+	if(data.source_entity.isParamEntity)
+		throw new Error('error.notForParamEntity');
+
 	const sourceOptionsPath = __dirname+'/../workspace/' + data.application.name + '/models/options/' + data.source_entity.name + '.json';
 	const optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
 	let saveFile = false;
@@ -1024,6 +1037,9 @@ exports.createNewHasMany = async (data) => {
 		// Sub entity code generation
 		await structure_entity.setupEntity(data)
 	} else {
+
+		if(targetEntity.entity.isParamEntity)
+			throw new Error('error.notForParamEntity');
 
 		const optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
 		let matchingAlias = null, cptExistingHasMany = 0;
@@ -1123,12 +1139,14 @@ exports.createNewHasManyPreset = async (data) => {
 	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	const sourceEntity = data.application.findEntity(data.options.source, true);
-
-	// Check that target exist
-	data.application.findEntity(data.options.target, true);
-
 	data.np_module = sourceEntity.np_module;
 	data.source_entity = sourceEntity.entity;
+
+	// Check that target exist
+	const targetEntity = data.application.findEntity(data.options.target, true);
+
+	if(data.source_entity.isParamEntity || targetEntity.entity.isParamEntity)
+		throw new Error('error.notForParamEntity');
 
 	// If a using field or fields has been asked, we have to check if those fields exist in the entity
 	if (typeof data.options.usingField !== "undefined") {
@@ -1518,6 +1536,9 @@ exports.createNewComponentStatus = async (data) => {
 	data.np_module = entity.np_module;
 	data.entity = entity.entity;
 
+	if(data.entity.isParamEntity)
+		throw new Error('error.notForParamEntity');
+
 	if (data.entity.getComponent(data.options.value, 'status'))
 		throw new Error('structure.component.error.alreadyExistOnEntity');
 
@@ -1607,6 +1628,9 @@ exports.deleteComponentStatus = deleteComponentStatus;
 exports.addComponentFileStorage = async (data) => {
 
 	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
+
+	if(data.entity.isParamEntity)
+		throw new Error('error.notForParamEntity');
 
 	/* If there is no defined name for the component */
 	if (typeof data.options.value === "undefined") {

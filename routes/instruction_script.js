@@ -155,6 +155,9 @@ const mandatoryInstructions = [
 	"add field Content with type text",
 	"entity user has many notification",
 	"entity notification has many user",
+	"add param entity User Guide",
+	"set icon book",
+	"add field File with type file",
 	"select module home"
 ];
 

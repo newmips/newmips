@@ -245,6 +245,18 @@ exports.createNewEntity = result => {
 	return checkAndCreateAttr("createNewEntity", options, value);
 };
 
+exports.createNewParamEntity = result => {
+
+	const value = result[1];
+	const options = {
+		value: value,
+		isParamEntity: true,
+		processValue: true
+	};
+
+	return checkAndCreateAttr("createNewEntity", options, value);
+};
+
 exports.createNewField = result => {
 
 	// Field name has not been defined
@@ -1259,6 +1271,16 @@ const training = {
 		"ajouter entité (.*)",
 		"ajouter une entité (.*)",
 		"ajouter l'entité (.*)"
+	],
+	"createNewParamEntity": [
+		"create param entity (.*)",
+		"add param entity (.*)",
+		"créer entité de paramètre (.*)",
+		"créer une entité de paramètre (.*)",
+		"créer l'entité de paramètre (.*)",
+		"ajouter entité de paramètre (.*)",
+		"ajouter une entité de paramètre (.*)",
+		"ajouter l'entité de paramètre (.*)"
 	],
 	"createNewFieldWithTypeEnum": [
 		"create field (.*) with type enum and values (.*)",

@@ -22,15 +22,16 @@ function fetchStatus() {
                 var str = percent + "%";
                 $("#progressbar").width(str);
 
-                if (typeof data.answers[0] !== "undefined") {
-                    if (data.answers[0].instruction){
-                        if(data.answers[0].error)
-                            $("#answers").html("<i>" + data.answers[0].instruction + "</i>:<br><span style='color: #ff2700;'><i class='fa fa-exclamation-circle'></i>&nbsp;&nbsp;<b>" + data.answers[0].message + "</b></span><br><br>" + $("#answers").html());
+                data.answers = data.answers.reverse();
+                for (var i = 0; i < data.answers.length; i++) {
+                    if (data.answers[i].instruction){
+                        if(data.answers[i].error)
+                            $("#answers").html("<i>" + data.answers[i].instruction + "</i>:<br><span style='color: #ff2700;'><i class='fa fa-exclamation-circle'></i>&nbsp;&nbsp;<b>" + data.answers[i].message + "</b></span><br><br>" + $("#answers").html());
                         else
-                            $("#answers").html("<i>" + data.answers[0].instruction + "</i>:<br><span style='color: #007A2E;'><i class='fa fa-check'></i>&nbsp;&nbsp;<b>" + data.answers[0].message + "</b></span><br><br>" + $("#answers").html());
+                            $("#answers").html("<i>" + data.answers[i].instruction + "</i>:<br><span style='color: #007A2E;'><i class='fa fa-check'></i>&nbsp;&nbsp;<b>" + data.answers[i].message + "</b></span><br><br>" + $("#answers").html());
                     }
                     else
-                        $("#answers").html("<b>" + data.answers[0].message + "</b><br><br>" + $("#answers").html());
+                        $("#answers").html("<b>" + data.answers[i].message + "</b><br><br>" + $("#answers").html());
                 }
 
                 if (!data.over)

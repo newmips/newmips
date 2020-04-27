@@ -232,7 +232,7 @@ function initHasMany(tab, data) {
                 render: function(data2, type, row) {
                     var form = '\
                     <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                        <input name="id" value="'+row['id']+'" type="hidden"/>\
+                        <input name="id" value="'+row.id+'" type="hidden"/>\
                         <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                             <span>'+DELETE_TEXT+'</span>\
                         </button>\
@@ -247,7 +247,7 @@ function initHasMany(tab, data) {
             DATALIST_BUTTONS.push({
                 render: function(data2, type, row) {
                     var aTag = '\
-                    <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
+                    <a class="ajax btn btn-warning" data-id="'+row.id+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row.id+'">\
                         <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
                         <span>'+UPDATE_TEXT+'</span>\
                     </a>';
@@ -261,7 +261,7 @@ function initHasMany(tab, data) {
                 render: function(data2, type, row) {
                     var form = '\
                     <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                        <input name="id" value="'+row['id']+'" type="hidden"/>\
+                        <input name="id" value="'+row.id+'" type="hidden"/>\
                         <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
                             <span>'+DELETE_TEXT+'</span>\
                         </button>\
@@ -307,7 +307,7 @@ function initHasManyPreset(tab, data) {
         DATALIST_BUTTONS.push({
             render: function (data2, type, row) {
                 var aTag = '\
-                    <a class="btn-show" href="/'+data.option.target.substring(2)+'/show?id='+row['id']+'">\
+                    <a class="ajax btn-show" href="/'+data.option.target.substring(2)+'/show'+buildAssociationHref(tab)+'&id='+row.id+'">\
                         <button class="btn btn-primary">\
                             <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
                             <span>'+SHOW_TEXT+'</span>\
@@ -325,7 +325,7 @@ function initHasManyPreset(tab, data) {
                 var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
                 var form = '\
                     <form action="'+url+'" class="fieldsetform" method="post">\
-                        <input type="hidden" value="'+row['id']+'" name="idRemove">\
+                        <input type="hidden" value="'+row.id+'" name="idRemove">\
                         <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
                         <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
                     </form>';
@@ -422,35 +422,61 @@ $(function() {
         $.ajax({
             url: href,
             success: function(formContent) {
-                if (href.indexOf('/set_status/') != -1)
-                    return reloadTab(tab);
-                var isCreate = href.indexOf('update_form') != -1 ? false : true;
-                var action, idInput = '', button = '';
-                var cancel = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
-                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
-                if (isCreate)
-                    action = '/'+target+'/create';
-                else if (!isCreate) {
-                    idInput = '<input type="hidden" name="id" value="'+id+'">';
-                    action = '/'+target+'/update';
-                }
+
+                var tabType = '';
+                if(href.indexOf('create_form') != -1)
+                    tabType = 'create';
+                else if (href.indexOf('update_form') != -1)
+                    tabType = 'update';
+                else if (href.indexOf('show') != -1)
+                    tabType = 'show';
                 else
                     return reloadTab(tab);
 
-                // Add form to tab. Put content after .ajax-content to be able to
-                // get back to tab original view after cancel button click
-                var formWrapper = $('<div class="ajax-form" style="display:none;"><form action="'+action+'" method="post">'+formContent+'</form></div>');
-                formWrapper.find('form').append(idInput+cancel+button);
+                var action = '', idInput = '';
+                switch (tabType) {
+                    case 'create':
+                        action = '/' + target + '/create';
+                        break;
+                    case 'update':
+                        idInput = '<input type="hidden" name="id" value="' + id + '">';
+                        action = '/' + target + '/update';
+                        break;
+                    case 'show':
+                        // Keep only the fields div.
+                        // If you ask why not using directly show_field instead of show it's because in show_field we
+                        // miss the dust context {#entity}{/entity} that fill the inputs with data
+                        formContent = $(formContent).find('#fields').html();
+                        break;
+                }
+
+                var cancelBtn = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">' + CANCEL_TEXT + '</button>';
+                var primaryBtn = '<button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>' + SAVE_TEXT + '</button>';
+
+                if(tabType == 'show') {
+                    var formWrapper = $('<div class="ajax-form" style="display:none;">' + formContent + '</div>');
+                    formWrapper.find('.actions').remove();
+                    formWrapper.append(cancelBtn);
+                    tab.find('.ajax-content').slideUp()
+                    tab.find('.ajax-content').after(formWrapper);
+                }
+                else if(tabType == 'create' || tabType == 'update') {
+                    // Add form to tab. Put content after .ajax-content to be able to
+                    // get back to tab original view after cancel button click
+                    var formWrapper = $('<div class="ajax-form" style="display:none;"><form action="' + action + '" method="post">' + formContent + '</form></div>');
+                    formWrapper.find('form').append(idInput + cancelBtn + primaryBtn);
+                    tab.find('.ajax-content').slideUp()
+                    tab.find('.ajax-content').after(formWrapper);
+                    initForm(tab);
+                    ajaxForm(formWrapper.find('form'), tab);
+                    firstElementFocus(tab.find('.ajax-form'));
+                }
+
                 formWrapper.find('.cancel').click(function() {
                     tab.find('.ajax-form').slideUp().remove();
                     tab.find('.ajax-content').slideDown();
                 });
-                tab.find('.ajax-content').slideUp()
-                tab.find('.ajax-content').after(formWrapper);
                 tab.find('.ajax-form').slideDown();
-                initForm(tab);
-                ajaxForm(formWrapper.find('form'), tab);
-                firstElementFocus(tab.find('.ajax-form'));
             },
             error: handleError
         });
