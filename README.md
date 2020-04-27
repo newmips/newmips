@@ -50,6 +50,24 @@ Docker and Docker compose installed
 
 ### Instructions
 
+Clone repository:
+
+<pre>
+git clone: <pre>git clone git@github.com:newmips/newmips.git</pre>
+</pre>
+
+Set configuration file "config/global.js" with env value "docker":
+
+<pre>
+const env = 'docker';
+</pre>
+
+Create local image:
+
+<pre>
+sudo docker build newmips/newmips:latest .
+</pre>
+
 Create (and adapt if necessary) "docker-compose.yml" file:
 
 <pre>
