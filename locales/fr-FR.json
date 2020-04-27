@@ -251,7 +251,8 @@
 		"404": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée.",
 		"valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (<30) après génération (%s).",
 		"cannotFindInstruction": "Désolé, je ne comprends pas ce que vous me demandez.",
-		"missingParametersInstruction": "Il manque des paramètres à votre instruction. Consultez la documentation"
+		"missingParametersInstruction": "Il manque des paramètres à votre instruction. Consultez la documentation",
+		"notForParamEntity": "Vous ne pouvez pas faire ça avec une entité de paramètre."
 	},
 	"back":{
 		"list": "Lister les",
@@ -275,7 +276,8 @@
 			"notFound": {
 				"withThisName": "Désolé, mais il n'y a pas d'application avec ce nom : %s."
 			},
-			"alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s."
+			"alreadyExist": "Désolé, mais une application existe déjà avec ce nom : %s.",
+			"fsAlreadyExist": "Un dossier avec ce nom d'application existe déjà dans votre dossier d'espace de travail, veuillez le supprimer ou changer le nom de la nouvelle application pour continuer."
 		},
 		"module": {
 			"select": {

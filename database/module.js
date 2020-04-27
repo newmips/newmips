@@ -54,8 +54,8 @@ class Module {
 		return false;
 	}
 
-	addEntity(name, displayName) {
-		const entity = new Entity(name, displayName);
+	addEntity(name, displayName, isParamEntity = false) {
+		const entity = new Entity(name, displayName, isParamEntity);
 
 		if (this._entities.filter(x => x.name == entity.name).length != 0) {
 			console.warn("addEntity => Entity already loaded in the module instance.")

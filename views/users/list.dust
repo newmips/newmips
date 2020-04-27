@@ -33,7 +33,9 @@
 								{#__ key="users.role"/}
 							</th>
 							<th>{#__ key="users.applications"/}</th>
-							<th style="width:20%;">Action</th>
+							<th style="width:8%;">Afficher</th>
+							<th style="width:8%;">Modifier</th>
+							<th style="width:8%;">Supprimer</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -56,15 +58,19 @@
 										<span>{#__ key="button.show"/}</span>
 									</button>
 								</a>
+								</td>
+							<td>
 								<a href="/users/update/{id}">
-									<button class="pull-left btn btn-warning" style="margin-left: 10px;">
+									<button class="pull-left btn btn-warning">
 										<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
 										<span>{#__ key="button.update"/}</span>
 									</button>
 								</a>
+								</td>
+							<td>
 								<form class="pull-left" action="/users/delete" method="post">
 									<input type="hidden" name="id" value="{id}">
-									<button class="btn btn-danger btn-confirm" style="margin-left: 10px;">
+									<button class="btn btn-danger btn-confirm">
 										<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
 										<span>{#__ key="button.delete"/}</span>
 									</button>

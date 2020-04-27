@@ -164,13 +164,15 @@ exports.actionAccess = actionAccess;
 
 exports.entityAccessMiddleware = function(entityName) {
 	return function(req, res, next) {
-		// Exception for `/search` routes. We only check for 'read' action access.
-		// Bypass module/entity access check
-		if (req.originalUrl == `/${entityName}/search`) {
+		if(req.originalUrl == '/user/settings') {
+			// Exception for /user/settings, only logged access is required
+			return next()
+		} else if (req.originalUrl == `/${entityName}/search`) {
+			// Exception for `/search` routes. We only check for 'read' action access.
+			// Bypass module/entity access check
 			if (actionAccess(req.session.passport.user.r_role, entityName, 'read'))
-				return next()
-		}
-		else {
+				return next();
+		} else {
 			const userGroups = req.session.passport.user.r_group;
 			if (userGroups.length > 0 && entityAccess(userGroups, entityName))
 				return next();

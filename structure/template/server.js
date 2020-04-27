@@ -275,49 +275,60 @@ app.use((req, res, next) => {
 		} catch(e) {
 			userId = null;
 		}
-		models.E_notification.findAndCountAll({
-			include: [{
-				model: models.E_user,
-				as: 'r_user',
-				where: {id: userId}
-			}],
-			subQuery: false,
-			order: [["createdAt", "DESC"]],
-			offset: 0,
-			limit: 10
-		}).then(notifications => {
+
+		(async () => {
+
+			// --- User Guide ---
+			locals.user_guide = await models.E_user_guide.findByPk(1);
+
+			// --- Notificiation ---
+			const notifications = await models.E_notification.findAndCountAll({
+				include: [{
+					model: models.E_user,
+					as: 'r_user',
+					where: {id: userId}
+				}],
+				subQuery: false,
+				order: [["createdAt", "DESC"]],
+				offset: 0,
+				limit: 10
+			});
+
 			locals.notificationsCount = notifications.count;
 			locals.notifications = notifications.rows;
 
+			// --- Inline Help ---
+			if (view.indexOf('/create') == -1 && view.indexOf('/update') == -1 && view.indexOf('/show') == -1)
+				return;
+
 			// Load inline-help when rendering create, update or show page
-			if (view.indexOf('/create') != -1 || view.indexOf('/update') != -1 || view.indexOf('/show') != -1) {
-				const entityName = view.split('/')[0];
-				let options;
-				try {
-					options = JSON.parse(fs.readFileSync(__dirname+'/models/options/'+entityName+'.json', 'utf8'));
-				} catch(e) {
-					// No options file, always return false
-					dust.helpers.inline_help = () => false;
-					return render.call(res, view, locals, cb);
-				}
-				const entityList = [entityName];
-				for (let i = 0; i < options.length; i++)
-					entityList.push(options[i].target);
-
-				models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}}).then(helps => {
-					dust.helpers.inline_help = (ch, con, bod, params) => {
-						for (let i = 0; i < helps.length; i++) {
-							if (params.field == helps[i].f_field)
-								return true;
-						}
-						return false;
-					}
-
-					render.call(res, view, locals, cb);
-				});
+			const entityName = view.split('/')[0];
+			let options;
+			try {
+				options = JSON.parse(fs.readFileSync(__dirname + '/models/options/' + entityName + '.json', 'utf8'));
+			} catch (e) {
+				// No options file, always return false
+				dust.helpers.inline_help = () => false;
+				throw e;
 			}
-			else
-				render.call(res, view, locals, cb);
+
+			const entityList = [entityName];
+			for (let i = 0; i < options.length; i++)
+				entityList.push(options[i].target);
+
+			const helps = await models.E_inline_help.findAll({where: {f_entity: {[models.$in]: entityList}}});
+			dust.helpers.inline_help = (ch, con, bod, params) => {
+				for (let i = 0; i < helps.length; i++) {
+					if (params.field == helps[i].f_field)
+						return true;
+				}
+				return false;
+			}
+		})().then(_ => {
+			render.call(res, view, locals, cb);
+		}).catch(err => {
+			console.error(err);
+			render.call(res, view, locals, cb);
 		});
 	};
 	next();

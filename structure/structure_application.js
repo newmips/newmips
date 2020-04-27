@@ -583,6 +583,10 @@ exports.initializeApplication = async(application) => {
 	// Set french translation about API credentials
 	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_api_credentials", "label_entity"], "Identifiant d'API");
 
+	// Set french translation for User Guide
+	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_user_guide", "label_entity"], "Guide utilisateur");
+	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_user_guide", "f_file"], "Fichier");
+
 	await initializeWorkflow(application);
 }
 

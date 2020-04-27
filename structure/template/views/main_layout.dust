@@ -92,9 +92,17 @@
 					</a>
 					<div class="navbar-custom-menu">
 						<ul class="nav navbar-nav">
-						        {! VERSION !}
+							{! USER GUIDE !}
+							{?user_guide.f_file}
+								<li style="color: white;">
+									<a href="/default/download?entity=e_user_guide&amp;f={user_guide.f_file|urlencode}" name="f_file">
+										<i class="fa fa-download"></i>
+									</a>
+								</li>
+							{/user_guide.f_file}
+							{! VERSION !}
 							<li style="color: white;padding:14px;">
-							    {config.versionAppli}.{config.version}
+								{config.versionAppli}.{config.version}
 							</li>
 							{! NOTIFICATIONS !}
 							<li class="dropdown messages-menu">
