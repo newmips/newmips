@@ -2145,6 +2145,9 @@ exports.createWidgetLastRecords = async (data) => {
 exports.createWidgetOnEntity = async (data) => {
 	const entity = "e_" + dataHelper.clearString(data.entityTarget);
 	data.entity_name = data.application.findEntity(entity, true).entity.name;
+	// Once used, we need to delete entityTarget.
+	// When in instruction_script execution, `data` never get erased and keeps entityTarget indefinitly
+	delete data.entityTarget;
 	return await createWidget(data); // eslint-disable-line
 }
 
