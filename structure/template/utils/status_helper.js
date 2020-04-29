@@ -357,7 +357,11 @@ module.exports = {
 
 		entity.entity_name = entityName;
 		// Create history record for this status field
-		const createObject = {f_comment: comment};
+		const createObject = {
+			f_comment: comment,
+			fk_id_user_modified_by: userID || null
+		};
+
 		createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 		createObject["fk_id_" + entityName.substring(2) + "_history_" + statusName.substring(2)] = entityID;
 
@@ -439,12 +443,13 @@ module.exports = {
 				// Create history object with initial status related to new entity
 				const historyObject = {
 					version: 1,
-					f_comment: ''
+					f_comment: '',
+					fk_id_user_modified_by: req.user && req.user.id || null
 				};
 				historyObject["fk_id_status_" + fieldIn.substring(2)] = status.id;
 				historyObject["fk_id_" + modelName.substring(2) + "_history_" + fieldIn.substring(2)] = modelWithRelations.id;
 
-				await models[historyModel].create(historyObject, {user: req.user});
+				await models[historyModel].create(historyObject, {user: false});
 				await modelWithRelations['setR_' + fieldIn.substring(2)](status.id, {user: req.user})
 
 				if (!created)
