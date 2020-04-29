@@ -765,10 +765,14 @@ function validateForm(form) {
     });
 
     /* Vérification que les input mask TEL sont bien complétés jusqu'au bout */
+    var telRegex = new RegExp(/^(?:(?:\+|00)33[\s.-]{0,3}(?:\(0\)[\s.-]{0,3})?|0)[1-9](?:(?:[\s.-]?\d{2}){4}|\d{2}(?:[\s.-]?\d{3}){2})$/)
     form.find("input[type='tel']").each(function () {
-        if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-            $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+        if ($(this).val().length > 0 && (!$(this).inputmask("isComplete") || !telRegex.test($(this).val()))) {
+            $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incorrect.</span>");
             isValid = false;
+            $([document.documentElement, document.body]).animate({
+                scrollTop: $(this).offset().top
+            }, 500);
         }
     });
 
