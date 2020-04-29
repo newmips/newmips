@@ -208,7 +208,9 @@ $(function() {
         else if (targetElement.is('textarea')) {
             /* Add new variable to textarea content */
             var rootElement = $('<div>' + targetElement.val() + '</div>');
-            targetElement.val(rootElement.html() + insertValue)
+            var newValue = rootElement.html() + insertValue;
+            targetElement.val(newValue);
+            $(targetElement).summernote('code', newValue);
         }
         // Reset selection and close select2 dropdown
         $(this).find("option:first").prop('selected', true);
