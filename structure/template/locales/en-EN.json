@@ -102,6 +102,7 @@
 		"firstname": "Firstname",
 		"lastname": "Lastname",
 		"phone": "Phone",
+		"title_change_password": "Reset password procedure",
 		"old_password": "Your old password",
 		"new_password_1": "New password",
 		"new_password_2": "Confirm new password",
