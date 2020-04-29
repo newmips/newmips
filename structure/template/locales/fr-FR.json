@@ -102,6 +102,7 @@
 		"firstname": "Prénom",
 		"lastname": "Nom",
 		"phone": "Téléphone",
+		"title_change_password": "Procédure de changement de mot de passe",
 		"old_password": "Votre ancien mot de passe",
 		"new_password_1": "Nouveau mot de passe",
 		"new_password_2": "Confirmer nouveau mot de passe",

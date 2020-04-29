@@ -97,6 +97,11 @@
 									</div>
 								</div>
 								{@ifTrue key=isLocal}
+									<div class="col-xs-12 text-center" style='margin-top: 100px;'>
+								        <div class="form-group form-title">
+								            <h3>{#__ key="settings.title_change_password"/}</h3>
+								        </div>
+								    </div>
 									<div class="fieldLineHeight col-xs-12">
 										<div class="form-group">
 											<label for="old_password">
