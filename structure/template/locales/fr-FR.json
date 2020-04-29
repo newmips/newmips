@@ -12,10 +12,10 @@
 		"log_in": "Log in",
 		"reset_password": {
 			"title": "Mot de passe oublié",
-			"success": "Votre mot de passe a bien été reinitialisé. Merci de faire de nouveau le processus de première connexion pour changer votre mot de passe.",
+			"success": "Votre mot de passe a bien été réinitialisé. Merci de faire de nouveau le processus de première connexion pour changer votre mot de passe.",
 			"successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
 			"userNotExist": "Impossible de trouver l'utilisateur correspondant aux informations renseignées.",
-			"cannotFindToken": "Erreur, impossible de retrouver votre token de réinitialisation."
+			"cannotFindToken": "Erreur, impossible de retrouver votre jeton de réinitialisation."
 		},
 		"first_connection": {
 			"title": "Première connexion",
@@ -50,7 +50,7 @@
 		"tool_export": "Exporter la configuration des accès",
 		"tool_import": "Importer une configuration d'accès",
 		"import_file_name": "Fichier access.json:",
-		"tool_warning": "Attention, le fichier doit etre de la même structure que le access.json actuel ! Sinon l'application ne sera plus utilisable.",
+		"tool_warning": "Attention, le fichier doit être de la même structure que le access.json actuel ! Sinon l'application ne sera plus utilisable.",
 		"auth_component": {
 			"access_managment": "Gestion des accès par groupe",
 			"action_managment": "Gestion des actions par rôle",
@@ -184,7 +184,7 @@
 		"empty": "Aucune donnée à afficher",
 		"empty_file": "Aucun fichier",
 		"unique": "Ce champ doit être unique:",
-		"relatedtomanycheckbox_required": "Un champ necessite d'avoir au moins une case cochée."
+		"relatedtomanycheckbox_required": "Un champ nécessite d'avoir au moins une case cochée."
 	},
 	"entity": {},
 	"synchro": {

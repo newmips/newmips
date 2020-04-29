@@ -1,50 +1,65 @@
 {
 	"component": {
 		"status": {
-			"error": {
-				"illegal_status": "Ce statut n'est pas valide.",
-				"action_error": "Une ou plusieurs actions n'ont pas pu être executée. Verifiez que les notifications sont activées et verifiez votre configuration mail."
-			},
-			"next_status": "Statut suivant",
-			"available_status": "Statuts disponibles",
-			"children": "Statuts suivants",
-			"insert_variable": "Inserer une variable...",
-			"choose_from_user": "Sélectionner un utilisateur",
-			"choose_from_group": "Sélectionner un groupe",
-			"choose_from_field": "Sélectionner un champ",
-			"choose_from_phone_field": "Sélectionner un champ de type téléphone",
-			"choose_from_email_field": "Sélectionner un champ de type email",
-			"choose_from_file_field": "Sélectionner un champ de type fichier",
-			"choose_user_target": "Sélectionner un champ lié à un utilisateur",
-			"notification_targets": "Cibles de la notification",
-			"no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici.",
-			"select_status": "Sélectionner un statut",
-			"diagram_description": "Gissez/Déposez un statut sur un parent dans le diagram pour l'ajouter comme enfant.",
-			"diagram": "Diagramme",
-			"tip_1": "Astuce: Double cliquer sur un status pour être redirigé vers ses statuts enfants."
-		},
+            "error": {
+                "illegal_status": "Ce statut n'est pas valide.",
+                "action_error": "Une ou plusieurs actions n'ont pas pu être exécutée(s). Vérifiez que les notifications sont activées et vérifiez la configuration mail de votre serveur."
+            },
+            "next_status": "Statut suivant",
+            "available_status": "Statuts disponibles",
+            "children": "Statuts suivants",
+            "insert_variable": "Insérer une variable...",
+            "choose_from_user": "Sélectionner un utilisateur",
+            "choose_from_group": "Sélectionner un groupe",
+            "choose_from_field": "Sélectionner un champ",
+            "choose_from_phone_field": "Sélectionner un champ de type téléphone",
+            "choose_from_email_field": "Sélectionner un champ de type email",
+            "choose_from_file_field": "Sélectionner un champ de type fichier",
+            "choose_user_target": "Sélectionner un champ lié à un utilisateur",
+            "notification_targets": "Cibles de la notification",
+            "no_status_field": "Aucune entité ne possède de composant Statut. Vous pouvez utiliser le générateur afin d'en ajouter un et ainsi le configurer ici.",
+            "select_status": "Sélectionner un statut",
+            "diagram_description": "Glissez/Déposez un statut sur un parent dans le diagramme pour l'ajouter comme enfant.",
+            "diagram": "Diagramme",
+            "tip_1": "Astuce: Double-cliquez sur un status pour être redirigé vers ses statuts enfants."
+        },
 		"c_synchro": {
 			"label_component": "Synchronisation"
 		}
 	},
 	"entity": {
-		"e_user": {
-			"r_group": "Groupe"
-		},
+		"e_user":  {
+            "label_entity": "Utilisateur",
+            "id_entity": "ID",
+            "f_login": "Identifiant",
+            "f_password": "Mot de passe",
+            "f_email": "Email",
+            "f_token_password_reset": "Jeton Réinitialisation Mot de passe",
+            "f_enabled": "Activé",
+            "r_role": "Rôle",
+            "r_group": "Groupe",
+            "r_notification": "notification"
+        },
 		"e_status": {
-			"label_entity": "Statut",
-			"as_r_children": "Statuts suivants",
-			"f_entity": "Entité",
-			"f_field": "Champ",
-			"f_name": "Nom",
-			"f_color": "Couleur",
-			"f_comment": "Commentaire",
-			"modal_title": "Commentaire",
-			"r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
-			"f_default": "Est le statut par défaut",
-			"apply_default": "Appliquer ce statut aux entités sans statut",
-			"f_button_label": "Libellé du bouton"
-		},
+            "label_entity": "Statut",
+            "id_entity": "ID",
+            "f_entity": "Entité",
+            "f_field": "Champ",
+            "f_name": "Nom",
+            "f_color": "Couleur",
+            "r_accepted_group": "Groupes acceptés (Aucun groupe signifie accepté pour tout le monde)",
+            "f_button_label": "Libellé du bouton",
+            "f_position": "Position",
+            "f_default": "Est le statut par défaut",
+            "f_comment": "Commentaire",
+            "r_children": "Children",
+            "r_translations": "Translations",
+            "r_6_history_s_state": "Historique Etat",
+            "r_actions": "Actions",
+            "as_r_children": "Statuts suivants",
+            "modal_title": "Commentaire",
+            "apply_default": "Appliquer ce statut aux entités sans statut"
+        },
 		"e_group": {
 			"r_user": "Utilisateurs"
 		},
@@ -82,20 +97,28 @@
 			"f_journal_backup_file": "Fichier de sauvegarde de Journal"
 		},
 		"e_action": {
-			"f_execution": "Exécution",
-			"f_order": "Ordre"
-		},
+            "label_entity": "Action",
+            "id_entity": "ID",
+            "r_media": "Média",
+            "f_order": "Ordre",
+            "f_execution": "Exécution"
+        },
 		"e_media": {
-			"label_entity": "Média",
-			"id_entity": "ID",
-			"as_r_media": "Média",
-			"f_target_entity": "Entité ciblé",
-			"f_name": "Nom",
-			"f_title": "Titre",
-			"f_description": "Description",
-			"f_icon": "Icône",
-			"f_color": "Couleur"
-		},
+            "label_entity": "Média",
+            "id_entity": "ID",
+            "f_type": "Type",
+            "f_name": "Nom",
+            "f_target_entity": "Entité ciblée",
+            "r_media_mail": "Média Mail",
+            "r_media_notification": "Média Notification",
+            "r_media_sms": "Média SMS",
+            "r_media_task": "Média Tâche",
+            "as_r_media": "Média",
+            "f_title": "Titre",
+            "f_description": "Description",
+            "f_icon": "Icône",
+            "f_color": "Couleur"
+        },
 		"e_media_mail": {
 			"label_entity": "Média Mail",
 			"f_to": "Destinataire",
@@ -105,19 +128,23 @@
 			"f_attachments": "Pièce(s) jointe(s)"
 		},
 		"e_media_sms": {
-			"label_entity": "Média SMS"
-		},
+            "label_entity": "Média SMS",
+            "id_entity": "ID",
+            "f_message": "Message",
+            "f_phone_numbers": "Téléphone(s)"
+        },
 		"e_media_notification": {
-			"label_entity": "Média Notification",
-			"id_entity": "ID",
-			"as_r_media_notification": "Média Notification",
-			"f_title": "Titre",
-			"f_description": "Description",
-			"f_icon": "Icône",
-			"f_color": "Couleur",
-			"r_target_groups": "Groupes ciblés",
-			"r_target_users": "Utilisateurs ciblés"
-		},
+            "label_entity": "Média Notification",
+            "id_entity": "ID",
+            "f_title": "Titre",
+            "f_description": "Description",
+            "f_icon": "Icône",
+            "f_color": "Couleur",
+            "f_targets": "Cibles",
+            "as_r_media_notification": "Média Notification",
+            "r_target_groups": "Groupes ciblés",
+            "r_target_users": "Utilisateurs ciblés"
+        },
 		"e_media_task": {
 			"label_entity": "Média Tâche",
 			"id_entity": "ID",
@@ -159,13 +186,13 @@
 			"f_procedure": "Procédure"
 		},
 		"e_history_e_task_s_state": {
-			"label_entity": "Historique etat tâche",
-			"id_entity": "ID",
-			"r_state": "Etat",
-			"f_comment": "Commentaire",
-			"r_modified_by": "Modifié par",
-			"as_r_history_state": "Historique Etat",
-			"as_r_history_e_task_s_state": "Historique etat tâche"
-		}
+            "label_entity": "Historique Etat tâche",
+            "id_entity": "ID",
+            "r_state": "Etat",
+            "f_comment": "Commentaire",
+            "r_modified_by": "Modifié par",
+            "as_r_history_state": "Historique Etat",
+            "as_r_history_e_task_s_state": "Historique Etat tâche"
+        }
 	}
 }

@@ -11,7 +11,7 @@ router.get('/config', block_access.actionAccessMiddleware("address_settings", "r
 		menu: "e_address_settings",
 		sub_menu: "show_e_address_settings",
 		tab: tab,
-		address_settings: component_helper.address.buildComponentAddressConfig()
+		address_settings: component_helper.address.buildComponentAddressConfig(req.session.lang_user)
 	};
 	res.render('e_address_settings/config', data);
 });
