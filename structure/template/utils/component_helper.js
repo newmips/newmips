@@ -2,6 +2,7 @@ const models = require('../models/');
 const entity_helper = require('../utils/entity_helper');
 const model_builder = require('../utils/model_builder');
 const fs = require('fs-extra');
+const language = require('../services/language');
 
 module.exports = {
 	address: {
@@ -31,20 +32,24 @@ module.exports = {
 				await models[componentModelName].update(objectToCreate, {where: {id: data.address_id}});
 			}
 		},
-		buildComponentAddressConfig: _ => {
+		buildComponentAddressConfig: lang => {
 			const result = [];
+			const trads = language(lang);
 			try {
 				const config = JSON.parse(fs.readFileSync(__dirname + '/../config/address_settings.json'));
 				if (config && config.entities) {
 					for (const item in config.entities) {
+						const entityTrad = trads.__('entity.'+item+'.label_entity');
 						let entity = item.replace('e_', '');
 						entity = entity.charAt(0).toUpperCase() + entity.slice(1);
 						config.entities[item].entity = entity;
+						config.entities[item].entityTrad = entityTrad;
 						result.push(config.entities[item]);
 					}
 					return result;
 				} return result;
 			} catch (e) {
+				console.error(e);
 				return result;
 			}
 		},

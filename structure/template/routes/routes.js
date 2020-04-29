@@ -69,12 +69,8 @@ router.get('/first_connection', block_access.loginAccess, (req, res) => {
 
 router.post('/first_connection', block_access.loginAccess, (req, res) => {
 	const login = req.body.login;
-	const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
 	(async () => {
-
-		if (globalConf.env != 'develop' && (req.body.password != req.body.confirm_password || !passwordRegex.test(req.body.password)))
-			throw new Error("login.first_connection.passwordNotValid");
 
 		const user = await models.E_user.findOne({
 			where: {
