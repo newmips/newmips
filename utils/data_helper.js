@@ -142,6 +142,8 @@ function addPrefix(string, instructionFunction) {
 		case 'createNewComponentStatus':
 		case 'deleteComponentStatus':
 			return "s_" + string;
+		case 'createNewComponentAddress':
+			return string;
 		default:
 			return "u_" + string;
 	}

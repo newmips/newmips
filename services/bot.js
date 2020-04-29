@@ -825,6 +825,8 @@ exports.createNewComponentAddress = result => {
 exports.createNewComponentAddressWithName = result => {
 	const options = {
 		componentName: result[1],
+		value: result[1],
+		processValue: true,
 		instruction: result[0]
 	};
 	return checkAndCreateAttr("createNewComponentAddress", options, result[1]);
