@@ -1333,7 +1333,7 @@ exports.deleteField = async (data) => {
 	// Remove field from create/update/show views files
 	const viewsPath = workspacePath + '/views/' + data.entity.name + '/';
 	const fieldsFiles = ['create_fields', 'update_fields', 'show_fields'];
-	const promises = [];
+	let promises = [];
 	for (let i = 0; i < fieldsFiles.length; i++)
 		promises.push((async () => {
 			const $ = await domHelper.read(viewsPath + '/' + fieldsFiles[i] + '.dust');
@@ -1351,6 +1351,10 @@ exports.deleteField = async (data) => {
 		$("th[data-col^='r_" + field.substring(2) + ".']").remove();
 		domHelper.write(viewsPath + '/list_fields.dust', $);
 	})());
+
+	// Wait for all promises execution, first pass before continuing on option
+	await Promise.all(promises);
+	promises = [];
 
 	const otherViewsPath = workspacePath + '/views/';
 	const structureTypeWithUsing = ["relatedTo", "relatedToMultiple", "relatedToMultipleCheckbox", "hasManyPreset"];
