@@ -124,10 +124,11 @@ exports.setupApplication = async (data) => {
 		try {
 			await conn.query(db_requests[i]); // eslint-disable-line
 		} catch(err) {
-			console.error(err);
 			// Postgres error about db user that already exist, indeed postgres do not handle the 'IF NOT EXISTS' syntax...
-			if(dbConf.dialect != 'postgres' || err.code != '42710')
+			if(dbConf.dialect != 'postgres' || err.code != '42710'){
+				console.error(err);
 				throw new Error("An error occurred while initializing the workspace database.");
+			}
 		}
 	}
 
