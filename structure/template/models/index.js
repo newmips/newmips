@@ -129,9 +129,16 @@ sequelize.customAfterSync = async () => {
 					case "BOOLEAN":
 					case "TIME":
 					case "FLOAT":
-					case "DOUBLE":
 						// Same type as the switch parameter
 						type = toSyncObject[entity].attributes[attribute].type;
+						break;
+					case "DOUBLE":
+						if(dialect == "postgres"){
+							type = 'DOUBLE PRECISION';
+						} else {
+							// Same type as the switch parameter
+							type = toSyncObject[entity].attributes[attribute].type;
+						}
 						break;
 					default:
 						type = "VARCHAR(255)";

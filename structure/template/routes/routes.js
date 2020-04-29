@@ -79,7 +79,7 @@ router.post('/first_connection', block_access.loginAccess, (req, res) => {
 		const user = await models.E_user.findOne({
 			where: {
 				f_login: login,
-				f_enabled: false
+				f_enabled: 0
 			},
 			include: [{
 				model: models.E_group,

@@ -84,6 +84,7 @@ exports.getIncludeFromFields = function(models, headEntity, fieldsArray) {
 exports.formatSearch = (column, searchValue, type) => {
 	let formatedSearch = {};
 	const models = require('../models'); // eslint-disable-line
+	const dialect = models.sequelize.options.dialect;
 
 	switch(type){
 		case 'datetime':
@@ -112,9 +113,15 @@ exports.formatSearch = (column, searchValue, type) => {
 			}
 			break;
 		case 'currency':
-			formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
-				[models.$like]: searchValue + '%'
-			});
+			if(dialect == 'postgres') {
+				formatedSearch = {
+					[models.$iLike]: '%' + searchValue + '%'
+				};
+			} else {
+				formatedSearch = models.Sequelize.where(models.Sequelize.col(column), {
+					[models.$like]: searchValue + '%'
+				});
+			}
 			break;
 		default:
 			formatedSearch = {

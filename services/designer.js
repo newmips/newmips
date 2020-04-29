@@ -1857,9 +1857,22 @@ exports.createNewComponentAddress = async (data) => {
 
 	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
-	data.options.value = 'e_address_' + data.entity_name;
-	data.options.showValue = 'Address ' + data.entity.displayName;
-	data.options.urlValue = 'address_' + data.entity_name;
+	if(data.options.componentName) {
+		// TODO - 2.10
+		// data.options.as = 'r_address_' + data.options.value;
+		// data.options.urlValue = 'address_' + data.entity_name + '_' + data.options.value;
+		// data.options.value = 'e_address_' + data.entity_name + '_' + data.options.value;
+
+		data.options.as = 'r_address';
+		data.options.value = 'e_address_' + data.entity_name;
+		data.options.showValue = data.options.componentName;
+		data.options.urlValue = 'address_' + data.entity_name;
+	} else {
+		data.options.value = 'e_address_' + data.entity_name;
+		data.options.showValue = 'Address ' + data.entity.displayName;
+		data.options.urlValue = 'address_' + data.entity_name;
+		data.options.as = 'r_address';
+	}
 
 	if(data.entity.getComponent(data.options.value, 'address'))
 		throw new Error("structure.component.error.alreadyExistOnEntity");
@@ -1869,7 +1882,7 @@ exports.createNewComponentAddress = async (data) => {
 		source: data.entity.name,
 		target: data.options.value,
 		foreignKey: 'fk_id_address',
-		as: 'r_address',
+		as: data.options.as,
 		type: "relatedTo",
 		relation: "belongsTo",
 		targetType: "component",
