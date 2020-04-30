@@ -1,4 +1,5 @@
-const env = 'develop';
+const env = process.env.NPS_ENV || 'develop';
+
 const config = {
 	develop: {
 		env: 'develop',
