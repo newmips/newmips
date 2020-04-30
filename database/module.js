@@ -25,7 +25,7 @@ class Module {
 		return this._components;
 	}
 
-	getEntity(name, displayName = name, required) {
+	getEntity(name, required = false, displayName = name) {
 		if (!name)
 			throw new Error('database.field.error.selectOrCreateBefore');
 
