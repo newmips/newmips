@@ -184,11 +184,11 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			str += "			<i class='fa fa-calendar'></i>\n";
 			str += "		</div>\n";
 			if (file == "show") {
-				str += "		<input class='form-control input datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|date}' type='text' " + readOnly + "/>\n";
 			} else if (file == "update") {
-				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|date}' type='text' " + readOnly + "/>\n";
 			} else if (file == "create") {
-				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' " + value + " type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
 			}
 			str += "	</div>\n";
 			break;
@@ -198,11 +198,11 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			str += "			<i class='fa fa-calendar'></i> + <i class='fa fa-clock-o'></i>\n";
 			str += "		</div>\n";
 			if (file == "show")
-				str += "		<input class='form-control input datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' value='{" + value2 + "|datetime}' type='text' " + readOnly + "/>\n";
 			else if (file == "update")
-				str += "		<input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|datetime}' type='text' " + readOnly + "/>\n";
 			else if (file == "create")
-				str += "		<input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' " + value + " type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
 			str += "	</div>\n";
 			break;
 		case "time" :
