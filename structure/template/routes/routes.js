@@ -69,7 +69,7 @@ router.get('/first_connection', block_access.loginAccess, (req, res) => {
 
 router.post('/first_connection', block_access.loginAccess, (req, res) => {
 	const login = req.body.login;
-	const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+	const passwordRegex = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/);
 
 	(async () => {
 
@@ -100,7 +100,6 @@ router.post('/first_connection', block_access.loginAccess, (req, res) => {
 
 		await user.update({
 			f_password: password,
-			f_email: req.body.email,
 			f_enabled: 1
 		})
 

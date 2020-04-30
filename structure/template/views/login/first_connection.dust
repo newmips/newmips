@@ -11,10 +11,6 @@
 				<input class="form-control" type="text" name="login" placeholder='{#__ key="login.login"/}' required />
 			</div>
 			<div class="form-group">
-				<label for="email" class="required">{#__ key="login.email"/}</label>
-				<input class="form-control" type="text" data-type="email" name="email" value="{email}" placeholder='{#__ key="login.email"/}' required >
-			</div>
-			<div class="form-group">
 				<label for="password" class='required'>{#__ key="login.password"/}&nbsp;&nbsp;
 					<i class="login-help fa fa-info-circle" style="color: #1085EE;cursor: pointer;" data-title='{#__ key="login.first_connection.help.password_title"/}' data-content='{#__ key="login.first_connection.help.password_content"/}'></i></label>
 				<input type="password" name="password" id="password" placeholder='{#__ key="login.password"/}' required class="form-control"/>
