@@ -247,7 +247,7 @@ exports.deleteApplication = async (data) => {
 /* ------------------------- Module ------------------------------ */
 /* --------------------------------------------------------------- */
 exports.selectModule = async (data) => { // eslint-disable-line
-	data.module = data.application.getModule(data.options.value, true);
+	data.module = data.application.getModule(data.options.value, true, data.options.showValue);
 	return {
 		module: data.module,
 		message: "database.module.select.selected",
