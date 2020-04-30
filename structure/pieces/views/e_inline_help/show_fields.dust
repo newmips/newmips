@@ -14,7 +14,7 @@
 	<div data-field="f_content" class="col-xs-12">
 		<div class="form-group">
 			<label for="f_content"> {#__ key="entity.e_inline_help.f_content"/}  </label>
-			<textarea class="form-control textarea" placeholder='{#__ key="entity.e_inline_help.f_content" /}' name="f_content" id="f_content_textareaid" value="{f_content|s}" type="text" readonly="">{f_content|s}</textarea>
+			<textarea class="form-control textarea regular-textarea" placeholder='{#__ key="entity.e_inline_help.f_content" /}' name="f_content" id="f_content_textareaid" value="{f_content|s}" type="text" readonly="">{f_content|s}</textarea>
 		</div>
 	</div>
 </div>
