@@ -971,11 +971,17 @@ exports.setRequiredAttribute = async (data) => {
 			}
 		} else {
 			// Set optional
-			attributesObj[data.options.value].defaultValue = null;
+			attributesObj[data.options.value].allowNull = true;
+
+			// No default value for TEXT type
+			if(attributesObj[data.options.value].type != 'TEXT')
+				attributesObj[data.options.value].defaultValue = null;
+
 			// TODO postgres
 			if (data.sqlDataType && data.dialect == "mysql") {
 				toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NULL");
-				toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT NULL;");
+				if(attributesObj[data.options.value].type != 'TEXT')
+					toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT NULL;");
 			}
 		}
 		fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
@@ -989,7 +995,7 @@ exports.setRequiredAttribute = async (data) => {
 			if (optionsObj[i].as == aliasValue)
 				optionsObj[i].allowNull = set;
 
-		// Set option allowNull
+		// Save option
 		fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
 	}
 
