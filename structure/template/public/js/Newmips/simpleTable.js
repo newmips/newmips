@@ -159,9 +159,9 @@ function simpleTable(table) {
         if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
                 if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
+                    $(this).html(moment.utc($(this).html()).format("DD/MM/YYYY HH:mm"));
                 else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+                    $(this).html(moment.utc($(this).html()).format("YYYY-MM-DD HH:mm"));
             }
         } else {
             $(this).html("");

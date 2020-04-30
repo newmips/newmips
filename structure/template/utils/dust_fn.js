@@ -107,39 +107,48 @@ module.exports = {
 			return false;
 		}
 		function buildContext(ctx){
-            let newContext = {};
-            for(let obj in ctx) {
-                if(obj == 'dataValues')
-                    newContext = {...newContext, ...ctx[obj]};
-                else if(ctx[obj] && typeof ctx[obj] === 'object' && ctx[obj].dataValues)
-                    newContext[obj] = buildContext(ctx[obj]);
-                else if(!obj.startsWith('_')) // Skip Sequelize private variable
-                    newContext[obj] = ctx[obj];
-            }
-            return newContext;
-        }
-        function diveContext(ctx) {
-            let current, results = [];
-            for (let obj in ctx) {
-                current = ctx[obj];
-                if(typeof current === 'object')
-                    switch(obj) {
-                        case 'stack':
-                        case 'tail':
-                            results = diveContext(current);
-                        case 'head':
-                            if(!("tail" in current))
-                                results.push(JSON.stringify(buildContext(current), null, 2));
-                    }
-            }
-            return results;
-        }
-        dust.helpers.contextUpperDump = function(chunk, context, bodies, params) {
-            const results = diveContext(context);
-            for (let i = 0; i < results.length; i++)
-                results[i] = results[i].replace(/</g, '\\u003c');
-            chunk = chunk.write(results);
-        }
+			let newContext = {};
+			for (const obj in ctx) {
+				if (obj == 'dataValues')
+					newContext = {...newContext,
+						...ctx[obj]
+					};
+				else if (ctx[obj] && typeof ctx[obj] === 'object' && ctx[obj].dataValues)
+					newContext[obj] = buildContext(ctx[obj]);
+				else if (!obj.startsWith('_')) // Skip Sequelize private variable
+					newContext[obj] = ctx[obj];
+			}
+			return newContext;
+		}
+
+		function diveContext(ctx) {
+			let current, results = [];
+			for (const obj in ctx) {
+				current = ctx[obj];
+				if (typeof current === 'object') {
+					switch (obj) {
+						case 'stack':
+						case 'tail':
+							results = diveContext(current);
+							break;
+						case 'head':
+							if (!("tail" in current))
+								results.push(JSON.stringify(buildContext(current), null, 2));
+							break;
+						default:
+							results = diveContext(current);
+							break;
+					}
+				}
+			}
+			return results;
+		}
+		dust.helpers.contextUpperDump = function(chunk, context) {
+			const results = diveContext(context);
+			for (let i = 0; i < results.length; i++)
+				results[i] = results[i].replace(/</g, '\\u003c');
+			chunk = chunk.write(results);
+		}
 	},
 	getFilters: function(dust, lang) {
 		// ----------- Filter DUST ----------- //
@@ -148,8 +157,8 @@ module.exports = {
 		dust.filters.date = function(value) {
 			if (value != "") {
 				if (lang == "fr-FR")
-					return moment(new Date(value)).format("DD/MM/YYYY");
-				return moment(new Date(value)).format("YYYY-MM-DD");
+					return moment.utc(value).format("DD/MM/YYYY");
+				return moment.utc(value).format("YYYY-MM-DD");
 			}
 			return value;
 		};
@@ -157,8 +166,8 @@ module.exports = {
 		dust.filters.datetime = function(value) {
 			if (value != "") {
 				if (lang == "fr-FR")
-					return moment(new Date(value)).format("DD/MM/YYYY HH:mm:ss");
-				return moment(new Date(value)).format("YYYY-MM-DD HH:mm:ss");
+					return moment.utc(value).format("DD/MM/YYYY HH:mm");
+				return moment.utc(value).format("YYYY-MM-DD HH:mm");
 			}
 			return value;
 		};

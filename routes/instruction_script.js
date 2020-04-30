@@ -526,7 +526,7 @@ router.post('/execute', block_access.isLoggedIn, multer({
 
 	// Get file extension
 	let extensionFile = req.file.originalname.split(".");
-	extensionFile = extensionFile[extensionFile.length -1];
+	extensionFile = extensionFile[extensionFile.length - 1];
 	// Read file to determine encoding
 	const encoding = jschardet.detect(fs.readFileSync(req.file.path));
 	const acceptedEncoding = ['utf-8', 'windows-1252', 'ascii'];

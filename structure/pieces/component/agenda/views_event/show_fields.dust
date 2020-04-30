@@ -45,7 +45,7 @@
 					<i class="fa fa-calendar"></i> +
 					<i class="fa fa-clock-o"></i>
 				</div>
-				<input class="form-control input datetimepicker-toconvert" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' value="{f_start_date}" type="text" readonly="">
+				<input class="form-control input" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_start_date" /}' value="{f_start_date|datetime}" type="text" readonly="">
 			</div>
 		</div>
 	</div>
@@ -62,7 +62,7 @@
 					<i class="fa fa-calendar"></i> +
 					<i class="fa fa-clock-o"></i>
 				</div>
-				<input class="form-control input datetimepicker-toconvert" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' value="{f_end_date}" type="text" readonly="">
+				<input class="form-control input" placeholder='{#__ key="entity.CODE_NAME_EVENT_LOWER.f_end_date" /}' value="{f_end_date|datetime}" type="text" readonly="">
 			</div>
 		</div>
 	</div>

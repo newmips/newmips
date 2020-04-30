@@ -161,13 +161,13 @@ class Application {
 		return np_module;
 	}
 
-	getModule(module_name, required = false) {
+	getModule(module_name, required = false, display_name = module_name) {
 		if (this._modules.filter(x => x.name == module_name).length > 0)
 			return this._modules.filter(x => x.name == module_name)[0];
 
 		if (required) {
 			const err = new Error('database.module.notFound.notFound');
-			err.messageParams = [module_name];
+			err.messageParams = [display_name];
 			throw err;
 		}
 
