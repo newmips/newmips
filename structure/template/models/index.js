@@ -64,7 +64,8 @@ else
 			timestamps: false
 		},
 		charset: 'utf8',
-		collate: 'utf8_general_ci'
+		collate: 'utf8_general_ci',
+		timezone: '+00:00' // For writing to database
 	}
 const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, sequelizeOptions);
 

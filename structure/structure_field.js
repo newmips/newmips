@@ -184,11 +184,11 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			str += "			<i class='fa fa-calendar'></i>\n";
 			str += "		</div>\n";
 			if (file == "show") {
-				str += "		<input class='form-control input datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|date}' type='text' " + readOnly + "/>\n";
 			} else if (file == "update") {
-				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|date}' type='text' " + readOnly + "/>\n";
 			} else if (file == "create") {
-				str += "		<input class='form-control input datepicker datepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' " + value + " type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
 			}
 			str += "	</div>\n";
 			break;
@@ -198,11 +198,11 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			str += "			<i class='fa fa-calendar'></i> + <i class='fa fa-clock-o'></i>\n";
 			str += "		</div>\n";
 			if (file == "show")
-				str += "		<input class='form-control input datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' value='{" + value2 + "|datetime}' type='text' " + readOnly + "/>\n";
 			else if (file == "update")
-				str += "		<input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|datetime}' type='text' " + readOnly + "/>\n";
 			else if (file == "create")
-				str += "		<input class='form-control input datetimepicker datetimepicker-toconvert' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' " + value + " type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
 			str += "	</div>\n";
 			break;
 		case "time" :
@@ -871,6 +871,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('.relatedtomany-checkbox').data('required', set);
 	} else {
 		$("*[data-field='" + data.options.value + "']").find('input').prop('required', set);
+		$("*[data-field='" + data.options.value + "']").find('textarea').prop('required', set);
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
@@ -887,6 +888,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('.relatedtomany-checkbox').data('required', set);
 	} else {
 		$("*[data-field='" + data.options.value + "']").find('input').prop('required', set);
+		$("*[data-field='" + data.options.value + "']").find('textarea').prop('required', set);
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
@@ -917,9 +919,11 @@ exports.setRequiredAttribute = async (data) => {
 		// Set required
 		if (set) {
 			switch (attributesObj[data.options.value].type) {
+				case "TEXT":
+					defaultValue = null;
+					break;
 				case "STRING":
 				case "ENUM":
-				case "TEXT":
 					defaultValue = "";
 					break;
 				case "INTEGER":
@@ -940,21 +944,29 @@ exports.setRequiredAttribute = async (data) => {
 					defaultValue = "";
 					break;
 			}
-			attributesObj[data.options.value].defaultValue = defaultValue;
+			if(defaultValue)
+				attributesObj[data.options.value].defaultValue = defaultValue;
 			// TODO postgres
 			if (data.sqlDataType && data.dialect == "mysql") {
 				// Update all NULL value before set not null
 				toSync.queries.push("UPDATE `" + tableName + "` SET `" + data.options.value + "`='" + defaultValue + "' WHERE `" + data.options.value + "` IS NULL;");
 				toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NOT NULL");
-				toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT '" + defaultValue + "';");
+				if(defaultValue)
+					toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT '" + defaultValue + "';");
 			}
 		} else {
 			// Set optional
-			attributesObj[data.options.value].defaultValue = null;
+			attributesObj[data.options.value].allowNull = true;
+
+			// No default value for TEXT type
+			if(attributesObj[data.options.value].type != 'TEXT')
+				attributesObj[data.options.value].defaultValue = null;
+
 			// TODO postgres
 			if (data.sqlDataType && data.dialect == "mysql") {
 				toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NULL");
-				toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT NULL;");
+				if(attributesObj[data.options.value].type != 'TEXT')
+					toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT NULL;");
 			}
 		}
 		fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
@@ -968,7 +980,7 @@ exports.setRequiredAttribute = async (data) => {
 			if (optionsObj[i].as == aliasValue)
 				optionsObj[i].allowNull = set;
 
-		// Set option allowNull
+		// Save option
 		fs.writeFileSync(pathToOptionJson, JSON.stringify(optionsObj, null, 4));
 	}
 

@@ -164,46 +164,6 @@ function initForm(context) {
     /* Uncomment if you want to apply a mask on tel input */
     $("input[type='tel']", context).inputmask({mask: "99 99 99 99 99"});
 
-    /* --------------- Initialisation des date a afficher correctement selon la langue --------------- */
-    $('.simpledate-toconvert', context).each(function () {
-        if (typeof $(this).html() !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
-            if ($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY"));
-                else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD"));
-            }
-        }
-    });
-
-    $('.datepicker-toconvert', context).each(function () {
-        var currentVal = $(this).val();
-        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY"));
-                else
-                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD"));
-            }
-        } else {
-            $(this).val("");
-        }
-    });
-
-    $('.datetimepicker-toconvert', context).each(function () {
-        var currentVal = $(this).attr("value");
-        if (typeof currentVal !== "undefined" && currentVal != "" && currentVal != "Invalid date" && currentVal != "Invalid Date") {
-            if (currentVal.indexOf("/") == -1 && currentVal.indexOf("-") == -1) {
-                if (lang_user == "fr-FR")
-                    $(this).val(moment(new Date(currentVal)).format("DD/MM/YYYY HH:mm")).change();
-                else
-                    $(this).val(moment(new Date(currentVal)).format("YYYY-MM-DD HH:mm")).change();
-            }
-        } else {
-            $(this).val("");
-        }
-    });
-
     $('img[data-type="picture"]', context).each(function () {
         var src = $(this).attr('src');
         //remove all pictures with null src value
@@ -632,13 +592,13 @@ function validateForm(form) {
     }
 
     /* Convert all times in UTC */
-    form.find('.datetimepicker').each(function () {
-        if ($(this).val().length > 0) {
-            // Sécurité
-            $(this).prop("readOnly", true);
-            $(this).val(moment.utc(new Date($(this).val())));
-        }
-    });
+    // form.find('.datetimepicker').each(function () {
+    //     if ($(this).val().length > 0) {
+    //         // Sécurité
+    //         $(this).prop("readOnly", true);
+    //         $(this).val(moment.utc(new Date($(this).val())));
+    //     }
+    // });
 
     /* If a select is empty we want to have an empty value in the req.body */
     form.find("select").each(function() {

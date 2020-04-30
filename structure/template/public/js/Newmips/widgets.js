@@ -120,7 +120,7 @@ function widgetDataTable(table) {
                     // date / datetime
                     if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
-                            var tmpDate = moment(new Date(cellValue));
+                            var tmpDate = moment.utc(cellValue);
                             if (!tmpDate.isValid())
                                 cellValue = '-';
                             else {

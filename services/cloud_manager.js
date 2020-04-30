@@ -125,7 +125,8 @@ async function generateStack(stackName, gitlabUrl, repoName, cloudDbConf, cloudU
 				],
 				"environment": {
 					"GITURL": gitlabUrl,
-					"APPNAME": repoName
+					"APPNAME": repoName,
+					"NPS_ENV": 'cloud'
 				},
 				"networks": [
 					"proxy"
