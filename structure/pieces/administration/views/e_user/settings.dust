@@ -7,8 +7,8 @@
 			{#__ key="settings.legend"/}
 		</li>
 	</ol>
-	{/header}
-	{<content}
+{/header}
+{<content}
 	<div class="row">
 		<div class="col-xs-12 connectedSortable">
 			<div class="box">
@@ -97,33 +97,41 @@
 									</div>
 								</div>
 								{@ifTrue key=isLocal}
-									<div class="col-xs-12 text-center" style='margin-top: 100px;'>
-								        <div class="form-group form-title">
-								            <h3>{#__ key="settings.title_change_password"/}</h3>
-								        </div>
-								    </div>
-									<div class="fieldLineHeight col-xs-12">
-										<div class="form-group">
-											<label for="old_password">
-												{#__ key="settings.old_password"/}
-											</label>
-											<input class="form-control input" placeholder='{#__ key="settings.old_password"/}' name="old_password" type="password">
-										</div>
+									<div class="col-xs-12">
+										{#__ key="settings.check_change_password"/}<br>
+										<input type='checkbox' id='change_password_checkbox'>
+										<br><br>
 									</div>
-									<div class="fieldLineHeight col-xs-12">
-										<div class="form-group">
-											<label for="f_role">
-												{#__ key="settings.new_password_1"/}
-											</label>
-											<input class="form-control input" placeholder='{#__ key="settings.new_password_1"/}' name="new_password_1" type="password">
+									<div id='change_password_form' class='col-xs-12' style='display: none;'>
+										<div class="col-xs-12 text-center">
+									        <div class="form-group form-title">
+									            <h3>{#__ key="settings.title_change_password"/}</h3>
+									        </div>
+									    </div>
+										<div class="fieldLineHeight col-xs-12">
+											<div class="form-group">
+												<label for="old_password" class='required'>
+													{#__ key="settings.old_password"/}
+												</label>
+												<input class="form-control input" placeholder='{#__ key="settings.old_password"/}' name="old_password" type="password">
+											</div>
 										</div>
-									</div>
-									<div class="fieldLineHeight col-xs-12">
-										<div class="form-group">
-											<label for="f_group">
-												{#__ key="settings.new_password_2"/}
-											</label>
-											<input class="form-control input" placeholder='{#__ key="settings.new_password_2"/}' name="new_password_2" type="password">
+										<div class="fieldLineHeight col-xs-12">
+											<div class="form-group">
+												<label for="f_role" class='required'>
+													{#__ key="settings.new_password_1"/}&nbsp;&nbsp;
+													<i class="login-help fa fa-info-circle" style="color: #1085EE;cursor: pointer;" data-title='{#__ key="login.first_connection.help.password_title"/}' data-content='{#__ key="login.first_connection.help.password_content"/}'></i>
+												</label>
+												<input class="form-control input" placeholder='{#__ key="settings.new_password_1"/}' name="new_password_1" type="password">
+											</div>
+										</div>
+										<div class="fieldLineHeight col-xs-12">
+											<div class="form-group">
+												<label for="f_group" class='required'>
+													{#__ key="settings.new_password_2"/}
+												</label>
+												<input class="form-control input" placeholder='{#__ key="settings.new_password_2"/}' name="new_password_2" type="password">
+											</div>
 										</div>
 									</div>
 								{/ifTrue}
@@ -140,59 +148,100 @@
 			</div>
 		</div>
 	</div>
-	{/content}
-	{<custom_js}
+{/content}
+{<custom_js}
 	<script>
 		var notMatchPasswordText = '{#__ key="login.first_connection.passwordNotMatch"/}';
+		var passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+		var globalConfEnv = '{config.env}';
+
 		$(document).ready(function() {
-			$(document).on("click", ".chooseLanguage", function(){
+			$(document).on("click", ".chooseLanguage", function() {
 				var lang = $(this).attr("data-lang");
 				var ajaxdata = {
 					lang: lang
 				};
 				$.ajax({
-					url : '/default/change_language',
-					type : 'POST',
-					data : JSON.stringify(ajaxdata),
-					dataType : 'json',
+					url: '/default/change_language',
+					type: 'POST',
+					data: JSON.stringify(ajaxdata),
+					dataType: 'json',
 					contentType: "application/json",
 					context: this,
-					success: function (data) {
-						if(data.success){
+					success: function(data) {
+						if (data.success) {
 							location.reload();
 						}
 					},
-					error: function (error) {
+					error: function(error) {
 						console.error(error);
 					}
 				});
 			});
 
-			$(document).on("keyup", "input[name='new_password_2']", function(){
-				if($("input[name='new_password_2']").val() != $("input[name='new_password_1']").val()){
-					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
-				} else if($("input[name='new_password_2']").val() != ""){
+			function isValidPassword(string, confirmString) {
+
+				if (!string || string == '')
+					return false;
+
+				if(globalConfEnv == 'develop')
+					return true;
+
+				if (string.length < 8)
+					return false;
+
+				if (!passwordRegex.test(string))
+					return false;
+
+				if (confirmString != '' && confirmString != string)
+					return false;
+
+				return true;
+			}
+
+			$(document).on("keyup", "input[name='new_password_1']", function() {
+				if (isValidPassword($(this).val(), $("input[name='new_password_2']").val())) {
 					$(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
-				} else{
-					$(this).attr("style", "");
+					if (isValidPassword($("input[name='new_password_2']").val(), $(this).val()))
+						$("input[name='new_password_2']").attr("style", "border: 1px solid green !important; border-color: green !important;");
+				} else {
+					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
 				}
 			});
 
-			$(document).on("keyup", "input[name='new_password_1']", function(){
-				if($(this).val().length < 4){
-					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
-				} else{
+			$(document).on("keyup", "input[name='new_password_2']", function() {
+				if (isValidPassword($(this).val(), $("input[name='new_password_1']").val())) {
 					$(this).attr("style", "border: 1px solid green !important; border-color: green !important;");
-				}
-
-				if($("input[name='new_password_2']").val() != $("input[name='new_password_1']").val() && $("input[name='new_password_2']").val() != ""){
-					$("input[name='new_password_2']").attr("style", "border: 1px solid red !important; border-color: red !important;");
-				} else if($("input[name='new_password_2']").val() != ""){
-					$("input[name='new_password_2']").attr("style", "border: 1px solid green !important; border-color: green !important;");
-				} else{
-					$("input[name='new_password_2']").attr("style", "");
+					if (isValidPassword($("input[name='new_password_1']").val(), $(this).val()))
+						$("input[name='new_password_1']").attr("style", "border: 1px solid green !important; border-color: green !important;");
+				} else {
+					$(this).attr("style", "border: 1px solid red !important; border-color: red !important;");
 				}
 			});
+
+			$(document).on('ifChecked', 'input#change_password_checkbox', function() {
+				$("input[name='old_password']").prop('required', true);
+				$("input[name='new_password_1']").prop('required', true);
+				$("input[name='new_password_2']").prop('required', true);
+				$("input[name='old_password']").val('');
+				$("input[name='new_password_1']").val('');
+				$("input[name='new_password_2']").val('');
+				$('#change_password_form').slideDown();
+			});
+
+			$(document).on('ifUnchecked', 'input#change_password_checkbox', function() {
+				$("input[name='old_password']").prop('required', false);
+				$("input[name='new_password_1']").prop('required', false);
+				$("input[name='new_password_2']").prop('required', false);
+				$("input[name='old_password']").val('');
+				$("input[name='new_password_1']").val('');
+				$("input[name='new_password_2']").val('');
+				$('#change_password_form').hide();
+			});
+
+			$(document).on('click', '.login-help', function() {
+                doModal($(this).data('title'), $(this).data('content'));
+            });
 		});
 	</script>
-	{/custom_js}
+{/custom_js}
