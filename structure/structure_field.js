@@ -886,6 +886,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('.relatedtomany-checkbox').data('required', set);
 	} else {
 		$("*[data-field='" + data.options.value + "']").find('input').prop('required', set);
+		$("*[data-field='" + data.options.value + "']").find('textarea').prop('required', set);
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
@@ -902,6 +903,7 @@ exports.setRequiredAttribute = async (data) => {
 		$("*[data-field='" + data.options.value + "']").find('.relatedtomany-checkbox').data('required', set);
 	} else {
 		$("*[data-field='" + data.options.value + "']").find('input').prop('required', set);
+		$("*[data-field='" + data.options.value + "']").find('textarea').prop('required', set);
 		$("*[data-field='" + data.options.value + "']").find('select').prop('required', set);
 	}
 
@@ -932,9 +934,11 @@ exports.setRequiredAttribute = async (data) => {
 		// Set required
 		if (set) {
 			switch (attributesObj[data.options.value].type) {
+				case "TEXT":
+					defaultValue = null;
+					break;
 				case "STRING":
 				case "ENUM":
-				case "TEXT":
 					defaultValue = "";
 					break;
 				case "INTEGER":
@@ -955,13 +959,15 @@ exports.setRequiredAttribute = async (data) => {
 					defaultValue = "";
 					break;
 			}
-			attributesObj[data.options.value].defaultValue = defaultValue;
+			if(defaultValue)
+				attributesObj[data.options.value].defaultValue = defaultValue;
 			// TODO postgres
 			if (data.sqlDataType && data.dialect == "mysql") {
 				// Update all NULL value before set not null
 				toSync.queries.push("UPDATE `" + tableName + "` SET `" + data.options.value + "`='" + defaultValue + "' WHERE `" + data.options.value + "` IS NULL;");
 				toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NOT NULL");
-				toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT '" + defaultValue + "';");
+				if(defaultValue)
+					toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT '" + defaultValue + "';");
 			}
 		} else {
 			// Set optional
