@@ -202,15 +202,6 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	// Rework the data to get value for the code / url / show
 	data = dataHelper.reworkData(data);
 
-	data.app_name = req.session.app_name;
-	data.module_name = req.session.module_name;
-	data.entity_name = req.session.entity_name;
-	data.googleTranslate = req.session.toTranslate || false;
-	data.lang_user = req.session.lang_user;
-	data.currentUser = req.session.passport.user;
-	data.gitlabUser = null;
-	data.isGeneration = true;
-
 	if(typeof req.session.gitlab !== 'undefined'
 		&& typeof req.session.gitlab.user !== 'undefined'
 		&& !isNaN(req.session.gitlab.user.id))
@@ -402,10 +393,21 @@ function executeFile(req, userID, __) {
 		if (typeof req.session.defaultTheme !== "undefined" && req.session.defaultTheme != "blue-light")
 			fileLines.push("set theme " + req.session.defaultTheme);
 
-		let data = {};
-
+		let currentApplication;
 		// Executing all instructions !
 		for (let i = 0; i < fileLines.length; i++) {
+			// Re-create data object to avoid custom parameters set in bot being used multiple times
+			let data = {
+				app_name: req.session.app_name,
+				module_name: req.session.module_name,
+				entity_name: req.session.entity_name,
+				googleTranslate: req.session.toTranslate || false,
+				lang_user: req.session.lang_user,
+				currentUser: req.session.passport.user,
+				gitlabUser: null,
+				isGeneration: true,
+				application: currentApplication,
+			}
 
 			// Mandatory instructions are done, then init application before continuing
 			if(i == mandatoryInstructions.length + 1) {
@@ -419,6 +421,9 @@ function executeFile(req, userID, __) {
 
 			try {
 				data = await execute(req, fileLines[i], __, data, false); // eslint-disable-line
+
+				if (data.application)
+					currentApplication = data.application;
 			} catch(err) {
 				console.trace(err);
 				// Update script logs
@@ -442,11 +447,11 @@ function executeFile(req, userID, __) {
 
 		try {
 			// Workspace sequelize instance
-			delete require.cache[require.resolve(__dirname + '/../workspace/' + data.application.name + '/models/')]; // eslint-disable-line
-			const workspaceSequelize = require(__dirname + '/../workspace/' + data.application.name + '/models/'); // eslint-disable-line
+			delete require.cache[require.resolve(__dirname + '/../workspace/' + currentApplication.name + '/models/')]; // eslint-disable-line
+			const workspaceSequelize = require(__dirname + '/../workspace/' + currentApplication.name + '/models/'); // eslint-disable-line
 
 			// We need to clear toSync.json
-			const toSyncFileName = __dirname + '/../workspace/' + data.application.name + '/models/toSync.json';
+			const toSyncFileName = __dirname + '/../workspace/' + currentApplication.name + '/models/toSync.json';
 			const toSyncObject = JSON.parse(fs.readFileSync(toSyncFileName));
 
 			let tableName = "TABLE_NAME"; // MySQL
@@ -479,9 +484,9 @@ function executeFile(req, userID, __) {
 
 		// Kill the application server if it's running, it will be restarted when accessing it
 		const process_server_per_app = process_manager.process_server_per_app;
-		if (process_server_per_app[data.application.name] != null && typeof process_server_per_app[data.application.name] !== "undefined"){
-			await process_manager.killChildProcess(process_server_per_app[data.application.name].pid)
-			process_server_per_app[data.application.name] = null;
+		if (process_server_per_app[currentApplication.name] != null && typeof process_server_per_app[currentApplication.name] !== "undefined"){
+			await process_manager.killChildProcess(process_server_per_app[currentApplication.name].pid)
+			process_server_per_app[currentApplication.name] = null;
 		}
 
 		// Delete instructions file

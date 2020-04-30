@@ -51,7 +51,7 @@ router.post('/datalist', block_access.actionAccessMiddleware("user", "read"), fu
 	});
 });
 
-router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"), function(req, res) {
+router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"), (req, res) => {
 	const start = parseInt(req.body.start || 0);
 	const length = parseInt(req.body.length || 10);
 
@@ -62,7 +62,7 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 
 	// Build array of fields for include and search object
 	const isGlobalSearch = req.body.search.value != "";
-	const search = {}, searchTerm = isGlobalSearch ? [models.$or] : [models.$and];
+	const search = {}, searchTerm = isGlobalSearch ? models.$or : models.$and;
 	search[searchTerm] = [];
 	const toInclude = [];
 	// Loop over columns array
@@ -97,40 +97,45 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("user", "read"),
 		model: models[subentityModel],
 		as: subentityAlias,
 		order: order,
-		where: search,
 		include: subentityInclude
 	}
+	if (search[searchTerm].length > 0)
+		include.where = search;
+
+	if (search[searchTerm].length > 0)
+		include.where = search;
 
 	if (doPagination == "true") {
 		include.limit = length;
 		include.offset = start;
 	}
 
+	include.required = false;
+
 	models.E_user.findOne({
 		where: {
 			id: parseInt(sourceId)
 		},
 		include: include
-	}).then(function(e_user) {
-		if (!e_user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
+	}).then(user => {
+		if (!user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]) {
 			console.error('/subdatalist: count' + entity_helper.capitalizeFirstLetter(subentityAlias) + ' is undefined');
 			return res.status(500).end();
 		}
 
-		e_user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]().then(function(count) {
+		user['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(count => {
 			const rawData = {
 				recordsTotal: count,
 				recordsFiltered: count,
 				data: []
 			};
-			for (let i = 0; i < e_user[subentityAlias].length; i++)
-				rawData.data.push(e_user[subentityAlias][i].get({plain: true}));
+			for (let i = 0; i < user[subentityAlias].length; i++)
+				rawData.data.push(user[subentityAlias][i].get({plain: true}));
 
-			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(function(preparedData) {
+			entity_helper.prepareDatalistResult(req.query.subentityModel, rawData, req.session.lang_user).then(preparedData => {
 				res.send(preparedData).end();
-			}).catch(function(err) {
+			}).catch(err => {
 				console.error(err);
-				logger.debug(err);
 				res.end();
 			});
 		});
@@ -368,7 +373,6 @@ router.post('/update', block_access.actionAccessMiddleware("user", "update"), fu
 
 router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'read'), (req, res) => {
 	const alias = req.params.alias;
-	const id = req.params.id;
 
 	// Find tab option
 	let option;
@@ -377,6 +381,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 			option = options[i];
 			break;
 		}
+
 	if (!option)
 		return res.status(404).end();
 
@@ -384,127 +389,106 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 	if (!block_access.entityAccess(req.session.passport.user.r_group, option.target.substring(2)))
 		return res.status(403).end();
 
-	const queryOpts = {
-		where: {
-			id: id
-		}
-	};
-	// If hasMany, no need to include anything since it will be fetched using /subdatalist
-	if (option.structureType != 'hasMany' && option.structureType != 'hasManyPreset')
-		queryOpts.include = {
-			model: models[entity_helper.capitalizeFirstLetter(option.target)],
-			as: option.as,
-			include: {all: true}
-		}
+	// Default value
+	option.noCreateBtn = false;
 
-	// Fetch tab data
-	models.E_user.findOne(queryOpts).then(e_user => {
-		if (!e_user)
-			return res.status(404).end();
+	let dustData = null, subentityOptions = [], empty = false, dustFile;
+	(async () => {
+		if (typeof req.query.associationFlag !== 'undefined')
+			dustData = req.query;
 
-		let dustData = e_user[option.as] || null, subentityOptions = [], dustFile, idSubentity, obj;
-		const empty = !dustData || dustData instanceof Array && dustData.length == 0, promisesData = [];
-
-		// Default value
-		option.noCreateBtn = false;
+		// Get read / create / update / delete access on the sub entity to handle button display
+		const userRoles = req.session.passport.user.r_role;
+		option.access = {
+			read: block_access.actionAccess(userRoles, option.target.substring(2), "read"),
+			create: block_access.actionAccess(userRoles, option.target.substring(2), "create"),
+			update: block_access.actionAccess(userRoles, option.target.substring(2), "update"),
+			delete: block_access.actionAccess(userRoles, option.target.substring(2), "delete")
+		};
 
 		// Build tab specific variables
+		let ENTITY_NAME;
 		switch (option.structureType) {
 			case 'hasOne':
-				if (!empty) {
-					idSubentity = dustData.id;
-					dustData.hideTab = true;
-					dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
-					promisesData.push(entity_helper.getPicturesBuffers(dustData, option.target));
-					// Fetch status children to be able to switch status
-					// Apply getR_children() on each current status
-					subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
-					dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
-					for (let i = 0; i < subentityOptions.length; i++)
-						if (subentityOptions[i].target.indexOf('e_status') == 0)
-							(alias => {
-								promisesData.push(new Promise((resolve, reject) => {
-									dustData[alias].getR_children({
-										include: [{
-											model: models.E_group,
-											as: "r_accepted_group"
-										}]
-									}).then(children => {
-										dustData[alias].r_children = children;
-										resolve();
-									}).catch(reject);
-								}));
-							})(subentityOptions[i].as);
-				}
+				ENTITY_NAME = await models.MODEL_NAME.findOne({
+					where: {
+						id: req.params.id
+					},
+					include: {
+						model: models[entity_helper.capitalizeFirstLetter(option.target)],
+						as: option.as,
+						include: {all: true}
+					}
+				});
+				if (!ENTITY_NAME)
+					throw new Error('Cannot find entity object.')
+
+				dustData = ENTITY_NAME[option.as];
+				empty = !dustData || dustData instanceof Array && dustData.length == 0;
 				dustFile = option.target + '/show_fields';
+
+				if (empty)
+					break;
+
+				dustData.hideTab = true;
+				dustData.enum_radio = enums_radios.translated(option.target, req.session.lang_user, options);
+				dustData.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists(option.target);
+				await entity_helper.getPicturesBuffers(dustData, option.target);
+
+				// Fetch status children to be able to switch status
+				// Apply getR_children() on each current status
+				subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
+				for (let i = 0; i < subentityOptions.length; i++) {
+
+					if (subentityOptions[i].target.indexOf('e_status') != 0)
+						continue;
+
+					dustData[alias].r_children = await dustData[alias].getR_children({ // eslint-disable-line
+						include: [{
+							model: models.E_group,
+							as: "r_accepted_group"
+						}]
+					});
+				}
 				break;
 
 			case 'hasMany':
-				dustFile = option.target + '/list_fields';
 				// Status history specific behavior. Replace history_model by history_table to open view
-				if (option.target.indexOf('_history_') == 0)
+				if (option.target.indexOf('e_history_') == 0)
 					option.noCreateBtn = true;
-				dustData = {
-					for: 'hasMany'
-				};
-				if (typeof req.query.associationFlag !== 'undefined') {
-					dustData.associationFlag = req.query.associationFlag;
-					dustData.associationSource = req.query.associationSource;
-					dustData.associationForeignKey = req.query.associationForeignKey;
-					dustData.associationAlias = req.query.associationAlias;
-					dustData.associationUrl = req.query.associationUrl;
-				}
+				dustData.for = 'hasMany';
+				dustFile = option.target + '/list_fields';
 				break;
 
 			case 'hasManyPreset':
-				dustFile = option.target + '/list_fields';
-				obj = {[option.target]: dustData};
-				dustData = obj;
-				if (typeof req.query.associationFlag !== 'undefined') {
-					dustData.associationFlag = req.query.associationFlag;
-					dustData.associationSource = req.query.associationSource;
-					dustData.associationForeignKey = req.query.associationForeignKey;
-					dustData.associationAlias = req.query.associationAlias;
-					dustData.associationUrl = req.query.associationUrl;
-				}
 				dustData.for = 'fieldset';
-				for (let i = 0; i < dustData[option.target].length; i++)
-					promisesData.push(entity_helper.getPicturesBuffers(dustData[option.target][i], option.target, true));
-
+				dustFile = option.target + '/list_fields';
 				break;
 
 			default:
-				return res.status(500).end();
+				throw new Error('Cannot find assocation structureType')
 		}
 
 		// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
-		entity_helper.getLoadOnStartData(dustData, subentityOptions).then(dustData => {
-			// Image buffer promise
-			Promise.all(promisesData).then(_ => {
-				// Open and render dust file
-				const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
-				dust.insertLocalsFn(dustData ? dustData : {}, req);
-				dust.renderSource(file, dustData || {}, (err, rendered) => {
-					if (err) {
-						console.error(err);
-						return res.status(500).end();
-					}
+		return await entity_helper.getLoadOnStartData(dustData, subentityOptions); // Return dustData
 
-					// Send response to ajax request
-					res.json({
-						content: rendered,
-						data: idSubentity || {},
-						empty: empty,
-						option: option
-					});
-				});
-			}).catch(err => {
+	})().then(dustData => {
+		// Open and render dust file
+		const file = fs.readFileSync(__dirname + '/../views/' + dustFile + '.dust', 'utf8');
+		dust.insertLocalsFn(dustData ? dustData : {}, req);
+		dust.renderSource(file, dustData || {}, (err, rendered) => {
+			if (err) {
 				console.error(err);
-				res.status(500).send(err);
+				return res.status(500).end();
+			}
+
+			// Send response to ajax request
+			res.json({
+				content: rendered,
+				data: dustData ? dustData.id || {} : {},
+				empty: empty,
+				option: option
 			});
-		}).catch(err => {
-			console.error(err);
-			res.status(500).send(err);
 		});
 	}).catch(err => {
 		console.error(err);
@@ -721,25 +705,25 @@ router.post('/settings', block_access.isLoggedIn, function(req, res) {
 
 	const updateObject = {};
 
-	if(req.body.f_email && req.body.f_email != '')
+	if (req.body.f_email && req.body.f_email != '')
 		updateObject.f_email = req.body.f_email
 
 	models.E_user.findByPk(req.session.passport.user.id).then(user => {
 		const newPassword = new Promise((resolve, reject) => {
-			if(!req.body.old_password || req.body.old_password == "")
+			if (!req.body.old_password || req.body.old_password == "")
 				return resolve(updateObject);
 
-			if(req.body.new_password_1 == "" && req.body.new_password_2 == ""){
+			if (req.body.new_password_1 == "" && req.body.new_password_2 == "")
 				return reject("settings.error1");
-			} else if (req.body.new_password_1 != req.body.new_password_2){
+			else if (req.body.new_password_1 != req.body.new_password_2)
 				return reject("settings.error2");
-			} else if(req.body.new_password_1.length < 4){
+			else if (req.body.new_password_1.length < 4)
 				return reject("settings.error3");
-			}
+
 			bcrypt.compare(req.body.old_password, user.f_password, function(err, check) {
-				if(!check){
+				if (!check)
 					return reject("settings.error4");
-				}
+
 				updateObject.f_password = bcrypt.hashSync(req.body.new_password_1, null, null);
 				resolve(updateObject);
 			})
