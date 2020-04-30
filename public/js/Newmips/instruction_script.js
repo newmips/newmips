@@ -112,9 +112,9 @@ $(function() {
                 }
             });
         } else {
-
             // Avoid store multiple time the same written script
-            if(lastWrittenScript.length == 0 || $("#createScriptTextarea").val() != lastWrittenScript[0].content) {
+            if(!$("#template_entry").val() &&
+                (lastWrittenScript.length == 0 || $("#createScriptTextarea").val() != lastWrittenScript[0].content)) {
                 lastWrittenScript.unshift({
                     date: moment().format("DD MMM, HH:mm"),
                     content: $("#createScriptTextarea").val()
@@ -122,14 +122,13 @@ $(function() {
                 localStorage.setItem("newmips_last_written_script", JSON.stringify(lastWrittenScript));
             }
 
-            var ajaxData = {
-                template_entry: $("#template_entry").val(),
-                text: $("#createScriptTextarea").val()
-            };
             $.ajax({
                 url: $(this).attr('action') + "_alt",
                 method: 'post',
-                data: JSON.stringify(ajaxData),
+                data: JSON.stringify({
+                    template_entry: $("#template_entry").val(),
+                    text: $("#createScriptTextarea").val()
+                }),
                 contentType: "application/json",
                 processData: false,
                 success: function() {
