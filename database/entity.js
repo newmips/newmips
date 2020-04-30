@@ -31,7 +31,7 @@ class Entity {
 		return this._components;
 	}
 
-	getField(name, displayName = name, required) {
+	getField(name, required = false, displayName = name) {
 		const [field] = this._fields.filter(x => x.name == name)
 		if (field)
 			return field;
@@ -44,7 +44,7 @@ class Entity {
 		return false;
 	}
 
-	getComponent(component_name, type, required) {
+	getComponent(component_name, type, required = false) {
 		const [component] = this._components.filter(x => x.name == component_name && x.type == type);
 		if (component)
 			return component;

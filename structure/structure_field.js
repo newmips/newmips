@@ -442,27 +442,12 @@ function getFieldInHeaderListHtml(type, fieldName, entityName) {
 	};
 
 	/* ------------- Add new FIELD in headers ------------- */
-	const str = '\
-	<th data-field="' + field + '" data-col="' + field + '" data-type="' + type + '" >\n\
-		<!--{#__ key="entity.' + entity + '.' + field + '"/}-->\n\
-	</th>';
+	const str = `\
+	<th data-field="${field}" data-col="${field}" data-type="${type}" >\
+		<!--{#__ key="entity.${entity}.${field}"/}-->\
+	</th>`;
 
 	result.headers = str;
-
-	/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-	// str = '<td data-field="' + field + '"';
-	// str += ' data-type="' + type + '">';
-	// if (type == "text")
-	//	 str += '{' + field + '|s}';
-	// else if (type == 'picture')
-	//	 str += '<img src="data:image/;base64,{' + field + '.buffer}" class="img img-responsive" data-type="picture" name="' + field + '" readonly="">';
-	// else if (type == 'file')
-	//	 str += '<a href="/default/download?entity=' + entity + '&amp;f={' + field + '}" name="' + field + '">{' + field + '}</a>';
-	// else
-	//	 str += '{' + field + '}';
-	// str += '</td>';
-
-	// result.body = str;
 	return result;
 }
 
@@ -1056,10 +1041,7 @@ exports.setupRelatedToField = async (data) => {
 	const urlAs = data.options.urlAs;
 
 	// Check if field is used in select, default to id
-	let usingField = [{value: "id", type: "string"}];
-
-	if (typeof data.options.usingField !== "undefined")
-		usingField = data.options.usingField;
+	const usingField = data.options.usingField ? data.options.usingField : [{value: "id", type: "string"}];
 
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
@@ -1068,87 +1050,74 @@ exports.setupRelatedToField = async (data) => {
 	}
 
 	// --- CREATE_FIELD ---
-	let select = '\
-	<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
-		<div class="form-group">\n\
-			<label for="' + alias + '">\n\
-				<!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n\
-				<!--{@inline_help field="' + alias + '"}-->\n\
-					<i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
-				<!--{/inline_help}-->\n\
-			</label>\n\
-			<select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-			</select>\n\
-		</div>\n\
-	</div>\n';
+	let select = `
+	<div data-field="f_${urlAs}" class="fieldLineHeight col-xs-12">
+		<div class="form-group">
+			<label for="${alias}">
+				<!--{#__ key="entity.${source}.${alias}" /}-->&nbsp;
+				<!--{@inline_help field="${alias}"}-->
+					<i data-field="${alias}" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+				<!--{/inline_help}-->
+			</label>
+			<select class="ajax form-control" name="${alias}" data-source="${urlTarget}" data-using="${usingList.join(',')}" width="100%"></select>
+		</div>
+	</div>`;
 
 	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 	let file = 'create_fields';
 	await updateFile(fileBase, file, select);
 
 	// --- UPDATE_FIELD ---
-	select = '\
-	<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12">\n\
-		<div class="form-group">\n\
-			<label for="' + alias + '">\n\
-				<!--{#__ key="entity.' + source + '.' + alias + '" /}-->&nbsp;\n\
-				<!--{@inline_help field="' + alias + '"}-->\n\
-					<i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
-				<!--{/inline_help}-->\n\
-			</label>\n\
-			<select class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-				<!--{#' + alias + '}-->\n\
-					<option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
-				<!--{/' + alias + '}-->\n\
-			</select>\n\
-		</div>\n\
-	</div>\n';
+	select = `
+	<div data-field="f_${urlAs}" class="fieldLineHeight col-xs-12">
+		<div class="form-group">
+			<label for="${alias}">
+				<!--{#__ key="entity.${source}.${alias}" /}-->&nbsp;
+				<!--{@inline_help field="${alias}"}-->
+					<i data-field="${alias}" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+				<!--{/inline_help}-->
+			</label>
+			<select class="ajax form-control" name="${alias}" data-source="${urlTarget}" data-using="${usingList.join(',')}" width="100%">
+				<!--{#${alias}}-->
+					<option value="{id}" selected>${usingOption.join(' - ')}</option>
+				<!--{/${alias}}-->
+			</select>
+		</div>
+	</div>`;
 
 	file = 'update_fields';
 	await updateFile(fileBase, file, select);
 
 	// --- SHOW_FIELD ---
 	// Add read only field in show file. No tab required
-	let str = "";
-	str = "<div data-field='f_" + urlAs + "' class='fieldLineHeight col-xs-12'>\n<div class='form-group'>\n";
-	str += "	<label for='" + alias + "'><!--{#__ key=\"entity." + source + "." + alias + "\"/}--></label>\n";
-	str += "	<input class='form-control input' placeholder='{#__ key=|entity." + source + "." + alias + "| /}' name='" + alias + "' value='";
-	for (let i = 0; i < usingField.length; i++) {
-		str += "{" + alias + "." + usingField[i].value + "|" + usingField[i].type + "}";
-		if (i != usingField.length - 1)
-			str += " - ";
-	}
-	str += "' ";
-	str += "type='text' readOnly />\n";
-	str += "</div>\n</div>\n";
+	const showField = `
+	<div data-field='f_${urlAs}' class='fieldLineHeight col-xs-12'>
+		<div class='form-group'>
+			<label for='${alias}'>
+				<!--{#__ key="entity.${source}.${alias}" /}-->&nbsp;
+				<!--{@inline_help field="${alias}"}-->
+					<i data-field="${alias}" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+				<!--{/inline_help}-->
+			</label>
+			<input class='form-control input' name='${alias}' value='${usingField.map(field => `{${alias}.${field.value}|${field.type}}` ).join(' - ')}' placeholder='{#__ key=|entity.${source}.${alias}| /}' type='text' readOnly />
+		</div>
+	</div>`;
 
 	file = fileBase + '/show_fields.dust';
 	const $ = await domHelper.read(file);
-	$("#fields").append(str);
+	$("#fields").append(showField);
 
 	domHelper.write(file, $)
 
+	/* ------------- Add new FIELD in list <thead> ------------- */
 	for (let i = 0; i < usingField.length; i++) {
 		const targetField = usingField[i].value == "id" ? "id_entity" : usingField[i].value;
+		const newHead = `
+		<th data-field="${alias}" data-col="${alias}.${usingField[i].value}" data-type="${usingField[i].type}">
+			<!--{#__ key="entity.${source}.${alias}"/}-->&nbsp;-&nbsp;<!--{#__ key="entity.${target}.${targetField}"/}-->
+		</th>`;
 
-		// Add <th> in list_field
-		const toAddInList = {headers: '', body: ''};
-
-		/* ------------- Add new FIELD in headers ------------- */
-		let str = '<th data-field="' + alias + '" data-col="' + alias + '.' + usingField[i].value + '"';
-		str += ' data-type="' + usingField[i].type + '"';
-		str += '>\n';
-		str += '<!--{#__ key="entity.' + source + '.' + alias + '"/}-->&nbsp;-&nbsp;<!--{#__ key="entity.' + target + '.' + targetField + '"/}-->\n';
-		str += '</th>\n';
-		toAddInList.headers = str;
-
-		/* ------------- Add new FIELD in body (for associations include in tabs) ----- */
-		str = '<td data-field="' + alias + '"';
-		str += ' data-type="' + usingField[i].type + '"';
-		str += ' >{' + alias + '.' + usingField[i].value + '}</td>';
-		toAddInList.body = str;
-
-		await updateListFile(fileBase, "list_fields", toAddInList.headers); // eslint-disable-line
+		await updateListFile(fileBase, "list_fields", newHead); // eslint-disable-line
 	}
 
 	await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
@@ -1175,87 +1144,95 @@ exports.setupRelatedToMultipleField = async (data) => {
 		usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
 	}
 
-	// CREATE_FIELD
-	const head = '\
-	<div data-field="f_' + urlAs + '" class="fieldLineHeight col-xs-12" '+ (data.options.isCheckbox ? 'style="margin-bottom: 25px;"' : "") +'>\n\
-		<div class="form-group">\n\
-			<label for="f_' + urlAs + '">\n\
-				<!--{#__ key="entity.' + source + '.' + alias + '" /}-->\n\
-				<!--{@inline_help field="' + alias + '"}-->\n\
-					<i data-field="' + alias + '" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>\n\
-				<!--{/inline_help}-->\n\
-			</label>\n';
-
-	let select;
-	if (data.options.isCheckbox) {
-		select = '\
-		<br>\n\
-		<div class="relatedtomany-checkbox">\n\
-			<!--{#' + alias + '_all}-->\n\
-				<wrap>\n\
-					<label class="no-weight">\n\
-						<input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '\n\
-					</label><br>\n\
-				</wrap>\n\
-			<!--{/' + alias + '_all}-->\n\
-		</div>\n';
-	} else {
-		select = '\
-		<select multiple="multiple" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-		</select>\n';
+	// FIELD WRAPPER
+	function wrapField(wrapped) {
+		return `
+			<div data-field="f_${urlAs}" class="fieldLineHeight col-xs-12" ${data.options.isCheckbox ? 'style="margin-bottom: 25px;"' : ""}>
+				<div class="form-group">
+					<label for="f_${urlAs}">
+						<!--{#__ key="entity.${source}.${alias}" /}-->
+						<!--{@inline_help field="${alias}"}-->
+							<i data-field="${alias}" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+						<!--{/inline_help}-->
+					</label>
+					${wrapped}
+				</div>
+			</div>
+		`;
 	}
-	select += '</div>\n</div>';
-	await updateFile(fileBase, 'create_fields', head + select);
+
+	// CREATE FIELD
+	let createField;
+	if (data.options.isCheckbox)
+		createField = wrapField(`
+			<br>
+			<div class="relatedtomany-checkbox">
+				<!--{#${alias}_all}-->
+					<wrap>
+						<label class="no-weight">
+							<input type="checkbox" value="{id}" class="no-formatage" name="${alias}">&nbsp;&nbsp;${usingOption.join(' - ')}
+						</label><br>
+					</wrap>
+				<!--{/${alias}_all}-->
+			</div>
+		`);
+	else
+		createField = wrapField(`
+			<select multiple="multiple" class="ajax form-control" name="${alias}" data-source="${urlTarget}" data-using="${usingList.join(',')}" width="100%"></select>
+		`);
+	await updateFile(fileBase, 'create_fields', createField);
 
 	// UPDATE_FIELD
-	if (data.options.isCheckbox) {
-		select = '\
-		<div class="relatedtomany-checkbox">\n\
-			<!--{#' + alias + '_all}-->\n\
-				<!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
-					<wrap><input type="checkbox" checked value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-				<!--{:else}-->\n\
-					<wrap><input type="checkbox" value="{id}" class="no-formatage" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-				<!--{/existInContextById}-->\n\
-			<!--{/' + alias + '_all}-->\n\
-		</div>';
-	} else {
-		select = '\
-		<select multiple="" class="ajax form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-			<option value="">{#__ key="select.default" /}</option>\n\
-			<!--{#' + alias + '}-->\n\
-				<option value="{id}" selected>' + usingOption.join(' - ') + '</option>\n\
-			<!--{/' + alias + '}-->\n\
-		</select>\n';
-	}
-	await updateFile(fileBase, 'update_fields', head + select);
+	let updateField;
+	if (data.options.isCheckbox)
+		updateField = wrapField(`
+			<div class="relatedtomany-checkbox">
+				<!--{#${alias}_all}-->
+					<!--{@existInContextById ofContext=${alias} key=id}-->
+						<wrap><input type="checkbox" checked value="{id}" class="no-formatage" name="${alias}">&nbsp;&nbsp;${usingOption.join(' - ')}<br></wrap>
+					<!--{:else}-->
+						<wrap><input type="checkbox" value="{id}" class="no-formatage" name="${alias}">&nbsp;&nbsp;${usingOption.join(' - ')}<br></wrap>
+					<!--{/existInContextById}-->
+				<!--{/${alias}_all}-->
+			</div>
+		`);
+	else
+		updateField = wrapField(`
+			<select multiple="" class="ajax form-control" name="${alias}" data-source="${urlTarget}" data-using="${usingList.join(',')}" width="100%">
+				<option value="">{#__ key="select.default" /}</option>
+				<!--{#${alias}}-->
+					<option value="{id}" selected>${usingOption.join(' - ')}</option>
+				<!--{/${alias}}-->
+			</select>
+		`);
+	await updateFile(fileBase, 'update_fields', updateField);
 
 	// SHOW_FIELD
-	select = '';
-	if (data.options.isCheckbox) {
-		select = '\
-		<div class="relatedtomany-checkbox">\n\
-			<!--{#' + alias + '_all}-->\n\
-				<!--{@existInContextById ofContext=' + alias + ' key=id}-->\n\
-					<wrap><input type="checkbox" disabled="" checked="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-				<!--{:else}-->\n\
-					<wrap><input type="checkbox" disabled="" name="' + alias + '">&nbsp;&nbsp;' + usingOption.join(' - ') + '<br></wrap>\n\
-				<!--{/existInContextById}-->\n\
-			<!--{/' + alias + '_all}-->\n\
-		</div>';
-	} else {
-		select = '\
-		<select multiple disabled readonly class="form-control" name="' + alias + '" data-source="' + urlTarget + '" data-using="' + usingList.join(',') + '" width="100%">\n\
-			<!--{#' + alias + '}-->\n\
-				<option value="' + usingOption.join(' - ') + '" selected>' + usingOption.join(' - ') + '</option>\n\
-			<!--{/' + alias + '}-->\n\
-		</select>\n';
-	}
-	select += '</div>\n';
+	let showField;
+	if (data.options.isCheckbox)
+		showField = wrapField(`
+			<div class="relatedtomany-checkbox">
+				<!--{#${alias}_all}-->
+					<!--{@existInContextById ofContext=${alias} key=id}-->
+						<wrap><input type="checkbox" disabled="" checked="" name="${alias}">&nbsp;&nbsp;${usingOption.join(' - ')}<br></wrap>
+					<!--{:else}-->
+						<wrap><input type="checkbox" disabled="" name="${alias}">&nbsp;&nbsp;${usingOption.join(' - ')}<br></wrap>
+					<!--{/existInContextById}-->
+				<!--{/${alias}_all}-->
+			</div>
+		`);
+	else
+		showField = wrapField(`
+			<select multiple disabled readonly class="form-control" name="${alias}" data-source="${urlTarget}" data-using="${usingList.join(',')}" width="100%">
+				<!--{#${alias}}-->
+					<option value="${usingOption.join(' - ')}" selected>${usingOption.join(' - ')}</option>
+				<!--{/${alias}}-->
+			</select>
+		`);
 
 	const file = fileBase + '/show_fields.dust';
 	const $ = await domHelper.read(file);
-	$("#fields").append(head + select);
+	$("#fields").append(showField);
 	domHelper.write(file, $);
 	await translateHelper.writeLocales(data.application.name, "aliasfield", source, [alias, data.options.showAs], data.googleTranslate);
 	return;
