@@ -161,7 +161,7 @@ class Application {
 		return np_module;
 	}
 
-	getModule(module_name, required, display_name = module_name) {
+	getModule(module_name, required = false, display_name = module_name) {
 		if (this._modules.filter(x => x.name == module_name).length > 0)
 			return this._modules.filter(x => x.name == module_name)[0];
 
@@ -174,7 +174,7 @@ class Application {
 		return false;
 	}
 
-	getComponent(component_name, type, required) {
+	getComponent(component_name, type, required = false) {
 		if (this._components.filter(x => x.name == component_name && x.type == type).length > 0)
 			return this._components.filter(x => x.name == component_name && x.type == type)[0];
 
@@ -186,7 +186,7 @@ class Application {
 		return false;
 	}
 
-	findEntity(entity_name, required) {
+	findEntity(entity_name, required = false) {
 		const foundModule = this._modules.filter(x => x.getEntity(entity_name))[0];
 		if (!foundModule) {
 			if (!required)
