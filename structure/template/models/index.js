@@ -161,9 +161,7 @@ sequelize.customAfterSync = async () => {
 				}
 
 				try {
-					/* eslint-disable */
-					await sequelize.query(request)
-					/* eslint-enable */
+					await sequelize.query(request); // eslint-disable-line
 				} catch(err) {
 					if(typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701)
 						console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
@@ -230,9 +228,7 @@ sequelize.customAfterSync = async () => {
 					}
 
 					try {
-						/* eslint-disable */
-						await sequelize.query(request);
-						/* eslint-enable */
+						await sequelize.query(request); // eslint-disable-line
 					} catch(err) {
 						if (typeof err.parent !== "undefined" && err.parent.errno == 1060 || err.parent.code == 42701)
 							console.log("WARNING - Duplicate column attempt in BDD - Request: "+ request);
@@ -245,13 +241,14 @@ sequelize.customAfterSync = async () => {
 	}
 
 	if (toSyncObject.queries)
-		for (let i = 0; i < toSyncObject.queries.length; i++)
-			/* eslint-disable */
-			await sequelize.query(toSyncObject.queries[i])
-			/* eslint-enable */
+		for (let i = 0; i < toSyncObject.queries.length; i++){
+			try {
+				await sequelize.query(toSyncObject.queries[i]); // eslint-disable-line
+			} catch (err) {
+				console.error(err);
+			}
+		}
 
-	fs.writeFileSync(__dirname + '/toSyncProd.json', JSON.stringify(toSyncProdObject, null, 4));
-	fs.writeFileSync(__dirname+'/toSync.json', '{}', 'utf8');
 	fs.writeFileSync(__dirname + '/toSyncProd.json', JSON.stringify(toSyncProdObject, null, 4));
 	fs.writeFileSync(__dirname+'/toSync.json', '{}', 'utf8');
 };
