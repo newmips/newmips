@@ -52,9 +52,6 @@ if (process.argv[2] == 'autologin') {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
-// Set up API documentation access
-app.use('/api_documentation', express.static(__dirname + '/api/doc/website'));
-
 // Log every request (not /) to the console
 const morganConf = {
 	skip: req => {
@@ -339,6 +336,9 @@ require('./routes/')(app);
 
 // Api routes ==================================================================
 require('./api/')(app);
+
+// Set up API documentation access
+app.use('/api_documentation', block_access.isLoggedIn, express.static(__dirname + '/api/doc/website'));
 
 app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
