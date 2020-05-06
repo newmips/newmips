@@ -287,9 +287,10 @@ module.exports = {
 			}
 		}
 	},
-	setStatus: async function (entityName, entityID, statusName, statusId, userID = null, comment = "") {
+	setStatus: async function (entityName, entityID, statusName, statusId, user = null, comment = "") {
 		const historyModel = 'E_history_' + entityName.substring(2) + '_' + statusName.substring(2);
 		const statusAlias = 'r_' + statusName.substring(2);
+		const userID = user ? user.id : null;
 
 		// Fetch entity to get its current status's children and their media
 		let entity = await models['E_' + entityName.substring(2)].findOne({
@@ -359,17 +360,17 @@ module.exports = {
 		// Create history record for this status field
 		const createObject = {
 			f_comment: comment,
-			fk_id_user_modified_by: userID || null
+			fk_id_user_modified_by: userID
 		};
 
 		createObject["fk_id_status_" + nextStatus.f_field.substring(2)] = nextStatus.id;
 		createObject["fk_id_" + entityName.substring(2) + "_history_" + statusName.substring(2)] = entityID;
 
 		// Execute newStatus actions
-		const history = await models[historyModel].create(createObject);
-		await entity['setR' + statusAlias.substring(1)](nextStatus.id);
+		const history = await models[historyModel].create(createObject, {user});
+		await entity['setR' + statusAlias.substring(1)](nextStatus.id, {user});
 		if (userID)
-			history['setR_modified_by'](userID);
+			history['setR_modified_by'](userID, {user});
 
 		return await nextStatus.executeActions(entity);
 	},
