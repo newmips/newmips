@@ -546,7 +546,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('inline_he
 });
 
 router.get('/set_status/:id_inline_help/:status/:id_new_status', block_access.actionAccessMiddleware("inline_help", "read"), block_access.statusGroupAccess, (req, res) => {
-	status_helper.setStatus('e_inline_help', req.params.id_inline_help, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
+	status_helper.setStatus('e_inline_help', req.params.id_inline_help, req.params.status, req.params.id_new_status, req.user, req.query.comment).then(()=> {
 		res.redirect(req.headers.referer);
 	}).catch(err => {
 		console.error(err);

@@ -260,7 +260,7 @@ router.post('/update', block_access.actionAccessMiddleware("media", 'update'), f
 });
 
 router.get('/set_status/:id_media/:status/:id_new_status', block_access.actionAccessMiddleware("media", "update"), function(req, res) {
-	status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
+	status_helper.setStatus('e_media', req.params.id_media, req.params.status, req.params.id_new_status, req.user, req.query.comment).then(()=> {
 		res.redirect('/media/show?id=' + req.params.id_media);
 	}).catch(err => {
 		console.error(err);

@@ -1289,7 +1289,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	}
 
 	// Check if the target entity exist
-	data.target_entity = data.application.getModule(data.module_name, true).getEntity(data.options.target, true);
+	data.target_entity = data.application.findEntity(data.options.target, true);
 
 	// If a using field or fields has been asked, we have to check if those fields exist in the entity
 	if (typeof data.options.usingField !== "undefined") {
@@ -1531,7 +1531,6 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
 /* --------------------------------------------------------------- */
 exports.createNewComponentStatus = async (data) => {
 	const self = this;
-
 	const entity = data.application.findEntity(data.entity_name, true);
 	data.np_module = entity.np_module;
 	data.entity = entity.entity;
@@ -1559,6 +1558,7 @@ exports.createNewComponentStatus = async (data) => {
 	];
 
 	await self.recursiveInstructionExecute(data, instructions, 0);
+
 	await structure_component.newStatus(data);
 
 	data.entity.addComponent(data.options.value, data.options.showValue, 'status');

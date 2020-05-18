@@ -535,7 +535,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('document_
 });
 
 router.get('/set_status/:id_document_template/:status/:id_new_status', block_access.actionAccessMiddleware("document_template", "read"), block_access.statusGroupAccess, (req, res) => {
-	status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(_ => {
+	status_helper.setStatus('e_document_template', req.params.id_document_template, req.params.status, req.params.id_new_status, req.user, req.query.comment).then(_ => {
 		res.redirect(req.headers.referer);
 	}).catch(err => {
 		console.error(err);
