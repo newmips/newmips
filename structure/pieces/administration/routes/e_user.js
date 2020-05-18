@@ -439,11 +439,11 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 				// Apply getR_children() on each current status
 				subentityOptions = require('../models/options/' + option.target); // eslint-disable-line
 				for (let i = 0; i < subentityOptions.length; i++) {
-
 					if (subentityOptions[i].target.indexOf('e_status') != 0)
 						continue;
 
-					dustData[alias].r_children = await dustData[alias].getR_children({ // eslint-disable-line
+					const statusAlias = subentityOptions[i].as;
+					dustData[statusAlias].r_children = await dustData[statusAlias].getR_children({ // eslint-disable-line
 						include: [{
 							model: models.E_group,
 							as: "r_accepted_group"
@@ -497,7 +497,7 @@ router.get('/loadtab/:id/:alias', block_access.actionAccessMiddleware('user', 'r
 });
 
 router.get('/set_status/:id_user/:status/:id_new_status', block_access.actionAccessMiddleware("user", "update"), function(req, res) {
-	status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.session.passport.user.id, req.query.comment).then(()=> {
+	status_helper.setStatus('e_user', req.params.id_user, req.params.status, req.params.id_new_status, req.user, req.query.comment).then(()=> {
 		res.redirect(req.headers.referer);
 	}).catch(err => {
 		console.error(err);
