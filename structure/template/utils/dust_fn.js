@@ -181,6 +181,10 @@ module.exports = {
 		};
 
 		dust.filters.filename = function(value) {
+
+			if(typeof value !== 'string')
+				return value;
+
 			// Remove datetime part from filename display
 			if (moment(value.substring(0, 16), 'YYYYMMDD-HHmmss_').isValid() && value != "" && value.length > 16)
 				value = value.substring(16);

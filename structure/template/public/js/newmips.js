@@ -472,8 +472,7 @@ function initForm(context) {
     });
 
     // Component address
-    if (typeof context.data === "undefined")
-        initComponentAddress(context);
+    initComponentAddress(context);
 
     // Input group addons click
     $(document).on("click", ".input-group-addon", function () {
