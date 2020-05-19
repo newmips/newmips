@@ -37,6 +37,9 @@ const appProcessing = {};
 const excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
 const excludeFile = [".git_keep", "application.json", "database.js", "global.js", "icon_list.json", "webdav.js"];
 
+// No git commit for these instructions
+const noGitFunctions = ['restart', 'gitPull', 'installNodePackage'];
+
 function initPreviewData(appName, data){
 	// Editor
 	const workspacePath = __dirname + "/../workspace/" + appName + "/";
@@ -81,7 +84,7 @@ function setChat(req, app_name, userID, user, content, params, isError){
 	if(content != "chat.welcome" || chats[app_name][userID].items.length < 1)
 		chats[app_name][userID].items.push({
 			user: user,
-			dateEmission: req.moment().format("DD MMM HH:mm"),
+			dateEmission: req.moment().tz('Europe/Paris').format("DD MMM HH:mm"),
 			content: content,
 			params: params || [],
 			isError: isError || false
@@ -204,9 +207,13 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		console.log('Starting server...');
 		process_manager.checkServer(iframe_url, initialTimestamp, timeoutServer).then(_ => {
 			data.iframe_url = iframe_url.split("/default/status")[0] + "/default/home";
-			// Let's do git init or commit depending the env (only on cloud env for now)
-			gitHelper.doGit(data);
-			res.render('front/preview', data);
+			// Let's do git init or commit if needed
+			gitHelper.doGit(data).then(_ => {
+				res.render('front/preview', data);
+			}).catch(err => {
+				console.error(err);
+				res.render('front/preview', data);
+			});
 		}).catch(err => {
 			console.error(err);
 
@@ -325,16 +332,18 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		data.chat = chats[appName][currentUserID];
 
 		// Let's do git init or commit depending the situation
-		if (data.function != 'restart' && data.function != 'installNodePackage')
-			gitHelper.doGit(data);
+		if (!noGitFunctions.includes(data.function)){
+			try {
+				// Generate API documentation
+				await docBuilder.build(data.application);
+			} catch(err) {
+				console.error(err);
+			}
+			await gitHelper.doGit(data);
+		}
 
 		return data;
-
 	})().then(data => {
-		if(data.application && data.function != 'deleteApplication')
-			docBuilder.build(data.application).catch(err => {
-				console.error(err);
-			});
 		appProcessing[appName] = false;
 		res.send(data);
 	}).catch(err => {

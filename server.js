@@ -60,8 +60,8 @@ app.use(morgan('dev', {
 	stream: split().on('data', function(line) {
 		if (allLogStream.bytesWritten < 5000) {
 			if(globalConf.env != "develop"){
-				allLogStream.write(moment().format("MM-DD HH:mm:ss") + ": " + ansiToHtml.toHtml(line) + "\n");
-				process.stdout.write(moment().format("MM-DD HH:mm:ss") + " " + line + "\n");
+				allLogStream.write(moment().tz('Europe/Paris').format("MM-DD HH:mm:ss") + ": " + ansiToHtml.toHtml(line) + "\n");
+				process.stdout.write(moment().tz('Europe/Paris').format("MM-DD HH:mm:ss") + " " + line + "\n");
 			} else {
 				allLogStream.write(ansiToHtml.toHtml(line) + "\n");
 				process.stdout.write(line + "\n");

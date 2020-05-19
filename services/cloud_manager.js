@@ -273,7 +273,7 @@ exports.deploy = async (data) => {
 
 	// Push on git before deploy
 	await gitHelper.gitCommit(data);
-	await gitHelper.gitTag(appName, applicationConf.version, applicationPath);
+	await gitHelper.gitTag(data, applicationConf.version);
 	await gitHelper.gitPush(data);
 
 	const appNameWithoutPrefix = data.application.name.substring(2);
