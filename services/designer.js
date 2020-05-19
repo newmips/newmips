@@ -90,6 +90,8 @@ exports.installNodePackage = async (data) => {
 /* --------------------------------------------------------------- */
 
 exports.gitPush = async (data) => {
+	if(!gitHelper.isGitActivated())
+		throw new Error('structure.global.error.notDoGit');
 	await gitHelper.gitPush(data);
 	return {
 		message: "structure.global.gitPush.success",
@@ -98,6 +100,8 @@ exports.gitPush = async (data) => {
 }
 
 exports.gitPull = async (data) => {
+	if(!gitHelper.isGitActivated())
+		throw new Error('structure.global.error.notDoGit');
 	await gitHelper.gitPull(data);
 	return {
 		message: "structure.global.gitPull.success",
@@ -106,6 +110,8 @@ exports.gitPull = async (data) => {
 }
 
 exports.gitCommit = async (data) => {
+	if(!gitHelper.isGitActivated())
+		throw new Error('structure.global.error.notDoGit');
 	await gitHelper.gitCommit(data);
 	return {
 		message: "structure.global.gitCommit.success",
@@ -114,6 +120,8 @@ exports.gitCommit = async (data) => {
 }
 
 exports.gitStatus = async (data) => {
+	if(!gitHelper.isGitActivated())
+		throw new Error('structure.global.error.notDoGit');
 	const infoGit = await gitHelper.gitStatus(data);
 	return {
 		message: JSON.stringify(infoGit).replace(/,/g, ",<br>"),
