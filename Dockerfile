@@ -14,6 +14,8 @@ RUN apt-get update && apt-get -qq -y install pdftk && apt-get -y install mysql-c
 
 COPY . /usr/src/app
 
+RUN rm -r node_modules/
+
 RUN npm install
 
 RUN cd /usr/src/app/structure/template && npm install
