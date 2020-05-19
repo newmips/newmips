@@ -61,13 +61,13 @@ const morganConf = {
 }
 
 if (!startedFromGenerator)
-	morganConf.stream = require('split')().on('data', line => process.stdout.write(moment().format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n"));  // eslint-disable-line
+	morganConf.stream = require('split')().on('data', line => process.stdout.write(moment().tz('Europe/Paris').format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n"));  // eslint-disable-line
 
 app.use(morgan('dev', morganConf));
 if (!startedFromGenerator) {
 	require('console-stamp')(console, { // eslint-disable-line
 		formatter: function() {
-			return moment().format('YYYY-MM-DD HH:mm:ss-SSS');
+			return moment().tz('Europe/Paris').format('YYYY-MM-DD HH:mm:ss-SSS');
 		},
 		label: false,
 		datePrefix: "",

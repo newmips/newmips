@@ -39,7 +39,7 @@ function getRepoInfo(appName, gitlabUser) {
 }
 
 async function initializeGit(repoInfo) {
-	console.log("GIT => Git init in new workspace directory.");
+	console.log("GIT => INIT");
 	console.log(repoInfo);
 
 	if (gitProcesses[repoInfo.origin].isProcessing)
@@ -90,9 +90,6 @@ module.exports = {
 			if (gitProcesses[repoInfo.origin].isProcessing)
 				throw new Error("structure.global.error.alreadyInProcessGit");
 
-			// Set gitProcesses to prevent any other git command during this process
-			gitProcesses[repoInfo.origin].isProcessing = true;
-
 			let commitMsg = data.function;
 			commitMsg += "(App: " + appName;
 			if (typeof data.module_name !== 'undefined')
@@ -101,6 +98,8 @@ module.exports = {
 				commitMsg += " Entity: " + data.entity_name;
 			commitMsg += ")";
 
+			// Set gitProcesses to prevent any other git command during this process
+			gitProcesses[repoInfo.origin].isProcessing = true;
 			await gitProcesses[repoInfo.origin].simpleGit.add('.')
 			const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit(commitMsg);
 			console.log(commitSummary);
@@ -134,7 +133,7 @@ module.exports = {
 			await initializeGit(repoInfo); // Do first commit and push
 		else if(typeof data.function !== "undefined"){
 			// We are just after a new instruction
-			console.log("GIT => Doing Git push...");
+			console.log("GIT => PUSH");
 			console.log(repoInfo);
 			await gitProcesses[repoInfo.origin].simpleGit.push(['-u', repoInfo.origin, 'master']);
 			gitProcesses[repoInfo.origin].isProcessing = false;
@@ -163,6 +162,9 @@ module.exports = {
 
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
+
+		console.log("GIT => PULL");
+		console.log(repoInfo);
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
@@ -194,8 +196,8 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
-		// Set gitProcesses to prevent any other git command during this process
-		gitProcesses[repoInfo.origin].isProcessing = true;
+		console.log("GIT => COMMIT");
+		console.log(repoInfo);
 
 		let commitMsg = data.function;
 		commitMsg += "(App: " + appName;
@@ -205,6 +207,8 @@ module.exports = {
 			commitMsg += " Entity: " + data.entity_name;
 		commitMsg += ")";
 
+		// Set gitProcesses to prevent any other git command during this process
+		gitProcesses[repoInfo.origin].isProcessing = true;
 		await gitProcesses[repoInfo.origin].simpleGit.add('.')
 		const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit(commitMsg);
 		console.log(commitSummary);
@@ -234,12 +238,14 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
+		console.log("GIT => STATUS");
+		console.log(repoInfo);
+
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
-
 		const status = await gitProcesses[repoInfo.origin].simpleGit.status();
-		gitProcesses[repoInfo.origin].isProcessing = false;
 		console.log(status);
+		gitProcesses[repoInfo.origin].isProcessing = false;
 		writeAllLogs("Git push", status);
 		return status;
 	},
@@ -265,6 +271,9 @@ module.exports = {
 
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
+
+		console.log("GIT => TAG " + tagName);
+		console.log(repoInfo);
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
@@ -296,9 +305,13 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
+		console.log("GIT => REMOTES");
+		console.log(repoInfo);
+
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
 		const remotes = await gitProcesses[repoInfo.origin].simpleGit.getRemotes(true);
+		gitProcesses[repoInfo.origin].isProcessing = false;
 		writeAllLogs("Git remote", remotes);
 		return remotes;
 	}
