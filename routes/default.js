@@ -63,28 +63,6 @@ router.get('/home', block_access.isLoggedIn, function(req, res) {
 		console.error(err);
 		res.render('common/error', {code: 500});
 	});
-})
-
-// AJAX loading applications from a choosen project ( To fill select in home )
-router.post('/get_applications_by_project', block_access.isLoggedIn, function(req, res){
-
-	models.Application.findAll({
-		where: {
-			id_project: req.body.idProject
-		},
-		include: [{
-			model: models.User,
-			as: "users",
-			where: {
-				id: req.session.passport.user.id
-			}
-		}]
-	}).then((applications) => {
-		if(applications)
-			res.json({applications: applications});
-		else
-			res.status(500).send("Oups, something's broken.");
-	});
 });
 
 router.post('/update_logs', block_access.isLoggedIn, function(req, res) {

@@ -152,10 +152,6 @@ function addPrefix(string, instructionFunction) {
 function removePrefix(string, type) {
 	const stringLower = string.toLowerCase();
 	switch (type) {
-		case 'project':
-			if (stringLower.substring(0, 2) == "p_")
-				return string.substring(2);
-			break;
 		case 'application':
 			if (stringLower.substring(0, 2) == "a_")
 				return string.substring(2);
@@ -226,7 +222,7 @@ module.exports = {
 
 				/* Value that will be used in url */
 				data.options.urlValue = data.options.value.toLowerCase();
-				/* Create a prefix depending the type of the created value (project, app, module, entity, field) */
+				/* Create a prefix depending the type of the created value (application, module, entity, field) */
 				data.options.value = addPrefix(data.options.value, data.function);
 				/* Always lower the code value */
 				data.options.value = data.options.value.toLowerCase();
