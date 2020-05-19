@@ -379,7 +379,8 @@
 				"success": "The commit has been successfully done!"
 			},
 			"error": {
-				"alreadyInProcess": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
+				"alreadyInProcess": "Sorry, an instruction is already processing on this application. Please wait until it finishes to execute a new instruction.",
+				"alreadyInProcessGit": "Sorry, a git process is already processing. Please wait until he finishes to execute a new git instruction.",
 				"notDoGit": "You choose to not do git in config/gitlab.js, so this instruction will do nothing."
 			}
 		},
