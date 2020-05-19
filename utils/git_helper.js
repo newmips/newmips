@@ -4,8 +4,8 @@ const gitlabConf = require('../config/gitlab.js');
 const models = require('../models/');
 const gitProcesses = {};
 
-function checkAlreadyInit(idApplication){
-	const dotGitPath = __dirname+'/../workspace/'+idApplication+'/.git';
+function checkAlreadyInit(idApplication) {
+	const dotGitPath = __dirname + '/../workspace/' + idApplication + '/.git';
 	if (fs.existsSync(dotGitPath))
 		return true;
 	return false;
@@ -84,32 +84,46 @@ module.exports = {
 			console.log("GIT: Git init in new workspace directory.");
 			console.log(repoUrl);
 
-			if(!gitProcesses[originName]){
-				// Set gitProcesses to prevent any other git command during this process
-				gitProcesses[originName] = true;
+			if(gitProcesses[originName])
+				throw new Error("structure.global.error.alreadyInProcessGit");
 
-				simpleGit.init()
-					.add('.')
-					.commit("First commit!")
-					.addRemote(originName, repoUrl)
-					.push(['-u', originName, 'master'], function(err, answer){
-						gitProcesses[originName] = false;
-						if(err)
-							console.error(err);
-						console.log(answer);
-						writeAllLogs("Git first commit / push", answer, err);
-					});
-			} else {
-				throw new Error("structure.global.error.alreadyInProcess");
-			}
+			// Set gitProcesses to prevent any other git command during this process
+			gitProcesses[originName] = true;
+
+			simpleGit.init()
+				.add('.')
+				.commit("First commit!")
+				.addRemote(originName, repoUrl)
+				.push(['-u', originName, 'master'], function(err, answer){
+					gitProcesses[originName] = false;
+					if(err)
+						console.error(err);
+					console.log(answer);
+					writeAllLogs("Git first commit / push", answer, err);
+				});
+
 		} else if(typeof data.function !== "undefined" && data.function != "gitPull" && data.function != "restart"){
 			// We are just after a new instruction
 			console.log("GIT: Git commit after new instruction.");
 			console.log(repoUrl);
 
-			const commitMsg = data.function+" -> App:"+appName+" Module:"+data.id_module+" Entity:"+data.id_data_entity;
+			if(gitProcesses[originName])
+				throw new Error("structure.global.error.alreadyInProcessGit");
+
+			// Set gitProcesses to prevent any other git command during this process
+			gitProcesses[originName] = true;
+
+			let commitMsg = data.function;
+			commitMsg += "(App: " + appName;
+			if(typeof data.module_name !== 'undefined')
+				commitMsg += " Module: " + data.module_name;
+			if(typeof data.entity_name !== 'undefined')
+				commitMsg += " Entity: " + data.entity_name;
+			commitMsg += ")";
+
 			simpleGit.add('.')
 				.commit(commitMsg, function(err, answer){
+					gitProcesses[originName] = false;
 					if(err)
 						console.error(err);
 					console.log(answer);
@@ -153,7 +167,7 @@ module.exports = {
 			gitProcesses[originName] = false;
 
 		if(gitProcesses[originName])
-			return reject(new Error('structure.global.error.alreadyInProcess'));
+			return reject(new Error('structure.global.error.alreadyInProcessGit'));
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[originName] = true;
@@ -211,7 +225,7 @@ module.exports = {
 			gitProcesses[originName] = false;
 
 		if (gitProcesses[originName])
-			return reject(new Error('structure.global.error.alreadyInProcess'));
+			return reject(new Error('structure.global.error.alreadyInProcessGit'));
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[originName] = true;
@@ -246,7 +260,7 @@ module.exports = {
 			gitProcesses[originName] = false;
 
 		if(gitProcesses[originName])
-			return reject(new Error('structure.global.error.alreadyInProcess'))
+			return reject(new Error('structure.global.error.alreadyInProcessGit'))
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[originName] = true;
@@ -290,7 +304,7 @@ module.exports = {
 			gitProcesses[originName] = false;
 
 		if(gitProcesses[originName])
-			return reject(new Error('structure.global.error.alreadyInProcess'));
+			return reject(new Error('structure.global.error.alreadyInProcessGit'));
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[originName] = true;

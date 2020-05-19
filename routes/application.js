@@ -31,6 +31,7 @@ const gitHelper = require('../utils/git_helper');
 const metadata = require('../database/metadata')();
 const structure_application = require('../structure/structure_application');
 const pourcent_generation = {};
+const appProcessing = {};
 
 // Exclude from Editor
 const excludeFolder = ["node_modules", "sql", "services", "upload", ".git"];
@@ -257,6 +258,10 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		// Current application url
 		data.iframe_url = process_manager.childUrl(req, db_app.id);
 
+		if(appProcessing[appName])
+			throw new Error('structure.global.error.alreadyInProcess');
+		appProcessing[appName] = true;
+
 		if(parser.parse(instruction).function == 'createNewApplication')
 			throw new Error('preview.no_create_app');
 
@@ -330,6 +335,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 			docBuilder.build(data.application).catch(err => {
 				console.error(err);
 			});
+		appProcessing[appName] = false;
 		res.send(data);
 	}).catch(err => {
 
@@ -371,6 +377,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 		if(typeof data.iframe_url === 'undefined')
 			data.iframe_url = -1;
 
+		appProcessing[appName] = false;
 		res.send(data);
 	});
 });

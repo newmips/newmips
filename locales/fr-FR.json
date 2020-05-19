@@ -376,7 +376,8 @@
 				"success": "Le commit a bien été effectué !"
 			},
 			"error": {
-				"alreadyInProcess": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
+				"alreadyInProcess": "Désolé, une instruction générateur est déjà en cours. Merci d'attendre qu'elle se termine pour exécuter une nouvelle instruction.",
+				"alreadyInProcessGit": "Désolé, un processus git est déjà en cours. Merci d'attendre qu'il termine pour exécuter une nouvelle instruction git.",
 				"notDoGit": "L'option 'doGit' dans config/gitlab.js est désactivée, l'instruction demandée ne fera donc rien."
 			}
 		},
