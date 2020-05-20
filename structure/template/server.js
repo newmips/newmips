@@ -306,7 +306,7 @@ app.use((req, res, next) => {
 			} catch (e) {
 				// No options file, always return false
 				dust.helpers.inline_help = () => false;
-				throw e;
+				throw false;
 			}
 
 			const entityList = [entityName];
@@ -324,7 +324,8 @@ app.use((req, res, next) => {
 		})().then(_ => {
 			render.call(res, view, locals, cb);
 		}).catch(err => {
-			console.error(err);
+			if(err)
+				console.error(err);
 			render.call(res, view, locals, cb);
 		});
 	};
