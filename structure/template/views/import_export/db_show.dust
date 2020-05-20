@@ -49,7 +49,7 @@
 											<br>
 											<span id="checkbox-entities" style="margin-bottom: 15px;">
 												{#entities}
-												<input type="checkbox" name="{tableName}" />&nbsp;&nbsp;{#__ key=tradKey /}<br>
+													<input type="checkbox" name="{tableName}" />&nbsp;&nbsp;{#__ key=tradKey /}&nbsp;<b>({tableName})</b><br>
 												{/entities}
 											</span>
 											<br>

@@ -38,7 +38,7 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
 			if (typeof currentFile[i].through === "string" && through.indexOf(currentFile[i].through) == -1) {
 				through.push(currentFile[i].through);
 				association_table.push({
-					tradKey: 'association_table - ' + entityName.substring(2) + '_' + currentFile[i].target + ' (' + currentFile[i].as + ')',
+					tradKey: 'N,N - ' + entityName.substring(2) + '_' + currentFile[i].target.substring(2) + ' | ' + currentFile[i].as,
 					tableName: currentFile[i].through
 				});
 			}

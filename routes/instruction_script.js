@@ -414,7 +414,8 @@ function executeFile(req, userID, __) {
 				await structure_application.initializeApplication(data.application); // eslint-disable-line
 				// Write source script in generated workspace
 				const historyPath = __dirname + '/../workspace/' + data.application.name + "/history_script.nps";
-				let instructionsToWrite = fileLines.slice().splice(mandatoryInstructions.length + 2).join("\n");
+				let instructionsToWrite = fileLines[0] + '\n';
+				instructionsToWrite += fileLines.slice(Math.max(mandatoryInstructions.length, 1)).join("\n");
 				instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
 				fs.writeFileSync(historyPath, instructionsToWrite);
 			}

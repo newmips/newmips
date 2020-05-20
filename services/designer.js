@@ -533,7 +533,7 @@ exports.createNewField = async (data) => {
 
 	return {
 		message: "database.field.create.created",
-		messageParams: [data.options.showValue, data.entity_name, data.options.showValue, data.options.showValue, data.options.showValue]
+		messageParams: [data.options.showValue, data.entity.displayName, data.options.showValue, data.options.showValue, data.options.showValue]
 	};
 }
 
