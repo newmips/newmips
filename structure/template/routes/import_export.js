@@ -159,7 +159,7 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 	}
 
 	const baseFile = filename.split('-')[0];
-	const completeFilePath = globalConf.localstorage + '/db_import/' + baseFile + '/' + filename;
+	const completeFilePath = globalConf.localstorage + 'db_tool/' + baseFile + '/' + filename;
 
 	if (dbConfig.password != req.body.db_password) {
 		req.session.toastr = [{
@@ -196,7 +196,7 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 			// Child Success output
 			childProcess.stdout.on('data', stdout => {
 				console.log(stdout)
-			})
+			});
 
 			// Child Error output
 			childProcess.stderr.on('data', stderr => {
@@ -205,21 +205,21 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 					console.log("!! mysql ignored warning !!: " + stderr)
 					return;
 				}
-				childProcess.kill();
 				reject(stderr);
-			})
+				childProcess.kill();
+			});
 
 			// Child error
 			childProcess.on('error', error => {
-				childProcess.kill();
 				reject(error);
-			})
+				childProcess.kill();
+			});
 
 			// Child close
 			childProcess.on('close', _ => {
 				resolve();
-			})
-		})
+			});
+		});
 	}
 
 	handleExecStdout(cmd, cmdArgs).then(_ => {

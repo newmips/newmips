@@ -68,7 +68,7 @@
 												<label for="import_file">
 													{#__ key="settings.db_tool.import_file"/}
 												</label>
-												<div class="dropzone dropzone-field" id="import_file_dropzone" data-entity="db_import"></div>
+												<div class="dropzone dropzone-field" id="import_file_dropzone" data-entity="db_tool"></div>
 												<input type="hidden" name="import_file" id="import_file_dropzone_hidden" required>
 											</div>
 											<br>
