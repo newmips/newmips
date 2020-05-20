@@ -17,18 +17,20 @@ function writeAllLogs(title, content = ''){
 	fs.writeFileSync(__dirname + '/../all.log', fs.readFileSync(__dirname + '/../all.log') + "\n" + toWriteInLog + "\n");
 }
 
-function getRepoInfo(appName, gitlabUser) {
+function getRepoInfo(appName, gitlabUser = null) {
 	const nameApp = appName.substring(2); // Remove prefix a_
 	const cleanHost = globalConf.host.replace(/\./g, "-"); // . becomes -
 	const nameRepo = cleanHost + "-" + nameApp;
 
-	let repoUrl = "";
-	if (gitlabConf.useSSH) {
-		// SSH URL
-		repoUrl = gitlabConf.sshUrl + ":" + gitlabUser + "/" + nameRepo + ".git";
-	} else {
-		// HTTP URL
-		repoUrl = gitlabConf.protocol + "://" + gitlabConf.url + "/" + gitlabUser + "/" + nameRepo + ".git";
+	let repoUrl = null;
+	if(gitlabUser) {
+		if (gitlabConf.useSSH) {
+			// SSH URL
+			repoUrl = gitlabConf.sshUrl + ":" + gitlabUser + "/" + nameRepo + ".git";
+		} else {
+			// HTTP URL
+			repoUrl = gitlabConf.protocol + "://" + gitlabConf.url + "/" + gitlabUser + "/" + nameRepo + ".git";
+		}
 	}
 
 	return {
@@ -39,8 +41,7 @@ function getRepoInfo(appName, gitlabUser) {
 }
 
 async function initializeGit(repoInfo) {
-	console.log("GIT => INIT");
-	console.log(repoInfo);
+	console.log("GIT => INIT " + repoInfo.origin);
 
 	if (gitProcesses[repoInfo.origin].isProcessing)
 		throw new Error("structure.global.error.alreadyInProcessGit");
@@ -84,8 +85,7 @@ module.exports = {
 			await initializeGit(repoInfo); // Do first commit and push
 		else if (typeof data.function !== "undefined") {
 			// We are just after a new instruction
-			console.log("GIT => Git commit after new instruction.");
-			console.log(repoInfo);
+			console.log("GIT => COMMIT " + repoInfo.origin);
 
 			if (gitProcesses[repoInfo.origin].isProcessing)
 				throw new Error("structure.global.error.alreadyInProcessGit");
@@ -133,8 +133,7 @@ module.exports = {
 			await initializeGit(repoInfo); // Do first commit and push
 		else if(typeof data.function !== "undefined"){
 			// We are just after a new instruction
-			console.log("GIT => PUSH");
-			console.log(repoInfo);
+			console.log("GIT => PUSH " + repoInfo.origin);
 			await gitProcesses[repoInfo.origin].simpleGit.push(['-u', repoInfo.origin, 'master']);
 			gitProcesses[repoInfo.origin].isProcessing = false;
 			writeAllLogs("Git push");
@@ -146,11 +145,8 @@ module.exports = {
 		if (!gitlabConf.doGit)
 			return;
 
-		if (!data.gitlabUser)
-			throw new Error("Missing Gitlab user in server session.");
-
 		const appName = data.application.name
-		const repoInfo = getRepoInfo(appName, data.gitlabUser.username);
+		const repoInfo = getRepoInfo(appName);
 
 		// Workspace path
 		const workspacePath = __dirname + '/../workspace/' + appName;
@@ -163,8 +159,7 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
-		console.log("GIT => PULL");
-		console.log(repoInfo);
+		console.log("GIT => PULL " + repoInfo.origin);
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
@@ -179,11 +174,8 @@ module.exports = {
 		if (!gitlabConf.doGit)
 			return;
 
-		if (!data.gitlabUser)
-			throw new Error("Missing Gitlab user in server session.");
-
 		const appName = data.application.name
-		const repoInfo = getRepoInfo(appName, data.gitlabUser.username);
+		const repoInfo = getRepoInfo(appName);
 
 		// Workspace path
 		const workspacePath = __dirname + '/../workspace/' + appName;
@@ -196,9 +188,7 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
-		console.log("GIT => COMMIT");
-		console.log(repoInfo);
-
+		console.log("GIT => COMMIT " + repoInfo.origin);
 		let commitMsg = data.function;
 		commitMsg += "(App: " + appName;
 		if(typeof data.module_name !== 'undefined')
@@ -221,11 +211,8 @@ module.exports = {
 		if (!gitlabConf.doGit)
 			return;
 
-		if (!data.gitlabUser)
-			throw new Error("Missing Gitlab user in server session.");
-
 		const appName = data.application.name
-		const repoInfo = getRepoInfo(appName, data.gitlabUser.username);
+		const repoInfo = getRepoInfo(appName);
 
 		// Workspace path
 		const workspacePath = __dirname + '/../workspace/' + appName;
@@ -238,7 +225,7 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
-		console.log("GIT => STATUS");
+		console.log("GIT => STATUS " + repoInfo.origin);
 		console.log(repoInfo);
 
 		// Set gitProcesses to prevent any other git command during this process
@@ -255,11 +242,8 @@ module.exports = {
 		if (!gitlabConf.doGit)
 			return;
 
-		if (!data.gitlabUser)
-			throw new Error("Missing Gitlab user in server session.");
-
 		const appName = data.application.name
-		const repoInfo = getRepoInfo(appName, data.gitlabUser.username);
+		const repoInfo = getRepoInfo(appName);
 
 		// Workspace path
 		const workspacePath = __dirname + '/../workspace/' + appName;
@@ -272,8 +256,7 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
-		console.log("GIT => TAG " + tagName);
-		console.log(repoInfo);
+		console.log("GIT => TAG " + repoInfo.origin + ' VERSION => ' + tagName);
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
@@ -288,11 +271,8 @@ module.exports = {
 		if (!gitlabConf.doGit)
 			return;
 
-		if (!data.gitlabUser)
-			throw new Error("Missing Gitlab user in server session.");
-
 		const appName = data.application.name
-		const repoInfo = getRepoInfo(appName, data.gitlabUser.username);
+		const repoInfo = getRepoInfo(appName);
 
 		// Workspace path
 		const workspacePath = __dirname + '/../workspace/' + appName;
@@ -305,8 +285,7 @@ module.exports = {
 		if (gitProcesses[repoInfo.origin].isProcessing)
 			throw new Error('structure.global.error.alreadyInProcessGit');
 
-		console.log("GIT => REMOTES");
-		console.log(repoInfo);
+		console.log("GIT => REMOTES " + repoInfo.origin);
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
