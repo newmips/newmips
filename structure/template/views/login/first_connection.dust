@@ -12,7 +12,7 @@
 			</div>
 			<div class="form-group">
 				<label for="password" class='required'>{#__ key="login.password"/}&nbsp;&nbsp;
-					<i class="login-help fa fa-info-circle" style="color: #1085EE;cursor: pointer;" data-title='{#__ key="login.first_connection.help.password_title"/}' data-content='{#__ key="login.first_connection.help.password_content"/}'></i></label>
+					<i class="login-help fa fa-info-circle" style="color: #1085EE;cursor: pointer;"></i></label>
 				<input type="password" name="password" id="password" placeholder='{#__ key="login.password"/}' required class="form-control"/>
 			</div>
 			<div class="form-group">
@@ -29,10 +29,16 @@
 {<custom_js}
 	<script type="text/javascript">
 		var notMatchPasswordText = '{#__ key="login.first_connection.passwordNotValid"/}';
+		var infoPasswordTitle = '{#__ key="login.first_connection.help.password_title" /}';
+		var infoPasswordContent = '{#__ key="login.first_connection.help.password_content" /}';
 		var passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 		var globalConfEnv = '{config.env}';
 
 		$(document).ready(function(){
+
+			/* Set infobull password text */
+			$('i.login-help').data('title', infoPasswordTitle);
+			$('i.login-help').data('content', infoPasswordContent);
 
 			function isValidPassword(string, confirmString) {
 
