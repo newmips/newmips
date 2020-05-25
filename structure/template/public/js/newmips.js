@@ -358,6 +358,7 @@ function initForm(context) {
             init: function () {
                 this.on("addedfile", function (file) {
                     if (this.files[1] != null) {
+                        this.files[1].exceedRemove = true;
                         this.removeFile(this.files[1]);
                         toastr.error("Vous ne pouvez ajouter qu'un seul fichier");
                     }
@@ -411,7 +412,7 @@ function initForm(context) {
                 });
 
                 this.on('removedfile', function (file) {
-                    if (file.status != "error" && !that.hasClass('file-storage-dropzone')) {
+                    if (file.status != "error" && !that.hasClass('file-storage-dropzone') && !file.exceedRemove) {
                         var dropzone = this;
                         $.ajax({
                             url: '/default/delete_file',
@@ -420,7 +421,10 @@ function initForm(context) {
                                 entity: that.attr("data-entity"),
                                 filename: $("#" + that.attr("id") + "_hidden").val()
                             },
-                            success: function (success) {
+                            error: function(err) {
+                                console.error(err);
+                            },
+                            complete: function() {
                                 $("#" + that.attr("id") + "_hidden").val('');
                                 $("#" + that.attr("id") + "_hidden_name").val('');
                                 if (dropzone.files.length > 1) {
@@ -434,14 +438,15 @@ function initForm(context) {
             renameFile: function (file) {
                 var filename = file.name;
                 var value = $('#' + dropzoneId + '_hidden').val();
-                if (!value) {
-                    var uuid = uuidv4().replace(/-/g, '');
-                    var filenameCleanedAndRenamed = clearString(filename);
-                    var timeFile = moment().format("YYYYMMDD-HHmmss");
-                    filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
-                    $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
-                    $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
-                }
+                if(value)
+                    return value;
+
+                var uuid = uuidv4().replace(/-/g, '');
+                var filenameCleanedAndRenamed = clearString(filename);
+                var timeFile = moment().format("YYYYMMDD-HHmmss");
+                filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
+                $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
+                $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
                 return filenameCleanedAndRenamed;
             }
         });
