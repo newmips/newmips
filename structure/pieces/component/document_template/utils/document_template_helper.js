@@ -96,18 +96,12 @@ function generateHtmlToPDF(options) {
 				if (err)
 					return reject(err);
 
-				fs.readFile(tmpFileName, (err, data) => {
-					if (err) {
-						fs.unlinkSync(tmpFileName, _ => {
-							console.error('Unable to delete file ' + tmpFileName + ' after pdf generation');
-						});
-						return reject(err);
-					}
-					return resolve({
-						buffer: data,
-						contentType: "application/pdf",
-						ext: '.pdf'
-					});
+				const fileContent = fs.readFileSync(tmpFileName);
+				fs.unlinkSync(tmpFileName);
+				return resolve({
+					buffer: fileContent,
+					contentType: "application/pdf",
+					ext: '.pdf'
 				});
 			});
 		});
