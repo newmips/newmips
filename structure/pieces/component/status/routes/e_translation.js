@@ -665,23 +665,24 @@ router.post('/search', block_access.actionAccessMiddleware('translation', 'read'
 
 	models.E_translation.findAndCountAll(where).then(function (results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE ? true : false;
-		// Format value like date / datetime / etc...
-		for (const field in attributes) {
-			for (let i = 0; i < results.rows.length; i++) {
-				for (const fieldSelect in results.rows[i]) {
-					if(fieldSelect == field){
+		// Format value like date / datetime / enum / etc...
+		for (const field in attributes)
+			for (let i = 0; i < results.rows.length; i++)
+				for (const fieldSelect in results.rows[i])
+					if(fieldSelect == field && results.rows[i][field] && results.rows[i][field] != "")
 						switch(attributes[field].newmipsType) {
 							case "date":
-								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
 								break;
 							case "datetime":
-								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							case "enum":
+								results.rows[i][field] = enums_radios.translateFieldValue('e_translation', field, results.rows[i][field], req.session.lang_user)
+								break;
+							default:
 								break;
 						}
-					}
-				}
-			}
-		}
 		res.json(results);
 	}).catch(function (e) {
 		console.error(e);

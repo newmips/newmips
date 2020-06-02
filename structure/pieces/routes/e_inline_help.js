@@ -173,6 +173,7 @@ router.get('/show', block_access.actionAccessMiddleware("inline_help", "read"), 
 		entity_helper.getPicturesBuffers(e_inline_help, "e_inline_help").then(_ => {
 			status_helper.translate(e_inline_help, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_inline_help");
+			enums_radios.translateUsingField(e_inline_help, options, data.enum_radio);
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
 			entity_helper.getLoadOnStartData(data, options).then(data => {
 				res.render('e_inline_help/show', data);
@@ -325,6 +326,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("inline_help", "u
 		}
 
 		e_inline_help.dataValues.enum_radio = data.enum_radio;
+		enums_radios.translateUsingField(e_inline_help, options, data.enum_radio);
 
 		const entity = e_inline_help.f_entity;
 		e_inline_help.f_entity = 'entity.' + entity + '.label_entity';

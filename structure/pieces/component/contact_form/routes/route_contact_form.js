@@ -58,6 +58,7 @@ router.get('/show', block_access.actionAccessMiddleware("URL_VALUE_CONTACT", "re
 		entity_helper.getPicturesBuffers(CODE_VALUE_CONTACT, "CODE_VALUE_CONTACT").then(function() {
 			status_helper.translate(CODE_VALUE_CONTACT, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("CODE_VALUE_CONTACT");
+			enums_radios.translateUsingField(CODE_VALUE_CONTACT, options, data.enum_radio);
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
 			entity_helper.getLoadOnStartData(data, options).then(function(data) {
 				res.render('CODE_VALUE_CONTACT/show', data);
