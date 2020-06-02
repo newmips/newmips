@@ -1058,7 +1058,10 @@ exports.setupRelatedToField = async (data) => {
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
 		usingList.push(usingField[i].value);
-		usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
+		if(usingField[i].type == 'enum')
+			usingOption.push('{' + usingField[i].value + '.translation}');
+		else
+			usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
 	}
 
 	// --- CREATE_FIELD ---
@@ -1102,6 +1105,14 @@ exports.setupRelatedToField = async (data) => {
 
 	// --- SHOW_FIELD ---
 	// Add read only field in show file. No tab required
+
+	// If enum it is necessary to show the translation and not the value in DB
+	const value = usingField.map(field => {
+		if(field.type == 'enum')
+			return `{${alias}.${field.value}.translation}`
+		return `{${alias}.${field.value}|${field.type}}`
+	}).join(' - ');
+
 	const showField = `
 	<div data-field='f_${urlAs}' class='fieldLineHeight col-xs-12'>
 		<div class='form-group'>
@@ -1111,7 +1122,7 @@ exports.setupRelatedToField = async (data) => {
 					<i data-field="${alias}" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
 				<!--{/inline_help}-->
 			</label>
-			<input class='form-control input' name='${alias}' value='${usingField.map(field => `{${alias}.${field.value}|${field.type}}` ).join(' - ')}' placeholder='{#__ key=|entity.${source}.${alias}| /}' type='text' readOnly />
+			<input class='form-control input' name='${alias}' value='${value}' placeholder='{#__ key=|entity.${source}.${alias}| /}' type='text' readOnly />
 		</div>
 	</div>`;
 
@@ -1153,7 +1164,10 @@ exports.setupRelatedToMultipleField = async (data) => {
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
 		usingList.push(usingField[i].value);
-		usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
+		if(usingField[i].type == 'enum')
+			usingOption.push('{' + usingField[i].value + '.translation}');
+		else
+			usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
 	}
 
 	// FIELD WRAPPER

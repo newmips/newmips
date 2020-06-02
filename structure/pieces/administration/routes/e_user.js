@@ -167,6 +167,7 @@ router.get('/show', block_access.actionAccessMiddleware("user", "read"), functio
 		entity_helper.getPicturesBuffers(e_user, "e_user").then(function() {
 			status_helper.translate(e_user, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_user");
+			enums_radios.translateUsingField(e_user, options, data.enum_radio);
 			// Get association data that needed to be load directly here (to do so set loadOnStart param to true in options).
 			entity_helper.getLoadOnStartData(data, options).then(function(data) {
 				res.render('e_user/show', data);
@@ -288,6 +289,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("user", "update")
 		}
 
 		e_user.dataValues.enum_radio = data.enum_radio;
+		enums_radios.translateUsingField(e_user, options, data.enum_radio);
 		data.e_user = e_user;
 		// Update some data before show, e.g get picture binary
 		entity_helper.getPicturesBuffers(e_user, "e_user", true).then(function() {
@@ -555,22 +557,24 @@ router.post('/search', block_access.actionAccessMiddleware('user', 'read'), func
 	// where.include = [{model: models.E_myentity, as: "r_myentity"}]
 	models.E_user.findAndCountAll(where).then(function(results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
-		// Format value like date / datetime / etc...
+		// Format value like date / datetime / enum / etc...
 		for (const field in attributes)
 			for (let i = 0; i < results.rows.length; i++)
 				for (const fieldSelect in results.rows[i])
-					if(fieldSelect == field){
+					if(fieldSelect == field && results.rows[i][field] && results.rows[i][field] != "")
 						switch(attributes[field].newmipsType) {
 							case "date":
-								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
 								break;
 							case "datetime":
-								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							case "enum":
+								results.rows[i][field] = enums_radios.translateFieldValue('e_user', field, results.rows[i][field], req.session.lang_user)
 								break;
 							default:
 								break;
 						}
-					}
 		res.json(results);
 	}).catch(function(e) {
 		console.error(e);

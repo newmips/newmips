@@ -299,6 +299,8 @@ var delay = (function() {
     var timer = 0;
     return function(callback, ms) {
         clearTimeout(timer);
+        if(typeof callback === 'object')
+            return;
         timer = setTimeout(callback, ms);
     };
 })();
@@ -751,9 +753,7 @@ function init_datatable(tableID, doPagination, context) {
             if (searchValue == "")
                 return table.columns(idx).search('').draw();
 
-            delay(function(){
-                searchInDatalist(searchValue);
-            }, 300);
+            searchInDatalist(searchValue);
         }
 
         // If it's not an action button
@@ -763,7 +763,7 @@ function init_datatable(tableID, doPagination, context) {
             else {
                 $(this).show().html('');
                 $(search).appendTo(this).keyup(function () {
-                    filterSearch(this);
+                    delay(filterSearch(this), 300);
                 });
 
                 // Initialize masks on filters inputs

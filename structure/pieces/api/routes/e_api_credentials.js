@@ -164,6 +164,7 @@ router.get('/show', block_access.actionAccessMiddleware("api_credentials", "read
 		entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials").then(_ => {
 			status_helper.translate(e_api_credentials, attributes, req.session.lang_user);
 			data.componentAddressConfig = component_helper.address.getMapsConfigIfComponentAddressExists("e_api_credentials");
+			enums_radios.translateUsingField(e_api_credentials, options, data.enum_radio);
 			res.render('e_api_credentials/show', data);
 		}).catch(function (err) {
 			entity_helper.error(err, req, res, "/", "e_user");
@@ -273,6 +274,7 @@ router.get('/update_form', block_access.actionAccessMiddleware("api_credentials"
 		}
 
 		data.e_api_credentials = e_api_credentials;
+		enums_radios.translateUsingField(e_api_credentials, options, data.enum_radio);
 		// Update some data before show, e.g get picture binary
 		entity_helper.getPicturesBuffers(e_api_credentials, "e_api_credentials", true).then(_ => {
 			if (req.query.ajax) {
@@ -605,25 +607,24 @@ router.post('/search', block_access.actionAccessMiddleware('api_credentials', 'r
 
 	models.E_api_credentials.findAndCountAll(where).then(function (results) {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
-		// Format value like date / datetime / etc...
-		for (const field in attributes) {
-			for (let i = 0; i < results.rows.length; i++) {
-				for (const fieldSelect in results.rows[i]) {
-					if(fieldSelect == field){
+		// Format value like date / datetime / enum / etc...
+		for (const field in attributes)
+			for (let i = 0; i < results.rows.length; i++)
+				for (const fieldSelect in results.rows[i])
+					if(fieldSelect == field && results.rows[i][field] && results.rows[i][field] != "")
 						switch(attributes[field].newmipsType) {
 							case "date":
-								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
 								break;
 							case "datetime":
-								results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							case "enum":
+								results.rows[i][field] = enums_radios.translateFieldValue('e_api_credentials', field, results.rows[i][field], req.session.lang_user)
 								break;
 							default:
 								break;
 						}
-					}
-				}
-			}
-		}
 		res.json(results);
 	}).catch(function (e) {
 		console.error(e);

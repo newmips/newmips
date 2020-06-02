@@ -164,19 +164,20 @@ router.post('/search', block_access.actionAccessMiddleware('ENTITY_URL_NAME', 'r
 
 	models.MODEL_NAME.findAndCountAll(query).then(results => {
 		results.more = results.count > req.body.page * SELECT_PAGE_SIZE;
-		// Format value like date / datetime / etc...
+		// Format value like date / datetime / enum / etc...
 		for (const field in attributes)
 			for (let i = 0; i < results.rows.length; i++)
 				for (const fieldSelect in results.rows[i])
-					if(fieldSelect == field)
+					if(fieldSelect == field && results.rows[i][field] && results.rows[i][field] != "")
 						switch(attributes[field].newmipsType) {
 							case "date":
-								if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
-									results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY" : "YYYY-MM-DD")
 								break;
 							case "datetime":
-								if(results.rows[i][fieldSelect] && results.rows[i][fieldSelect] != "")
-									results.rows[i][fieldSelect] = moment(results.rows[i][fieldSelect]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								results.rows[i][field] = moment(results.rows[i][field]).format(req.session.lang_user == "fr-FR" ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm")
+								break;
+							case "enum":
+								results.rows[i][field] = enums_radios.translateFieldValue('ENTITY_NAME', field, results.rows[i][field], req.session.lang_user)
 								break;
 							default:
 								break;

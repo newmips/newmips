@@ -60,6 +60,8 @@ const funcs = {
 					}
 				}
 			}
+			// Translate alias using field too
+			enums_radios.translateUsingField(data.data[i], options, enumsTranslation, true);
 		}
 
 		await Promise.all(thumbnailPromises);
