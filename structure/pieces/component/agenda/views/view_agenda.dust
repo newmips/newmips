@@ -180,7 +180,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="updateEvent" >{#__ key="button.save" /}</button>
-					<button type="button" class="btn btn-danger btn-confirm" id="deleteEvent" data-dismiss="modal">{#__ key="button.delete" /}</button>
+					<button type="button" class="btn btn-danger" id="deleteEvent" data-dismiss="modal">{#__ key="button.delete" /}</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.cancel" /}</button>
 				</div>
 			</div>

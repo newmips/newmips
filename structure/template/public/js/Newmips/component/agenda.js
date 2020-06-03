@@ -220,6 +220,10 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#deleteEvent", function() {
+
+        if(!confirm(DEL_CONFIRM_TEXT))
+            return;
+
         var idEventToDelete = $("#modalUpdateEventID").val();
         var idEventCalendarToDelete = $("#modalUpdateID").val();
         $.ajax({
