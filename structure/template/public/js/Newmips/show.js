@@ -196,11 +196,12 @@ function initHasOne(tab, data) {
         delForm.attr('action', '/'+data.option.target.substring(2)+'/delete');
         delForm.find('input[name=id]').val(data.data);
 
+		newButton = $('<div class="quicklinks"></div>');
+
         // Add update btn
         if(data.option.access.update)
-            delForm.prepend(updBtn);
+            newButton.prepend(updBtn);
 
-        newButton = $('<div class="quicklinks"></div>');
 
         // Add delete btn
         if(data.option.access.delete)
