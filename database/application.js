@@ -33,6 +33,7 @@ class Application {
 				metadata = JSON.parse(fs.readFileSync(metadataPath));
 
 			app.associationSeq = metadata[name].associationSeq;
+			app.hasDocumentTemplate = metadata[name].hasDocumentTemplate;
 			app.displayName = metadata[name].displayName;
 			app.gitlabID = metadata[name].gitlabID;
 			app.gitlabRepoHTTP = metadata[name].gitlabRepoHTTP;
