@@ -244,8 +244,9 @@ app.use((req, res, next) => {
 		// If request comes from ajax call, no need to render show/list/etc.. pages, 200 status is enough
 		if (req.query.ajax) {
 			// Check role access error in toastr. Send 403 if found, {refresh: true} will force reload of the page (behavior comes from public/newmips/show.js)
+			let toast;
 			for (let i = 0; i < req.session.toastr.length; i++) {
-				const toast = req.session.toastr[i];
+				toast = req.session.toastr[i];
 				if (toast.message && toast.message == "settings.auth_component.no_access_role")
 					return res.status(403).send({refresh: true});
 			}
@@ -379,6 +380,7 @@ models.sequelize.sync({logging: false, hooks: false}).then(_ => {
 					}, {user}).then(role => {
 						models.E_user.create({
 							f_login: 'admin',
+							f_email: 'admin@admin.fr',
 							f_password: null,
 							f_enabled: 0,
 							version: 0
