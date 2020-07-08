@@ -22,7 +22,6 @@ try {
 	});
 }
 
-
 const isId = /^[0-9]+$/;
 let events = [], bulkTimeout;
 
