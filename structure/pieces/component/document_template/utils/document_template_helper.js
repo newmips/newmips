@@ -283,9 +283,9 @@ module.exports = {
 						result[relation.as].push(obj[relation.as][j].dataValues);
 						self.cleanData(result[relation.as][j], entityModelData, userLang, fileType);
 						setCreatedAtAndUpdatedAtValues(result[relation.as][j], obj[relation.as][j].dataValues, userLang);
+						cleanIncludeLevels(relationsOptions2, obj[relation.as][j]);
 					}
 
-					cleanIncludeLevels(relationsOptions2, obj[relation.as]);
 				}
 			}
 		}

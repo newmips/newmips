@@ -106,6 +106,26 @@ module.exports = {
 			}
 			return false;
 		}
+		dust.helpers.in = function(chunk, context, bodies, params) {
+			const value = params.value || params.key;
+			let array = params.array || params.values;
+			array = array.split(',');
+
+			// Avoid indexOf for datatype mismatch due to dust
+			if (array.filter(x => x == value).length != 0)
+				return true;
+			return false;
+		}
+		dust.helpers.notIn = function(chunk, context, bodies, params) {
+			const value = params.value || params.key;
+			let array = params.array || params.values;
+			array = array.split(',');
+
+			// Avoid indexOf for datatype mismatch due to dust
+			if (array.filter(x => x == value).length == 0)
+				return true;
+			return false;
+		}
 		function buildContext(ctx){
 			let newContext = {};
 			for (const obj in ctx) {

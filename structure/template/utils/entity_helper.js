@@ -186,7 +186,8 @@ const funcs = {
 					res.status(data.code).render('common/error', data);
 			}
 		}
-	},	getPicturesBuffers: async (entity, modelName, isThumbnail) => {
+	},
+	getPicturesBuffers: async (entity, modelName, isThumbnail) => {
 		try {
 			if (!entity)
 				return false;
