@@ -255,11 +255,13 @@ module.exports = {
 		const result = {};
 		const options = reworkOptions || {};
 		const self = this;
-		function cleanIncludeLevels(relationsOptions, obj) {
+		function cleanIncludeLevels(relationsOptions, obj, result) {
 			for (let i = 0; i < relationsOptions.length; i++) {
 				const relation = relationsOptions[i];
+
 				if (!obj[relation.as])
 					continue;
+
 				const relationAttributes = JSON.parse(fs.readFileSync(__dirname + '/../models/attributes/' + relation.target + '.json'));
 				const relationsOptions2 = JSON.parse(fs.readFileSync(__dirname + '/../models/options/' + relation.target + '.json'));
 
@@ -273,19 +275,16 @@ module.exports = {
 					result[relation.as] = obj[relation.as].dataValues;
 					self.cleanData(result[relation.as], entityModelData, userLang, fileType);
 					setCreatedAtAndUpdatedAtValues(result[relation.as], obj[relation.as].dataValues, userLang);
-
-					cleanIncludeLevels(relationsOptions2, obj[relation.as]);
-				}
-				else if (relation.relation === "hasMany" || relation.relation === "belongsToMany") {
+					cleanIncludeLevels(relationsOptions2, obj[relation.as], result[relation.as]);
+				} else if (relation.relation === "hasMany" || relation.relation === "belongsToMany") {
 					result[relation.as] = [];
 					// Be carefull if we have a lot lot lot lot of data.
 					for (let j = 0; j < obj[relation.as].length; j++) {
 						result[relation.as].push(obj[relation.as][j].dataValues);
 						self.cleanData(result[relation.as][j], entityModelData, userLang, fileType);
 						setCreatedAtAndUpdatedAtValues(result[relation.as][j], obj[relation.as][j].dataValues, userLang);
-						cleanIncludeLevels(relationsOptions2, obj[relation.as][j]);
+						cleanIncludeLevels(relationsOptions2, obj[relation.as][j], result[relation.as][j]);
 					}
-
 				}
 			}
 		}
@@ -307,7 +306,7 @@ module.exports = {
 			this.cleanData(result, entityModelData, userLang, fileType);
 
 			// Now clean relation in each levels, recursive function
-			cleanIncludeLevels(relationsOptions, object);
+			cleanIncludeLevels(relationsOptions, object, result);
 			return result;
 		} catch (e) {
 			console.log(e);
