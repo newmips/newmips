@@ -397,7 +397,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 				str += "			<div class='input-group-addon'>\n";
 				str += "				<i class='fa fa-download'></i>\n";
 				str += "			</div>\n";
-				str += "			<a href=/default/download?entity=" + entity + "&f={" + value2 + "|urlencode} class='form-control text-left' name=" + field + ">{" + value2 + "|filename}</a>\n";
+				str += "			<input data-entity=" + entity + " data-filename=" + value + " class='form-control text-left preview_file' name='" + field + "' value='{" + value2 + "|filename}' />\n";
 				str += "		{:else}\n";
 				str += "			{#__ key=\"message.empty_file\" /}\n";
 				str += "		{/" + value2 + "}\n";
