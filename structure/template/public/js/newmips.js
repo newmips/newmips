@@ -518,6 +518,49 @@ function initForm(context) {
         toastr.success('<i class="fa fa-copy"></i> : ' + $(this).prev("a").text() + '</i>')
         $temp.remove();
     });
+
+    // Preview file modal in show
+    $(document).on('click', '.preview_file', function () {
+
+        let downloadURL = '/default/download?entity=' + $(this).data('entity') + '&amp;f=' + encodeURIComponent($(this).data('filename'));
+        $.ajax({
+            url: '/default/get_file',
+            type: 'GET',
+            data: {entity: $(this).data('entity'), src: $(this).data('filename')},
+            success: function (result) {
+
+                var showHTML = '<p><img class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>';
+                if(result.file.substring(result.file.length, result.file.length - 4) == '.pdf') {
+                    var binaryPDF = generateFileViewer(result.data);
+                    showHTML = '<iframe src=/js/plugins/pdf/web/viewer.html?file=' + encodeURIComponent(binaryPDF) + ' style="width:100%;min-height:500px !important;" allowfullscreen webkitallowfullscreen ></iframe>';
+                }
+
+                var modalHTML = '\
+                <div class="modal fade" tabindex="-1" role="dialog">\
+                    <div class="modal-dialog" role="document" style="width:60%;">\
+                        <div class="modal-content">\
+                            <div class="modal-header skin-blue-light">\
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+                                <h4 class="modal-title">' + result.file + '</h4>\
+                            </div>\
+                            <div class="modal-body">\
+                                ' + showHTML + '\
+                                <a href="' + downloadURL + '" class="btn btn-primary"><i class="fa fa-download"></i>&nbsp;&nbsp;Télécharger</a>\
+                            </div>\
+                            <div class="modal-footer">\
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">' + STR_LANGUAGE.close + '</button>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+
+                $(modalHTML).modal('show');
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
+    });
 }
 
 /* --------------- FORM validation on submit  --------------- */
@@ -1149,6 +1192,24 @@ function doModal(title, content) {
     </div>';
     $("body").append(modal_html);
     $("#tmp_text_modal").modal();
+}
+
+// File viewer generation
+function generateFileViewer(base64) {
+    var raw = window.atob(base64);
+    var rawLength = raw.length;
+    var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+    for (var i = 0; i < rawLength; i++) {
+        array[i] = raw.charCodeAt(i);
+    }
+
+    var binaryData = [];
+    binaryData.push(array);
+    var dataPdf = window.URL.createObjectURL(new Blob(binaryData, {
+        type: "application/pdf"
+    }))
+    return dataPdf;
 }
 
 /* --------------- DOCUMENT READY --------------- */

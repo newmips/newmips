@@ -283,3 +283,7 @@ div.dataTables_length select {
 .nav-tabs-custom {
     box-shadow: none !important;
 }
+
+.preview_file {
+    cursor: pointer;
+}
