@@ -645,23 +645,6 @@ function init_datatable(tableID, doPagination, context) {
     }
     table = $(tableID, context).DataTable(tableOptions);
 
-    function generatePDFViewer(base64) {
-        var raw = window.atob(base64);
-        var rawLength = raw.length;
-        var array = new Uint8Array(new ArrayBuffer(rawLength));
-
-        for (var i = 0; i < rawLength; i++) {
-            array[i] = raw.charCodeAt(i);
-        }
-
-        var binaryData = [];
-        binaryData.push(array);
-        var dataPdf = window.URL.createObjectURL(new Blob(binaryData, {
-            type: "application/pdf"
-        }))
-        return dataPdf;
-    }
-
     // Preview modal on type file
     $(tableID + ' tbody', context).on('click', 'td > .file', function () {
         var colIdx = table.cell($(this).parent()).index().column;
@@ -677,7 +660,7 @@ function init_datatable(tableID, doPagination, context) {
 
                 var showHTML = '<p><img class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>';
                 if(result.file.substring(result.file.length, result.file.length - 4) == '.pdf') {
-                    var binaryPDF = generatePDFViewer(result.data);
+                    var binaryPDF = generateFileViewer(result.data);
                     showHTML = '<iframe src=/js/plugins/pdf/web/viewer.html?file=' + encodeURIComponent(binaryPDF) + ' style="width:100%;min-height:500px !important;" allowfullscreen webkitallowfullscreen ></iframe>';
                 }
 
