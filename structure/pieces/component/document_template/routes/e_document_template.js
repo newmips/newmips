@@ -267,7 +267,9 @@ router.post('/create', block_access.actionAccessMiddleware("document_template", 
 		model_builder.setAssocationManyValues(e_document_template, req.body, createObject, options).then(_ => {
 			Promise.all(promises).then(_ => {
 				component_helper.address.setAddressIfComponentExists(e_document_template, options, req.body).then(_ => {
-					status_helper.setInitialStatus(req, e_document_template, 'E_document_template', attributes).then(_ => {
+					status_helper.setInitialStatus(req.user, e_document_template, 'E_document_template', attributes).then((statusToastrs = []) => {
+						if (statusToastrs.length)
+							req.session.toastr = [...req.session.toastr, ...statusToastrs];
 						res.redirect(redirect);
 					}).catch(err => {
 						entity_helper.error(err, req, res, '/document_template/create_form', "e_document_template");

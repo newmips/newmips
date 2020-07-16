@@ -260,7 +260,9 @@ router.post('/create', block_access.actionAccessMiddleware("action", "create"), 
 		model_builder.setAssocationManyValues(e_action, req.body, createObject, options).then(_ => {
 			Promise.all(promises).then(_ => {
 				component_helper.address.setAddressIfComponentExists(e_action, options, req.body).then(_ => {
-					status_helper.setInitialStatus(req, e_action, 'E_action', attributes).then(_ => {
+					status_helper.setInitialStatus(req.user, e_action, 'E_action', attributes).then((statusToastrs = []) => {
+						if (statusToastrs.length)
+							req.session.toastr = [...req.session.toastr, ...statusToastrs];
 						res.redirect(redirect);
 					}).catch(err => {
 						entity_helper.error(err, req, res, '/action/create_form', "e_action");

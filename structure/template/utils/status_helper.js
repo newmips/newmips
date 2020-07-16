@@ -374,7 +374,7 @@ module.exports = {
 
 		return await nextStatus.executeActions(entity);
 	},
-	setInitialStatus: async (req, model, modelName, attributes) => {
+	setInitialStatus: async (user, model, modelName, attributes) => {
 		// Look for s_status fields
 		const statusFields = [];
 		for (const field in attributes)
@@ -387,9 +387,8 @@ module.exports = {
 			return;
 
 		const initStatusPromise = [];
-		let field;
 		for (let i = 0; i < statusFields.length; i++) {
-			field = statusFields[i];
+			const field = statusFields[i];
 
 			initStatusPromise.push((async (fieldIn) => {
 				const historyModel = 'E_history_' + modelName.substring(2) + '_' + fieldIn.substring(2);
@@ -427,7 +426,7 @@ module.exports = {
 							}]
 						}]
 					}],
-					user: req.user
+					user: user
 				});
 				let includeArray = [];
 				if (!created) {
@@ -445,13 +444,13 @@ module.exports = {
 				const historyObject = {
 					version: 1,
 					f_comment: '',
-					fk_id_user_modified_by: req.user && req.user.id || null
+					fk_id_user_modified_by: user && user.id || null
 				};
 				historyObject["fk_id_status_" + fieldIn.substring(2)] = status.id;
 				historyObject["fk_id_" + modelName.substring(2) + "_history_" + fieldIn.substring(2)] = modelWithRelations.id;
 
 				await models[historyModel].create(historyObject, {user: false});
-				await modelWithRelations['setR_' + fieldIn.substring(2)](status.id, {user: req.user})
+				await modelWithRelations['setR_' + fieldIn.substring(2)](status.id, {user: user})
 
 				if (!created)
 					try {
@@ -459,11 +458,13 @@ module.exports = {
 					} catch(err) {
 						console.error("Unable to execute actions");
 						console.error(err);
-						req.session.toastr.push({level: 'error', message: 'component.status.error.action_error'});
+						return {level: 'error', message: 'component.status.error.action_error'};
 					}
 			})(field));
 		}
 
-		return await Promise.all(initStatusPromise);
+		const results = await Promise.all(initStatusPromise);
+		// Clear empty promise results
+		return results.filter(toastr => !!toastr);
 	}
 }
