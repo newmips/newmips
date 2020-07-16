@@ -12,6 +12,12 @@ function models() {
 	return this.models;
 }
 
+function status_helper() {
+	if (!this.status_helper)
+		this.status_helper = require('../utils/status_helper');
+	return this.status_helper;
+}
+
 module.exports = (sequelize, DataTypes) => {
 	const attributes = builder.buildForModel(attributes_origin, DataTypes);
 	const options = {
@@ -98,8 +104,19 @@ module.exports = (sequelize, DataTypes) => {
 				f_type: self.f_task_type,
 				f_data_flow: insertVariablesValue('f_data_flow'),
 				f_program_file: program_file
-			}).then(_ => {
-				resolve();
+			}).then(task => {
+				const taskAttributes = JSON.parse(fs.readFileSync(__dirname+'/attributes/e_task.json'));
+				status_helper().setInitialStatus({user: {id: 1}}, task, 'e_task', taskAttributes) // eslint-disable-line
+					.then(_ => {
+						console.log('initialStatus set');
+						resolve()
+					})
+					.catch(err => {
+						console.error("initialStatus error");
+						console.error(err);
+						reject()
+					});
+
 			}).catch(reject);
 		});
 	}
