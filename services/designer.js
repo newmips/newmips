@@ -1290,7 +1290,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	data.source_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
 	// Check if a field with this name already exist
-	if(data.source_entity.getField('f_' + data.options.urlAs)) {
+	if(data.source_entity.getField(data.options.as)) {
 		const err = new Error('database.field.error.alreadyExist');
 		err.messageParams = [data.options.showAs];
 		throw err;
@@ -1396,7 +1396,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	// Generate html code in dust file
 	await structure_field.setupRelatedToField(data);
 
-	data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
+	data.source_entity.addField(data.options.as, data.options.showAs);
 
 	return {
 		entity: data.source_entity,
@@ -1572,7 +1572,7 @@ exports.createNewComponentStatus = async (data) => {
 	data.entity.addComponent(data.options.value, data.options.showValue, 'status');
 
 	// Remove useless related field on entity
-	data.entity.deleteField('f_' + data.options.value.substring(2));
+	data.entity.deleteField('r_' + data.options.value.substring(2));
 
 	return {
 		message: 'database.component.create.successOnEntity',
@@ -2138,7 +2138,6 @@ exports.createWidgetLastRecords = async (data) => {
 
 		// Looking in entity components for status
 		for (let i = 0; i < data.entity.components.length; i++) {
-
 			if (data.entity.components[i].name.indexOf('s_') == 0 && data.columns[k] == data.entity.components[i].displayName) {
 				data.columns[k] = {
 					name: 'r_' + data.entity.components[i].name.substring(2),

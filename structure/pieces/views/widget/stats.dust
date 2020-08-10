@@ -1,7 +1,6 @@
 <div class="small-box bg-aqua">
 	<div class="inner">
 		<h3>{ENTITY_NAME_stats}</h3>
-
 		<p>{#__ key="entity.ENTITY_NAME.label_entity" /}</p>
 	</div>
 	<div class="icon">

@@ -1059,7 +1059,7 @@ exports.createWidgetOnEntity = result => {
 	const finalType = getRightWidgetType(originalType);
 
 	if (finalType == -1)
-		return {error: 'error.missingParametersInstruction'};
+		throw new Error('error.missingParametersInstruction');
 
 	return {
 		function: 'createWidgetOnEntity',
@@ -1074,7 +1074,7 @@ exports.createWidget = result => {
 	const finalType = getRightWidgetType(originalType);
 
 	if (finalType == -1)
-		return {error: 'error.missingParametersInstruction'};
+		throw new Error('error.missingParametersInstruction');
 
 	return {
 		function: 'createWidget',

@@ -1,3 +1,6 @@
+// Datatable throw error instead of alert
+$.fn.dataTable.ext.errMode = 'throw';
+
 var STR_LANGUAGE;
 if (lang_user == "fr-FR") {
     STR_LANGUAGE = {
