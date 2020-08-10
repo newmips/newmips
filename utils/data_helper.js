@@ -1,4 +1,3 @@
-
 function validateString(string) {
 	return /^(?![0-9]+$)(?!.*-$)(?!.+-{2,}.+)(?!-)[a-zA-Z0-9- ]{1,25}$/g.test(string);
 }
@@ -193,85 +192,87 @@ module.exports = {
 	removePrefix: removePrefix,
 	capitalizeFirstLetter: capitalizeFirstLetter,
 	reworkData: (data) => {
-		if(typeof data.options !== "undefined"){
-			/* If the instruction create something there is inevitably a value. We have to clean this value for the code */
-			if(typeof data.options.value !== "undefined" && data.options.processValue){
+		if(typeof data.options === "undefined")
+			return data;
 
-				/* Keep the value for the trad file */
-				data.options.showValue = data.options.value.trim();
-				// Remove multipe spaces
-				data.options.showValue = data.options.showValue.replace(/\s\s+/g, ' ');
-				/* Clean the name of the value */
-				data.options.value = clearString(data.options.value);
+		/* If the instruction create something there is inevitably a value. We have to clean this value for the code */
+		if(typeof data.options.value !== "undefined" && data.options.processValue){
 
-				if (data.function == 'createNewApplication' || data.function == 'deleteApplication') {
-					data.options.value = data.options.value.replace(/_/g, "-");
-					if (!validateString(data.options.value)){
-						let errorText = "Le nom d'application doit respecter les règles suivantes :\n\n";
-						errorText += "\n- Caractères alphanumériques uniquement.";
-						errorText += "\n- Au moins une lettre.";
-						errorText += "\n- Un espace maximum entre chaque mot.";
-						errorText += "\n- Aucun espace en début ou fin.";
-						errorText += "\n- 25 caractères maximum.";
-						errorText += "\n- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).";
+			/* Keep the value for the trad file */
+			data.options.showValue = data.options.value.trim();
+			// Remove multipe spaces
+			data.options.showValue = data.options.showValue.replace(/\s\s+/g, ' ');
+			/* Clean the name of the value */
+			data.options.value = clearString(data.options.value);
 
-						// Generate an error to throw in controller.
-						throw new Error(errorText);
-					}
+			if (data.function == 'createNewApplication' || data.function == 'deleteApplication') {
+				data.options.value = data.options.value.replace(/_/g, "-");
+				if (!validateString(data.options.value)){
+					let errorText = "Le nom d'application doit respecter les règles suivantes :\n\n";
+					errorText += "\n- Caractères alphanumériques uniquement.";
+					errorText += "\n- Au moins une lettre.";
+					errorText += "\n- Un espace maximum entre chaque mot.";
+					errorText += "\n- Aucun espace en début ou fin.";
+					errorText += "\n- 25 caractères maximum.";
+					errorText += "\n- Pas de tiret (-) en début ou fin, ni deux ou plus à la suite(--).";
+
+					// Generate an error to throw in controller.
+					throw new Error(errorText);
 				}
-
-				/* Value that will be used in url */
-				data.options.urlValue = data.options.value.toLowerCase();
-				/* Create a prefix depending the type of the created value (application, module, entity, field) */
-				data.options.value = addPrefix(data.options.value, data.function);
-				/* Always lower the code value */
-				data.options.value = data.options.value.toLowerCase();
 			}
-			/* In case of instruction about Association / Relation there is a target instead of a value */
-			else if(typeof data.options.target !== "undefined" && data.options.processValue){
 
-				data.options.showTarget = data.options.target.trim();
-				data.options.target = clearString(data.options.target);
-				data.options.urlTarget = data.options.target.toLowerCase();
-				data.options.target = addPrefix(data.options.target, data.function);
-				data.options.target = data.options.target.toLowerCase();
+			/* Value that will be used in url */
+			data.options.urlValue = data.options.value.toLowerCase();
+			/* Create a prefix depending the type of the created value (application, module, entity, field) */
+			data.options.value = addPrefix(data.options.value, data.function);
+			/* Always lower the code value */
+			data.options.value = data.options.value.toLowerCase();
+		}
+		/* In case of instruction about Association / Relation there is a target instead of a value */
+		else if(typeof data.options.target !== "undefined" && data.options.processValue){
 
-				if(typeof data.options.source !== "undefined"){
-					data.options.showSource = data.options.source.trim();
-					data.options.source = clearString(data.options.source);
-					data.options.urlSource = data.options.source.toLowerCase();
-					data.options.source = addPrefix(data.options.source, data.function);
-					data.options.source = data.options.source.toLowerCase();
+			data.options.showTarget = data.options.target.trim();
+			data.options.target = clearString(data.options.target);
+			data.options.urlTarget = data.options.target.toLowerCase();
+			data.options.target = addPrefix(data.options.target, data.function);
+			data.options.target = data.options.target.toLowerCase();
+
+			if(typeof data.options.source !== "undefined"){
+				data.options.showSource = data.options.source.trim();
+				data.options.source = clearString(data.options.source);
+				data.options.urlSource = data.options.source.toLowerCase();
+				data.options.source = addPrefix(data.options.source, data.function);
+				data.options.source = data.options.source.toLowerCase();
+			}
+
+			if(typeof data.options.foreignKey !== "undefined"){
+				data.options.showForeignKey = data.options.foreignKey.trim();
+				data.options.foreignKey = clearString(data.options.foreignKey);
+				data.options.foreignKey = addPrefix(data.options.foreignKey, "foreignKey");
+				data.options.foreignKey = data.options.foreignKey.toLowerCase();
+			}
+
+			if(typeof data.options.as !== "undefined"){
+				data.options.showAs = data.options.as.trim();
+				data.options.as = clearString(data.options.as);
+				data.options.urlAs = data.options.as.toLowerCase();
+				data.options.as = addPrefix(data.options.as, "alias");
+				data.options.as = data.options.as.toLowerCase();
+			}
+
+			if(typeof data.options.usingField !== "undefined"){
+				const usingFields = data.options.usingField.split(",");
+				data.options.showUsingField = data.options.usingField.split(",");
+				for (let j = 0; j < usingFields.length; j++) {
+					usingFields[j] = usingFields[j].trim();
+					usingFields[j] = clearString(usingFields[j]);
+					usingFields[j] = addPrefix(usingFields[j], "using");
+					usingFields[j] = usingFields[j].toLowerCase();
 				}
-
-				if(typeof data.options.foreignKey !== "undefined"){
-					data.options.showForeignKey = data.options.foreignKey.trim();
-					data.options.foreignKey = clearString(data.options.foreignKey);
-					data.options.foreignKey = addPrefix(data.options.foreignKey, "foreignKey");
-					data.options.foreignKey = data.options.foreignKey.toLowerCase();
-				}
-
-				if(typeof data.options.as !== "undefined"){
-					data.options.showAs = data.options.as.trim();
-					data.options.as = clearString(data.options.as);
-					data.options.urlAs = data.options.as.toLowerCase();
-					data.options.as = addPrefix(data.options.as, "alias");
-					data.options.as = data.options.as.toLowerCase();
-				}
-
-				if(typeof data.options.usingField !== "undefined"){
-					const usingFields = data.options.usingField.split(",");
-					data.options.showUsingField = data.options.usingField.split(",");
-					for (let j = 0; j < usingFields.length; j++) {
-						usingFields[j] = usingFields[j].trim();
-						usingFields[j] = clearString(usingFields[j]);
-						usingFields[j] = addPrefix(usingFields[j], "using");
-						usingFields[j] = usingFields[j].toLowerCase();
-					}
-					data.options.usingField = usingFields;
-				}
+				data.options.usingField = usingFields;
 			}
 		}
+
 		return data;
 	}
 }

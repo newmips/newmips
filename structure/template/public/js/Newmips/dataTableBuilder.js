@@ -1,3 +1,4 @@
+// Datatable throw error instead of alert
 $.fn.dataTable.ext.errMode = 'throw';
 
 // =========================
