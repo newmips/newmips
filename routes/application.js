@@ -768,39 +768,59 @@ router.post('/import', block_access.isLoggedIn, (req, res) => {
 			// Generate standard app
 			const data = await execute(req, "add application " + req.body.appName, __);
 			const workspacePath = __dirname + '/../workspace/' + data.options.value;
+			const oldMetadataObj = JSON.parse(fs.readFileSync(workspacePath + '/config/metadata.json', 'utf8'));
 
 			// Delete generated workspace folder
 			helpers.rmdirSyncRecursive(workspacePath);
 			fs.mkdirsSync(workspacePath);
 
+			const tmpArchiveFilename = 'import_archive_' + new Date().getTime() + '.zip';
+
 			// Write zip file to system
-			fs.writeFileSync('importArchive.zip', req.files['zipfile'][0].buffer);
+			fs.writeFileSync(__dirname + '/../workspace/' + tmpArchiveFilename, req.files['zipfile'][0].buffer);
 			// Extract zip file content
 			await new Promise((resolve, reject) => {
-				fs.createReadStream('./importArchive.zip')
+				fs.createReadStream(__dirname + '/../workspace/' + tmpArchiveFilename)
 					.pipe(unzip.Extract({path: workspacePath}))
 					.on('close', resolve).on('error', reject);
 			});
 			// Delete temporary zip file
-			fs.unlinkSync('importArchive.zip');
+			fs.unlinkSync(__dirname + '/../workspace/' + tmpArchiveFilename);
+			// Remove copied .git
+			helpers.rmdirSyncRecursive(workspacePath + '/.git');
 
-			let oldAppName = false;
+			let oldAppName = false, oldAppDisplayName = false;
+			let metadataContent = fs.readFileSync(workspacePath + '/config/metadata.json', 'utf8');
+			let metadataContentObj = JSON.parse(metadataContent);
 
-			const metadataContent = JSON.parse(fs.readFileSync(workspacePath+'/config/metadata.json'));
-			oldAppName = Object.keys(metadataContent)[0];
-			const appRegex = new RegExp(oldAppName, 'g');
-			if(!oldAppName) {
+			oldAppName = Object.keys(metadataContentObj)[0];
+			if (!oldAppName) {
 				infoText += '- Unable to find metadata.json in .zip.<br>';
 				return null;
 			}
 
+			oldAppDisplayName = metadataContentObj[oldAppName].displayName;
+			const appNameRegex = new RegExp(oldAppName, 'g');
+			const appDisplayNameRegex = new RegExp(oldAppDisplayName, 'g');
+
 			// Need to modify so file content to change appName in it
-			const fileToReplace = ['/config/metadata.json', '/config/database.js'];
-			for (let i = 0; i < fileToReplace.length; i++) {
-				let content = fs.readFileSync(workspacePath + fileToReplace[i], 'utf8');
-				content = content.replace(appRegex, data.options.value);
-				fs.writeFileSync(workspacePath + fileToReplace[i], content);
-			}
+			metadataContent = metadataContent.replace(appNameRegex, data.options.value);
+			metadataContent = metadataContent.replace(appDisplayNameRegex, data.options.showValue);
+
+			// Update variable
+			metadataContentObj = JSON.parse(metadataContent);
+
+			// Replace repo URL in metadata.json
+			metadataContentObj[data.options.value].gitlabID = oldMetadataObj[data.options.value].gitlabID;
+			metadataContentObj[data.options.value].gitlabRepoHTTP = oldMetadataObj[data.options.value].gitlabRepoHTTP;
+			metadataContentObj[data.options.value].gitlabRepoSSH = oldMetadataObj[data.options.value].gitlabRepoSSH;
+
+			fs.writeFileSync(workspacePath + '/config/metadata.json', JSON.stringify(metadataContentObj, null, 4));
+
+			// Replace ap name in config/database.js
+			let databaseConfig = fs.readFileSync(workspacePath + '/config/database.js', 'utf8');
+			databaseConfig = databaseConfig.replace(appNameRegex, data.options.value);
+			fs.writeFileSync(workspacePath + '/config/database.js', databaseConfig);
 
 			infoText += '- The application is ready to be launched.<br>';
 

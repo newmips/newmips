@@ -177,8 +177,11 @@ exports.createNewApplication = async (data) => {
 	const gitlabRepo = await structure_application.setupApplication(data);
 
 	// Set gitlab project ID
-	if(gitlabRepo)
+	if(gitlabRepo) {
 		newApp.gitlabID = gitlabRepo.id;
+		newApp.gitlabRepoSSH = gitlabRepo.ssh_url_to_repo;
+		newApp.gitlabRepoHTTP = gitlabRepo.http_url_to_repo;
+	}
 
 	newApp.createdBy = data.currentUser.login;
 	// Save metadata in application
