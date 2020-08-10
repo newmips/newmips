@@ -1146,9 +1146,6 @@ exports.createComponentDocumentTemplate = async (data) => {
 		// Copy route file
 		fs.copySync(piecesPath + 'routes/e_document_template.js', workspacePath + 'routes/e_document_template.js');
 
-		// Add new entry for access
-		addAccessManagment(data.application.name, data.options.urlValue, 'administration');
-
 		// Set traduction
 		langFR.entity.e_document_template = {
 			label_entity: "Modèle de document",

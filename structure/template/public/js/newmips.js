@@ -127,7 +127,18 @@ function initForm(context) {
         }
         $(this).summernote({
             height: 200,
-            toolbar: toolbar
+            toolbar: toolbar,
+            callbacks: {
+                onPaste: function(e) {
+                    // Avoid paste code from ms word or libreoffice that would break some ihm feature
+                    // Only copy / paste plain text
+                    var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                    e.preventDefault();
+                    setTimeout(function() {
+                        document.execCommand('insertText', false, bufferText);
+                    }, 10);
+                }
+            }
         });
     });
 
@@ -1256,15 +1267,20 @@ $(document).ready(function () {
 
     // Validate any form before submit
     $('form').submit(function (e) {
-        var tmpButtontext = $(this).find("button[type='submit']").html();
-        $(this).find("button[type='submit']").attr("disabled", true);
+        var el = $(this);
+        var tmpButtontext = el.find("button[type='submit']").html();
+        el.find("button[type='submit']").attr("disabled", true);
         // Prevent multiple submittion (double click)
-        if ($(this).data('submitting') === true)
+        if (el.data('submitting') === true)
             return e.preventDefault();
-        $(this).data('submitting', true);
-        if (!validateForm($(this))) {
-            $(this).find("button[type='submit']").html(tmpButtontext).attr("disabled", false).blur();
-            $(this).data('submitting', false);
+        el.data('submitting', true);
+        // Reset after 2 seconds, needed for document template generate form for example
+        setTimeout(function(){
+            el.data('submitting', false);
+        }, 2000);
+        if (!validateForm(el)) {
+            el.find("button[type='submit']").html(tmpButtontext).attr("disabled", false).blur();
+            el.data('submitting', false);
             return false;
         }
         return true;

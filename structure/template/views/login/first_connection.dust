@@ -88,6 +88,8 @@
 				}
 
 				if (globalConfEnv != 'develop' && !isValidPassword($("#password").val(), $("#confirm_password").val())) {
+					if($('.body.bg-red').length != 0)
+						$('.body.bg-red').remove();
 					$('.body.bg-white').after("<div class='body bg-red text-center'><i class='fa fa-exclamation-circle'></i>&nbsp;&nbsp;" + notMatchPasswordText + "</div>");
 					return false;
 				}

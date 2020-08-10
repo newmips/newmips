@@ -339,6 +339,7 @@ module.exports = {
 							object[item] = '•••••••••';
 						break;
 					case 'boolean':
+					case 'checkbox':
 						if (fileType === "application/pdf")
 							object[item+ '_translation'] = object[item] == true ? "Yes" : "No";
 						else
