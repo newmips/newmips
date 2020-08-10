@@ -99,6 +99,7 @@ module.exports = {
 					}
 					data.entity[keyValue] = {
 						label_entity: value,
+						plural_entity: value,
 						id_entity: "ID"
 					};
 					break;
