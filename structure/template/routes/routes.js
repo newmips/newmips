@@ -175,6 +175,8 @@ router.post('/reset_password', block_access.loginAccess, (req, res) => {
 			message: "login.reset_password.successMail",
 			level: "success"
 		}];
+		// Reset potential captcha
+		delete req.session.loginAttempt;
 		res.redirect('/');
 	}).catch(err => {
 		// Remove inserted value in user to avoid zombies
