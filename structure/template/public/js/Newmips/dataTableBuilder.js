@@ -468,7 +468,10 @@ function init_datatable(tableID, doPagination, context) {
                     else if (columns[meta.col].type == 'status'){
                         keys = columns[meta.col].data.split(".");
                         var statusObj = diveObj(row, 0, keys);
-                        cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
+                        if (statusObj.f_name)
+                            cellValue = '<span class="badge" style="background: ' + statusObj.f_color + ';">' + statusObj.f_name + '</span>';
+                        else
+                            cellValue = '<span class="badge">' + statusObj + '</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
