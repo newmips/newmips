@@ -55,7 +55,7 @@ app.use(express.static(__dirname + '/public'));
 // Log every request (not /) to the console
 const morganConf = {
 	skip: req => {
-		if(req.url == "/")
+		if(req.originalUrl == "/")
 			return true;
 	}
 }

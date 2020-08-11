@@ -131,27 +131,28 @@ router.post('/update_event', block_access.actionAccessMiddleware("URL_ROUTE_even
 	});
 });
 
-router.post('/update_event_drop', block_access.actionAccessMiddleware("agenda_event", 'update'), function(req, res) {
+router.post('/update_event_drop', block_access.actionAccessMiddleware("URL_ROUTE_event", 'update'), function(req, res) {
+	(async () => {
+		const updateObj = {
+			f_start_date: req.body.start,
+			f_end_date: req.body.end,
+			f_all_day: typeof req.body.allDay === 'boolean' ? req.body.allDay : false
+		};
 
-	const updateObj = {
-		f_start_date: req.body.start,
-		f_end_date: req.body.end,
-		f_all_day: typeof req.body.allDay === 'boolean' ? req.body.allDay : false
-	};
+		const currentEvent = await models.CODE_NAME_EVENT_MODEL.findByPk(req.body.eventId);
+		await currentEvent.update(updateObj, {where: {id: req.body.eventId}}, {user: req.user});
 
-	models.E_agenda_event.findByPk(req.body.eventId).then(function(currentEvent){
-		currentEvent.update(updateObj, {where: {id: req.body.eventId}}, {user: req.user}).then(_ => {
-			let users = [];
-			if(req.body.idUsers != null)
-				users = req.body.idUsers;
-			else if (req.body.idUser != null)
-				users.push(req.body.idUser);
-			currentEvent.setR_users(users).then(function(){
-				res.json({
-					success: true
-				});
-			});
-		});
+		let users = [];
+		if(req.body.idUsers != null)
+			users = req.body.idUsers;
+		else if (req.body.idUser != null)
+			users.push(req.body.idUser);
+		await currentEvent.setR_users(users)
+	})().then(_ => {
+		res.status(200).send(true);
+	}).catch(err => {
+		console.error(err);
+		res.status(500).send(err);
 	});
 });
 
