@@ -52,8 +52,8 @@ exports.launchChildProcess = function(req, appName, env) {
 			const cleaned = data.replace(/(.*)\n*$/, '$1');
 			if (!cleaned.length)
 				return;
-			allLogStream.write('<span style="color:#00ffff;">'+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+':</span>  ' + ansiToHtml.toHtml(cleaned) + '\n');
-			console.log('\x1b[36m%s\x1b[0m', appName+' '+moment().format("YYYY-MM-DD HH:mm:ss-SSS")+': ' + cleaned);
+			allLogStream.write('<span style="color:#00ffff;">' + moment().format("YYYY-MM-DD HH:mm:ss-SSS") + ':</span>  ' + ansiToHtml.toHtml(cleaned) + '\n');
+			console.log('\x1b[36m%s\x1b[0m', appName + ' ' + moment().format("YYYY-MM-DD HH:mm:ss-SSS") + ': ' + cleaned);
 		}
 	});
 
