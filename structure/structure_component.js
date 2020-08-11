@@ -372,6 +372,17 @@ exports.newAgenda = async (data) => {
 		}
 	}
 
+	// Agenda js
+	{
+		const componentjsFile = piecesPath + '/public/js/agenda.js';
+		const appJsFile = workspacePath + '/public/js/Newmips/component/agenda.js';
+		fs.copySync(componentjsFile, appJsFile);
+
+		let jsFileContent = fs.readFileSync(appJsFile, 'utf8');
+		jsFileContent = jsFileContent.replace(/URL_ROUTE/g, valueComponent.substring(2));
+		fs.writeFileSync(appJsFile, jsFileContent);
+	}
+
 	// Add access managment to Agenda
 	addAccessManagment(data.application.name, urlComponent, data.np_module.name.substring(2))
 	// Add Event translation

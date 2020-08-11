@@ -83,7 +83,7 @@ $(document).ready(function() {
             };
 
             $.ajax({
-                url: '/agenda/add_event',
+                url: '/URL_ROUTE/add_event',
                 type: 'POST',
                 data: JSON.stringify(ajaxData),
                 dataType: 'json',
@@ -112,7 +112,7 @@ $(document).ready(function() {
             };
 
             $.ajax({
-                url: '/agenda/resize_event',
+                url: '/URL_ROUTE/resize_event',
                 type: 'POST',
                 data: JSON.stringify(ajaxData),
                 dataType: 'json',
@@ -140,7 +140,7 @@ $(document).ready(function() {
             };
 
             $.ajax({
-                url: '/agenda/update_event_drop',
+                url: '/URL_ROUTE/update_event_drop',
                 type: 'POST',
                 data: JSON.stringify(ajaxData),
                 dataType: 'json',
@@ -155,14 +155,16 @@ $(document).ready(function() {
             $("#modalUpdateEventID").val(calEvent.eventId);
             $("#modalUpdateID").val(calEvent._id);
             $("#modalUpdateTitle").val(calEvent.title);
-            if (calEvent.end == null)
-                calEvent.end = moment.utc(calEvent.start).add(4, "h");
             if (calEvent.allDay) {
-                $('#updateEventAllDayCheckbox').icheck('check');
+                $('#updateEventAllDayCheckbox').icheck('checked');
+                $("#modalUpdateStartTime").val('00:00');
+                $("#modalUpdateEndTime").val('00:00');
             } else {
-                $('#updateEventAllDayCheckbox').icheck('uncheck');
-                $("#modalUpdateStartTime").val(moment(calEvent.start).format("HH:mm"));
-                $("#modalUpdateEndTime").val(moment(calEvent.end).format("HH:mm"));
+                if (calEvent.end == null)
+                    calEvent.end = moment.utc(calEvent.start).add(4, "h");
+                $('#updateEventAllDayCheckbox').icheck('unchecked');
+                $("#modalUpdateStartTime").val(moment.utc(calEvent.start).format("HH:mm"));
+                $("#modalUpdateEndTime").val(moment.utc(calEvent.end).format("HH:mm"));
             }
             if (calEvent.idCategory != 0)
                 $("#modalUpdateCategory").val(calEvent.idCategory).trigger("change");
@@ -182,9 +184,10 @@ $(document).ready(function() {
 
             if ($("#modalCreateStartTime").val() == "00:00") {
                 /* If start date is 00:00 then we considered that the event is all day, so check allDay checkbox */
-                $('#createEventAllDayCheckbox').icheck('check');
+                $('#createEventAllDayCheckbox').icheck('checked');
+                $("#modalCreateEndTime").val('00:00');
             } else {
-                $('#createEventAllDayCheckbox').icheck('uncheck');
+                $('#createEventAllDayCheckbox').icheck('unchecked');
             }
             $("#modalCreateTitle").val("");
             $("#modalCreateCategory").val("").trigger("change");
@@ -201,6 +204,8 @@ $(document).ready(function() {
         if ($(this).icheck('update')[0].checked) {
             $("#modalCreateStartTime").prop("disabled", true);
             $("#modalCreateEndTime").prop("disabled", true);
+            $("#modalUpdateStartTime").val('00:00');
+            $("#modalUpdateEndTime").val('00:00');
         } else {
             $("#modalCreateStartTime").prop("disabled", false);
             $("#modalCreateEndTime").prop("disabled", false);
@@ -213,6 +218,8 @@ $(document).ready(function() {
         if ($(this).icheck('update')[0].checked) {
             $("#modalUpdateStartTime").prop("disabled", true);
             $("#modalUpdateEndTime").prop("disabled", true);
+            $("#modalUpdateStartTime").val('00:00');
+            $("#modalUpdateEndTime").val('00:00');
         } else {
             $("#modalUpdateStartTime").prop("disabled", false);
             $("#modalUpdateEndTime").prop("disabled", false);
@@ -227,7 +234,7 @@ $(document).ready(function() {
         var idEventToDelete = $("#modalUpdateEventID").val();
         var idEventCalendarToDelete = $("#modalUpdateID").val();
         $.ajax({
-            url: '/agenda/delete_event',
+            url: '/URL_ROUTE/delete_event',
             type: 'POST',
             data: JSON.stringify({
                 id: idEventToDelete
@@ -268,7 +275,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '/agenda/update_event',
+            url: '/URL_ROUTE/update_event',
             type: 'POST',
             data: {
                 id: idEventToUpdate,
@@ -286,7 +293,7 @@ $(document).ready(function() {
                 eventObj[0].idCategory = newCategory;
                 eventObj[0].backgroundColor = newCategoryColor;
                 eventObj[0].borderColor = newCategoryColor;
-                $('#calendar').fullCalendar('updateEvent', eventObj[0]);
+                // $('#calendar').fullCalendar('updateEvent', eventObj[0]);
                 /* Little trick to set end date */
                 eventObj[0].end = allDay ? moment.utc(startDate[0] + " 00:00:00") : moment.utc(newEndDate);
                 $('#calendar').fullCalendar('updateEvent', eventObj[0]);
@@ -332,7 +339,7 @@ $(document).ready(function() {
         };
 
         $.ajax({
-            url: '/agenda/add_event',
+            url: '/URL_ROUTE/add_event',
             type: 'POST',
             data: JSON.stringify(ajaxData),
             dataType: 'json',
