@@ -562,7 +562,7 @@ exports.deleteTab = deleteTab;
 async function deleteField(data) {
 
 	data.entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
-	data.field = data.entity.getField(data.options.value, true, data.options.showValue)
+	data.field = data.entity.getField(data.options.value, true, data.options.showValue);
 
 	// Delete field from views and models
 	const infoStructure = await structure_field.deleteField(data);
@@ -1293,7 +1293,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	data.source_entity = data.application.getModule(data.module_name, true).getEntity(data.entity_name, true);
 
 	// Check if a field with this name already exist
-	if(data.source_entity.getField(data.options.as)) {
+	if(data.source_entity.getField('f_' + data.options.urlAs)) {
 		const err = new Error('database.field.error.alreadyExist');
 		err.messageParams = [data.options.showAs];
 		throw err;
@@ -1399,7 +1399,7 @@ exports.createNewFieldRelatedTo = async (data) => {
 	// Generate html code in dust file
 	await structure_field.setupRelatedToField(data);
 
-	data.source_entity.addField(data.options.as, data.options.showAs);
+	data.source_entity.addField('f_' + data.options.urlAs, data.options.showAs);
 
 	return {
 		entity: data.source_entity,
@@ -1575,7 +1575,7 @@ exports.createNewComponentStatus = async (data) => {
 	data.entity.addComponent(data.options.value, data.options.showValue, 'status');
 
 	// Remove useless related field on entity
-	data.entity.deleteField('r_' + data.options.value.substring(2));
+	data.entity.deleteField('f_' + data.options.value.substring(2));
 
 	return {
 		message: 'database.component.create.successOnEntity',

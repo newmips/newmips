@@ -489,9 +489,17 @@ exports.createWidgetLastRecords = async (data) => {
 
 	let thead = '<thead><tr>';
 	for (let i = 0; i < data.columns.length; i++) {
-		const field = data.columns[i].name;
-		const type = $list('th[data-field="' + field + '"]').data('type');
-		const col = $list('th[data-field="' + field + '"]').data('col');
+		let field = data.columns[i].name;
+		let type = $list('th[data-field="' + field + '"]').data('type');
+		let col = $list('th[data-field="' + field + '"]').data('col');
+
+		// Not found with f_, try with r_ for related to field
+		if(typeof type === 'undefined' && typeof col === 'undefined') {
+			field = 'r_' + field.substring(2);
+			type = $list('th[data-field="' + field + '"]').data('type');
+			col = $list('th[data-field="' + field + '"]').data('col');
+		}
+
 		const fieldTradKey = field != 'id' ? field : 'id_entity';
 		thead += '\
 		<th data-field="' + field + '" data-type="' + type + '" data-col="' + col + '">\n\
