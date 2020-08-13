@@ -105,7 +105,11 @@ router.post('/subdatalist', block_access.actionAccessMiddleware("ENTITY_URL_NAME
 			return res.status(500).end();
 		}
 
-		ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where}).then(count => {
+		// Remove attributes to avoid nonaggregated column error on count with includes
+		for (const entity of include.include)
+			entity.attributes = [];
+
+		ENTITY_NAME['count' + entity_helper.capitalizeFirstLetter(subentityAlias)]({where: include.where, include: include.include}).then(count => {
 			const rawData = {
 				recordsTotal: count,
 				recordsFiltered: count,
