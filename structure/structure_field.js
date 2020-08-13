@@ -944,15 +944,21 @@ exports.setRequiredAttribute = async (data) => {
 					defaultValue = "";
 					break;
 			}
+
 			if(defaultValue)
 				attributesObj[data.options.value].defaultValue = defaultValue;
-			// TODO postgres
+
 			if (data.sqlDataType && data.dialect == "mysql") {
 				// Update all NULL value before set not null
 				toSync.queries.push("UPDATE `" + tableName + "` SET `" + data.options.value + "`='" + defaultValue + "' WHERE `" + data.options.value + "` IS NULL;");
 				toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NOT NULL");
 				if(defaultValue)
 					toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT '" + defaultValue + "';");
+			} else if(data.dialect == "postgres") {
+				toSync.queries.push('UPDATE "' + tableName + '" SET "' + data.options.value + '"=\'' + defaultValue + '\' WHERE "' + data.options.value + '" IS NULL;');
+				toSync.queries.push('ALTER TABLE "' + tableName + '" ALTER COLUMN "' + data.options.value + '" SET NOT NULL');
+				if(defaultValue)
+					toSync.queries.push('ALTER TABLE "' + tableName + '" ALTER COLUMN "' + data.options.value + '" SET DEFAULT ' + defaultValue + ';');
 			}
 		} else {
 			// Set optional
@@ -962,11 +968,12 @@ exports.setRequiredAttribute = async (data) => {
 			if(attributesObj[data.options.value].type != 'TEXT')
 				attributesObj[data.options.value].defaultValue = null;
 
-			// TODO postgres
 			if (data.sqlDataType && data.dialect == "mysql") {
 				toSync.queries.push("ALTER TABLE `" + tableName + "` CHANGE `" + data.options.value + "` `" + data.options.value + "` " + data.sqlDataType + length + " NULL");
 				if(attributesObj[data.options.value].type != 'TEXT')
 					toSync.queries.push("ALTER TABLE `" + tableName + "` ALTER `" + data.options.value + "` SET DEFAULT NULL;");
+			} else if(data.dialect == "postgres") {
+				toSync.queries.push('ALTER TABLE "' + tableName + '" ALTER COLUMN "' + data.options.value + '" DROP NOT NULL');
 			}
 		}
 		fs.writeFileSync(jsonPath, JSON.stringify(toSync, null, 4));
