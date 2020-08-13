@@ -44,18 +44,17 @@ exports.dropFKField = async(data) => {
 	const table_name = data.entity.name;
 
 	let query = "";
-	if (sequelize.options.dialect == "mysql")
+	if (sequelize.options.dialect == "mysql") {
 		query = "SELECT constraint_name FROM `information_schema`.`KEY_COLUMN_USAGE` where `COLUMN_NAME` = '" + data.fieldToDrop + "' && `TABLE_NAME` = '" + table_name + "';";
-	else if(sequelize.options.dialect == "postgres")
-		query = "SELECT constraint_name FROM information_schema.KEY_COLUMN_USAGE where column_name = '" + data.fieldToDrop + "' AND table_name = '" + table_name + "';";
+		const constraintName = await sequelize.query(query);
 
-	const constraintName = await sequelize.query(query);
+		if (typeof constraintName[0][0] === "undefined")
+			return;
 
-	if (typeof constraintName[0][0] === "undefined")
-		return;
-
-	query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop + ";";
-
+		query = "ALTER TABLE " + table_name + " DROP FOREIGN KEY " + constraintName[0][0].constraint_name + "; ALTER TABLE " + table_name + " DROP " + data.fieldToDrop + ";";
+	} else if(sequelize.options.dialect == "postgres") {
+		query = "ALTER TABLE " + table_name + " DROP " + data.fieldToDrop + ";";
+	}
 	pushToSyncQuery(data.application, query);
 }
 
