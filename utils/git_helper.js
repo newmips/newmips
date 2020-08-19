@@ -10,13 +10,6 @@ function checkAlreadyInit(workspace) {
 	return false;
 }
 
-function writeAllLogs(title, content = ''){
-	let toWriteInLog = title+":\n";
-	toWriteInLog += JSON.stringify(content).replace(/,/g, ",\n");
-	toWriteInLog += "\n";
-	fs.writeFileSync(__dirname + '/../all.log', fs.readFileSync(__dirname + '/../all.log') + "\n" + toWriteInLog + "\n");
-}
-
 function getRepoInfo(appName, gitlabUser = null) {
 	const nameApp = appName.substring(2); // Remove prefix a_
 	const cleanHost = globalConf.host.replace(/\./g, "-"); // . becomes -
@@ -48,14 +41,18 @@ async function initializeGit(repoInfo) {
 
 	// Set isProcessing to prevent any other git command during this process
 	gitProcesses[repoInfo.origin].isProcessing = true;
-	await gitProcesses[repoInfo.origin].simpleGit.init();
-	await gitProcesses[repoInfo.origin].simpleGit.add('.');
-	const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit("First commit - Workspace initialization");
-	console.log(commitSummary);
-	await gitProcesses[repoInfo.origin].simpleGit.addRemote(repoInfo.origin, repoInfo.url);
-	await gitProcesses[repoInfo.origin].simpleGit.push(['-u', repoInfo.origin, 'master']);
+	try {
+		await gitProcesses[repoInfo.origin].simpleGit.init();
+		await gitProcesses[repoInfo.origin].simpleGit.add('.');
+		const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit("First commit - Workspace initialization");
+		console.log(commitSummary);
+		await gitProcesses[repoInfo.origin].simpleGit.addRemote(repoInfo.origin, repoInfo.url);
+		await gitProcesses[repoInfo.origin].simpleGit.push(['-u', repoInfo.origin, 'master']);
+	} catch(err) {
+		gitProcesses[repoInfo.origin].isProcessing = false;
+		throw err;
+	}
 	gitProcesses[repoInfo.origin].isProcessing = false;
-	writeAllLogs("Git first commit + push", commitSummary);
 }
 
 module.exports = {
@@ -100,12 +97,15 @@ module.exports = {
 
 			// Set gitProcesses to prevent any other git command during this process
 			gitProcesses[repoInfo.origin].isProcessing = true;
-			await gitProcesses[repoInfo.origin].simpleGit.add('.')
-			const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit(commitMsg);
-			console.log(commitSummary);
-
-			gitProcesses[repoInfo.origin].isProcessing = false;
-			writeAllLogs("Git commit", commitSummary);
+			try {
+				await gitProcesses[repoInfo.origin].simpleGit.add('.')
+				const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit(commitMsg);
+				console.log(commitSummary);
+				gitProcesses[repoInfo.origin].isProcessing = false;
+			} catch(err) {
+				gitProcesses[repoInfo.origin].isProcessing = false;
+				throw err;
+			}
 		}
 	},
 	gitPush: async (data) => {
@@ -134,9 +134,14 @@ module.exports = {
 		else if(typeof data.function !== "undefined"){
 			// We are just after a new instruction
 			console.log("GIT => PUSH " + repoInfo.origin);
-			await gitProcesses[repoInfo.origin].simpleGit.push(['-u', repoInfo.origin, 'master']);
-			gitProcesses[repoInfo.origin].isProcessing = false;
-			writeAllLogs("Git push");
+			gitProcesses[repoInfo.origin].isProcessing = true;
+			try {
+				await gitProcesses[repoInfo.origin].simpleGit.push(['-u', repoInfo.origin, 'master']);
+				gitProcesses[repoInfo.origin].isProcessing = false;
+			} catch(err) {
+				gitProcesses[repoInfo.origin].isProcessing = false;
+				throw err;
+			}
 		}
 	},
 	gitPull: async (data) => {
@@ -163,10 +168,14 @@ module.exports = {
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
-		const pullSummary = await gitProcesses[repoInfo.origin].simpleGit.pull(repoInfo.origin, "master")
-		console.log(pullSummary);
-		gitProcesses[repoInfo.origin].isProcessing = false;
-		writeAllLogs("Git pull", pullSummary);
+		try {
+			const pullSummary = await gitProcesses[repoInfo.origin].simpleGit.pull(repoInfo.origin, "master")
+			console.log(pullSummary);
+			gitProcesses[repoInfo.origin].isProcessing = false;
+		} catch(err) {
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			throw err;
+		}
 	},
 	gitCommit: async (data) => {
 
@@ -199,11 +208,15 @@ module.exports = {
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
-		await gitProcesses[repoInfo.origin].simpleGit.add('.')
-		const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit(commitMsg);
-		console.log(commitSummary);
-		gitProcesses[repoInfo.origin].isProcessing = false;
-		writeAllLogs("Git commit", commitSummary);
+		try {
+			await gitProcesses[repoInfo.origin].simpleGit.add('.')
+			const commitSummary = await gitProcesses[repoInfo.origin].simpleGit.commit(commitMsg);
+			console.log(commitSummary);
+			gitProcesses[repoInfo.origin].isProcessing = false;
+		} catch(err) {
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			throw err;
+		}
 	},
 	gitStatus: async (data) => {
 
@@ -230,11 +243,15 @@ module.exports = {
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
-		const status = await gitProcesses[repoInfo.origin].simpleGit.status();
-		console.log(status);
-		gitProcesses[repoInfo.origin].isProcessing = false;
-		writeAllLogs("Git push", status);
-		return status;
+		try {
+			const status = await gitProcesses[repoInfo.origin].simpleGit.status();
+			console.log(status);
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			return status;
+		} catch(err) {
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			throw err;
+		}
 	},
 	gitTag: async (data, tagName) => {
 
@@ -260,11 +277,14 @@ module.exports = {
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
-		await gitProcesses[repoInfo.origin].simpleGit.addAnnotatedTag(tagName, 'Tagging ' + tagName);
-		await gitProcesses[repoInfo.origin].simpleGit.pushTags(['-u', repoInfo.origin, 'master']);
+		try {
+			await gitProcesses[repoInfo.origin].simpleGit.addAnnotatedTag(tagName, 'Tagging ' + tagName);
+			await gitProcesses[repoInfo.origin].simpleGit.pushTags(['-u', repoInfo.origin, 'master']);
+		} catch(err) {
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			throw err;
+		}
 		gitProcesses[repoInfo.origin].isProcessing = false;
-
-		writeAllLogs("Git tag");
 	},
 	gitRemotes: async (data) => {
 		// Only if gitlab conf is ready
@@ -289,9 +309,13 @@ module.exports = {
 
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
-		const remotes = await gitProcesses[repoInfo.origin].simpleGit.getRemotes(true);
-		gitProcesses[repoInfo.origin].isProcessing = false;
-		writeAllLogs("Git remote", remotes);
-		return remotes;
+		try {
+			const remotes = await gitProcesses[repoInfo.origin].simpleGit.getRemotes(true);
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			return remotes;
+		} catch(err) {
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			throw err;
+		}
 	}
 }
