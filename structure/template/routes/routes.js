@@ -118,6 +118,8 @@ router.post('/first_connection', block_access.loginAccess, (req, res) => {
 				message: "login.first_connection.success_login",
 				level: "success"
 			}];
+			// Reset potential captcha
+			delete req.session.loginAttempt;
 			res.redirect('/default/home');
 		})
 	}).catch(err => {
