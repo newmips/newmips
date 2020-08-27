@@ -56,7 +56,7 @@ module.exports = (sequelize, DataTypes) => {
 					// Fetch all groups found and their users
 					/* eslint-disable */
 					const groups = await sequelize.models.E_group.findAll({
-						where: {id: {[models.$in]: groupIds}},
+						where: {id: {[sequelize.models.$in]: groupIds}},
 						include: {model: sequelize.models.E_user, as: 'r_user'}
 					});
 					/* eslint-enable */
@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
 					// Fetch all users found
 					/* eslint-disable */
 					const users = await sequelize.models.E_user.findAll({
-						where: {id: {[models.$in]: userIds}}
+						where: {id: {[sequelize.models.$in]: userIds}}
 					});
 					/* eslint-enable */
 
