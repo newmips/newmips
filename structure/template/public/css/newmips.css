@@ -254,7 +254,6 @@ div.dataTables_length select {
 }
 
 .copy-button {
-    /*padding: 6px 12px;*/
     font-size: 14px;
     font-weight: normal;
     line-height: 1;
@@ -286,4 +285,9 @@ div.dataTables_length select {
 
 .preview_file {
     cursor: pointer;
+}
+
+/* Remove size stat on dropzone file */
+.dropzone .dz-preview .dz-details .dz-size {
+    display: none;
 }

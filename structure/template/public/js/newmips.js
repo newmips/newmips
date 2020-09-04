@@ -478,9 +478,6 @@ function initForm(context) {
             dropzoneInit.emit('addedfile', mockFile);
             if(typeof $('#' + dropzoneId + '_hidden').data('buffer') === undefined)
                 dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
-            else
-                dropzoneInit.emit('thumbnail', mockFile, "https://newmips.com/wp-content/uploads/2019/09/download-file.png");
-            dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
             dropzoneInit.emit('complete', mockFile);
         }
         dropzoneInit.done = false;
