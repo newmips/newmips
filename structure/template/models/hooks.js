@@ -31,7 +31,7 @@ module.exports = function(model_name) {
 			func: (model, args) => new Promise(resolve => {
 				try {
 					// No user
-					if(args.user === undefined)
+					if(args.user === undefined || args.user === null)
 						throw 'No user provided for createdBy on table -> ' + model.constructor.tableName;
 
 					// Disabled
@@ -71,7 +71,7 @@ module.exports = function(model_name) {
 			func: (model, args) => new Promise(resolve => {
 				try {
 					// No user
-					if(args.user === undefined)
+					if(args.user === undefined || args.user === null)
 						throw 'No user provided for updatedBy on table -> ' + model.constructor.tableName;
 
 					// Disabled
