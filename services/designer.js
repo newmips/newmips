@@ -1679,6 +1679,10 @@ exports.addComponentFileStorage = async (data) => {
 // Componant to create a contact form in a module
 exports.createNewComponentContactForm = async (data) => {
 
+	// Disabled in 2.9
+	throw new Error("error.disabledInCurrentVersion");
+
+	/* eslint-disable */
 	const exportsContext = this;
 
 	/* If there is no defined name for the module */
@@ -1728,9 +1732,15 @@ exports.createNewComponentContactForm = async (data) => {
 		message: "database.component.create.success",
 		messageParams: [data.options.showValue]
 	};
+	/* eslint-enable */
 }
 
 exports.deleteComponentContactForm = async (data) => {
+
+	// Disabled in 2.9
+	throw new Error("error.disabledInCurrentVersion");
+
+	/* eslint-disable */
 
 	const exportsContext = this;
 
@@ -1765,6 +1775,8 @@ exports.deleteComponentContactForm = async (data) => {
 	return {
 		message: "database.component.delete.success"
 	};
+
+	/* eslint-enable */
 }
 
 // Componant to create an agenda in a module
