@@ -252,7 +252,8 @@
 		"valueTooLong": "Désolé, la valeur renseignée dépasse la longueur maximum autorisée (<30) après génération (%s).",
 		"cannotFindInstruction": "Désolé, je ne comprends pas ce que vous me demandez.",
 		"missingParametersInstruction": "La syntaxe ou les paramètres de votre instruction sont erronés. Merci de consultez la documentation.",
-		"notForParamEntity": "Vous ne pouvez pas faire ça avec une entité de paramètre."
+		"notForParamEntity": "Vous ne pouvez pas faire ça avec une entité de paramètre.",
+		"disabledInCurrentVersion": "Désolé cette instruction est désactivée dans la version actuelle."
 	},
 	"back":{
 		"list": "Lister les",

@@ -252,7 +252,8 @@
 		"valueTooLong": "Sorry, but the given value (%s) is too long (<30).",
 		"cannotFindInstruction": "Sorry, I do not understand what you're asking of me.",
 		"missingParametersInstruction": "The syntax or parameters of your instruction are wrong. Please see the documentation.",
-		"notForParamEntity": "You can't do this with a param entity."
+		"notForParamEntity": "You can't do this with a param entity.",
+		"disabledInCurrentVersion": "Sorry this instruction is disabled in the current version."
 	},
 	"back":{
 		"list": "List",
