@@ -187,13 +187,13 @@ class Application {
 		return false;
 	}
 
-	findEntity(entity_name, required = false) {
+	findEntity(entity_name, required = false, displayName = entity_name) {
 		const foundModule = this._modules.filter(x => x.getEntity(entity_name))[0];
 		if (!foundModule) {
 			if (!required)
 				return false;
 			const err = new Error('database.entity.notFound.withThisName');
-			err.messageParams = [entity_name];
+			err.messageParams = [displayName];
 			throw err;
 		}
 

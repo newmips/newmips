@@ -729,7 +729,6 @@ exports.setFieldKnownAttribute = async (data) => {
 	}
 	err.messageParams = [msgParams];
 	throw err;
-
 }
 
 exports.setFieldAttribute = async (data) => {
@@ -1438,7 +1437,7 @@ exports.createNewFieldRelatedToMultiple = async (data) => {
 	data.options.foreignKey = "fk_id_" + data.source_entity.name + "_" + alias.substring(2);
 
 	// Check if the target entity exist
-	data.target_entity = data.application.findEntity(data.options.target, true).entity;
+	data.target_entity = data.application.findEntity(data.options.target, true, data.options.showTarget).entity;
 
 	// If a using field or fields has been asked, we have to check if those fields exist in the entity
 	if (typeof data.options.usingField !== "undefined") {

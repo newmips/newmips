@@ -62,7 +62,7 @@
 	},
 	"button": {
 		"generate": "Generate",
-		"disconnect": "Disconnect",
+		"logout": "Log out",
 		"show": "Show",
 		"update": "Modify",
 		"delete": "Delete",

@@ -46,6 +46,28 @@ exports.translated = function (entity, lang, options) {
 	return data;
 }
 
+exports.translateRow = function(row, enumsTranslation, forDatalist = false) {
+	fieldLoop: for (const field in row) {
+		// Look for enum translation
+		for (const enumEntity in enumsTranslation) {
+			for (const enumField in enumsTranslation[enumEntity])
+				if (enumField == field)
+					for (let i = 0; i < enumsTranslation[enumEntity][enumField].length; i++)
+						if (enumsTranslation[enumEntity][enumField][i].value == row[field]) {
+							if(forDatalist)
+								row[field] = enumsTranslation[enumEntity][enumField][i].translation;
+							else
+								row[field] = {
+									value: row[field],
+									translation: enumsTranslation[enumEntity][enumField][i].translation
+								};
+							// Field is confirmed enum, continue with next field loop
+							continue fieldLoop;
+						}
+		}
+	}
+}
+
 // Looking for using field in row entity association to translate it based on locales/enum_radio.json
 // Useful in related to field that using an enum or radio field
 exports.translateUsingField = function (entity, options, translate, forDatalist = false) {
