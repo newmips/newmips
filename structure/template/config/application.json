@@ -27,5 +27,6 @@
 			"e_user"
 		]
 	},
-	"lang": "fr-FR"
+	"lang": "fr-FR",
+	"timezone": "Europe/Paris"
 }
