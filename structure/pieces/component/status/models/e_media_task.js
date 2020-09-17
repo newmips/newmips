@@ -73,52 +73,25 @@ module.exports = (sequelize, DataTypes) => {
 			return newString || "";
 		}
 
-		function duplicateFile(originFileName) {
-			return new Promise((fileResolve, fileReject) => {
-				if (!originFileName || originFileName == '')
-					return fileResolve(null);
-				try {
-					const originFolder = originFileName.split('-')[0];
-					const originPath = globalConf.localstorage+'e_media_task/'+originFolder;
+		models().E_task.create({
+			f_title: insertVariablesValue('f_task_name'),
+			f_type: self.f_task_type,
+			f_data_flow: insertVariablesValue('f_data_flow'),
+			fk_id_process_process: self.fk_id_process_process
+		}).then(task => {
+			const taskAttributes = JSON.parse(fs.readFileSync(__dirname+'/attributes/e_task.json'));
+			status_helper().setInitialStatus({user: {id: 1}}, task, 'e_task', taskAttributes) // eslint-disable-line
+				.then(_ => {
+					console.log('initialStatus set');
+					resolve()
+				})
+				.catch(err => {
+					console.error("initialStatus error");
+					console.error(err);
+					reject()
+				});
 
-					let duplicateFolder = moment().format("YYYYMMDD-HHmmssSSS");
-					const duplicateFileName = duplicateFolder+'_'+originFileName.substring(16);
-					duplicateFolder = duplicateFolder.split('-')[0];
-					const duplicatePath = globalConf.localstorage+'e_task/'+duplicateFolder;
-					fs.mkdirs(duplicatePath, err => {
-						if (err)
-							return fileReject(err);
-
-						fs.copySync(originPath+'/'+originFileName, duplicatePath+'/'+duplicateFileName);
-						fileResolve(duplicateFileName);
-					});
-				} catch(err) {
-					fileReject(err);
-				}
-			});
-		}
-
-		duplicateFile(self.f_program_file).then(program_file => {
-			models().E_task.create({
-				f_title: insertVariablesValue('f_task_name'),
-				f_type: self.f_task_type,
-				f_data_flow: insertVariablesValue('f_data_flow'),
-				f_program_file: program_file
-			}).then(task => {
-				const taskAttributes = JSON.parse(fs.readFileSync(__dirname+'/attributes/e_task.json'));
-				status_helper().setInitialStatus({user: {id: 1}}, task, 'e_task', taskAttributes) // eslint-disable-line
-					.then(_ => {
-						console.log('initialStatus set');
-						resolve()
-					})
-					.catch(err => {
-						console.error("initialStatus error");
-						console.error(err);
-						reject()
-					});
-
-			}).catch(reject);
-		});
+		}).catch(reject);
 	}
 	return Model;
 };
