@@ -152,7 +152,8 @@
 			"f_task_type": "Type tâche",
 			"f_assignment_logic": "Logique d'assignement",
 			"f_program_file": "Fichier programme",
-			"f_data_flow": "Flux de données"
+			"f_data_flow": "Flux de données",
+            "r_process": "Traitement"
 		},
 		"e_inline_help": {
 			"label_entity": "Aide en ligne",
@@ -183,8 +184,24 @@
 			"f_data_flow": "Flux de données",
 			"r_robot": "Robot",
 			"f_program_file": "Fichier programme",
-			"f_procedure": "Procédure"
+			"f_procedure": "Procédure",
+            "r_process": "Traitement"
 		},
+        "e_process": {
+            "label_entity": "Traitement",
+            "plural_entity": "Traitement",
+            "id_entity": "ID",
+            "f_name": "Nom",
+            "r_program": "Programme"
+        },
+        "e_program": {
+            "label_entity": "Programme",
+            "plural_entity": "Programme",
+            "id_entity": "ID",
+            "f_name": "Nom",
+            "f_description": "Description",
+            "f_program_file": "Fichier programme"
+        },
 		"e_history_e_task_s_state": {
             "label_entity": "Historique Etat tâche",
             "id_entity": "ID",

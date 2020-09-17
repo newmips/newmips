@@ -59,18 +59,17 @@
 		</div>
 	</div>
 
-	<div data-field="f_program_file" class="fieldLineHeight col-xs-12">
-		<div class="form-group">
-			<label for="f_program_file">
-				{#__ key="entity.e_media_task.f_program_file"/}&nbsp;
-				{@inline_help field="f_program_file"}
-				<i data-field="f_program_file" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-				{/inline_help}
-			</label>
-			<div class="dropzone dropzone-field" id="f_program_file_dropzone" data-storage="local" data-entity="e_media_task"></div>
-			<input type="hidden" name="f_program_file" id="f_program_file_dropzone_hidden" value="">
-		</div>
-	</div>
+    <div data-field="f_process" class="fieldLineHeight col-xs-12">
+        <div class="form-group">
+            <label for="r_process">
+                {#__ key="entity.e_media_task.r_process" /}&nbsp;
+                {@inline_help field="r_process"}
+                <i data-field="r_process" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+                {/inline_help}
+            </label>
+            <select class="ajax form-control" name="r_process" data-source="process" data-using="f_name" width="100%"></select>
+        </div>
+    </div>
 	<div data-field="f_data_flow" class="fieldLineHeight col-xs-12">
 		<div class="form-group">
 			<label for="f_data_flow">
