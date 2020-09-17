@@ -10,6 +10,7 @@ const structure_component = require("../structure/structure_component");
 const structure_ui = require("../structure/structure_ui");
 
 // Utils
+const helpers = require('../utils/helpers');
 const dataHelper = require("../utils/data_helper");
 const gitHelper = require("../utils/git_helper");
 
@@ -999,6 +1000,7 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 // Create a tab with an add button to create multiple new object associated to source entity
 exports.createNewHasMany = async (data) => {
 	const exportsContext = this;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 
 	const sourceEntity = data.application.findEntity(data.options.source, true);
 	data.np_module = sourceEntity.np_module;
@@ -1007,7 +1009,7 @@ exports.createNewHasMany = async (data) => {
 	if(data.source_entity.isParamEntity)
 		throw new Error('error.notForParamEntity');
 
-	const sourceOptionsPath = __dirname+'/../workspace/' + data.application.name + '/models/options/' + data.source_entity.name + '.json';
+	const sourceOptionsPath = workspacePath + '/models/options/' + data.source_entity.name + '.json';
 	const optionsSourceObject = JSON.parse(fs.readFileSync(sourceOptionsPath));
 	let saveFile = false;
 
@@ -1052,7 +1054,7 @@ exports.createNewHasMany = async (data) => {
 		if(targetEntity.entity.isParamEntity)
 			throw new Error('error.notForParamEntity');
 
-		const optionsObject = JSON.parse(fs.readFileSync(__dirname+'/../workspace/' + data.application.name + '/models/options/' + data.options.target + '.json'));
+		const optionsObject = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + data.options.target + '.json'));
 		let matchingAlias = null, cptExistingHasMany = 0;
 
 		// Check if there is no or just one belongsToMany to do
@@ -1128,6 +1130,14 @@ exports.createNewHasMany = async (data) => {
 		relation: "belongsTo",
 		toSync: toSync,
 		type: "auto_generate"
+	};
+
+	// Detect Sequelize cyclic dependency, to disabled constraints if needed for this relation
+	// See for more information https://sequelize.org/master/manual/constraints-and-circularities.html
+	if(helpers.detectCyclicDependency(data.options.source, data.options.target, workspacePath)) {
+		associationOption.constraints = false;
+		reversedOptions.constraints = false;
+		database.generateFkConstraint(data);
 	}
 
 	// Generate hasMany relation in options

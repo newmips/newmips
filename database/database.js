@@ -119,3 +119,14 @@ exports.retrieveWorkspaceHasManyData = async (data, entity, foreignKey) => {
 		return null;
 	}
 }
+
+exports.generateFkConstraint = data => {
+	let query = "";
+	if (sequelize.options.dialect == "mysql") {
+		query = "ALTER TABLE " + data.options.target + " ADD FOREIGN KEY (" + data.options.foreignKey + ") REFERENCES " + data.options.source + "(id);";
+	} else if(sequelize.options.dialect == "postgres") {
+		query = "ALTER TABLE " + data.options.target + " ADD FOREIGN KEY (" + data.options.foreignKey + ") REFERENCES " + data.options.source + "(id);";
+	}
+
+	pushToSyncQuery(data.application, query);
+}

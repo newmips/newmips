@@ -182,6 +182,31 @@ module.exports = {
 			return err;
 		}
 	},
+	detectCyclicDependency: (source, target, workspacePath) => {
+
+		function recursiveSearching(target, entityList = [source, target]) {
+
+			const currentOption = JSON.parse(fs.readFileSync(workspacePath + '/models/options/' + target + '.json'));
+			for (let i = 0; i < currentOption.length; i++) {
+				if(currentOption[i].relation != 'hasMany')
+					continue;
+
+				entityList.push(currentOption[i].target + ' (' + currentOption[i].as + ')');
+
+				if(currentOption[i].target == source)
+					return entityList;
+
+				return recursiveSearching(currentOption[i].target, entityList);
+			}
+		}
+
+		const result = recursiveSearching(target);
+		if(typeof result !== 'undefined' && result.length > 0) {
+			console.error('Cyclic Dependency Found => ' + result.join(' -> '));
+			return true;
+		}
+		return false;
+	},
 	rmdirSyncRecursive: rmdirSyncRecursive,
 	readdirSyncRecursive: readdirSyncRecursive,
 	sortEditorFolder: sortEditorFolder,

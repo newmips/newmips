@@ -47,7 +47,7 @@ async function addTab(data, file, newLi, newTabContent, target) {
 // Create entity associations between the models
 exports.setupAssociation = (data) => {
 
-	const workspacePath = __dirname+'/../workspace/' + data.application.name;
+	const workspacePath = __dirname + '/../workspace/' + data.application.name;
 	const source = data.source;
 	const target = data.target;
 	const foreignKey = data.foreignKey;
@@ -57,8 +57,8 @@ exports.setupAssociation = (data) => {
 	const through = data.through;
 	const toSync = data.toSync;
 	const type = data.type;
-	const constraints = data.constraints;
 	const targetType = data.targetType;
+	const constraints = data.constraints;
 
 	// SETUP MODEL OPTIONS FILE
 	const optionsFileName = workspacePath + '/models/options/' + source + '.json';
