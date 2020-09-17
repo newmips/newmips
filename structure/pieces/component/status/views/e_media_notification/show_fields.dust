@@ -1,5 +1,5 @@
 <div id="fields" class="row">
-	<div data-field="f_title" class="col-xs-12 col-sm-6 col-md-6">
+	<div data-field="f_title" class="col-xs-12 col-sm-6">
 		<div class="form-group">
 			<label for="f_title">
 				{#__ key="entity.e_media_notification.f_title"/}
@@ -11,7 +11,7 @@
 			<input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_title" /}' name="f_title" value="{f_title}" type="text" readonly="">
 		</div>
 	</div>
-	<div data-field="f_description" class="col-xs-12 col-sm-6 col-md-6">
+	<div data-field="f_description" class="col-xs-12 col-sm-6">
 		<div class="form-group">
 			<label for="f_description">
 				{#__ key="entity.e_media_notification.f_description"/}
@@ -23,7 +23,7 @@
 			<input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_description" /}' name="f_description" value="{f_description}" type="text" readonly="">
 		</div>
 	</div>
-	<div data-field="f_icon" class="col-xs-12 col-sm-12 col-md-6" style="">
+	<div data-field="f_icon" class="col-xs-12 col-md-6">
 		<div class="form-group">
 			<label for="f_icon">
 				{#__ key="entity.e_media_notification.f_icon"/}
@@ -36,7 +36,7 @@
 			<i class="fa fa-2x {f_icon}"></i>
 		</div>
 	</div>
-	<div data-field="f_color" class="col-xs-12 col-sm-4 col-md-6" style="">
+	<div data-field="f_color" class="col-xs-12 col-sm-4 col-md-6">
 		<div class="form-group">
 			<label for="f_color">
 				{#__ key="entity.e_media_notification.f_color"/}
@@ -48,15 +48,12 @@
 			<input class="form-control input" placeholder='{#__ key="entity.e_media_notification.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
 		</div>
 	</div>
-	<div style="min-height: 75px;" class="emptySpaceColumn col-md-12 col-sm-12 col-xs-12 column">
-		<hr>
-		<h4 class="box-title">{#__ key="component.status.notification_targets" /}</h4>
-		<div class="row">
-			<div data-field="f_targets" class="col-xs-12 col-sm-6 col-md-4" style="">
-				<div class="form-group">
-					<input name="f_targets" value="{f_targets}" class="form-control" readonly="">
-				</div>
-			</div>
+	<div data-field="f_targets" class="col-xs-12">
+		<div class="form-group">
+			<label for="f_targets">
+				{#__ key="component.status.notification_targets" /}
+			</label>
+			<input class="form-control input" placeholder='{#__ key="component.status.notification_targets" /}' name="f_targets" value="{f_targets}" type="text" readonly="">
 		</div>
 	</div>
 </div>
@@ -77,18 +74,18 @@
 				</a>
 			</span>
 			{^hideButton}
-			<span>
-				<a href="/media/create_form" class="btn btn-success">
-					<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-					<span>{#__ key="button.create"/}</span>
-				</a>
-			</span>
-			<span>
-				<a href="/media/list" type="submit" class="btn btn-primary">
-					<i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-					<span>{#__ key="button.list"/}</span>
-				</a>
-			</span>
+				<span>
+					<a href="/media/create_form" class="btn btn-success">
+						<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+						<span>{#__ key="button.create"/}</span>
+					</a>
+				</span>
+				<span>
+					<a href="/media/list" type="submit" class="btn btn-primary">
+						<i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+						<span>{#__ key="button.list"/}</span>
+					</a>
+				</span>
 			{/hideButton}
 		</div>
 	</form>
