@@ -27,8 +27,8 @@
 									<p>{#__ key="home.subtitle"/}</p>
 
 									<div class="form-group" id="select_application_form" {^applications}style='display: none;'{/applications}>
-										<label for="selectApplication">{#M_ key="application.label"/}</label>
-										<select class="form-control select" id="select_application" name="selectApplication" style='width: 100%;'>
+										<label for="select_application">{#M_ key="application.label"/}</label>
+										<select class="form-control" name="select_application" style='width: 100%;'>
 											{#applications}
 												<option value="{name}">{displayName}</option>
 											{/applications}
@@ -303,9 +303,12 @@
 			/* --------------- Initialisation des select --------------- */
 			$("select").select2();
 
-			$(document).on("change", "#select_application", function(){
+			$(document).on("change", "select[name='select_application']", function() {
 				$("#btn-preview").attr("href", "/application/preview/" + $(this).val());
 			});
+
+			/* Trigger to update href preview btn */
+			$("select[name='select_application']").trigger('change');
 
 			$(document).on("click", "#create_new_application", function(){
 				$(".applicationInput").prop('required', true);

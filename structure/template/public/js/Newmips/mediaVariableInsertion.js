@@ -190,7 +190,7 @@ $(function() {
         var type = $(this).data('type');
 
         /* Placeholder selection */
-        if (data.id == "-1")
+        if (data.id == "-1" || data.id == 'nps_clear_select')
             return;
 
         // Get value to insert from Handler
