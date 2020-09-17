@@ -1,4 +1,5 @@
 const moment = require("moment");
+const appConf = require('../config/application');
 
 // ----------- Helper DUST ----------- //
 // Example:
@@ -175,21 +176,43 @@ module.exports = {
 		// Example {myDate|convertToDateFormat}
 
 		dust.filters.date = function(value) {
-			if (value != "") {
-				if (lang == "fr-FR")
-					return moment.utc(value).format("DD/MM/YYYY");
-				return moment.utc(value).format("YYYY-MM-DD");
-			}
-			return value;
+			if (!value || value == '')
+				return value;
+
+			if (lang == "fr-FR")
+				return moment.utc(value).format("DD/MM/YYYY");
+
+			return moment.utc(value).format("YYYY-MM-DD");
 		};
 
 		dust.filters.datetime = function(value) {
-			if (value != "") {
-				if (lang == "fr-FR")
-					return moment.utc(value).format("DD/MM/YYYY HH:mm");
-				return moment.utc(value).format("YYYY-MM-DD HH:mm");
-			}
-			return value;
+			if (!value || value == '')
+				return value;
+
+			if (lang == "fr-FR")
+				return moment.utc(value).format("DD/MM/YYYY HH:mm");
+
+			return moment.utc(value).format("YYYY-MM-DD HH:mm");
+		};
+
+		dust.filters.dateTZ = function(value) {
+			if (!value || value == '')
+				return value;
+
+			if (lang == "fr-FR")
+				return moment(value).tz(appConf.timezone).format("DD/MM/YYYY");
+
+			return moment(value).tz(appConf.timezone).format("YYYY-MM-DD");
+		};
+
+		dust.filters.datetimeTZ = function(value) {
+			if (!value || value == '')
+				return value;
+
+			if (lang == "fr-FR")
+				return moment(value).tz(appConf.timezone).format("DD/MM/YYYY HH:mm");
+
+			return moment(value).tz(appConf.timezone).format("YYYY-MM-DD HH:mm");
 		};
 
 		dust.filters.time = function(value) {

@@ -61,13 +61,13 @@ const morganConf = {
 }
 
 if (!startedFromGenerator)
-	morganConf.stream = require('split')().on('data', line => process.stdout.write(moment().tz('Europe/Paris').format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n"));  // eslint-disable-line
+	morganConf.stream = require('split')().on('data', line => process.stdout.write(moment().tz(appConf.timezone).format("YYYY-MM-DD HH:mm:ss-SSS") + " " + line + "\n"));  // eslint-disable-line
 
 app.use(morgan('dev', morganConf));
 if (!startedFromGenerator) {
 	require('console-stamp')(console, { // eslint-disable-line
 		formatter: function() {
-			return moment().tz('Europe/Paris').format('YYYY-MM-DD HH:mm:ss-SSS');
+			return moment().tz(appConf.timezone).format('YYYY-MM-DD HH:mm:ss-SSS');
 		},
 		label: false,
 		datePrefix: "",
@@ -161,8 +161,8 @@ const sessionInstance = session({
 	resave: false,
 	rolling: true,
 	saveUninitialized: false,
-	maxAge: 360*5,
-	key: 'workspaceCookie'+globalConf.port // We concat port for a workspace specific session, instead of generator specific
+	maxAge: 360 * 5,
+	key: 'workspaceCookie' + globalConf.port // We concat port for a workspace specific session, instead of generator specific
 });
 const socketSession = require('express-socket.io-session');
 
