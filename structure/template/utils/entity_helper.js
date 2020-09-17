@@ -23,19 +23,11 @@ const funcs = {
 		// Replace data enum value by translated value for datalist
 		const enumsTranslation = enums_radios.translated(entityName, lang_user, options);
 		for (let i = 0; i < data.data.length; i++) {
-			fieldLoop:for (const field in data.data[i]) {
-				// Look for enum translation
-				for (const enumEntity in enumsTranslation) {
-					for (const enumField in enumsTranslation[enumEntity])
-						if (enumField == field)
-							for (let j = 0; j < enumsTranslation[enumEntity][enumField].length; j++)
-								if (enumsTranslation[enumEntity][enumField][j].value == data.data[i][field]) {
-									data.data[i][field] = enumsTranslation[enumEntity][enumField][j].translation;
-									// Field is confirmed enum, continue with next field loop
-									continue fieldLoop;
-								}
-				}
 
+			// Tranlate enums / radios
+			enums_radios.translateRow(data.data[i], enumsTranslation, true);
+
+			for (const field in data.data[i]) {
 				// Fetch thumbnails buffers
 				// Get attribute value
 				const value = data.data[i][field];
@@ -124,6 +116,10 @@ const funcs = {
 				(alias => {
 					todoPromises.push(new Promise(function (resolve, reject) {
 						models()[funcs.capitalizeFirstLetter(options[i].target)].findAll({raw: true}).then(function (results) {
+
+							for (let i = 0; i < results.length; i++)
+								enums_radios.translateRow(results[i], data.enum_radio);
+
 							// Change alias name to avoid conflict
 							data[alias + "_all"] = results;
 							resolve();
