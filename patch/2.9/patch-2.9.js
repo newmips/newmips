@@ -5,6 +5,10 @@ const workspacePath = __dirname + '/../../workspace/';
 const dataHelper = require('../../utils/data_helper');
 const helper = require('../../utils/helpers');
 
+// This script aims to make a 2.8 application compatible in a 2.9 generator
+// It will browse the workspace folder and adapt the old 2.8 applications for a 2.9 generator
+// It will therefore generate the metadata.json file which is essential in 2.9
+
 (async () => {
 
 	const queries = [
