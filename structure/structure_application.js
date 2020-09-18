@@ -612,39 +612,46 @@ exports.deleteApplication = async(data) => {
 	}
 
 	if (gitlabConf.doGit) {
-		const project = await gitlab.getProjectByID(data.application.gitlabID);
-		if (!project)
-			console.error("Unable to find gitlab project to delete.");
-		else {
-			const answer = await gitlab.deleteProject(project.id);
-			console.log("Delete Gitlab repository: " + nameRepo + " => " + JSON.stringify(answer));
+		try {
+			const project = await gitlab.getProjectByID(data.application.gitlabID);
+			if (!project)
+				console.error("Unable to find gitlab project to delete.");
+			else {
+				const answer = await gitlab.deleteProject(project.id);
+				console.log("Delete Gitlab repository: " + nameRepo + " => " + JSON.stringify(answer));
+			}
+		} catch(err) {
+			console.error(err);
 		}
 	}
 
-	let conn;
-	if(dbConf.dialect == 'mysql') {
-		conn = await mysql.createConnection({
-			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
-			port: dbConf.port
-		});
-		await conn.query("DROP DATABASE IF EXISTS `np_" + app_name + "`;");
-	} else if(dbConf.dialect == 'postgres') {
-		conn = new Client({
-			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.user : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.password : dbConf.password,
-			database: dbConf.database,
-			port: dbConf.port
-		});
-		conn.connect();
-		await conn.query("REVOKE CONNECT ON DATABASE \"np_" + app_name + "\" FROM public;");
-		await conn.query("SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'np_" + app_name + "' AND pid <> pg_backend_pid();");
-		await conn.query("DROP DATABASE \"np_" + app_name + "\";");
+	try {
+		let conn;
+		if(dbConf.dialect == 'mysql') {
+			conn = await mysql.createConnection({
+				host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+				user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
+				password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+				port: dbConf.port
+			});
+			await conn.query("DROP DATABASE IF EXISTS `np_" + app_name + "`;");
+		} else if(dbConf.dialect == 'postgres') {
+			conn = new Client({
+				host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
+				user: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.user : dbConf.user,
+				password: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.password : dbConf.password,
+				database: dbConf.database,
+				port: dbConf.port
+			});
+			conn.connect();
+			await conn.query("REVOKE CONNECT ON DATABASE \"np_" + app_name + "\" FROM public;");
+			await conn.query("SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'np_" + app_name + "' AND pid <> pg_backend_pid();");
+			await conn.query("DROP DATABASE \"np_" + app_name + "\";");
+		}
+		conn.end();
+	} catch (err) {
+		console.error(err);
 	}
-
-	conn.end();
 
 	if (process_server != null)
 		await process_manager.killChildProcess(process_server.pid);
