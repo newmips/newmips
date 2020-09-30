@@ -1,4 +1,5 @@
 const env = process.env.NPS_ENV || 'develop';
+// const fs = require('fs');
 
 const config = {
 	develop: {

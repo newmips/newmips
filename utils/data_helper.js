@@ -90,10 +90,17 @@ function clearString(string){
 	return string;
 }
 
-function lowerFirstWord(instruction){
-	const instructions = instruction.split(' ');
-	instructions[0] = instructions[0].toLowerCase();
-	return instructions.join(' ');
+function prepareInstruction(instruction) {
+	// Lower the first instruction word for the bot parser
+	instruction = instruction.split(' ');
+	instruction[0] = instruction[0].toLowerCase();
+	instruction = instruction.join(' ');
+
+	// Trim and remove double spaces or more inside the intruction
+	instruction = instruction.trim();
+	instruction = instruction.replace(/[ \t]{2,}/g, ' ');
+
+	return instruction;
 }
 
 function addPrefix(string, instructionFunction) {
@@ -187,7 +194,7 @@ function capitalizeFirstLetter(word) {
 module.exports = {
 	clearString: clearString,
 	validateString: validateString,
-	lowerFirstWord: lowerFirstWord,
+	prepareInstruction: prepareInstruction,
 	addPrefix: addPrefix,
 	removePrefix: removePrefix,
 	capitalizeFirstLetter: capitalizeFirstLetter,

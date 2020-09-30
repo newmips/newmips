@@ -112,13 +112,13 @@ function initForm(context) {
     // Add class no-toolbar to remove summernote toolbar
     $("textarea:not(.regular-textarea):not(.note-codable)", context).each(function () {
         let toolbar = [
-            ['style', ['style']],
+            ['style', []],
             ['font', ['bold', 'underline', 'clear']],
             ['fontname', ['fontname']],
             ['color', ['color']],
             ['para', ['ul', 'ol', 'paragraph']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'video']],
+            ['table', []],
+            ['insert', ['link']],
             ['view', ['fullscreen', 'codeview', 'help']],
             ['custom', ['stt']]
         ];

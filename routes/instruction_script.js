@@ -202,7 +202,7 @@ function isProcessing(userID, __) {
 async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 
 	// Lower the first word for the basic parser json
-	instruction = dataHelper.lowerFirstWord(instruction);
+	instruction = dataHelper.prepareInstruction(instruction);
 
 	// Instruction to be executed
 	data = {
