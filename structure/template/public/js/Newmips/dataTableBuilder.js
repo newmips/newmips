@@ -438,6 +438,13 @@ function init_datatable(tableID, doPagination, context) {
                 else
                     cellValue = row[columns[meta.col].data];
 
+                if(cellValue && cellValue != '' && isNaN(cellValue)) {
+                    // Escape HTML
+                    cellValue = cellValue.replace(/&/g, '&amp');
+                    cellValue = cellValue.replace(/</g, '&lt');
+                    cellValue = cellValue.replace(/>/g, '&gt');
+                }
+
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
                     // Get current entity by splitting current table id

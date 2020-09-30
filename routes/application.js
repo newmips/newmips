@@ -93,7 +93,7 @@ function setChat(req, app_name, userID, user, content, params, isError){
 
 async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	// Lower the first word for the basic parser json
-	instruction = dataHelper.lowerFirstWord(instruction);
+	instruction = dataHelper.prepareInstruction(instruction);
 
 	// Instruction to be executed
 	data = {
@@ -246,7 +246,7 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 
 	const appName = req.session.app_name;
 	/* Lower the first word for the basic parser json */
-	const instruction = dataHelper.lowerFirstWord(req.body.instruction.trim());
+	const instruction = dataHelper.prepareInstruction(req.body.instruction);
 	const currentUserID = req.session.passport.user.id;
 	let data = {};
 

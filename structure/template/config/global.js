@@ -1,6 +1,7 @@
 // Global configuration file
 const env = process.env.NPS_ENV || 'develop';
 const applicationConf = require('./application.json');
+// const fs = require('fs');
 
 const config = {
 	develop: {
@@ -39,8 +40,8 @@ const config = {
 			width: 200
 		},
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
 			passphrase: ''
 		}
 	},
@@ -62,8 +63,8 @@ const config = {
 			width: 200
 		},
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
 			passphrase: ''
 		}
 	},
@@ -87,8 +88,8 @@ const config = {
 			width: 200
 		},
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
 			passphrase: ''
 		}
 	},
@@ -112,8 +113,8 @@ const config = {
 			width: 200
 		},
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
 			passphrase: ''
 		}
 	},
@@ -137,8 +138,8 @@ const config = {
 			width: 200
 		},
 		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/ "toRemove",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "toRemove",
+			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
 			passphrase: ''
 		}
 	}
