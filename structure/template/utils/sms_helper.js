@@ -1,6 +1,13 @@
+const ovh = require('ovh');
 const smsConf = require('../config/sms');
-const ovh = require('ovh')(smsConf);
+
+let ovhInstance = null;
+
 module.exports = (phones, text) => new Promise((resolve, reject) => {
+
+	if(!ovhInstance)
+		ovhInstance = ovh(smsConf);
+
 	// Get the serviceName (name of your sms account)
 	ovh.request('GET', '/sms', (err, serviceName) => {
 		if (err)
