@@ -140,6 +140,10 @@ exports.selectApplication = async (data) => {
 
 	// Select the module home automatically after selecting an application
 	await exportsContext.recursiveInstructionExecute(data, ["select module home"], 0);
+
+	data.message = "database.application.select.selected";
+	data.messageParams = [data.options.showValue];
+
 	return data;
 }
 
@@ -343,7 +347,7 @@ exports.deleteModule = async (data) => {
 /* --------------------------------------------------------------- */
 exports.selectEntity = async (data) => {
 
-	const {np_module, entity} = data.application.findEntity(data.options.value, true);
+	const {np_module, entity} = data.application.findEntity(data.options.value, true, data.options.showValue);
 	data.module = np_module;
 	data.doRedirect = await structure_entity.selectEntity(data);
 
@@ -969,9 +973,9 @@ async function belongsToMany(data, optionObj, setupFunction, exportsContext) {
 			urlAs: optionObj.as.substring(2)
 		},
 		application: data.application,
-		module_name: data.module_name,
-		entity_name: data.entity_name,
-		source_entity: data.application.getModule(data.module_name, true).getEntity(data.entity_name, true)
+		module_name: data.np_module.name,
+		entity_name: data.source_entity.name,
+		source_entity: data.application.getModule(data.module_name, true).getEntity(data.source_entity.name, true)
 	};
 
 	if (data.targetType == "hasMany") {

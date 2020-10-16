@@ -160,7 +160,17 @@ const funcs = {
 			}
 			// Unique value constraint error
 			else if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
-				const message = __('message.unique') + " " + __("entity." + entity + "." + err.errors[0].path);
+				let fieldname = err.errors[0].path;
+				if(fieldname.includes('.PRIMARY'))
+					fieldname = "ID";
+				else {
+					// Getting only the field name
+					fieldname = 'f_' + fieldname.split('_f_')[1].replace('_unique', '');
+					fieldname = __("entity." + entity + "." + fieldname);
+				}
+
+				const message = __('message.unique') + " " + fieldname;
+
 				toasts.push({level: 'error', message: message});
 				data.code = 400;
 				isKnownError = true;

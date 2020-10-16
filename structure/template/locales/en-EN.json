@@ -95,21 +95,22 @@
 		"import_export": {
 			"title": "Import / Export"
 		},
-		"legend": "Change your user settings",
+		"legend": "Update your settings",
 		"lang": "Language",
 		"login": "Login",
 		"email": "Email",
 		"firstname": "Firstname",
 		"lastname": "Lastname",
 		"phone": "Phone",
+		"check_change_password": "Change your password",
 		"title_change_password": "Reset password procedure",
-		"old_password": "Your old password",
+		"old_password": "Your current password",
 		"new_password_1": "New password",
 		"new_password_2": "Confirm new password",
-		"error1": "You have to fill a new password in order to change it.",
+		"error1": "Please enter a new password before saving.",
 		"error2": "The two passwords do not match.",
 		"error3": "Your new password must be at least 4 characters long.",
-		"error4": "Your old password is not valid.",
+		"error4": "Your current password is not valid.",
 		"success": "Your profile has been updated."
 	},
 	"navbar": {
@@ -132,7 +133,7 @@
 	},
 	"button": {
 		"profile": "Profile",
-		"disconnect": "Disconnect",
+		"disconnect": "Log out",
 		"show": "Show",
 		"update": "Modify",
 		"delete": "Delete",

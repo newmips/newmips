@@ -102,6 +102,7 @@
 		"firstname": "Prénom",
 		"lastname": "Nom",
 		"phone": "Téléphone",
+		"check_change_password": "Changer votre mot de passe",
 		"title_change_password": "Procédure de changement de mot de passe",
 		"old_password": "Votre ancien mot de passe",
 		"new_password_1": "Nouveau mot de passe",
@@ -224,8 +225,8 @@
 			"endHour": "Heure de fin",
 			"fill_title": "Merci de renseigner un titre d'événement.",
 			"start_date": "Merci de renseigner au moins une date de début.",
-			"start_after_end": "La date de début est après la date de fin, merci de corriger.",
-			"end_before_start": "La date de fin est avant la date de début, merci de corriger."
+			"start_after_end": "La date de début est après ou similaire à la date de fin, merci de corriger.",
+			"end_before_start": "La date de fin est avant ou similaire à la date de début, merci de corriger."
 		},
 		"document_template": {
 			"template_example_dust": "Exemple de template dust"

@@ -31,6 +31,8 @@ class Application {
 
 			if (fs.existsSync(metadataPath))
 				metadata = JSON.parse(fs.readFileSync(metadataPath));
+			else
+				throw new Error('Unable to find metadata.json: ' + metadataPath);
 
 			app.associationSeq = metadata[name].associationSeq;
 			app.hasDocumentTemplate = metadata[name].hasDocumentTemplate;

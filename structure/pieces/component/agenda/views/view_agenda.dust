@@ -195,16 +195,9 @@
 	<script src='/js/plugins/fullcalendar/locale-all.js'></script>
 	<script src='/js/plugins/fullcalendar/scheduler.js'></script>
 	<script>
-		var calendarEvents = [];
 		var FILL_TITLE_AGENDA = '{#__ key="global_component.agenda.fill_title" /}';
+		var END_BEFORE_START_MSG = '{#__ key="global_component.agenda.end_before_start" /}';
 	</script>
-	{#events}
-		<script>var resourceIdsArray = [];</script>
-		{#.ressourceIds}
-			<script>resourceIdsArray.push({.})</script>
-		{/.ressourceIds}
-		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment.utc("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment.utc("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", idCategory: "{idCategory}", resourceIds: resourceIdsArray});</script>
-	{/events}
 	<script>var usersRessources = [];</script>
 	{#users}
 		<script>usersRessources.push({id:{id}, title: "{f_login}"});</script>

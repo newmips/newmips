@@ -85,7 +85,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 		case "couleur":
 			if (value == "")
 				value = "#000000";
-			str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='color' " + readOnly + " " + disabled + "/>\n";
+			str += "		<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "' type='color' maxLength='255' " + readOnly + " " + disabled + "/>\n";
 			break;
 		case "money":
 		case "currency":
@@ -115,7 +115,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			if (file == "show")
 				str += "	<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "'  type='text' data-type='qrcode' " + readOnly + "/>\n";
 			else
-				str += "	<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "'  type='text'" + readOnly + "/>\n";
+				str += "	<input class='form-control input' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='" + value + "'  type='text' maxLength='255' " + readOnly + "/>\n";
 			str += "	</div>\n";
 			break;
 		case "ean8":
@@ -188,7 +188,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			} else if (file == "update") {
 				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|date}' type='text' " + readOnly + "/>\n";
 			} else if (file == "create") {
-				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + value + " " + readOnly + "/>\n";
 			}
 			str += "	</div>\n";
 			break;
@@ -202,7 +202,7 @@ function getFieldHtml(type, field, entity, readOnly, file, values, defaultValue)
 			else if (file == "update")
 				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' value='{" + value2 + "|datetime}' type='text' " + readOnly + "/>\n";
 			else if (file == "create")
-				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + readOnly + "/>\n";
+				str += "		<input class='form-control input datetimepicker' placeholder='{#__ key=|entity." + entity + "." + field + "| /}' name='" + field + "' type='text' " + value + " " + readOnly + "/>\n";
 			str += "	</div>\n";
 			break;
 		case "time" :

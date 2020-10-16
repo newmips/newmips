@@ -25,6 +25,14 @@ router.get('/help/:entity/:field', (req, res) => {
 	}).then(help => {
 		if (!help)
 			res.status(404).end();
+
+		if (help.f_content && help.f_content != '' && isNaN(help.f_content)) {
+			// Escape HTML
+			help.f_content = help.f_content.replace(/&/g, '&amp');
+			help.f_content = help.f_content.replace(/</g, '&lt');
+			help.f_content = help.f_content.replace(/>/g, '&gt');
+		}
+
 		res.send(help.f_content);
 	});
 });
