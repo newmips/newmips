@@ -653,8 +653,10 @@ exports.deleteApplication = async(data) => {
 		console.error(err);
 	}
 
-	if (process_server != null)
+	if (process_server != null) {
 		await process_manager.killChildProcess(process_server.pid);
+		process_manager.process_server_per_app[app_name] = null;
+	}
 
 	helpers.rmdirSyncRecursive(pathToWorkspace);
 

@@ -36,6 +36,17 @@ $(document).ready(function() {
     $('#calendar').fullCalendar({
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         locale: currentLocal,
+        eventSources: [{
+            url: '/agenda/get_event',
+            method: 'POST',
+            data: function() {
+                return {}; // You can add data to /get_event rout here
+            },
+            failure: function(err) {
+                console.error(err)
+                toastr.error(err.message);
+            }
+        }],
         header: {
             left: 'prev,next today',
             center: 'title',
@@ -47,9 +58,7 @@ $(document).ready(function() {
         },
         views: {
             customTimelineDay: {
-                type: 'timelineDay',
-                minTime: "07:00:00",
-                maxTime: "19:00:00"
+                type: 'timelineDay'
             },
             customTimelineWeek: {
                 type: 'timelineWeek',
@@ -194,8 +203,7 @@ $(document).ready(function() {
             $('#eventCreateModal').modal('show');
         },
         resourceLabelText: ressourceName,
-        resources: usersRessources,
-        events: calendarEvents
+        resources: usersRessources
     });
 
     /* Create event modal, all day checkbox managment */
@@ -270,7 +278,7 @@ $(document).ready(function() {
         var newEndDate = startDate[0] + " " + chosenTimeEnd + ":00";
 
         if (!allDay && moment(newStartDate).diff(newEndDate) >= 0) {
-            toastr.error("Cannot set end date same or before start date !");
+            toastr.error(END_BEFORE_START_MSG);
             return false;
         }
 
@@ -325,7 +333,7 @@ $(document).ready(function() {
         }
 
         if (!allDay && moment(newStartDate).diff(newEndDate) >= 0) {
-            toastr.error("Cannot set end date same or before start date !");
+            toastr.error(END_BEFORE_START_MSG);
             return false;
         }
 

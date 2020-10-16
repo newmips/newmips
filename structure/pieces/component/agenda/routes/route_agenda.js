@@ -9,26 +9,47 @@ const entity_helper = require('../utils/entity_helper');
 
 router.get('/', block_access.isLoggedIn, function(req, res) {
 	const data = {};
-	models.CODE_NAME_EVENT_MODEL.findAll({
-		include: [{
-			model: models.CODE_NAME_CATEGORY_MODEL,
-			as: "r_category"
-		}, {
-			model: models.E_user,
-			as: "r_users"
-		}]
-	}).then(function(events) {
+
+	models.CODE_NAME_CATEGORY_MODEL.findAll().then(categories => {
+		models.E_user.findAll().then(users => {
+
+			data.categories = categories;
+			data.events = [];
+			data.users = users;
+
+			res.render('CODE_NAME_LOWER/view_agenda', data);
+		});
+	});
+});
+
+router.post('/get_event', block_access.actionAccessMiddleware("agenda_event", "read"), function(req, res) {
+	(async () => {
+
+		const events = await models.E_agenda_event.findAll({
+			where: {
+				f_start_date: {
+					[models.$between]: [req.body.start, req.body.end]
+				}
+			},
+			include: [{
+				model: models.E_agenda_category,
+				as: "r_category"
+			}, {
+				model: models.E_user,
+				as: "r_users"
+			}]
+		});
 
 		const eventsArray = [];
-		for(let i=0; i<events.length; i++){
-			if(events[i].r_category == null){
+		for (let i = 0; i < events.length; i++) {
+			if (events[i].r_category == null) {
 				events[i].r_category = {
 					f_color: "#CCCCCC"
 				};
 			}
-			const ressourceIds = [];
-			for(let j=0; j<events[i].r_users.length; j++){
-				ressourceIds.push(events[i].r_users[j].id);
+			const resourceIds = [];
+			for (let j = 0; j < events[i].r_users.length; j++) {
+				resourceIds.push(events[i].r_users[j].id);
 			}
 			eventsArray.push({
 				eventId: events[i].id,
@@ -38,25 +59,19 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 				allDay: events[i].f_all_day,
 				idCategory: events[i].r_category.id,
 				backgroundColor: events[i].r_category.f_color,
-				url: "/CODE_NAME_EVENT_URL/show?id="+events[i].id,
-				ressourceIds: ressourceIds
+				// url: "/agenda_event/show?id=" + events[i].id, // Uncomment if you want to be redirected on event click
+				resourceIds: resourceIds,
+				enqueteUrl: "/enquete_de_terrain/show?id=" + events[i].fk_id_enquete_de_terrain_enquete
 			});
 		}
-		models.CODE_NAME_CATEGORY_MODEL.findAll().then(function(categories){
-			models.E_user.findAll().then(function(users){
 
-				data.categories = categories;
-				data.events = eventsArray;
-				data.users = users;
-
-				// Récupération des toastr en session
-				data.toastr = req.session.toastr;
-				// Nettoyage de la session
-				req.session.toastr = [];
-				res.render('CODE_NAME_LOWER/view_agenda', data);
-			});
-		});
-	});
+		return eventsArray;
+	})().then(eventsArray => {
+		res.status(200).send(eventsArray)
+	}).catch(err => {
+		console.error(err);
+		res.status(500).send(err)
+	})
 });
 
 router.post('/add_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "create"), function(req, res) {

@@ -255,16 +255,21 @@ function initForm(context) {
         if ($(this).val() != '') {
             // Update View, set attr parent id, Qrcode only work with component Id
             $(this).parent().parent().attr("id", $(this).attr('name') + ctpQrCode);
-            var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
-                text: $(this).val(),
-                width: 128,
-                height: 128,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            $(this).parent().replaceWith(qrcode);
-            ctpQrCode++;
+            try {
+                var qrcode = new QRCode($(this).attr('name') + ctpQrCode, {
+                    text: $(this).val(),
+                    width: 128,
+                    height: 128,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                $(this).parent().replaceWith(qrcode);
+                ctpQrCode++;
+            } catch(err) {
+                console.error(err);
+                toastr.error('QRCODE Error');
+            }
         }
     });
 
@@ -1223,6 +1228,61 @@ function generateFileViewer(base64) {
 /* --------------- DOCUMENT READY --------------- */
 $(document).ready(function () {
 
+    /* --------------- Toastr messages --------------- */
+    try {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-bottom-left",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+        for (var i = 0; i < toastrArray.length; i++) {
+            setTimeout(function (toast) {
+                switch (toast.level) {
+                    case "info":
+                        toastr.info(toast.message);
+                        break;
+                    case "success":
+                        toastr.success(toast.message);
+                        break;
+                    case "warning":
+                        toastr.warning(toast.message);
+                        break;
+                    case "error":
+                        toastr.error(toast.message);
+                        break;
+                }
+            }(toastrArray[i]), (1000 * i));
+        }
+    } catch (e) {
+        console.log(e);
+        toastr = {
+            success: function () {
+                return true;
+            },
+            info: function () {
+                return true;
+            },
+            error: function () {
+                return true;
+            },
+            warning: function () {
+                return true;
+            }
+        };
+    }
+
     initForm();
     bindStatusComment();
 
@@ -1345,61 +1405,6 @@ $(document).ready(function () {
         else if (code == '9')
             $("#nextHelp").click();
     });
-
-    /* --------------- Toastr messages --------------- */
-    try {
-        toastr.options = {
-            "closeButton": false,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-bottom-left",
-            "preventDuplicates": true,
-            "onclick": null,
-            "showDuration": "400",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
-        for (var i = 0; i < toastrArray.length; i++) {
-            setTimeout(function (toast) {
-                switch (toast.level) {
-                    case "info":
-                        toastr.info(toast.message);
-                        break;
-                    case "success":
-                        toastr.success(toast.message);
-                        break;
-                    case "warning":
-                        toastr.warning(toast.message);
-                        break;
-                    case "error":
-                        toastr.error(toast.message);
-                        break;
-                }
-            }(toastrArray[i]), (1000 * i));
-        }
-    } catch (e) {
-        console.log(e);
-        toastr = {
-            success: function () {
-                return true;
-            },
-            info: function () {
-                return true;
-            },
-            error: function () {
-                return true;
-            },
-            warning: function () {
-                return true;
-            }
-        };
-    }
 
     /* --------------- Breadcrumbs / sidebar --------------- */
     var url = window.location.href;

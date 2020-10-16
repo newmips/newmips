@@ -421,15 +421,8 @@ function executeFile(req, userID, __) {
 			}
 
 			// Mandatory instructions are done, then init application before continuing
-			if(i == mandatoryInstructions.length + 1) {
+			if(scriptData[userID].isNewApp && i == mandatoryInstructions.length + 1)
 				await structure_application.initializeApplication(data.application); // eslint-disable-line
-				// Write source script in generated workspace
-				const historyPath = __dirname + '/../workspace/' + data.application.name + "/history_script.nps";
-				let instructionsToWrite = fileLines[0] + '\n';
-				instructionsToWrite += fileLines.slice(Math.max(mandatoryInstructions.length, 1)).join("\n");
-				instructionsToWrite += "\n\n// --- End of the script --- //\n\n";
-				fs.writeFileSync(historyPath, instructionsToWrite);
-			}
 
 			try {
 				data = await execute(req, fileLines[i], __, data, false); // eslint-disable-line
@@ -456,6 +449,21 @@ function executeFile(req, userID, __) {
 				message: __(data.message, data.messageParams || [])
 			});
 		}
+
+		// Write source script in generated workspace
+		const historyPath = __dirname + '/../workspace/' + req.session.app_name + "/history_script.nps";
+
+		let instructionsToWrite = '';
+		if(scriptData[userID].isNewApp){
+			instructionsToWrite = fileLines[0] + '\n';
+			instructionsToWrite += fileLines.slice(Math.max(mandatoryInstructions.length, 1)).join("\n");
+		} else {
+			instructionsToWrite = fs.readFileSync(historyPath, 'utf8');
+			instructionsToWrite += '// --- Start of the script --- //\n\n';
+			instructionsToWrite += fileLines.join("\n");
+		}
+		instructionsToWrite += "\n\n// --- End of the script --- //\n";
+		fs.writeFileSync(historyPath, instructionsToWrite);
 
 		try {
 			// Workspace sequelize instance
