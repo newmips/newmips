@@ -69,7 +69,7 @@
             </label>
             <select class="ajax form-control" name="r_process" data-source="process" data-using="f_name" width="100%">
                 {#r_process}
-                <option value="{id}" selected="">{f_name|string}</option>
+                <option value="{id}" selected="">{f_name}</option>
                 {/r_process}
             </select>
         </div>

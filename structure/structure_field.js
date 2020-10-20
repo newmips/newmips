@@ -1060,13 +1060,15 @@ exports.setupRelatedToField = async (data) => {
 	const urlAs = data.options.urlAs;
 
 	// Check if field is used in select, default to id
-	const usingField = data.options.usingField ? data.options.usingField : [{value: "id", type: "string"}];
+	const usingField = data.options.usingField ? data.options.usingField : [{value: "id"}];
 
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
 		usingList.push(usingField[i].value);
 		if(usingField[i].type == 'enum')
 			usingOption.push('{' + usingField[i].value + '.translation}');
+		else if (usingField[i].type == 'string')
+			usingOption.push('{' + usingField[i].value + '|h}');
 		else
 			usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
 	}
@@ -1163,7 +1165,7 @@ exports.setupRelatedToMultipleField = async (data) => {
 	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-	let usingField = [{value: "id", type: "string"}];
+	let usingField = [{value: "id"}];
 
 	if (typeof data.options.usingField !== "undefined")
 		usingField = data.options.usingField;
@@ -1173,6 +1175,8 @@ exports.setupRelatedToMultipleField = async (data) => {
 		usingList.push(usingField[i].value);
 		if(usingField[i].type == 'enum')
 			usingOption.push('{' + usingField[i].value + '.translation}');
+		else if (usingField[i].type == 'string')
+			usingOption.push('{' + usingField[i].value + '|h}');
 		else
 			usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
 	}

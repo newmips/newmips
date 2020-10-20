@@ -254,6 +254,9 @@
 		},
 		"c_address_settings": {
 			"label_component": "Address settings"
+		},
+		"c_api_documentation": {
+			"label_component": "API documentation"
 		}
 	},
 	"defaults": {

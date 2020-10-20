@@ -27,7 +27,7 @@
 			</label>
 			<select multiple="" disabled="" readonly="" class="form-control" name="r_role" data-source="role" data-using="f_label">
 				{#r_role}
-				<option value="{f_label|string}" selected="">{f_label|string}</option>
+				<option value="{f_label}" selected="">{f_label}</option>
 				{/r_role}
 			</select>
 		</div>
@@ -42,7 +42,7 @@
 			</label>
 			<select multiple="" disabled="" readonly="" class="form-control" name="r_group" data-source="group" data-using="f_label">
 				{#r_group}
-				<option value="{f_label|string}" selected="">{f_label|string}</option>
+				<option value="{f_label}" selected="">{f_label}</option>
 				{/r_group}
 			</select>
 		</div>

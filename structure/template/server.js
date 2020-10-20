@@ -339,9 +339,6 @@ require('./routes/')(app);
 // Api routes ==================================================================
 require('./api/')(app);
 
-// Set up API documentation access
-app.use('/api_documentation', block_access.isLoggedIn, express.static(__dirname + '/api/doc/website'));
-
 app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

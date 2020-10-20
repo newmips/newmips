@@ -438,12 +438,9 @@ function init_datatable(tableID, doPagination, context) {
                 else
                     cellValue = row[columns[meta.col].data];
 
-                if(cellValue && cellValue != '' && isNaN(cellValue)) {
-                    // Escape HTML
-                    cellValue = cellValue.replace(/&/g, '&amp');
-                    cellValue = cellValue.replace(/</g, '&lt');
-                    cellValue = cellValue.replace(/>/g, '&gt');
-                }
+                // Escape HTML
+                if(cellValue && cellValue != '' && isNaN(cellValue) && cellValue.replace)
+                    cellValue = HtmlEncode(cellValue);
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
@@ -476,9 +473,9 @@ function init_datatable(tableID, doPagination, context) {
                         keys = columns[meta.col].data.split(".");
                         var statusObj = diveObj(row, 0, keys);
                         if (statusObj.f_name)
-                            cellValue = '<span class="badge" style="background: ' + statusObj.f_color + ';">' + statusObj.f_name + '</span>';
+                            cellValue = '<span class="badge" style="background: ' + statusObj.f_color + ';">' + HtmlEncode(statusObj.f_name) + '</span>';
                         else
-                            cellValue = '<span class="badge">' + statusObj + '</span>';
+                            cellValue = '<span class="badge">' + HtmlEncode(statusObj) + '</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';

@@ -49,7 +49,7 @@ function select2_ajaxsearch(select, placeholder) {
                     for (var field in dataResults[i]) {
                         if (searchField.indexOf(field) != -1) {
                             if (dataResults[i][field] != null)
-                                text.push(dataResults[i][field]);
+                                text.push(HtmlEncode(dataResults[i][field]));
                         }
                     }
                     text = text.join(' - ');

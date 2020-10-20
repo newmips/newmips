@@ -72,7 +72,7 @@
 						</label>
 						<select multiple="" disabled="" readonly="" class="form-control" name="r_accepted_group" data-source="group" data-using="f_label">
 							{#r_accepted_group}
-								<option value="{f_label|string}" selected="">{f_label|string}</option>
+								<option value="{f_label}" selected="">{f_label}</option>
 							{/r_accepted_group}
 						</select>
 					</div>

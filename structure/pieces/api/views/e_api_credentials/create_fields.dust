@@ -18,7 +18,7 @@
 					{#__ key="select.default" /}
 				</option>
 				{#r_role}
-				<option value="{id}" selected="">{f_label|string}</option>
+				<option value="{id}" selected="">{f_label}</option>
 				{/r_role}
 			</select>
 		</div>
@@ -36,7 +36,7 @@
 					{#__ key="select.default" /}
 				</option>
 				{#r_group}
-				<option value="{id}" selected="">{f_label|string}</option>
+				<option value="{id}" selected="">{f_label}</option>
 				{/r_group}
 			</select>
 		</div>

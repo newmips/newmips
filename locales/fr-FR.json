@@ -440,7 +440,8 @@
 				"alreadyExistOnEntity": "Désolé, un composant avec ce nom est déjà associé à cette entité dans ce module.",
 				"alreadyExistInApp": "Désolé, une autre entité avec le nom du composant existe déjà dans cette application.",
 				"alreadyExistOnModule": "Désolé, un composant avec ce nom existe déjà dans ce module.",
-				"notExisting": "Désolé, mais ce composant n'existe pas sur l'entité courante."
+				"notExisting": "Désolé, mais ce composant n'existe pas sur l'entité courante.",
+				"onlyOneAllowed": "Désolé, un seul composant de ce type est autorisé par entité."
 			},
 			"chat": {
 				"success": "Composant chat ajouté avec succès"

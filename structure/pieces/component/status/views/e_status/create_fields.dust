@@ -54,7 +54,7 @@
 					{#__ key="select.default" /}
 				</option>
 				{#r_accepted_group}
-				<option value="{id}">{f_label|string}</option>
+				<option value="{id}">{f_label}</option>
 				{/r_accepted_group}
 			</select>
 		</div>

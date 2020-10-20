@@ -4,6 +4,7 @@ const basename = path.basename(module.filename);
 const block_access = require('../utils/block_access');
 const appConf = require('../config/application.json');
 const matomoTracker = require('../utils/matomo_api_tracker');
+const express = require('express');
 
 function isApiEnabled(req, res, next) {
 	if (appConf.api_enabled)
@@ -25,4 +26,12 @@ module.exports = function(app) {
 			app.use('/api/'+file.substring(2), isApiEnabled, block_access.apiAuthentication, matomoTracker, require('./'+file));
 		/* eslint-enable */
 	});
+
+	// Set up API documentation access
+	app.use('/api_documentation',
+		block_access.isLoggedIn,
+		isApiEnabled,
+		block_access.entityAccessMiddleware('api_documentation'),
+		express.static(__dirname + '/doc/website')
+	);
 }

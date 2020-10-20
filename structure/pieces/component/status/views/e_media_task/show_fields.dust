@@ -48,7 +48,7 @@
                 <i data-field="r_process" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
                 {/inline_help}
             </label>
-            <input class="form-control input" name="r_process" value="{r_process.f_name|string}" placeholder='{#__ key="entity.e_media_task.r_process" /}' type="text" readonly="">
+            <input class="form-control input" name="r_process" value="{r_process.f_name}" placeholder='{#__ key="entity.e_media_task.r_process" /}' type="text" readonly="">
         </div>
     </div>
 	<div data-field="f_data_flow" class="fieldLineHeight col-xs-12">

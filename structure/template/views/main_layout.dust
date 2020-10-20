@@ -302,6 +302,10 @@
 			});
 		</script>
 		{/toastr}
+
+		{! HTML encode / decode functions !}
+		<script src="/js/Newmips/html_encode_decode.js?v={config.version}" type='text/javascript'></script>
+
 		{! Newmips App !}
 		<script src="/js/newmips.js?v={config.version}" type='text/javascript'></script>
 
