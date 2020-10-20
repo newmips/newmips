@@ -92,7 +92,7 @@
 					{#__ key="select.default" /}
 				</option>
 				{#r_category}
-				<option value="{id}" selected="">{f_label|string}</option>
+				<option value="{id}" selected="">{f_label}</option>
 				{/r_category}
 			</select>
 		</div>
@@ -110,7 +110,7 @@
 					{#__ key="select.default" /}
 				</option>
 				{#r_users}
-				<option value="{id}">{f_login|string} - {f_email|email}</option>
+				<option value="{id}">{f_login} - {f_email}</option>
 				{/r_users}
 			</select>
 		</div>

@@ -12,8 +12,10 @@ module.exports = app => {
 				break;
 			case 'chat':
 			case 'default':
-			case 'import_export':
 				app.use('/' + file, require('./' + file)); // eslint-disable-line
+				break;
+			case 'import_export':
+				app.use('/' + file, block_access.entityAccessMiddleware('import_export'), require('./' + file)); // eslint-disable-line
 				break;
 			case 'e_notification':
 				app.use('/' + file.substring(2), block_access.isLoggedIn, require('./' + file)); // eslint-disable-line

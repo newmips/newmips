@@ -5,7 +5,7 @@
 			<select class="ajax form-control" required="" data-customwhere='{"f_target_entity": "{status_target}"}' name="r_media" data-source="media" data-using="f_name,f_type">
 				<option value="">{#__ key="select.default" /}</option>
 				{#r_media}
-				<option value="{id}" selected="">{f_name|string} - </option>
+				<option value="{id}" selected="">{f_name} - </option>
 				{/r_media}
 			</select>
 		</div>

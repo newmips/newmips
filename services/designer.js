@@ -1970,7 +1970,7 @@ exports.createComponentDocumentTemplate = async (data) => {
 	data.options.urlValue = 'document_template';
 
 	if(data.entity.getComponent(data.options.value, 'document_template'))
-		throw new Error("structure.component.error.alreadyExistOnEntity");
+		throw new Error("structure.component.error.onlyOneAllowed");
 
 	if (!data.application.hasDocumentTemplate) {
 		const instructions = [
@@ -2209,7 +2209,7 @@ async function createWidget(data) {
 	await structure_ui.createWidget(data);
 	return {
 		message: "structure.ui.widget.success",
-		messageParams: [data.widgetInputType, entity.np_module.name]
+		messageParams: [data.widgetInputType, entity.np_module.displayName]
 	};
 }
 exports.createWidget = createWidget;

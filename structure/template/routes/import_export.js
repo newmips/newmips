@@ -7,7 +7,7 @@ const globalConf = require('../config/global');
 const moment = require("moment");
 const exec = require('child_process');
 
-router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "read"), (req, res) => {
+router.get('/db_show', block_access.actionAccessMiddleware("db_tool", "read"), (req, res) => {
 	if (dbConfig.dialect != "mysql") {
 		req.session.toastr = [{
 			message: 'settings.db_tool.wrong_dialect',
@@ -49,9 +49,9 @@ router.get('/db_show', block_access.isLoggedIn, block_access.actionAccessMiddlew
 
 	data.entities = entities;
 	res.render('import_export/db_show', data);
-})
+});
 
-router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), (req, res) => {
+router.post('/db_export', block_access.actionAccessMiddleware("db_tool", "create"), (req, res) => {
 	if (dbConfig.password != req.body.db_password) {
 		req.session.toastr = [{
 			message: 'settings.db_tool.wrong_db_pwd',
@@ -145,9 +145,9 @@ router.post('/db_export', block_access.isLoggedIn, block_access.actionAccessMidd
 	}).catch(err => {
 		console.error(err);
 	})
-})
+});
 
-router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("db_tool", "create"), (req, res) => {
+router.post('/db_import', block_access.actionAccessMiddleware("db_tool", "create"), (req, res) => {
 
 	const filename = req.body.import_file;
 	if (filename == "") {
@@ -237,13 +237,13 @@ router.post('/db_import', block_access.isLoggedIn, block_access.actionAccessMidd
 		}];
 		res.redirect("/import_export/db_show")
 	})
-})
+});
 
-router.get('/access_show', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "read"), (req, res) => {
+router.get('/access_show', block_access.actionAccessMiddleware("access_tool", "read"), (req, res) => {
 	res.render('import_export/access_show');
-})
+});
 
-router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
+router.get('/access_export', block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
 	const dumpPath = __dirname + '/../config/access.json';
 	res.download(dumpPath, "access_conf_" + moment().format("YYYYMMDD-HHmmss") + ".json", err => {
 		if (err) {
@@ -255,9 +255,9 @@ router.get('/access_export', block_access.isLoggedIn, block_access.actionAccessM
 			return res.redirect("/import_export/access_show");
 		}
 	})
-})
+});
 
-router.post('/access_import', block_access.isLoggedIn, block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
+router.post('/access_import', block_access.actionAccessMiddleware("access_tool", "create"), (req, res) => {
 	const src = req.body.import_file;
 	const partOfFilepath = src.split('-');
 	if (partOfFilepath.length > 1) {

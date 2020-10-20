@@ -380,11 +380,12 @@ exports.initializeApplication = async(application) => {
 		"access_tool",
 		"access_settings_role",
 		"access_settings_group",
-		"access_settings_api"
+		"access_settings_api",
+		"api_documentation"
 	];
-	for (let i = 0; i < arrayKey.length; i++) {
+	for (const key of arrayKey) {
 		access.administration.entities.push({
-			name: arrayKey[i],
+			name: key,
 			groups: [],
 			actions: {
 				read: [],
