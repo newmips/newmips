@@ -920,7 +920,7 @@ exports.setRequiredAttribute = async (data) => {
 		if (set) {
 			switch (attributesObj[data.options.value].type) {
 				case "TEXT":
-					defaultValue = null;
+					defaultValue = "";
 					break;
 				case "STRING":
 				case "ENUM":
@@ -1052,6 +1052,16 @@ exports.setFieldAttribute = async (data) => {
 	return true;
 }
 
+const DUST_FILTERS = [
+	"date",
+	"datetime",
+	"dateTZ",
+	"datetimeTZ",
+	"time",
+	"filename",
+	"urlencode"
+];
+
 exports.setupRelatedToField = async (data) => {
 	const target = data.options.target;
 	const urlTarget = data.options.urlTarget;
@@ -1060,17 +1070,17 @@ exports.setupRelatedToField = async (data) => {
 	const urlAs = data.options.urlAs;
 
 	// Check if field is used in select, default to id
-	const usingField = data.options.usingField ? data.options.usingField : [{value: "id"}];
+	const usingField = data.options.usingField ? data.options.usingField : [{value: "id", type: "string"}];
 
 	const usingList = [], usingOption = [];
 	for (let i = 0; i < usingField.length; i++) {
 		usingList.push(usingField[i].value);
 		if(usingField[i].type == 'enum')
 			usingOption.push('{' + usingField[i].value + '.translation}');
-		else if (usingField[i].type == 'string')
-			usingOption.push('{' + usingField[i].value + '|h}');
-		else
+		else if (DUST_FILTERS.includes(usingField[i].type))
 			usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
+		else
+			usingOption.push('{' + usingField[i].value + '|h}');
 	}
 
 	// --- CREATE_FIELD ---
@@ -1165,7 +1175,7 @@ exports.setupRelatedToMultipleField = async (data) => {
 	const fileBase = __dirname + '/../workspace/' + data.application.name + '/views/' + source;
 
 	// Gestion du field à afficher dans le select du fieldset, par defaut c'est l'ID
-	let usingField = [{value: "id"}];
+	let usingField = [{value: "id", type: "string"}];
 
 	if (typeof data.options.usingField !== "undefined")
 		usingField = data.options.usingField;
@@ -1175,10 +1185,10 @@ exports.setupRelatedToMultipleField = async (data) => {
 		usingList.push(usingField[i].value);
 		if(usingField[i].type == 'enum')
 			usingOption.push('{' + usingField[i].value + '.translation}');
-		else if (usingField[i].type == 'string')
-			usingOption.push('{' + usingField[i].value + '|h}');
-		else
+		else if (DUST_FILTERS.includes(usingField[i].type))
 			usingOption.push('{' + usingField[i].value + '|' + usingField[i].type + '}');
+		else
+			usingOption.push('{' + usingField[i].value + '|h}');
 	}
 
 	// FIELD WRAPPER
