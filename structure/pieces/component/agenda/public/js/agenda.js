@@ -37,7 +37,7 @@ $(document).ready(function() {
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         locale: currentLocal,
         eventSources: [{
-            url: '/agenda/get_event',
+            url: '/URL_ROUTE/get_event',
             method: 'POST',
             data: function() {
                 return {}; // You can add data to /get_event rout here

@@ -22,17 +22,17 @@ router.get('/', block_access.isLoggedIn, function(req, res) {
 	});
 });
 
-router.post('/get_event', block_access.actionAccessMiddleware("agenda_event", "read"), function(req, res) {
+router.post('/get_event', block_access.actionAccessMiddleware("URL_ROUTE_event", "read"), function(req, res) {
 	(async () => {
 
-		const events = await models.E_agenda_event.findAll({
+		const events = await models.CODE_NAME_EVENT_MODEL.findAll({
 			where: {
 				f_start_date: {
 					[models.$between]: [req.body.start, req.body.end]
 				}
 			},
 			include: [{
-				model: models.E_agenda_category,
+				model: models.CODE_NAME_CATEGORY_MODEL,
 				as: "r_category"
 			}, {
 				model: models.E_user,
@@ -59,9 +59,8 @@ router.post('/get_event', block_access.actionAccessMiddleware("agenda_event", "r
 				allDay: events[i].f_all_day,
 				idCategory: events[i].r_category.id,
 				backgroundColor: events[i].r_category.f_color,
-				// url: "/agenda_event/show?id=" + events[i].id, // Uncomment if you want to be redirected on event click
-				resourceIds: resourceIds,
-				enqueteUrl: "/enquete_de_terrain/show?id=" + events[i].fk_id_enquete_de_terrain_enquete
+				// url: "/CODE_NAME_EVENT_URL/show?id=" + events[i].id, // Uncomment if you want to be redirected on event click
+				resourceIds: resourceIds
 			});
 		}
 
