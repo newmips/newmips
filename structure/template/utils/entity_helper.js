@@ -161,7 +161,7 @@ const funcs = {
 			// Unique value constraint error
 			else if (typeof err.parent !== "undefined" && (err.parent.errno == 1062 || err.parent.code == 23505)) {
 				let fieldname = err.errors[0].path;
-				if(fieldname.includes('.PRIMARY'))
+				if(fieldname.includes('PRIMARY'))
 					fieldname = "ID";
 				else {
 					// Getting only the field name

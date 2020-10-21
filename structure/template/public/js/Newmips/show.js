@@ -398,7 +398,7 @@ $(function() {
                     return console.error("Bad structureType in option");
 
                 // Init form and td
-                initForm(tab);
+                // initForm(tab);
             },
             error: function(pa1, pa2, pa3) {
                 if (pa1.status == 404)
