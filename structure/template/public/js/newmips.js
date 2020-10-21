@@ -1,5 +1,6 @@
 var maskMoneyPrecision = 2;
 var dropzonesFieldArray = [];
+var ctpQrCode = 0;
 Dropzone.autoDiscover = false;
 
 /* --------------- SELECT2 Ajax Loading --------------- */
@@ -250,7 +251,6 @@ function initForm(context) {
 
     /* ----------------data-type qrcode generation -------------------------*/
     // Counter to avoid same id generation
-    var ctpQrCode = 0;
     $("input[data-type='qrcode']", context).each(function () {
         if ($(this).val() != '') {
             // Update View, set attr parent id, Qrcode only work with component Id
@@ -357,7 +357,7 @@ function initForm(context) {
     $('.dropzone-field', context).each(function (index) {
         var that = $(this);
         var type = that.attr('data-type');
-        var dropzoneInit = new Dropzone("#" + $(this).attr("id"), {
+        $(this).dropzone({
             url: "/default/file_upload",
             autoProcessQueue: true,
             maxFilesize: 10,
@@ -420,7 +420,7 @@ function initForm(context) {
                             },
                             complete: function() {
                                 $("#table_" + that.attr('data-entity')).DataTable().ajax.reload();
-                                $("#" + that.attr("id") + "_hidden").val('');
+                                $("#" + that.attr("id") + "_hidden", context).val('');
                                 this.removeAllFiles();
                             }
                         });
@@ -435,14 +435,14 @@ function initForm(context) {
                             type: 'post',
                             data: {
                                 entity: that.attr("data-entity"),
-                                filename: $("#" + that.attr("id") + "_hidden").val()
+                                filename: $("#" + that.attr("id") + "_hidden", context).val()
                             },
                             error: function(err) {
                                 console.error(err);
                             },
                             complete: function() {
-                                $("#" + that.attr("id") + "_hidden").val('');
-                                $("#" + that.attr("id") + "_hidden_name").val('');
+                                $("#" + that.attr("id") + "_hidden", context).val('');
+                                $("#" + that.attr("id") + "_hidden_name", context).val('');
                                 if (dropzone.files.length > 1) {
                                     dropzone.removeAllFiles(true);
                                 }
@@ -453,7 +453,7 @@ function initForm(context) {
             },
             renameFile: function (file) {
                 var filename = file.name;
-                var value = $('#' + dropzoneId + '_hidden').val();
+                var value = $('#' + dropzoneId + '_hidden', context).val();
                 if(value)
                     return value;
 
@@ -461,11 +461,13 @@ function initForm(context) {
                 var filenameCleanedAndRenamed = clearString(filename);
                 var timeFile = moment().format("YYYYMMDD-HHmmss");
                 filenameCleanedAndRenamed = timeFile + '_' + uuid + '_' + filenameCleanedAndRenamed;
-                $('#' + dropzoneId + '_hidden').val(filenameCleanedAndRenamed);
-                $('#' + dropzoneId + '_hidden_name').val(filenameCleanedAndRenamed);
+                $('#' + dropzoneId + '_hidden', context).val(filenameCleanedAndRenamed);
+                $('#' + dropzoneId + '_hidden_name', context).val(filenameCleanedAndRenamed);
                 return filenameCleanedAndRenamed;
             }
         });
+
+        var dropzoneInit = $(this)[0].dropzone;
 
         if (type == 'picture')
             dropzoneInit.options.acceptedFiles = 'image/gif,image/png,image/jpeg';
@@ -473,7 +475,7 @@ function initForm(context) {
             dropzoneInit.options.acceptedFiles = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
         var dropzoneId = $(this).attr('id') + '';
-        if ($('#' + dropzoneId + '_hidden').val()) {
+        if ($('#' + dropzoneId + '_hidden', context).val()) {
             var mockFile = {
                 name: $('#' + dropzoneId + '_hidden').val(),
                 type: 'mockfile',
@@ -481,7 +483,7 @@ function initForm(context) {
             };
             dropzoneInit.files.push(mockFile);
             dropzoneInit.emit('addedfile', mockFile);
-            if(typeof $('#' + dropzoneId + '_hidden').data('buffer') === undefined)
+            if(typeof $('#' + dropzoneId + '_hidden', context).data('buffer') === undefined)
                 dropzoneInit.emit('thumbnail', mockFile, "data:image/;base64," + $('#' + dropzoneId + '_hidden').data('buffer'));
             dropzoneInit.emit('complete', mockFile);
         }

@@ -99,7 +99,7 @@
 				<i data-field="r_category" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
 				{/inline_help}
 			</label>
-			<select class="ajax form-control" name="r_category" data-source="agenda_category" data-using="f_label">
+			<select class="ajax form-control" name="r_category" data-source="URL_CATEGORY" data-using="f_label">
 				<option value="">
 					{#__ key="select.default" /}
 				</option>

@@ -364,6 +364,7 @@ exports.newAgenda = async (data) => {
 			const eventFile = workspacePath + '/views/' + valueEvent + '/' + fileToReplace[i] + '.dust';
 			let eventTemplate = fs.readFileSync(eventFile, 'utf8');
 
+			eventTemplate = eventTemplate.replace(/URL_CATEGORY/g, urlCategory);
 			eventTemplate = eventTemplate.replace(/CODE_NAME_EVENT_LOWER/g, valueEvent);
 			eventTemplate = eventTemplate.replace(/URL_EVENT/g, urlEvent);
 			eventTemplate = eventTemplate.replace(/MODULE_NAME/g, data.np_module.name);
