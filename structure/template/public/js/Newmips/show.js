@@ -196,7 +196,7 @@ function initHasOne(tab, data) {
         delForm.attr('action', '/'+data.option.target.substring(2)+'/delete');
         delForm.find('input[name=id]').val(data.data);
 
-		newButton = $('<div class="quicklinks"></div>');
+        newButton = $('<div class="quicklinks"></div>');
 
         // Add update btn
         if(data.option.access.update)
@@ -208,6 +208,8 @@ function initHasOne(tab, data) {
             newButton.append(delForm);
     }
     tab.find('.ajax-content').append(newButton);
+
+    bindStatusComment(tab);
 }
 
 // HAS MANY
@@ -341,9 +343,23 @@ function initHasManyPreset(tab, data) {
 // LOCAL FILE STORAGE
 function initLocalFileStorage(tab, data) {
     tab.find('.ajax-content').html(data.content);
-    initDropZone(tab);
-    // Apply simpleTable on list
-    simpleTable(tab.find('table'));
+    initForm(tab);
+
+    if(data.option.access.delete) {
+        DATALIST_BUTTONS = [{
+            render: function(data2, type, row) {
+                var url = '/'+data.option.target.substring(2)+'/delete?ajax=true'
+                var form = '\
+                    <form action="'+url+'" class="ajax" method="post">\
+                        <input type="hidden" value="'+row.id+'" name="id">\
+                        <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+DELETE_TEXT+'</span></button>\
+                    </form>';
+                return form;
+            },
+            searchable: false
+        }];
+    }
+    init_datatable('#'+tab.find('table').attr('id'), true, tab);
 }
 
 // INITIALIZE
@@ -384,21 +400,17 @@ $(function() {
                 tab.data('target', data.option.target);
 
                 // Build tab content
-                if (data.option.structureType == 'hasOne') {
+                if (data.option.structureType == 'hasOne')
                     initHasOne(tab, data);
-                    bindStatusComment(tab);
-                }
-                else if (data.option.structureType == 'hasMany')
+                else if (data.option.structureType == 'hasMany' && !data.option.isFileStorage)
                     initHasMany(tab, data);
                 else if (data.option.structureType == 'hasManyPreset')
                     initHasManyPreset(tab, data);
-                else if (data.option.structureType == 'localfilestorage')
+                else if (data.option.structureType == 'hasMany' && data.option.isFileStorage === true)
                     initLocalFileStorage(tab, data);
                 else
                     return console.error("Bad structureType in option");
 
-                // Init form and td
-                // initForm(tab);
             },
             error: function(pa1, pa2, pa3) {
                 if (pa1.status == 404)

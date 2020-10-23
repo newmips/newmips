@@ -393,13 +393,13 @@ function initForm(context) {
                 this.on("error", function (file, message) {
                     this.removeFile(this.files[0]);
                     toastr.error(message);
-                    $("#" + that.attr("id") + "_hidden").removeAttr('value');
+                    $("#" + that.attr("id") + "_hidden", context).removeAttr('value');
                 });
 
                 this.on("complete", function (file, xhr, formData) {
                     /* Add possibility to download the uploaded file in the dropzone */
                     $(file.previewTemplate).find('a.dz-remove').after(
-                        '<a style="text-align: center;cursor: pointer;display: block;" href="/default/download?entity='+that.attr("data-entity")+'&f='+$("#" + that.attr("id") + "_hidden").val()+'">Télécharger</a>');
+                        '<a style="text-align: center;cursor: pointer;display: block;" href="/default/download?entity='+that.attr("data-entity")+'&f='+$("#" + that.attr("id") + "_hidden", context).val()+'">Télécharger</a>');
                 });
 
                 this.on("success", function (file, message) {
@@ -416,10 +416,10 @@ function initForm(context) {
                                 associationForeignKey: that.attr("data-fk"),
                                 associationAlias: that.attr("data-alias"),
                                 associationUrl: that.attr("data-url"),
-                                f_filename: $("#" + that.attr("id") + "_hidden").val()
+                                f_filename: $("#" + that.attr("id") + "_hidden", context).val()
                             },
                             complete: function() {
-                                $("#table_" + that.attr('data-entity')).DataTable().ajax.reload();
+                                $("#table_" + that.attr('data-entity'), context).DataTable().ajax.reload();
                                 $("#" + that.attr("id") + "_hidden", context).val('');
                                 this.removeAllFiles();
                             }
