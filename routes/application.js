@@ -117,9 +117,9 @@ async function execute(req, instruction, __, data = {}, saveMetadata = true) {
 	data.isGeneration = true;
 
 	if(typeof req.session.gitlab !== 'undefined'
-		&& typeof req.session.gitlab.user !== 'undefined'
-		&& req.session.gitlab.user
-		&& !isNaN(req.session.gitlab.user.id))
+	&& typeof req.session.gitlab.user !== 'undefined'
+	&& req.session.gitlab.user
+	&& !isNaN(req.session.gitlab.user.id))
 		data.gitlabUser = req.session.gitlab.user;
 
 	if(data.function != 'createNewApplication' && data.function != 'deleteApplication')
