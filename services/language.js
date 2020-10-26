@@ -29,9 +29,8 @@ function fetchText(key, params, lang) {
 	let depth = languages[lang];
 	for (let i = 0; i < keys.length; i++) {
 		depth = depth[keys[i]];
-		if (typeof depth === 'undefined'){
+		if (typeof depth === 'undefined')
 			return key;
-		}
 	}
 
 	if(typeof depth !== "string"){
@@ -39,13 +38,9 @@ function fetchText(key, params, lang) {
 		return key;
 	}
 
-	const nbParamsFound = (depth.match(/%s/g) || []).length;
-
-	if(nbParamsFound > 0 && nbParamsFound == params.length){
-		for(let j=0; j<nbParamsFound; j++){
-			depth = depth.replace("%s", params[j]);
-		}
-	}
+	let i = 0;
+	while (depth.match(/%s/) != null)
+		depth = depth.replace(/%s/, params[i++] || '[missing_param]')
 
 	return depth;
 }

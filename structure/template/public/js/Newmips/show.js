@@ -103,7 +103,7 @@ function select2_fieldset(select, data) {
                     for (var field in dataResults[i]) {
                         if (searchField.indexOf(field) != -1) {
                             if (dataResults[i][field] != null)
-                                text.push(dataResults[i][field]);
+                                text.push(HtmlEncode(dataResults[i][field]));
                         }
                     }
                     text = text.join(' - ');
@@ -343,7 +343,6 @@ function initHasManyPreset(tab, data) {
 // LOCAL FILE STORAGE
 function initLocalFileStorage(tab, data) {
     tab.find('.ajax-content').html(data.content);
-    initForm(tab);
 
     if(data.option.access.delete) {
         DATALIST_BUTTONS = [{
@@ -411,6 +410,7 @@ $(function() {
                 else
                     return console.error("Bad structureType in option");
 
+                initForm(tab);
             },
             error: function(pa1, pa2, pa3) {
                 if (pa1.status == 404)

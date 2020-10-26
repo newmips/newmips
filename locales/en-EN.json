@@ -266,10 +266,10 @@
 	"database": {
 		"application": {
 			"select": {
-				"selected": "Application %s (%s) selected."
+				"selected": "Application %s selected."
 			},
 			"create": {
-				"success" : "New application %s (%s) created."
+				"success" : "New application %s created."
 			},
 			"delete":{
 				"deleted": "Application %s deleted !"
@@ -284,7 +284,7 @@
 		},
 		"module": {
 			"select": {
-				"selected": "Module %s (%s) selected."
+				"selected": "Module %s selected."
 			},
 			"create": {
 				"success" : "You have just added a new module %s (%s)<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete module %s</b>.",
@@ -325,7 +325,7 @@
 				"valid": "Please, indicate a valid name."
 			},
 			"create": {
-				"success": "You have just added a new entity %s (%s) in the module %s. To delete it, type the instruction:<br>- <b class='click-instruction'>delete entity %s</b>.",
+				"success": "You have just added a new entity %s in the module %s. To delete it, type the instruction:<br>- <b class='click-instruction'>delete entity %s</b>.",
 				"alreadyExist": "Entity with the same or similar name %s already exists.",
 				"addComponent": "Cannot add component on entity, no entity with code name %s found."
 			},
@@ -348,7 +348,7 @@
 				"alreadyExist": "Sorry, a field or a tab with the same or similar name (%s) already exists."
 			},
 			"create": {
-				"created": "You have just added a new field %s (%s) to the entity %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",
+				"created": "You have just added a new field %s to the entity %s.<br>To delete it, type the instruction:<br>- <b class='click-instruction'>delete field %s</b><br>To make it unique:<br>- <b class='click-instruction'>set field %s unique</b><br>To make it mandatory:<br>- <b class='click-instruction'>set field %s mandatory</b>",
 				"foreignKeyCreated": "New foreign key %s | %s created."
 			},
 			"delete": {
