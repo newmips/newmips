@@ -35,6 +35,85 @@ exports.attributesValidation = function (attributes) {
 	}
 }
 
+//
+// /!\ Not implemented yet in default behavior /!\
+//
+// PARAMETERS:
+//  models: require('models/')
+//  headEntity: The entity on which include will be used.
+//			  Ex: 'e_user'
+//  fieldsArray: An array of the relations that will be used and need to be included.
+//  It can either be a string representing the relation's path, or an object{path: '', options:{}} where options can have any sequlize valid option
+//			  Ex: [
+//				'r_project.r_ticket',
+//				'r_user.r_children.r_parent',
+//				{
+//					path: 'r_user.r_children.r_grandparent',
+//					options: {
+//						required: true,
+//						where: {id: 42},
+//						attributes: ['id', 'f_name']
+//					}
+//				}
+//			]
+// RETURNS:
+//  Returns a sequelize valid include object.
+//			  Ex: [{model: E_project, as:'r_project'}, {model: E_user, as:'r_user', include: [{model: E_user, as:'r_children'}]}}]
+exports.getIncludeFromFieldsV2 = function (models, headEntity, fieldsArray) {
+	const upperLevelInclude = [];
+
+	function buildInclude(currentEntity, include, depths, options = false) {
+		const entityOptions = require('../models/options/' + currentEntity.toLowerCase()); // eslint-disable-line
+
+		for (let j = 0; j < entityOptions.length; j++) {
+			if (entityOptions[j].as == depths[0]) {
+				// If include for current depth exists, fill the same object
+				for (let i = 0; i < include.length; i++)
+					if (include[i].as == depths[0]) {
+						if (depths.length == 1)
+							include[i] = {...include[i], ...options};
+						return buildInclude(entityOptions[j].target, include[i].include, depths.slice(1), options);
+					}
+
+				// Uppercase target's first letter to build model name. This is necessary because of component `C`_adresse
+				const modelPrefix = entityOptions[j].target.charAt(0).toUpperCase() + '_';
+				// If include for current depth doesn't exists, create it and send include array to recursive buildInclude
+				let depthInclude = {
+					model: models[modelPrefix + entityOptions[j].target.slice(2)],
+					as: depths[0],
+					include: [],
+					duplicating: false
+				}
+				if (depths.length == 1)
+					depthInclude = {...depthInclude, ...options};
+				else
+					buildInclude(entityOptions[j].target, depthInclude.include, depths.slice(1), options);
+				return include.push(depthInclude)
+			}
+		}
+	}
+
+	for (let field = 0; fieldsArray[field] && field < fieldsArray.length; field++) {
+		const current = fieldsArray[field];
+
+		let depths, options;
+		if (typeof current === 'string')
+			depths = current.split('.');
+		else if (current.path) {
+			depths = current.path.split('.');
+			options = current.options;
+		}
+		else {
+			console.error('Invalid include parameter '+current);
+			continue;
+		}
+
+		buildInclude(headEntity, upperLevelInclude, depths, options);
+	}
+
+	return upperLevelInclude;
+}
+
 // PARAMETERS:
 //  models: require('models/')
 //  headEntity: The entity on which include will be used.
