@@ -4,7 +4,7 @@ services:
   newmips:
     depends_on:
       - database
-    image: newmips/newmips:latest
+    image: newmips/newmips:2.9
     networks:
       proxy:
         ipv4_address: 172.21.0.14
