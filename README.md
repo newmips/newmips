@@ -50,24 +50,6 @@ Docker and Docker compose installed
 
 ### Instructions
 
-Clone repository:
-
-<pre>
-git clone: <pre>git clone git@github.com:newmips/newmips.git</pre>
-</pre>
-
-Set configuration file "config/global.js" with env value "docker":
-
-<pre>
-const env = 'docker';
-</pre>
-
-Create local image:
-
-<pre>
-sudo docker build newmips/newmips:latest .
-</pre>
-
 Create (and adapt if necessary) "docker-compose.yml" file:
 
 <pre>
@@ -118,7 +100,7 @@ Execute Docker compose command:
 sudo docker-compose -f docker-compose.yml -p studio up -d
 </pre>
 
-Wait about 15 seconds and open your browser on http://127.0.0.1:1337<br>
+Wait about 30 seconds and open your browser on http://127.0.0.1:1337<br>
 Set your password on the first connection page http://127.0.0.1:1337/first_connection?login=admin<br>
 The default generator login is: admin
 
@@ -140,4 +122,3 @@ Newmips software documentation is available at : https://docs.newmips.com.
 
 Newmips is released under the GNU GPL v3.0 license.
 It contains several open source components distributed under the MIT, BSD or GNU GPL V3.0 licenses.
-
