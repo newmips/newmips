@@ -25,6 +25,7 @@ function setChildUrl(sessionID, appName, url){
 exports.setChildUrl = setChildUrl;
 
 exports.process_server_per_app = process_server_per_app;
+
 exports.launchChildProcess = function(req, appName, env) {
 
 	setDefaultChildUrl(req.sessionID, appName);
@@ -64,6 +65,8 @@ exports.launchChildProcess = function(req, appName, env) {
 	});
 
 	process_server.on('close', _ => {
+		if (allLogStream)
+			allLogStream.end();
 		console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
 	});
 
