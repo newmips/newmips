@@ -21,13 +21,13 @@
 	</h1>
 	<ol class='breadcrumb'>
 		<li>
-			<a href='#'>
+			<a href='/'>
 				<i class='fa fa-home'></i>
 				{#__ key="module.home"/}
 			</a>
 		</li>
 		<li class='active'>
-			{#__ key="module.m_home"/}
+			{#__ key="global_component.agenda.add_event"/}
 		</li>
 	</ol>
 {/header}
@@ -36,16 +36,16 @@
 	<div class='row'>
 		<div class='col-xs-12 col-md-3'>
 			<div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">{#__ key="global_component.agenda.add_event"/}</h3>
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-minus"></i></button>
-                    </div>
-                </div>
-                <div class="box-body">
-                	<select style="width: 100%;" class="form-control selectCategoryColor" id="selectCategorySide">
-                		<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
+				<div class="box-header">
+					<h3 class="box-title">{#__ key="global_component.agenda.add_event"/}</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fa fa-minus"></i></button>
+					</div>
+				</div>
+				<div class="box-body">
+					<select style="width: 100%;" class="form-control selectCategoryColor" id="selectCategorySide">
+						<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
 						{#categories}
 							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 						{/categories}
@@ -56,32 +56,32 @@
 							<button id="add-new-event" type="button" class="btn btn-success btn-flat">{#__ key="button.add"/}</button>
 						</div>
 					</div>
-                </div>
-            </div>
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">{#__ key="global_component.agenda.pending_event"/}</h3>
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-minus"></i></button>
-                    </div>
-                </div>
-                <div class="box-body">
-                	<div id="pengingEventList">
+				</div>
+			</div>
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">{#__ key="global_component.agenda.pending_event"/}</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fa fa-minus"></i></button>
 					</div>
-                </div>
-            </div>
+				</div>
+				<div class="box-body">
+					<div id="pengingEventList">
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class='col-xs-12 col-md-9'>
 			<div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">{#__ key="component.CODE_NAME_LOWER.label_component" /}</h3>
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                        <i class="fa fa-minus"></i></button>
-                    </div>
-                </div>
-                <div class="box-body">
+				<div class="box-header">
+					<h3 class="box-title">{#__ key="component.CODE_NAME_LOWER.label_component" /}</h3>
+					<div class="box-tools pull-right">
+						<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fa fa-minus"></i></button>
+					</div>
+				</div>
+				<div class="box-body">
 					<div id="calendar"></div>
 				</div>
 			</div>
@@ -109,25 +109,25 @@
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
 						<label>{#__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
 						<input class='form-control input' id="createEventAllDayCheckbox" type='checkbox'>
-                	</div>
+					</div>
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
 						<label>{#__ key="global_component.agenda.startHour"/}</label>
-                		<div class='input-group'>
-                			<div class='input-group-addon'>
-                				<i class='fa fa-clock-o'></i>
-                			</div>
-                			<input class='form-control input timepicker' id="modalCreateStartTime" type='text' />
-                		</div>
-                	</div>
-                	<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<div class='input-group'>
+							<div class='input-group-addon'>
+								<i class='fa fa-clock-o'></i>
+							</div>
+							<input class='form-control input timepicker' id="modalCreateStartTime" type='text' />
+						</div>
+					</div>
+					<div style="margin-top: 10px" class='bootstrap-timepicker'>
 						<label>{#__ key="global_component.agenda.endHour"/}</label>
-                		<div class='input-group'>
-                			<div class='input-group-addon'>
-                				<i class='fa fa-clock-o'></i>
-                			</div>
-                			<input class='form-control input timepicker' id="modalCreateEndTime" type='text' />
-                		</div>
-                	</div>
+						<div class='input-group'>
+							<div class='input-group-addon'>
+								<i class='fa fa-clock-o'></i>
+							</div>
+							<input class='form-control input timepicker' id="modalCreateEndTime" type='text' />
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="createEvent" >{#__ key="button.save" /}</button>
@@ -146,8 +146,8 @@
 				<div class="modal-body">
 					<input type="hidden" id="modalUpdateEventID" />
 					<input type="hidden" id="modalUpdateID" />
-                	<select style="width: 100%;" class="form-control selectCategoryColor" id="modalUpdateCategory">
-                		<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
+					<select style="width: 100%;" class="form-control selectCategoryColor" id="modalUpdateCategory">
+						<option data-backgroundcolor="#CCCCCC" value="">{#__ key="global_component.agenda.no_category"/}</option>
 						{#categories}
 							<option data-backgroundcolor="{f_color}" value="{id}">{f_label}</option>
 						{/categories}
@@ -158,29 +158,29 @@
 					<div style="margin-top: 10px" class='bootstrap-timepicker'>
 						<label>{#__ key="entity.CODE_NAME_EVENT_LOWER.f_all_day"/}</label><br>
 						<input class='form-control input' id="updateEventAllDayCheckbox" type='checkbox'>
-                	</div>
-                	<div style="margin-top: 10px" class='bootstrap-timepicker'>
+					</div>
+					<div style="margin-top: 10px" class='bootstrap-timepicker'>
 						<label>{#__ key="global_component.agenda.startHour"/}</label>
-                		<div class='input-group'>
-                			<div class='input-group-addon'>
-                				<i class='fa fa-clock-o'></i>
-                			</div>
-                			<input class='form-control input timepicker' id="modalUpdateStartTime" type='text' />
-                		</div>
-                	</div>
-                	<div style="margin-top: 10px" class='bootstrap-timepicker'>
+						<div class='input-group'>
+							<div class='input-group-addon'>
+								<i class='fa fa-clock-o'></i>
+							</div>
+							<input class='form-control input timepicker' id="modalUpdateStartTime" type='text' />
+						</div>
+					</div>
+					<div style="margin-top: 10px" class='bootstrap-timepicker'>
 						<label>{#__ key="global_component.agenda.endHour"/}</label>
-                		<div class='input-group'>
-                			<div class='input-group-addon'>
-                				<i class='fa fa-clock-o'></i>
-                			</div>
-                			<input class='form-control input timepicker' id="modalUpdateEndTime" type='text' />
-                		</div>
-                	</div>
+						<div class='input-group'>
+							<div class='input-group-addon'>
+								<i class='fa fa-clock-o'></i>
+							</div>
+							<input class='form-control input timepicker' id="modalUpdateEndTime" type='text' />
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="updateEvent" >{#__ key="button.save" /}</button>
-					<button type="button" class="btn btn-danger btn-confirm" id="deleteEvent" data-dismiss="modal">{#__ key="button.delete" /}</button>
+					<button type="button" class="btn btn-danger" id="deleteEvent" data-dismiss="modal">{#__ key="button.delete" /}</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.cancel" /}</button>
 				</div>
 			</div>
@@ -195,16 +195,9 @@
 	<script src='/js/plugins/fullcalendar/locale-all.js'></script>
 	<script src='/js/plugins/fullcalendar/scheduler.js'></script>
 	<script>
-		var calendarEvents = [];
 		var FILL_TITLE_AGENDA = '{#__ key="global_component.agenda.fill_title" /}';
+		var END_BEFORE_START_MSG = '{#__ key="global_component.agenda.end_before_start" /}';
 	</script>
-	{#events}
-		<script>var resourceIdsArray = [];</script>
-		{#.ressourceIds}
-			<script>resourceIdsArray.push({.})</script>
-		{/.ressourceIds}
-		<script>calendarEvents.push({eventId:{eventId}, title: "{title}", start: moment.utc("{start}").format("YYYY-MM-DD HH:mm:ss"), end: moment.utc("{end}").format("YYYY-MM-DD HH:mm:ss"), allDay:"{allDay}", backgroundColor: "{backgroundColor}", borderColor: "{backgroundColor}", idCategory: "{idCategory}", resourceIds: resourceIdsArray});</script>
-	{/events}
 	<script>var usersRessources = [];</script>
 	{#users}
 		<script>usersRessources.push({id:{id}, title: "{f_login}"});</script>

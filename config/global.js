@@ -1,8 +1,7 @@
-// Global configuration file
-const fs = require('fs');
-let env = 'develop';
+const env = process.env.NPS_ENV || 'develop';
+// const fs = require('fs');
 
-let config = {
+const config = {
 	develop: {
 		env: 'develop',
 		protocol: 'http',
@@ -10,8 +9,7 @@ let config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		authStrategy: 'local',
-		support_chat_enabled: false,
-		separate_workspace_db: false // DATABASE CREATION PRIVILEGE NEEDED (App DB will look like workspace_APPID)
+		support_chat_enabled: false
 	},
 	recette: {
 		env: 'recette',
@@ -25,8 +23,7 @@ let config = {
 			passphrase : ''
 		},
 		authStrategy: 'local',
-		support_chat_enabled: false,
-		separate_workspace_db: false
+		support_chat_enabled: false
 	},
 	production: {
 		env: 'production',
@@ -40,40 +37,39 @@ let config = {
 			passphrase : ''
 		},
 		authStrategy: 'local',
-		support_chat_enabled: false,
-		separate_workspace_db: false
+		support_chat_enabled: false
 	},
-    docker: {
-        env: 'docker',
-        protocol: 'http',
-        protocol_iframe: 'http',
-        host: '127.0.0.1',
-        dns: process.env.DOMAIN_STUDIO,
-        dns_cloud: process.env.DOMAIN_CLOUD,
-        sub_domain: process.env.SUB_DOMAIN,
-        port: process.env.PORT || 1337,
-        support_chat_enabled: false,
-        separate_workspace_db: true,
-        authStrategy: 'local',
-        server_ip: process.env.SERVER_IP
-    },
-    cloud: {
-        env: 'cloud',
-        protocol: 'http',
-        protocol_iframe: 'https',
-        host: process.env.HOSTNAME,
-        dns: process.env.DOMAIN_STUDIO,
-        dns_cloud: process.env.DOMAIN_CLOUD,
-        sub_domain: process.env.SUB_DOMAIN,
-        port: process.env.PORT || 1337,
-        support_chat_enabled: true,
-        separate_workspace_db: true,
-        authStrategy: 'local',
-        server_ip: process.env.SERVER_IP
-    }
+	docker: {
+		env: 'docker',
+		protocol: 'http',
+		protocol_iframe: 'http',
+		host: '127.0.0.1',
+		dns: process.env.DOMAIN_STUDIO,
+		dns_cloud: process.env.DOMAIN_CLOUD,
+		sub_domain: process.env.SUB_DOMAIN,
+		port: process.env.PORT || 1337,
+		support_chat_enabled: false,
+		separate_workspace_db: true,
+		authStrategy: 'local',
+		server_ip: process.env.SERVER_IP
+	},
+	cloud: {
+		env: 'cloud',
+		protocol: 'http',
+		protocol_iframe: 'https',
+		host: process.env.HOSTNAME,
+		dns: process.env.DOMAIN_STUDIO,
+		dns_cloud: process.env.DOMAIN_CLOUD,
+		sub_domain: process.env.SUB_DOMAIN,
+		port: process.env.PORT || 1337,
+		support_chat_enabled: true,
+		separate_workspace_db: true,
+		authStrategy: 'local',
+		server_ip: process.env.SERVER_IP
+	}
 }
 
-let fullConfig = config[env];
-fullConfig.version = "2.8";
+const fullConfig = config[env];
+fullConfig.version = "2.9";
 
 module.exports = fullConfig;

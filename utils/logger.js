@@ -1,17 +1,16 @@
-var winston = require('winston');
-var moment = require('moment');
-
-var tsFormat = moment().format("YYYY-MM-DD HH:mm:ss");
+const winston = require('winston');
+const moment = require('moment');
+const tsFormat = moment().format("YYYY-MM-DD HH:mm:ss");
 
 // Winston logging configuration
-var logger = new (winston.Logger)({
+const logger = new winston.Logger({
 	transports: [
-		new (winston.transports.Console)({
+		new winston.transports.Console({
 			level: "info",
 			timestamp: tsFormat,
 			colorize: true
 		}),
-		new (winston.transports.File)({
+		new winston.transports.File({
 			level: "silly",
 			timestamp: tsFormat,
 			filename: 'winston.log'

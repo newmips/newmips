@@ -1,44 +1,44 @@
 <div id="fields" class="row">
 	<div class="col-xs-12" data-field="f_client_name">
-	    <div class="form-group">
-	        <label for="f_client_name"> {#__ key="entity.e_api_credentials.f_client_name"/} {@inline_help field="f_client_name"}&nbsp;<i data-field="f_client_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-	        <input class="form-control input" placeholder='{#__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text">
-	    </div>
+		<div class="form-group">
+			<label for="f_client_name"> {#__ key="entity.e_api_credentials.f_client_name"/} {@inline_help field="f_client_name"}&nbsp;<i data-field="f_client_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<input class="form-control input" placeholder='{#__ key="entity.e_api_credentials.f_client_name" /}' name="f_client_name" value="{f_client_name}" type="text">
+		</div>
 	</div>
-    <div data-field="f_role" class="fieldLineHeight col-xs-12">
-        <div class="form-group">
-            <label for="f_role">
-                {#__ key="entity.e_api_credentials.r_role" /}
-                {@inline_help field="r_role"}
-                <i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-                {/inline_help}
-            </label>
-            <select multiple="" style="width:100%;" class="ajax form-control" name="r_role" data-source="role" data-using="f_label">
-                <option value="">
-                    {#__ key="select.default" /}
-                </option>
-                {#r_role}
-                <option value="{id}" selected="">{f_label|string}</option>
-                {/r_role}
-            </select>
-        </div>
-    </div>
-    <div data-field="f_group" class="fieldLineHeight col-xs-12">
-        <div class="form-group">
-            <label for="f_group">
-                {#__ key="entity.e_api_credentials.r_group" /}
-                {@inline_help field="r_group"}
-                <i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-                {/inline_help}
-            </label>
-            <select multiple="" style="width:100%;" class="ajax form-control" name="r_group" data-source="group" data-using="f_label">
-                <option value="">
-                    {#__ key="select.default" /}
-                </option>
-                {#r_group}
-                <option value="{id}" selected="">{f_label|string}</option>
-                {/r_group}
-            </select>
-        </div>
-    </div>
+	<div data-field="f_role" class="fieldLineHeight col-xs-12">
+		<div class="form-group">
+			<label for="f_role">
+				{#__ key="entity.e_api_credentials.r_role" /}
+				{@inline_help field="r_role"}
+				<i data-field="r_role" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+				{/inline_help}
+			</label>
+			<select multiple="" style="width:100%;" class="ajax form-control" name="r_role" data-source="role" data-using="f_label">
+				<option value="">
+					{#__ key="select.default" /}
+				</option>
+				{#r_role}
+				<option value="{id}" selected="">{f_label}</option>
+				{/r_role}
+			</select>
+		</div>
+	</div>
+	<div data-field="f_group" class="fieldLineHeight col-xs-12">
+		<div class="form-group">
+			<label for="f_group">
+				{#__ key="entity.e_api_credentials.r_group" /}
+				{@inline_help field="r_group"}
+				<i data-field="r_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+				{/inline_help}
+			</label>
+			<select multiple="" style="width:100%;" class="ajax form-control" name="r_group" data-source="group" data-using="f_label">
+				<option value="">
+					{#__ key="select.default" /}
+				</option>
+				{#r_group}
+				<option value="{id}" selected="">{f_label}</option>
+				{/r_group}
+			</select>
+		</div>
+	</div>
 </div>

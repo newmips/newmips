@@ -1,90 +1,90 @@
 {>"layout_m_administration"/}
 {<header}
-    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
-    <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
-        <li class='sub-module-arianne'>{#__ key="module.m_administration"/}</li>
-        <li class="active">{#__ key="entity.e_media.label_entity"/}</li>
-    </ol>
+	<h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-home"></i>{#__ key="module.home"/}</a></li>
+		<li><a class='sub-module-arianne' href='/default/administration'>{#__ key="module.m_administration"/}</a></li>
+		<li class="active">{#__ key="entity.e_media.label_entity"/}</li>
+	</ol>
 {/header}
 {<custom_css_2}
-    <style>
-        .form-group label .select2-container {
-            width: 90% !important;
-        }
-        .mosaic-label{
-            width: 100%;
-        }
-    </style>
+	<style>
+		.form-group label .select2-container {
+			width: 90% !important;
+		}
+		.mosaic-label{
+			width: 100%;
+		}
+	</style>
 {/custom_css_2}
 {<content}
-    <div class="row">
-        <div class="col-xs-12 connectedSortable">
-            <form action="/media/update" method="post">
-                <div class="box">
-                    <div class="box-header">
-                        <h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.e_media.name_entity"/}</h3>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                            <i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                    <div class="box-body">
-                        <div class="form-group">
-                            <label for="id">{#__ key="entity.e_media.id_entity"/} {#__ key="entity.e_media.name_entity"/}</label>
-                            <input name="id" type="hidden" placeholder="{e_media.id_entity}" value="{e_media.id}" class="form-control input media-field"/>
-                            <input name="id_display" type="text" placeholder="{e_media.id_entity}" value="{e_media.id}" disabled="" class="form-control input media-field"/>
-                        </div>
-                        {#e_media}
-                            {>"e_media/update_fields"/}
-                        {/e_media}
-                        <div class="form-group">
-                            <input name="version" value="{e_media.version}" type="hidden" placeholder="version" class="form-control input media-field"/>
-                        </div>
-                    </div>
-                    <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
-                            {#__ key="button.save"/}
-                        </button>
-                    </div>
-                    {#associationFlag}
-                        <input type="hidden" name='associationFlag' value="{.}">
-                    {/associationFlag}
-                    {#associationSource}
-                        <input type="hidden" name='associationSource' value="{.}">
-                    {/associationSource}
-                    {#associationForeignKey}
-                        <input type="hidden" name='associationForeignKey' value="{.}">
-                    {/associationForeignKey}
-                    {#associationAlias}
-                        <input type="hidden" name='associationAlias' value="{.}">
-                    {/associationAlias}
-                    {#associationUrl}
-                        <input type="hidden" name='associationUrl' value="{.}">
-                    {/associationUrl}
-                </div>
-            </form>
-        </div>
-    </div>
+	<div class="row">
+		<div class="col-xs-12 connectedSortable">
+			<form action="/media/update" method="post">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">{#__ key="operation.update"/} {#__ key="entity.e_media.label_entity"/}</h3>
+						<div class="box-tools pull-right">
+							<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+							<i class="fa fa-minus"></i></button>
+						</div>
+					</div>
+					<div class="box-body">
+						<div class="form-group">
+							<label for="id">{#__ key="entity.e_media.id_entity"/} {#__ key="entity.e_media.label_entity"/}</label>
+							<input name="id" type="hidden" placeholder="{e_media.id_entity}" value="{e_media.id}" class="form-control input media-field"/>
+							<input name="id_display" type="text" placeholder="{e_media.id_entity}" value="{e_media.id}" disabled="" class="form-control input media-field"/>
+						</div>
+						{#e_media}
+							{>"e_media/update_fields"/}
+						{/e_media}
+						<div class="form-group">
+							<input name="version" value="{e_media.version}" type="hidden" placeholder="version" class="form-control input media-field"/>
+						</div>
+					</div>
+					<div class="box-footer">
+						<button type="submit" class="btn btn-primary">
+							<i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+							{#__ key="button.save"/}
+						</button>
+					</div>
+					{#associationFlag}
+						<input type="hidden" name='associationFlag' value="{.}">
+					{/associationFlag}
+					{#associationSource}
+						<input type="hidden" name='associationSource' value="{.}">
+					{/associationSource}
+					{#associationForeignKey}
+						<input type="hidden" name='associationForeignKey' value="{.}">
+					{/associationForeignKey}
+					{#associationAlias}
+						<input type="hidden" name='associationAlias' value="{.}">
+					{/associationAlias}
+					{#associationUrl}
+						<input type="hidden" name='associationUrl' value="{.}">
+					{/associationUrl}
+				</div>
+			</form>
+		</div>
+	</div>
 {/content}
 {<custom_js}
-    <script type="text/javascript">
-        var CHOOSE_USER = '{#__ key="component.status.choose_from_user" /}';
-        var CHOOSE_GROUP = '{#__ key="component.status.choose_from_group" /}';
-        var CHOOSE_FIELD = '{#__ key="component.status.choose_from_field" /}';
-        var CHOOSE_PHONE_FIELD = '{#__ key="component.status.choose_from_phone_field" /}';
-        var CHOOSE_MAIL_FIELD = '{#__ key="component.status.choose_from_email_field" /}';
-        var CHOOSE_FILE_FIELD = '{#__ key="component.status.choose_from_file_field" /}';
-        var CHOOSE_USER_TARGET = '{#__ key="component.status.choose_user_target" /}';
+	<script type="text/javascript">
+		var CHOOSE_USER = '{#__ key="component.status.choose_from_user" /}';
+		var CHOOSE_GROUP = '{#__ key="component.status.choose_from_group" /}';
+		var CHOOSE_FIELD = '{#__ key="component.status.choose_from_field" /}';
+		var CHOOSE_PHONE_FIELD = '{#__ key="component.status.choose_from_phone_field" /}';
+		var CHOOSE_MAIL_FIELD = '{#__ key="component.status.choose_from_email_field" /}';
+		var CHOOSE_FILE_FIELD = '{#__ key="component.status.choose_from_file_field" /}';
+		var CHOOSE_USER_TARGET = '{#__ key="component.status.choose_user_target" /}';
 
-        $(function() {
-            /* Display form corresponding to selected Media type */
-            var value = $("select[name=f_media_type] option:selected").val().toLowerCase();
-            if (value == '')
-                return;
-            $("#media-"+value).parents('form').prop('action', '/media_'+value+'/update');
-        });
-    </script>
-    <script src="/js/Newmips/mediaVariableInsertion.js" type="text/javascript"></script>
+		$(function() {
+			/* Display form corresponding to selected Media type */
+			var value = $("select[name=f_media_type] option:selected").val().toLowerCase();
+			if (value == '')
+				return;
+			$("#media-"+value).parents('form').prop('action', '/media_'+value+'/update');
+		});
+	</script>
+	<script src="/js/Newmips/mediaVariableInsertion.js" type="text/javascript"></script>
 {/custom_js}

@@ -1,37 +1,31 @@
 <div id="fields" class="row">
-    <div class="col-xs-12">
-        <div class="row">
-            <div class="col-xs-12 col-sm-6">
-                <div data-field="f_name" class="form-group">
-                    <label for="f_name" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                    <input class="form-control input" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_name" /}' name="f_name" value="" type="text" required="">
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-6">
-                <div data-field="f_sender" class="form-group">
-                    <label for="f_sender" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_sender"/} {@inline_help field="f_sender"}&nbsp;<i data-field="f_sender" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                    <div class="input-group">
-                        <div class="input-group-addon">
-                            <i class="fa fa-envelope"></i>
-                        </div>
-                        <input class="form-control input" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_sender" /}' name="f_sender" value="" type="text" data-type="email" required="">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div data-field="f_title" class="col-xs-12">
-        <div class="form-group">
-            <label for="f_title" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_title"/} {@inline_help field="f_title"}&nbsp;<i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_title" /}' name="f_title" value="" type="text" required="">
-        </div>
-    </div>
-    <div data-field="f_content" class="col-xs-12">
-        <div class="form-group">
-            <label for="f_content" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_content"/} {@inline_help field="f_content"}&nbsp;<i data-field="f_content" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <textarea class="form-control textarea" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_content" /}' name="f_content" id="f_content_textareaid" value="" type="text"></textarea>
-        </div>
-    </div>
+	<div class="col-xs-12 col-sm-6">
+		<div data-field="f_name" class="form-group">
+			<label for="f_name" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<input class="form-control input" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_name" /}' name="f_name" value="" type="text" required="">
+		</div>
+	</div>
+	<div class="col-xs-12 col-sm-6">
+		<div data-field="f_sender" class="form-group">
+			<label for="f_sender" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_sender"/} {@inline_help field="f_sender"}&nbsp;<i data-field="f_sender" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<div class="input-group">
+				<div class="input-group-addon">
+					<i class="fa fa-envelope"></i>
+				</div>
+				<input class="form-control input" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_sender" /}' name="f_sender" value="" type="text" data-type="email" required="">
+			</div>
+		</div>
+	</div>
+	<div data-field="f_title" class="col-xs-12">
+		<div class="form-group">
+			<label for="f_title" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_title"/} {@inline_help field="f_title"}&nbsp;<i data-field="f_title" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<input class="form-control input" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_title" /}' name="f_title" value="" type="text" required="">
+		</div>
+	</div>
+	<div data-field="f_content" class="col-xs-12">
+		<div class="form-group">
+			<label for="f_content" class="required"> {#__ key="entity.CODE_VALUE_CONTACT.f_content"/} {@inline_help field="f_content"}&nbsp;<i data-field="f_content" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<textarea class="form-control textarea" placeholder='{#__ key="entity.CODE_VALUE_CONTACT.f_content" /}' name="f_content" id="f_content_textareaid" value="" type="text"></textarea>
+		</div>
+	</div>
 </div>

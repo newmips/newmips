@@ -18,7 +18,7 @@ function isValidJSON(string) {
 // You can also force the page to refresh like this: return res.status(500).send({refresh: true});
 function handleError(error, par2, par3) {
     try {
-        if(isValidJSON(error.responseText)){
+        if (isValidJSON(error.responseText)){
             var errorObj = JSON.parse(error.responseText);
             if(errorObj.refresh)
                 return location.reload();
@@ -28,15 +28,15 @@ function handleError(error, par2, par3) {
             }
             else
                 toastr.error(error.responseText);
-        } else {
-            if(typeof error.responseText === "string")
+        }
+        else {
+            if (typeof error.responseText === "string")
                 return toastr.error(error.responseText);
+            throw 'unknown';
         }
     } catch(e) {
-        if(error.statusText == "timeout"){
-            toastr.error("Server timedout");
-        }
         console.error(error, par2, par3);
+        return toastr.error(ERROR)
     }
 }
 
@@ -103,7 +103,7 @@ function select2_fieldset(select, data) {
                     for (var field in dataResults[i]) {
                         if (searchField.indexOf(field) != -1) {
                             if (dataResults[i][field] != null)
-                                text.push(dataResults[i][field]);
+                                text.push(HtmlEncode(dataResults[i][field]));
                         }
                     }
                     text = text.join(' - ');
@@ -133,6 +133,7 @@ function select2_fieldset(select, data) {
 // Handle form submition and tab reload
 function ajaxForm(form, tab) {
     form.on('submit', function(e) {
+        var tmpTextSave = form.find("button[type='submit']").text();
         form.find("button[type='submit']").text(LOADING_TEXT).attr("disabled", true);
 
         // Prevent multiple submittion (double click)
@@ -141,6 +142,7 @@ function ajaxForm(form, tab) {
         form.data('submitting', true);
         if (!validateForm(form)) {
             form.data('submitting', false);
+            form.find("button[type='submit']").text(tmpTextSave).attr("disabled", false);
             return false;
         }
         $.ajax({
@@ -152,18 +154,15 @@ function ajaxForm(form, tab) {
                 tab.find('.ajax-content').show();
                 reloadTab(tab);
             },
-            error: handleError,
+            error: function(err) {
+                handleError(err);
+                form.data('submitting', false);
+                form.find("button[type='submit']").text(tmpTextSave).attr("disabled", false);
+            },
             timeout: 15000
         });
         return false;
     });
-}
-
-function currencyFormat(num) {
-    if(num != null)
-        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-    else
-        return "";
 }
 
 //
@@ -179,7 +178,7 @@ function initHasOne(tab, data) {
 
     var newButton, href= '/'+data.option.target.substring(2);
     // EMPTY: Set empty text, add create button
-    if (data.empty) {
+    if (data.empty && data.option.access.create) {
         newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', href+'/create_form'+associationHref);
     }
@@ -197,11 +196,20 @@ function initHasOne(tab, data) {
         delForm.attr('action', '/'+data.option.target.substring(2)+'/delete');
         delForm.find('input[name=id]').val(data.data);
 
-        delForm.prepend(updBtn);
         newButton = $('<div class="quicklinks"></div>');
-        newButton.append(delForm);
+
+        // Add update btn
+        if(data.option.access.update)
+            newButton.prepend(updBtn);
+
+
+        // Add delete btn
+        if(data.option.access.delete)
+            newButton.append(delForm);
     }
     tab.find('.ajax-content').append(newButton);
+
+    bindStatusComment(tab);
 }
 
 // HAS MANY
@@ -213,33 +221,58 @@ function initHasMany(tab, data) {
     var doPagination = data.option.relation == 'belongsToMany' ? false : true;
 
     var table = tab.find('table');
-    if (!data.option.noCreateBtn) {
+    if (!data.option.noCreateBtn && !data.option.isFileStorage && data.option.access.create) {
         var newButton = $(CREATE_BUTTON);
         newButton.attr('data-href', '/'+data.option.target.substring(2)+'/create_form'+buildAssociationHref(tab));
         tab.find('.ajax-content').append("<br>").append(newButton);
+    }
 
-        // Define update/delete button to be used by DataList plugin
-        DATALIST_BUTTONS = [{
-            render: function(data2, type, row) {
-                var aTag = '\
-                <a class="ajax btn btn-warning" data-id="'+row['id']+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row['id']+'">\
-                    <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
-                    <span>'+UPDATE_TEXT+'</span>\
-                </a>';
-                return aTag;
-            }
-        }, {
-            render: function(data2, type, row) {
-                var form = '\
-                <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
-                    <input name="id" value="'+row['id']+'" type="hidden"/>\
-                    <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
-                        <span>'+DELETE_TEXT+'</span>\
-                    </button>\
-                </form>';
-                return form;
-            }
-        }];
+    DATALIST_BUTTONS = [];
+    if(data.option.isFileStorage) {
+        // Only delete in file storage
+        if(data.option.access.delete) {
+            DATALIST_BUTTONS.push({
+                render: function(data2, type, row) {
+                    var form = '\
+                    <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                        <input name="id" value="'+row.id+'" type="hidden"/>\
+                        <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                            <span>'+DELETE_TEXT+'</span>\
+                        </button>\
+                    </form>';
+                    return form;
+                }
+            });
+        }
+    } else if(data.option.target.indexOf('e_history_') == -1) { // No buttons for history status list
+        // Define update/delete button to be used by datalist
+        if(data.option.access.update) {
+            DATALIST_BUTTONS.push({
+                render: function(data2, type, row) {
+                    var aTag = '\
+                    <a class="ajax btn btn-warning" data-id="'+row.id+'" data-href="/'+targetUrl+'/update_form'+buildAssociationHref(tab)+'&id='+row.id+'">\
+                        <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>\
+                        <span>'+UPDATE_TEXT+'</span>\
+                    </a>';
+                    return aTag;
+                }
+            });
+        }
+
+        if(data.option.access.delete) {
+            DATALIST_BUTTONS.push({
+                render: function(data2, type, row) {
+                    var form = '\
+                    <form action="/'+targetUrl+'/delete" class="ajax" method="post">\
+                        <input name="id" value="'+row.id+'" type="hidden"/>\
+                        <button class="btn btn-danger btn-confirm"><i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>\
+                            <span>'+DELETE_TEXT+'</span>\
+                        </button>\
+                    </form>';
+                    return form;
+                }
+            });
+        }
     }
 
     // Set subdatalist url and subentity to table
@@ -252,71 +285,80 @@ function initHasMany(tab, data) {
 
 // HAS MANY PRESET
 function initHasManyPreset(tab, data) {
-    // Init select2 ajax for fieldset
-    var fieldsetForm = $(FIELDSET_SELECT);
-    fieldsetForm.attr('action', '/'+data.sourceName+'/fieldset/'+data.option.as+'/add');
-    tab.find('.ajax-content').html(fieldsetForm);
 
-    // Select2 search for fieldset
-    select2_fieldset(tab.find('select:eq(0)'), data);
+    if(data.option.access.create) {
+        // Init select2 ajax for fieldset
+        var fieldsetForm = $(FIELDSET_SELECT);
+        fieldsetForm.attr('action', '/'+data.sourceName+'/fieldset/'+data.option.as+'/add');
+        tab.find('.ajax-content').html(fieldsetForm);
+        // Select2 search for fieldset
+        select2_fieldset(tab.find('select:eq(0)'), data);
+    }
 
     // Display list
     tab.find('.ajax-content').append(data.content);
-
     var table = tab.find('table');
     table.find('.filters').remove();
 
     // Set subdatalist url and subentity to table
     var tableUrl = '/'+tab.data('asso-source').substring(2)+'/subdatalist?subentityAlias='+tab.data('asso-alias')+'&subentityModel='+data.option.target+'&sourceId='+tab.data('asso-flag');
     table.data('url', tableUrl);
-    // Define update/delete button to be used by DataList plugin
-    DATALIST_BUTTONS = [{
-        render: function (data2, type, row) {
-            var aTag = '\
-                <a class="btn-show" href="/'+data.option.target.substring(2)+'/show?id='+row['id']+'">\
-                    <button class="btn btn-primary">\
-                        <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
-                        <span>'+SHOW_TEXT+'</span>\
-                    </button>\
-                </a>';
-            return aTag;
-        },
-        searchable: false
-    }, {
-        render: function(data2, type, row) {
-            var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
-            var form = '\
-                <form action="'+url+'" class="fieldsetform" method="post">\
-                    <input type="hidden" value="'+row['id']+'" name="idRemove">\
-                    <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
-                    <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
-                </form>';
-            return form;
-        }
-    }];
+
+    // Define update/delete button to be used by datalist
+    DATALIST_BUTTONS = [];
+    if(data.option.access.read) {
+        DATALIST_BUTTONS.push({
+            render: function (data2, type, row) {
+                var aTag = '\
+                    <a class="ajax btn-show" href="/'+data.option.target.substring(2)+'/show'+buildAssociationHref(tab)+'&id='+row.id+'">\
+                        <button class="btn btn-primary">\
+                            <i class="fa fa-desktop fa-md">&nbsp;&nbsp;</i>\
+                            <span>'+SHOW_TEXT+'</span>\
+                        </button>\
+                    </a>';
+                return aTag;
+            },
+            searchable: false
+        });
+    }
+
+    if(data.option.access.delete) {
+        DATALIST_BUTTONS.push({
+            render: function(data2, type, row) {
+                var url = '/'+data.sourceName+'/fieldset/'+data.option.as+'/remove?ajax=true'
+                var form = '\
+                    <form action="'+url+'" class="fieldsetform" method="post">\
+                        <input type="hidden" value="'+row.id+'" name="idRemove">\
+                        <input type="hidden" value="'+data.sourceId+'" name="idEntity">\
+                        <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+REMOVE_TEXT+'</span></button>\
+                    </form>';
+                return form;
+            }
+        });
+    }
 
     init_datatable('#'+table.attr('id'), true, tab);
-
-    // bindFieldsetForm(tab, data);
 }
 
 // LOCAL FILE STORAGE
 function initLocalFileStorage(tab, data) {
     tab.find('.ajax-content').html(data.content);
-    initDropZone(tab);
-    // Apply simpleTable on list
-    simpleTable(tab.find('table'));
-}
 
-// PRINT
-function initPrintTab(tab, data) {
-    tab.find('.ajax-content').html(data.content);
-    tab.find('.filters').remove();
-    tab.find('table').each(function(){
-        $(this).attr('id', $(this).attr('id')+'_print');
-        simpleTable($(this));
-    });
-    initPrint();
+    if(data.option.access.delete) {
+        DATALIST_BUTTONS = [{
+            render: function(data2, type, row) {
+                var url = '/'+data.option.target.substring(2)+'/delete?ajax=true'
+                var form = '\
+                    <form action="'+url+'" class="ajax" method="post">\
+                        <input type="hidden" value="'+row.id+'" name="id">\
+                        <button type="submit" class="btn btn-danger btn-confirm"><i class="fa fa-times fa-md"></i>&nbsp;<span>'+DELETE_TEXT+'</span></button>\
+                    </form>';
+                return form;
+            },
+            searchable: false
+        }];
+    }
+    init_datatable('#'+tab.find('table').attr('id'), true, tab);
 }
 
 // INITIALIZE
@@ -338,10 +380,8 @@ $(function() {
         var source = $("input[name=sourceName]").val().substring(2);
         var subentityAlias = tab.prop('id');
 
-        // Build url. Special url for print tab
-        var url = tab.data('tabtype') == 'print'
-            ? '/default/print/'+source+'/'+id
-            : '/'+source+'/loadtab/'+id+'/'+subentityAlias+buildAssociationHref(tab);
+        // Build url.
+        var url = '/' + source + '/loadtab/' + id + '/' + subentityAlias + buildAssociationHref(tab);
 
         // Loading icon until ajax callback
         tab.find('.ajax-content').html('<div style="width:100%;text-align:center;"><i class="fa fa-circle-o-notch fa-spin fa-3x" style="color:#ABABAB;margin-top: 100px;margin-bottom: 100px;"></i></div>');
@@ -359,22 +399,17 @@ $(function() {
                 tab.data('target', data.option.target);
 
                 // Build tab content
-                if (data.option.structureType == 'hasOne') {
+                if (data.option.structureType == 'hasOne')
                     initHasOne(tab, data);
-                    bindStatusComment(tab);
-                }
-                else if (data.option.structureType == 'hasMany')
+                else if (data.option.structureType == 'hasMany' && !data.option.isFileStorage)
                     initHasMany(tab, data);
                 else if (data.option.structureType == 'hasManyPreset')
                     initHasManyPreset(tab, data);
-                else if (data.option.structureType == 'localfilestorage')
+                else if (data.option.structureType == 'hasMany' && data.option.isFileStorage === true)
                     initLocalFileStorage(tab, data);
-                else if (data.option.structureType == 'print')
-                    initPrintTab(tab, data);
                 else
                     return console.error("Bad structureType in option");
 
-                // Init form and td
                 initForm(tab);
             },
             error: function(pa1, pa2, pa3) {
@@ -400,35 +435,61 @@ $(function() {
         $.ajax({
             url: href,
             success: function(formContent) {
-                if (href.indexOf('/set_status/') != -1)
-                    return reloadTab(tab);
-                var isCreate = href.indexOf('update_form') != -1 ? false : true;
-                var action, idInput = '', button = '';
-                var cancel = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">'+CANCEL_TEXT+'</button>';
-                var button = '<button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>'+SAVE_TEXT+'</button>';
-                if (isCreate)
-                    action = '/'+target+'/create';
-                else if (!isCreate) {
-                    idInput = '<input type="hidden" name="id" value="'+id+'">';
-                    action = '/'+target+'/update';
-                }
+
+                var tabType = '';
+                if(href.indexOf('create_form') != -1)
+                    tabType = 'create';
+                else if (href.indexOf('update_form') != -1)
+                    tabType = 'update';
+                else if (href.indexOf('show') != -1)
+                    tabType = 'show';
                 else
                     return reloadTab(tab);
 
-                // Add form to tab. Put content after .ajax-content to be able to
-                // get back to tab original view after cancel button click
-                var formWrapper = $('<div class="ajax-form" style="display:none;"><form action="'+action+'" method="post">'+formContent+'</form></div>');
-                formWrapper.find('form').append(idInput+cancel+button);
+                var action = '', idInput = '';
+                switch (tabType) {
+                    case 'create':
+                        action = '/' + target + '/create';
+                        break;
+                    case 'update':
+                        idInput = '<input type="hidden" name="id" value="' + id + '">';
+                        action = '/' + target + '/update';
+                        break;
+                    case 'show':
+                        // Keep only the fields div.
+                        // If you ask why not using directly show_field instead of show it's because in show_field we
+                        // miss the dust context {#entity}{/entity} that fill the inputs with data
+                        formContent = $(formContent).find('#fields').html();
+                        break;
+                }
+
+                var cancelBtn = '<button type="button" class="btn btn-default cancel" style="margin-right:10px;">' + CANCEL_TEXT + '</button>';
+                var primaryBtn = '<button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>' + SAVE_TEXT + '</button>';
+
+                if(tabType == 'show') {
+                    var formWrapper = $('<div class="ajax-form" style="display:none;">' + formContent + '</div>');
+                    formWrapper.find('.actions').remove();
+                    formWrapper.append(cancelBtn);
+                    tab.find('.ajax-content').slideUp()
+                    tab.find('.ajax-content').after(formWrapper);
+                }
+                else if(tabType == 'create' || tabType == 'update') {
+                    // Add form to tab. Put content after .ajax-content to be able to
+                    // get back to tab original view after cancel button click
+                    var formWrapper = $('<div class="ajax-form" style="display:none;"><form action="' + action + '" method="post">' + formContent + '</form></div>');
+                    formWrapper.find('form').append(idInput + cancelBtn + primaryBtn);
+                    tab.find('.ajax-content').slideUp()
+                    tab.find('.ajax-content').after(formWrapper);
+                    initForm(tab);
+                    ajaxForm(formWrapper.find('form'), tab);
+                    firstElementFocus(tab.find('.ajax-form'));
+                }
+
                 formWrapper.find('.cancel').click(function() {
                     tab.find('.ajax-form').slideUp().remove();
                     tab.find('.ajax-content').slideDown();
                 });
-                tab.find('.ajax-content').slideUp()
-                tab.find('.ajax-content').after(formWrapper);
                 tab.find('.ajax-form').slideDown();
-                initForm(tab);
-                ajaxForm(formWrapper.find('form'), tab);
-                firstElementFocus(tab.find('.ajax-form'));
             },
             error: handleError
         });
@@ -464,7 +525,6 @@ $(function() {
             method: 'post',
             data: reqData,
             success:function() {
-                console.log("FIELDSET REMOVED");
                 reloadTab(tab);
             },
             error: handleError

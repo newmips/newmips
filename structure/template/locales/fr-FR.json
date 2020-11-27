@@ -1,292 +1,308 @@
 {
-    "app": {
-        "name": "Application"
-    },
-    "notification": {
-        "deleteAll": "Supprimer toutes les notifications",
-        "icon": {
-            "choose": "Choisir une icône"
-        }
-    },
-    "login": {
-        "log_in": "Log in",
-        "reset_password": {
-            "title": "Mot de passe oublié",
-            "success": "Votre mot de passe a bien été reinitialisé.",
-            "successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a bien été envoyé.",
-            "userNotExist": "Erreur, cet utilisateur n'existe pas.",
-            "cannotFindToken": "Erreur, impossible de retrouver votre token de réinitialisation."
-        },
-        "first_connection": {
-            "title": "Première connexion",
-            "success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
-            "success2": "Mise à jour effectuée, vous êtes maintenant connecté(e) !",
-            "userNotExist": "Erreur, cet utilisateur n'existe pas ou a déjà été activé.",
-            "alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
-            "passwordNotMatch": "Désolé, les mots de passe ne correspondent pas. Le mot de passe doit faire minimum 4 caractères."
-        },
-        "authentication": "Connexion",
-        "login": "Login",
-        "password": "Mot de passe",
-        "minimalLength": "(4 caractères minimum)",
-        "confirm_password": "Confirmation du mot de passe",
-        "mail": "Mail",
-        "remember_me": "Se souvenir de moi",
-        "submit": "Soumettre"
-    },
-    "settings": {
-        "title": "Gestion des accès",
-        "tool_menu": "Fichier configuration des accès",
-        "tool_success": "Le fichier de configuration des accès a bien été importé.",
-        "tool_title": "Importer / Exporter la configuration des accès",
-        "tool_export": "Exporter la configuration des accès",
-        "tool_import": "Importer une configuration d'accès",
-        "import_file_name": "Fichier access.json:",
-        "tool_warning": "Attention, le fichier doit etre de la même structure que le access.json actuel ! Sinon l'application ne sera plus utilisable.",
-        "auth_component": {
-            "access_managment": "Gestion des accès par groupe",
-            "action_managment": "Gestion des actions par rôle",
-            "moduleList": "Modules",
-            "entityList": "Entités",
-            "grouplist": "Groupes:",
-            "rolelist": "Rôles:",
-            "entitylist": "Entités:",
-            "group": "Groupe",
-            "role": "Rôle",
-            "api_status": "Statut de l'API",
-            "api_doc": "Documentation de l'API",
-            "action": {
-                "read": "Afficher",
-                "create": "Créer",
-                "update": "Modifier",
-                "delete": "Supprimer"
-            },
-            "no_access_group_module": "Votre groupe n'a pas accès à ce module.",
-            "no_access_group_entity": "Votre groupe n'a pas accès à cette entité.",
-            "no_access_change_status": "Votre groupe n'a pas le droit de changer ce statut.",
-            "no_access_role": "Votre rôle n'a pas accès à cette action sur cette entité.",
-            "no_group": "Votre compte n'a pas d'accès à l'application, merci de contacter l'administrateur."
-        },
-        "db_tool": {
-            "title": "Outil BDD",
-            "export_title": "Export",
-            "import_title": "Import",
-            "export_action": "Exporter",
-            "all_db": "Toute la base de donnée",
-            "import_action": "Importer",
-            "import_file": "Fichier SQL",
-            "import_success": "L'import a bien été effectué.",
-            "import_error": "Une erreur s'est produite, merci de vérifier les logs.",
-            "file_needed": "Merci d'ajouter le fichier d'import.",
-            "wrong_db_pwd": "Mot de passe incorrect.",
-            "modal_password_title": "Confirmation du mot de passe",
-            "modal_password_content": "Merci de confirmer le mot de passe de la base de données:",
-            "wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment.",
-            "no_choice": "Merci de choisir ce que vous souhaitez exporter."
-        },
-        "import_export": {
-            "title": "Import / Export"
-        },
-        "legend": "Modifier vos paramètres",
-        "lang": "Langue",
-        "login": "Login",
-        "email": "Email",
-        "firstname": "Prénom",
-        "lastname": "Nom",
-        "phone": "Téléphone",
-        "old_password": "Votre ancien mot de passe",
-        "new_password_1": "Nouveau mot de passe",
-        "new_password_2": "Confirmer nouveau mot de passe",
-        "error1": "Vous devez renseigner un nouveau mot de passe pour le changer.",
-        "error2": "Les deux mots de passe ne correspondent pas.",
-        "error3": "Votre nouveau mot de passe doit faire au moins 4 caractères.",
-        "error4": "Votre ancien mot de passe n'est pas valide.",
-        "success": "Votre profil a bien été mis à jour."
-    },
-    "navbar": {
-        "about": "A propos",
-        "help": "Aide",
-        "support": "Support"
-    },
-    "select": {
-        "default": "-- Choisir --"
-    },
-    "module": {
-        "home": "Accueil",
-        "module": "Module",
-        "administration": "Administration",
-        "workspace": "Espace de travail"
-    },
-    "role": {
-        "administrator": "Administrateur",
-        "developer": "Développeur"
-    },
-    "button": {
-        "profile": "Profil",
-        "disconnect": "Se déconnecter",
-        "show": "Afficher",
-        "update": "Modifier",
-        "delete": "Supprimer",
-        "create": "Créer",
-        "list": "Lister",
-        "add": "Ajouter",
-        "remove": "Retirer",
-        "save": "Sauvegarder",
-        "preview": "Prévisualiser",
-        "record": "Enregistrer",
-        "execute": "Exécuter",
-        "settings": "Paramètres",
-        "download": "Télécharger",
-        "search": "Rechercher",
-        "send": "Envoyer",
-        "validation": "Valider",
-        "previous": "Précédent",
-        "next": "Suivant",
-        "close": "Fermer",
-        "generate":"Générer",
-        "help":"Aide",
-        "cancel": "Annuler",
-        "return": "Retour",
-        "delete_confirm": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
-        "loading": "Chargement..."
-    },
-    "operation": {
-        "show": "Afficher",
-        "update": "Modifier",
-        "create": "Créer",
-        "delete": "Supprimer",
-        "list": "Lister",
-        "add": "Ajouter"
-    },
-    "message": {
-        "create": {
-            "success": "Succès ! L'enregistrement a été créé en base de données.",
-            "failure": "Erreur ! L'enregistrement n'a pas été créé en base de données. Veuillez contacter votre administrateur."
-        },
-        "update": {
-            "success": "Succès ! L'enregistrement a été modifié en base de données.",
-            "failure": "Erreur ! L'enregistrement n'a pas été modifié en base de données. Veuillez contacter votre administrateur."
-        },
-        "delete": {
-            "success": "Succès ! L'enregistrement a été supprimé en base de données.",
-            "failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
-            "question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
-        },
-        "empty": "Aucune donnée à afficher",
-        "empty_file": "Aucun fichier",
-        "unique": "Ce champ doit être unique:",
-        "relatedtomanycheckbox_required": "Un champ necessite d'avoir au moins une case cochée."
-    },
-    "entity": {},
-    "synchro": {
-        "title": "Synchronisation",
-        "configure": "Configurer données de chargement",
-        "list": "Lister les synchronisations",
-        "config": {
-            "title": "Configuration"
-        },
-        "process": {
-            "title": "Synchronisation",
-            "synchronize": "Synchroniser",
-            "dumped": "Données de chargement généré",
-            "no_credentials": "Aucun identifiant synchro trouvé",
-            "connection_failed": "Impossible de se connecter a l'API"
-        }
-    },
-    "global_component": {
-        "local_file_storage": {
-            "filename": "Nom du fichier",
-            "wait_upload": "Des fichiers sont en cours de téléchargement, merci de bien vouloir patienter.",
-            "required_file": "Des champs fichiers / images sont obligatoires, merci de les renseigner."
-        },
-        "contact_form": {
-            "firstname": "Prénom",
-            "lastname": "Nom",
-            "email": "Email",
-            "title": "Titre",
-            "content": "Contenu"
-        },
-        "agenda": {
-            "menu": "Agenda",
-            "add_event": "Ajouter un événement",
-            "no_category": "Pas de catégorie",
-            "pending_event": "Événement(s) en attente",
-            "startHour": "Heure de début",
-            "endHour": "Heure de fin",
-            "fill_title": "Merci de renseigner un titre d'événement.",
-            "start_date": "Merci de renseigner au moins une date de début.",
-            "start_after_end": "La date de début est après la date de fin, merci de corriger.",
-            "end_before_start": "La date de fin est avant la date de début, merci de corriger."
-        },
-        "print": {
-            "action": "Imprimer"
-        }
-    },
-    "component": {
-        "c_db_tool": {
-            "label_component": "Outil BDD"
-        },
-        "c_access_tool": {
-            "label_component": "Fichier d'accès"
-        },
-        "c_import_export": {
-            "label_component": "Import / Export"
-        },
-        "c_access_settings_role": {
-            "label_component": "Accès des rôles"
-        },
-        "c_access_settings_group": {
-            "label_component": "Accès des groupes"
-        },
-        "c_access_settings_api": {
-            "label_component": "Accès à l'API"
-        },
-        "c_address_settings": {
-            "label_component": "Paramètres d'adresse"
-        }
-    },
-    "defaults": {
-        "widgets": {
-            "lastrecords": {
-                "label": "derniers enregistrements"
-            },
-            "stats": {
-                "more_info": "Plus d'infos"
-            },
-            "piechart": {
-                "distribution": "Répartition"
-            }
-        },
-        "createdAt": "Date de création"
-    },
-    "error": {
-        "validation": {
-            "number": "La valeur du champ %s doit être un nombre",
-            "radio": "La valeur du champ %s n'est pas valide",
-            "float": "Le champ %s doit être un nombre décimal",
-            "boolean": "La valeur du champ %s doit être vrai ou faux",
-            "email": "Le champ %s n'est pas un email valide",
-            "date": "Le champ %s n'est pas une date valide",
-            "tel": "Le champ %s n'est pas un téléphone valide",
-            "color": "Le champ %s n'est pas une couleur valide",
-            "password": "Le champ %s doit faire entre 3 et 32 caractères",
-            "url": "Le champ %s n'est pas une URL valide"
-        },
-        "404": {
-            "title": "Nous n’avons pas pu trouver ce que vous souhaitiez.",
-            "title2": "Page introuvable.",
-            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
-        },
-        "500": {
-            "title": "Nous sommes désolé, une erreur serveur s'est produite."
-        },
-        "title": "Erreur",
-        "contactAdmin": "Merci de contacter votre administrateur.",
-        "meanwhile": "Entre temps, vous pouvez ",
-        "goHome": "Si vous souhaitez retourner à la page d'accueil, cliquez-ici",
-        "goBack": "Si vous souhaitez revenir en arrière, cliquez-ici",
-        "goBackText": "Revenir en arrière",
-        "home": "Accueil",
-        "valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30)."
-    }
+	"app": {
+		"name": "Application"
+	},
+	"notification": {
+		"deleteAll": "Supprimer toutes les notifications",
+		"icon": {
+			"choose": "Choisir une icône"
+		}
+	},
+	"login": {
+		"log_in": "Log in",
+		"reset_password": {
+			"title": "Mot de passe oublié",
+			"success": "Votre mot de passe a bien été réinitialisé. Merci de faire de nouveau le processus de première connexion pour changer votre mot de passe.",
+			"successMail": "Un email vous permettant de réinitialiser votre mot de passe vous a été envoyé.",
+			"userNotExist": "Impossible de trouver l'utilisateur correspondant aux informations renseignées.",
+			"cannotFindToken": "Erreur, impossible de retrouver votre jeton de réinitialisation."
+		},
+		"first_connection": {
+			"title": "Première connexion",
+			"success": "Mise à jour effectuée, vous pouvez désormais vous connecter avec vos identifiants.",
+			"success_login": "Mise à jour effectuée, vous êtes désormais connecté(e) !",
+			"userNotExist": "Cet utilisateur n'existe pas ou a déjà été activé.",
+			"alreadyHavePassword": "Opération impossible, cet utilisateur possède déjà un mot de passe.",
+			"passwordNotValid": "Mot de passe invalide, merci de réessayer.",
+			"help": {
+				"password_title": "Mot de passe - Première connexion",
+				"password_content": "<p>Merci de choisir votre mot de passe, il doit respecter le format suivant:<br><br>- 8 caractères minimum<br>- Au moins 1 chiffre<br>- Au moins 1 majuscule<br>- Au moins 1 caractère spécial (!@#$%^&*)<br></i><br></p>"
+			}
+		},
+		"authentication": "Connexion",
+		"login": "Login",
+		"password": "Mot de passe",
+		"confirm_password": "Confirmation du mot de passe",
+		"email": "Email",
+		"remember_me": "Se souvenir de moi",
+		"submit": "Soumettre",
+		"missing_infos": "Merci de renseigner l'ensemble des champs.",
+		"login_fail": "Le login et/ou le mot de passe n'est pas correct, merci de recommencer.",
+		"not_enabled": "Votre compte ne semble pas être activé, merci d'effectuer le processus de première connexion.",
+		"logout_sucess": "Vous avez bien été déconnecté.",
+		"wrong_captcha": "Le captcha saisi n'est pas correct, merci de recommencer."
+	},
+	"settings": {
+		"title": "Gestion des accès",
+		"tool_menu": "Fichier configuration des accès",
+		"tool_success": "Le fichier de configuration des accès a bien été importé.",
+		"tool_title": "Importer / Exporter la configuration des accès",
+		"tool_export": "Exporter la configuration des accès",
+		"tool_import": "Importer une configuration d'accès",
+		"import_file_name": "Fichier access.json:",
+		"tool_warning": "Attention, le fichier doit être de la même structure que le access.json actuel ! Sinon l'application ne sera plus utilisable.",
+		"auth_component": {
+			"access_managment": "Gestion des accès par groupe",
+			"action_managment": "Gestion des actions par rôle",
+			"moduleList": "Modules",
+			"entityList": "Entités",
+			"grouplist": "Groupes:",
+			"rolelist": "Rôles:",
+			"entitylist": "Entités:",
+			"group": "Groupe",
+			"role": "Rôle",
+			"api_status": "Statut de l'API",
+			"api_doc": "Documentation de l'API",
+			"action": {
+				"read": "Afficher",
+				"create": "Créer",
+				"update": "Modifier",
+				"delete": "Supprimer"
+			},
+			"no_access_group_module": "Votre groupe n'a pas accès à ce module.",
+			"no_access_group_entity": "Votre groupe n'a pas accès à cette entité.",
+			"no_access_change_status": "Votre groupe n'a pas le droit de changer ce statut.",
+			"no_access_role": "Votre rôle n'a pas accès à cette action sur cette entité.",
+			"no_group": "Votre compte n'a pas d'accès à l'application, merci de contacter l'administrateur."
+		},
+		"db_tool": {
+			"title": "Outil BDD",
+			"export_title": "Export",
+			"import_title": "Import",
+			"export_action": "Exporter",
+			"all_db": "Toute la base de donnée",
+			"import_action": "Importer",
+			"import_file": "Fichier SQL",
+			"import_success": "L'import a bien été effectué.",
+			"import_error": "Une erreur s'est produite, merci de vérifier les logs.",
+			"file_needed": "Merci d'ajouter le fichier d'import.",
+			"wrong_db_pwd": "Mot de passe incorrect.",
+			"modal_password_title": "Confirmation du mot de passe",
+			"modal_password_content": "Merci de confirmer le mot de passe de la base de données:",
+			"wrong_dialect": "Désolé, les outils de base de données ne fonctionne qu'avec MySQL pour le moment.",
+			"no_choice": "Merci de choisir ce que vous souhaitez exporter."
+		},
+		"import_export": {
+			"title": "Import / Export"
+		},
+		"legend": "Modifier vos paramètres",
+		"lang": "Langue",
+		"login": "Login",
+		"email": "Email",
+		"firstname": "Prénom",
+		"lastname": "Nom",
+		"phone": "Téléphone",
+		"check_change_password": "Changer votre mot de passe",
+		"title_change_password": "Procédure de changement de mot de passe",
+		"old_password": "Votre ancien mot de passe",
+		"new_password_1": "Nouveau mot de passe",
+		"new_password_2": "Confirmer nouveau mot de passe",
+		"error1": "Vous devez renseigner un nouveau mot de passe pour le changer.",
+		"error2": "Les deux mots de passe ne correspondent pas.",
+		"error3": "Votre nouveau mot de passe doit faire au moins 4 caractères.",
+		"error4": "Votre ancien mot de passe n'est pas valide.",
+		"success": "Votre profil a bien été mis à jour."
+	},
+	"navbar": {
+		"about": "A propos",
+		"help": "Aide",
+		"support": "Support"
+	},
+	"select": {
+		"default": "-- Choisir --"
+	},
+	"module": {
+		"home": "Accueil",
+		"module": "Module",
+		"administration": "Administration",
+		"workspace": "Espace de travail"
+	},
+	"role": {
+		"administrator": "Administrateur",
+		"developer": "Développeur"
+	},
+	"button": {
+		"profile": "Profil",
+		"disconnect": "Se déconnecter",
+		"show": "Afficher",
+		"update": "Modifier",
+		"delete": "Supprimer",
+		"create": "Créer",
+		"list": "Lister",
+		"add": "Ajouter",
+		"remove": "Retirer",
+		"save": "Sauvegarder",
+		"preview": "Prévisualiser",
+		"record": "Enregistrer",
+		"execute": "Exécuter",
+		"settings": "Paramètres",
+		"download": "Télécharger",
+		"search": "Rechercher",
+		"send": "Envoyer",
+		"validation": "Valider",
+		"previous": "Précédent",
+		"next": "Suivant",
+		"close": "Fermer",
+		"generate":"Générer",
+		"help":"Aide",
+		"cancel": "Annuler",
+		"return": "Retour",
+		"delete_confirm": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
+		"loading": "Chargement..."
+	},
+	"operation": {
+		"show": "Afficher",
+		"update": "Modifier",
+		"create": "Créer",
+		"delete": "Supprimer",
+		"list": "Lister",
+		"add": "Ajouter"
+	},
+	"message": {
+		"create": {
+			"success": "Succès ! L'enregistrement a été créé en base de données.",
+			"failure": "Erreur ! L'enregistrement n'a pas été créé en base de données. Veuillez contacter votre administrateur."
+		},
+		"update": {
+			"success": "Succès ! L'enregistrement a été modifié en base de données.",
+			"failure": "Erreur ! L'enregistrement n'a pas été modifié en base de données. Veuillez contacter votre administrateur."
+		},
+		"delete": {
+			"success": "Succès ! L'enregistrement a été supprimé en base de données.",
+			"failure": "Erreur ! L'enregistrement n'a pas été supprimé en base de données. Veuillez contacter votre administrateur.",
+			"question": "Êtes-vous sûr de vouloir supprimer cette entité ?"
+		},
+		"empty": "Aucune donnée à afficher",
+		"empty_file": "Aucun fichier",
+		"unique": "Ce champ doit être unique:",
+		"relatedtomanycheckbox_required": "Un champ nécessite d'avoir au moins une case cochée."
+	},
+	"entity": {},
+	"synchro": {
+		"title": "Synchronisation",
+		"configure": "Configurer données de chargement",
+		"list": "Lister les synchronisations",
+		"config": {
+			"title": "Configuration"
+		},
+		"process": {
+			"title": "Synchronisation",
+			"synchronize": "Synchroniser",
+			"dumped": "Données de chargement généré",
+			"no_credentials": "Aucun identifiant synchro trouvé",
+			"connection_failed": "Impossible de se connecter a l'API"
+		}
+	},
+	"global_component": {
+		"local_file_storage": {
+			"filename": "Nom du fichier",
+			"wait_upload": "Des fichiers sont en cours de téléchargement, merci de bien vouloir patienter.",
+			"required_file": "Des champs fichiers / images sont obligatoires, merci de les renseigner."
+		},
+		"contact_form": {
+			"firstname": "Prénom",
+			"lastname": "Nom",
+			"email": "Email",
+			"title": "Titre",
+			"content": "Contenu"
+		},
+		"agenda": {
+			"menu": "Agenda",
+			"add_event": "Ajouter un événement",
+			"no_category": "Pas de catégorie",
+			"pending_event": "Événement(s) en attente",
+			"startHour": "Heure de début",
+			"endHour": "Heure de fin",
+			"fill_title": "Merci de renseigner un titre d'événement.",
+			"start_date": "Merci de renseigner au moins une date de début.",
+			"start_after_end": "La date de début est après ou similaire à la date de fin, merci de corriger.",
+			"end_before_start": "La date de fin est avant ou similaire à la date de début, merci de corriger."
+		},
+		"document_template": {
+			"template_example_dust": "Exemple de template dust"
+		},
+		"status": {
+			"diagram": "Diagramme"
+		}
+	},
+	"component": {
+		"c_db_tool": {
+			"label_component": "Outil BDD"
+		},
+		"c_access_tool": {
+			"label_component": "Fichier d'accès"
+		},
+		"c_import_export": {
+			"label_component": "Import / Export"
+		},
+		"c_access_settings_role": {
+			"label_component": "Accès des rôles"
+		},
+		"c_access_settings_group": {
+			"label_component": "Accès des groupes"
+		},
+		"c_access_settings_api": {
+			"label_component": "Accès à l'API"
+		},
+		"c_address_settings": {
+			"label_component": "Paramètres d'adresse"
+		},
+		"c_api_documentation": {
+			"label_component": "Documentation d'API"
+		}
+	},
+	"defaults": {
+		"widgets": {
+			"lastrecords": {
+				"label": "derniers enregistrements"
+			},
+			"stats": {
+				"more_info": "Plus d'infos"
+			},
+			"piechart": {
+				"distribution": "Répartition"
+			}
+		},
+		"createdAt": "Date de création"
+	},
+	"error": {
+		"validation": {
+			"number": "La valeur du champ %s doit être un nombre",
+			"radio": "La valeur du champ %s n'est pas valide",
+			"float": "Le champ %s doit être un nombre décimal",
+			"boolean": "La valeur du champ %s doit être vrai ou faux",
+			"email": "Le champ %s n'est pas un email valide",
+			"date": "Le champ %s n'est pas une date valide",
+			"tel": "Le champ %s n'est pas un téléphone valide",
+			"color": "Le champ %s n'est pas une couleur valide",
+			"password": "Le champ %s doit faire entre 3 et 32 caractères",
+			"url": "Le champ %s n'est pas une URL valide"
+		},
+		"404": {
+			"title": "Nous n’avons pas pu trouver ce que vous souhaitiez.",
+			"title2": "Page introuvable.",
+			"textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
+		},
+		"500": {
+			"title": "Nous sommes désolé, une erreur serveur s'est produite."
+		},
+		"title": "Erreur",
+		"contactAdmin": "Merci de contacter votre administrateur.",
+		"meanwhile": "Entre temps, vous pouvez ",
+		"goHome": "Si vous souhaitez retourner à la page d'accueil, cliquez-ici",
+		"goBack": "Si vous souhaitez revenir en arrière, cliquez-ici",
+		"goBackText": "Revenir en arrière",
+		"home": "Accueil",
+		"valueTooLong": "La valeur renseignée dépasse la longueur maximum autorisée(>30)."
+	}
 }

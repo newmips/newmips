@@ -6,9 +6,7 @@ const block_access = require('./block_access');
 // Also get workspace's groups and roles
 exports.getPreviewData = async function() {
 	const values = {};
-	const promises = [models.E_group.findAll(), models.E_role.findAll()];
-
-	const [groups, roles] = await Promise.all(promises);
+	const [groups, roles] = await Promise.all([models.E_group.findAll(), models.E_role.findAll()]);
 	values.groups = groups || [];
 	values.roles = roles || [];
 
@@ -49,7 +47,6 @@ exports.setGroupAccess = function(modules, entities) {
 	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
 
 	block_access.reloadAccess();
-	return 1;
 }
 
 exports.setRoleAccess = function(entities) {
@@ -67,5 +64,4 @@ exports.setRoleAccess = function(entities) {
 	fs.writeFileSync(accessFileName, JSON.stringify(access, null, 4), 'utf8');
 
 	block_access.reloadAccess();
-	return 1;
 }

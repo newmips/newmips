@@ -1,193 +1,204 @@
 <div class="nav-tabs-custom" id="tabs">
-    {^hideTab}
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a data-toggle="tab" href="#home">
-                {#__ key="entity.e_status.label_entity" /}
-            </a>
-        </li>
-        {#entityAccess entity="status"}
-        <li>
-            <a id="r_children-click" data-toggle="tab" data-tabtype="hasMany" href="#r_children">
-                {#__ key="entity.e_status.as_r_children" /}
-            </a>
-        </li>
-        {/entityAccess}
-        {#entityAccess entity="translation"}
-        <li>
-            <a id="r_translations-click" data-toggle="tab" data-tabtype="hasMany" href="#r_translations">
-                {#__ key="entity.e_translation.as_r_translations" /}
-            </a>
-        </li>
-        {/entityAccess}
-        {#entityAccess entity="action"}
-        <li><a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">{#__ key="entity.e_status.r_actions" /}</a></li>
-        {/entityAccess}
-    </ul>
-    {/hideTab}
-    <div class="tab-content" style="min-height:275px;">
-        <div id="home" class="tab-pane fade in active">
-            <div id="fields" class="row">
-                <div data-field="f_entity" class="col-xs-12 col-sm-6">
-                    <div class="form-group">
-                        <label for="f_entity"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_entity" /}' name="{f_entity}" value='{#__ key=f_entity /}' type="text" readonly="">
-                    </div>
-                </div>
-                <div data-field="f_field" class="col-xs-12 col-sm-6">
-                    <div class="form-group">
-                        <label for="f_field"> {#__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_field" /}' name="{f_field}" value='{#__ key=f_field /}' type="text" readonly="">
-                    </div>
-                </div>
-                <div data-field="f_name" class="col-xs-12 col-sm-6">
-                    <div class="form-group">
-                        <label for="f_name"> {#__ key="entity.e_status.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
-                    </div>
-                </div>
-                <div data-field="f_button_label" class="col-xs-12 col-sm-6">
-                    <div class="form-group">
-                        <label for="f_button_label"> {#__ key="entity.e_status.f_button_label"/} {@inline_help field="f_button_label"}&nbsp;<i data-field="f_button_label" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_button_label" /}' name="f_button_label" value="{f_button_label}" type="text" readonly="">
-                    </div>
-                </div>
-                <div data-field="f_color" class="col-xs-12 col-sm-6">
-                    <div class="form-group">
-                        <label for="f_color"> {#__ key="entity.e_status.f_color"/} {@inline_help field="f_color"}&nbsp;<i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
-                    </div>
-                </div>
-                <div data-field="f_accepted_group" class="fieldLineHeight col-xs-12 col-sm-6">
-                    <div class="form-group">
-                        <label for="f_accepted_group">
-                            {#__ key="entity.e_status.r_accepted_group" /}
-                            {@inline_help field="r_accepted_group"}
-                            <i data-field="r_accepted_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
-                            {/inline_help}
-                        </label>
-                        <select multiple="" disabled="" readonly="" class="form-control" name="r_accepted_group" data-source="group" data-using="f_label">
-                            {#r_accepted_group}
-                            <option value="{f_label|string}" selected="">{f_label|string}</option>
-                            {/r_accepted_group}
-                        </select>
-                    </div>
-                </div>
-                <div data-field="f_position" class="col-xs-12" style="display: none;">
-                    <div class="form-group">
-                        <label for="f_position"> {#__ key="entity.e_status.f_position"/} {@inline_help field="f_position"}&nbsp;<i data-field="f_position" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-                        <input class="form-control input" placeholder='{#__ key="entity.e_status.f_position" /}' name="f_position" value="{f_position}" type="number" readonly="">
-                    </div>
-                </div>
-                <div data-field="f_comment" class="col-xs-6">
-                    <div class="form-group">
-                        <label for="f_comment"> {#__ key="entity.e_status.f_comment"/} {@inline_help field="f_comment"}&nbsp;<i data-field="f_comment" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>                        &nbsp;
-                        <br>
-                        {@ifTrue key=f_comment}<input class="form-control input" name="f_comment" value="{f_comment}" type="checkbox" checked="" disabled="">
-                        {:else}<input class="form-control input" name="f_comment" value="{f_comment}" type="checkbox" disabled="">
-                        {/ifTrue}
-                    </div>
-                </div>
-                <div data-field="f_default" class="col-xs-6">
-                    <div class="form-group">
-                        <label for="f_default"> {#__ key="entity.e_status.f_default"/} {@inline_help field="f_default"}&nbsp;<i data-field="f_default" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>                        &nbsp;
-                        <br>
-                        {@ifTrue key=f_default}<input class="form-control input" name="f_default" value="{f_default}" type="checkbox" checked="" disabled="">
-                        {:else}<input class="form-control input" name="f_default" value="{f_default}" type="checkbox" disabled="">
-                        {/ifTrue}
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label for="f_default">{#__ key="entity.e_status.apply_default"/}</label>
-                        <br>
-                        <a class="btn btn-default" href="/status/set_default/{id}">{#__ key="button.execute"/}</a>
-                    </div>
-                </div>
-            </div>
-            <div class="actions">
-                <form action="/status/delete" method="post">
-                    <div class="quicklinks">
-                        <span>
-                            <a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{#__ key="button.return"/}</a>
-                        </span>
-                        {#actionAccess entity="status" action="delete"}
-                        <span>
-                            <button class="btn btn-danger btn-confirm">
-                            <i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
-                            <span>{#__ key="button.delete"/}</span>
-                            </button>
-                            <input name="id" type="hidden" value="{e_status.id}" class="form-control">
-                        </span>
-                        {/actionAccess}
-                        {#actionAccess entity="status" action="update"}
-                        <span>
-                            <a href="/status/update_form?id={e_status.id}" class="btn btn-warning">
-                                <i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
-                                <span>{#__ key="button.update"/}</span>
-                            </a>
-                        </span>
-                        {/actionAccess}
-                        {^hideButton}
-                        {#actionAccess entity="status" action="create"}
-                        <span>
-                            <a href="/status/create_form" class="btn btn-success">
-                                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
-                                <span>{#__ key="button.create"/}</span>
-                            </a>
-                        </span>
-                        {/actionAccess}
-                        {#actionAccess entity="status" action="read"}
-                        <span>
-                            <a href="/status/list" type="submit" class="btn btn-primary">
-                                <i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
-                                <span>{#__ key="button.list"/}</span>
-                            </a>
-                        </span>
-                        {/actionAccess}
-                        {/hideButton}
-                    </div>
-                </form>
-            </div>
-        </div>
-        {^hideTab}
-        <div id="r_children" class="tab-pane fade">
-            <form action="/status/set_children" method="post">
-                <select name="next_status" class="regular-select" multiple="">
-                    {#dataValues.all_children}
-                    {#dataValues.selected}
-                    <option value="{id}" selected="">{f_name}</option>
-                    {:else}
-                    <option value="{id}">{f_name}</option>
-                    {/dataValues.selected}
-                    {/dataValues.all_children}
-                </select>
-                <br>
-                <input type="hidden" value="{e_status.id}" name="id_status">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
-                    {#__ key="button.save" /}
-                </button>
-            </form>
-            <br>
-            <a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
-                <i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
-            </a>
-        </div>
-        {/hideTab}
-        {^hideTab}
-        {#entityAccess entity="translation"}
-        <div id="r_translations" class="ajax-tab tab-pane fade" data-tabtype="hasMany" data-asso-alias="r_translations" data-asso-foreignkey="fk_id_status_translations" data-asso-flag="{id}" data-asso-source="e_status" data-asso-url="status">
-            <div class="ajax-content sub-tab-table"></div>
-        </div>
-        {/entityAccess}
-        {/hideTab}
-        {^hideTab}
-        {#entityAccess entity="action"}
-        <div id="r_actions" class="ajax-tab tab-pane fade" data-tabtype="hasMany" data-asso-alias="r_actions" data-asso-foreignkey="fk_id_status_actions" data-asso-flag="{id}" data-asso-source="e_status" data-asso-url="status">
-            <div class="ajax-content sub-tab-table"></div>
-        </div>
-        {/entityAccess}
-        {/hideTab}
-    </div>
+	{^hideTab}
+	<ul class="nav nav-tabs">
+		<li class="active">
+			<a data-toggle="tab" href="#home">
+				{#__ key="entity.e_status.label_entity" /}
+			</a>
+		</li>
+		{#entityAccess entity="status"}
+		<li>
+			<a id="r_children-click" data-toggle="tab" data-tabtype="hasMany" href="#r_children">
+				{#__ key="entity.e_status.as_r_children" /}
+			</a>
+		</li>
+		{/entityAccess}
+		{#entityAccess entity="translation"}
+		<li>
+			<a id="r_translations-click" data-toggle="tab" data-tabtype="hasMany" href="#r_translations">
+				{#__ key="entity.e_translation.as_r_translations" /}
+			</a>
+		</li>
+		{/entityAccess}
+		{#entityAccess entity="action"}
+		<li><a id="r_actions-click" data-toggle="tab" data-tabtype="hasMany" href="#r_actions">{#__ key="entity.e_status.r_actions" /}</a></li>
+		{/entityAccess}
+	</ul>
+	{/hideTab}
+	<div class="tab-content" style="min-height:275px;">
+		<div id="home" class="tab-pane fade in active">
+			<div id="fields" class="row">
+				<div data-field="f_entity" class="col-xs-12 col-sm-6">
+					<div class="form-group">
+						<label for="f_entity"> {#__ key="entity.e_status.f_entity"/} {@inline_help field="f_entity"}&nbsp;<i data-field="f_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+						<input class="form-control input" placeholder='{#__ key="entity.e_status.f_entity" /}' name="{f_entity}" value='{#__ key=f_entity /}' type="text" readonly="">
+					</div>
+				</div>
+				<div data-field="f_field" class="col-xs-12 col-sm-6">
+					<div class="form-group">
+						<label for="f_field"> {#__ key="entity.e_status.f_field"/} {@inline_help field="f_field"}&nbsp;<i data-field="f_field" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+						<input class="form-control input" placeholder='{#__ key="entity.e_status.f_field" /}' name="{f_field}" value='{#__ key=f_field /}' type="text" readonly="">
+					</div>
+				</div>
+				<div data-field="f_name" class="col-xs-12 col-sm-6">
+					<div class="form-group">
+						<label for="f_name">
+							{#__ key="entity.e_status.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+						</label>
+						<input class="form-control input" placeholder='{#__ key="entity.e_status.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+					</div>
+				</div>
+				<div data-field="f_button_label" class="col-xs-12 col-sm-6">
+					<div class="form-group">
+						<label for="f_button_label">
+							{#__ key="entity.e_status.f_button_label"/} {@inline_help field="f_button_label"}&nbsp;<i data-field="f_button_label" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+						</label>
+						<input class="form-control input" placeholder='{#__ key="entity.e_status.f_button_label" /}' name="f_button_label" value="{f_button_label}" type="text" readonly="">
+					</div>
+				</div>
+				<div data-field="f_color" class="col-xs-12 col-sm-6">
+					<div class="form-group">
+						<label for="f_color"> {#__ key="entity.e_status.f_color"/} {@inline_help field="f_color"}&nbsp;<i data-field="f_color" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+						<input class="form-control input" placeholder='{#__ key="entity.e_status.f_color" /}' name="f_color" value="{f_color}" type="color" readonly="">
+					</div>
+				</div>
+				<div data-field="f_accepted_group" class="fieldLineHeight col-xs-12 col-sm-6">
+					<div class="form-group">
+						<label for="f_accepted_group">
+							{#__ key="entity.e_status.r_accepted_group" /}
+							{@inline_help field="r_accepted_group"}
+								<i data-field="r_accepted_group" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>
+							{/inline_help}
+						</label>
+						<select multiple="" disabled="" readonly="" class="form-control" name="r_accepted_group" data-source="group" data-using="f_label">
+							{#r_accepted_group}
+								<option value="{f_label}" selected="">{f_label}</option>
+							{/r_accepted_group}
+						</select>
+					</div>
+				</div>
+				<div data-field="f_position" class="col-xs-12" style="display: none;">
+					<div class="form-group">
+						<label for="f_position">
+							{#__ key="entity.e_status.f_position"/} {@inline_help field="f_position"}&nbsp;<i data-field="f_position" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+						</label>
+						<input class="form-control input" placeholder='{#__ key="entity.e_status.f_position" /}' name="f_position" value="{f_position}" type="number" readonly="">
+					</div>
+				</div>
+				<div data-field="f_comment" class="col-xs-6">
+					<div class="form-group">
+						<label for="f_comment">
+							{#__ key="entity.e_status.f_comment"/} {@inline_help field="f_comment"}&nbsp;<i data-field="f_comment" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+						</label>&nbsp;
+						<br>
+						{@ifTrue key=f_comment}
+							<input class="form-control input" name="f_comment" value="{f_comment}" type="checkbox" checked="" disabled="">
+						{:else}
+							<input class="form-control input" name="f_comment" value="{f_comment}" type="checkbox" disabled="">
+						{/ifTrue}
+					</div>
+				</div>
+				<div data-field="f_default" class="col-xs-6">
+					<div class="form-group">
+						<label for="f_default">
+							{#__ key="entity.e_status.f_default"/} {@inline_help field="f_default"}&nbsp;<i data-field="f_default" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help}
+						</label>&nbsp;
+						<br>
+						{@ifTrue key=f_default}
+							<input class="form-control input" name="f_default" value="{f_default}" type="checkbox" checked="" disabled="">
+						{:else}
+							<input class="form-control input" name="f_default" value="{f_default}" type="checkbox" disabled="">
+						{/ifTrue}
+					</div>
+				</div>
+				<div class="col-xs-6">
+					<div class="form-group">
+						<label for="f_default">{#__ key="entity.e_status.apply_default"/}</label>
+						<br>
+						<a class="btn btn-default" href="/status/set_default/{id}">{#__ key="button.execute"/}</a>
+					</div>
+				</div>
+			</div>
+			<div class="actions">
+				<form action="/status/delete" method="post">
+					<div class="quicklinks">
+						<span>
+							<a class="btn btn-default" href="javascript:history.back();"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{#__ key="button.return"/}</a>
+						</span>
+						{#actionAccess entity="status" action="delete"}
+							<span>
+								<button class="btn btn-danger btn-confirm">
+								<i class="fa fa-trash-o fa-md">&nbsp;&nbsp;</i>
+								<span>{#__ key="button.delete"/}</span>
+								</button>
+								<input name="id" type="hidden" value="{e_status.id}" class="form-control">
+							</span>
+						{/actionAccess}
+						{#actionAccess entity="status" action="update"}
+							<span>
+								<a href="/status/update_form?id={e_status.id}" class="btn btn-warning">
+									<i class="fa fa-pencil fa-md">&nbsp;&nbsp;</i>
+									<span>{#__ key="button.update"/}</span>
+								</a>
+							</span>
+						{/actionAccess}
+						{^hideButton}
+							{#actionAccess entity="status" action="create"}
+								<span>
+									<a href="/status/create_form" class="btn btn-success">
+										<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i>
+										<span>{#__ key="button.create"/}</span>
+									</a>
+								</span>
+							{/actionAccess}
+							{#actionAccess entity="status" action="read"}
+								<span>
+									<a href="/status/list" type="submit" class="btn btn-primary">
+										<i class="fa fa-list fa-md">&nbsp;&nbsp;</i>
+										<span>{#__ key="button.list"/}</span>
+									</a>
+								</span>
+							{/actionAccess}
+						{/hideButton}
+					</div>
+				</form>
+			</div>
+		</div>
+		{^hideTab}
+			<div id="r_children" class="tab-pane fade">
+				<form action="/status/set_children" method="post">
+					<select name="next_status" class="regular-select" multiple="">
+						{#dataValues.all_children}
+							{#dataValues.selected}
+								<option value="{id}" selected="">{f_name}</option>
+							{:else}
+								<option value="{id}">{f_name}</option>
+							{/dataValues.selected}
+						{/dataValues.all_children}
+					</select>
+					<i>{#__ key="component.status.tip_1" /}</i>
+					<br><br>
+					<input type="hidden" value="{e_status.id}" name="id_status">
+					<button type="submit" class="btn btn-primary">
+					<i class="fa fa-floppy-o fa-md">&nbsp;&nbsp;</i>
+					{#__ key="button.save" /}
+					</button>&nbsp;&nbsp;<a href="/status/create_form?associationAlias=r_children&amp;associationForeignKey=fk_id_status_children&amp;associationFlag={e_status.id}&amp;associationSource=e_status&amp;associationUrl=status" class="btn btn-success">
+						<i class="fa fa-plus fa-md">&nbsp;&nbsp;</i><span>{#__ key="button.create"/}</span>
+					</a>
+				</form>
+			</div>
+
+			{#entityAccess entity="translation"}
+				<div id="r_translations" class="ajax-tab tab-pane fade" data-tabtype="hasMany" data-asso-alias="r_translations" data-asso-foreignkey="fk_id_status_translations" data-asso-flag="{id}" data-asso-source="e_status" data-asso-url="status">
+					<div class="ajax-content sub-tab-table"></div>
+				</div>
+			{/entityAccess}
+
+		{#entityAccess entity="action"}
+			<div id="r_actions" class="ajax-tab tab-pane fade" data-tabtype="hasMany" data-asso-alias="r_actions" data-asso-foreignkey="fk_id_status_actions" data-asso-flag="{id}" data-asso-source="e_status" data-asso-url="status">
+				<div class="ajax-content sub-tab-table"></div>
+			</div>
+		{/entityAccess}
+		{/hideTab}
+	</div>
 </div>

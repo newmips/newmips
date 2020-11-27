@@ -50,6 +50,14 @@ if (lang_user == "fr-FR") {
 // tables needs to be global
 var tables = [];
 
+function currencyFormat(value) {
+    if(typeof value === 'string' && value.indexOf('.') != -1 && value.split('.')[1].length == 1)
+        return value + '0';
+    else if(typeof value === 'number')
+        return value.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+    return value;
+}
+
 function simpleTable(table) {
 	var dom = table.data('no-dom') ? '' : 'lBfrtip';
 	var options = {
@@ -151,9 +159,9 @@ function simpleTable(table) {
         if (typeof $(this).html()  !== "undefined" && $(this).html() != "" && $(this).html() != "Invalid date" && $(this).html() != "Invalid Date") {
             if($(this).html().indexOf("/") == -1 && $(this).html().indexOf("-") == -1){
                 if (lang_user == "fr-FR")
-                    $(this).html(moment(new Date($(this).html())).format("DD/MM/YYYY HH:mm"));
+                    $(this).html(moment.utc($(this).html()).format("DD/MM/YYYY HH:mm"));
                 else
-                    $(this).html(moment(new Date($(this).html())).format("YYYY-MM-DD HH:mm"));
+                    $(this).html(moment.utc($(this).html()).format("YYYY-MM-DD HH:mm"));
             }
         } else {
             $(this).html("");

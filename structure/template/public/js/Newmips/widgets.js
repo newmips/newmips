@@ -1,3 +1,6 @@
+// Datatable throw error instead of alert
+$.fn.dataTable.ext.errMode = 'throw';
+
 var STR_LANGUAGE;
 if (lang_user == "fr-FR") {
     STR_LANGUAGE = {
@@ -46,6 +49,7 @@ if (lang_user == "fr-FR") {
         }
     };
 }
+
 function getValue(cellArrayKeyValue, row) {
     var i = 0;
     var key = cellArrayKeyValue[i];
@@ -58,6 +62,21 @@ function getValue(cellArrayKeyValue, row) {
         key = cellArrayKeyValue[i];
     } while (i < cellArrayKeyValue.length);
     return row;
+}
+
+// Dive through the object to find the key we are looking for
+function diveObj(obj, idx, keys){
+    if(!obj)
+        return '-';
+
+    if(Array.isArray(obj[keys[idx]]) && obj[keys[idx]].length > 0)
+        return diveObj(obj[keys[idx]][0], ++idx, keys);
+    else if(typeof obj[keys[idx]] === 'object')
+        return diveObj(obj[keys[idx]], ++idx, keys);
+    else if(obj[keys[idx]] && typeof obj[keys[idx]] !== undefined)
+        return obj;
+    else
+        return '-';
 }
 
 function widgetDataTable(table) {
@@ -86,72 +105,47 @@ function widgetDataTable(table) {
         objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
-                var cellValue;
+                var cellValue, keys;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    var entityRelation = columns[meta.col].data.split(".")[0];
-                    var attributeRelation = columns[meta.col].data.split(".")[1];
-                    if (row[entityRelation] != null && typeof row[entityRelation] === "object") {
-                        var valueFromArray = "";
-                        for (var attr in row[entityRelation]) {
-                            // In case of hasMany or belongsToMany value
-                            if (row[entityRelation][attr] != null && typeof row[entityRelation][attr] === "object") {
-                                valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
-                            } else {
-                                var parts = columns[meta.col].data.split('.');
-                                valueFromArray = getValue(parts, row);
-                            }
+                    keys = columns[meta.col].data.split(".");
+                    cellValue = diveObj(row, 0, keys);
 
-                        }
-                        cellValue = valueFromArray;
-                    } else {
-                        // Has one sur une sous entité
-                        var parts = columns[meta.col].data.split('.');
-                        cellValue = getValue(parts, row);
-                    }
+                    if(typeof cellValue === 'object')
+                        cellValue = cellValue[keys.slice(-1)[0]];
                 }
                 // Regular value
                 else
                     cellValue = row[columns[meta.col].data];
 
-                function currencyFormat(num) {
-                    if(num != null)
-                        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-                    else
-                        return "";
-                }
-
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
-                    // Date
-                    if (columns[meta.col].type == 'date') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD");
-                        } else
-                            cellValue = "-";
-                    }
-                    // Datetime
-                    else if (columns[meta.col].type == 'datetime') {
-                        if (cellValue != "" && cellValue != null && cellValue != "Invalid date" && cellValue != "Invalid Date") {
-                            if (lang_user == "fr-FR")
-                                cellValue = moment(new Date(cellValue)).format("DD/MM/YYYY HH:mm");
-                            else
-                                cellValue = moment(new Date(cellValue)).format("YYYY-MM-DD HH:mm");
-                        } else
+                    // date / datetime
+                    if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
+                        if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
+                            var tmpDate = moment.utc(cellValue);
+                            if (!tmpDate.isValid())
+                                cellValue = '-';
+                            else {
+                                var format;
+                                if (columns[meta.col].type == 'date')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY" : "YYYY-MM-DD";
+                                else if (columns[meta.col].type == 'datetime')
+                                    format = lang_user == 'fr-FR' ? "DD/MM/YYYY HH:mm" : "YYYY-MM-DD HH:mm";
+
+                                cellValue = tmpDate.format(format || "YYYY-MM-DD");
+                            }
+                        }
+                        else
                             cellValue = "-";
                     } else if (columns[meta.col].type == 'boolean')
                         cellValue = cellValue == 'true' || cellValue == '1' ? '<i class="fa fa-check-square-o fa-lg"><span style="visibility: hidden;">1</span></i>' : '<i class="fa fa-square-o fa-lg"><span style="visibility: hidden;">0</span></i>';
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
-                        var statusObj = row[columns[meta.col].data.split(".")[0]];
-                        if(statusObj != null)
-                            cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
-                        else
-                            cellValue = "-";
+                        keys = columns[meta.col].data.split(".");
+                        var statusObj = diveObj(row, 0, keys);
+                        cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
@@ -170,7 +164,10 @@ function widgetDataTable(table) {
                             // Get current entity by splitting current table id
                             var currentEntity = tableID.split("#table_")[1];
                             var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
-                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+cellValue+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                            // Remove uuid
+                            if(justFilename[32] == '_')
+                                justFilename = justFilename.substring(33);
+                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
                         } else
                             cellValue = '';
                     }
@@ -182,8 +179,10 @@ function widgetDataTable(table) {
                     } else if (columns[meta.col].type == 'password'){
                         cellValue = '●●●●●●●●●';
                     } else if(columns[meta.col].type == 'text'){
-                        if(cellValue && cellValue.length > 75)
-                            cellValue = cellValue.slice(0, 75) + "...";
+                        if(cellValue && cellValue.length > 75){
+                            var shortText = $.parseHTML(cellValue.slice(0, 75))[0].data ? $.parseHTML(cellValue.slice(0, 75))[0].data : $.parseHTML(cellValue.slice(0, 75))[0].innerHTML;
+                            cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + shortText + "...<span style='display: none;'>" + cellValue + "</span></span>";
+                        }
                     }
                 }
                 return cellValue;
@@ -194,7 +193,7 @@ function widgetDataTable(table) {
     }
 
     // Init DataTable
-    var tableUrl = '/'+table.data('entity').substring(2)+'/datalist';
+    var tableUrl = table.data('url') ? table.data('url') : '/'+table.data('entity').substring(2)+'/datalist';
     var tableLength = parseInt(table.data('limit'));
     var tableOptions = {
         "serverSide": true,
@@ -204,6 +203,8 @@ function widgetDataTable(table) {
             data: function(e) {
                 // Used for global search
                 e.columnsTypes = columnsTypes;
+                // Last record widget is always order on ID, this will be usefull to set order in sequelize request
+                e.widgetType = table.parents('[data-widget-type]').attr('data-widget-type');
                 return e;
             }
         },

@@ -1,290 +1,306 @@
 {
-    "app": {
-        "name": "Application"
-    },
-    "notification": {
-        "deleteAll": "Delete all notifications",
-        "icon": {
-            "choose": "Choose icon"
-        }
-    },
-    "login": {
-        "log_in": "Log in",
-        "reset_password": {
-            "title": "Forgotten password",
-            "success": "Your password has been reset..",
-            "successMail": "An email allowing you to reset your password has been sent to you.",
-            "userNotExist": "Error, this user does not exist.",
-            "cannotFindToken": "Error, can not find your reset token."
-        },
-        "first_connection": {
-            "title": "First connection",
-            "success": "Update done, you can now log in with your credentials.",
-            "success2": "Update done, you are now log in !",
-            "userNotExist": "Error, this user does not exist or has already been activated.",
-            "alreadyHavePassword": "Operation is not possible, this user already has a password.",
-            "passwordNotMatch": "Sorry, passwords do not match. Password must contain at least 4 characters."
-        },
-        "authentication": "Connection",
-        "login": "Login",
-        "password": "Password",
-        "minimalLength": "(4 characters minimum)",
-        "confirm_password": "Confirm password",
-        "mail": "Email",
-        "remember_me": "Remember me",
-        "submit": "Submit"
-    },
-    "settings": {
-        "title": "Access managment",
-        "tool_menu": "Access configuration file",
-        "tool_success": "The access configuration file has been imported.",
-        "tool_title": "Import / Export access configuration",
-        "tool_export": "Export access configuration",
-        "tool_import": "Import access configuration",
-        "import_file_name": "access.json file:",
-        "tool_warning": "Warning, the file has to be the same structure of the current access.json file !",
-        "auth_component": {
-            "access_managment": "Access managment per group",
-            "action_managment": "Action managment per role",
-            "moduleList": "Modules",
-            "entityList": "Entities",
-            "grouplist": "Groups:",
-            "rolelist": "Roles:",
-            "entitylist": "Entities:",
-            "group": "Group",
-            "role": "Role",
-            "api_status": "API Status",
-            "api_doc": "API Documentation",
-            "action": {
-                "read": "Show",
-                "create": "Create",
-                "update": "Update",
-                "delete": "Delete"
-            },
-            "no_access_group_module": "Your group do not have access to this module.",
-            "no_access_group_entity": "Your group do not have access to this entity.",
-            "no_access_change_status": "Your group do not have access to change this status.",
-            "no_access_role": "Your role is not allowed to do this action on this entity.",
-            "no_group": "Your account does not have access to the application, please contact the administrator."
-        },
-        "db_tool": {
-            "title": "DB Tool",
-            "export_title": "Export",
-            "import_title": "Import",
-            "all_db": "All the database",
-            "export_action": "Export",
-            "import_action": "Import",
-            "import_file": "SQL File",
-            "import_success": "The import has been successfully completed.",
-            "import_error": "An error has occurred, please check the logs.",
-            "file_needed": "Missing import file.",
-            "wrong_db_pwd": "Wrong password.",
-            "modal_password_title": "Password confirmation",
-            "modal_password_content": "Please confirm the database password:",
-            "wrong_dialect": "Sorry, DB tools only work with MySQL for now.",
-            "no_choice": "Please choose what you want to export."
-        },
-        "import_export": {
-            "title": "Import / Export"
-        },
-        "legend": "Change your user settings",
-        "lang": "Language",
-        "login": "Login",
-        "email": "Email",
-        "firstname": "Firstname",
-        "lastname": "Lastname",
-        "phone": "Phone",
-        "old_password": "Your old password",
-        "new_password_1": "New password",
-        "new_password_2": "Confirm new password",
-        "error1": "You have to fill a new password in order to change it.",
-        "error2": "The two passwords do not match.",
-        "error3": "Your new password must be at least 4 characters long.",
-        "error4": "Your old password is not valid.",
-        "success": "Your profile has been updated."
-    },
-    "navbar": {
-        "about": "About",
-        "help": "Help",
-        "support": "Support"
-    },
-    "select": {
-        "default": "-- Choose --"
-    },
-    "module": {
-        "home": "Home",
-        "module": "Module",
-        "administration": "Administration",
-        "workspace": "My workspace"
-    },
-    "role": {
-        "administrator": "Administrator",
-        "developer": "Developer"
-    },
-    "button": {
-        "profile": "Profile",
-        "disconnect": "Disconnect",
-        "show": "Show",
-        "update": "Modify",
-        "delete": "Delete",
-        "create": "Create",
-        "list": "List",
-        "add": "Add",
-        "remove": "Remove",
-        "save": "Save",
-        "preview": "Preview",
-        "record": "Record",
-        "execute": "Execute",
-        "settings": "Settings",
-        "download": "Download",
-        "search": "Search",
-        "send": "Send",
-        "validation": "Validate",
-        "previous": "Previous",
-        "next": "Next",
-        "close": "Close",
-        "generate": "Generate",
-        "help": "Help",
-        "cancel": "Cancel",
-        "return": "Return",
-        "delete_confirm": "Are you sure you want to delete this record?",
-        "loading": "Loading..."
-    },
-    "operation": {
-        "show": "Show",
-        "update": "Modify",
-        "create": "Create",
-        "delete": "Delete",
-        "list": "List",
-        "add": "Add"
-    },
-    "message": {
-        "create": {
-            "success": "Success ! Data registered with success.",
-            "failure": "Error ! No data registered. May ask to your administrator."
-        },
-        "update": {
-            "success": "Success ! Data modified with success.",
-            "failure": "Error ! No data modified. May ask to your administrator."
-        },
-        "delete": {
-            "success": "Success ! Data deleted with success.",
-            "failure": "Error ! No data deleted. May ask to your administrator.",
-            "question": "Are you sure you want to delete this entity ?"
-        },
-        "empty": "No data to display",
-        "empty_file": "No file",
-        "unique": "This field must be unique:",
-        "relatedtomanycheckbox_required": "A field requires you to check at least one checkbox."
-    },
-    "entity": {},
-    "synchro": {
-        "title": "Synchronisation",
-        "config": {
-            "title": "Configuration"
-        },
-        "process": {
-            "title": "Synchronisation",
-            "synchronize": "Synchronise",
-            "dumped": "Data dump generated",
-            "no_credentials": "No Synchro credentials found",
-            "connection_failed": "Impossible to connect with API."
-        }
-    },
-    "global_component": {
-        "local_file_storage": {
-            "filename": "Filename",
-            "wait_upload": "Uploading... Please wait.",
-            "required_file": "Some file / image upload fields are required, please fill them."
-        },
-        "contact_form": {
-            "firstname": "Firstname",
-            "lastname": "Lastname",
-            "email": "Email",
-            "title": "Title",
-            "content": "Content"
-        },
-        "agenda": {
-            "menu": "Agenda",
-            "add_event": "Add new event",
-            "no_category": "No category",
-            "pending_event": "Pending event(s)",
-            "startHour": "Start hour",
-            "endHour": "End hour",
-            "fill_title": "Please fill the title event input.",
-            "start_date": "Please fill the start date before.",
-            "start_after_end": "The start date is after the end date, please fix it.",
-            "end_before_start": "The end date is before the start date, please fix it."
-        },
-        "print": {
-            "action": "Print"
-        }
-    },
-    "component": {
-        "c_db_tool": {
-            "label_component": "DB Tool"
-        },
-        "c_access_tool": {
-            "label_component": "Access file"
-        },
-        "c_import_export": {
-            "label_component": "Import / Export"
-        },
-        "c_access_settings_role": {
-            "label_component": "Role access"
-        },
-        "c_access_settings_group": {
-            "label_component": "Group access"
-        },
-        "c_access_settings_api": {
-            "label_component": "API access"
-        },
-        "c_address_settings": {
-            "label_component": "Address settings"
-        }
-    },
-    "defaults": {
-        "widgets": {
-            "lastrecords": {
-                "label": "last records"
-            },
-            "stats": {
-                "more_info": "More info"
-            },
-            "piechart": {
-                "distribution": "Distribution"
-            }
-        },
-        "createdAt": "Creation date"
-    },
-    "error": {
-        "validation": {
-            "number": "Field %s must be a number",
-            "radio": "Field %s isn't as expected",
-            "float": "Field %s must be a floating number",
-            "boolean": "Field %s must be a true or false",
-            "email": "Field %s isn't a valid email",
-            "date": "Field %s isn't a valid date",
-            "tel": "Field %s isn't a valid phone",
-            "color": "Field %s isn't a valid colour",
-            "password": "Field %s must be between 3 and 32 characters",
-            "url": "Field %s isn't a valid URL"
-        },
-        "404": {
-            "title": "We could not find what you were looking for.",
-            "title2": "Page not found.",
-            "textone": "Le lien que vous avez suivi peut être incorrect ou la page peut avoir été supprimée."
-        },
-        "500": {
-            "title": "We are sorry, an internal serveur error occured."
-        },
-        "title": "Error",
-        "contactAdmin": "Merci de contacter votre administrateur.",
-        "meanwhile": "Entre temps, vous pouvez ",
-        "goHome": "If you wish to return to the homepage, click here",
-        "goBack": "If you want to go back, click here",
-        "goBackText": "Go back",
-        "home": "Home",
-        "valueTooLong": "The given value is too long (>30)."
-    }
+	"app": {
+		"name": "Application"
+	},
+	"notification": {
+		"deleteAll": "Delete all notifications",
+		"icon": {
+			"choose": "Choose icon"
+		}
+	},
+	"login": {
+		"log_in": "Log in",
+		"reset_password": {
+			"title": "Forgotten password",
+			"success": "Your password has successfully been reset. Please do the first connection process in order to set your new password.",
+			"successMail": "An email allowing you to reset your password has been sent to you.",
+			"userNotExist": "The user corresponding to the information entered could not be found.",
+			"cannotFindToken": "Error, can not find your reset token."
+		},
+		"first_connection": {
+			"title": "First connection",
+			"success": "Update done, you can now log in with your credentials.",
+			"success_login": "Update done, you are now log in !",
+			"userNotExist": "This user does not exist or has already been activated.",
+			"alreadyHavePassword": "Operation is not possible, this user already has a password.",
+			"passwordNotValid": "The password is not valid, please try again.",
+			"help": {
+				"password_title": "Password - First connection",
+				"password_content": "<p>Please choose your password, it must respect the following format:<br><br> - 8 characters minimum<br> - At least 1 digit<br> - At least 1 capital letter<br> - At least 1 special character (!@#$%^&*)<br></i><br></p>"
+			}
+		},
+		"authentication": "Connection",
+		"login": "Login",
+		"password": "Password",
+		"confirm_password": "Confirm password",
+		"email": "Email",
+		"remember_me": "Remember me",
+		"submit": "Submit",
+		"missing_infos": "Please fill all the input.",
+		"login_fail": "The login and / or password is not correct, please try again.",
+		"not_enabled": "Your account does not seem to be activated, please complete the first connection process.",
+		"logout_sucess": "You have been successfully logged out.",
+		"wrong_captcha": "The captcha entered is not correct, please try again."
+	},
+	"settings": {
+		"title": "Access managment",
+		"tool_menu": "Access configuration file",
+		"tool_success": "The access configuration file has been imported.",
+		"tool_title": "Import / Export access configuration",
+		"tool_export": "Export access configuration",
+		"tool_import": "Import access configuration",
+		"import_file_name": "access.json file:",
+		"tool_warning": "Warning, the file has to be the same structure of the current access.json file !",
+		"auth_component": {
+			"access_managment": "Access managment per group",
+			"action_managment": "Action managment per role",
+			"moduleList": "Modules",
+			"entityList": "Entities",
+			"grouplist": "Groups:",
+			"rolelist": "Roles:",
+			"entitylist": "Entities:",
+			"group": "Group",
+			"role": "Role",
+			"api_status": "API Status",
+			"api_doc": "API Documentation",
+			"action": {
+				"read": "Show",
+				"create": "Create",
+				"update": "Update",
+				"delete": "Delete"
+			},
+			"no_access_group_module": "Your group do not have access to this module.",
+			"no_access_group_entity": "Your group do not have access to this entity.",
+			"no_access_change_status": "Your group do not have access to change this status.",
+			"no_access_role": "Your role is not allowed to do this action on this entity.",
+			"no_group": "Your account does not have access to the application, please contact the administrator."
+		},
+		"db_tool": {
+			"title": "DB Tool",
+			"export_title": "Export",
+			"import_title": "Import",
+			"all_db": "All the database",
+			"export_action": "Export",
+			"import_action": "Import",
+			"import_file": "SQL File",
+			"import_success": "The import has been successfully completed.",
+			"import_error": "An error has occurred, please check the logs.",
+			"file_needed": "Missing import file.",
+			"wrong_db_pwd": "Wrong password.",
+			"modal_password_title": "Password confirmation",
+			"modal_password_content": "Please confirm the database password:",
+			"wrong_dialect": "Sorry, DB tools only work with MySQL for now.",
+			"no_choice": "Please choose what you want to export."
+		},
+		"import_export": {
+			"title": "Import / Export"
+		},
+		"legend": "Update your settings",
+		"lang": "Language",
+		"login": "Login",
+		"email": "Email",
+		"firstname": "Firstname",
+		"lastname": "Lastname",
+		"phone": "Phone",
+		"check_change_password": "Change your password",
+		"title_change_password": "Reset password procedure",
+		"old_password": "Your current password",
+		"new_password_1": "New password",
+		"new_password_2": "Confirm new password",
+		"error1": "Please enter a new password before saving.",
+		"error2": "The two passwords do not match.",
+		"error3": "Your new password must be at least 4 characters long.",
+		"error4": "Your current password is not valid.",
+		"success": "Your profile has been updated."
+	},
+	"navbar": {
+		"about": "About",
+		"help": "Help",
+		"support": "Support"
+	},
+	"select": {
+		"default": "-- Choose --"
+	},
+	"module": {
+		"home": "Home",
+		"module": "Module",
+		"administration": "Administration",
+		"workspace": "My workspace"
+	},
+	"role": {
+		"administrator": "Administrator",
+		"developer": "Developer"
+	},
+	"button": {
+		"profile": "Profile",
+		"disconnect": "Log out",
+		"show": "Show",
+		"update": "Modify",
+		"delete": "Delete",
+		"create": "Create",
+		"list": "List",
+		"add": "Add",
+		"remove": "Remove",
+		"save": "Save",
+		"preview": "Preview",
+		"record": "Record",
+		"execute": "Execute",
+		"settings": "Settings",
+		"download": "Download",
+		"search": "Search",
+		"send": "Send",
+		"validation": "Validate",
+		"previous": "Previous",
+		"next": "Next",
+		"close": "Close",
+		"generate": "Generate",
+		"help": "Help",
+		"cancel": "Cancel",
+		"return": "Return",
+		"delete_confirm": "Are you sure you want to delete this record?",
+		"loading": "Loading..."
+	},
+	"operation": {
+		"show": "Show",
+		"update": "Modify",
+		"create": "Create",
+		"delete": "Delete",
+		"list": "List",
+		"add": "Add"
+	},
+	"message": {
+		"create": {
+			"success": "Success ! Data registered with success.",
+			"failure": "Error ! No data registered. May ask to your administrator."
+		},
+		"update": {
+			"success": "Success ! Data modified with success.",
+			"failure": "Error ! No data modified. May ask to your administrator."
+		},
+		"delete": {
+			"success": "Success ! Data deleted with success.",
+			"failure": "Error ! No data deleted. May ask to your administrator.",
+			"question": "Are you sure you want to delete this entity ?"
+		},
+		"empty": "No data to display",
+		"empty_file": "No file",
+		"unique": "This field must be unique:",
+		"relatedtomanycheckbox_required": "A field requires you to check at least one checkbox."
+	},
+	"entity": {},
+	"synchro": {
+		"title": "Synchronisation",
+		"config": {
+			"title": "Configuration"
+		},
+		"process": {
+			"title": "Synchronisation",
+			"synchronize": "Synchronise",
+			"dumped": "Data dump generated",
+			"no_credentials": "No synchro credentials found",
+			"connection_failed": "Impossible to connect with API."
+		}
+	},
+	"global_component": {
+		"local_file_storage": {
+			"filename": "Filename",
+			"wait_upload": "Uploading... Please wait.",
+			"required_file": "Some file / image upload fields are required, please fill them."
+		},
+		"contact_form": {
+			"firstname": "Firstname",
+			"lastname": "Lastname",
+			"email": "Email",
+			"title": "Title",
+			"content": "Content"
+		},
+		"agenda": {
+			"menu": "Agenda",
+			"add_event": "Add new event",
+			"no_category": "No category",
+			"pending_event": "Pending event(s)",
+			"startHour": "Start hour",
+			"endHour": "End hour",
+			"fill_title": "Please fill the title event input.",
+			"start_date": "Please fill the start date before.",
+			"start_after_end": "The start date is after the end date, please fix it.",
+			"end_before_start": "The end date is before the start date, please fix it."
+		},
+		"document_template": {
+			"template_example_dust": "Dust template example"
+		},
+		"status": {
+			"diagram": "Diagram"
+		}
+	},
+	"component": {
+		"c_db_tool": {
+			"label_component": "DB Tool"
+		},
+		"c_access_tool": {
+			"label_component": "Access file"
+		},
+		"c_import_export": {
+			"label_component": "Import / Export"
+		},
+		"c_access_settings_role": {
+			"label_component": "Role access"
+		},
+		"c_access_settings_group": {
+			"label_component": "Group access"
+		},
+		"c_access_settings_api": {
+			"label_component": "API access"
+		},
+		"c_address_settings": {
+			"label_component": "Address settings"
+		},
+		"c_api_documentation": {
+			"label_component": "API documentation"
+		}
+	},
+	"defaults": {
+		"widgets": {
+			"lastrecords": {
+				"label": "Last records"
+			},
+			"stats": {
+				"more_info": "More info"
+			},
+			"piechart": {
+				"distribution": "Distribution"
+			}
+		},
+		"createdAt": "Created at"
+	},
+	"error": {
+		"validation": {
+			"number": "Field %s must be a number",
+			"radio": "Field %s isn't as expected",
+			"float": "Field %s must be a floating number",
+			"boolean": "Field %s must be a true or false",
+			"email": "Field %s isn't a valid email",
+			"date": "Field %s isn't a valid date",
+			"tel": "Field %s isn't a valid phone",
+			"color": "Field %s isn't a valid colour",
+			"password": "Field %s must be between 3 and 32 characters",
+			"url": "Field %s isn't a valid URL"
+		},
+		"404": {
+			"title": "We could not find what you were looking for.",
+			"title2": "Page not found.",
+			"textone": "The link you followed may be incorrect or the page may have been deleted."
+		},
+		"500": {
+			"title": "We are sorry, an internal serveur error occured."
+		},
+		"title": "Error",
+		"contactAdmin": "Please contact your system administrator.",
+		"meanwhile": "Meanhile, you can ",
+		"goHome": "If you wish to return to the homepage, click here",
+		"goBack": "If you want to go back, click here",
+		"goBackText": "Go back",
+		"home": "Home",
+		"valueTooLong": "The given value is too long (>30)."
+	}
 }

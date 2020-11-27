@@ -1,0 +1,17 @@
+-- CREATE NEWMIPS DATABASE FOR PostgreSQL
+
+DROP DATABASE IF EXISTS newmips;
+CREATE DATABASE newmips encoding='UTF8';
+
+DROP USER IF EXISTS newmips;
+CREATE USER newmips WITH PASSWORD 'newmips' CREATEDB;
+ALTER USER newmips superuser;
+
+DROP TABLE IF EXISTS sessions;
+CREATE TABLE "sessions" (
+  "sid" varchar NOT NULL COLLATE "default",
+	"sess" json NOT NULL,
+	"expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+ALTER TABLE "sessions" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;

@@ -1,301 +1,245 @@
 const fs = require('fs');
 const helpers = require("./helpers");
-// Google translation
-let translateKey = require("../config/googleAPI").translate;
+
+// Google translate
+const translateKey = require("../config/googleAPI").translate;
 const googleTranslate = require('google-translate')(translateKey);
 
 module.exports = {
-    writeTree: function(idApplication, object, language, replaceBoolean) {
-        var localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json'));
-        replaceBoolean = typeof replaceBoolean === 'undefined' ? true : replaceBoolean;
-        function dive(locales, newLocales) {
-            for (var newLocale in newLocales) {
-                var found = false;
-                for (var locale in locales) {
-                    if (locale == newLocale && typeof newLocales[newLocale] === 'object') {
-                        found = true;
-                        dive(locales[locale], newLocales[newLocale])
-                    }
-                    else if (!replaceBoolean && locale == newLocale)
-                        found = true;
-                }
-                if (!found)
-                    locales[newLocale] = newLocales[newLocale];
-            }
-        }
-        dive(localesObj, object);
-        fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/'+language+'.json', JSON.stringify(localesObj, null, 4), 'utf8');
-    },
-    writeEnumTrad: function (idApplication, entity, field, value, traduction, lang = 'fr-FR') {
-        const enumTrads = JSON.parse(helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json'));
+	writeTree: function(appName, object, language, replaceBoolean = true) {
+		const localesObj = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json'));
 
-        let success = false;
-        mainLoop:for (const enumEntity in enumTrads)
-            // Find entity's entry
-            if (entity == enumEntity)
-                // Find field's entry
-                for (const enumField in enumTrads[enumEntity])
-                    if (field == enumField)
-                        // Find enum value entry
-                        for (let i = 0; i < enumTrads[enumEntity][enumField].length; i++)
-                            if (enumTrads[enumEntity][enumField][i].value == value) {
-                                enumTrads[enumEntity][enumField][i].translations[lang] = traduction;
-                                success = true;
-                                break mainLoop;
-                            }
+		function dive(locales, newLocales) {
+			for (const newLocale in newLocales) {
+				let found = false;
+				for (const locale in locales) {
+					if (locale == newLocale && typeof newLocales[newLocale] === 'object') {
+						found = true;
+						dive(locales[locale], newLocales[newLocale])
+					} else if (!replaceBoolean && locale == newLocale)
+						found = true;
+				}
+				if (!found)
+					locales[newLocale] = newLocales[newLocale];
+			}
+		}
+		dive(localesObj, object);
+		fs.writeFileSync(__dirname + '/../workspace/' + appName + '/locales/' + language + '.json', JSON.stringify(localesObj, null, 4), 'utf8');
+	},
+	writeEnumTrad: function (app_name, entity, field, value, traduction, lang = 'fr-FR') {
+		const enumTrads = JSON.parse(helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + app_name + '/locales/enum_radio.json'));
+		let success = false;
+		mainLoop:for (const enumEntity in enumTrads)
+			// Find entity's entry
+			if (entity == enumEntity)
+				// Find field's entry
+				for (const enumField in enumTrads[enumEntity])
+					if (field == enumField)
+						// Find enum value entry
+						for (let i = 0; i < enumTrads[enumEntity][enumField].length; i++)
+							if (enumTrads[enumEntity][enumField][i].value == value) {
+								enumTrads[enumEntity][enumField][i].translations[lang] = traduction;
+								success = true;
+								break mainLoop;
+							}
 
-        if (success == true)
-            fs.writeFileSync(__dirname+'/../workspace/'+idApplication+'/locales/enum_radio.json', JSON.stringify(enumTrads, null, 4), 'utf8');
+		if (success == true)
+			fs.writeFileSync(__dirname+'/../workspace/'+app_name+'/locales/enum_radio.json', JSON.stringify(enumTrads, null, 4), 'utf8');
 
-        return success;
-    },
-    writeLocales: function(idApplication, type, keyValue, value, toTranslate, callback) {
+		return success;
+	},
+	writeLocales: async (appName, type, keyValue, value, toTranslate) => {
 
-        // If field value is an array
-        if(type == "field"){
-            var keyValueField = value[0];
-            value = value[1];
-        } else if(type == "aliasfield"){
-            var alias = value[0];
-            value = value[1];
-        }
+		// If field value is an array
+		let keyValueField, alias;
+		if (type == "field") {
+			keyValueField = value[0];
+			value = value[1];
+		} else if (type == "aliasfield") {
+			alias = value[0];
+			value = value[1];
+		}
 
-        // Replace euro sign from char code since javascript can't read `€`
-        value = value.replace(String.fromCharCode(65533), "€");
+		// Replace euro sign from char code since javascript can't read `€`
+		value = value.replace(String.fromCharCode(65533), "€");
 
-        // Current application language
-        let languageFileData = helpers.readFileSyncWithCatch(__dirname+'/../workspace/'+idApplication+'/config/application.json');
-        let appLang = JSON.parse(languageFileData).lang;
+		// Current application language
+		const languageFileData = helpers.readFileSyncWithCatch(__dirname + '/../workspace/' + appName + '/config/application.json');
+		const appLang = JSON.parse(languageFileData).lang;
 
-        // Google won't fr-FR, it just want fr
-        let appLang4Google = appLang.slice(0, -3);
+		// Google won't fr-FR, it just want fr
+		const appLang4Google = appLang.slice(0, -3);
 
-        // All available languages to write
-        let languagePromises = [];
+		// Get all the differents languages to handle
+		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file != "enum_radio.json");
 
-        function pushLanguagePromise(urlFile, dataLocales, file){
-            // Create an array of promises to write all translations file
-            languagePromises.push(new Promise(function(resolve, reject) {
-                fs.writeFile(urlFile, JSON.stringify(dataLocales, null, 4), function(err) {
-                    if (err){
-                        console.error(err);
-                        return reject(err);
-                    }
+		function addLocal(type, data, lang, value) {
+			switch(type) {
+				case 'application':
+					data.app.name = value;
+					break;
+				case 'module':
+					if(value == 'home')
+						value = lang == "fr-FR" ? "Accueil" : "Home";
+					data.module[keyValue] = value;
+					break;
+				case 'entity':
+					switch(value.toLowerCase()) {
+						case 'user':
+							value = lang == 'fr-FR' ? 'Utilisateur' : 'User';
+							break;
+						case 'role':
+							value = lang == 'fr-FR' ? 'Rôle' : 'Role';
+							break;
+						case 'group':
+							value = lang == 'fr-FR' ? 'Groupe' : 'Group';
+							break;
+						default:
+							break;
+					}
+					data.entity[keyValue] = {
+						label_entity: value,
+						plural_entity: value,
+						id_entity: "ID"
+					};
+					break;
+				case 'component':
+					data.component[keyValue] = {
+						label_component: value
+					}
+					break;
+				case 'field':
+					switch(value.toLowerCase()) {
+						case 'login':
+							value = lang == "fr-FR" ? "Identifiant" : "Login";
+							break;
+						case 'role':
+							value = lang == "fr-FR" ? "Rôle" : "Role";
+							break;
+						case 'email':
+							value = "Email";
+							break;
+						case 'group':
+							value = lang == "fr-FR" ? "Groupe" : "Group";
+							break;
+						case 'label':
+							value = lang == "fr-FR" ? "Libellé" : "Label";
+							break;
+						default:
+							break;
+					}
+					data.entity[keyValue][keyValueField] = value;
+					break;
+				case 'aliasfield':
+					switch(value.toLowerCase()) {
+						case 'login':
+							value = lang == "fr-FR" ? "Identifiant" : "Login";
+							break;
+						case 'role':
+							value = lang == "fr-FR" ? "Rôle" : "Role";
+							break;
+						case 'email':
+							value = "Email";
+							break;
+						case 'group':
+							value = lang == "fr-FR" ? "Groupe" : "Group";
+							break;
+						case 'label':
+							value = lang == "fr-FR" ? "Libellé" : "Label";
+							break;
+						default:
+							break;
+					}
+					data.entity[keyValue][alias] = value;
+					break;
+				default:
+					break;
+			}
+			return data;
+		}
 
-                    resolve();
-                });
-            }));
-        }
+		const promises = [];
+		for (let i = 0; i < localesDir.length; i++) {
+			promises.push(new Promise(resolve => {
+				const file = localesDir[i];
+				const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
+				let dataLocales;
+				try {
+					dataLocales = JSON.parse(fs.readFileSync(urlFile));
+				} catch(err) {
+					console.error(err);
+					console.log("Concerned file => " + urlFile);
+				}
+				const workingLocales = file.slice(0, -5);
+				const workingLocales4Google = workingLocales.slice(0, -3);
 
-        function addLocales(type, value2, data, lang){
-            if(type == "application"){
-                data.app.name = value2;
-            }
-            else if(type == "module"){
-                data.module[keyValue.toLowerCase()] = value2;
-            }
-            else if(type == "entity"){
-                let content = '  { \n\t\t\t"label_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"name_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"plural_entity": "'+ value2 +'",\n';
-                content += '\t\t\t"id_entity": "ID"\n';
-                content += '\t\t}\n';
-                data.entity[keyValue.toLowerCase()] = JSON.parse(content);
-            }
-            else if(type == "component"){
-                let content = '  { \n\t\t\t"label_component" : "'+value2+'",\n';
-                content += '\t\t\t"name_component" : "'+value2+'",\n';
-                content += '\t\t\t"plural_component" : "'+value2+'"\n';
-                content += '\t\t}\n';
-                data.component[keyValue.toLowerCase()] = JSON.parse(content);
-            }
-            else if(type == "field"){
-                data.entity[keyValue.toLowerCase()][keyValueField.toLowerCase()] = value2;
-            }
-            else if(type == "aliasfield"){
-                data.entity[keyValue.toLowerCase()][alias.toLowerCase()] = value2;
-            }
+				// Google translate
+				if (workingLocales != appLang && (translateKey != "" && toTranslate)) {
+					((fileURL, data, lang) => {
+						googleTranslate.translate(value, appLang4Google, workingLocales4Google, (err, translations) => {
+							if (err)
+								console.error(err);
+							else
+								value = translations.translatedText;
 
-            return data;
-        }
+							data = addLocal(type, data, lang, value);
+							fs.writeFileSync(fileURL, JSON.stringify(data, null, 4));
+							resolve();
+						});
+					})(urlFile, dataLocales, workingLocales);
+				} else {
+					dataLocales = addLocal(type, dataLocales, workingLocales, value);
+					if(!dataLocales || typeof dataLocales === 'undefined') {
+						console.log("WAZA");
+						console.log(type);
+						console.log(dataLocales);
+						console.log(workingLocales);
+						console.log(value);
+					}
+					fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
+					resolve();
+				}
+			}));
+		}
 
-        function doneLocales(cpt, length){
-            // If process is over we can continue
-            if(cpt == length){
-                Promise.all(languagePromises).then(function(){
-                    callback();
-                }).catch(function(err){
-                    console.error(err);
-                });
-            }
-        }
+		await Promise.all(promises);
+		return;
+	},
+	removeLocales: (appName, type, value) => {
+		// Get all the differents languages to handle
+		const localesDir = fs.readdirSync(__dirname + '/../workspace/' + appName + '/locales').filter(file => file.indexOf('.') !== 0 && file.slice(-5) === '.json' && file != "enum_radio.json");
 
-        // Get all the differents languages to handle
-        var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
-        });
+		localesDir.forEach(file => {
+			const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + file;
+			delete require.cache[require.resolve(urlFile)];
+			const dataLocales = require(urlFile); // eslint-disable-line
 
-        var nbLocales = localesDir.length;
-        var localesCpt = 0;
-        var manualModuleTranslationArray = ["home"];
-        var manualEntityTranslationArray = ["user", "role", "group"];
-        var manualFieldTranslationArray = ["login", "email", "role", "group", "label"];
+			if (type == "field")
+				delete dataLocales.entity[value[0]][value[1]];
+			else if (type == "entity")
+				delete dataLocales.entity[value];
+			else if (type == "module")
+				delete dataLocales.module[value];
 
-        localesDir.forEach(function(file){
-            var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
-            delete require.cache[require.resolve(urlFile)];
-            var dataLocales = require(urlFile);
-            var workingLocales = file.slice(0, -5);
-            var workingLocales4Google = workingLocales.slice(0, -3);
+			fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
+		});
 
-            if(type == "module" && manualModuleTranslationArray.indexOf(value.toLowerCase()) != -1){
-                if(value.toLowerCase() == "home"){
-                    if(workingLocales == "fr-FR"){
-                        dataLocales[type][keyValue.toLowerCase()] = "Accueil";
-                    }else{
-                        dataLocales[type][keyValue.toLowerCase()] = "Home";
-                    }
-                }
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-            } else if(type == "entity" && manualEntityTranslationArray.indexOf(value.toLowerCase()) != -1){
-                if(value.toLowerCase() == "user"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Utilisateur";
-                    }else{
-                        value = "User";
-                    }
-                } else if(value.toLowerCase() == "role"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Rôle";
-                    }else{
-                        value = "Role";
-                    }
-                } else if(value.toLowerCase() == "group"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Groupe";
-                    }else{
-                        value = "Group";
-                    }
-                }
+		return;
+	},
+	updateLocales: function(appName, lang, keys, value) {
+		const urlFile = __dirname + '/../workspace/' + appName + '/locales/' + lang + ".json";
+		const dataLocales = JSON.parse(fs.readFileSync(urlFile))
 
-                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-            } else if((type == "field" || type == "aliasfield") && manualFieldTranslationArray.indexOf(value.toLowerCase()) != -1){
-                if(value.toLowerCase() == "login"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Identifiant";
-                    }else{
-                        value = "Login";
-                    }
-                } else if(value.toLowerCase() == "role"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Rôle";
-                    }else{
-                        value = "Role";
-                    }
-                } else if(value.toLowerCase() == "email"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Email";
-                    }else{
-                        value = "Email";
-                    }
-                } else if(value.toLowerCase() == "group"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Groupe";
-                    }else{
-                        value = "Group";
-                    }
-                } else if(value.toLowerCase() == "label"){
-                    if(workingLocales == "fr-FR"){
-                        value = "Libellé";
-                    }else{
-                        value = "Label";
-                    }
-                }
-
-                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-
-            } else if(workingLocales != appLang){
-                if(translateKey != "" && toTranslate){
-                    googleTranslate.translate(value, appLang4Google, workingLocales4Google, function(err, translations) {
-                        if(!err){
-                            dataLocales = addLocales(type, translations.translatedText, dataLocales, workingLocales4Google);
-                        }
-                        else{
-                            console.error(err);
-                            dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                        }
-                        pushLanguagePromise(urlFile, dataLocales, file);
-                        localesCpt++;
-                        doneLocales(localesCpt, nbLocales);
-                    });
-                }
-                else{
-                    if(translateKey == "" && googleTranslate && toTranslate)
-                        console.log("Error: Empty API key for google translation!");
-
-                    dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-                    pushLanguagePromise(urlFile, dataLocales, file);
-                    localesCpt++;
-                    doneLocales(localesCpt, nbLocales);
-                }
-            } else{
-                dataLocales = addLocales(type, value, dataLocales, workingLocales4Google);
-
-                pushLanguagePromise(urlFile, dataLocales, file);
-                localesCpt++;
-                doneLocales(localesCpt, nbLocales);
-            }
-        });
-    },
-    removeLocales: function(idApplication, type, value, callback){
-        // Get all the differents languages to handle
-        var localesDir = fs.readdirSync(__dirname+'/../workspace/'+idApplication+'/locales').filter(function(file){
-            return (file.indexOf('.') !== 0) && (file.slice(-5) === '.json') && (file != "enum_radio.json");
-        });
-
-        localesDir.forEach(function(file){
-            var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+file;
-            delete require.cache[require.resolve(urlFile)];
-            var dataLocales = require(urlFile);
-
-            if(type == "field"){
-                delete dataLocales.entity[value[0]][value[1]];
-            } else if(type == "entity") {
-                delete dataLocales.entity[value];
-            } else if(type == "module") {
-                delete dataLocales.module[value];
-            }
-
-            fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
-        });
-
-        callback();
-    },
-    updateLocales: function(idApplication, lang, keys, value){
-        var urlFile = __dirname+'/../workspace/'+idApplication+'/locales/'+lang+".json";
-        delete require.cache[require.resolve(urlFile)]
-        var dataLocales = require(urlFile);
-
-        var depth = dataLocales;
-        for (var i=0; i<keys.length; i++) {
-            if (typeof depth[keys[i]] !== 'undefined'){
-                if(i+1 == keys.length)
-                    depth[keys[i]] = value;
-                else
-                    depth = depth[keys[i]];
-            } else{
-                if(i+1 == keys.length)
-                    depth[keys[i]] = value;
-            }
-        }
-        fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
-    }
+		let depth = dataLocales;
+		for (let i = 0; i < keys.length; i++) {
+			if (typeof depth[keys[i]] !== 'undefined') {
+				if (i + 1 == keys.length)
+					depth[keys[i]] = value;
+				else
+					depth = depth[keys[i]];
+			} else if (i + 1 == keys.length)
+				depth[keys[i]] = value;
+		}
+		fs.writeFileSync(urlFile, JSON.stringify(dataLocales, null, 4));
+	}
 }
