@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Template</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<!-- INSERT SIMPLE GRID HERE - DO NOT REMOVE -->
+		<style>
+			html {
+				margin: 0 !important;
+				padding: 0 !important;
+				font-size: 12px;
+			}
+
+			.new-page {
+				page-break-before: always;
+			}
+
+			/* Checkbox style */
+			input[type=checkbox] + label {display: block;margin: 0.2em;cursor: pointer;padding: 0.2em;}input[type=checkbox] {display: none;}input[type=checkbox] + label:before {content: "\2714";border: 0.1em solid #000;border-radius: 0.2em;display: inline-block;width: 1em;height: 1em;padding-left: 0.2em;padding-bottom: 0.3em;margin-right: 0.2em;vertical-align: bottom;color: transparent;transition: .2s;}input[type=checkbox] + label:active:before {transform: scale(0);}input[type=checkbox]:checked + label:before {background-color: #3c8dbc;border-color: #3c8dbc;color: #fff;}input[type=checkbox]:disabled + label:before {transform: scale(1);border-color: #aaa;}input[type=checkbox]:checked:disabled + label:before {transform: scale(1);background-color: #bfb;border-color: #bfb;}
+		</style>
+		{! See simplegrid documentation on => https://simplegrid.io/ !}
+		{! See html-pdf documentation on => https://www.npmjs.com/package/html-pdf !}
+	</head>
+	<body>
+
+		<div class="row" id="pageHeader-first">
+			<div class="col-12-sm" style='text-align: center;'>
+				Page Header Content 1
+			</div>
+		</div>
+		<div class="row" id="pageHeader-2">
+			<div class="col-12-sm" style='text-align: center;'>
+				Page Header Content 2
+			</div>
+		</div>
+
+		{! Page 1 !}
+		<div class='row'>
+			<div class="col-12-sm">
+				VARCHAR -> {f_name}<br>
+				NUMBER -> {f_number}<br>
+				BIG NUMBER -> {f_big_number}<br>
+				TEXT -> {f_text|s}<br>
+				REGULAR TEXT -> {f_regular_text}<br>
+				DECIMAL -> {f_decimal}<br>
+				DATE -> {f_date}<br>
+				DATETIME -> {f_datetime}<br>
+				TIME -> {f_time}<br>
+				BOOLEAN -> {f_boolean} -> {f_boolean_translation} ->
+				<input type='checkbox' value='f_boolean' {?f_boolean}checked{/f_boolean}>
+		 		<label for='f_boolean'>f_boolean</label>
+		 		<br>
+				EMAIL -> {f_email}<br>
+				TEL -> {f_tel}<br>
+				FAX -> {f_fax}<br>
+				MONEY -> {f_money}<br>
+				EURO -> {f_euro}<br>
+				QRCODE -> {f_qrcode}<br>
+				EAN -> {f_ean8}<br>
+				CODE39 -> {f_code39}<br>
+				URL -> {f_url}<br>
+				PASSWORD -> {f_password}<br>
+				COLOR -> {f_color}<br>
+				FILE -> {f_localfile|filename}<br>
+				IMAGE -> {?f_image}<img src="{f_image}" height="150" width="150">{/f_image}<br>
+				ENUM -> {f_enum} -> {f_enum_translation}<br>
+				RADIO -> {f_radio} -> {f_radio_translation}
+			</div>
+		</div>
+
+		{! Page 2 !}
+		<div class='row new-page'>
+			<div class="col-12-sm">
+				VARCHAR2 -> {f_name}<br>
+				NUMBER2 -> {f_number}<br>
+				BIG NUMBER2 -> {f_big_number}<br>
+				TEXT2 -> {f_text|s}<br>
+				REGULAR TEXT2 -> {f_regular_text}<br>
+				DECIMAL2 -> {f_decimal}<br>
+				DATE2 -> {f_date}<br>
+				DATETIME2 -> {f_datetime}<br>
+				TIME2 -> {f_time}<br>
+				BOOLEAN2 -> {f_boolean} -> {f_boolean_translation} ->
+				<input type='checkbox' value='f_boolean' {?f_boolean}checked{/f_boolean}>
+		 		<label for='f_boolean'>f_boolean</label>
+		 		<br>
+				EMAIL2 -> {f_email}<br>
+				TEL2 -> {f_tel}<br>
+				FAX2 -> {f_fax}<br>
+				MONEY2 -> {f_money}<br>
+				EURO2 -> {f_euro}<br>
+				QRCODE2 -> {f_qrcode}<br>
+				EAN2 -> {f_ean8}<br>
+				CODE392 -> {f_code39}<br>
+				URL2 -> {f_url}<br>
+				PASSWORD2 -> {f_password}<br>
+				COLOR2 -> {f_color}<br>
+				FILE2 -> {f_localfile|filename}<br>
+				IMAGE2 -> {?f_image}<img src="{f_image}" height="150" width="150">{/f_image}<br>
+				ENUM2 -> {f_enum} -> {f_enum_translation}<br>
+				RADIO2 -> {f_radio} -> {f_radio_translation}
+			</div>
+		</div>
+
+		<div class="row" id="pageFooter-first">
+			<div class="col-2-sm">
+				Newmips footer 1
+			</div>
+			<div class="col-8-sm" style='text-align: center;'>
+				06 66 66 66 66
+			</div>
+			<div class="col-2-sm">
+				**page** / **pages**
+			</div>
+		</div>
+		<div class="row" id="pageFooter-2">
+			<div class="col-2-sm">
+				Newmips footer 2
+			</div>
+			<div class="col-8-sm" style='text-align: center;'>
+				06 66 66 66 66
+			</div>
+			<div class="col-2-sm">
+				**page** / **pages**
+			</div>
+		</div>
+	</body>
+</html>

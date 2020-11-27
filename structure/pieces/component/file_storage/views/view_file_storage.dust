@@ -1,0 +1,69 @@
+<legend>
+	{#__ key="button.add"/}&nbsp;{#__ key="entity.ENTITY_VALUE.f_filename"/}
+</legend>
+
+<div data-field="f_filename" class="fieldLineHeight col-xs-12">
+    <div class="form-group">
+        <label for="f_filename">
+            {#__ key="entity.ENTITY_VALUE.f_filename"/}&nbsp;
+            {@inline_help field="f_filename"}
+            <i data-field="f_filename" class="inline-help fa fa-info-circle" style="color: #1085EE;"></i>
+            {/inline_help}
+        </label>
+        <div class="dropzone dropzone-field file-storage-dropzone" id="f_filename_dropzone"
+	        data-entity="ENTITY_VALUE"
+	        data-flag='{associationFlag}'
+	        data-source='{associationSource}'
+	        data-fk='{associationForeignKey}'
+	        data-alias='{associationAlias}'
+            data-url='{associationUrl}'>
+	    </div>
+        <input type="hidden" name="f_filename" id="f_filename_dropzone_hidden" value="">
+    </div>
+</div>
+
+<legend>
+	{#__ key="operation.list"/}&nbsp;{#__ key="entity.ENTITY_VALUE.f_filename"/}
+</legend>
+
+<table id="table_ENTITY_VALUE" data-url="/ENTITY_URL/datalist" class="dataTable table table-bordered table-striped animated fadeIn" style="display: none;">
+    <thead class="main">
+        <tr class="fields">
+            <th data-field="id" data-col="id" data-width="20%">
+                {#__ key="entity.ENTITY_VALUE.id_entity"/}&nbsp;
+                {#__ key="entity.ENTITY_VALUE.label_entity"/}
+            </th>
+            <th data-field="f_filename" data-col="f_filename" data-type="filename">
+                {#__ key="entity.ENTITY_VALUE.f_filename"/}
+            </th>
+            <th data-field="f_filename" data-col="f_filename" data-type="file" data-width="20%">
+                {#__ key="button.download"/}
+            </th>
+            {#actionAccess entity="ENTITY_URL" action="read"}
+            <th></th>
+            {/actionAccess}
+            {#actionAccess entity="ENTITY_URL" action="delete"}
+            <th></th>
+            {/actionAccess}
+        </tr>
+    </thead>
+    <thead class="filters">
+        <tr class="fields">
+            <th data-field="id" data-col="id">
+                {#__ key="entity.ENTITY_VALUE.id_entity"/}&nbsp;
+                {#__ key="entity.ENTITY_VALUE.label_entity"/}
+            </th>
+            <th data-field="f_filename" data-col="f_filename" data-type="string">
+                {#__ key="button.download"/}
+            </th>
+            {#actionAccess entity="ENTITY_URL" action="read"}
+            <th></th>
+            {/actionAccess}
+            {#actionAccess entity="ENTITY_URL" action="delete"}
+            <th></th>
+            {/actionAccess}
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>

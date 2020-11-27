@@ -57,6 +57,7 @@ $(document).ready(function() {
         $.ajax({
             url: '/ui_editor/getPage/' + entity + '/' + page,
             success: function(pageHtml) {
+                console.log(pageHtml);
                 $("#ui_editor").html(pageHtml);
                 // Remove mainControls who are not removed by modifying html
                 $(".ge-mainControls").remove();
@@ -69,9 +70,6 @@ $(document).ready(function() {
                 $("#ui_editor_apply_all_span").show();
                 $(".ui_editor_page").parents('li').removeClass('active');
                 $(self).parents('li').addClass('active');
-
-                if (page == "print")
-                    $("a#custom-grid-editor-print-layout").trigger("click");
             },
             error: function(err) {
                 console.error(err);
@@ -201,7 +199,7 @@ $(document).ready(function() {
     // Input instruction
     /////////
     var reg = new RegExp(/[^a-zA-Z0-9àâçéèêëîïôûùüÿñ_\-\,\ \'\!]/);
-    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
+    var instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
     var indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
     $("input#instruction").css("transition", "color 0.2s");
 
@@ -264,7 +262,7 @@ $(document).ready(function() {
             if (instructionHistory == null)
                 instructionHistory = [];
             instructionHistory.push($("#instruction").val());
-            localStorage.setItem("newmips_given_instruction_history_" + idApp, JSON.stringify(instructionHistory));
+            localStorage.setItem("newmips_given_instruction_history_" + appName, JSON.stringify(instructionHistory));
         }
 
         $("#execute_instruction").html("Loading...");
@@ -276,43 +274,30 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(data) {
 
-                if(data.iframe_url == -1){
-                    $("#loadingIframe").hide();
-                    $("#errorIframe").show();
-                    return;
-                }
-
                 if (data.toRedirect)
                     return window.location.href = data.url;
 
-                // Reload iframe
-                var iframe = document.getElementById("iframe");
-                iframe.src = data.iframe_url;
-
                 // Update session screen
-                if (typeof data.session.project.id_project !== "undefined" && data.session.project.id_project != null)
-                    $(".sessionProjectInfo").text(" " + data.session.project.id_project + " - " + data.session.project.name_project);
-                else
-                    $(".sessionProjectInfo").text(" " + data.session.project.noProject);
-                if (typeof data.session.application.id_application !== "undefined" && data.session.application.id_application != null)
-                    $(".sessionApplicationInfo").text(" " + data.session.application.id_application + " - " + data.session.application.name_application);
+                if (typeof data.session.application.name !== "undefined" && data.session.application.name != null)
+                    $(".sessionApplicationInfo").text(" " + data.session.application.name);
                 else
                     $(".sessionApplicationInfo").text(" " + data.session.application.noApplication);
-                if (typeof data.session.module.id_module !== "undefined" && data.session.module.id_module != null)
-                    $(".sessionModuleInfo").text(" " + data.session.module.id_module + " - " + data.session.module.name_module);
+                if (typeof data.session.module.name !== "undefined" && data.session.module.name != null)
+                    $(".sessionModuleInfo").text(" " + data.session.module.name);
                 else
                     $(".sessionModuleInfo").text(" " + data.session.module.noModule);
-                if (typeof data.session.data_entity.id_data_entity !== "undefined" && data.session.data_entity.id_data_entity != null)
-                    $(".sessionEntityInfo").text(" " + data.session.data_entity.id_data_entity + " - " + data.session.data_entity.name_data_entity);
+                if (typeof data.session.entity.name !== "undefined" && data.session.entity.name != null)
+                    $(".sessionEntityInfo").text(" " + data.session.entity.name);
                 else
-                    $(".sessionEntityInfo").text(" " + data.session.data_entity.noEntity);
+                    $(".sessionEntityInfo").text(" " + data.session.entity.noEntity);
 
                 // Keep instructionHistory up to date
-                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + idApp));
+                instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
                 indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;
                 // User instruction
                 var userItem = data.chat.items[data.chat.items.length - 2];
-                $("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + userItem.dateEmission + "</small>" + userItem.user + "</a><span class=\"standard-writing\" style=\"display: block;\">" + userItem.content + "</span></p></div><hr>");
+                if (userItem.user != 'Mipsy')
+                    $("#chat-box").append("<div class='item'><img src=\"/img/user.png\" alt=\"user image\"><p class=\"message\"><a href=\"#\" class=\"name\"><small class=\"text-muted pull-right\">" + userItem.dateEmission + "</small>" + userItem.user + "</a><span class=\"standard-writing\" style=\"display: block;\">" + userItem.content + "</span></p></div><hr>");
 
                 // Mipsy answer
                 var mipsyItem = data.chat.items[data.chat.items.length - 1];
@@ -332,13 +317,24 @@ $(document).ready(function() {
                         scrollTo: bottomCoord
                     });
 
+                    // Error
+                    if(data.iframe_url == -1){
+                        $("#loadingIframe").hide();
+                        $("#errorIframe").show();
+                        return;
+                    }
+
+                    // Reload iframe
+                    var iframe = document.getElementById("iframe");
+                    iframe.src = data.iframe_url;
+                    $("#errorIframe").hide();
+
                     // Update UI Editor selector with new entities
                     var defaultUISelectorText = $("#entitySelect option")[0].text;
                     $("#entitySelect").empty();
                     $("#entitySelect").append("<option default value=''>" + defaultUISelectorText + "</option>");
-                    for (var i = 0; i < data.entities.length; i++) {
-                        $("#entitySelect").append("<option value='" + data.entities[i].codeName + "'>" + data.entities[i].name + "</option>");
-                    }
+                    for (var i = 0; i < data.entities.length; i++)
+                        $("#entitySelect").append("<option value='" + data.entities[i]._name + "'>" + data.entities[i]._displayName + "</option>");
 
                     // Update Editor file selection
                     $("ul#sortable.sidebar-menu").empty();
@@ -363,7 +359,7 @@ $(document).ready(function() {
                     $("ul#sortable.sidebar-menu").append(content);
                     $(".sidebar .treeview").tree();
                     // Reset Code Editor
-                    if (typeof myEditor !== "undefined" && !data.isRestart) {
+                    if (typeof myEditor !== "undefined") {
                         $("#codemirror-editor li.load-file").each(function() {
                             $(this).remove();
                         });
@@ -375,20 +371,18 @@ $(document).ready(function() {
                     }
 
                     // Reset UI Editor
-                    if (!data.isRestart) {
-                        $("#pages").slideUp();
-                        entity = null;
-                        page = null;
-                        $("#ui_editor").html("");
-                        // Enable gridEditor
-                        $("#ui_editor").gridEditor();
-                        // Remove mainControls who are not removed by modifying html
-                        $(".ge-mainControls").remove();
-                        $("#ui_editor_save").hide();
-                        $("#ui_editor_tips").hide();
-                        $("#ui_editor_apply_all").hide();
-                        $("#ui_editor_apply_all_span").hide();
-                    }
+                    $("#pages").slideUp();
+                    entity = null;
+                    page = null;
+                    $("#ui_editor").html("");
+                    // Enable gridEditor
+                    $("#ui_editor").gridEditor();
+                    // Remove mainControls who are not removed by modifying html
+                    $(".ge-mainControls").remove();
+                    $("#ui_editor_save").hide();
+                    $("#ui_editor_tips").hide();
+                    $("#ui_editor_apply_all").hide();
+                    $("#ui_editor_apply_all_span").hide();
 
                     // Wait a little for Iframe to refresh
                     setTimeout(function() {
@@ -436,7 +430,7 @@ $(document).ready(function() {
                 var completeVal = ui.item.value;
                 // If complete value have already typed string in it, dont concat with current value
                 if (completeVal.indexOf(this.value) == 0) {
-                    this.value = completeVal.split("[variable]").join("").trim();
+                    this.value = completeVal.split("[variable]").join("").split('[type]').join("").trim();
                 } else {
                     // Remove the last word of already typed instruction because it is also in the completed value
                     var parts = this.value.split(' ');
@@ -451,7 +445,7 @@ $(document).ready(function() {
                         if (compareNum <= completeVal.length && completeVal.substring(0, compareNum) == parts[parts.length - 1])
                             parts.pop();
                     }
-                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").trim();
+                    this.value = parts.join(' ') + ' ' + completeVal.split("[variable]").join("").split('[type]').join("").trim();
                 }
 
                 var TABKEY = 9;
@@ -478,12 +472,12 @@ $(document).ready(function() {
     var logsInterval;
     var objDiv = document.getElementById("logs-content");
     function updateLog() {
-        if($('#logs-content').is(":visible") && !flagStopReload){
+        if($('#logs-content').is(":visible") && !$('#disabled_refresh_logs').prop('checked')){
             $.ajax({
                 url: '/default/update_logs',
                 method: "POST",
                 data: {
-                    idApp: idApp
+                    appName: appName
                 },
                 success: function(data) {
                     $("#logs-content").html(data);
@@ -522,18 +516,6 @@ $(document).ready(function() {
                     flagBottom = false;
                 }
             });
-        }
-    });
-
-    /* Stop logs from reloading for 10 seconds to enable user to copy/paste */
-    $(document).on('mousedown', '#logs-content', function(e) {
-        /* Only right click */
-        if(e.which == 1){
-            flagStopReload = true;
-            setTimeout(function(){
-                console.log("END");
-                flagStopReload = false;
-            }, 10000)
         }
     });
 })

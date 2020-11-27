@@ -1,5 +1,6 @@
 {
 	"version": 0,
+	"versionAppli": "1",
 	"api_enabled": true,
 	"socket": {
 		"enabled": true,
@@ -26,5 +27,6 @@
 			"e_user"
 		]
 	},
-	"lang": "fr-FR"
+	"lang": "fr-FR",
+	"timezone": "Europe/Paris"
 }

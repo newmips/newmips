@@ -1,22 +1,22 @@
 {>"layout_m_administration" /}
 {<header}
-    <h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
-    <ol class="breadcrumb">
-        <li>
-            <a href="/">
-                <i class="fa fa-home"></i>
-                {#__ key="module.home"/}
-            </a>
-        </li>
-        <li>
-            <a class='sub-module-arianne' href='/default/administration'>
-                {#__ key="module.m_administration"/}
-            </a>
-        </li>
-        <li class="active">
-            {#__ key="settings.db_tool.title" /}
-        </li>
-    </ol>
+	<h1>{#__ key="module.m_administration"/}<small>{#__ key="module.module"/}</small></h1>
+	<ol class="breadcrumb">
+		<li>
+			<a href="/">
+				<i class="fa fa-home"></i>
+				{#__ key="module.home"/}
+			</a>
+		</li>
+		<li>
+			<a class='sub-module-arianne' href='/default/administration'>
+				{#__ key="module.m_administration"/}
+			</a>
+		</li>
+		<li class="active">
+			{#__ key="settings.db_tool.title" /}
+		</li>
+	</ol>
 {/header}
 {<content}
 <div class="row">
@@ -49,7 +49,7 @@
 											<br>
 											<span id="checkbox-entities" style="margin-bottom: 15px;">
 												{#entities}
-												<input type="checkbox" name="{tableName}" />&nbsp;&nbsp;{#__ key=tradKey /}<br>
+													<input type="checkbox" name="{tableName}" />&nbsp;&nbsp;{#__ key=tradKey /}&nbsp;<b>({tableName})</b><br>
 												{/entities}
 											</span>
 											<br>
@@ -65,11 +65,11 @@
 									<form action="/import_export/db_import" method="POST" id="import_form">
 										<div class="col-xs-12">
 											<div class="form-group">
-											    <label for="import_file">
-											        {#__ key="settings.db_tool.import_file"/}
-											    </label>
-											    <div class="dropzone dropzone-field" id="import_file_dropzone" data-entity="db_import"></div>
-											    <input type="hidden" name="import_file" id="import_file_dropzone_hidden" required>
+												<label for="import_file">
+													{#__ key="settings.db_tool.import_file"/}
+												</label>
+												<div class="dropzone dropzone-field" id="import_file_dropzone" data-entity="db_tool"></div>
+												<input type="hidden" name="import_file" id="import_file_dropzone_hidden" required>
 											</div>
 											<br>
 											<button data-toggle="modal" data-action='{#__ key="settings.db_tool.import_action" /}' data-target="#db_password" class="btn btn-primary btn-modal">{#__ key="settings.db_tool.import_action" /}</button>
@@ -85,22 +85,22 @@
 	</div>
 </div>
 <div id="db_password" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">{#__ key="settings.db_tool.modal_password_title" /}</h4>
-            </div>
-            <div class="modal-body">
-            	<label>{#__ key="settings.db_tool.modal_password_content" /}</label>
-            	<input type="password" name="db_password" class="form-control input">
-            </div>
-            <div class="modal-footer">
-            	<button type="button" class="btn btn-primary" id="execute_button"></button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.close" /}</button>
-            </div>
-        </div>
-    </div>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">{#__ key="settings.db_tool.modal_password_title" /}</h4>
+			</div>
+			<div class="modal-body">
+				<label>{#__ key="settings.db_tool.modal_password_content" /}</label>
+				<input type="password" name="db_password" class="form-control input">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="execute_button"></button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">{#__ key="button.close" /}</button>
+			</div>
+		</div>
+	</div>
 </div>
 {/content}
 

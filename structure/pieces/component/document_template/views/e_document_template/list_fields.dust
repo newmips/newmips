@@ -1,0 +1,44 @@
+<table id="table_e_document_template" data-url="/document_template/datalist" class="dataTable table table-bordered table-striped">
+	<thead class="main">
+		<tr class="fields">
+			<th data-field="id" data-col="id">
+				{#__ key="entity.e_document_template.id_entity"/}&nbsp;
+				{#__ key="entity.e_document_template.label_entity"/}
+			</th>
+			<th data-field="f_name" data-col="f_name" data-type="string">
+				{#__ key="entity.e_document_template.f_name"/}
+			</th>
+			<th data-field="f_file" data-col="f_file" data-type="file">
+				{#__ key="entity.e_document_template.f_file"/}
+			</th>
+			<th data-field="f_entity" data-col="f_entity" data-type="string">
+				{#__ key="entity.e_document_template.f_entity"/}
+			</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<thead class="filters">
+		<tr class="fields">
+			<th data-field="id" data-col="id">
+				{#__ key="entity.e_document_template.id_entity"/}&nbsp;
+				{#__ key="entity.e_document_template.label_entity"/}
+			</th>
+			<th data-field="f_name" data-col="f_name" data-type="string">
+				{#__ key="entity.e_document_template.f_name"/}
+			</th>
+			<th data-field="f_file" data-col="f_file" data-type="file">
+				{#__ key="entity.e_document_template.f_file"/}
+			</th>
+			<th data-field="f_entity" data-col="f_entity" data-type="string">
+				{#__ key="entity.e_document_template.f_entity"/}
+			</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>

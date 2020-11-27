@@ -11,7 +11,7 @@
 				{#__ key="module.home"/}
 			</a>
 		</li>
-        <!-- NEW MODULE -->
+		<!-- NEW MODULE -->
 	</ol>
 {/header}
 
@@ -26,8 +26,8 @@
 <script src="/js/plugins/palettes/palettes.js" type="text/javascript"></script>
 <script type="text/javascript" src="/js/Newmips/widgets.js"></script>
 <script type="text/javascript">
-    $(function() {
-        initWidgets();
-    });
+	$(function() {
+		initWidgets();
+	});
 </script>
 {/custom_js}

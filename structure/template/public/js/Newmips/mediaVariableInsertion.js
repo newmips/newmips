@@ -190,7 +190,7 @@ $(function() {
         var type = $(this).data('type');
 
         /* Placeholder selection */
-        if (data.id == "-1")
+        if (data.id == "-1" || data.id == 'nps_clear_select')
             return;
 
         // Get value to insert from Handler
@@ -208,7 +208,9 @@ $(function() {
         else if (targetElement.is('textarea')) {
             /* Add new variable to textarea content */
             var rootElement = $('<div>' + targetElement.val() + '</div>');
-            targetElement.val(rootElement.html() + insertValue)
+            var newValue = rootElement.html() + insertValue;
+            targetElement.val(newValue);
+            $(targetElement).summernote('code', newValue);
         }
         // Reset selection and close select2 dropdown
         $(this).find("option:first").prop('selected', true);

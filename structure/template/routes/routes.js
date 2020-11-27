@@ -1,6 +1,4 @@
-const moment = require('moment');
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const block_access = require('../utils/block_access');
 const auth = require('../utils/auth_strategies');
 const bcrypt = require('bcrypt-nodejs');
@@ -8,249 +6,245 @@ const crypto = require('crypto');
 const mailer = require('../utils/mailer');
 const svgCaptcha = require('svg-captcha');
 const models = require('../models/');
+const globalConf = require('../config/global');
 
-// =====================================
-// HOME PAGE (with login links) ========
-// =====================================
-
-/* GET home page. */
-router.get('/', function(req, res) {
-    res.redirect('/login');
+// Home
+router.get('/', (req, res) => {
+	res.redirect('/login');
 });
 
 // Route used to redirect to set_status when submitting comment modal
-router.post('/status_comment', block_access.isLoggedIn, function(req, res) {
-    res.redirect('/'+req.body.parentName+'/set_status/'+req.body.parentId+'/'+req.body.field+'/'+req.body.statusId+'?comment='+encodeURIComponent(req.body.comment));
+router.post('/status_comment', block_access.isLoggedIn, (req, res) => {
+	res.redirect('/'+req.body.parentName+'/set_status/'+req.body.parentId+'/'+req.body.field+'/'+req.body.statusId+'?comment='+encodeURIComponent(req.body.comment));
 });
 
-// =====================================
-// LOGIN ===============================
-// =====================================
-router.get('/login', block_access.loginAccess, function(req, res) {
+// Login
+router.get('/login', block_access.loginAccess, (req, res) => {
 
-    let message, captcha;
-    if(typeof req.session.flash !== "undefined"
-        && typeof req.session.flash.error !== "undefined"
-        && req.session.flash.error.length != 0)
-        message = req.session.flash.error[0];
+	let captcha;
+	if(req.session.loginAttempt >= 5){
+		const loginCaptcha = svgCaptcha.create({
+			size: 4, // size of random string
+			ignoreChars: '0oO1iIlL', // filter out some characters
+			noise: 1, // number of noise lines
+			color: false,
+			width: 500
+		});
+		req.session.loginCaptcha = loginCaptcha.text;
+		captcha = loginCaptcha.data;
+	}
 
-    delete req.session.flash;
-
-    if(req.session.loginAttempt >= 5){
-        let loginCaptcha = svgCaptcha.create({
-            size: 4, // size of random string
-            ignoreChars: '0oO1iIlL', // filter out some characters
-            noise: 1, // number of noise lines
-            color: false,
-            width: 500
-        });
-        req.session.loginCaptcha = loginCaptcha.text;
-        captcha = loginCaptcha.data;
-    }
-
-    res.render('login/login', {
-        message: message,
-        captcha: captcha,
-        redirect: req.query.r ? req.query.r : null
-    });
+	res.render('login/login', {
+		captcha: captcha,
+		redirect: req.query.r ? req.query.r : null
+	});
 });
 
-router.post('/login', auth.isLoggedIn, function(req, res) {
+router.post('/login', auth.isLoggedIn, (req, res) => {
 
-    if (req.body.remember_me)
-        req.session.cookie.maxAge = 168 * 3600000; // 1 week
-    else
-        req.session.cookie.expires = false; // Logout on browser exit
+	if (req.body.remember_me)
+		req.session.cookie.maxAge = 168 * 3600000; // 1 week
+	else
+		req.session.cookie.expires = false; // Logout on browser exit
 
-    let redirect = req.query.r ? req.query.r : "/default/home";
-    res.redirect(redirect);
+	const redirect = req.query.r ? req.query.r : "/default/home";
+	res.redirect(redirect);
 });
 
-router.get('/refresh_login_captcha', function(req, res) {
-    let captcha = svgCaptcha.create({
-        size: 4,
-        ignoreChars: '0oO1iIlL',
-        noise: 1,
-        color: false,
-        width: "500"
-    });
-    req.session.loginCaptcha = captcha.text;
-    res.status(200).send(captcha.data);
+router.get('/refresh_login_captcha', (req, res) => {
+	const captcha = svgCaptcha.create({
+		size: 4,
+		ignoreChars: '0oO1iIlL',
+		noise: 1,
+		color: false,
+		width: "500"
+	});
+	req.session.loginCaptcha = captcha.text;
+	res.status(200).send(captcha.data);
 });
 
-router.get('/first_connection', block_access.loginAccess, function(req, res) {
-    res.render('login/first_connection');
+router.get('/first_connection', block_access.loginAccess, (req, res) => {
+	res.render('login/first_connection');
 });
 
-router.post('/first_connection', block_access.loginAccess, function(req, res, done) {
-    var login_user = req.body.login_user;
+router.post('/first_connection', block_access.loginAccess, (req, res) => {
+	const login = req.body.login;
+	const passwordRegex = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/);
 
-    models.E_user.findOne({
-        where: {
-            f_login: login_user,
-            $or: [{f_password: ""}, {f_password: null}],
-            f_enabled: 0
-        }
-    }).then(function(user){
-        if(!user){
-            req.flash('loginMessage', "login.first_connection.userNotExist");
-            res.redirect('/login');
-        } else if (user.f_password != "" && user.f_password != null){
-            req.flash('loginMessage', "login.first_connection.alreadyHavePassword");
-            res.redirect('/login');
-        } else {
-            var password = bcrypt.hashSync(req.body.password_user2, null, null);
+	(async () => {
 
-            user.update({
-                f_password: password,
-                f_enabled: 1
-            }).then(() => {
-                models.E_user.findOne({
-                    where: {id: user.id},
-                    include: [{
-                        model: models.E_group,
-                        as: 'r_group'
-                    }, {
-                        model: models.E_role,
-                        as: 'r_role'
-                    }]
-                }).then(function(user) {
-                    req.login(user, (err) => {
-                        if (err) {
-                            console.error(err);
-                            req.flash('loginMessage', "login.first_connection.success");
-                            return res.redirect('/login');
-                        }
-                        req.session.toastr = [{
-                            message: "login.first_connection.success2",
-                            level: "success"
-                        }];
-                        res.redirect('/default/home');
-                    })
-                })
-            })
-        }
-    }).catch(function(err){
-        req.flash('loginMessage', err.message);
-        res.redirect('/login');
-    })
+		if (globalConf.env != 'develop' && (req.body.password != req.body.confirm_password || !passwordRegex.test(req.body.password)))
+			throw new Error("login.first_connection.passwordNotValid");
+
+		const user = await models.E_user.findOne({
+			where: {
+				f_login: login,
+				f_enabled: 0
+			},
+			include: [{
+				model: models.E_group,
+				as: 'r_group'
+			}, {
+				model: models.E_role,
+				as: 'r_role'
+			}]
+		})
+
+		if (!user)
+			throw new Error("login.first_connection.userNotExist");
+
+		if (user.f_password && user.f_password != '')
+			throw new Error("login.first_connection.alreadyHavePassword");
+
+		const password = bcrypt.hashSync(req.body.confirm_password, null, null);
+
+		await user.update({
+			f_password: password,
+			f_enabled: 1
+		})
+
+		return user;
+	})().then(user => {
+		req.login(user, err => {
+			if (err) {
+				console.error(err);
+				req.session.toastr = [{
+					message: err.message,
+					level: "warn"
+				}];
+				return res.redirect('/login');
+			}
+			req.session.toastr = [{
+				message: "login.first_connection.success_login",
+				level: "success"
+			}];
+			// Reset potential captcha
+			delete req.session.loginAttempt;
+			res.redirect('/default/home');
+		})
+	}).catch(err => {
+		console.error(err);
+		req.session.toastr = [{
+			message: err.message,
+			level: "error"
+		}];
+		res.redirect('/first_connection');
+	})
 })
 
 // Affichage de la page reset_password
-router.get('/reset_password', block_access.loginAccess, function(req, res) {
-    res.render('login/reset_password', {
-        message: req.flash('loginMessage')
-    });
+router.get('/reset_password', block_access.loginAccess, (req, res) => {
+	res.render('login/reset_password');
 });
 
-// Reset password, Generate token, insert into DB, send email
-router.post('/reset_password', block_access.loginAccess, function(req, res) {
-    var login_user = req.body.login;
-    var given_mail = req.body.mail;
+// Reset password - Generate token, insert into DB, send email
+router.post('/reset_password', block_access.loginAccess, (req, res) => {
+	(async () => {
+		// Check if user with login + email exist in DB
+		const user = await models.E_user.findOne({
+			where: {
+				f_login: req.body.login.toLowerCase(),
+				f_email: req.body.email
+			}
+		});
 
-    function resetPasswordProcess(user) {
-        // Create unique token and insert into user
-        var token = crypto.randomBytes(64).toString('hex');
+		if(!user)
+			throw new Error("login.reset_password.userNotExist");
 
-        models.E_user.update({
-            f_token_password_reset: token
-        }, {
-            where: {
-                id: user.id
-            }
-        }).then(function(){
-            // Send email with generated token
-            var mailOptions = {
-                data: {
-                    href: mailer.config.host + '/reset_password/' + token,
-                    user: user
-                },
-                from: mailer.config.expediteur,
-                to: given_mail,
-                subject: 'Newmips, modification de mot de passe'
-            }
-            mailer.sendTemplate('mail_reset_password', mailOptions).then(function() {
-                res.render('login/reset_password', {
-                    message: "login.reset_password.successMail"
-                });
-            }).catch(function(err) {
-                // Remove inserted value in user to avoid zombies
-                models.E_user.update({f_token_password_reset: null}, {where: {id: user.id}}).then(function(){
-                    res.render('login/reset_password', {
-                        message: err.message
-                    });
-                });
-            });
-        }).catch(function(err){
-            res.render('login/reset_password', {
-                message: err.message
-            });
-        });
-    }
+		if(!user.f_enabled)
+			throw new Error("login.not_enabled");
 
-    models.E_user.findOne({
-        where: {
-            f_login: login_user,
-            f_email: given_mail
-        }
-    }).then(function(user){
-        if(user){
-            resetPasswordProcess(user);
-        } else {
-            res.render('login/reset_password', {
-                message: "login.reset_password.userNotExist"
-            });
-        }
-    }).catch(function(err){
-        res.render('login/reset_password', {
-            message: err.message
-        });
-    });
-});
+		// Create unique token and insert into user
+		const token = crypto.randomBytes(64).toString('hex');
+
+		await user.update({
+			f_token_password_reset: token
+		});
+
+		// Send email with generated token
+		const mailOptions = {
+			data: {
+				href: mailer.config.host + '/reset_password/' + token,
+				user: user
+			},
+			from: mailer.config.expediteur,
+			to: req.body.email,
+			subject: 'Newmips - Réinitialisation de votre mot de passe'
+		}
+		await mailer.sendTemplate('mail_reset_password', mailOptions);
+	})().then(_ => {
+		req.session.toastr = [{
+			message: "login.reset_password.successMail",
+			level: "success"
+		}];
+		// Reset potential captcha
+		delete req.session.loginAttempt;
+		res.redirect('/');
+	}).catch(err => {
+		// Remove inserted value in user to avoid zombies
+		models.E_user.update({
+			f_token_password_reset: null
+		}, {
+			where: {
+				f_login: req.body.login.toLowerCase()
+			}
+		}).catch(err => {console.error(err);})
+
+		console.error(err);
+		req.session.toastr = [{
+			message: err.message,
+			level: "error"
+		}];
+		res.render('login/reset_password');
+	})
+})
 
 // Trigger password reset
-router.get('/reset_password/:token', block_access.loginAccess, function(req, res) {
+router.get('/reset_password/:token', block_access.loginAccess, (req, res) => {
+	models.E_user.findOne({
+		where: {
+			f_token_password_reset: req.params.token
+		}
+	}).then(user => {
+		if (!user) {
+			req.session.toastr = [{
+				message: "login.reset_password.cannotFindToken",
+				level: 'error'
+			}];
+			return res.redirect('/login');
+		}
 
-    models.E_user.findOne({
-        where: {
-            f_token_password_reset: req.params.token
-        }
-    }).then(function(user){
-        if(!user){
-            res.render('login/reset_password', {
-                message: "login.reset_password.cannotFindToken"
-            });
-        }
-        else{
-            models.E_user.update({
-                f_password: null,
-                f_token_password_reset: null,
-                f_enabled: 0
-            }, {
-                where: {
-                    id: user.id
-                }
-            }).then(function(){
-                // Redirect to firt connection page
-                res.render('login/first_connection', {
-                    message: "login.reset_password.success"
-                });
-            });
-        }
-    }).catch(function(err){
-        res.render('login/reset_password', {
-            message: err.message
-        });
-    });
+		user.update({
+			f_password: null,
+			f_token_password_reset: null,
+			f_enabled: 0
+		}).then(_ => {
+			req.session.toastr = [{
+				message: "login.reset_password.success",
+				level: 'success'
+			}];
+			res.redirect('/first_connection');
+		});
+	}).catch(err => {
+		req.session.toastr = [{
+			message: err.message,
+			level: 'error'
+		}];
+		res.redirect('/login');
+	});
 });
 
 // =====================================
 // LOGOUT ==============================
 // =====================================
-router.get('/logout', function(req, res) {
-    req.session.autologin = false;
-    req.logout();
-    res.redirect('/login');
+router.get('/logout', (req, res) => {
+	req.session.autologin = false;
+	req.logout();
+	req.session.toastr = [{
+		message: "login.logout_sucess",
+		level: "success"
+	}];
+	res.redirect('/login');
 });
 
 module.exports = router;

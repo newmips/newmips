@@ -1,31 +1,27 @@
-var fs = require('fs');
-var path = require('path');
-var basename = path.basename(module.filename);
-var attrHelper = require('../utils/attr_helper');
-var block_access = require('../utils/block_access');
+const fs = require('fs-extra');
+const path = require('path');
+const basename = path.basename(module.filename);
+const block_access = require('../utils/block_access');
 
-module.exports = function(app) {
-	fs.readdirSync(__dirname).filter(function(file){
-		return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
-	}).forEach(function(file){
+module.exports = app => {
+	fs.readdirSync(__dirname).filter(file => file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js').forEach(file => {
 		file = file.slice(0, -3);
 		switch (file) {
 			case 'routes':
-				app.use('/', require('./'+file));
+				app.use('/', require('./' + file)); // eslint-disable-line
 				break;
-
-			case 'default':
-			case 'db_tool':
-				app.use('/'+file, require('./'+file));
-				break;
-
 			case 'chat':
-			case 'e_notification':
-				app.use('/'+attrHelper.removePrefix(file, "entityOrComponent"), block_access.isLoggedIn, require('./'+file));
+			case 'default':
+				app.use('/' + file, require('./' + file)); // eslint-disable-line
 				break;
-
+			case 'import_export':
+				app.use('/' + file, block_access.entityAccessMiddleware('import_export'), require('./' + file)); // eslint-disable-line
+				break;
+			case 'e_notification':
+				app.use('/' + file.substring(2), block_access.isLoggedIn, require('./' + file)); // eslint-disable-line
+				break;
 			default:
-				app.use('/'+attrHelper.removePrefix(file, "entityOrComponent"), block_access.isLoggedIn, block_access.entityAccessMiddleware(attrHelper.removePrefix(file, "entityOrComponent")), require('./'+file));
+				app.use('/' + file.substring(2), block_access.isLoggedIn, block_access.entityAccessMiddleware(file.substring(2)), require('./' + file)); // eslint-disable-line
 				break;
 		}
 	});

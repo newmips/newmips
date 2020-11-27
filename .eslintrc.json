@@ -1,0 +1,89 @@
+{
+	"env": {
+		"node": true,
+		"es6": true
+	},
+	"extends": "eslint:recommended",
+	"globals": {
+		"Atomics": "readonly",
+		"SharedArrayBuffer": "readonly",
+		"$": "readonly",
+		"toastr": "readonly"
+	},
+	"parserOptions": {
+		"ecmaVersion": 2018
+	},
+	"rules": {
+		"array-callback-return": "error",
+		"arrow-body-style": ["error", "as-needed", { "requireReturnForObjectLiteral": true }],
+		"block-scoped-var": "error",
+		"brace-style": 0,
+		"comma-spacing": ["error", {
+			"before": false,
+			"after": true
+		}],
+		"complexity": 0,
+		"constructor-super": "warn",
+		"curly": 0,
+		"default-case": "error",
+		"no-multiple-empty-lines": ["error", {
+			"max": 2,
+			"maxEOF": 1
+		}],
+		"for-direction": "error",
+		"global-require": "warn",
+		"no-array-constructor": "error",
+		"no-async-promise-executor": "error",
+		"no-await-in-loop": "warn",
+		"no-class-assign": "error",
+		"no-cond-assign": "error",
+		"no-confusing-arrow": ["error", {
+			"allowParens": true
+		}],
+		"no-dupe-args": "error",
+		"no-dupe-keys": "error",
+		"no-duplicate-case": "error",
+		"no-duplicate-imports": "error",
+		"no-else-return": "error",
+		"no-empty-function": "error",
+		"no-empty-pattern": "error",
+		"no-empty": "error",
+		"no-eval": "error",
+		"no-ex-assign": "error",
+		"no-extra-parens": "error",
+		"no-extra-semi": "error",
+		"no-func-assign": "error",
+		"no-global-assign": "error",
+		"no-inner-declarations": "warn",
+		"no-invalid-this": "error",
+		"no-irregular-whitespace": "error",
+		"no-lonely-if": "error",
+		"no-multi-spaces": "warn",
+		"no-obj-calls": "error",
+		"no-redeclare": "error",
+		"no-sparse-arrays": "error",
+		"indent": ["error", "tab", {"SwitchCase": 1}],
+		"no-this-before-super": "error",
+		"no-trailing-spaces": "error",
+		"no-undef": "warn",
+		"no-unexpected-multiline": "warn",
+		"no-unneeded-ternary": "warn",
+		"no-unreachable": "error",
+		"no-unsafe-finally": "error",
+		"no-unsafe-negation": "error",
+		"no-unused-expressions": "error",
+		"no-unused-vars": ["error", { "argsIgnorePattern": "^_{1}" }],
+		"no-use-before-define": "error",
+		"no-var": 2,
+		"prefer-const": "warn",
+		"prefer-rest-params": "error",
+		"require-atomic-updates": 0,
+		"require-await": "error",
+		"require-yield": "error",
+		"use-isnan": "error",
+		"valid-typeof": ["error", {
+			"requireStringLiterals": true
+		}],
+		"vars-on-top": "warn"
+	}
+}

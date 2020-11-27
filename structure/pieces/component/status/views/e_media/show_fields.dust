@@ -1,57 +1,63 @@
 <div id="fields" class="row">
-    <div data-field="f_type" class="col-xs-12">
-        <div class="form-group">
-            <label for="f_type"> {#__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            {^f_type}
-            <input class="form-control input" placeholder='{#__ key="entity.e_media.f_type" /}' name="f_type" type="text" readonly="">
-            {/f_type}
-            {#enum_radio.e_media.f_type}
-            {@eq key=f_type value="{.value}" }
-            <input class="form-control input" placeholder='{#__ key="entity.e_media.f_type" /}' name="f_type" value="{.translation}" type="text" readonly="">
-            {/eq}
-            {/enum_radio.e_media.f_type}
-        </div>
-    </div>
-    <div data-field="f_name" class="col-xs-12">
-        <div class="form-group">
-            <label for="f_name"> {#__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
-            <input class="form-control input" placeholder='{#__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
-        </div>
-    </div>
-    {@eq key=f_type value="mail"}
-        <div id="r_media_mail" class="col-xs-12">
-            {#r_media_mail}
-            {>"e_media_mail/show_fields" hideTab="true"/}
-            {:else}
-            {#__ key="message.empty" /}<br><br>
-            {/r_media_mail}
-        </div>
-    {/eq}
-    {@eq key=f_type value="notification"}
-        <div id="r_media_notification" class="col-xs-12">
-            {#r_media_notification}
-            {>"e_media_notification/show_fields" hideTab="true"/}
-            {:else}
-            {#__ key="message.empty" /}<br><br>
-            {/r_media_notification}
-        </div>
-    {/eq}
-    {@eq key=f_type value="sms"}
-        <div id="r_media_sms" class="col-xs-12">
-            {#r_media_sms}
-            {>"e_media_sms/show_fields" hideTab="true"/}
-            {:else}
-            {#__ key="message.empty" /}<br><br>
-            {/r_media_sms}
-        </div>
-    {/eq}
-    {@eq key=f_type value="task"}
-        <div id="r_media_task" class="col-xs-12">
-            {#r_media_task}
-            {>"e_media_task/show_fields" hideTab="true"/}
-            {:else}
-            {#__ key="message.empty" /}<br><br>
-            {/r_media_task}
-        </div>
-    {/eq}
+	<div data-field="f_name" class="col-xs-12 col-sm-4">
+		<div class="form-group">
+			<label for="f_name"> {#__ key="entity.e_media.f_name"/} {@inline_help field="f_name"}&nbsp;<i data-field="f_name" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<input class="form-control input" placeholder='{#__ key="entity.e_media.f_name" /}' name="f_name" value="{f_name}" type="text" readonly="">
+		</div>
+	</div>
+	<div data-field="f_type" class="col-xs-12 col-sm-4">
+		<div class="form-group">
+			<label for="f_type"> {#__ key="entity.e_media.f_type"/} {@inline_help field="f_type"}&nbsp;<i data-field="f_type" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			{^f_type}
+			<input class="form-control input" placeholder='{#__ key="entity.e_media.f_type" /}' name="f_type" type="text" readonly="">
+			{/f_type}
+			{#enum_radio.e_media.f_type}
+			{@eq key=f_type value="{.value}" }
+			<input class="form-control input" placeholder='{#__ key="entity.e_media.f_type" /}' name="f_type" value="{.translation}" type="text" readonly="">
+			{/eq}
+			{/enum_radio.e_media.f_type}
+		</div>
+	</div>
+	<div data-field="f_target_entity" class="col-xs-12 col-sm-4">
+		<div class="form-group">
+			<label for="f_target_entity"> {#__ key="entity.e_media.f_target_entity"/} {@inline_help field="f_target_entity"}&nbsp;<i data-field="f_target_entity" class="inline-help fa fa-info-circle" style="color: #1085EE"></i>{/inline_help} </label>
+			<input class="form-control input" required="" name="f_target_entity" value="{f_target_entity}" type="text" readonly="">
+		</div>
+	</div>
+	{@eq key=f_type value="mail"}
+		<div id="r_media_mail" class="col-xs-12">
+			{#r_media_mail}
+			{>"e_media_mail/show_fields" hideTab="true"/}
+			{:else}
+			{#__ key="message.empty" /}<br><br>
+			{/r_media_mail}
+		</div>
+	{/eq}
+	{@eq key=f_type value="notification"}
+		<div id="r_media_notification" class="col-xs-12">
+			{#r_media_notification}
+			{>"e_media_notification/show_fields" hideTab="true"/}
+			{:else}
+			{#__ key="message.empty" /}<br><br>
+			{/r_media_notification}
+		</div>
+	{/eq}
+	{@eq key=f_type value="sms"}
+		<div id="r_media_sms" class="col-xs-12">
+			{#r_media_sms}
+			{>"e_media_sms/show_fields" hideTab="true"/}
+			{:else}
+			{#__ key="message.empty" /}<br><br>
+			{/r_media_sms}
+		</div>
+	{/eq}
+	{@eq key=f_type value="task"}
+		<div id="r_media_task" class="col-xs-12">
+			{#r_media_task}
+			{>"e_media_task/show_fields" hideTab="true"/}
+			{:else}
+			{#__ key="message.empty" /}<br><br>
+			{/r_media_task}
+		</div>
+	{/eq}
 </div>

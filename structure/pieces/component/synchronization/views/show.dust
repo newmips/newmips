@@ -71,37 +71,37 @@
 
 {<custom_js}
 <script type="text/javascript">
-    function checkSynchroState() {
-        $.ajax({
-            url: '/synchronization/check_state',
-            success: function(data) {
-                if (data.done) {
-                    $("#synchronizeHolder").html('<button id="synchronize" class="btn btn-info synchronize"><i class="fa fa-rss">&nbsp;</i>&nbsp;&nbsp;{#__ key="synchro.process.synchronize" /}</button>');
-                    return toastr.success('Synchronisation effectuée');
-                }
-                if (data.error)
-                    return toastr.error(data.error);
-                setTimeout(checkSynchroState, 500);
-            },
-            error: function() {
-                toastr.error('Problème de synchronisation. Veuillez contacter votre administrateur.');
-            }
-        });
-    }
+	function checkSynchroState() {
+		$.ajax({
+			url: '/synchronization/check_state',
+			success: function(data) {
+				if (data.done) {
+					$("#synchronizeHolder").html('<button id="synchronize" class="btn btn-info synchronize"><i class="fa fa-rss">&nbsp;</i>&nbsp;&nbsp;{#__ key="synchro.process.synchronize" /}</button>');
+					return toastr.success('Synchronisation effectuée');
+				}
+				if (data.error)
+					return toastr.error(data.error);
+				setTimeout(checkSynchroState, 500);
+			},
+			error: function() {
+				toastr.error('Problème de synchronisation. Veuillez contacter votre administrateur.');
+			}
+		});
+	}
 
-    $(".synchronize").click(function() {
-        $.ajax({
-            url: '/synchronization/synchronize',
-            method: 'get',
-            data: '',
-            success:function() {
-                $("#synchronizeHolder").html('<i class="fa fa-spin fa-spinner fa-3x"></i>');
-                checkSynchroState();
-            },
-            error:function() {
-                toastr.error('Problème de synchronisation. Veuillez contacter votre administrateur.');
-            }
-        });
-    });
+	$(".synchronize").click(function() {
+		$.ajax({
+			url: '/synchronization/synchronize',
+			method: 'get',
+			data: '',
+			success:function() {
+				$("#synchronizeHolder").html('<i class="fa fa-spin fa-spinner fa-3x"></i>');
+				checkSynchroState();
+			},
+			error:function() {
+				toastr.error('Problème de synchronisation. Veuillez contacter votre administrateur.');
+			}
+		});
+	});
 </script>
 {/custom_js}

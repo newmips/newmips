@@ -27,6 +27,19 @@
 						<div class="col-xs-12">
 							<br>
 							<div class="form-group">
+								<label>{#__ key="settings.dark_theme"/}</label>
+								<br><br>
+								<a class='darkTheme btn {@ifTrue key=dark_theme}btn-primary{:else}btn-default{/ifTrue}' data-choice=true>
+									{#__ key="button.yes"/}
+								</a>&nbsp;&nbsp;
+								<a class='darkTheme btn {@ifTrue key=dark_theme}btn-default{:else}btn-primary{/ifTrue}' data-choice=false>
+									{#__ key="button.no"/}
+								</a>
+							</div>
+						</div>
+						<div class="col-xs-12">
+							<br>
+							<div class="form-group">
 								<label>{#__ key="settings.activate_translation"/}</label>
 								<br><br>
 								<a class="chooseTranslate btn {@ifTrue key=toTranslate}btn-primary{:else}btn-default{/ifTrue}" data-activate="true">
@@ -57,6 +70,31 @@
 
 				$.ajax({
 					url : '/settings/change_language',
+					type : 'POST',
+					data : JSON.stringify(ajaxdata),
+					dataType : 'json',
+					contentType: "application/json",
+					context: this,
+					success: function (data) {
+						if(data.success){
+							location.reload();
+						}
+					},
+					error: function (error) {
+						console.error(error);
+						toastr.error(error);
+					}
+				});
+			});
+
+			$(document).on("click", ".darkTheme", function(){
+				var choice = $(this).data("choice");
+				var ajaxdata = {
+					choice: choice
+				};
+
+				$.ajax({
+					url : '/settings/change_theme',
 					type : 'POST',
 					data : JSON.stringify(ajaxdata),
 					dataType : 'json',

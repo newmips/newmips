@@ -1,3 +1,6 @@
+// Datatable throw error instead of alert
+$.fn.dataTable.ext.errMode = 'throw';
+
 // =========================
 // DataTableBuilder "HOW TO"
 // =========================
@@ -46,6 +49,8 @@ if (lang_user == "fr-FR") {
         "emptyTable": "Aucune donn&eacute;e disponible dans le tableau",
         "reset_filter": "Réinitialiser les filtres",
         "scroll_right": "Défilement à droite",
+        "download_file": "Télécharger le fichier",
+        "close": "Fermer",
         "paginate": {
             "first": "Premier",
             "previous": "Pr&eacute;c&eacute;dent",
@@ -80,6 +85,8 @@ if (lang_user == "fr-FR") {
         "emptyTable": "No data available in this array",
         "reset_filter": "Reset all filters",
         "scroll_right": "Scroll right",
+        "download_file": "Download the file",
+        "close": "Close",
         "paginate": {
             "first": "First",
             "previous": "Previous",
@@ -247,6 +254,29 @@ function getValue(cellArrayKeyValue, row) {
     return row;
 }
 
+function currencyFormat(value) {
+    if(typeof value === 'string' && value.indexOf('.') != -1 && value.split('.')[1].length == 1)
+        return value + '0';
+    else if(typeof value === 'number')
+        return value.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
+    return value;
+}
+
+// Dive trough the object to find the key we are looking for
+function diveObj(obj, idx, keys){
+    if(!obj)
+        return '-';
+
+    if(Array.isArray(obj[keys[idx]]) && obj[keys[idx]].length > 0)
+        return diveObj(obj[keys[idx]][0], ++idx, keys);
+    else if(typeof obj[keys[idx]] === 'object')
+        return diveObj(obj[keys[idx]], ++idx, keys);
+    else if(obj[keys[idx]] && typeof obj[keys[idx]] !== undefined)
+        return obj;
+    else
+        return '-';
+}
+
 // Bind search fields
 function saveFilter(value, el, tableId, field) {
     var filterSave = JSON.parse(localStorage.getItem("newmips_filter_save_" + tableId));
@@ -270,6 +300,8 @@ var delay = (function() {
     var timer = 0;
     return function(callback, ms) {
         clearTimeout(timer);
+        if(typeof callback === 'object')
+            return;
         timer = setTimeout(callback, ms);
     };
 })();
@@ -393,55 +425,33 @@ function init_datatable(tableID, doPagination, context) {
         objColumnDefToPush = {
             targets: i,
             render: function (data, type, row, meta) {
-                var cellValue;
+                var cellValue, keys;
                 // Associated field. Go down object to find the right value
                 if (columns[meta.col].data.indexOf('.') != -1) {
-                    let entityRelation = columns[meta.col].data.split(".")[0];
-                    let attributeRelation = columns[meta.col].data.split(".")[1];
-                    let valueFromArray = "";
-                    if (row[entityRelation] != null) {
-                        if(Array.isArray(row[entityRelation])){
-                            // In case of related to many / has many values, it's an array
-                            if(row[entityRelation].length == 1){
-                                valueFromArray = row[entityRelation][0][attributeRelation];
-                            } else {
-                                for (let attr in row[entityRelation]) {
-                                    valueFromArray += "- " + row[entityRelation][attr][attributeRelation] + "<br>";
-                                }
-                            }
-                        } else if(typeof row[entityRelation] === "object") {
-                            // In this case it's a belongsTo
-                            for (let attr in row[entityRelation]) {
-                                let parts = columns[meta.col].data.split('.');
-                                valueFromArray = getValue(parts, row);
-                            }
-                        } else {
-                            // Has one relation field
-                            let parts = columns[meta.col].data.split('.');
-                            valueFromArray = getValue(parts, row);
-                        }
-                        cellValue = valueFromArray;
-                    } else {
-                        cellValue = "-";
-                    }
+                    keys = columns[meta.col].data.split(".");
+                    cellValue = diveObj(row, 0, keys);
+
+                    if(typeof cellValue === 'object')
+                        cellValue = cellValue[keys.slice(-1)[0]];
                 }
                 // Regular value
                 else
                     cellValue = row[columns[meta.col].data];
 
-                function currencyFormat(num) {
-                    if(num != null)
-                        return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ");
-                    else
-                        return "";
-                }
+                // Escape HTML
+                var dontEscapeTypes = ['text'];
+                if(dontEscapeTypes.indexOf(columns[meta.col].type) == -1 && cellValue && cellValue != '' && isNaN(cellValue) && cellValue.replace)
+                    cellValue = HtmlEncode(cellValue);
 
                 // Special data types
                 if (typeof columns[meta.col].type != 'undefined') {
+                    // Get current entity by splitting current table id
+                    var currentEntity = tableID.split("#table_")[1];
+
                     // date / datetime
                     if (columns[meta.col].type == 'date' || columns[meta.col].type == 'datetime') {
                         if (cellValue != null && cellValue != "" && cellValue.toLowerCase() != "invalid date") {
-                            var tmpDate = moment(new Date(cellValue));
+                            var tmpDate = moment.utc(cellValue);
                             if (!tmpDate.isValid())
                                 cellValue = '-';
                             else {
@@ -461,11 +471,12 @@ function init_datatable(tableID, doPagination, context) {
                     else if (columns[meta.col].type == 'color')
                         cellValue = '<i style="color:' + cellValue + '" class="fa fa-lg fa-circle"></i>';
                     else if (columns[meta.col].type == 'status'){
-                        var statusObj = row[columns[meta.col].data.split(".")[0]];
-                        if(statusObj != null)
-                            cellValue = '<span class="badge" style="background: '+statusObj.f_color+';">'+statusObj.f_name+'</span>';
+                        keys = columns[meta.col].data.split(".");
+                        var statusObj = diveObj(row, 0, keys);
+                        if (statusObj.f_name)
+                            cellValue = '<span class="badge" style="background: ' + statusObj.f_color + ';">' + HtmlEncode(statusObj.f_name) + '</span>';
                         else
-                            cellValue = "-";
+                            cellValue = '<span class="badge">' + HtmlEncode(statusObj) + '</span>';
                     }
                     else if (columns[meta.col].type == 'currency')
                         cellValue = '<span data-type="currency">' + currencyFormat(cellValue) + '</span>';
@@ -475,19 +486,20 @@ function init_datatable(tableID, doPagination, context) {
                         cellValue = '<a href="tel:' + cellValue + '">' + cellValue + '</a>';
                     else if (columns[meta.col].type == 'picture') {
                         if (cellValue != null && cellValue.buffer != '')
-                            cellValue = '<img src=data:image/;base64,' + cellValue.buffer + ' />';
+                            cellValue = '<img class="file" style="max-width: 50px;" data-entity="' + currentEntity + '" data-value="' + cellValue.value + '" src=data:image/;base64,' + cellValue.buffer + ' />';
                         else
                             cellValue = '';
                     }
                     else if (columns[meta.col].type == 'file') {
                         if(cellValue != "" && cellValue != null){
-                            // Get current entity by splitting current table id
-                            var currentEntity = tableID.split("#table_")[1];
-                            var justFilename = cellValue.replace(cellValue.split("_")[0], "").substring(1);
-                            // Remove uuid
-                            if(justFilename[32] == '_')
-                                justFilename = justFilename.substring(33);
-                            cellValue = '<a href="/default/download?entity='+currentEntity+'&amp;f='+encodeURIComponent(cellValue)+'" name="'+columns[meta.col].data+'">'+justFilename+'</a>';
+                            cellValue = '<a class="file" style="white-space: nowrap;" href="#" data-entity="' + currentEntity + '" data-value="' + cellValue + '" data-name="' + columns[meta.col].data + '"><i class="fa fa-download"></i>&nbsp;&nbsp;' + STR_LANGUAGE.download_file + '</a>';
+                        } else
+                            cellValue = '';
+                    }
+                    else if (columns[meta.col].type == 'filename') {
+                        if(cellValue != "" && cellValue != null){
+                            // Remove datatime + uuid (everything before the second _)
+                            cellValue = cellValue.substring(cellValue.split('_', 2).join('_').length + 1);
                         } else
                             cellValue = '';
                     }
@@ -499,8 +511,11 @@ function init_datatable(tableID, doPagination, context) {
                     } else if (columns[meta.col].type == 'password'){
                         cellValue = '●●●●●●●●●';
                     } else if(columns[meta.col].type == 'text'){
-                        if(cellValue && cellValue.length > 75)
-                            cellValue = cellValue.slice(0, 75) + "...";
+                        console.log(cellValue);
+                        if(cellValue && cellValue.length > 75){
+                            var shortText = $.parseHTML(cellValue.slice(0, 75))[0].data ? $.parseHTML(cellValue.slice(0, 75))[0].data : $.parseHTML(cellValue.slice(0, 75))[0].innerHTML;
+                            cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + shortText + "...<span style='display: none;'>" + cellValue + "</span></span>";
+                        }
                     }
                 }
                 return cellValue;
@@ -547,7 +562,33 @@ function init_datatable(tableID, doPagination, context) {
         "columnDefs": columnDefs,
         "language": STR_LANGUAGE,
         "paging": doPagination,
-        "dom": 'lBfrtip',
+        "dom": 'RlBfrtip',
+        "stateSave": true,
+        stateSaveCallback: function(settings, data) {
+            var sizes = [], allZero = true;
+            for (var i = 0; i < settings.aoColumns.length; i++) {
+                var size = $(settings.aoColumns[i].nTh).width();
+                if (size != 0)
+                    allZero = false;
+                sizes.push(size+'px');
+            }
+            if (!allZero)
+                localStorage.setItem(tableID+'_columns_sizes', JSON.stringify(sizes));
+        },
+        stateLoadCallback: function(settings) {
+            var sizes = JSON.parse(localStorage.getItem(tableID+'_columns_sizes'));
+            if (!sizes)
+                return;
+            var allWidthZero = true;
+            for (var i = 0; i < sizes.length; i++)
+                if (sizes[i] != '0px')
+                    allWidthZero = false;
+            if (allWidthZero)
+                return;
+            for (var i = 0; i < settings.aoColumns.length; i++)
+                if (sizes[i])
+                    $(settings.aoColumns[i].nTh).width(sizes[i]);
+        },
         "bLengthChange": true,
         "iDisplayLength": 25,
         "aLengthMenu": [[25, 50, 200, 500], [25, 50, 200, 500]],
@@ -614,36 +655,50 @@ function init_datatable(tableID, doPagination, context) {
     }
     table = $(tableID, context).DataTable(tableOptions);
 
-    //modal on click on picture cell
-    $(tableID+' tbody', context).on('click', 'td img', function () {
+    // Preview modal on type file
+    $(tableID + ' tbody', context).on('click', 'td > .file', function () {
         var colIdx = table.cell($(this).parent()).index().column;
-        if (typeof columns[colIdx] != 'undefined' && columns[colIdx].type == 'picture') {
-            var entity = tableID.replace('#table_', '');
-            var cellData = table.cell($(this).parent()).data();
-            $.ajax({
-                url: '/default/get_picture',
-                type: 'GET',
-                data: {entity: entity, src: cellData.value},
-                success: function (result) {
-                    if (result.success) {
-                        var text = '<div class="modal fade" tabindex="-1" role="dialog">'
-                                + '     <div class="modal-dialog" role="document">'
-                                + '         <div class="modal-content">'
-                                + '             <div class="modal-header skin-blue-light">'
-                                + '                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                                + '                 <h4 class="modal-title">' + result.file + '</h4>'
-                                + '             </div>'
-                                + '             <div class="modal-body">'
-                                + '                 <p><img  class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>'
-                                + '             </div>'
-                                + '         </div>'
-                                + '     </div>'
-                                + '</div>';
-                        $(text).modal('show');
-                    }
+        if (typeof columns[colIdx] === 'undefined' || (columns[colIdx].type != 'file' && columns[colIdx].type != 'picture'))
+            return;
+
+        let downloadURL = '/default/download?entity=' + $(this).data('entity') + '&amp;f=' + encodeURIComponent($(this).data('value'));
+        $.ajax({
+            url: '/default/get_file',
+            type: 'GET',
+            data: {entity: $(this).data('entity'), src: $(this).data('value')},
+            success: function (result) {
+
+                var showHTML = '<p><img class="img img-responsive" src=data:image/;base64,' + result.data + ' alt=' + result.file + '/></p>';
+                if(result.file.substring(result.file.length, result.file.length - 4) == '.pdf') {
+                    var binaryPDF = generateFileViewer(result.data);
+                    showHTML = '<iframe src=/js/plugins/pdf/web/viewer.html?file=' + encodeURIComponent(binaryPDF) + ' style="width:100%;min-height:500px !important;" allowfullscreen webkitallowfullscreen ></iframe>';
                 }
-            });
-        }
+
+                var modalHTML = '\
+                <div class="modal fade" tabindex="-1" role="dialog">\
+                    <div class="modal-dialog" role="document" style="width:60%;">\
+                        <div class="modal-content">\
+                            <div class="modal-header skin-blue-light">\
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+                                <h4 class="modal-title">' + result.file + '</h4>\
+                            </div>\
+                            <div class="modal-body">\
+                                ' + showHTML + '\
+                                <a href="' + downloadURL + '" class="btn btn-primary"><i class="fa fa-download"></i>&nbsp;&nbsp;Télécharger</a>\
+                            </div>\
+                            <div class="modal-footer">\
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">' + STR_LANGUAGE.close + '</button>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+
+                $(modalHTML).modal('show');
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
     });
 
     var startFilterTimer = 0;
@@ -691,9 +746,7 @@ function init_datatable(tableID, doPagination, context) {
             if (searchValue == "")
                 return table.columns(idx).search('').draw();
 
-            delay(function(){
-                searchInDatalist(searchValue);
-            }, 300);
+            searchInDatalist(searchValue);
         }
 
         // If it's not an action button
@@ -703,7 +756,7 @@ function init_datatable(tableID, doPagination, context) {
             else {
                 $(this).show().html('');
                 $(search).appendTo(this).keyup(function () {
-                    filterSearch(this);
+                    delay(filterSearch(this), 300);
                 });
 
                 // Initialize masks on filters inputs
@@ -766,5 +819,53 @@ function init_datatable(tableID, doPagination, context) {
 $(function () {
     $(".dataTable").each(function () {
         init_datatable('#' + $(this).attr('id'));
+    });
+
+    // Datalist JS
+
+    /* Make the table horizontaly scrollable with mouse drag on it */
+    var x,y,top,left = 0,down;
+    /* If we are scrolling horizontaly the datalist then don't trigger the click event to go on the show */
+    var scrolling = false;
+
+    $("tbody").css("cursor", "pointer");
+
+    $("tbody").mousedown(function(e){
+        if(!e.ctrlKey){
+            e.preventDefault();
+            down=true;
+            x=e.pageX;
+            left=$(".table-responsive").scrollLeft();
+        }
+    });
+
+    $("tbody").mousemove(function(e){
+        if(down){
+            scrolling = true;
+            var newX=e.pageX;
+            $(".table-responsive").scrollLeft(left-newX+x);
+        }
+    });
+
+    $("tbody").mouseup(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+    $("tbody").mouseleave(function(e){down=false;setTimeout(function(){scrolling = false;}, 500);});
+
+    $('tbody').on('click', 'tr', function (e) {
+        if(!e.ctrlKey){
+            if ($(this).find('.dataTables_empty').length > 0 ||
+                $(e.target).hasClass("btn-danger") ||
+                $(e.target).parents("button.btn-danger").length != 0 ||
+                $(e.target).hasClass("np_text_modal") ||
+                $(e.target).is("img") ||
+                $(e.target).hasClass("file"))
+                return;
+            if(!scrolling && $(this).find('td > a.btn-show:first').length > 0)
+                window.location = $(this).find('td > a.btn-show:first').attr('href');
+        }
+    });
+
+    // Text modal in datalist
+    $(document).on('click', '.np_text_modal', function(){
+        doModal('Contenu', $(this).find('span').html());
     });
 });

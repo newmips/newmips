@@ -1,4 +1,4 @@
-var languages = [];
+const languages = [];
 
 function fetchText(key, params, lang) {
 
@@ -7,7 +7,8 @@ function fetchText(key, params, lang) {
 
 	if(typeof key !== "string"){
 		try{
-			console.log(key);
+			console.warn("Logging translate key that is not a string");
+			console.warn(key);
 			return key.toString();
 		} catch(err) {
 			console.error(err)
@@ -15,22 +16,21 @@ function fetchText(key, params, lang) {
 		}
 	}
 
-	var keys = key.split('.');
+	const keys = key.split('.');
 	if (typeof languages[lang] === 'undefined') {
 		try {
-			languages[lang] = require(__dirname + '/../locales/'+lang);
+			languages[lang] = require(__dirname + '/../locales/'+lang); // eslint-disable-line
 		} catch (e) {
 			console.log(e);
 			return key;
 		}
 	}
 
-	var depth = languages[lang];
-	for (var i = 0; i < keys.length; i++) {
+	let depth = languages[lang];
+	for (let i = 0; i < keys.length; i++) {
 		depth = depth[keys[i]];
-		if (typeof depth === 'undefined'){
+		if (typeof depth === 'undefined')
 			return key;
-		}
 	}
 
 	if(typeof depth !== "string"){
@@ -38,24 +38,20 @@ function fetchText(key, params, lang) {
 		return key;
 	}
 
-	var nbParamsFound = (depth.match(/%s/g) || []).length;
-
-	if(nbParamsFound > 0 && nbParamsFound == params.length){
-		for(var j=0; j<nbParamsFound; j++){
-			depth = depth.replace("%s", params[j]);
-		}
-	}
+	let i = 0;
+	while (depth.match(/%s/) != null)
+		depth = depth.replace(/%s/, params[i++] || '[missing_param]')
 
 	return depth;
 }
 
 function capitalizeFirstLetters(key, params, lang) {
-	var msg = fetchText(key, params, lang);
-	var words = msg.split(' ');
-	var res = '';
-	for (var i =0; i < words.length; i++) {
-		var word = words[i];
-		var wordParts = word.split('\'');
+	const msg = fetchText(key, params, lang);
+	const words = msg.split(' ');
+	let res = '';
+	for (let i =0; i < words.length; i++) {
+		const word = words[i];
+		const wordParts = word.split('\'');
 		if (wordParts.length > 1)
 			res += wordParts[0] + '\'' + wordParts[1].charAt(0).toUpperCase() + word.slice(3);
 		else
@@ -70,12 +66,12 @@ module.exports = function(lang) {
 	return {
 		__: function (key, params) {
 			if(typeof params === "undefined")
-				var params = [];
+				params = [];
 			return fetchText(key, params, lang);
 		},
 		M_: function(key, params) {
 			if(typeof params === "undefined")
-				var params = [];
+				params = [];
 			return capitalizeFirstLetters(key, params, lang);
 		},
 		getLang: function(){
