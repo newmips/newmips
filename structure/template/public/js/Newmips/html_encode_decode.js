@@ -246,6 +246,9 @@ var HtmlCharMap = {
 };
 
 HtmlDecode = function(string) {
+    if (typeof string !== 'string')
+        return string;
+
     for (var key in HtmlCharMap) {
         var entity = HtmlCharMap[key];
         var regex = new RegExp(entity, 'g');
@@ -257,6 +260,9 @@ HtmlDecode = function(string) {
 }
 
 HtmlEncode = function(string) {
+    if (typeof string !== 'string')
+        return string;
+
     string = string.replace(/&/g, '&amp;');
     string = string.replace(/"/g, '&quot;');
     for (var key in HtmlCharMap) {
