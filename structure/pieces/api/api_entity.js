@@ -47,6 +47,7 @@ router.get('/', function(req, res) {
 
 		res.status(200).json(answer);
 	}).catch(function(err) {
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
@@ -92,6 +93,7 @@ router.get('/:id', function(req, res) {
 
 		res.status(200).json(answer);
 	}).catch(function(err){
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
@@ -155,6 +157,7 @@ router.get('/:id/:association', function(req, res) {
 
 		res.status(200).json(answer);
 	}).catch(function(err){
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
@@ -248,10 +251,12 @@ router.put('/:id', function(req, res) {
 				res.status(500).json(answer);
 			});
 		}).catch(function(err){
+			console.error(err);
 			answer.error = err;
 			res.status(500).json(answer);
 		});
 	}).catch(function(err){
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
@@ -269,6 +274,7 @@ router.delete('/:id', function(req, res) {
 	models.MODEL_NAME.destroy({where: {id: id_ENTITY_NAME}}).then(function() {
 		res.status(200).end();
 	}).catch(function(err){
+		console.error(err);
 		answer.error = err;
 		res.status(500).json(answer);
 	});
