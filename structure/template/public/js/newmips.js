@@ -581,6 +581,7 @@ function initForm(context) {
 /* --------------- FORM validation on submit  --------------- */
 function validateForm(form) {
     var isValid = true;
+    var formModifications = [];
 
     function isFileProcessing() {
         for (var i = 0; i < dropzonesFieldArray.length; i++) {
@@ -666,7 +667,9 @@ function validateForm(form) {
     form.find("select").each(function() {
         if ($(this).val() == null) {
             var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
-            form.append($(input));
+            formModifications.push(function() {
+                form.append(input);
+            });
         }
     });
 
@@ -692,20 +695,27 @@ function validateForm(form) {
 
     /* Converti les checkbox "on" en value boolean true/false pour insertion en BDD */
     form.find("input[type='checkbox']").each(function () {
+        var self = this;
         if (!$(this).hasClass("no-formatage")) {
             if ($(this).prop("checked")) {
-                $(this).val(true);
+                formModifications.push(function() {
+                    $(self).val(true);
+                })
             } else {
-                /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
-                $(this).prop("checked", true);
-                $(this).val(false);
+                formModifications.push(function() {
+                    /* Coche la checkbox afin qu'elle soit prise en compte dans le req.body */
+                    $(self).prop("checked", true);
+                    $(self).val(false);
+                })
             }
         } else {
             // If it's a multiple checkbox, we have to set an empty value in the req.body if no checkbox are checked
             if ($("input[type='checkbox'][name='" + $(this).attr("name") + "']").length > 0) {
                 if ($("input[type='checkbox'][name='" + $(this).attr("name") + "']:enabled:checked").length == 0) {
                     var input = $("<input>").attr("type", "hidden").attr("name", $(this).attr("name"));
-                    form.append($(input));
+                    formModifications.push(function() {
+                        form.append(input);
+                    });
                 }
             }
         }
@@ -713,8 +723,11 @@ function validateForm(form) {
 
     /* Vérification que les input mask EMAIL sont bien complétés jusqu'au bout */
     form.find("input[data-type='email']").each(function () {
+        var self = this;
         if ($(this).val().length > 0 && !$(this).inputmask("isComplete")) {
-            $(this).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+            formModifications.push(function() {
+                $(self).css("border", "1px solid red").parent().after("<span style='color: red;'>Le champ est incomplet.</span>");
+            });
             isValid = false;
         }
     });
@@ -799,9 +812,16 @@ function validateForm(form) {
     });
 
     form.find("input[data-type='currency']").each(function () {
+        var input = $(this);
         //replace number of zero par maskMoneyPrecision value, default 2
-        $(this).val(($(this).val().replace(/ /g, '')).replace(',00', ''));
+        formModifications.push(function() {
+            input.val(input.val().replace(/ /g, '').replace(',00', ''));
+        });
     });
+
+    if (isValid === true)
+        for (var i = 0; i < formModifications.length; i++)
+            formModifications[i]();
 
     return isValid;
 }

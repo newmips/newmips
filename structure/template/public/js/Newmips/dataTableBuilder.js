@@ -439,7 +439,8 @@ function init_datatable(tableID, doPagination, context) {
                     cellValue = row[columns[meta.col].data];
 
                 // Escape HTML
-                if(cellValue && cellValue != '' && isNaN(cellValue) && cellValue.replace)
+                var dontEscapeTypes = ['text'];
+                if(dontEscapeTypes.indexOf(columns[meta.col].type) == -1 && cellValue && cellValue != '' && isNaN(cellValue) && cellValue.replace)
                     cellValue = HtmlEncode(cellValue);
 
                 // Special data types
@@ -510,6 +511,7 @@ function init_datatable(tableID, doPagination, context) {
                     } else if (columns[meta.col].type == 'password'){
                         cellValue = '●●●●●●●●●';
                     } else if(columns[meta.col].type == 'text'){
+                        console.log(cellValue);
                         if(cellValue && cellValue.length > 75){
                             var shortText = $.parseHTML(cellValue.slice(0, 75))[0].data ? $.parseHTML(cellValue.slice(0, 75))[0].data : $.parseHTML(cellValue.slice(0, 75))[0].innerHTML;
                             cellValue = "<span style='cursor: pointer;' class='np_text_modal'>" + shortText + "...<span style='display: none;'>" + cellValue + "</span></span>";

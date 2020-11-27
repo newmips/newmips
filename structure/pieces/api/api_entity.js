@@ -5,6 +5,7 @@ const attributes = require('../models/attributes/ENTITY_NAME');
 const options = require('../models/options/ENTITY_NAME');
 const model_builder = require('../utils/model_builder');
 const entity_helper = require('../utils/entity_helper');
+const status_helper = require('../utils/status_helper');
 
 //
 // FIND ALL
@@ -213,12 +214,24 @@ router.put('/:id', function(req, res) {
 			return res.status(404).json(answer);
 		}
 
+		const associationPromises = [];
+		for (const prop in req.body) {
+			if (prop.indexOf('r_') != 0)
+				continue;
+			for (const option of options) {
+				if (option.target == 'e_status' && option.as == prop) {
+					delete updateObject[option.foreignKey]
+					associationPromises.push(status_helper.setStatus('ENTITY_NAME', id_ENTITY_NAME, option.as, req.body[prop]));
+					break;
+				}
+			}
+		}
+
 		// Update ENTITY_NAME
 		ENTITY_NAME.update(updateObject, {where: {id: id_ENTITY_NAME}}, {user: req.user}).then(function() {
 			answer["ENTITY_NAME".substring(2)] = ENTITY_NAME;
 
 			// Set associations
-			const associationPromises = [];
 			for (const prop in req.body)
 				if (prop.indexOf('r_') == 0) {
 					if (ENTITY_NAME['set'+entity_helper.capitalizeFirstLetter(prop)] !== 'undefined')
