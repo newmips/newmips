@@ -11,4 +11,9 @@ git config --global user.email "$SUB_DOMAIN@$DOMAIN_STUDIO"
 # eval "$(ssh-agent -s)"
 # ssh-add ~/.ssh/id_rsa
 
-npm start
+# Install generator and application node_modules
+echo "Installing generator and app node modules..."
+chmod +x install_modules.sh
+./install_modules.sh
+
+node server.js
