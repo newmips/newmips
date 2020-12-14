@@ -5,7 +5,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Update package and install some module
-RUN apt-get update && apt-get -qq -y install pdftk && apt-get -y install nano
+RUN apt-get update && apt-get -qq -y install pdftk && apt-get -y install nano && apt-get -y install mysql-client
 
 COPY . /usr/src/app
 
