@@ -2,44 +2,20 @@ const globalConf = require('./global');
 
 const databaseConf = {
 	develop: {
-		host: '127.0.0.1',
-		port: '3306', //mysql: 3306 - postgres: 5432
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql' //mysql or postgres
+		host: process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.DATABASE_PORT || '3306',
+		user: process.env.DATABASE_USER || 'newmips',
+		password: process.env.DATABASE_PWD || 'newmips',
+		database: process.env.DATABASE_NAME || 'newmips',
+		dialect: process.env.DATABASE_DIALECT || 'mysql' //mysql || mariadb || postgres
 	},
-	recette: {
-		host: '127.0.0.1',
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
-	},
-	production: {
-		host: '127.0.0.1',
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
-	},
-	docker: {
-		host: process.env.DATABASE_IP,
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
-	},
-	cloud: {
-		host: process.env.DATABASE_IP,
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
+	studio: {
+		host: process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.DATABASE_PORT || '3306',
+		user: process.env.DATABASE_USER || 'newmips',
+		password: process.env.DATABASE_PWD || 'newmips',
+		database: process.env.DATABASE_NAME || 'newmips',
+		dialect: process.env.DATABASE_DIALECT || 'mysql'
 	}
 }
 

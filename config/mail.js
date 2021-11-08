@@ -3,73 +3,29 @@ const globalConf = require('./global');
 const mailConf = {
 	develop: {
 		transport: {
-			host: 'mail',
-			port: 465,
+			host: process.env.MAIL_HOST || 'mail',
+			port: process.env.MAIL_PORT || 465,
 			secure: true,
 			auth: {
-				user: '',
-				pass: ''
+				user: process.env.MAIL_USER || '',
+				pass: process.env.MAIL_PWD || ''
 			}
 		},
-		expediteur: 'NoReply <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
-		host: 'http://127.0.0.1:' + globalConf.port
+		from: process.env.MAIL_FROM || 'NoReply <no-reply@newmips.com>',
+		host: process.env.MAIL_ENV_HOST || 'host'
 	},
-	recette: {
+	studio: {
 		transport: {
-			host: 'mail',
-			port: 465,
+			host: process.env.MAIL_HOST || 'mail',
+			port: process.env.MAIL_PORT || 465,
 			secure: true,
 			auth: {
-				user: '',
-				pass: ''
+				user: process.env.MAIL_USER || '',
+				pass: process.env.MAIL_PWD || ''
 			}
 		},
-		expediteur: 'NoReply <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
-		host: 'host'
-	},
-	production: {
-		transport: {
-			host: 'mail',
-			port: 465,
-			secure: true,
-			auth: {
-				user: '',
-				pass: ''
-			}
-		},
-		expediteur: 'NoReply <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
-		host: 'host'
-	},
-	docker: {
-		transport: {
-			host: 'mail',
-			port: 465,
-			secure: true,
-			auth: {
-				user: '',
-				pass: ''
-			}
-		},
-		expediteur: 'NoReply <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
-		host: 'https://'+process.env.SUB_DOMAIN+'.newmips.studio'
-	},
-	cloud: {
-		transport: {
-			host: 'mail',
-			port: 465,
-			secure: true,
-			auth: {
-				user: '',
-				pass: ''
-			}
-		},
-		expediteur: 'NoReply <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
-		host: 'https://'+process.env.SUB_DOMAIN+'.newmips.studio'
+		from: process.env.MAIL_FROM || 'NoReply <no-reply@newmips.com>',
+		host: process.env.MAIL_ENV_HOST || 'https://' + process.env.SUB_DOMAIN + '.newmips.studio'
 	}
 }
 

@@ -4,9 +4,7 @@ const block_access = require('../utils/block_access');
 const models = require('../models/');
 
 // Gitlab API
-const gitlab = require('../services/gitlab_api');
-const gitlabConf = require('../config/gitlab.js');
-
+const code_platform = require('../services/code_platform');
 const metadata = require('../database/metadata')();
 
 router.get('/', block_access.isAdmin, (req, res) => {
@@ -155,11 +153,11 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 			throw new Error("This newmips user is not activated yet.");
 
 		// Add user to gitlab project too
-		if(gitlabConf.doGit){
+		if(code_platform.enabled){
 			if(!Array.isArray(appID))
 				appID = [appID];
 
-			const gitlabUser = await gitlab.getUser(user.email);
+			const gitlabUser = await code_platform.getUser(user.email);
 
 			if(!gitlabUser)
 				throw new Error('Cannot find gitlab user with email: ' + user.email);
@@ -167,7 +165,7 @@ router.post('/assign', block_access.isAdmin, (req, res) => {
 			for (let i = 0; i < appID.length; i++) {
 				const application = await models.Application.findByPk(appID[i]); // eslint-disable-line
 				const metadataApp = metadata.getApplication(application.name)
-				await gitlab.addUserToProject(gitlabUser.id, metadataApp.gitlabID); // eslint-disable-line
+				await code_platform.addUserToProject(gitlabUser.id, metadataApp.gitlabID); // eslint-disable-line
 			}
 		}
 
@@ -208,13 +206,13 @@ router.post('/remove_access', block_access.isAdmin, (req, res) => {
 			}
 
 		// Remove gitlab access
-		if(gitlabConf.doGit){
+		if(code_platform.enabled){
 			const application = await models.Application.findByPk(appID);
-			const gitlabUser = await gitlab.getUser(user.email);
+			const gitlabUser = await code_platform.getUser(user.email);
 			if(!gitlabUser)
 				throw new Error('Cannot find gitlab user with email: ' + user.email);
 			const metadataApp = metadata.getApplication(application.name);
-			await gitlab.removeUserFromProject(gitlabUser.id, metadataApp.gitlabID);
+			await code_platform.removeUserFromProject(gitlabUser.id, metadataApp.gitlabID);
 		}
 
 		await user.setApplications(applications);

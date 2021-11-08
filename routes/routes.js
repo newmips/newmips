@@ -1,101 +1,62 @@
 const express = require('express');
 const router = express.Router();
-const block_access = require('../utils/block_access');
-const auth = require('../utils/authStrategies');
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
-const mail = require('../utils/mailer');
 const request = require('request');
+
 const globalConf = require('../config/global');
 
-// Sequelize
+const block_access = require('../utils/block_access');
+const auth = require('../utils/authStrategies');
+const mailer = require('../utils/mailer');
 const models = require('../models/');
 
-// Gitlab API
-const gitlab = require('../services/gitlab_api');
-const gitlabConf = require('../config/gitlab');
+const code_platform = require('../services/code_platform');
 
 router.get('/', block_access.loginAccess, function(req, res) {
 	res.redirect('/login');
 });
 
-// Waiting room for deploy instruction
-router.get('/waiting', function(req, res) {
-	res.render('front/waiting_room', {
+router.get('/login', block_access.loginAccess, function(req, res) {
+	res.render('login/login', {
 		redirect: req.query.redirect
 	});
 });
 
-router.post('/waiting', function(req, res) {
-	const callOptions = {
-		url: req.body.redirect,
-		strictSSL: false,
-		rejectUnauthorized: false
-	}
-	request.get(callOptions, (error, response) => {
-		if(error)
-			console.log(error)
-
-		// Stack is not ready
-		if (error || response && response.statusCode !== 200 && response.statusCode !== 302)
-			return res.sendStatus(503).end();
-
-		// Stack ready, container ready, lets go
-		return res.sendStatus(200);
-	});
-});
-
-router.get('/login', block_access.loginAccess, function(req, res) {
-	res.render('login/login');
-});
-
 router.post('/login', auth.isLoggedIn, function(req, res) {
+	(async () => {
+		if (req.body.remember_me)
+			req.session.cookie.maxAge = 168 * 3600000; // 1 week
+		else
+			req.session.cookie.maxAge = 60000 * 60 * 24; // 1 Day
 
-	if (req.body.remember_me)
-		req.session.cookie.maxAge = 168 * 3600000; // 1 week
-	else
-		req.session.cookie.expires = false; // Logout on browser exit
+		req.session.isgenerator = true; // Needed to differentiate from generated app session
 
-	const email_user = req.session.passport.user.email;
+		// Set default null
+		req.session.code_platform = {
+			user: null
+		};
 
-	req.session.isgenerator = true; // Needed to differentiate from generated app session.
+		if(code_platform.config.enabled) {
+			req.session.code_platform.user = await code_platform.getUser(req.user);
 
-	// Get gitlab instance
-	if(gitlabConf.doGit)
-		gitlab.getUser(email_user).then(gitlabUser => {
-
-			if (gitlabUser){
-				req.session.gitlab = {
-					user: gitlabUser
-				};
-				return res.redirect('/default/home');
-			}
-
-			// Generate gitlab user if not found
-			const usernameGitlab = email_user.replace(/@/g, "").replace(/\./g, "").trim();
-			gitlabUser = gitlab.createUser({
-				email: email_user,
-				password: req.body.password_user,
-				username: usernameGitlab,
-				name: usernameGitlab,
-				admin: false,
-				skip_confirmation: true
-			}).then(gitlabUser => {
-				req.session.gitlab = {
-					user: gitlabUser
-				};
-				res.redirect('/default/home');
-			})
-		}).catch(err => {
-			console.error(err);
-			req.session.toastr = [{
-				message: "An error occured while getting your gitlab account.",
-				level: "error"
-			}];
-			res.redirect('/logout');
-		})
-	else
-		res.redirect('/default/home');
+			if(!req.session.code_platform.user)
+				throw new Error('code_platform.error.user_not_found');
+		}
+	})().then(_ => {
+		if(req.body.redirect)
+			res.redirect(req.body.redirect);
+		else
+			res.redirect('/default/home');
+	}).catch(err => {
+		console.error(err);
+		req.session.toastr = [{
+			message: err.message || "error.oops",
+			level: "error"
+		}];
+		req.logout();
+		res.redirect('/');
+	});
 });
 
 router.get('/first_connection', block_access.loginAccess, function(req, res) {
@@ -110,17 +71,20 @@ router.get('/first_connection', block_access.loginAccess, function(req, res) {
 	if(typeof req.query.email !== "undefined")
 		params.email = req.query.email;
 
+	if(typeof req.query.token !== "undefined")
+		params.token = req.query.token;
+
 	res.render('login/first_connection', params);
 });
 
 router.post('/first_connection', block_access.loginAccess, function(req, res) {
 	const login = req.body.login.toLowerCase();
 	const email = req.body.email;
-	const usernameGitlab = email.replace(/@/g, "").replace(/\./g, "").trim();
-	const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
 	(async() => {
+		const passwordRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
 
+		// Develop env can setup weak password
 		if (globalConf.env != 'develop' && (req.body.password != req.body.confirm_password || !passwordRegex.test(req.body.password)))
 			throw new Error("login.first_connection.passwordNotValid");
 
@@ -139,46 +103,45 @@ router.post('/first_connection', block_access.loginAccess, function(req, res) {
 		if (user.password && user.password != "")
 			throw new Error("login.first_connection.hasAlreadyPassword");
 
-		if (gitlabConf.doGit) {
-			let gitlabUser = await gitlab.getUser(email);
-
-			if (!gitlabUser)
-				gitlabUser = await gitlab.createUser({
-					email: email,
-					password: req.body.confirm_password,
-					username: usernameGitlab,
-					name: usernameGitlab,
-					admin: false,
-					skip_confirmation: true
-				})
-
-			req.session.gitlab = {
-				user: gitlabUser
-			};
+		if(user.token_first_connection && user.token_first_connection != '') {
+			if(!req.body.token)
+				throw new Error("login.first_connection.missingToken");
+			if(user.token_first_connection != req.body.token)
+				throw new Error("login.first_connection.wrongToken");
 		}
+
+		// Set default null
+		req.session.code_platform = {
+			user: null
+		};
+
+		if(code_platform.config.enabled)
+			req.session.code_platform.user = await code_platform.initUser(user, req.body.confirm_password);
 
 		await user.update({
 			password: password,
 			email: email,
+			token_first_connection: null,
 			enabled: true
-		})
+		});
 
 		return user;
 
-	})().then(connectedUser => {
+	})().then(user => {
 		// Autologin after first connection form done
-		req.login(connectedUser, err => {
+		req.login(user, err => {
 			if (err)
 				throw err;
 
-			req.session.showytpopup = true;
-			req.session.isgenerator = true; // Needed to differentiate from generated app session.
+			req.session.showtuto = true;
+			req.session.isgenerator = true; // Needed to differentiate from generated app session
+
 			res.redirect('/default/home');
 		});
 	}).catch(err => {
 		console.error(err);
 		req.session.toastr = [{
-			message: err.message,
+			message: err.message ? err.message : 'Sorry, an error occured',
 			level: "error"
 		}];
 		res.redirect('/first_connection?login=' + login + '&email=' + email);
@@ -196,7 +159,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 		const user = await models.User.findOne({
 			where: {
 				login: req.body.login.toLowerCase(),
-				email: req.body.mail
+				email: req.body.email
 			}
 		});
 
@@ -213,10 +176,13 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 			token_password_reset: token
 		});
 
-		// Send email with generated token
-		await mail.sendMailResetPassword({
-			mail_user: user.email,
-			token: token
+		await mailer.sendTemplate('reset_password', {
+			to: user.email,
+			subject: "Nodea - Réinitialisation de votre mot de passe",
+			data: {
+				user: user,
+				token: token
+			}
 		});
 	})().then(_ => {
 		req.session.toastr = [{
@@ -316,20 +282,6 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 			}
 		});
 
-		let gitlabUser = null;
-		// Update Gitlab password
-		if(gitlabConf.doGit){
-			gitlabUser = await gitlab.getUser(email);
-
-			if(!gitlabUser)
-				console.warn('Cannot update gitlab user password, user not found.');
-			else
-				await gitlab.updateUser(gitlabUser, {
-					password: req.body.confirm_password,
-					skip_reconfirmation: true
-				});
-		}
-
 		// Autologin after first connection form done
 		const connectedUser = await models.User.findOne({
 			where: {
@@ -337,24 +289,23 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 			}
 		});
 
-		return {connectedUser, gitlabUser};
+		// Set default null
+		req.session.code_platform = {
+			user: null
+		};
 
-	})().then(infos => {
+		if(code_platform.config.enabled)
+			req.session.code_platform.user = await code_platform.initUser(user, req.body.confirm_password);
 
-		req.login(infos.connectedUser, err => {
-			if (err) {
-				console.error(err);
-				req.session.toastr = [{
-					message: err.message,
-					level: "error"
-				}];
-				return res.redirect('/login');
-			}
+		return connectedUser;
 
-			if(infos.gitlabUser)
-				req.session.gitlab = {
-					user: infos.gitlabUser
-				};
+	})().then(user => {
+
+		req.login(user, err => {
+			if (err)
+				throw err;
+
+			req.session.isgenerator = true; // Needed to differentiate from generated app session
 
 			req.session.toastr = [{
 				message: "login.passwordReset",
@@ -371,11 +322,36 @@ router.post('/reset_password_form', block_access.loginAccess, function(req, res)
 	})
 });
 
+// Waiting room for deploy instruction
+router.get('/waiting', function(req, res) {
+	res.render('front/waiting_room', {
+		redirect: req.query.redirect
+	});
+});
+
+router.post('/waiting', function(req, res) {
+	request.get({
+		url: req.body.redirect,
+		strictSSL: false,
+		rejectUnauthorized: false
+	}, (error, response) => {
+		if(error)
+			console.log(error)
+
+		// Stack is not ready
+		if (error || response && response.statusCode !== 200 && response.statusCode !== 302)
+			return res.sendStatus(503).end();
+
+		// Stack ready, container ready, lets go
+		return res.sendStatus(200);
+	});
+});
+
 // Logout
 router.get('/logout', function(req, res) {
 	req.logout();
 	req.session.toastr = [{
-		message: "login.logout_sucess",
+		message: "login.logout_success",
 		level: "success"
 	}];
 	res.redirect('/login');

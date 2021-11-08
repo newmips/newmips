@@ -1,75 +1,35 @@
 const env = process.env.NPS_ENV || 'develop';
-// const fs = require('fs');
 
 const config = {
 	develop: {
 		env: 'develop',
-		protocol: 'http',
-		protocol_iframe: 'http',
-		host: '127.0.0.1',
+		protocol: process.env.PROTOCOL || 'http',
+		host: process.env.HOSTNAME || '127.0.0.1',
 		port: process.env.PORT || 1337,
-		authStrategy: 'local',
-		support_chat_enabled: false
+		server_ip: process.env.SERVER_IP || '127.0.0.1',
+		dns: process.env.DOMAIN_STUDIO || 'nodea.studio',
+		dns_cloud: process.env.DOMAIN_CLOUD || 'nodea.cloud',
+		sub_domain: process.env.SUB_DOMAIN || 'localhost',
+		authStrategy: process.env.AUTH || 'local',
+		support_chat_enabled: process.env.SUPPORT_CHAT || false,
+		open_signup: process.env.OPEN_SIGNUP || false
 	},
-	recette: {
-		env: 'recette',
-		protocol: 'https',
-		protocol_iframe: 'https',
-		host: '127.0.0.1',
+	studio: {
+		env: 'studio',
+		protocol: process.env.PROTOCOL || 'https',
+		host: process.env.HOSTNAME || '127.0.0.1',
 		port: process.env.PORT || 1337,
-		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/"fakeKey",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
-			passphrase : ''
-		},
-		authStrategy: 'local',
-		support_chat_enabled: false
-	},
-	production: {
-		env: 'production',
-		protocol: 'https',
-		protocol_iframe: 'https',
-		host: '127.0.0.1',
-		port: process.env.PORT || 1337,
-		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/"fakeKey",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/"fakeCert",
-			passphrase : ''
-		},
-		authStrategy: 'local',
-		support_chat_enabled: false
-	},
-	docker: {
-		env: 'docker',
-		protocol: 'http',
-		protocol_iframe: 'http',
-		host: '127.0.0.1',
-		dns: process.env.DOMAIN_STUDIO,
-		dns_cloud: process.env.DOMAIN_CLOUD,
-		sub_domain: process.env.SUB_DOMAIN,
-		port: process.env.PORT || 1337,
-		support_chat_enabled: false,
-		separate_workspace_db: true,
-		authStrategy: 'local',
-		server_ip: process.env.SERVER_IP
-	},
-	cloud: {
-		env: 'cloud',
-		protocol: 'http',
-		protocol_iframe: 'https',
-		host: process.env.HOSTNAME,
-		dns: process.env.DOMAIN_STUDIO,
-		dns_cloud: process.env.DOMAIN_CLOUD,
-		sub_domain: process.env.SUB_DOMAIN,
-		port: process.env.PORT || 1337,
-		support_chat_enabled: true,
-		separate_workspace_db: true,
-		authStrategy: 'local',
-		server_ip: process.env.SERVER_IP
+		server_ip: process.env.SERVER_IP || '127.0.0.1',
+		dns: process.env.DOMAIN_STUDIO || 'nodea.studio',
+		dns_cloud: process.env.DOMAIN_CLOUD || 'nodea.cloud',
+		sub_domain: process.env.SUB_DOMAIN || 'localhost',
+		authStrategy: process.env.AUTH || 'local',
+		support_chat_enabled: process.env.SUPPORT_CHAT || false,
+		open_signup: process.env.OPEN_SIGNUP || false
 	}
 }
 
 const fullConfig = config[env];
-fullConfig.version = "2.9";
+fullConfig.version = "2.9.1";
 
 module.exports = fullConfig;

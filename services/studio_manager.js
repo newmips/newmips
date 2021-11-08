@@ -15,16 +15,18 @@ exports.createApplicationDns = (appName, appID) => {
 	if (fs.existsSync(globalConf.traefik_rules + "/" + tomlFilename))
 		return;
 
-	const tomlContent = '\n\
-	[backends]\n\
-		[backends.'+appDomain+']\n\
-			[backends.'+appDomain+'.servers.server1]\n\
-				url = "http://'+globalConf.server_ip+':'+serverPort+'"\n\
-	[frontends]\n\
-		[frontends.' + appDomain + ']\n\
-		backend = "' + appDomain + '"\n\
-			[frontends.' + appDomain + '.routes.' + appDomain + ']\n\
-			rule = "Host:' + appDomain + '.' + globalConf.dns + '"';
+	const tomlContent = "[http]\n\
+	[http.routers]\n\
+		[http.routers." + appDomain + "]\n\
+			entryPoints = [\"websecure\"]\n\
+			service = \"service-" + appDomain + "\"\n\
+			rule = \"Host(`" + appDomain + "." + globalConf.dns + "`)\"\n\
+			[[http.routers." + appDomain + ".tls.domains]]\n\
+				main = \"*.nodea.studio\"\n\
+	[http.services.service-" + appDomain + "]\n\
+		[http.services.service-" + appDomain + ".loadBalancer]\n\
+			[[http.services.service-" + appDomain + ".loadBalancer.servers]]\n\
+				url = \"http://" + globalConf.server_ip + ":" + serverPort + "\"";
 
 	// Generate .toml file in traefik rules folder
 	fs.writeFileSync(__dirname + "/../workspace/rules/" + tomlFilename, tomlContent);

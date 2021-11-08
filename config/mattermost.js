@@ -2,39 +2,18 @@ const globalConf = require('./global');
 
 const mattermost = {
 	develop: {
-		api_url: 'https://team.newmips.com:8065/api/v4',
-		team: "support",
-		support_members: "support-newmips", // Other team dissociate from support to determinate who are the persons that will be added to new channel
-		login: 'support@newmips.com',
-		password: ''
+		api_url: process.env.MATTERMOST_API_URL || '',
+		team: process.env.MATTERMOST_TEAM || '',
+		support_members: process.env.MATTERMOST_SUPPORT_MEMBERS || '',
+		login: process.env.MATTERMOST_LOGIN || '',
+		password: process.env.MATTERMOST_PWD || ''
 	},
-	recette: {
-		api_url: 'https://team.newmips.com:8065/api/v4',
-		team: "support",
-		support_members: "support-newmips",
-		login: 'support@newmips.com',
-		password: ''
-	},
-	production: {
-		api_url: 'https://team.newmips.com:8065/api/v4',
-		team: "support",
-		support_members: "support-newmips",
-		login: 'support@newmips.com',
-		password: ''
-	},
-	docker: {
-		api_url: 'https://team.newmips.com:8065/api/v4',
-		team: "support",
-		support_members: "support-newmips",
-		login: 'support@newmips.com',
-		password: ''
-	},
-	cloud: {
-		api_url: 'https://team.newmips.com:8065/api/v4',
-		team: "support",
-		support_members: "support-newmips",
-		login: 'support@newmips.com',
-		password: ''
+	studio: {
+		api_url: process.env.MATTERMOST_API_URL || '',
+		team: process.env.MATTERMOST_TEAM || '',
+		support_members: process.env.MATTERMOST_SUPPORT_MEMBERS || '',
+		login: process.env.MATTERMOST_LOGIN || '',
+		password: process.env.MATTERMOST_PWD || ''
 	}
 }
 

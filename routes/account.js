@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const block_access = require('../utils/block_access');
-const gitlabConf = require('../config/gitlab.js');
+const code_platform = require('../config/code_platform.js');
 const models = require('../models/');
 
 router.get('/', block_access.isLoggedIn, (req, res) => {
@@ -10,9 +10,9 @@ router.get('/', block_access.isLoggedIn, (req, res) => {
 	models.Role.findByPk(data.user.id_role).then(userRole => {
 		data.user.role = userRole;
 
-		if (gitlabConf.doGit) {
-			data.gitlabUser = req.session.gitlab.user;
-			data.gitlabHost = gitlabConf.protocol + "://" + gitlabConf.url;
+		if (code_platform.enabled) {
+			data.code_platform_user = req.session.code_platform.user;
+			data.code_platform_host = code_platform.protocol + "://" + code_platform.url;
 		}
 
 		res.render('front/account', data);

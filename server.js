@@ -5,6 +5,9 @@ const express = require('express');
 const session = require('express-session');
 const dbConfig = require('./config/database');
 
+global.__piecesPath = __dirname + '/structure/pieces';
+global.__workspacePath = __dirname + '/workspace';
+
 let SessionStore, pg;
 // MySql
 if(dbConfig.dialect == "mysql")

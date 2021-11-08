@@ -8,8 +8,7 @@ const {Client} = require('pg');
 
 // Gitlab
 const globalConf = require('../config/global.js');
-const gitlabConf = require('../config/gitlab.js');
-const gitlab = require('../services/gitlab_api');
+const code_platform = require('../services/code_platform');
 
 const dbConf = require('../config/database.js');
 const studio_manager = require('../services/studio_manager');
@@ -18,13 +17,12 @@ const exec = require('child_process').exec;
 
 function installAppModules(data) {
 	return new Promise((resolve, reject) => {
-		const dir = __dirname;
 
 		// Mandatory workspace folder
-		if (!fs.existsSync(dir + '/../workspace'))
-			fs.mkdirSync(dir + '/../workspace');
+		if (!fs.existsSync(__workspacePath))
+			fs.mkdirSync(__workspacePath);
 
-		if (fs.existsSync(dir + '/../workspace/node_modules')) {
+		if (fs.existsSync(__dirname + '/../workspace/node_modules')) {
 			console.log("Everything's ok about global workspaces node modules.");
 
 			if (typeof data !== "undefined") {
@@ -37,7 +35,7 @@ function installAppModules(data) {
 				console.log("Executing " + command + " in application: " + data.application.name + "...");
 
 				exec(command, {
-					cwd: dir + '/../workspace/' + data.application.name + '/'
+					cwd: __dirname + '/../workspace/' + data.application.name + '/'
 				}, err => {
 					if (err)
 						return reject(err);
@@ -50,13 +48,15 @@ function installAppModules(data) {
 		} else {
 			// We need to reinstall node modules properly
 			console.log("Workspaces node modules initialization...");
-			fs.copySync(path.join(dir, 'template', 'package.json'), path.join(dir, '..', 'workspace', 'package.json'))
+			fs.copySync(path.join(__dirname, 'template', 'package.json'), path.join(__dirname, '..', 'workspace', 'package.json'))
 
-			exec('npm -s install', {
-				cwd: dir + '/../workspace/'
+			exec('npm install', {
+				cwd: __dirname + '/../workspace/'
 			}, err => {
-				if (err)
+				if (err){
+					console.error(err)
 					return reject(err);
+				}
 				console.log('Workspaces node modules successfuly initialized.');
 				resolve();
 			});
@@ -74,6 +74,7 @@ exports.setupApplication = async (data) => {
 	try {
 		await installAppModules();
 	} catch(err) {
+		console.error(err);
 		throw new Error("An error occurred while initializing the node modules.");
 	}
 
@@ -82,9 +83,15 @@ exports.setupApplication = async (data) => {
 
 	await translateHelper.writeLocales(appName, "application", null, appDisplayName, data.googleTranslate);
 
+	// Add appname to application.json
+	const applicationJSON = JSON.parse(fs.readFileSync(__dirname + '/../workspace/' + appName + '/config/application.json', 'utf8'));
+	applicationJSON.appname = appName;
+	fs.writeFileSync(__dirname + '/../workspace/' + appName + '/config/application.json', JSON.stringify(applicationJSON, null, 4), 'utf8');
+
 	// Create database instance for application
 	let conn, db_requests = [];
-	if(dbConf.dialect == 'mysql') {
+	if(dbConf.dialect == 'mysql' || dbConf.dialect == 'mariadb') {
+
 		db_requests = [
 			"CREATE DATABASE IF NOT EXISTS `np_" + appName + "` DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;",
 			"CREATE USER IF NOT EXISTS 'np_" + appName + "'@'127.0.0.1' IDENTIFIED BY 'np_" + appName + "';",
@@ -92,15 +99,20 @@ exports.setupApplication = async (data) => {
 			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'127.0.0.1';",
 			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO 'np_" + appName + "'@'%';",
 			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'127.0.0.1';",
-			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'%';",
-			"ALTER USER 'np_" + appName + "'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
-			"ALTER USER 'np_" + appName + "'@'%' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';",
-			"FLUSH PRIVILEGES;"
+			"GRANT ALL PRIVILEGES ON `np_" + appName + "`.* TO '" + dbConf.user + "'@'%';"
 		];
+
+		// if(dbConf.dialect == 'mysql') {
+		// 	db_requests.push("ALTER USER 'np_" + appName + "'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';");
+		// 	db_requests.push("ALTER USER 'np_" + appName + "'@'%' IDENTIFIED WITH mysql_native_password BY 'np_" + appName + "';");
+		// }
+
+		db_requests.push("FLUSH PRIVILEGES;");
+
 		conn = await mysql.createConnection({
-			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+			host: dbConf.host,
+			user: dbConf.user,
+			password: dbConf.password,
 			port: dbConf.port
 		});
 	} else if(dbConf.dialect == 'postgres') {
@@ -111,9 +123,9 @@ exports.setupApplication = async (data) => {
 			"GRANT ALL PRIVILEGES ON DATABASE \"np_" + appName + "\" TO " + dbConf.user + ";"
 		];
 		conn = new Client({
-			host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-			user: globalConf.env == "cloud" || globalConf.env == "docker" ? "newmips" : dbConf.user,
-			password: globalConf.env == "cloud" || globalConf.env == "docker" ? "newmips" : dbConf.password,
+			host: dbConf.host,
+			user: dbConf.user,
+			password: dbConf.password,
 			database: dbConf.database,
 			port: dbConf.port
 		});
@@ -139,80 +151,73 @@ exports.setupApplication = async (data) => {
 	appDatabaseConfig = appDatabaseConfig.replace(/newmips/g, 'np_' + appName, 'utf8');
 	fs.writeFileSync(__dirname + '/../workspace/' + appName + '/config/database.js', appDatabaseConfig);
 
-	// Create the application repository on gitlab ?
-	if (!gitlabConf.doGit)
+	// Create the application on distant repository ?
+	if (!code_platform.config.enabled)
 		return false;
 
-	if (!data.gitlabUser)
-		data.gitlabUser = await gitlab.getUser(data.currentUser.email);
+	if(!data.code_platform || !data.code_platform.user)
+		throw new Error('code_platform.error.user_not_in_session');
 
-	const idUserGitlab = data.gitlabUser.id;
+	// Get current env admin for project creation
+	const admin = await models.User.findByPk(1);
+	const code_platform_admin_user = await code_platform.getUser(admin);
 
-	const newGitlabProject = {
-		user_id: idUserGitlab,
-		name: globalConf.host + "-" + appName.substring(2),
-		description: "A generated Newmips workspace.",
-		issues_enabled: false,
-		merge_requests_enabled: false,
-		wiki_enabled: false,
-		snippets_enabled: false,
-		public: false
-	};
+	// Admin user gitlab account isn't confirmed
+	if(!code_platform_admin_user.confirmed_at)
+		throw new Error('code_platform.error.admin_not_confirmed')
 
-	const newRepo = await gitlab.createProjectForUser(newGitlabProject);
-	await gitlab.addMemberToProject({
-		id: newRepo.id,
-		user_id: 1, // Admin
-		access_level: 40
-	});
+	// User do not confirm it's gitlab account yet
+	if(!data.code_platform.user.confirmed_at) {
+		// Verify if it's true
+		const currentUser = await code_platform.getUser(data.code_platform.user);
+		if(!currentUser.confirmed_at)
+			throw new Error('code_platform.error.user_not_confirmed');
+	}
 
+	let newProject
+	try {
+		newProject = await code_platform.createProject(globalConf.host.replace(/\./g, "-") + "-" + appName.substring(2), code_platform_admin_user);
+	} catch(err){
+		console.error(err);
+		throw new Error('code_platform.error.project_creation');
+	}
 	// Adding gitlab repo ID to metadata
-	data.application.gitlabID = newRepo.id;
+	data.application.repoID = newProject.id;
 
-	return newRepo;
+	// Add current user to project, if connected user is not admin
+	if(code_platform_admin_user.id != data.code_platform.user.id)
+		await code_platform.addUserToProject(data.code_platform.user, newProject);
+
+	return newProject;
 }
 
 async function finalizeApplication(application) {
 
-	const workspacePath = __dirname + '/../workspace/' + application.name;
+	const appPath = __workspacePath + '/' + application.name;
 
 	// Reset toSync file
-	fs.writeFileSync(workspacePath + '/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
+	fs.writeFileSync(appPath + '/models/toSync.json', JSON.stringify({}, null, 4), 'utf8');
 
-	const workspaceSequelize = require(workspacePath + '/models/'); // eslint-disable-line
+	const workspaceSequelize = require(appPath + '/models/'); // eslint-disable-line
+
 	await workspaceSequelize.sequelize.sync({
 		logging: false,
 		hooks: false
 	});
 
-	const databaseManager = require('../database/database'); // eslint-disable-line
-	await databaseManager.dropFKField({
-		application: application,
-		entity: {
-			name: 'e_user'
-		},
-		fieldToDrop: 'fk_id_role'
-	});
-
-	await databaseManager.dropFKField({
-		application: application,
-		entity: {
-			name: 'e_user'
-		},
-		fieldToDrop: 'fk_id_group'
-	});
-
 	// Create application's DNS through studio_manager
-	if (globalConf.env == 'cloud') {
-		const appID = await models.Application.findOne({
+	if (globalConf.env == 'studio') {
+		const db_app = await models.Application.findOne({
 			name: application.name
 		});
-		studio_manager.createApplicationDns(application.name, appID);
+		studio_manager.createApplicationDns(application.name.substring(2), db_app.id);
 	}
+
+	return true;
 }
 
 async function initializeWorkflow(application) {
-	const piecesPath = __dirname + '/pieces/component/status';
+	const statusPiecesPath = __dirname + '/pieces/component/status';
 	const workspacePath = __dirname + '/../workspace/' + application.name;
 
 	// Replace default role & groupe option to set belongsToMany with user entity
@@ -244,7 +249,7 @@ async function initializeWorkflow(application) {
 		if(['e_role', 'e_group'].indexOf(x.target) != -1 && x.structureType == 'auto_generate')
 			return false;
 		return true;
-	})
+	});
 	fs.writeFileSync(workspacePath + '/models/options/e_user.json', JSON.stringify(userOptions, null, 4), 'utf8');
 
 	// Remove existing has many from Status, the instruction is only used to generate the tab and views
@@ -268,26 +273,20 @@ async function initializeWorkflow(application) {
 	fs.writeFileSync(workspacePath + '/models/options/e_status.json', JSON.stringify(statusModel, null, 4), 'utf8');
 
 	// Status models pieces
-	fs.copySync(piecesPath + '/models/e_status.js', workspacePath + '/models/e_status.js');
+	fs.copySync(statusPiecesPath + '/models/e_status.js', workspacePath + '/models/e_status.js');
 
 	// Copy views pieces
 	const toCopyViewFolders = ['e_status', 'e_media', 'e_media_mail', 'e_media_notification', 'e_media_sms', 'e_media_task', 'e_translation', 'e_action'];
 	for (const folder of toCopyViewFolders)
-		fs.copySync(piecesPath + '/views/' + folder, workspacePath + '/views/' + folder);
+		fs.copySync(statusPiecesPath + '/views/' + folder, workspacePath + '/views/' + folder);
 
 	// Copy routes
-	fs.copySync(piecesPath + '/routes/', workspacePath + '/routes/');
+	fs.copySync(statusPiecesPath + '/routes/', workspacePath + '/routes/');
 	// Copy API routes
-	fs.copySync(piecesPath + '/api/', workspacePath + '/api/');
+	fs.copySync(statusPiecesPath + '/api/', workspacePath + '/api/');
 
 	// Remove notification views
-	fs.removeSync(workspacePath+'/views/e_notification');
-
-	// Remove notification from administration sidebar
-	const $ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
-	$("#notification_menu_item").remove();
-
-	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
+	fs.removeSync(workspacePath + '/views/e_notification');
 
 	const mediaModels = [
 		'e_media.js',
@@ -299,12 +298,12 @@ async function initializeWorkflow(application) {
 	];
 
 	for (let i = 0; i < mediaModels.length; i++)
-		fs.copySync(piecesPath + '/models/' + mediaModels[i], workspacePath + '/models/' + mediaModels[i]);
+		fs.copySync(statusPiecesPath + '/models/' + mediaModels[i], workspacePath + '/models/' + mediaModels[i]);
 
 	// Write new locales trees
-	const newLocalesEN = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_EN.json'));
+	const newLocalesEN = JSON.parse(fs.readFileSync(statusPiecesPath + '/locales/global_locales_EN.json'));
 	translateHelper.writeTree(application.name, newLocalesEN, 'en-EN');
-	const newLocalesFR = JSON.parse(fs.readFileSync(piecesPath + '/locales/global_locales_FR.json'));
+	const newLocalesFR = JSON.parse(fs.readFileSync(statusPiecesPath + '/locales/global_locales_FR.json'));
 	translateHelper.writeTree(application.name, newLocalesFR, 'fr-FR');
 
 	// Write enum traductions
@@ -325,41 +324,31 @@ exports.initializeApplication = async(application) => {
 	const piecesPath = __dirname + '/pieces';
 	const workspacePath = __dirname + '/../workspace/' + application.name;
 
+	//
+	// ACCESS AND SECURITY: USER / GROUP / ROLE
+	//
 	fs.copySync(piecesPath + '/administration/views/e_user/', workspacePath + '/views/e_user/');
 
-	// Clean user list fields
-	let $ = await domHelper.read(workspacePath + '/views/e_user/list_fields.dust');
-
-	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-
-	domHelper.write(workspacePath + '/views/e_user/list_fields.dust', $);
 	// Clean user show fields and remove tab view
-	$ = await domHelper.read(workspacePath + '/views/e_user/show_fields.dust');
-	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
+	let $ = await domHelper.read(workspacePath + '/views/e_user/show_fields.dust');
+	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset]").remove();
 	const homeHtml = $("#home").html();
 	$("#home").remove();
 	$("#tabs").removeClass('.nav-tabs-custom').attr('id', 'home');
 	$("#home").html(homeHtml);
 	domHelper.write(workspacePath + '/views/e_user/show_fields.dust', $);
-	// Clean user create fields
-	$ = await domHelper.read(workspacePath + '/views/e_user/create_fields.dust');
-	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	domHelper.write(workspacePath + '/views/e_user/create_fields.dust', $)
 
 	// Clean user update fields
 	$ = await domHelper.read(workspacePath + '/views/e_user/update_fields.dust');
 	$("[data-field=id], [data-field=f_password], [data-field=f_token_password_reset], [data-field=f_enabled]").remove();
-	domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $)
+	domHelper.write(workspacePath + '/views/e_user/update_fields.dust', $);
+
 	// Copy inline-help route and views
 	fs.copySync(piecesPath + '/routes/e_inline_help.js', workspacePath + '/routes/e_inline_help.js');
 	fs.copySync(piecesPath + '/views/e_inline_help/', workspacePath + '/views/e_inline_help/');
 
-	// Copy api entities views
-	fs.copySync(piecesPath + '/api/views/e_api_credentials', workspacePath + '/views/e_api_credentials');
-	// Copy js file for access settings
-	fs.copySync(piecesPath + '/administration/js/', workspacePath + '/public/js/Newmips/');
-	// Copy authentication user entity route
-	fs.copySync(piecesPath + '/administration/routes/e_user.js', workspacePath + '/routes/e_user.js');
+	// Copy user / role / group routes into app
+	fs.copySync(piecesPath + '/administration/routes', workspacePath + '/routes');
 
 	// Make fields unique
 	function uniqueField(entity, field) {
@@ -386,12 +375,12 @@ exports.initializeApplication = async(application) => {
 	for (const key of arrayKey) {
 		access.administration.entities.push({
 			name: key,
-			groups: [],
+			groups: ["admin"],
 			actions: {
-				read: [],
-				create: [],
-				update: [],
-				delete: []
+				read: ["admin"],
+				create: ["admin"],
+				update: ["admin"],
+				delete: ["admin"]
 			}
 		});
 	}
@@ -414,171 +403,17 @@ exports.initializeApplication = async(application) => {
 	}];
 	fs.writeFileSync(workspacePath + '/models/options/e_group.json', JSON.stringify(opts, null, 4), 'utf8');
 
-	$ = await domHelper.read(workspacePath + '/views/layout_m_administration.dust');
-	let li = '';
-
-	// Delete generated synchro in sidebar
-	$("#synchronization_menu_item").remove();
-	$("#synchro_credentials_menu_item").remove();
-	// Put back Synchro in sidebar
-	li += '<!--{#entityAccess entity="synchro"}-->\n';
-	li += '	 <li id="synchro_menu_item" style="display:block;" class="treeview">\n';
-	li += '		 <a href="#">\n';
-	li += '			 <i class="fa fa-refresh"></i>\n';
-	li += '			 <span><!--{#__ key="synchro.title" /}--></span>\n';
-	li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
-	li += '		 </a>\n';
-	li += '		 <ul class="treeview-menu">\n';
-	li += '			 <!--{@ne key=config.env value="tablet"}-->\n';
-	li += '				 <li>\n';
-	li += '					 <a href="/synchronization/show">\n';
-	li += '						 <i class="fa fa-angle-double-right"></i>\n';
-	li += '						 <!--{#__ key="synchro.configure" /}-->\n';
-	li += '					 </a>\n';
-	li += '				 </li>\n';
-	li += '				 <li>\n';
-	li += '					 <a href="/synchronization/list_dump">\n';
-	li += '						 <i class="fa fa-angle-double-right"></i>\n';
-	li += '						 <!--{#__ key="synchro.list" /}-->\n';
-	li += '					 </a>\n';
-	li += '				 </li>\n';
-	li += '			 <!--{/ne}-->\n';
-	li += '			 <!--{@eq key=config.env value="tablet"}-->\n';
-	li += '				 <li>\n';
-	li += '					 <a href="/synchronization/show">\n';
-	li += '						 <i class="fa fa-angle-double-right"></i>\n';
-	li += '						 <!--{#__ key="synchro.process.synchronize" /}-->\n';
-	li += '					 </a>\n';
-	li += '				 </li>\n';
-	li += '			 <!--{/eq}-->\n';
-	li += '		 </ul>\n';
-	li += '	 </li>\n';
-	li += '<!--{/entityAccess}-->\n';
-
-	li += '<!--{@eq key=config.env value="tablet"}-->\n';
-	li += '	 <!--{#entityAccess entity="synchro_credentials"}\n';
-	li += '	 <li id="synchro_credentials_menu_item" style="display:block;" class="treeview">\n';
-	li += '		 <a href="#">\n';
-	li += '			 <i class="fa fa-unlink"></i>\n';
-	li += '			 <span><!--{#__ key="entity.e_synchro_credentials.label_entity" /}--></span>\n';
-	li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
-	li += '		 </a>\n';
-	li += '		 <ul class="treeview-menu">\n';
-	li += '			 <!--{#actionAccess entity="synchro_credentials" action="create"}-->\n';
-	li += '				 <li>\n';
-	li += '					 <a href="/synchro_credentials/create_form">\n';
-	li += '						 <i class="fa fa-angle-double-right"></i>\n';
-	li += '						 <!--{#__ key="operation.create" /}-->\n';
-	li += '					 </a>\n';
-	li += '				 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '			 <!--{#actionAccess entity="synchro_credentials" action="read"}-->\n';
-	li += '				 <li>\n';
-	li += '					 <a href="/synchro_credentials/list">\n';
-	li += '						 <i class="fa fa-angle-double-right"></i>\n';
-	li += '						 <!--{#__ key="operation.list" /}-->\n';
-	li += '					 </a>\n';
-	li += '				 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '		 </ul>\n';
-	li += '	 </li>\n';
-	li += '	 <!--{/entityAccess}-->\n';
-	li += '<!--{/eq}-->\n';
-
-	li += '<!--{#entityAccess entity="import_export"}-->\n';
-	li += '	 <li id="import_export_menu_item" class="treeview">\n';
-	li += '		 <a href="#">\n';
-	li += '			 <i class="fa fa-arrows-v"></i>\n';
-	li += '			 <span><!--{#__ key="settings.import_export.title" /}--></span>\n';
-	li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
-	li += '		 </a>\n';
-	li += '		 <ul class="treeview-menu">\n';
-	li += '			 <!--{#actionAccess entity="db_tool" action="read"}-->\n';
-	li += '			 <li>\n';
-	li += '				 <a href="/import_export/db_show">\n';
-	li += '					 <i class="fa fa-angle-double-right"></i>\n';
-	li += '					 <!--{#__ key="settings.db_tool.title" /}-->\n';
-	li += '				 </a>\n';
-	li += '			 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '			 <!--{#actionAccess entity="access_tool" action="read"}-->\n';
-	li += '			 <li>\n';
-	li += '				 <a href="/import_export/access_show">\n';
-	li += '					 <i class="fa fa-angle-double-right"></i>\n';
-	li += '					 <!--{#__ key="settings.tool_menu" /}-->\n';
-	li += '				 </a>\n';
-	li += '			 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '		 </ul>\n';
-	li += '	 </li>\n';
-	li += '<!--{/entityAccess}-->\n';
-
-	li += '<!--{#entityAccess entity="access_settings"}-->\n';
-	li += '	 <li id="access_settings_menu_item" class="treeview">\n';
-	li += '		 <a href="#">\n';
-	li += '			 <i class="fa fa-cog"></i>\n';
-	li += '			 <span><!--{#__ key="settings.title" /}--></span>\n';
-	li += '			 <i class="fa fa-angle-left pull-right"></i>\n';
-	li += '		 </a>\n';
-	li += '		 <ul class="treeview-menu">\n';
-	li += '			 <!--{#actionAccess entity="access_settings_role" action="read"}-->\n';
-	li += '			 <li>\n';
-	li += '				 <a href="/access_settings/show_role">\n';
-	li += '					 <i class="fa fa-angle-double-right"></i>\n';
-	li += '					 <!--{#__ key="entity.e_role.label_entity" /}-->\n';
-	li += '				 </a>\n';
-	li += '			 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '			 <!--{#actionAccess entity="access_settings_group" action="read"}-->\n';
-	li += '			 <li>\n';
-	li += '				 <a href="/access_settings/show_group">\n';
-	li += '					 <i class="fa fa-angle-double-right"></i>\n';
-	li += '					 <!--{#__ key="entity.e_group.label_entity" /}-->\n';
-	li += '				 </a>\n';
-	li += '			 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '			 <!--{#actionAccess entity="access_settings_api" action="read"}-->\n';
-	li += '			 <li>\n';
-	li += '				 <a href="/access_settings/show_api">\n';
-	li += '					 <i class="fa fa-angle-double-right"></i>\n';
-	li += '					 API\n';
-	li += '				 </a>\n';
-	li += '			 </li>\n';
-	li += '			 <!--{/actionAccess}-->\n';
-	li += '		 </ul>\n';
-	li += '	 </li>\n';
-	li += '<!--{/entityAccess}-->\n';
-
-	$("#sortable").append(li);
-
-	$("li#status_menu_item ul.treeview-menu").append('\<li>\n\
-		<a href="/status/diagram"><i class="fa fa-angle-double-right"></i>\n\
-			{#__ key="global_component.status.diagram" /}\n\
-		</a>\n\
-	</li>');
-
-	// Add settings entry into authentication module layout
-	domHelper.write(workspacePath + '/views/layout_m_administration.dust', $);
-
-	// Copy routes settings pieces
-	fs.copySync(piecesPath + '/administration/routes/e_access_settings.js', workspacePath + '/routes/e_access_settings.js');
-	// Copy view settings pieces
-	fs.copySync(piecesPath + '/administration/views/e_access_settings', workspacePath + '/views/e_access_settings');
-	// Copy route e_api_credentials piece
-	fs.copySync(piecesPath + '/api/routes/e_api_credentials.js', workspacePath + '/routes/e_api_credentials.js');
-	// Copy api e_user piece
-	fs.copySync(piecesPath + '/api/routes/e_user.js', workspacePath + '/api/e_user.js');
-
+	//
+	// SYNCHRONIZATION
+	//
 	// Delete and copy synchronization files/pieces
 	const synchroViews = fs.readdirSync(workspacePath + '/views/e_synchronization');
 	for (let i = 0; i < synchroViews.length; i++)
-		fs.unlink(workspacePath + '/views/e_synchronization/' + synchroViews[i], (err) => {
+		fs.remove(workspacePath + '/views/e_synchronization/' + synchroViews[i], (err) => {
 			if (err) console.error(err);
 		});
 
-	fs.copySync(piecesPath + '/component/synchronization/views/', workspacePath + '/views/e_synchronization/');
 	fs.copySync(piecesPath + '/component/synchronization/routes/e_synchronization.js', workspacePath + '/routes/e_synchronization.js');
-	fs.copySync(piecesPath + '/component/synchronization/api/e_synchronization.js', workspacePath + '/api/e_synchronization.js');
 
 	// API credentials must not be available to API calls, delete the file
 	fs.unlinkSync(workspacePath + '/api/e_api_credentials.js');
@@ -589,14 +424,14 @@ exports.initializeApplication = async(application) => {
 	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_user_guide", "label_entity"], "Guide utilisateur");
 	translateHelper.updateLocales(application.name, "fr-FR", ["entity", "e_user_guide", "f_file"], "Fichier");
 
-	await initializeWorkflow(application);
+	return await initializeWorkflow(application);
 }
 
 const process_manager = require('../services/process_manager.js');
 exports.deleteApplication = async(data) => {
 	const app_name = data.application.name;
 	// Kill spawned child process by preview
-	const process_server = process_manager.process_server;
+	const process_server = process_manager.process_server_per_app[app_name];
 	const pathToWorkspace = __dirname + '/../workspace/' + app_name;
 	const pathToAppLogs = __dirname + '/../workspace/logs/app_' + app_name + '.log';
 
@@ -604,7 +439,7 @@ exports.deleteApplication = async(data) => {
 	const nameRepo = globalConf.host + "-" + nameAppWithoutPrefix;
 
 	// Removing .toml file in traefik rules folder
-	if (globalConf.env == "cloud" || globalConf.env == "docker") {
+	if (globalConf.env == 'studio') {
 		try {
 			fs.unlinkSync(__dirname + "/../workspace/rules/" + globalConf.sub_domain + "-" + nameAppWithoutPrefix + ".toml");
 		} catch (err) {
@@ -612,14 +447,14 @@ exports.deleteApplication = async(data) => {
 		}
 	}
 
-	if (gitlabConf.doGit) {
+	if (code_platform.config.enabled) {
 		try {
-			const project = await gitlab.getProjectByID(data.application.gitlabID);
+			const project = await code_platform.getProjectByID(data.application.repoID);
 			if (!project)
-				console.error("Unable to find gitlab project to delete.");
+				console.error("Unable to find code project to delete.");
 			else {
-				const answer = await gitlab.deleteProject(project.id);
-				console.log("Delete Gitlab repository: " + nameRepo + " => " + JSON.stringify(answer));
+				const answer = await code_platform.deleteProject(project.id);
+				console.log("Delete repository: " + nameRepo + " => " + JSON.stringify(answer));
 			}
 		} catch(err) {
 			console.error(err);
@@ -628,19 +463,21 @@ exports.deleteApplication = async(data) => {
 
 	try {
 		let conn;
-		if(dbConf.dialect == 'mysql') {
+		if(dbConf.dialect == 'mysql' || dbConf.dialect == 'mariadb') {
 			conn = await mysql.createConnection({
-				host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-				user: globalConf.env == "cloud" || globalConf.env == "docker" ? "root" : dbConf.user,
-				password: globalConf.env == "cloud" || globalConf.env == "docker" ? "P@ssw0rd+" : dbConf.password,
+				host: dbConf.host,
+				user: dbConf.user,
+				password: dbConf.password,
 				port: dbConf.port
 			});
 			await conn.query("DROP DATABASE IF EXISTS `np_" + app_name + "`;");
+			await conn.query("DROP USER IF EXISTS 'np_" + app_name + "'@'127.0.0.1';");
+			await conn.query("DROP USER IF EXISTS 'np_" + app_name + "'@'%';");
 		} else if(dbConf.dialect == 'postgres') {
 			conn = new Client({
-				host: globalConf.env == "cloud" || globalConf.env == "docker" ? process.env.DATABASE_IP : dbConf.host,
-				user: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.user : dbConf.user,
-				password: globalConf.env == "cloud" || globalConf.env == "docker" ? dbConf.password : dbConf.password,
+				host: globalConf.env == 'studio' ? process.env.DATABASE_IP : dbConf.host,
+				user: globalConf.env == 'studio' ? dbConf.user : dbConf.user,
+				password: globalConf.env == 'studio' ? dbConf.password : dbConf.password,
 				database: dbConf.database,
 				port: dbConf.port
 			});
@@ -648,6 +485,8 @@ exports.deleteApplication = async(data) => {
 			await conn.query("REVOKE CONNECT ON DATABASE \"np_" + app_name + "\" FROM public;");
 			await conn.query("SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'np_" + app_name + "' AND pid <> pg_backend_pid();");
 			await conn.query("DROP DATABASE \"np_" + app_name + "\";");
+			await conn.query("DROP USER IF EXISTS \"np_" + app_name + "@127.0.0.1\";");
+			await conn.query("DROP USER IF EXISTS \"np_" + app_name + "@%\";");
 		}
 		conn.end();
 	} catch (err) {
@@ -655,7 +494,7 @@ exports.deleteApplication = async(data) => {
 	}
 
 	if (process_server != null) {
-		await process_manager.killChildProcess(process_server.pid);
+		await process_manager.killChildProcess(process_server);
 		process_manager.process_server_per_app[app_name] = null;
 	}
 

@@ -9,15 +9,18 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		email: DataTypes.STRING,
 		enabled: DataTypes.BOOLEAN,
-		first_name: DataTypes.STRING,
-		last_name: DataTypes.STRING,
+		firstname: DataTypes.STRING,
+		lastname: DataTypes.STRING,
 		login: DataTypes.STRING,
 		password: DataTypes.STRING,
 		phone: DataTypes.STRING,
 		token_password_reset: DataTypes.STRING,
+		token_first_connection: DataTypes.STRING, // In case of signup
+		repo_access_token: DataTypes.STRING, // Access token for git commands with code platform
 		version: DataTypes.INTEGER
 	}, {
-		tableName: "user"
+		tableName: "user",
+		timestamps: true
 	})
 
 	User.associate = (models) => {

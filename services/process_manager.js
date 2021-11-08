@@ -1,15 +1,13 @@
 const globalConf = require('../config/global.js');
+const cp = require('child_process');
 const spawn = require('cross-spawn');
-const psTree = require('ps-tree');
 const fs = require("fs-extra");
 const path = require('path');
-const request = require('request');
+const fetch = require('node-fetch');
 const AnsiToHTML = require('ansi-to-html');
 const ansiToHtml = new AnsiToHTML();
 const moment = require('moment');
 const childsUrlsStorage = {};
-const process_server_per_app = [];
-let process_server = null;
 
 function setDefaultChildUrl(sessionID, appName){
 	if(typeof childsUrlsStorage[sessionID] === "undefined")
@@ -24,14 +22,16 @@ function setChildUrl(sessionID, appName, url){
 }
 exports.setChildUrl = setChildUrl;
 
-exports.process_server_per_app = process_server_per_app;
+exports.process_server_per_app = [];
 
-exports.launchChildProcess = function(req, appName, env) {
+exports.launchChildProcess = function(sessionID, appName, port) {
 
-	setDefaultChildUrl(req.sessionID, appName);
+	setDefaultChildUrl(sessionID, appName);
 
-	process_server = spawn('node', [__dirname + "/../workspace/" + appName + "/server.js", 'autologin'], {
-		CREATE_NO_WINDOW: true,
+	const env = Object.create(process.env);
+	env.PORT = port;
+
+	const process_server = spawn('node', [__dirname + "/../workspace/" + appName + "/server.js", 'autologin'], {
 		env: env
 	});
 
@@ -47,7 +47,7 @@ exports.launchChildProcess = function(req, appName, env) {
 		// child process after restart
 		if (data.indexOf("IFRAME_URL") != -1) {
 			if (data.indexOf("/status") == -1){
-				childsUrlsStorage[req.sessionID][appName] = data.split('::')[1];
+				childsUrlsStorage[sessionID][appName] = data.split('::')[1];
 			}
 		} else {
 			const cleaned = data.replace(/(.*)\n*$/, '$1');
@@ -70,7 +70,6 @@ exports.launchChildProcess = function(req, appName, env) {
 		console.log('\x1b[31m%s\x1b[0m', 'Child process exited');
 	});
 
-	exports.process_server = process_server;
 	return process_server;
 }
 
@@ -82,36 +81,28 @@ async function checkServer(iframe_url, initialTimestamp, timeoutServer) {
 		throw new Error('preview.server_timeout');
 	}
 
-	const rejectUnauthorized = globalConf.env == 'cloud';
-
-	await new Promise((resolve) => {
-		request({
-			rejectUnauthorized: rejectUnauthorized,
-			url: iframe_url,
+	let response;
+	try {
+		response = await fetch(iframe_url, {
 			method: "GET"
-		}, (err, response) => {
-			// Check for error
-			if (err && err.code == 'ECONNREFUSED')
-				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
-
-			if(typeof response === 'undefined') {
-				console.error(err);
-				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
-			}
-
-			// Check for right status code
-			if (response.statusCode !== 200) {
-				console.warn('Server not ready - Invalid Status Code Returned:', response.statusCode);
-				if(response.statusCode == 500)
-					console.error(response);
-				return resolve(checkServer(iframe_url, initialTimestamp, timeoutServer));
-			}
-
-			// Everything's ok
-			console.log("Server status is OK");
-			resolve();
 		});
-	})
+	} catch(err) {
+		return await checkServer(iframe_url, initialTimestamp, timeoutServer);
+	}
+
+	// Handling standard server error (404, 501, 502)
+	if(typeof response === 'undefined' || [404, 501, 502].includes(response.status))
+		return await checkServer(iframe_url, initialTimestamp, timeoutServer);
+
+	// Unusual error, log it
+	if (response.status != 200) {
+		console.warn('Server not ready - Invalid Status Code Returned:', response.status);
+		return await checkServer(iframe_url, initialTimestamp, timeoutServer);
+	}
+
+	// Everything's ok
+	console.log("Server status is OK");
+	return true;
 }
 exports.checkServer = checkServer;
 
@@ -119,58 +110,33 @@ exports.childUrl = (req, appID) => {
 
 	setDefaultChildUrl(req.sessionID, req.session.app_name);
 
-	let url = globalConf.protocol_iframe + '://';
-	if (globalConf.env == 'cloud')
-		url += globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.app_name];
-	else
-		url += globalConf.host + ':' + (9000 + parseInt(appID)) + childsUrlsStorage[req.sessionID][req.session.app_name];
+	let url = globalConf.protocol + '://' + globalConf.host + ':' + (9000 + parseInt(appID)) + childsUrlsStorage[req.sessionID][req.session.app_name];
+	if (globalConf.env == 'studio')
+		url = 'https://' + globalConf.sub_domain + '-' + req.session.app_name.substring(2) + "." + globalConf.dns + childsUrlsStorage[req.sessionID][req.session.app_name];
 
 	return url;
 }
 
-const cp = require('child_process');
-exports.killChildProcess = (pid) => new Promise(resolve => {
-	console.log("Killed child process was called : " + pid);
-	// OS is Windows
+exports.killChildProcess = (process) => new Promise(resolve => {
+	console.log("Kill child process: " + process.pid);
+	// OS handling
 	const isWin = /^win/.test(process.platform);
 	if (isWin) {
-		// **** Commands that works fine on WINDOWS ***
-		cp.exec('taskkill /PID ' + process_server.pid + ' /T /F', err => {
-			if(err)
+		cp.exec('taskkill /PID ' + process.pid + ' /T /F', err => {
+			if(err){
+				console.error("Cannot kill process with pid " + process.pid);
 				console.error(err);
-			console.log("Killed child process");
-			exports.process_server = null;
+			}
 			resolve();
 		});
 	} else {
-		/* Kill all the differents child process */
-		const killTree = true;
-		if (killTree) {
-			psTree(pid, function(err, children) {
-				if(err)
-					console.error(err);
-
-				const pidArray = [pid].concat(children.map(p => p.PID));
-
-				for (let i = 0; i < pidArray.length; i++) {
-					try {
-						console.log("TPID : " + pidArray[i]);
-						process.kill(pidArray[i], 'SIGKILL');
-					} catch(err) {
-						console.error("Cannot kill process with pid " + pidArray[i]);
-					}
-				}
-				resolve();
-			});
-		} else {
-			try {
-				/* Kill just one child */
-				process.kill(pid, 'SIGKILL');
-			} catch(err) {
-				console.error("Cannot kill process with pid " + pid);
-			}
-			resolve();
+		try {
+			process.kill(); // SIGTERM the process
+		} catch(err) {
+			console.error("Cannot kill process with pid " + process.pid);
+			console.error(err);
 		}
+		resolve();
 	}
 })
 

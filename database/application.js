@@ -8,12 +8,11 @@ class Application {
 	constructor(name, displayName) {
 		this._name = name;
 		this._displayName = displayName;
-		this._gitlabID = null;
-		this._gitlabRepoHTTP = null;
-		this._gitlabRepoSSH = null;
+		this._repoID = null;
+		this._codePlatformRepoHTTP = null;
+		this._codePlatformRepoSSH = null;
 		this._createdBy = null;
 		this._associationSeq = 0; // Used for unique generation of workspace assocation table
-		this._hasDocumentTemplate = 0;
 		this._modules = [];
 		this._components = [];
 	}
@@ -33,13 +32,14 @@ class Application {
 				metadata = JSON.parse(fs.readFileSync(metadataPath));
 			else
 				throw new Error('Unable to find metadata.json: ' + metadataPath);
+			if (!metadata[name])
+				throw new Error('No `'+name+'` property in metadata file '+metadataPath);
 
 			app.associationSeq = metadata[name].associationSeq;
-			app.hasDocumentTemplate = metadata[name].hasDocumentTemplate;
 			app.displayName = metadata[name].displayName;
-			app.gitlabID = metadata[name].gitlabID;
-			app.gitlabRepoHTTP = metadata[name].gitlabRepoHTTP;
-			app.gitlabRepoSSH = metadata[name].gitlabRepoSSH;
+			app.repoID = metadata[name].repoID;
+			app.codePlatformRepoHTTP = metadata[name].codePlatformRepoHTTP;
+			app.codePlatformRepoSSH = metadata[name].codePlatformRepoSSH;
 			app.createdBy = metadata[name].createdBy;
 
 			// Modules loading
@@ -91,16 +91,16 @@ class Application {
 		return this._displayName;
 	}
 
-	get gitlabID() {
-		return this._gitlabID;
+	get repoID() {
+		return this._repoID;
 	}
 
-	get gitlabRepoHTTP() {
-		return this._gitlabRepoHTTP;
+	get codePlatformRepoHTTP() {
+		return this._codePlatformRepoHTTP;
 	}
 
-	get gitlabRepoSSH() {
-		return this._gitlabRepoSSH;
+	get codePlatformRepoSSH() {
+		return this._codePlatformRepoSSH;
 	}
 
 	get createdBy() {
@@ -115,25 +115,21 @@ class Application {
 		return ++this._associationSeq;
 	}
 
-	get hasDocumentTemplate() {
-		return this._hasDocumentTemplate;
-	}
-
 	// --- Setters ---
 	set displayName(displayName) {
 		this._displayName = displayName;
 	}
 
-	set gitlabID(id) {
-		this._gitlabID = id;
+	set repoID(id) {
+		this._repoID = id;
 	}
 
-	set gitlabRepoHTTP(repo) {
-		this._gitlabRepoHTTP = repo;
+	set codePlatformRepoHTTP(repo) {
+		this._codePlatformRepoHTTP = repo;
 	}
 
-	set gitlabRepoSSH(repo) {
-		this._gitlabRepoSSH = repo;
+	set codePlatformRepoSSH(repo) {
+		this._codePlatformRepoSSH = repo;
 	}
 
 	set createdBy(login) {
@@ -146,10 +142,6 @@ class Application {
 
 	set associationSeq(seq) {
 		this._associationSeq = seq;
-	}
-
-	set hasDocumentTemplate(value) {
-		this._hasDocumentTemplate = value;
 	}
 
 	// --- Methods ---
@@ -250,11 +242,10 @@ class Application {
 			newMetadata = actualMetadata[appName];
 
 		newMetadata.associationSeq = this._associationSeq;
-		newMetadata.gitlabID = this._gitlabID;
-		newMetadata.gitlabRepoHTTP = this._gitlabRepoHTTP;
-		newMetadata.gitlabRepoSSH = this._gitlabRepoSSH;
+		newMetadata.repoID = this._repoID;
+		newMetadata.codePlatformRepoHTTP = this._codePlatformRepoHTTP;
+		newMetadata.codePlatformRepoSSH = this._codePlatformRepoSSH;
 		newMetadata.createdBy = this._createdBy;
-		newMetadata.hasDocumentTemplate = this._hasDocumentTemplate;
 		newMetadata.displayName = this._displayName;
 		newMetadata.modules = {};
 		newMetadata.components = {};

@@ -33,7 +33,7 @@ exports.hasAccessApplication = function(req, res, next) {
 	if(req.params.app_name)
 		app_name = req.params.app_name
 	else
-		app_name = req.session.app_name ? req.session.app_name : null;
+		app_name = req.session.app_name ? req.session.app_name : req.body.appName;
 
 	if (req.isAuthenticated()){
 		// Check if application exist
