@@ -65,7 +65,7 @@ function initRepoGitProcess(repoInfo, data, workspacePath) {
 
 	if (typeof gitProcesses[repoInfo.origin][data.currentUser.id] === 'undefined'){
 		repoInfo.tokenUrl = repoInfo.tokenUrl.replace('$TOKEN$', data.code_platform.user.accessToken);
-		// Git process per origin and per nodea user
+		// Git process per origin and per newmips user
 		gitProcesses[repoInfo.origin][data.currentUser.id] = {
 			simpleGit: require('simple-git/promise')(workspacePath, { // eslint-disable-line
 				config: [

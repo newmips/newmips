@@ -22,7 +22,7 @@ exports.createApplicationDns = (appName, appID) => {
 			service = \"service-" + appDomain + "\"\n\
 			rule = \"Host(`" + appDomain + "." + globalConf.dns + "`)\"\n\
 			[[http.routers." + appDomain + ".tls.domains]]\n\
-				main = \"*.nodea.studio\"\n\
+				main = \"*.newmips.studio\"\n\
 	[http.services.service-" + appDomain + "]\n\
 		[http.services.service-" + appDomain + ".loadBalancer]\n\
 			[[http.services.service-" + appDomain + ".loadBalancer.servers]]\n\

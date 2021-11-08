@@ -254,10 +254,10 @@ async function generateStack(data) {
 
 	// Setup cloud database conf
 	const cloudDbConf = {
-		dbName: "nodea_" + data.application.name,
-		dbUser: "nodea_" + data.application.name,
-		dbPwd: "nodea_" + data.application.name,
-		dbRootPwd: "nodea",
+		dbName: "newmips_" + data.application.name,
+		dbUser: "newmips_" + data.application.name,
+		dbPwd: "newmips_" + data.application.name,
+		dbRootPwd: "newmips",
 		dialect: data.appDialect
 	};
 
@@ -296,7 +296,7 @@ async function generateStack(data) {
 					"GIT_URL": data.git_url,
 					"APP_NAME": data.repoName,
 					"BRANCH": data.branch,
-					"NODEA_ENV": 'cloud',
+					"NPS_ENV": 'cloud',
 					"APP_DB_IP": chosenNetwork.databaseIP,
 					"APP_DB_PORT": dbPort,
 					"APP_DB_USER": cloudDbConf.dbUser,

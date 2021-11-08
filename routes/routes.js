@@ -178,7 +178,7 @@ router.post('/reset_password', block_access.loginAccess, function(req, res) {
 
 		await mailer.sendTemplate('reset_password', {
 			to: user.email,
-			subject: "Nodea - Réinitialisation de votre mot de passe",
+			subject: "Newmips - Réinitialisation de votre mot de passe",
 			data: {
 				user: user,
 				token: token

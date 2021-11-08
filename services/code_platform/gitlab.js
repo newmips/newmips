@@ -59,7 +59,7 @@ exports.initUser = async (user, password) => {
 
 		gitlabUser[0].accessToken = accessToken.name + ':' + accessToken.token;
 
-		// Access token is only available at this moment, so save it in Nodea database for later use
+		// Access token is only available at this moment, so save it in Newmips database for later use
 		await user.update({
 			repo_access_token: gitlabUser[0].accessToken
 		});
@@ -84,7 +84,7 @@ exports.initUser = async (user, password) => {
 			name: login,
 			password: password,
 			admin: false,
-			skip_confirmation: user.id == 1 // Skip confirmation email for admin user of Nodea
+			skip_confirmation: user.id == 1 // Skip confirmation email for admin user of Newmips
 		})
 	});
 
@@ -104,7 +104,7 @@ exports.initUser = async (user, password) => {
 
 	gitlabUser.accessToken = accessToken.name + ':' + accessToken.token;
 
-	// Access token is only available at this moment, so save it in Nodea database for later use
+	// Access token is only available at this moment, so save it in Newmips database for later use
 	await user.update({
 		repo_access_token: gitlabUser.accessToken
 	});
@@ -127,7 +127,7 @@ exports.getUser = async (user) => {
 		}
 	});
 
-	// Retrieve repo access token from Nodea database
+	// Retrieve repo access token from Newmips database
 	if(gitlabUser.length != 0)
 		gitlabUser[0].accessToken = user.repo_access_token;
 
@@ -150,7 +150,7 @@ exports.createProject = async (name, user) => {
 		body: JSON.stringify({
 			user_id: user.id,
 			name: name,
-			description: "A generated Nodea application.",
+			description: "A generated Newmips application.",
 			issues_access_level: 'enabled',
 			snippets_access_level: 'enabled',
 			merge_requests_access_level: 'enabled',
