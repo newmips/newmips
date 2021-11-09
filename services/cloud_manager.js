@@ -189,8 +189,9 @@ async function updateStack(data) {
 	return true;
 }
 
-// Ask portainer for current network, and analyse network availability on nodea_network_*
+// Ask portainer for current network, and analyse network availability on proxy_*
 async function getLastNodeaNetwork() {
+	console.log('CALL => getLastNodeaNetwork');
 	let allNetworks = await request(portainerCloudConfig.url + "/endpoints/1/docker/networks", {
 		method: "GET",
 		headers: {
@@ -199,11 +200,11 @@ async function getLastNodeaNetwork() {
 		}
 	});
 
-	allNetworks = allNetworks.filter(x => x.Name.includes('nodea_network'));
+	allNetworks = allNetworks.filter(x => x.Name.includes('proxy'));
 
 	let network_number = 0, network_id, network_name, network_baseIP;
 	for (let i = 0; i < allNetworks.length; i++) {
-		const number = parseInt(allNetworks[i].Name.split('nodea_network_')[1]);
+		const number = parseInt(allNetworks[i].Name.split('proxy_')[1]);
 		if(number > network_number) {
 			network_number = number;
 			network_id = allNetworks[i].Id;
@@ -282,7 +283,7 @@ async function generateStack(data) {
 			break;
 	}
 
-	// 7 - Getting last nodea_network_* available
+	// 7 - Getting last proxy_* available
 	const chosenNetwork = await getLastNodeaNetwork();
 
 	// 8 - Create docker-compose.yml file
