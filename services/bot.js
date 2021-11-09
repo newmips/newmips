@@ -31,9 +31,14 @@ exports.help = _ => {
 	return data;
 };
 
-exports.deploy = _ => {
-	const data = {};
+exports.deploy = result => {
+	const data = {
+		branch: 'master'
+	};
 	data.function = "deploy";
+	// Specific deploy branch
+	if(typeof result[1] !== "undefined")
+		data.branch = result[1].trim();
 	return data;
 };
 
@@ -1134,7 +1139,10 @@ const training = {
 	"deploy": [
 		"deploy",
 		"déployer",
-		"déploiement"
+		"déploiement",
+		"deploy (.*)",
+		"déployer (.*)",
+		"déploiement (.*)"
 	],
 	"restart": [
 		"restart server",
