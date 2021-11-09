@@ -6,7 +6,7 @@ const smsConf = {
 		appSecret: "",
 		consumerKey: ""
 	},
-	recette: {
+	test: {
 		appKey: "",
 		appSecret: "",
 		consumerKey: ""
@@ -16,17 +16,17 @@ const smsConf = {
 		appSecret: "",
 		consumerKey: ""
 	},
-	tablet: {
-		appKey: "",
-		appSecret: "",
-		consumerKey: ""
-	},
-	docker: {
+	studio: {
 		appKey: "",
 		appSecret: "",
 		consumerKey: ""
 	},
 	cloud: {
+		appKey: "",
+		appSecret: "",
+		consumerKey: ""
+	},
+	tablet: {
 		appKey: "",
 		appSecret: "",
 		consumerKey: ""

@@ -152,11 +152,6 @@
 									<a class="btn btn-app" id="restart-server" href="#">
 										<i class="fa fa-refresh"></i>{#__ key="preview.reload"/}
 									</a>
-									{@ne key=globalConf.env value="cloud"}
-										<a class="btn btn-app" target="_blank" href="https://github.com/newmips/newmips/issues/new">
-											<i class="fa fa-github"></i>{#__ key="preview.issue-button"/}
-										</a>
-									{/ne}
 									{@ifTrue key=isSupportChatEnabled}
 										<div class="btn btn-app" id="message-box" title="" data-toggle="tooltip" data-original-title="Support chat">
 											<i class="fa fa-comment"></i>

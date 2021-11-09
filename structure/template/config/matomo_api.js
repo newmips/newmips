@@ -11,7 +11,7 @@ const matomoApiConf = {
 		site_id: -1, // Available in matomo client
 		host_matomo: '' // https://matomo.newmips.com/matomo.php /!\ Expected to end with `matomo.php`
 	},
-	recette: {
+	test: {
 		enabled: false,
 		bulk_limit: 1000,
 		bulk_timeout: 1000,
@@ -29,7 +29,7 @@ const matomoApiConf = {
 		site_id: -1,
 		host_matomo: ''
 	},
-	tablet: {
+	studio: {
 		enabled: false,
 		bulk_limit: 1000,
 		bulk_timeout: 1000,
@@ -39,6 +39,15 @@ const matomoApiConf = {
 		host_matomo: ''
 	},
 	cloud: {
+		enabled: false,
+		bulk_limit: 1000,
+		bulk_timeout: 1000,
+		token_auth: '',
+		host: '',
+		site_id: -1,
+		host_matomo: ''
+	},
+	tablet: {
 		enabled: false,
 		bulk_limit: 1000,
 		bulk_timeout: 1000,

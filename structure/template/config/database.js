@@ -2,28 +2,44 @@ const globalConf = require('./global');
 
 const databaseConf = {
 	develop: {
-		host: '127.0.0.1',
-		port: '3306', //mysql: 3306 - postgres: 5432
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql' //mysql or postgres
+		host: process.env.APP_DB_IP || process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.APP_DB_PORT || '3306', // mysql: 3306 - postgres: 5432
+		user: process.env.APP_DB_USER || 'newmips',
+		password: process.env.APP_DB_PWD || 'newmips',
+		database: process.env.APP_DB_NAME || 'newmips',
+		dialect: process.env.APP_DB_DIALECT || 'mysql'
 	},
-	recette: {
-		host: '127.0.0.1',
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
+	test: {
+		host: process.env.APP_DB_IP || process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.APP_DB_PORT || '3306', // mysql: 3306 - postgres: 5432
+		user: process.env.APP_DB_USER || 'newmips',
+		password: process.env.APP_DB_PWD || 'newmips',
+		database: process.env.APP_DB_NAME || 'newmips',
+		dialect: process.env.APP_DB_DIALECT || 'mysql'
 	},
 	production: {
-		host: '127.0.0.1',
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
+		host: process.env.APP_DB_IP || process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.APP_DB_PORT || '3306', // mysql: 3306 - postgres: 5432
+		user: process.env.APP_DB_USER || 'newmips',
+		password: process.env.APP_DB_PWD || 'newmips',
+		database: process.env.APP_DB_NAME || 'newmips',
+		dialect: process.env.APP_DB_DIALECT || 'mysql'
+	},
+	studio: {
+		host: process.env.APP_DB_IP || process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.APP_DB_PORT || '3306', // mysql: 3306 - postgres: 5432
+		user: process.env.APP_DB_USER || 'newmips',
+		password: process.env.APP_DB_PWD || 'newmips',
+		database: process.env.APP_DB_NAME || 'newmips',
+		dialect: process.env.APP_DB_DIALECT || 'mysql'
+	},
+	cloud: {
+		host: process.env.APP_DB_IP || process.env.DATABASE_IP || '127.0.0.1',
+		port: process.env.APP_DB_PORT || '3306', // mysql: 3306 - postgres: 5432
+		user: process.env.APP_DB_USER || 'newmips',
+		password: process.env.APP_DB_PWD || 'newmips',
+		database: process.env.APP_DB_NAME || 'newmips',
+		dialect: process.env.APP_DB_DIALECT || 'mysql'
 	},
 	tablet: {
 		dialect: 'sqlite',
@@ -31,22 +47,6 @@ const databaseConf = {
 		// storage: process.env.CORDOVA_APP_DIR + '/../Library/LocalDatabase/newmips.db'
 		// ANDROID :
 		storage: __dirname + '/newmips.db'
-	},
-	docker: {
-		host: process.env.DATABASE_IP || 'database',
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
-	},
-	cloud: {
-		host: process.env.DATABASE_IP || 'database',
-		port: '3306',
-		user: 'newmips',
-		password: 'newmips',
-		database: 'newmips',
-		dialect: 'mysql'
 	}
 }
 

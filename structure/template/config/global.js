@@ -10,35 +10,15 @@ const config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		localstorage: __dirname + "/../upload/",
-		authStrategy: 'local',
-		thumbnail: {
-			folder: 'thumbnail/',
-			height: 30,
-			width: 30,
-			quality: 60
-		},
-		pictureField: {
-			height: 200, //px
-			width: 200
-		}
+		authStrategy: process.env.AUTH || 'local'
 	},
-	recette: {
-		env: 'recette',
+	test: {
+		env: 'test',
 		protocol: 'https',
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		localstorage: "/var/data/localstorage/",
-		authStrategy: 'local',
-		thumbnail: {
-			folder: 'thumbnail/',
-			height: 30,
-			width: 30,
-			quality: 60
-		},
-		pictureField: {
-			height: 200, //px
-			width: 200
-		},
+		authStrategy: process.env.AUTH || 'local',
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
@@ -51,67 +31,21 @@ const config = {
 		host: '127.0.0.1',
 		port: process.env.PORT || 1337,
 		localstorage: "/var/data/localstorage/",
-		authStrategy: 'local',
-		thumbnail: {
-			folder: 'thumbnail/',
-			height: 30,
-			width: 30,
-			quality: 60
-		},
-		pictureField: {
-			height: 200, //px
-			width: 200
-		},
+		authStrategy: process.env.AUTH || 'local',
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
 			passphrase: ''
 		}
 	},
-	tablet: {
-		env: 'tablet',
+	studio: {
+		env: 'studio',
 		protocol: 'http',
-		protocol_iframe: 'https',
-		host: '127.0.0.1',
-		localstorage: __dirname + "/../upload/",
-		syncfolder: __dirname + '/../sync/',
-		port: process.env.PORT || 1338,
-		authStrategy: 'local',
-		thumbnail: {
-			folder: 'thumbnail/',
-			height: 30,
-			width: 30,
-			quality: 60
-		},
-		pictureField: {
-			height: 200, //px
-			width: 200
-		},
-		ssl: {
-			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
-			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
-			passphrase: ''
-		}
-	},
-	docker: {
-		env: 'docker',
-		protocol: 'http',
-		protocol_iframe: 'http',
 		host: '127.0.0.1',
 		localstorage: __dirname + "/../upload/",
 		syncfolder: __dirname + '/../sync/',
 		port: process.env.PORT || 1337,
-		authStrategy: 'local',
-		thumbnail: {
-			folder: 'thumbnail/',
-			height: 30,
-			width: 30,
-			quality: 60
-		},
-		pictureField: {
-			height: 200, //px
-			width: 200
-		},
+		authStrategy: process.env.AUTH || 'local',
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
@@ -121,22 +55,25 @@ const config = {
 	cloud: {
 		env: 'cloud',
 		protocol: 'http',
-		protocol_iframe: 'https',
 		host: '127.0.0.1',
 		localstorage: __dirname + "/../upload/",
 		syncfolder: __dirname + '/../sync/',
 		port: process.env.PORT || 1337,
-		authStrategy: 'local',
-		thumbnail: {
-			folder: 'thumbnail/',
-			height: 30,
-			width: 30,
-			quality: 60
-		},
-		pictureField: {
-			height: 200, //px
-			width: 200
-		},
+		authStrategy: process.env.AUTH || 'local',
+		ssl: {
+			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
+			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",
+			passphrase: ''
+		}
+	},
+	tablet: {
+		env: 'tablet',
+		protocol: 'http',
+		host: '127.0.0.1',
+		localstorage: __dirname + "/../upload/",
+		syncfolder: __dirname + '/../sync/',
+		port: process.env.PORT || 1338,
+		authStrategy: process.env.AUTH || 'local',
 		ssl: {
 			key: /*fs.readFileSync('./cacerts/private.key')*/ "fakeKey",
 			cert: /*fs.readFileSync('./cacerts/wildcard_newmips.crt')*/ "fakeCert",

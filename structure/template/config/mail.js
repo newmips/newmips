@@ -11,11 +11,10 @@ const mailConf = {
 				pass: ''
 			}
 		},
-		expediteur: 'Newmips App <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
+		from: 'Newmips App <no-reply@newmips.com>',
 		host: 'http://127.0.0.1:' + globalConf.port
 	},
-	recette: {
+	test: {
 		transport: {
 			host: 'mail',
 			port: 465,
@@ -25,8 +24,7 @@ const mailConf = {
 				pass: ''
 			}
 		},
-		expediteur: 'Newmips App <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
+		from: 'Newmips App <no-reply@newmips.com>',
 		host: 'host'
 	},
 	production: {
@@ -39,11 +37,10 @@ const mailConf = {
 				pass: ''
 			}
 		},
-		expediteur: 'Newmips App <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
+		from: 'Newmips App <no-reply@newmips.com>',
 		host: 'host'
 	},
-	tablet: {
+	studio: {
 		transport: {
 			host: 'mail',
 			port: 465,
@@ -53,22 +50,7 @@ const mailConf = {
 				pass: ''
 			}
 		},
-		expediteur: 'Newmips App <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
-		host: 'host'
-	},
-	docker: {
-		transport: {
-			host: 'mail',
-			port: 465,
-			secure: true,
-			auth: {
-				user: '',
-				pass: ''
-			}
-		},
-		expediteur: 'Newmips App <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
+		from: 'Newmips App <no-reply@newmips.com>',
 		host: 'host'
 	},
 	cloud: {
@@ -81,8 +63,20 @@ const mailConf = {
 				pass: ''
 			}
 		},
-		expediteur: 'Newmips App <no-reply@newmips.com>',
-		administrateur: 'Responsable Newmips <contact@newmips.com>',
+		from: 'Newmips App <no-reply@newmips.com>',
+		host: 'host'
+	},
+	tablet: {
+		transport: {
+			host: 'mail',
+			port: 465,
+			secure: true,
+			auth: {
+				user: '',
+				pass: ''
+			}
+		},
+		from: 'Newmips App <no-reply@newmips.com>',
 		host: 'host'
 	}
 }
