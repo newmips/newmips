@@ -291,7 +291,7 @@ async function generateStack(data) {
 		"services": {
 			"application": {
 				"container_name": data.stackName + '_app',
-				"image": "nodeasoftware/application:latest",
+				"image": "nodeasoftware/application_newmips:latest",
 				"environment": {
 					"GIT_URL": data.git_url,
 					"APP_NAME": data.repoName,
@@ -452,18 +452,18 @@ exports.deploy = async (data) => {
 	// public/version.txt generation
 	const deployVersion = applicationConf.version + "b" + applicationConf.build;
 	const versionTxtContent = moment().format('YYYY-MM-DD HH:mm') + " - " + deployVersion;
-	fs.writeFileSync(workspacePath + '/app/public/version.txt', versionTxtContent, 'utf8');
+	fs.writeFileSync(workspacePath + '/public/version.txt', versionTxtContent, 'utf8');
 
 	// Workspace database dialect
 	data.appDialect = require(workspacePath + '/config/database').dialect; // eslint-disable-line
 
 	// Create toSyncProd.lock file
-	if (fs.existsSync(workspacePath + '/app/models/toSyncProd.lock.json'))
-		fs.unlinkSync(workspacePath + '/app/models/toSyncProd.lock.json');
-	fs.copySync(workspacePath + '/app/models/toSyncProd.json', workspacePath + '/app/models/toSyncProd.lock.json');
+	if (fs.existsSync(workspacePath + '/models/toSyncProd.lock.json'))
+		fs.unlinkSync(workspacePath + '/models/toSyncProd.lock.json');
+	fs.copySync(workspacePath + '/models/toSyncProd.json', workspacePath + '/models/toSyncProd.lock.json');
 
 	// Clear toSyncProd (not locked) file
-	fs.writeFileSync(workspacePath + '/app/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
+	fs.writeFileSync(workspacePath + '/models/toSyncProd.json', JSON.stringify({queries: []}, null, 4), 'utf8');
 
 	// Push on git before deploy
 	await gitHelper.gitCommit(data);
