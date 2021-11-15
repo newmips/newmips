@@ -50,6 +50,20 @@ async function authenticate() {
 	return "Bearer " + callResults.jwt;
 }
 
+async function getDockerEndpointID() {
+	console.log('CALL => getDockerEndpointID');
+	let allEndpoint = await request(portainerCloudConfig.url + "/endpoints", {
+		method: "GET",
+		headers: {
+			'Content-Type': 'multipart/form-data',
+			'Authorization': token
+		}
+	});
+
+	console.log(allEndpoint.find(x => x.Name == 'local').Id);
+	return allEndpoint.find(x => x.Name == 'local').Id;
+}
+
 async function getStack(stackName) {
 
 	console.log("CALL => Stack list");
@@ -120,7 +134,7 @@ async function generateCloneUrl(data) {
 
 async function updateStack(data) {
 
-	const allContainers = await request(portainerCloudConfig.url + "/endpoints/1/docker/containers/json", {
+	const allContainers = await request(portainerCloudConfig.url + "/endpoints/" + data.endpointID + "/docker/containers/json", {
 		method: "GET",
 		headers: {
 			'Content-Type': 'multipart/form-data',
@@ -144,7 +158,7 @@ async function updateStack(data) {
 	data.git_url = await generateCloneUrl(data);
 
 	console.log("CALL => Docker container exec flag update");
-	const execCmd = await request(portainerCloudConfig.url + "/endpoints/1/docker/containers/" + ourContainerID + "/exec", {
+	const execCmd = await request(portainerCloudConfig.url + "/endpoints/" + data.endpointID + "/docker/containers/" + ourContainerID + "/exec", {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -164,7 +178,7 @@ async function updateStack(data) {
 		})
 	});
 
-	await request(portainerCloudConfig.url + "/endpoints/1/docker/exec/" + execCmd.Id + "/start", {
+	await request(portainerCloudConfig.url + "/endpoints/" + data.endpointID + "/docker/exec/" + execCmd.Id + "/start", {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -177,7 +191,7 @@ async function updateStack(data) {
 	});
 
 	console.log("CALL => Docker container restart");
-	await request(portainerCloudConfig.url + "/endpoints/1/docker/containers/" + ourContainerID + "/restart", {
+	await request(portainerCloudConfig.url + "/endpoints/" + data.endpointID + "/docker/containers/" + ourContainerID + "/restart", {
 		method: "POST",
 		headers: {
 			'Content-Type': 'multipart/form-data',
@@ -190,9 +204,10 @@ async function updateStack(data) {
 }
 
 // Ask portainer for current network, and analyse network availability on proxy_*
-async function getLastNodeaNetwork() {
+async function getLastNodeaNetwork(data) {
 	console.log('CALL => getLastNodeaNetwork');
-	let allNetworks = await request(portainerCloudConfig.url + "/endpoints/1/docker/networks", {
+
+	let allNetworks = await request(portainerCloudConfig.url + "/endpoints/" + data.endpointID + "/docker/networks", {
 		method: "GET",
 		headers: {
 			'Content-Type': 'multipart/form-data',
@@ -204,7 +219,9 @@ async function getLastNodeaNetwork() {
 
 	let network_number = 0, network_id, network_name, network_baseIP;
 	for (let i = 0; i < allNetworks.length; i++) {
-		const number = parseInt(allNetworks[i].Name.split('proxy_')[1]);
+		if(allNetworks[i].Name == 'proxy')
+			continue;
+		const number = parseInt(allNetworks[i].Name.split('proxy')[1]);
 		if(number > network_number) {
 			network_number = number;
 			network_id = allNetworks[i].Id;
@@ -213,7 +230,7 @@ async function getLastNodeaNetwork() {
 		}
 	}
 
-	const inspectNetwork = await request(portainerCloudConfig.url + "/endpoints/1/docker/networks/" + network_id, {
+	const inspectNetwork = await request(portainerCloudConfig.url + "/endpoints/" + data.endpointID + "/docker/networks/" + network_id, {
 		method: "GET",
 		headers: {
 			'Content-Type': 'multipart/form-data',
@@ -238,6 +255,12 @@ async function getLastNodeaNetwork() {
 		}
 	}
 
+	console.log({
+		name: network_name,
+		appIP: network_baseIP + appIP,
+		databaseIP: network_baseIP + databaseIP
+	});
+
 	return {
 		name: network_name,
 		appIP: network_baseIP + appIP,
@@ -251,7 +274,7 @@ async function generateStack(data) {
 	data.git_url = await generateCloneUrl(data);
 
 	// Generate final deployed app cloud URL
-	const cloudUrl = data.stackName + "." + globalConf.dns_cloud;
+	const cloudUrl = data.stackName + "-cloud." + globalConf.dns_cloud;
 
 	// Setup cloud database conf
 	const cloudDbConf = {
@@ -284,7 +307,7 @@ async function generateStack(data) {
 	}
 
 	// 7 - Getting last proxy_* available
-	const chosenNetwork = await getLastNodeaNetwork();
+	const chosenNetwork = await getLastNodeaNetwork(data);
 
 	// 8 - Create docker-compose.yml file
 	const composeContent = json2yaml.stringify({
@@ -366,7 +389,7 @@ async function generateStack(data) {
 	});
 
 	console.log("CALL => Stack generation");
-	return await request(portainerCloudConfig.url + "/stacks?type=2&method=string&endpointId=1", {
+	return await request(portainerCloudConfig.url + "/stacks?type=2&method=string&endpointId=" + data.endpointID, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'multipart/form-data',
@@ -412,6 +435,8 @@ async function portainerDeploy(data){
 
 	// Trying to get if exist the current stack in cloud portainer
 	data.currentStack = await getStack(data.stackName);
+	data.endpointID = await getDockerEndpointID();
+
 	if(!data.currentStack){
 		// Generate new cloud stack
 		console.log("NO STACK FOUND => GENERATING IT...");
@@ -424,7 +449,7 @@ async function portainerDeploy(data){
 
 	console.log("DEPLOY DONE");
 	return {
-		url: "/waiting?redirect=https://" + data.stackName + "." + globalConf.dns_cloud
+		url: "/waiting?redirect=https://" + data.stackName + "-cloud." + globalConf.dns_cloud
 	};
 }
 
