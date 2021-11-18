@@ -3,6 +3,7 @@
     "ansi-to-html": "^0.7.2",
     "bcrypt-nodejs": "^0.0.3",
     "connect-flash": "^0.1.1",
+    "connect-pg-simple": "^7.0.0",
     "consolidate": "^0.16.0",
     "cookie-parser": "^1.4.5",
     "cross-spawn": "^7.0.3",

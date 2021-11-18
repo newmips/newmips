@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const crypto = require("crypto");
 const path = require('path');
+const exec = require('child_process');
 
 function rmdirSyncRecursive(path) {
 	if (fs.existsSync(path)) {
@@ -79,16 +80,17 @@ function readdirSyncRecursive(path, excludeFolder, excludeFile) {
 }
 
 // Returns a flat array of absolute paths of all files recursively contained in the dir
-// Using JSZIP module
-function buildZipFromDirectory(dir, zip, root) {
+function buildZipFromDirectory(dir, zip, root, excludedFiles = []) {
 	const list = fs.readdirSync(dir);
 
 	for (let file of list) {
 		file = path.resolve(dir, file)
 		const stat = fs.statSync(file)
 		if (stat && stat.isDirectory()) {
-			this.buildZipFromDirectory(file, zip, root)
+			this.buildZipFromDirectory(file, zip, root, excludedFiles)
 		} else {
+			if(excludedFiles.filter(x => file.includes(x)).length != 0)
+				continue;
 			const filedata = fs.readFileSync(file);
 			zip.file(path.relative(root, file), filedata);
 		}
@@ -101,8 +103,7 @@ module.exports = {
 		let crypted = cipher.update(text, 'utf8', 'hex');
 		crypted += cipher.final('hex');
 		return crypted;
-	}
-	,
+	},
 	decrypt: function (text) {
 		const decipher = crypto.createDecipher('aes-256-cbc', 'd6F3Efeq');
 		let dec = decipher.update(text, 'hex', 'utf8');
@@ -207,6 +208,44 @@ module.exports = {
 		}
 		return false;
 	},
+	exec: (cmd, args, cwd = undefined) => new Promise((resolve, reject) => {
+		// Exec instruction
+		const childProcess = exec.spawn(cmd, args, {
+			shell: true,
+			detached: true,
+			cwd: cwd
+		});
+		childProcess.stdout.setEncoding('utf8');
+		childProcess.stderr.setEncoding('utf8');
+
+		// Child Success output
+		childProcess.stdout.on('data', stdout => {
+			console.log(stdout);
+		});
+
+		// Child Error output
+		childProcess.stderr.on('data', stderr => {
+			// Avoid reject if only warning
+			if (stderr.toLowerCase().indexOf("warning") || stderr.toLowerCase().indexOf("warn")) {
+				console.warn(stderr)
+				return;
+			}
+			childProcess.kill();
+			reject(stderr);
+		});
+
+		// Child error
+		childProcess.on('error', error => {
+			console.error(error);
+			childProcess.kill();
+			reject(error);
+		});
+
+		// Child close
+		childProcess.on('close', _ => {
+			resolve();
+		});
+	}),
 	rmdirSyncRecursive: rmdirSyncRecursive,
 	readdirSyncRecursive: readdirSyncRecursive,
 	sortEditorFolder: sortEditorFolder,

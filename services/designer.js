@@ -130,6 +130,28 @@ exports.gitStatus = async (data) => {
 	};
 }
 
+exports.gitBranch = async (data) => {
+	if(!gitHelper.isGitActivated())
+		throw new Error('structure.global.error.notDoGit');
+	const infoGit = await gitHelper.gitBranch(data);
+	return {
+		message: "Branche actuelle => " + infoGit,
+		branch: infoGit,
+		restartServer: false
+	};
+}
+
+exports.gitCheckout = async (data) => {
+	if(!gitHelper.isGitActivated())
+		throw new Error('structure.global.error.notDoGit');
+	const infoGit = await gitHelper.gitCheckout(data);
+	return {
+		message: infoGit.message ? infoGit.message : "Passage sur la branche " + infoGit.branch,
+		branch: infoGit.branch,
+		restartServer: false
+	};
+}
+
 /* --------------------------------------------------------------- */
 /* ----------------------- Application --------------------------- */
 /* --------------------------------------------------------------- */

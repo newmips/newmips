@@ -1,6 +1,6 @@
 {
-	"version": 0,
-	"versionAppli": "1",
+	"version": "1.0.0",
+	"build": 0,
 	"api_enabled": true,
 	"socket": {
 		"enabled": true,

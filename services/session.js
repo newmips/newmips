@@ -20,7 +20,8 @@ exports.getSession = req => {
 		entity: {
 			name: entity ? entity.displayName : null,
 			noEntity: language(req.session.lang_user).__("preview.session.noEntity")
-		}
+		},
+		git_branch: req.session.git_branch ? req.session.git_branch : 'master'
 	};
 }
 
@@ -85,6 +86,12 @@ exports.setSession = (npFunction, req, info, data) => {
 				iframeUrl = data.iframe_url.split("/");
 				data.iframe_url = iframeUrl[0] + "//" + iframeUrl[2] + "/default/home";
 			}
+			break;
+		case "gitBranch":
+			req.session.git_branch = info.branch;
+			break;
+		case "gitCheckout":
+			req.session.git_branch = info.branch;
 			break;
 		default:
 			break;

@@ -85,6 +85,21 @@ exports.gitStatus = _ => {
 	return data;
 };
 
+exports.gitBranch = _ => {
+	const data = {};
+	data.function = "gitBranch";
+	return data;
+};
+
+exports.gitCheckout = result => {
+	const data = {
+		asked_branch: result[1].trim()
+	};
+
+	data.function = "gitCheckout";
+	return data;
+};
+
 // ******* SELECT Actions ******* //
 
 exports.selectApplication = result => {
@@ -1183,6 +1198,12 @@ const training = {
 	],
 	"gitStatus": [
 		"git status"
+	],
+	"gitBranch": [
+		"git branch"
+	],
+	"gitCheckout": [
+		"git checkout (.*)"
 	],
 	"selectApplication": [
 		"select application (.*)",

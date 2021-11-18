@@ -161,6 +161,8 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 	req.session.app_name = appName;
 	req.session.module_name = 'm_home';
 	req.session.entity_name = null;
+	if(!req.session.git_branch)
+		req.session.git_branch = 'master';
 
 	let data = {
 		application: metadata.getApplication(appName),
@@ -183,7 +185,7 @@ router.get('/preview/:app_name', block_access.hasAccessApplication, (req, res) =
 		if (process_server_per_app[appName] == null || typeof process_server_per_app[appName] === "undefined")
 			process_server_per_app[appName] = process_manager.launchChildProcess(req.sessionID, appName, port);
 
-		data.session = session_manager.getSession(req)
+		data.session = session_manager.getSession(req);
 
 		const initialTimestamp = new Date().getTime();
 		let iframe_url = globalConf.protocol + '://';
@@ -245,7 +247,8 @@ router.post('/fastpreview', block_access.hasAccessApplication, (req, res) => {
 	const currentUserID = req.session.passport.user.id;
 	let data = {
 		currentUser: req.session.passport.user,
-		code_platform: req.session.code_platform
+		code_platform: req.session.code_platform,
+		git_branch: req.session.git_branch
 	};
 
 	(async () => {

@@ -291,6 +291,9 @@ $(document).ready(function() {
                 else
                     $(".sessionEntityInfo").text(" " + data.session.entity.noEntity);
 
+                if (typeof data.session.git_branch !== "undefined" && data.session.git_branch != null)
+                    $(".sessionGitBranchInfo").text(" " + data.session.git_branch);
+
                 // Keep instructionHistory up to date
                 instructionHistory = JSON.parse(localStorage.getItem("newmips_given_instruction_history_" + appName));
                 indexInstructionSelected = instructionHistory !== null ? instructionHistory.length : 0;

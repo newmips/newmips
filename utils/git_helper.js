@@ -165,7 +165,8 @@ module.exports = {
 			console.log("GIT => PUSH " + repoInfo.origin);
 			gitProcesses[repoInfo.origin].isProcessing = true;
 			try {
-				await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.push(['-u', repoInfo.origin, 'master']);
+				const branch = data.git_branch ? data.git_branch : 'master';
+				await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.push(['-u', repoInfo.origin, branch]);
 				gitProcesses[repoInfo.origin].isProcessing = false;
 			} catch(err) {
 				gitProcesses[repoInfo.origin].isProcessing = false;
@@ -193,7 +194,8 @@ module.exports = {
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
 		try {
-			const pullSummary = await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.pull(repoInfo.origin, "master")
+			const branch = data.git_branch ? data.git_branch : 'master';
+			const pullSummary = await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.pull(repoInfo.origin, branch)
 			console.log(pullSummary);
 			gitProcesses[repoInfo.origin].isProcessing = false;
 		} catch(err) {
@@ -288,7 +290,8 @@ module.exports = {
 		gitProcesses[repoInfo.origin].isProcessing = true;
 		try {
 			await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.addAnnotatedTag(tagName, 'Tagging ' + tagName);
-			await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.pushTags(['-u', repoInfo.origin, 'master']);
+			const branch = data.git_branch ? data.git_branch : 'master';
+			await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.pushTags(['-u', repoInfo.origin, branch]);
 		} catch(err) {
 			gitProcesses[repoInfo.origin].isProcessing = false;
 			throw err;
@@ -343,11 +346,49 @@ module.exports = {
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
 		try {
-			await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.fetch('-a');
-			await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.pull();
-			const branch = await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.branch(['-a']);
+			const allBranches = await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.branch();
+			// Cleaning for Mipsy
+			let answer;
+			for (const branch in allBranches.branches) {
+				const item = allBranches.branches[branch];
+				if(item.current){
+					answer = item.name.replace(/\"/g, '');
+					break;
+				}
+			}
 			gitProcesses[repoInfo.origin].isProcessing = false;
-			return branch;
+			return answer;
+		} catch(err) {
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			throw err;
+		}
+	},
+	gitCheckout: async (data) => {
+
+		if(!checkRequirements(data))
+			return;
+
+		const appName = data.application.name
+		const repoInfo = await getRepoInfo(appName);
+
+		// Workspace path
+		const workspacePath = __dirname + '/../workspace/' + appName;
+		initRepoGitProcess(repoInfo, data, workspacePath);
+
+		if (gitProcesses[repoInfo.origin].isProcessing)
+			throw new Error('structure.global.error.alreadyInProcessGit');
+
+		console.log("GIT => CHECKOUT " + data.asked_branch);
+
+		// Set gitProcesses to prevent any other git command during this process
+		gitProcesses[repoInfo.origin].isProcessing = true;
+		try {
+			const result = await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.checkout(data.asked_branch);
+			gitProcesses[repoInfo.origin].isProcessing = false;
+			return {
+				message: result,
+				branch: data.asked_branch
+			};
 		} catch(err) {
 			gitProcesses[repoInfo.origin].isProcessing = false;
 			throw err;

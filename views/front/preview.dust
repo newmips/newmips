@@ -144,6 +144,8 @@
 										{:else}
 											{#__ key="entity.label"/} :<b class="sessionEntityInfo">&nbsp;{#__ key="preview.session.noEntity"/}</b>
 										{/entity.name}
+										<br>
+										Git branch : <b class="sessionGitBranchInfo">&nbsp;{git_branch}</b>
 									{/session}
 								</div>
 							</div>
