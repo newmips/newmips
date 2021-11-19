@@ -383,6 +383,7 @@ module.exports = {
 		// Set gitProcesses to prevent any other git command during this process
 		gitProcesses[repoInfo.origin].isProcessing = true;
 		try {
+			await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.fetch('-a');
 			const result = await gitProcesses[repoInfo.origin][data.currentUser.id].simpleGit.checkout(data.asked_branch);
 			gitProcesses[repoInfo.origin].isProcessing = false;
 			return {
