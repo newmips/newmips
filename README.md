@@ -1,6 +1,9 @@
 <p align="center">
-	<img width="150" height="150" src="https://raw.githubusercontent.com/newmips/newmips/dev/public/img/FAVICON-GRAND-01.png">
+	<img width="280" height="125" src="https://www.newmips.com/assets/img/logos/logo_newmips_blanc.png">
 </p>
+<br>
+<p align="center">⚠ Newmips generator is no longer maintained! ⚠ <br>Thank you for heading to the new version which is now called Nodea Software!<br> https://github.com/nodea-software/nodea </p>
+<br>
 
 # Newmips
 
